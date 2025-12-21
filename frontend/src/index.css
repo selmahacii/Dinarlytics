@@ -1,0 +1,445 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Configuration de la police principale */
+@layer base {
+  * {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  body {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-color: #f8fafc;
+  }
+}
+
+/* Utilitaires projet (largeurs spécifiques et délais d'animation) */
+@layer utilities {
+  /* Paliers 12.5% pour barres de progression */
+  .w-step-1 { width: 12.5%; }
+  .w-step-2 { width: 25%; }
+  .w-step-3 { width: 37.5%; }
+  .w-step-4 { width: 50%; }
+  .w-step-5 { width: 62.5%; }
+  .w-step-6 { width: 75%; }
+  .w-step-7 { width: 87.5%; }
+  .w-step-8 { width: 100%; }
+
+  /* Pourcentages fixes utilisés dans les jauges */
+  .w-20p { width: 20%; }
+  .w-40p { width: 40%; }
+  .w-60p { width: 60%; }
+  .w-80p { width: 80%; }
+  .w-94p { width: 94%; }
+  .w-100p { width: 100%; }
+
+  /* Largeurs 0–100% par pas de 5 pour barres dynamiques (sans style inline) */
+  .w-pct-0 { width: 0%; }
+  .w-pct-5 { width: 5%; }
+  .w-pct-10 { width: 10%; }
+  .w-pct-15 { width: 15%; }
+  .w-pct-20 { width: 20%; }
+  .w-pct-25 { width: 25%; }
+  .w-pct-30 { width: 30%; }
+  .w-pct-35 { width: 35%; }
+  .w-pct-40 { width: 40%; }
+  .w-pct-45 { width: 45%; }
+  .w-pct-50 { width: 50%; }
+  .w-pct-55 { width: 55%; }
+  .w-pct-60 { width: 60%; }
+  .w-pct-65 { width: 65%; }
+  .w-pct-70 { width: 70%; }
+  .w-pct-75 { width: 75%; }
+  .w-pct-80 { width: 80%; }
+  .w-pct-85 { width: 85%; }
+  .w-pct-90 { width: 90%; }
+  .w-pct-95 { width: 95%; }
+  .w-pct-100 { width: 100%; }
+
+  /* Délai d'animation utilitaires */
+  .animation-delay-0 { animation-delay: 0ms; }
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-150 { animation-delay: 150ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-400 { animation-delay: 400ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+  .animation-delay-600 { animation-delay: 600ms; }
+  .animate-delay-1000 { animation-delay: 1s; }
+}
+
+/* Styles pour les barres de défilement personnalisées */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thumb-slate-300::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 0.5rem;
+  }
+  
+  .scrollbar-track-slate-100::-webkit-scrollbar-track {
+    background-color: #f1f5f9;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 0.5rem;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: #f1f5f9;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Animations personnalisées */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-down {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Classes utilitaires pour les animations */
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.5s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s ease-out;
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s ease-out;
+}
+
+.animate-slide-in-down {
+  animation: slide-in-down 0.5s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s ease-out;
+}
+
+/* Effets de glassmorphism */
+.glassmorphism-card {
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glassmorphism-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Transitions fluides */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-bounce {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.transition-elastic {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ========================================
+   PALETTE SLATE PROFESSIONNELLE
+   Thème par défaut élégant et moderne
+   ======================================== */
+
+:root {
+  /* Couleurs principales - Palette Slate Professionnelle */
+  --theme-primary: #0f172a;        /* Slate 900 - Élégant et professionnel */
+  --theme-secondary: #334155;      /* Slate 700 - Secondaire raffiné */
+  --theme-accent: #10b981;         /* Emerald 500 - Accent moderne et premium */
+  
+  /* Couleurs de fond */
+  --theme-bg: #ffffff;             /* Blanc pur - Fond principal */
+  --theme-surface: #f8fafc;        /* Slate 50 - Surface douce */
+  --theme-surface-variant: #f1f5f9; /* Slate 100 - Variante subtile */
+  
+  /* Couleurs de texte */
+  --theme-text-primary: #0f172a;   /* Slate 900 - Texte principal */
+  --theme-text-secondary: #475569; /* Slate 600 - Texte secondaire */
+  --theme-text-disabled: #94a3b8;  /* Slate 400 - Texte désactivé */
+  
+  /* Couleurs d'état */
+  --theme-success: #10b981;        /* Emerald 500 - Succès */
+  --theme-warning: #f59e0b;        /* Amber 500 - Avertissement */
+  --theme-error: #ef4444;          /* Red 500 - Erreur */
+  --theme-info: #3b82f6;           /* Blue 500 - Information */
+  
+  /* Couleurs de bordure */
+  --theme-border: #e2e8f0;         /* Slate 200 - Bordure principale */
+  --theme-border-variant: #cbd5e1; /* Slate 300 - Variante de bordure */
+  
+  /* Couleurs d'interaction */
+  --theme-hover: #f1f5f9;          /* Slate 100 - Survol */
+  --theme-active: #e2e8f0;         /* Slate 200 - Actif */
+  --theme-focus: #10b981;          /* Emerald 500 - Focus */
+  
+  /* Gradients professionnels */
+  --gradient-primary: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  --gradient-accent: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-surface: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  
+  /* Ombres élégantes */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.07);
+  --shadow-lg: 0 10px 15px rgba(15, 23, 42, 0.1);
+  --shadow-xl: 0 20px 25px rgba(15, 23, 42, 0.15);
+  --shadow-2xl: 0 25px 50px rgba(15, 23, 42, 0.25);
+}
+
+/* ========================================
+   MODE SOMBRE PROFESSIONNEL
+   Version sombre élégante
+   ======================================== */
+
+.dark {
+  /* Couleurs principales */
+  --theme-primary: #10b981;        /* Emerald 500 - Primaire lumineux */
+  --theme-secondary: #64748b;      /* Slate 500 - Secondaire */
+  --theme-accent: #34d399;         /* Emerald 400 - Accent */
+  
+  /* Couleurs de fond */
+  --theme-bg: #020617;             /* Slate 950 - Fond très sombre */
+  --theme-surface: #0f172a;        /* Slate 900 - Surface */
+  --theme-surface-variant: #1e293b; /* Slate 800 - Variante */
+  
+  /* Couleurs de texte */
+  --theme-text-primary: #f8fafc;   /* Slate 50 - Texte principal */
+  --theme-text-secondary: #cbd5e1; /* Slate 300 - Texte secondaire */
+  --theme-text-disabled: #64748b;  /* Slate 500 - Texte désactivé */
+  
+  /* Couleurs de bordure */
+  --theme-border: #1e293b;         /* Slate 800 - Bordure */
+  --theme-border-variant: #334155; /* Slate 700 - Variante */
+  
+  /* Couleurs d'interaction */
+  --theme-hover: #1e293b;          /* Slate 800 - Survol */
+  --theme-active: #334155;         /* Slate 700 - Actif */
+  
+  /* Gradients sombres */
+  --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-accent: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  --gradient-surface: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  
+  /* Ombres adaptées au mode sombre */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.7);
+}
+
+/* Styles personnalisés pour la barre de défilement */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animation pour la sidebar */
+.sidebar-transition {
+  transition: all 0.3s ease-in-out;
+}

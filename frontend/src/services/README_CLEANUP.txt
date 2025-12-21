@@ -1,0 +1,1 @@
+Supprimer tous les services statiques (StaticAIModel.ts, StaticBilanGenerator.ts). Les services doivent appeler le backend.

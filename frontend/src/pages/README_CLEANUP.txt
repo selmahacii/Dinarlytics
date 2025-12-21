@@ -1,0 +1,1 @@
+Supprimer les pages DemoLogin.tsx, GestionComptable.tsx, MobileFeatures.tsx, SuiviLivraisons.tsx si elles ne sont pas dynamiques ou connectées au backend.

@@ -1,0 +1,139 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+export interface Article {
+  id: string;
+  name: string;
+  description?: string;
+  sku?: string;
+  barcode?: string;
+  category?: string;
+  unit_price: number;
+  cost_price?: number;
+  tax_rate?: number;
+  stock_quantity?: number;
+  min_stock_level?: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ArticleStats {
+  total_articles: number;
+  active_articles: number;
+  low_stock_count: number;
+  out_of_stock_count: number;
+  total_inventory_value: number;
+  categories: Array<{
+    name: string;
+    count: number;
+  }>;
+  top_selling: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+  }>;
+}
+
+export const useArticles = () => {
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [stats, setStats] = useState<ArticleStats | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingStats, setLoadingStats] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [errorStats, setErrorStats] = useState<string | null>(null);
+
+  // Fetch articles list
+  const fetchArticles = async (params?: {
+    skip?: number;
+    limit?: number;
+    search?: string;
+    category?: string;
+    is_active?: boolean;
+    low_stock?: boolean;
+  }) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get<Article[]>('/api/v1/articles/', { params });
+      setArticles(response.data);
+    } catch (err: any) {
+      console.error('Error fetching articles:', err);
+      setError(err.response?.data?.detail || 'Erreur lors du chargement des articles');
+      setArticles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch article statistics
+  const fetchStats = async () => {
+    try {
+      setLoadingStats(true);
+      setErrorStats(null);
+      const response = await axios.get<ArticleStats>('/api/v1/articles/stats');
+      setStats(response.data);
+    } catch (err: any) {
+      console.error('Error fetching article stats:', err);
+      setErrorStats(err.response?.data?.detail || 'Erreur lors du chargement des statistiques');
+      setStats(null);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  // Create a new article
+  const createArticle = async (articleData: Partial<Article>): Promise<Article | null> => {
+    try {
+      const response = await axios.post<Article>('/api/v1/articles/', articleData);
+      setArticles((prev) => [...prev, response.data]);
+      return response.data;
+    } catch (err: any) {
+      console.error('Error creating article:', err);
+      throw new Error(err.response?.data?.detail || 'Erreur lors de la création de l\'article');
+    }
+  };
+
+  // Update an existing article
+  const updateArticle = async (articleId: string, articleData: Partial<Article>): Promise<Article | null> => {
+    try {
+      const response = await axios.put<Article>(`/api/v1/articles/${articleId}`, articleData);
+      setArticles((prev) => prev.map((a) => (a.id === articleId ? response.data : a)));
+      return response.data;
+    } catch (err: any) {
+      console.error('Error updating article:', err);
+      throw new Error(err.response?.data?.detail || 'Erreur lors de la mise à jour de l\'article');
+    }
+  };
+
+  // Delete an article (soft delete)
+  const deleteArticle = async (articleId: string): Promise<void> => {
+    try {
+      await axios.delete(`/api/v1/articles/${articleId}`);
+      setArticles((prev) => prev.filter((a) => a.id !== articleId));
+    } catch (err: any) {
+      console.error('Error deleting article:', err);
+      throw new Error(err.response?.data?.detail || 'Erreur lors de la suppression de l\'article');
+    }
+  };
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchArticles();
+    fetchStats();
+  }, []);
+
+  return {
+    articles,
+    stats,
+    loading,
+    loadingStats,
+    error,
+    errorStats,
+    fetchArticles,
+    fetchStats,
+    createArticle,
+    updateArticle,
+    deleteArticle,
+  };
+};

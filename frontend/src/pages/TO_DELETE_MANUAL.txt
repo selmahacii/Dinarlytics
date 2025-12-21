@@ -1,0 +1,5 @@
+Supprime manuellement les fichiers suivants si non supprimés automatiquement :
+DemoLogin.tsx
+GestionComptable.tsx
+MobileFeatures.tsx
+SuiviLivraisons.tsx

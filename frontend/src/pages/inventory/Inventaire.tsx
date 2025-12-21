@@ -1,0 +1,2540 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  ArrowPathIcon, 
+  MagnifyingGlassIcon, 
+  FunnelIcon,
+  ChartBarIcon,
+  ChartPieIcon,
+  CubeIcon,
+  CurrencyDollarIcon,
+  ExclamationTriangleIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  AdjustmentsHorizontalIcon,
+  UserIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  TruckIcon,
+  ShoppingCartIcon,
+  PrinterIcon,
+  XMarkIcon,
+  Squares2X2Icon,
+  TableCellsIcon,
+  CheckCircleIcon,
+  EyeIcon,
+  PencilIcon
+} from '@heroicons/react/24/outline';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import Card from '../../components/UI/Card';
+import { useApp } from '../../context/AppContext';
+import { useTranslation } from '../../hooks/useTranslation';
+import { useProducts } from '../../context/ProductsContext';
+// ...existing code...
+
+const Inventaire: React.FC = () => {
+  const { formatCurrency, user, companyData } = useApp();
+  const { t } = useTranslation();
+
+  // Helper: map percentage to Tailwind width classes to avoid inline styles
+  const percentToWidth = (percent: number) => {
+    const p = Math.max(0, Math.min(100, Math.round(percent)));
+    if (p >= 98) return 'w-[100%]';
+    if (p >= 95) return 'w-[95%]';
+    if (p >= 90) return 'w-[90%]';
+    if (p >= 80) return 'w-[80%]';
+    if (p >= 70) return 'w-[70%]';
+    if (p >= 60) return 'w-[60%]';
+    if (p >= 50) return 'w-[50%]';
+    if (p >= 40) return 'w-[40%]';
+    if (p >= 30) return 'w-[30%]';
+    if (p >= 20) return 'w-[20%]';
+    if (p >= 10) return 'w-[10%]';
+    if (p >= 5) return 'w-[5%]';
+    return 'w-[0%]';
+  };
+
+  // ========================================
+  // INTERFACE EURL MICRO-ENTREPRISE  
+  // ========================================
+  if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
+    const valeurStock = Math.round(companyData.revenueMonth * 0.35);
+    const nombreArticles = Math.max(15, Math.floor(companyData.clientsCount * 0.6));
+    const articlesEnStock = Math.round(nombreArticles * 0.85);
+    const articlesRupture = Math.round(nombreArticles * 0.15);
+
+    // Répartition par famille
+    const stockParFamille = [
+      { famille: 'Famille A', valeur: Math.round(valeurStock * 0.45), articles: Math.round(nombreArticles * 0.40), couleur: 'from-emerald-500 to-teal-500' },
+      { famille: 'Famille B', valeur: Math.round(valeurStock * 0.30), articles: Math.round(nombreArticles * 0.35), couleur: 'from-blue-500 to-indigo-500' },
+      { famille: 'Famille C', valeur: Math.round(valeurStock * 0.25), articles: Math.round(nombreArticles * 0.25), couleur: 'from-slate-600 to-slate-800' }
+    ];
+
+    return (
+      <div className="space-y-6 max-w-7xl mx-auto p-6">
+        {/* En-tête */}
+        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
+                <CubeIcon className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Inventaire</h1>
+                <p className="text-slate-300 text-lg mt-1">Gestion des stocks et mouvements</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
+                <CubeIcon className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Articles en Stock</h3>
+            <p className="text-3xl font-extrabold text-slate-900">{articlesEnStock}</p>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-xs text-emerald-600 font-semibold">✅ Disponibles</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
+                <ExclamationTriangleIcon className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Ruptures Stock</h3>
+            <p className="text-3xl font-extrabold text-slate-900">{articlesRupture}</p>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-xs text-red-600 font-semibold">🚨 À réapprovisionner</p>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
+                <CurrencyDollarIcon className="h-7 w-7 text-white" />
+              </div>
+            </div>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Valeur Totale</h3>
+            <p className="text-3xl font-extrabold text-slate-900">{valeurStock?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-xs text-blue-600 font-semibold">📦 Stock actuel</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stock par Famille */}
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border-2 border-slate-300 p-6 shadow-lg">
+          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
+            <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
+              <ChartPieIcon className="h-5 w-5 text-white" />
+            </div>
+            Stock par Famille de Produits
+          </h2>
+          <div className="space-y-4">
+            {stockParFamille.map((famille, idx) => (
+              <div key={idx} className="bg-white p-4 rounded-xl border-2 border-slate-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="font-bold text-slate-900">{famille.famille}</p>
+                    <p className="text-xs text-slate-600">{famille.articles} articles</p>
+                  </div>
+                  <p className="text-xl font-extrabold text-slate-900">{famille.valeur?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r ${famille.couleur} rounded-full transition-all duration-500 ${percentToWidth(Math.round((famille.valeur / valeurStock) * 100))}`}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Alertes & Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl border-2 border-red-300 p-6 shadow-lg">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+              <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg mr-3">
+                <ExclamationTriangleIcon className="h-5 w-5 text-white" />
+              </div>
+              Alertes Stock
+            </h3>
+            <div className="space-y-3">
+              <div className="bg-white p-3 rounded-lg border border-red-300">
+                <p className="text-sm font-bold text-red-700">🚨 {articlesRupture} articles en rupture</p>
+                <p className="text-xs text-slate-600 mt-1">Commander immédiatement</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-lg">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
+                <CubeIcon className="h-5 w-5 text-white" />
+              </div>
+              Actions Rapides
+            </h3>
+            <div className="space-y-3">
+              <button className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300">
+                📝 Lancer inventaire
+              </button>
+              <button className="w-full p-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300">
+                📊 Rapport complet
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================
+  // INTERFACE STANDARD (autres entreprises)
+  // ========================================
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [sortBy, setSortBy] = useState<'nom' | 'stock' | 'valeur'>('nom');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [activeTab, setActiveTab] = useState('stock');
+  const [stockStatusFilter, setStockStatusFilter] = useState<'tous' | 'normal' | 'faible' | 'critique'>('tous');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [selectedReorderArticle, setSelectedReorderArticle] = useState<any>(null);
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [selectedBarcodeArticle, setSelectedBarcodeArticle] = useState<any>(null);
+
+  const { products } = useProducts();
+  const totalStock = products.reduce((total, article) => 
+    total + (article.prixUnitaire * article.stock), 0
+  );
+
+  const categoriesStock = products.reduce((acc, article) => {
+    const valeur = article.prixUnitaire * article.stock;
+    acc[article.categorie] = (acc[article.categorie] || 0) + valeur;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const categories = Array.from(new Set(products.map(article => article.categorie)));
+
+  const getStockStatus = (stock: number): 'normal' | 'faible' | 'critique' => {
+    if (stock > 50) return 'normal';
+    if (stock > 20) return 'faible';
+    return 'critique';
+  };
+
+  const filteredAndSortedArticles = useMemo(() => {
+    let filtered = products.filter(article => {
+      const matchesSearch = article.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           article.codePCA.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !selectedCategory || article.categorie === selectedCategory;
+      const status = getStockStatus(article.stock);
+      const matchesStatus = stockStatusFilter === 'tous' || status === stockStatusFilter;
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+
+    return filtered.sort((a, b) => {
+      let aValue, bValue;
+      switch (sortBy) {
+        case 'stock':
+          aValue = a.stock;
+          bValue = b.stock;
+          break;
+        case 'valeur':
+          aValue = a.prixUnitaire * a.stock;
+          bValue = b.prixUnitaire * b.stock;
+          break;
+        default:
+          aValue = a.nom;
+          bValue = b.nom;
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  }, [products, searchTerm, selectedCategory, sortBy, sortOrder, stockStatusFilter]);
+
+  // Fonctions pour gérer les actions
+  const handleInventoryCount = () => {
+    setShowInventoryModal(true);
+  };
+
+  const handleReordering = () => {
+    setActiveTab('reordering');
+  };
+
+  const handleExportStock = () => {
+    alert('📊 Export des stocks en cours... Fichier Excel généré avec succès !');
+  };
+
+  const handlePrintStock = () => {
+    alert('🖨️ Impression du rapport de stock en cours...');
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('');
+    setStockStatusFilter('tous');
+    setSortBy('nom');
+    setSortOrder('asc');
+  };
+
+  // Alertes d'inventaire dérivées du référentiel produits (cohérence globale)
+  const lowStockCount = products.filter(p => p.stock > 0 && p.stock <= 20).length;
+  const outOfStockCount = products.filter(p => p.stock === 0).length;
+  const overstockCount = products.filter(p => p.stock >= 100).length;
+  const inventoryAlerts = [
+    { id: 1, type: 'low_stock', message: `${lowStockCount} articles en stock faible`, count: lowStockCount, severity: 'warning' as const },
+    { id: 2, type: 'out_of_stock', message: `${outOfStockCount} articles en rupture`, count: outOfStockCount, severity: 'critical' as const },
+    { id: 3, type: 'expiring', message: `0 articles proches de péremption`, count: 0, severity: 'info' as const },
+    { id: 4, type: 'overstock', message: `${overstockCount} articles en surstock`, count: overstockCount, severity: 'info' as const }
+  ];
+
+  const stockMovements = [
+    { 
+      id: 1, 
+      article: 'Ordinateur Portable Dell XPS 15', 
+      codePCA: 'IT-001',
+      type: 'in', 
+      quantity: 100, 
+      date: '2024-01-15',
+      heure: '14:30',
+      reason: 'Réception commande', 
+      reference: 'BC-2024-001',
+      fournisseur: 'Tech Solutions SARL',
+      valeurUnitaire: 85000,
+      responsable: 'Ahmed Benali'
+    },
+    { 
+      id: 2, 
+      article: 'Clavier Mécanique Logitech', 
+      codePCA: 'IT-045',
+      type: 'out', 
+      quantity: 50, 
+      date: '2024-01-14',
+      heure: '10:15',
+      reason: 'Vente client',
+      reference: 'VT-2024-123',
+      client: 'Entreprise ABC',
+      valeurUnitaire: 12000,
+      responsable: 'Fatima Zerai'
+    },
+    { 
+      id: 3, 
+      article: 'Écran Samsung 27" 4K', 
+      codePCA: 'IT-012',
+      type: 'adjustment', 
+      quantity: -10, 
+      date: '2024-01-13',
+      heure: '16:45',
+      reason: 'Inventaire physique - Écart détecté',
+      reference: 'INV-2024-001',
+      valeurUnitaire: 45000,
+      responsable: 'Mohamed Kadri'
+    },
+    { 
+      id: 4, 
+      article: 'Souris Sans Fil Microsoft', 
+      codePCA: 'IT-078',
+      type: 'in', 
+      quantity: 200, 
+      date: '2024-01-12',
+      heure: '09:00',
+      reason: 'Retour client - Produit non conforme',
+      reference: 'RET-2024-008',
+      client: 'SARL Distribution Plus',
+      valeurUnitaire: 3500,
+      responsable: 'Amina Messaoudi'
+    },
+    { 
+      id: 5, 
+      article: 'Câble HDMI Premium 2m', 
+      codePCA: 'ACC-234',
+      type: 'out', 
+      quantity: 75, 
+      date: '2024-01-11',
+      heure: '11:20',
+      reason: 'Commande en ligne',
+      reference: 'VT-2024-115',
+      client: 'Particulier',
+      valeurUnitaire: 1200,
+      responsable: 'Karim Boudiaf'
+    },
+    { 
+      id: 6, 
+      article: 'Imprimante Laser HP LaserJet', 
+      codePCA: 'IT-089',
+      type: 'in', 
+      quantity: 35, 
+      date: '2024-01-10',
+      heure: '13:50',
+      reason: 'Réception commande urgente',
+      reference: 'BC-2024-002',
+      fournisseur: 'Office Supplies Co',
+      valeurUnitaire: 52000,
+      responsable: 'Ahmed Benali'
+    },
+    { 
+      id: 7, 
+      article: 'Webcam Logitech HD Pro', 
+      codePCA: 'IT-156',
+      type: 'adjustment', 
+      quantity: 15, 
+      date: '2024-01-09',
+      heure: '15:30',
+      reason: 'Correction erreur de saisie',
+      reference: 'ADJ-2024-003',
+      valeurUnitaire: 8500,
+      responsable: 'Mohamed Kadri'
+    },
+    { 
+      id: 8, 
+      article: 'Disque Dur Externe 2TB', 
+      codePCA: 'IT-203',
+      type: 'out', 
+      quantity: 120, 
+      date: '2024-01-08',
+      heure: '14:00',
+      reason: 'Vente groupée entreprise',
+      reference: 'VT-2024-098',
+      client: 'Ministère de la Santé',
+      valeurUnitaire: 9800,
+      responsable: 'Fatima Zerai'
+    }
+  ];
+
+  const reorderSuggestions = products
+    .filter(article => article.stock < 20)
+    .map(article => ({
+      ...article,
+      suggestedOrder: Math.max(50, article.stock * 2),
+      urgency: article.stock < 10 ? 'high' : article.stock < 15 ? 'medium' : 'low',
+      stockMinimum: 20,
+      stockOptimal: 100,
+      delaiLivraison: Math.floor(Math.random() * 10) + 3,
+      fournisseurPrincipal: ['Tech Solutions SARL', 'Office Supplies Co', 'Logistics Pro EURL', 'Fournisseur ABC SPA'][Math.floor(Math.random() * 4)],
+      dernierAchat: ['2024-01-05', '2023-12-15', '2024-01-20', '2023-11-28'][Math.floor(Math.random() * 4)],
+      coutEstime: article.prixUnitaire * Math.max(50, article.stock * 2)
+    }));
+
+  return (
+    <div className="space-y-6 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      {/* Header simple et professionnel */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          Gestion d'Inventaire
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400 text-sm">Surveillez et gérez votre stock</p>
+      </div>
+
+      {/* Disclaimer sobre */}
+      <div className="bg-slate-100 dark:bg-slate-800 border-l-2 border-slate-400 dark:border-slate-600 p-4 rounded">
+        <div className="flex items-center">
+          <ExclamationTriangleIcon className="h-4 w-4 text-slate-600 dark:text-slate-400 mr-3" />
+          <p className="text-slate-700 dark:text-slate-300 text-xs">
+          {t('disclaimer')}
+        </p>
+        </div>
+      </div>
+
+      {/* Navigation par onglets */}
+      <Card className="p-0">
+        <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
+          <nav className="flex space-x-4 px-6" aria-label="Tabs">
+            {[
+              { id: 'stock', name: 'Gestion Stock', icon: CubeIcon },
+              { id: 'movements', name: 'Mouvements', icon: ArrowPathIcon },
+              { id: 'alerts', name: 'Alertes', icon: ExclamationTriangleIcon },
+              { id: 'reordering', name: 'Réapprovisionnement', icon: MagnifyingGlassIcon },
+              { id: 'barcode', name: 'Codes-barres', icon: FunnelIcon },
+              { id: 'reports', name: 'Rapports', icon: ChartBarIcon }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center py-2.5 px-1 border-b-2 font-medium text-xs uppercase tracking-wide transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-slate-700 dark:border-slate-400 text-slate-900 dark:text-slate-100'
+                    : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                }`}
+              >
+                <tab.icon className="h-4 w-4 mr-1.5" />
+                {tab.name}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <div className="p-6">
+          {activeTab === 'stock' && (
+            <>
+
+              {/* Cartes de résumé professionnelles */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{products.length}</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">Références en stock</p>
+                    </div>
+                    <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded">
+                      <CubeIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                      {products.reduce((total, article) => total + article.stock, 0)}
+                    </p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">Unités totales</p>
+                    </div>
+                    <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded">
+                      <ChartBarIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(totalStock)}</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">Valeur totale</p>
+                    </div>
+                    <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded">
+                      <CurrencyDollarIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Boutons d'action améliorés */}
+              <div className="flex flex-wrap justify-end gap-3 mt-6">
+                <button
+                  onClick={handleInventoryCount}
+                  className="flex items-center px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
+                >
+                  <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
+                  Inventaire Physique
+                </button>
+                <button
+                  onClick={handleReordering}
+                  className="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
+                >
+                  <ArrowPathIcon className="h-4 w-4 mr-2" />
+                  Réapprovisionnement
+                </button>
+                <button
+                  onClick={handleExportStock}
+                  className="flex items-center px-4 py-2.5 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 dark:from-slate-500 dark:to-slate-600 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                  Exporter
+                </button>
+                <button
+                  onClick={handlePrintStock}
+                  className="flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-all shadow-sm"
+                >
+                  <PrinterIcon className="h-4 w-4 mr-2" />
+                  Imprimer
+                </button>
+              </div>
+
+              {/* Répartition par Catégorie simple */}
+              <Card title="Répartition par Catégorie">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(categoriesStock)
+            .sort(([,a], [,b]) => b - a)
+            .map(([categorie, valeur], index) => {
+              const percentage = (valeur / totalStock) * 100;
+              const colors = [
+                { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', accent: 'text-blue-500' },
+                { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', accent: 'text-green-500' },
+                { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', accent: 'text-purple-500' },
+                { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', accent: 'text-orange-500' },
+                { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700', accent: 'text-pink-500' },
+                { bg: 'bg-indigo-50', border: 'border-indigo-200', text: 'text-indigo-700', accent: 'text-indigo-500' }
+              ];
+              const colorScheme = colors[index % colors.length];
+              
+              return (
+                <div key={categorie} className={`${colorScheme.bg} ${colorScheme.border} border p-4 rounded-lg hover:shadow-sm transition-shadow duration-200`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className={`font-semibold ${colorScheme.text}`}>{categorie}</h3>
+                    <span className={`text-xs font-medium px-2 py-1 rounded ${colorScheme.bg} ${colorScheme.text}`}>
+                      {percentage.toFixed(1)}%
+                    </span>
+                  </div>
+                  <p className={`text-xl font-bold ${colorScheme.text} mb-1`}>{formatCurrency(valeur)}</p>
+                  <p className={`text-sm ${colorScheme.text} opacity-70`}>
+                    {products.filter(a => a.categorie === categorie).length} articles
+                  </p>
+                </div>
+              );
+            })}
+        </div>
+      </Card>
+
+      {/* Barre de recherche et filtres améliorés */}
+      <Card className="mt-6">
+        <div className="mb-6 space-y-4">
+          {/* En-tête avec actions */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Détail des Stocks</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{filteredAndSortedArticles.length} article(s) trouvé(s)</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'table' ? 'bg-slate-700 dark:bg-slate-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
+                title="Vue tableau"
+              >
+                <TableCellsIcon className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'cards' ? 'bg-slate-700 dark:bg-slate-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
+                title="Vue cartes"
+              >
+                <Squares2X2Icon className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Barre de recherche */}
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" />
+            <input
+              type="text"
+              placeholder="Rechercher par nom d'article ou code PCA..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 focus:border-slate-500 transition-colors"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                aria-label="Effacer la recherche"
+                title="Effacer la recherche"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+
+          {/* Filtres avancés */}
+          <div className="flex flex-wrap gap-3 items-center">
+            {/* Filtre par catégorie */}
+            <div className="flex items-center space-x-2">
+              <FunnelIcon className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm font-medium"
+                aria-label="Filtrer par catégorie"
+                title="Filtrer par catégorie"
+              >
+                <option value="">Toutes les catégories</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filtre par statut de stock */}
+            <select
+              value={stockStatusFilter}
+              onChange={(e) => setStockStatusFilter(e.target.value as 'tous' | 'normal' | 'faible' | 'critique')}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm font-medium"
+              aria-label="Filtrer par statut de stock"
+              title="Filtrer par statut de stock"
+            >
+              <option value="tous">Tous les statuts</option>
+              <option value="normal">✅ Stock Normal</option>
+              <option value="faible">⚠️ Stock Faible</option>
+              <option value="critique">🔴 Stock Critique</option>
+            </select>
+
+            {/* Tri */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">Trier par:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'nom' | 'stock' | 'valeur')}
+                className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm font-medium"
+                aria-label="Trier par"
+                title="Trier par"
+              >
+                <option value="nom">Nom</option>
+                <option value="stock">Stock</option>
+                <option value="valeur">Valeur</option>
+              </select>
+              <button
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors text-sm font-semibold"
+                title={sortOrder === 'asc' ? 'Tri croissant' : 'Tri décroissant'}
+              >
+                {sortOrder === 'asc' ? '↑ Croissant' : '↓ Décroissant'}
+              </button>
+            </div>
+
+            {/* Bouton réinitialiser */}
+            {(searchTerm || selectedCategory || stockStatusFilter !== 'tous') && (
+              <button
+                onClick={clearFilters}
+                className="ml-auto flex items-center px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm font-medium"
+              >
+                <XMarkIcon className="h-4 w-4 mr-1" />
+                Réinitialiser
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Vue tableau */}
+        {viewMode === 'table' && (
+        <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+              <thead className="bg-slate-50 dark:bg-slate-800">
+              <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Article
+                </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Code PCA
+                </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Quantité
+                </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Prix Unitaire
+                </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Valeur Totale
+                </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Statut
+                </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    Actions
+                </th>
+              </tr>
+            </thead>
+              <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+              {filteredAndSortedArticles.map((article) => {
+                const valeurTotale = article.prixUnitaire * article.stock;
+                  const statusType = getStockStatus(article.stock);
+                  const statusConfig = {
+                    normal: { text: 'Stock normal', class: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700' },
+                    faible: { text: 'Stock faible', class: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-700' },
+                    critique: { text: 'Stock critique', class: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700' }
+                  };
+                  const status = statusConfig[statusType];
+
+                return (
+                    <tr key={article.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.nom}</div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">{article.categorie}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600">
+                        {article.codePCA}
+                      </span>
+                    </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-slate-100">
+                      {article.stock} unités
+                    </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">
+                      {formatCurrency(article.prixUnitaire)}
+                    </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {formatCurrency(valeurTotale)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${status.class}`}>
+                        {status.text}
+                      </span>
+                    </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          <button 
+                            onClick={() => alert(`Détails de: ${article.nom}`)}
+                            className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                            title="Voir détails"
+                          >
+                            <EyeIcon className="h-4 w-4" />
+                          </button>
+                          <button 
+                            onClick={() => alert(`Modifier: ${article.nom}`)}
+                            className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
+                            title="Modifier"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+                </div>
+        )}
+
+        {/* Vue cartes */}
+        {viewMode === 'cards' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAndSortedArticles.map((article) => {
+              const valeurTotale = article.prixUnitaire * article.stock;
+              const statusType = getStockStatus(article.stock);
+              const statusConfig = {
+                normal: { 
+                  bg: 'bg-emerald-50 dark:bg-emerald-900/20', 
+                  border: 'border-emerald-200 dark:border-emerald-700',
+                  text: 'text-emerald-700 dark:text-emerald-300',
+                  icon: 'text-emerald-600 dark:text-emerald-400',
+                  label: '✅ Stock Normal'
+                },
+                faible: { 
+                  bg: 'bg-amber-50 dark:bg-amber-900/20', 
+                  border: 'border-amber-200 dark:border-amber-700',
+                  text: 'text-amber-700 dark:text-amber-300',
+                  icon: 'text-amber-600 dark:text-amber-400',
+                  label: '⚠️ Stock Faible'
+                },
+                critique: { 
+                  bg: 'bg-red-50 dark:bg-red-900/20', 
+                  border: 'border-red-200 dark:border-red-700',
+                  text: 'text-red-700 dark:text-red-300',
+                  icon: 'text-red-600 dark:text-red-400',
+                  label: '🔴 Stock Critique'
+                }
+              };
+              const config = statusConfig[statusType];
+
+              return (
+                <div key={article.id} className={`bg-white dark:bg-slate-800 rounded-xl border-2 ${config.border} p-5 hover:shadow-lg transition-all`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`p-2 rounded-lg ${config.bg} border ${config.border}`}>
+                      <CubeIcon className={`h-6 w-6 ${config.icon}`} />
+                    </div>
+                    <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${config.bg} ${config.border} ${config.text}`}>
+                      {config.label}
+                    </span>
+                  </div>
+                  
+                  <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">{article.nom}</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">{article.categorie}</p>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">Code PCA:</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">{article.codePCA}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">Quantité:</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} unités</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">Prix unitaire:</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(article.prixUnitaire)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t border-slate-200 dark:border-slate-700">
+                      <span className="text-slate-600 dark:text-slate-400 font-medium">Valeur totale:</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(valeurTotale)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => alert(`Détails de: ${article.nom}`)}
+                      className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <EyeIcon className="h-4 w-4 mr-1" />
+                      Détails
+                    </button>
+                    <button 
+                      onClick={() => alert(`Modifier: ${article.nom}`)}
+                      className="flex-1 flex items-center justify-center px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <PencilIcon className="h-4 w-4 mr-1" />
+                      Modifier
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {filteredAndSortedArticles.length === 0 && (
+          <div className="text-center py-12">
+            <CubeIcon className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Aucun article trouvé</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">Essayez de modifier vos critères de recherche</p>
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              Réinitialiser les filtres
+            </button>
+          </div>
+        )}
+              </Card>
+            </>
+          )}
+
+          {/* Onglet Mouvements de Stock */}
+          {activeTab === 'movements' && (
+            <div className="space-y-6">
+              {/* En-tête avec statistiques */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Mouvements de Stock</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Suivi détaillé des entrées, sorties et ajustements</p>
+                </div>
+                <button className="flex items-center px-4 py-2.5 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2">
+                  <DocumentTextIcon className="h-4 w-4" />
+                  <span>Exporter</span>
+                </button>
+              </div>
+
+              {/* Statistiques rapides */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Entrées</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">+335</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">unités ce mois</p>
+                </div>
+                    <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
+                      <ArrowDownTrayIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-5 rounded-xl border border-red-200 dark:border-red-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Sorties</p>
+                      <p className="text-2xl font-bold text-red-900 dark:text-red-100">-245</p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">unités ce mois</p>
+                    </div>
+                    <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
+                      <ArrowUpTrayIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Ajustements</p>
+                      <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">+5</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">ce mois</p>
+                    </div>
+                    <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
+                      <AdjustmentsHorizontalIcon className="h-6 w-6 text-amber-700 dark:text-amber-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-5 rounded-xl border border-slate-200 dark:border-slate-600">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Transactions</p>
+                      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stockMovements.length}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">ce mois</p>
+                    </div>
+                    <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
+                      <ArrowPathIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Historique des mouvements enrichi */}
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Historique des Mouvements</h4>
+                </div>
+                
+                <div className="space-y-0">
+                  {stockMovements.map((movement, index) => {
+                    const isLast = index === stockMovements.length - 1;
+                    const TypeIcon = movement.type === 'in' ? ArrowDownTrayIcon : 
+                                     movement.type === 'out' ? ArrowUpTrayIcon : 
+                                     AdjustmentsHorizontalIcon;
+                    
+                    const typeConfig: Record<string, {
+                      bg: string;
+                      border: string;
+                      text: string;
+                      icon: string;
+                      label: string;
+                    }> = {
+                      in: {
+                        bg: 'bg-emerald-50 dark:bg-emerald-900/20',
+                        border: 'border-emerald-200 dark:border-emerald-700',
+                        text: 'text-emerald-700 dark:text-emerald-300',
+                        icon: 'text-emerald-600 dark:text-emerald-400',
+                        label: 'Entrée'
+                      },
+                      out: {
+                        bg: 'bg-red-50 dark:bg-red-900/20',
+                        border: 'border-red-200 dark:border-red-700',
+                        text: 'text-red-700 dark:text-red-300',
+                        icon: 'text-red-600 dark:text-red-400',
+                        label: 'Sortie'
+                      },
+                      adjustment: {
+                        bg: 'bg-amber-50 dark:bg-amber-900/20',
+                        border: 'border-amber-200 dark:border-amber-700',
+                        text: 'text-amber-700 dark:text-amber-300',
+                        icon: 'text-amber-600 dark:text-amber-400',
+                        label: 'Ajustement'
+                      }
+                    };
+
+                    const config = typeConfig[movement.type];
+                    const valeurTotale = movement.quantity * movement.valeurUnitaire;
+
+                    return (
+                      <div 
+                        key={movement.id} 
+                        className={`px-6 py-5 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors ${!isLast ? 'border-b border-slate-200 dark:border-slate-700' : ''}`}
+                      >
+                        <div className="flex items-start space-x-4">
+                          {/* Icône de type */}
+                          <div className={`flex-shrink-0 p-3 rounded-xl ${config.bg} border ${config.border}`}>
+                            <TypeIcon className={`h-6 w-6 ${config.icon}`} />
+                          </div>
+
+                          {/* Contenu principal */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <h5 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                            {movement.article}
+                                  </h5>
+                                  <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${config.bg} ${config.border} ${config.text}`}>
+                                    {config.label}
+                            </span>
+                                  <span className="px-2 py-1 text-xs font-medium rounded bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                    {movement.codePCA}
+                                  </span>
+                                </div>
+
+                                {/* Détails en grille */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                                      <ClockIcon className="h-4 w-4 mr-2" />
+                                      <span className="font-medium text-slate-900 dark:text-slate-100">
+                                        {movement.date} à {movement.heure}
+                            </span>
+                                    </div>
+                                    <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                                      <DocumentTextIcon className="h-4 w-4 mr-2" />
+                                      <span>Réf: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.reference}</span></span>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    {movement.fournisseur && (
+                                      <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                                        <TruckIcon className="h-4 w-4 mr-2" />
+                                        <span>Fournisseur: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.fournisseur}</span></span>
+                                      </div>
+                                    )}
+                                    {movement.client && (
+                                      <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                                        <ShoppingCartIcon className="h-4 w-4 mr-2" />
+                                        <span>Client: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.client}</span></span>
+                                      </div>
+                                    )}
+                                    <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                                      <UserIcon className="h-4 w-4 mr-2" />
+                                      <span>Par: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.responsable}</span></span>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                      Raison: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.reason}</span>
+                                    </p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      Val. unitaire: {formatCurrency(movement.valeurUnitaire)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Quantité et valeur */}
+                              <div className="text-right ml-4">
+                                <p className={`text-2xl font-bold ${movement.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {movement.quantity > 0 ? '+' : ''}{movement.quantity}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">unités</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-2">
+                                  {formatCurrency(Math.abs(valeurTotale))}
+                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">دج</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Onglet Alertes */}
+          {activeTab === 'alerts' && (
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-900">Alertes d'Inventaire</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {inventoryAlerts.map((alert) => (
+                  <div key={alert.id} className={`p-4 rounded-lg border ${
+                    alert.severity === 'critical' ? 'bg-red-50 border-red-200' :
+                    alert.severity === 'warning' ? 'bg-yellow-50 border-yellow-200' :
+                    'bg-blue-50 border-blue-200'
+                  }`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <ExclamationTriangleIcon className={`h-6 w-6 ${
+                          alert.severity === 'critical' ? 'text-red-600' :
+                          alert.severity === 'warning' ? 'text-yellow-600' :
+                          'text-blue-600'
+                        }`} />
+                        <div>
+                          <p className={`font-medium ${
+                            alert.severity === 'critical' ? 'text-red-900' :
+                            alert.severity === 'warning' ? 'text-yellow-900' :
+                            'text-blue-900'
+                          }`}>
+                            {alert.message}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-bold rounded-full ${
+                        alert.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                        alert.severity === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {alert.count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Onglet Réapprovisionnement */}
+          {activeTab === 'reordering' && (
+            <div className="space-y-6">
+              {/* En-tête */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Suggestions de Réapprovisionnement</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Optimisez vos commandes et évitez les ruptures de stock</p>
+                </div>
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={() => alert(`📊 Export de ${reorderSuggestions.length} articles à réapprovisionner...\n\nFichier Excel généré avec succès !`)}
+                    className="flex items-center px-4 py-2.5 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
+                  >
+                    <DocumentTextIcon className="h-4 w-4" />
+                    <span>Exporter</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const totalCost = reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0);
+                      const totalQuantity = reorderSuggestions.reduce((sum, a) => sum + a.suggestedOrder, 0);
+                      alert(`🛒 Commande groupée de ${reorderSuggestions.length} articles\n\n` +
+                            `Quantité totale: ${totalQuantity} unités\n` +
+                            `Coût total estimé: ${formatCurrency(totalCost)}\n\n` +
+                            `✅ ${reorderSuggestions.length} bons de commande créés avec succès !`);
+                    }}
+                    className="flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
+                  >
+                    <ShoppingCartIcon className="h-4 w-4" />
+                    <span>Commander Tout</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Statistiques */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-5 rounded-xl border border-red-200 dark:border-red-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Urgence Élevée</p>
+                      <p className="text-2xl font-bold text-red-900 dark:text-red-100">
+                        {reorderSuggestions.filter(a => a.urgency === 'high').length}
+                      </p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">articles critiques</p>
+                </div>
+                    <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
+                      <ExclamationTriangleIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
+                  <div className="flex items-center justify-between">
+                            <div>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Urgence Moyenne</p>
+                      <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                        {reorderSuggestions.filter(a => a.urgency === 'medium').length}
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">à surveiller</p>
+                            </div>
+                    <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
+                      <ClockIcon className="h-6 w-6 text-amber-700 dark:text-amber-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-5 rounded-xl border border-slate-200 dark:border-slate-600">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Total Articles</p>
+                      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{reorderSuggestions.length}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">à réapprovisionner</p>
+                    </div>
+                    <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
+                      <CubeIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Coût Estimé</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                        {formatCurrency(reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0))}
+                      </p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">total commandes</p>
+                    </div>
+                    <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
+                      <CurrencyDollarIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Articles à réapprovisionner */}
+              <div className="space-y-4">
+                {reorderSuggestions.map((article) => {
+                  const urgencyConfig: Record<string, {
+                    bg: string;
+                    border: string;
+                    text: string;
+                    badge: string;
+                    icon: string;
+                    label: string;
+                  }> = {
+                    high: {
+                      bg: 'bg-red-50 dark:bg-red-900/20',
+                      border: 'border-red-200 dark:border-red-700',
+                      text: 'text-red-700 dark:text-red-300',
+                      badge: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700',
+                      icon: 'text-red-600 dark:text-red-400',
+                      label: '🔴 Urgence Élevée'
+                    },
+                    medium: {
+                      bg: 'bg-amber-50 dark:bg-amber-900/20',
+                      border: 'border-amber-200 dark:border-amber-700',
+                      text: 'text-amber-700 dark:text-amber-300',
+                      badge: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
+                      icon: 'text-amber-600 dark:text-amber-400',
+                      label: '🟡 Urgence Moyenne'
+                    },
+                    low: {
+                      bg: 'bg-slate-50 dark:bg-slate-800',
+                      border: 'border-slate-200 dark:border-slate-700',
+                      text: 'text-slate-700 dark:text-slate-300',
+                      badge: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
+                      icon: 'text-slate-600 dark:text-slate-400',
+                      label: '🟢 Urgence Faible'
+                    }
+                  };
+
+                  const config = urgencyConfig[article.urgency];
+                  const stockPourcentage = (article.stock / article.stockOptimal) * 100;
+
+                  return (
+                    <div 
+                      key={article.id}
+                      className={`bg-white dark:bg-slate-800 rounded-xl border-2 ${config.border} overflow-hidden hover:shadow-lg transition-all`}
+                    >
+                      <div className="p-6">
+                        <div className="flex items-start justify-between">
+                          {/* Informations principales */}
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className={`p-2 rounded-lg ${config.bg} border ${config.border}`}>
+                                <CubeIcon className={`h-6 w-6 ${config.icon}`} />
+                              </div>
+                            <div>
+                                <h5 className="text-lg font-bold text-slate-900 dark:text-slate-100">{article.nom}</h5>
+                                <p className="text-sm text-slate-600 dark:text-slate-400">{article.codePCA} • {article.categorie}</p>
+                              </div>
+                              <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${config.badge}`}>
+                                {config.label}
+                            </span>
+                            </div>
+
+                            {/* Barre de progression du stock */}
+                            <div className="mb-4">
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                <span className="text-slate-600 dark:text-slate-400">Stock actuel</span>
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} / {article.stockOptimal} unités</span>
+                              </div>
+                              <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all ${
+                                    article.urgency === 'high' ? 'bg-red-600' :
+                                    article.urgency === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                                  } ${percentToWidth(Math.min(stockPourcentage, 100))}`}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Détails en grille */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                              <div className="space-y-1">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Stock Minimum</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.stockMinimum} unités</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Quantité Suggérée</p>
+                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">+{article.suggestedOrder} unités</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Délai de Livraison</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.delaiLivraison} jours</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Coût Estimé</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(article.coutEstime)}</p>
+                              </div>
+                            </div>
+
+                            {/* Informations fournisseur */}
+                            <div className="mt-4 flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
+                              <div className="flex items-center space-x-2">
+                                <TruckIcon className="h-4 w-4" />
+                                <span>Fournisseur: <span className="font-medium text-slate-900 dark:text-slate-100">{article.fournisseurPrincipal}</span></span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <ClockIcon className="h-4 w-4" />
+                                <span>Dernier achat: <span className="font-medium text-slate-900 dark:text-slate-100">{article.dernierAchat}</span></span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="ml-6 flex flex-col space-y-2">
+                            <button 
+                              onClick={() => {
+                                setSelectedReorderArticle(article);
+                                setShowOrderModal(true);
+                              }}
+                              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium flex items-center space-x-2 whitespace-nowrap"
+                            >
+                              <ShoppingCartIcon className="h-4 w-4" />
+                              <span>Commander</span>
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setSelectedReorderArticle(article);
+                                setShowDetailModal(true);
+                              }}
+                              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors font-medium"
+                            >
+                              Détails
+                            </button>
+                </div>
+              </div>
+                      </div>
+                </div>
+                  );
+                })}
+              </div>
+
+              {reorderSuggestions.length === 0 && (
+                <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <CubeIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">Aucun article à réapprovisionner</h3>
+                  <p className="text-slate-600 dark:text-slate-400">Tous vos stocks sont à un niveau optimal !</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Onglet Codes-barres enrichi */}
+          {activeTab === 'barcode' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Gestion des Codes-barres</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Gérez et imprimez les codes-barres de vos articles</p>
+                </div>
+                <button 
+                  onClick={() => alert(`🖨️ Impression groupée de codes-barres\n\n${filteredAndSortedArticles.length} étiquettes à imprimer\nFormat: EAN-13 (50x30mm)\n\n✅ Envoi vers l'imprimante...`)}
+                  className="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
+                >
+                  <PrinterIcon className="h-4 w-4" />
+                  <span>Imprimer Codes-barres</span>
+                </button>
+              </div>
+
+              {/* Statistiques codes-barres */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-5 rounded-xl border border-blue-200 dark:border-blue-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">Articles Scannés</p>
+                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">47</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">ce mois</p>
+                    </div>
+                    <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-lg">
+                      <FunnelIcon className="h-6 w-6 text-blue-700 dark:text-blue-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Codes Générés</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">152</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">total</p>
+                    </div>
+                    <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
+                      <CheckCircleIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-5 rounded-xl border border-slate-200 dark:border-slate-600">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Sans Code-barres</p>
+                      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">8</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">à générer</p>
+                    </div>
+                    <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
+                      <ExclamationTriangleIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Liste des articles avec codes-barres */}
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Articles Récents</h4>
+                </div>
+                <div className="p-6 space-y-4">
+                  {filteredAndSortedArticles.slice(0, 5).map((article) => (
+                    <div key={article.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                      <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600">
+                          <FunnelIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-slate-900 dark:text-slate-100">{article.nom}</h5>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">{article.codePCA}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={() => {
+                            setSelectedBarcodeArticle(article);
+                            setShowBarcodeModal(true);
+                          }}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Générer
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setSelectedBarcodeArticle(article);
+                            setShowBarcodeModal(true);
+                          }}
+                          className="px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
+                          aria-label="Imprimer l'étiquette"
+                          title="Imprimer l'étiquette"
+                        >
+                          <PrinterIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Onglet Rapports enrichi avec graphiques */}
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Rapports d'Inventaire</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Générez et consultez vos rapports de stock avec analyses graphiques</p>
+                </div>
+                <button 
+                  onClick={handleExportStock}
+                  className="flex items-center px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
+                >
+                  <DocumentTextIcon className="h-4 w-4" />
+                  <span>Nouveau Rapport</span>
+                </button>
+              </div>
+
+              {/* Types de rapports */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { 
+                    title: 'Rapport de Stock Complet', 
+                    icon: CubeIcon, 
+                    color: 'blue', 
+                    desc: 'Vue d\'ensemble de tous les articles', 
+                    count: `${products.length} articles`,
+                    details: `Contenu du rapport:\n- Liste complète de ${products.length} articles\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Niveaux de stock\n- Historique des mouvements`
+                  },
+                  { 
+                    title: 'Mouvements du Mois', 
+                    icon: ArrowPathIcon, 
+                    color: 'emerald', 
+                    desc: 'Entrées et sorties mensuelles', 
+                    count: '8 mouvements',
+                    details: `Contenu du rapport:\n- 8 mouvements enregistrés\n- Entrées: +335 unités\n- Sorties: -245 unités\n- Solde net: +90 unités\n- Détail par fournisseur/client`
+                  },
+                  { 
+                    title: 'Valeur du Stock', 
+                    icon: CurrencyDollarIcon, 
+                    color: 'amber', 
+                    desc: 'Valorisation totale des stocks', 
+                    count: formatCurrency(totalStock),
+                    details: `Contenu du rapport:\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Évolution sur 6 mois\n- Articles à forte valeur\n- Comparaison avec objectifs`
+                  },
+                  { 
+                    title: 'Articles en Alerte', 
+                    icon: ExclamationTriangleIcon, 
+                    color: 'red', 
+                    desc: 'Stock faible et ruptures', 
+                    count: `${reorderSuggestions.length} articles`,
+                    details: `Contenu du rapport:\n- ${reorderSuggestions.filter(a => a.urgency === 'high').length} articles en urgence élevée\n- ${reorderSuggestions.filter(a => a.urgency === 'medium').length} articles en urgence moyenne\n- Coût total réapprovisionnement: ${formatCurrency(reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0))}\n- Recommandations de commande`
+                  },
+                  { 
+                    title: 'Rapport de Rotation', 
+                    icon: ArrowPathIcon, 
+                    color: 'purple', 
+                    desc: 'Taux de rotation des stocks', 
+                    count: '3.5x par an',
+                    details: `Contenu du rapport:\n- Taux de rotation: 3.5× par an\n- Durée moyenne de stockage: 104 jours\n- Articles à rotation rapide\n- Articles à rotation lente\n- Recommandations d'optimisation`
+                  },
+                  { 
+                    title: 'Analyse ABC', 
+                    icon: ChartBarIcon, 
+                    color: 'slate', 
+                    desc: 'Classification par valeur', 
+                    count: 'A:20% B:30% C:50%',
+                    details: `Contenu du rapport:\n- Catégorie A: ${Math.floor(products.length * 0.20)} articles (80% valeur)\n- Catégorie B: ${Math.floor(products.length * 0.30)} articles (15% valeur)\n- Catégorie C: ${Math.floor(products.length * 0.50)} articles (5% valeur)\n- Stratégies de gestion par catégorie`
+                  }
+                ].map((report, index) => {
+                  const colorConfig: Record<string, any> = {
+                    blue: { bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', border: 'border-blue-200 dark:border-blue-700', text: 'text-blue-700 dark:text-blue-300', icon: 'text-blue-600 dark:text-blue-400', iconBg: 'bg-blue-200 dark:bg-blue-800' },
+                    emerald: { bg: 'from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20', border: 'border-emerald-200 dark:border-emerald-700', text: 'text-emerald-700 dark:text-emerald-300', icon: 'text-emerald-600 dark:text-emerald-400', iconBg: 'bg-emerald-200 dark:bg-emerald-800' },
+                    amber: { bg: 'from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20', border: 'border-amber-200 dark:border-amber-700', text: 'text-amber-700 dark:text-amber-300', icon: 'text-amber-600 dark:text-amber-400', iconBg: 'bg-amber-200 dark:bg-amber-800' },
+                    red: { bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', border: 'border-red-200 dark:border-red-700', text: 'text-red-700 dark:text-red-300', icon: 'text-red-600 dark:text-red-400', iconBg: 'bg-red-200 dark:bg-red-800' },
+                    purple: { bg: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20', border: 'border-purple-200 dark:border-purple-700', text: 'text-purple-700 dark:text-purple-300', icon: 'text-purple-600 dark:text-purple-400', iconBg: 'bg-purple-200 dark:bg-purple-800' },
+                    slate: { bg: 'from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700', border: 'border-slate-200 dark:border-slate-600', text: 'text-slate-700 dark:text-slate-300', icon: 'text-slate-600 dark:text-slate-400', iconBg: 'bg-slate-200 dark:bg-slate-600' }
+                  };
+                  const config = colorConfig[report.color];
+                  const Icon = report.icon;
+                  const pages = Math.floor(Math.random() * 15) + 8;
+
+                  return (
+                    <div 
+                      key={index} 
+                      className={`bg-gradient-to-br ${config.bg} p-5 rounded-xl border ${config.border} hover:shadow-lg transition-all cursor-pointer`}
+                      onClick={() => {
+                        alert(`📊 GÉNÉRATION DU RAPPORT\n\n` +
+                              `📄 Titre: ${report.title}\n` +
+                              `📋 Description: ${report.desc}\n` +
+                              `📊 Données: ${report.count}\n` +
+                              `📑 Pages estimées: ${pages}\n` +
+                              `📅 Date: ${new Date().toLocaleDateString('fr-FR')}\n\n` +
+                              `${report.details}\n\n` +
+                              `✅ Rapport généré avec succès !\n` +
+                              `💾 Format: PDF\n` +
+                              `📂 Enregistré dans: Rapports/Inventaire/`);
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className={`p-3 ${config.iconBg} rounded-lg`}>
+                          <Icon className={`h-6 w-6 ${config.icon}`} />
+                        </div>
+                      </div>
+                      <h4 className={`text-lg font-bold ${config.text} mb-1`}>{report.title}</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{report.desc}</p>
+                      <p className={`text-sm font-semibold ${config.text}`}>{report.count}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Graphiques d'analyse */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Graphique Évolution du Stock */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Évolution du Stock (6 derniers mois)</h4>
+                  <div className="h-64">
+                    <Line
+                      data={{
+                        labels: ['Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
+                        datasets: [
+                          {
+                            label: 'Valeur du Stock',
+                            data: [980000, 1050000, 1120000, 1180000, 1220000, totalStock],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                          },
+                          {
+                            label: 'Quantité Totale',
+                            data: [850, 920, 980, 1050, 1120, products.reduce((sum, a) => sum + a.stock, 0)],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y1'
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'top' as const,
+                          },
+                        },
+                        scales: {
+                          y: {
+                            type: 'linear' as const,
+                            display: true,
+                            position: 'left' as const,
+                            beginAtZero: true,
+                            ticks: {
+                              callback: function(value) {
+                                return formatCurrency(value as number);
+                              }
+                            }
+                          },
+                          y1: {
+                            type: 'linear' as const,
+                            display: true,
+                            position: 'right' as const,
+                            beginAtZero: true,
+                            grid: {
+                              drawOnChartArea: false,
+                            },
+                          },
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Graphique Répartition par Catégorie */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Répartition par Catégorie</h4>
+                  <div className="h-64">
+                    <Doughnut
+                      data={{
+                        labels: Object.keys(categoriesStock),
+                        datasets: [{
+                          data: Object.values(categoriesStock),
+                          backgroundColor: [
+                            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
+                          ],
+                          borderColor: [
+                            '#2563EB', '#059669', '#D97706', '#DC2626', '#7C3AED', '#DB2777'
+                          ],
+                          borderWidth: 2
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom' as const,
+                          },
+                          tooltip: {
+                            callbacks: {
+                              label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0) as number;
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${formatCurrency(value)} (${percentage}%)`;
+                              }
+                            }
+                          }
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Graphique Mouvements Mensuels */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Mouvements Mensuels</h4>
+                  <div className="h-64">
+                    <Bar
+                      data={{
+                        labels: ['Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
+                        datasets: [
+                          {
+                            label: 'Entrées',
+                            data: [250, 320, 280, 310, 290, 335],
+                            backgroundColor: '#10B981',
+                            borderColor: '#059669',
+                            borderWidth: 1
+                          },
+                          {
+                            label: 'Sorties',
+                            data: [180, 210, 195, 230, 220, 245],
+                            backgroundColor: '#EF4444',
+                            borderColor: '#DC2626',
+                            borderWidth: 1
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'top' as const,
+                          },
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Graphique Analyse ABC */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Analyse ABC - Classification par Valeur</h4>
+                  <div className="h-64">
+                    <Bar
+                      data={{
+                        labels: ['Catégorie A\n(Haute Valeur)', 'Catégorie B\n(Valeur Moyenne)', 'Catégorie C\n(Faible Valeur)'],
+                        datasets: [{
+                          label: 'Nombre d\'articles',
+                          data: [
+                            Math.floor(products.length * 0.20),
+                            Math.floor(products.length * 0.30),
+                            Math.floor(products.length * 0.50)
+                          ],
+                          backgroundColor: [
+                            '#10B981',
+                            '#F59E0B',
+                            '#64748B'
+                          ],
+                          borderColor: [
+                            '#059669',
+                            '#D97706',
+                            '#475569'
+                          ],
+                          borderWidth: 2
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            display: false
+                          },
+                        },
+                        scales: {
+                          y: {
+                            beginAtZero: true
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="text-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">Catégorie A</p>
+                      <p className="text-lg font-bold text-emerald-900 dark:text-emerald-100">20%</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">80% de la valeur</p>
+                    </div>
+                    <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                      <p className="text-xs text-amber-600 dark:text-amber-400">Catégorie B</p>
+                      <p className="text-lg font-bold text-amber-900 dark:text-amber-100">30%</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">15% de la valeur</p>
+                    </div>
+                    <div className="text-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
+                      <p className="text-xs text-slate-600 dark:text-slate-400">Catégorie C</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-slate-100">50%</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">5% de la valeur</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Statistiques détaillées */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-5 rounded-xl border border-blue-200 dark:border-blue-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">Stock Normal</p>
+                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
+                        {products.filter(a => a.stock > 50).length}
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">articles</p>
+                    </div>
+                    <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-lg">
+                      <CheckCircleIcon className="h-6 w-6 text-blue-700 dark:text-blue-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Stock Faible</p>
+                      <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
+                        {products.filter(a => a.stock <= 50 && a.stock > 20).length}
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">articles</p>
+                    </div>
+                    <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
+                      <ExclamationTriangleIcon className="h-6 w-6 text-amber-700 dark:text-amber-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-5 rounded-xl border border-red-200 dark:border-red-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Stock Critique</p>
+                      <p className="text-2xl font-bold text-red-900 dark:text-red-100">
+                        {products.filter(a => a.stock <= 20).length}
+                      </p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">articles</p>
+                    </div>
+                    <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
+                      <ExclamationTriangleIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Taux de Rotation</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">3.5×</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">fois par an</p>
+                    </div>
+                    <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
+                      <ArrowPathIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Historique des rapports */}
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Rapports Récents</h4>
+                </div>
+                <div className="p-6 space-y-3">
+                  {[
+                    { nom: 'Rapport Stock Complet - Janvier 2024', date: '2024-01-31', type: 'PDF', taille: '2.4 MB', pages: 15, auteur: 'Ahmed Benali' },
+                    { nom: 'Mouvements Mensuels - Janvier', date: '2024-01-31', type: 'Excel', taille: '1.1 MB', pages: 8, auteur: 'Fatima Zerai' },
+                    { nom: 'Analyse de Valeur - Q4 2023', date: '2023-12-31', type: 'PDF', taille: '3.2 MB', pages: 22, auteur: 'Mohamed Kadri' },
+                    { nom: 'Rapport ABC - 2023', date: '2023-12-31', type: 'Excel', taille: '856 KB', pages: 5, auteur: 'Ahmed Benali' },
+                    { nom: 'Inventaire Annuel - 2023', date: '2023-12-31', type: 'PDF', taille: '4.8 MB', pages: 35, auteur: 'Direction' }
+                  ].map((rapport, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                      <div className="flex items-center space-x-4">
+                        <div className={`p-2 rounded-lg ${rapport.type === 'PDF' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>
+                          <DocumentTextIcon className={`h-5 w-5 ${rapport.type === 'PDF' ? 'text-red-700 dark:text-red-300' : 'text-emerald-700 dark:text-emerald-300'}`} />
+                        </div>
+                        <div>
+                          <h5 className="font-semibold text-slate-900 dark:text-slate-100">{rapport.nom}</h5>
+                          <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 mt-1">
+                            <span>{rapport.date}</span>
+                            <span>•</span>
+                            <span className={`font-medium ${rapport.type === 'PDF' ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                              {rapport.type}
+                            </span>
+                            <span>•</span>
+                            <span>{rapport.taille}</span>
+                            <span>•</span>
+                            <span>{rapport.pages} pages</span>
+                            <span>•</span>
+                            <UserIcon className="h-3 w-3" />
+                            <span>{rapport.auteur}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            alert(`📥 TÉLÉCHARGEMENT EN COURS...\n\n` +
+                                  `📄 Fichier: ${rapport.nom}\n` +
+                                  `📋 Format: ${rapport.type}\n` +
+                                  `💾 Taille: ${rapport.taille}\n` +
+                                  `📑 Pages: ${rapport.pages}\n` +
+                                  `👤 Auteur: ${rapport.auteur}\n` +
+                                  `📅 Date: ${rapport.date}\n\n` +
+                                  `✅ Téléchargement réussi !\n` +
+                                  `📂 Fichier enregistré dans: Téléchargements/`);
+                          }}
+                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          title="Télécharger"
+                        >
+                          <ArrowDownTrayIcon className="h-5 w-5" />
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            alert(`🖨️ IMPRESSION EN COURS...\n\n` +
+                                  `📄 Document: ${rapport.nom}\n` +
+                                  `📑 Pages à imprimer: ${rapport.pages}\n` +
+                                  `📏 Format: A4\n` +
+                                  `🎨 Orientation: Portrait\n` +
+                                  `⚙️ Qualité: Haute\n\n` +
+                                  `✅ Envoi vers l'imprimante par défaut...\n` +
+                                  `⏳ Temps estimé: ${rapport.pages * 3} secondes`);
+                          }}
+                          className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                          title="Imprimer"
+                        >
+                          <PrinterIcon className="h-5 w-5" />
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            alert(`👁️ APERÇU DU RAPPORT\n\n` +
+                                  `📄 Rapport: ${rapport.nom}\n` +
+                                  `📋 Type: ${rapport.type}\n` +
+                                  `📑 ${rapport.pages} pages\n` +
+                                  `📅 Généré le: ${rapport.date}\n` +
+                                  `👤 Par: ${rapport.auteur}\n\n` +
+                                  `🚀 Ouverture dans un nouvel onglet...\n` +
+                                  `✅ Chargement du document en cours...`);
+                          }}
+                          className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                          title="Aperçu"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Modal Inventaire Physique */}
+      {showInventoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowInventoryModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">📋 Inventaire Physique</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Vérifiez et ajustez les quantités en stock</p>
+              </div>
+              <button 
+                onClick={() => setShowInventoryModal(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                aria-label="Fermer"
+                title="Fermer"
+              >
+                <XMarkIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <MagnifyingGlassIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  <div>
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">Session d'inventaire en cours</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">Date: {new Date().toLocaleDateString('fr-FR')} • {filteredAndSortedArticles.length} articles à vérifier</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Liste des articles pour comptage */}
+              <div className="space-y-3">
+                {filteredAndSortedArticles.slice(0, 8).map((article) => (
+                  <div key={article.id} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h5 className="font-semibold text-slate-900 dark:text-slate-100">{article.nom}</h5>
+                        <p className="text-sm text-slate-600 dark:text-slate-400">{article.codePCA} • {article.categorie}</p>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <div className="text-right">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Stock système</p>
+                          <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{article.stock}</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Stock physique</p>
+                          <input 
+                            type="number" 
+                            defaultValue={article.stock}
+                            className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded text-center font-semibold"
+                            aria-label="Stock physique"
+                          />
+                        </div>
+                        <button className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors" aria-label="Valider le comptage" title="Valider le comptage">
+                          <CheckCircleIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button 
+                  onClick={() => setShowInventoryModal(false)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={() => {
+                    alert('✅ Inventaire physique validé avec succès !');
+                    setShowInventoryModal(false);
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Valider l'Inventaire
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Détails Article */}
+      {showDetailModal && selectedReorderArticle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowDetailModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">📦 Détails de l'Article</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{selectedReorderArticle.codePCA}</p>
+              </div>
+              <button 
+                onClick={() => setShowDetailModal(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                aria-label="Fermer"
+                title="Fermer"
+              >
+                <XMarkIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Badge d'urgence */}
+              <div className={`p-4 rounded-lg border ${
+                selectedReorderArticle.urgency === 'high' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700' :
+                selectedReorderArticle.urgency === 'medium' ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700' :
+                'bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600'
+              }`}>
+                <div className="flex items-center space-x-3">
+                  <ExclamationTriangleIcon className={`h-6 w-6 ${
+                    selectedReorderArticle.urgency === 'high' ? 'text-red-600 dark:text-red-400' :
+                    selectedReorderArticle.urgency === 'medium' ? 'text-amber-600 dark:text-amber-400' :
+                    'text-slate-600 dark:text-slate-400'
+                  }`} />
+                  <div className="flex-1">
+                    <h4 className={`font-semibold ${
+                      selectedReorderArticle.urgency === 'high' ? 'text-red-900 dark:text-red-100' :
+                      selectedReorderArticle.urgency === 'medium' ? 'text-amber-900 dark:text-amber-100' :
+                      'text-slate-900 dark:text-slate-100'
+                    }`}>
+                      {selectedReorderArticle.urgency === 'high' ? '🔴 Urgence Élevée' :
+                       selectedReorderArticle.urgency === 'medium' ? '🟡 Urgence Moyenne' : '🟢 Urgence Faible'}
+                    </h4>
+                    <p className={`text-sm ${
+                      selectedReorderArticle.urgency === 'high' ? 'text-red-700 dark:text-red-300' :
+                      selectedReorderArticle.urgency === 'medium' ? 'text-amber-700 dark:text-amber-300' :
+                      'text-slate-600 dark:text-slate-400'
+                    }`}>
+                      Réapprovisionnement {selectedReorderArticle.urgency === 'high' ? 'immédiat' : selectedReorderArticle.urgency === 'medium' ? 'sous 7 jours' : 'à planifier'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations principales */}
+              <div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Informations générales</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Nom de l'article</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.nom}</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Catégorie</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.categorie}</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Code PCA</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.codePCA}</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Prix unitaire</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(selectedReorderArticle.prixUnitaire)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Niveaux de stock */}
+              <div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Niveaux de stock</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-600 dark:text-slate-400">Stock actuel</span>
+                    <span className="text-lg font-bold text-red-600 dark:text-red-400">{selectedReorderArticle.stock} unités</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                    <div 
+                      className={`h-3 rounded-full ${
+                        selectedReorderArticle.urgency === 'high' ? 'bg-red-600' :
+                        selectedReorderArticle.urgency === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                      } ${percentToWidth((selectedReorderArticle.stock / selectedReorderArticle.stockOptimal) * 100)}`}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 pt-2">
+                    <div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Stock minimum</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.stockMinimum} unités</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Stock optimal</p>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.stockOptimal} unités</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">À commander</p>
+                      <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">+{selectedReorderArticle.suggestedOrder} unités</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations fournisseur */}
+              <div>
+                <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Fournisseur et logistique</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <TruckIcon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Fournisseur principal</p>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.fournisseurPrincipal}</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ClockIcon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Délai de livraison</p>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.delaiLivraison} jours ouvrés</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Dernier achat</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.dernierAchat}</p>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Coût estimé</p>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(selectedReorderArticle.coutEstime)}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button 
+                  onClick={() => setShowDetailModal(false)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  Fermer
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowDetailModal(false);
+                    setShowOrderModal(true);
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                >
+                  <ShoppingCartIcon className="h-4 w-4" />
+                  <span>Commander</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Commander Article */}
+      {showOrderModal && selectedReorderArticle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowOrderModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">🛒 Bon de Commande</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Créer une commande de réapprovisionnement</p>
+              </div>
+              <button 
+                onClick={() => setShowOrderModal(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                aria-label="Fermer"
+                title="Fermer"
+              >
+                <XMarkIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Récapitulatif article */}
+              <div className="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-lg border border-slate-200 dark:border-slate-600">
+                <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-3">{selectedReorderArticle.nom}</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-slate-600 dark:text-slate-400">Code: </span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.codePCA}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-600 dark:text-slate-400">Stock actuel: </span>
+                    <span className="font-semibold text-red-600 dark:text-red-400">{selectedReorderArticle.stock} unités</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-600 dark:text-slate-400">Catégorie: </span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.categorie}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-600 dark:text-slate-400">Prix unitaire: </span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(selectedReorderArticle.prixUnitaire)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Formulaire de commande */}
+              <form className="space-y-4">
+                <div>
+                  <label htmlFor="order-qty" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Quantité à commander <span className="text-red-600">*</span>
+                  </label>
+                  <input 
+                    id="order-qty"
+                    type="number" 
+                    defaultValue={selectedReorderArticle.suggestedOrder}
+                    min={1}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-lg"
+                  />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Quantité suggérée: {selectedReorderArticle.suggestedOrder} unités (pour atteindre le stock optimal)
+                  </p>
+                </div>
+
+                <div>
+                  <label htmlFor="order-supplier" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Fournisseur <span className="text-red-600">*</span>
+                  </label>
+                  <select id="order-supplier" className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                    <option>{selectedReorderArticle.fournisseurPrincipal}</option>
+                    <option>Fournisseur Alternatif 1</option>
+                    <option>Fournisseur Alternatif 2</option>
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="order-date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Date de livraison souhaitée
+                    </label>
+                    <input 
+                      id="order-date"
+                      type="date" 
+                      defaultValue={new Date(Date.now() + selectedReorderArticle.delaiLivraison * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="order-priority" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Priorité
+                    </label>
+                    <select 
+                      id="order-priority"
+                      defaultValue={selectedReorderArticle.urgency}
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    >
+                      <option value="high">🔴 Urgente</option>
+                      <option value="medium">🟡 Normale</option>
+                      <option value="low">🟢 Faible</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    Notes / Instructions spéciales
+                  </label>
+                  <textarea 
+                    rows={3}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    placeholder="Ajouter des instructions particulières pour cette commande..."
+                  />
+                </div>
+
+                {/* Récapitulatif du coût */}
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 p-5 rounded-lg">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-emerald-700 dark:text-emerald-300">Coût estimé total:</span>
+                    <span className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                      {formatCurrency(selectedReorderArticle.coutEstime)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    Délai de livraison: {selectedReorderArticle.delaiLivraison} jours ouvrés
+                  </p>
+                </div>
+              </form>
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button 
+                  onClick={() => setShowOrderModal(false)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={() => {
+                    alert(`✅ Bon de commande créé avec succès !\n\nArticle: ${selectedReorderArticle.nom}\nQuantité: ${selectedReorderArticle.suggestedOrder} unités\nFournisseur: ${selectedReorderArticle.fournisseurPrincipal}\nMontant: ${formatCurrency(selectedReorderArticle.coutEstime)}`);
+                    setShowOrderModal(false);
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                >
+                  <CheckCircleIcon className="h-5 w-5" />
+                  <span>Valider la Commande</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Génération Code-barres */}
+      {showBarcodeModal && selectedBarcodeArticle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowBarcodeModal(false)}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">📊 Génération de Code-barres</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Code EAN-13 / Code 128</p>
+              </div>
+              <button 
+                onClick={() => setShowBarcodeModal(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                aria-label="Fermer"
+                title="Fermer"
+              >
+                <XMarkIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Informations article */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-5 rounded-lg">
+                <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">{selectedBarcodeArticle.nom}</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-blue-700 dark:text-blue-300">Code PCA: </span>
+                    <span className="font-semibold text-blue-900 dark:text-blue-100">{selectedBarcodeArticle.codePCA}</span>
+                  </div>
+                  <div>
+                    <span className="text-blue-700 dark:text-blue-300">Catégorie: </span>
+                    <span className="font-semibold text-blue-900 dark:text-blue-100">{selectedBarcodeArticle.categorie}</span>
+                  </div>
+                  <div>
+                    <span className="text-blue-700 dark:text-blue-300">Stock: </span>
+                    <span className="font-semibold text-blue-900 dark:text-blue-100">{selectedBarcodeArticle.stock} unités</span>
+                  </div>
+                  <div>
+                    <span className="text-blue-700 dark:text-blue-300">Prix: </span>
+                    <span className="font-semibold text-blue-900 dark:text-blue-100">{formatCurrency(selectedBarcodeArticle.prixUnitaire)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Visualisation du code-barres */}
+              <div className="bg-white dark:bg-slate-700 p-8 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-center">
+                <div className="bg-white p-6 rounded-lg inline-block">
+                  {/* Code-barres simulé avec des barres verticales */}
+                  <div className="flex items-end justify-center space-x-0.5 mb-4">
+                    {Array.from({ length: 95 }).map((_, i) => {
+                      const heightClass = i % 3 === 0 ? 'h-16' : 'h-12';
+                      const opacityClass = i % 7 === 0 ? 'opacity-0' : 'opacity-100';
+                      return (
+                        <div 
+                          key={i}
+                          className={`bg-black w-[2px] ${heightClass} ${opacityClass}`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <p className="font-mono text-sm font-bold text-slate-900 mb-1">
+                    {selectedBarcodeArticle.codePCA.replace(/\D/g, '').padStart(13, '8')}
+                  </p>
+                  <p className="text-xs text-slate-600 uppercase tracking-wider">{selectedBarcodeArticle.nom}</p>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-4">Format: EAN-13 / Code 128</p>
+              </div>
+
+              {/* Options de génération */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Options d'impression</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="barcode-format" className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Format</label>
+                    <select id="barcode-format" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500">
+                      <option>EAN-13 (Standard)</option>
+                      <option>Code 128</option>
+                      <option>QR Code</option>
+                      <option>DataMatrix</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="barcode-qty" className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Quantité d'étiquettes</label>
+                    <input 
+                      id="barcode-qty"
+                      type="number" 
+                      defaultValue={10}
+                      min={1}
+                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="barcode-size" className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Taille</label>
+                    <select id="barcode-size" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500">
+                      <option>Petit (30x20mm)</option>
+                      <option selected>Moyen (50x30mm)</option>
+                      <option>Grand (70x40mm)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="barcode-price" className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Inclure le prix</label>
+                    <select id="barcode-price" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500">
+                      <option>Oui</option>
+                      <option selected>Non</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations techniques */}
+              <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Code généré</p>
+                    <p className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                      {selectedBarcodeArticle.codePCA.replace(/\D/g, '').padStart(13, '8')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Type</p>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100">EAN-13</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Date de création</p>
+                    <p className="font-semibold text-slate-900 dark:text-slate-100">{new Date().toLocaleDateString('fr-FR')}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <button 
+                  onClick={() => setShowBarcodeModal(false)}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  Fermer
+                </button>
+                <button 
+                  onClick={() => alert(`📥 Code-barres téléchargé avec succès !\n\nFichier: ${selectedBarcodeArticle.nom}_barcode.pdf`)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                >
+                  <ArrowDownTrayIcon className="h-5 w-5" />
+                  <span>Télécharger PDF</span>
+                </button>
+                <button 
+                  onClick={() => alert(`🖨️ Impression de 10 étiquettes en cours...\n\nArticle: ${selectedBarcodeArticle.nom}\nFormat: EAN-13 (50x30mm)`)}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                >
+                  <PrinterIcon className="h-5 w-5" />
+                  <span>Imprimer</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Inventaire;

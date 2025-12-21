@@ -1,0 +1,139 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Build & Distribution
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+db.sqlite3
+
+# Models & Checkpoints
+*.pt
+*.pth
+*.pkl
+*.h5
+models/checkpoints/
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+*.bak
+
+# OS
+Thumbs.db
+.Thumbs.db
+*.DS_Store
+
+# Python
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Node
+package-lock.json
+npm-lock.json
+yarn.lock
+
+# Docker
+.docker/
+.dockerignore
+docker-compose.override.yml
+
+# Tests
+coverage/
+.pytest/
+test-results/
+
+# Backups
+*.backup
+*.bak
+*.old
+backups/
+
+# Secrets
+.secrets/
+secrets.json
+.aws/
+
+# Frontend Specific
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.cache/
+
+# Backend Specific
+backend/venv/
+backend/__pycache__/
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/app.db
+
+# Database backups
+database/backups/
+*.sql.bak
+
+# OS specific
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE specific
+.vscode/launch.json
+.vscode/tasks.json
+.idea/shelf
+.idea/workspace.xml
+.idea/tasks.xml
