@@ -29,6 +29,8 @@ from app.permissions import (
     log_sensitive_access
 )
 from pydantic import BaseModel, Field
+from app.services.internal_control import InternalControlService
+
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/accounting", tags=["accounting"])
@@ -125,16 +127,23 @@ async def create_journal_entry(
     entry_number = f"JE-{datetime.now().year}-{datetime.now().month:02d}-{str(uuid.uuid4())[:6].upper()}"
     
     # Create journal entry
+    # Determine if approval is needed based on threshold (500k DZD)
+    requires_approval = InternalControlService.check_approval_requirement(float(total_debit))
+    entry_status = "pending_approval" if requires_approval else "draft"
+    
+    # Create journal entry
     journal_entry = JournalEntry(
         company_id=current_user.company_id,
         entry_number=entry_number,
         entry_date=request.entry_date,
         description=request.description,
-        status="draft",
+        status=entry_status,
         total_debit=total_debit,
         total_credit=total_credit,
         created_by=current_user.user_id
     )
+
+
     
     db.add(journal_entry)
     db.flush()

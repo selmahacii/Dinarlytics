@@ -13,6 +13,8 @@ from app.models.models import Supplier, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field
+from app.utils.audit import log_audit
+import json
 
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])
 
@@ -235,6 +237,10 @@ async def create_supplier(
     db.commit()
     db.refresh(supplier)
     
+    # Audit Log
+    log_audit(db, current_user, "CREATE", "SUPPLIER", str(supplier.id), {"name": supplier.name})
+    db.commit()
+    
     return SupplierResponse(
         id=str(supplier.id),
         name=supplier.name,
@@ -276,6 +282,10 @@ async def update_supplier(
     
     db.commit()
     db.refresh(supplier)
+    
+    # Audit Log
+    log_audit(db, current_user, "UPDATE", "SUPPLIER", str(supplier.id), request.dict(exclude_unset=True))
+    db.commit()
     
     return SupplierResponse(
         id=str(supplier.id),

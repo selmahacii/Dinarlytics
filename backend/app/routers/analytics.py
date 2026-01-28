@@ -31,3 +31,12 @@ async def get_smart_alerts(
 ):
     """Smart financial alerts (DSO, Tax deadlines, Anomaly)."""
     return AnalyticService.get_smart_alerts(db, user["company_id"])
+
+@router.get("/forecast")
+async def get_forecast(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user_from_token)
+):
+    """AI Rolling Plan Forecast."""
+    return AnalyticService.get_performance_forecast(db, user["company_id"])
+

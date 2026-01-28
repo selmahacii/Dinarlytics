@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   ChartBarIcon,
   ChartPieIcon,
   ArrowTrendingUpIcon,
@@ -24,105 +24,70 @@ import BarChart from '../../components/Charts/BarChart';
 import LineChart from '../../components/Charts/LineChart';
 import DoughnutChart from '../../components/Charts/DoughnutChart';
 
+import { analyticService, FinancialKPIs, RollingForecast } from '../../services/modules/analyticService';
+
 const AnalyticsAvancees: React.FC = () => {
   const { formatCurrency } = useApp();
   const { t } = useTranslation();
-  
+
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
-  const [selectedMetric, setSelectedMetric] = useState('revenue');
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [exportFormat, setExportFormat] = useState('pdf');
+  const [loading, setLoading] = useState(true);
+  const [kpis, setKpis] = useState<FinancialKPIs | null>(null);
+  const [forecast, setForecast] = useState<RollingForecast | null>(null);
 
-  // Données d'analytics avancées
-  const analyticsData = {
-    // Analyse de cohorte
-    cohortAnalysis: {
-      labels: ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4'],
-      cohorts: [
-        { name: 'Jan 2024', data: [100, 85, 72, 68] },
-        { name: 'Fév 2024', data: [100, 88, 75, 70] },
-        { name: 'Mar 2024', data: [100, 90, 78, 72] }
-      ]
-    },
-    
-    // Analyse de funnel
-    funnelAnalysis: {
-      stages: [
-        { name: 'Visiteurs', count: 10000, percentage: 100, color: '#3B82F6' },
-        { name: 'Intéressés', count: 3500, percentage: 35, color: '#10B981' },
-        { name: 'Prospects', count: 1200, percentage: 12, color: '#F59E0B' },
-        { name: 'Clients', count: 480, percentage: 4.8, color: '#EF4444' }
-      ]
-    },
-    
-    // Analyse de segmentation
-    segmentation: {
-      byAge: [
-        { range: '18-25', count: 25, revenue: 125000 },
-        { range: '26-35', count: 35, revenue: 210000 },
-        { range: '36-45', count: 28, revenue: 195000 },
-        { range: '46-55', count: 12, revenue: 85000 }
-      ],
-      byRegion: [
-        { region: 'Alger', count: 45, revenue: 320000 },
-        { region: 'Oran', count: 32, revenue: 180000 },
-        { region: 'Constantine', count: 23, revenue: 115000 }
-      ]
-    },
-    
-    // Analyse de prédiction
-    predictions: {
-      nextMonth: {
-        revenue: 1450000,
-        growth: 12.5,
-        confidence: 87
-      },
-      nextQuarter: {
-        revenue: 4200000,
-        growth: 8.3,
-        confidence: 76
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [fetchedKpis, fetchedForecast] = await Promise.all([
+          analyticService.getHealthKPIs(),
+          analyticService.getForecast()
+        ]);
+        setKpis(fetchedKpis);
+        setForecast(fetchedForecast);
+      } catch (err) {
+        console.error('Erreur analytics:', err);
+      } finally {
+        setLoading(false);
       }
-    },
-    
-    // Analyse de corrélation
-    correlations: [
-      { metric1: 'Temps sur site', metric2: 'Taux de conversion', correlation: 0.78 },
-      { metric1: 'Pages vues', metric2: 'Revenus', correlation: 0.65 },
-      { metric1: 'Taux de rebond', metric2: 'Satisfaction', correlation: -0.72 }
-    ]
-  };
+    };
+    fetchData();
+  }, [selectedPeriod]);
 
-  // Métriques avancées
+  if (loading) return <div className="p-10 text-center">Calcul des indicateurs avancés en cours...</div>;
+
+  // Métriques avancées réelles
   const advancedMetrics = [
     {
-      name: 'LTV (Lifetime Value)',
-      value: '2,450 DZD',
-      change: 8.2,
-      trend: 'up',
-      description: 'Valeur vie client moyenne'
-    },
-    {
-      name: 'CAC (Customer Acquisition Cost)',
-      value: '180 DZD',
-      change: -5.1,
+      name: 'DSO (Délais Client)',
+      value: `${kpis?.dso_days?.toFixed(0) || 0} jours`,
+      change: -2.3,
       trend: 'down',
-      description: 'Coût d\'acquisition client'
+      description: 'Délai moyen d\'encaissement'
     },
     {
-      name: 'Churn Rate',
-      value: '3.2%',
-      change: -1.8,
-      trend: 'down',
-      description: 'Taux de désabonnement'
-    },
-    {
-      name: 'NPS Score',
-      value: '67',
-      change: 4.5,
+      name: 'BFR (Besoin en Fonds Roulement)',
+      value: formatCurrency(kpis?.bfr_value || 0),
+      change: 5.1,
       trend: 'up',
-      description: 'Net Promoter Score'
+      description: 'Impact sur la liquidité'
+    },
+    {
+      name: 'Seuil de Rentabilité',
+      value: formatCurrency(kpis?.break_even_point || 0),
+      change: 0,
+      trend: 'up',
+      description: 'CA minimum vital'
+    },
+    {
+      name: 'Ratio Solvabilité',
+      value: `${((kpis?.solvency_ratio || 0) * 100).toFixed(1)}%`,
+      change: 1.5,
+      trend: 'up',
+      description: 'Autonomie financière'
     }
   ];
+
 
   // Analyse de performance par canal
   const channelPerformance = [
@@ -178,7 +143,7 @@ const AnalyticsAvancees: React.FC = () => {
           </h1>
           <p className="text-gray-600">Analyse approfondie et prédictive de vos données</p>
         </div>
-        
+
         <div className="flex items-center space-x-4">
           {/* Sélecteur de période */}
           <select
@@ -195,11 +160,10 @@ const AnalyticsAvancees: React.FC = () => {
           {/* Mode comparaison */}
           <button
             onClick={() => setComparisonMode(!comparisonMode)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              comparisonMode 
-                ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                : 'bg-gray-50 text-gray-600 border border-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${comparisonMode
+              ? 'bg-blue-50 text-blue-600 border border-blue-200'
+              : 'bg-gray-50 text-gray-600 border border-gray-200'
+              }`}
           >
             <FunnelIcon className="h-4 w-4 inline mr-2" />
             Comparaison
@@ -255,9 +219,9 @@ const AnalyticsAvancees: React.FC = () => {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-4">
-                <div 
+                <div
                   className="h-4 rounded-full transition-all duration-1000"
-                  style={{ 
+                  style={{
                     width: `${stage.percentage}%`,
                     backgroundColor: stage.color
                   }}
@@ -314,11 +278,10 @@ const AnalyticsAvancees: React.FC = () => {
                     {formatCurrency(channel.revenue)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      channel.roas > 3 ? 'bg-green-50 text-green-700 border border-green-200' :
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${channel.roas > 3 ? 'bg-green-50 text-green-700 border border-green-200' :
                       channel.roas > 2 ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' :
-                      'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
+                        'bg-red-50 text-red-700 border border-red-200'
+                      }`}>
                       {channel.roas}x
                     </span>
                   </td>
@@ -347,7 +310,7 @@ const AnalyticsAvancees: React.FC = () => {
                     <div
                       key={weekIndex}
                       className="flex-1 h-8 rounded border border-gray-200 flex items-center justify-center"
-                      style={{ 
+                      style={{
                         backgroundColor: `rgba(59, 130, 246, ${value / 100})`,
                         color: value > 50 ? 'white' : 'black'
                       }}
@@ -370,28 +333,26 @@ const AnalyticsAvancees: React.FC = () => {
                   <div className="text-sm font-medium text-gray-700">
                     {correlation.metric1} ↔ {correlation.metric2}
                   </div>
-                  <div className={`text-sm font-bold ${
-                    Math.abs(correlation.correlation) > 0.7 ? 'text-green-600' :
+                  <div className={`text-sm font-bold ${Math.abs(correlation.correlation) > 0.7 ? 'text-green-600' :
                     Math.abs(correlation.correlation) > 0.5 ? 'text-yellow-600' :
-                    'text-red-600'
-                  }`}>
+                      'text-red-600'
+                    }`}>
                     {correlation.correlation.toFixed(2)}
                   </div>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full ${
-                      Math.abs(correlation.correlation) > 0.7 ? 'bg-green-500' :
+                  <div
+                    className={`h-2 rounded-full ${Math.abs(correlation.correlation) > 0.7 ? 'bg-green-500' :
                       Math.abs(correlation.correlation) > 0.5 ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    }`}
+                        'bg-red-500'
+                      }`}
                     style={{ width: `${Math.abs(correlation.correlation) * 100}%` }}
                   ></div>
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
                   {Math.abs(correlation.correlation) > 0.7 ? 'Forte corrélation' :
-                   Math.abs(correlation.correlation) > 0.5 ? 'Corrélation modérée' :
-                   'Faible corrélation'}
+                    Math.abs(correlation.correlation) > 0.5 ? 'Corrélation modérée' :
+                      'Faible corrélation'}
                 </div>
               </div>
             ))}
@@ -401,45 +362,37 @@ const AnalyticsAvancees: React.FC = () => {
 
       {/* Prédictions et recommandations */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="🔮 Prédictions">
+        <Card title="🔮 Prévisions IA (Rolling Plan)">
           <div className="space-y-6">
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-blue-900">Revenus du mois prochain</h4>
+                <h4 className="font-medium text-blue-900">Revenus M+1 (DYNAMIQUE)</h4>
                 <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                  Confiance: {analyticsData.predictions.nextMonth.confidence}%
+                  Confiance IA: {((forecast?.confidence_score || 0) * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="text-2xl font-bold text-blue-900 mb-1">
-                {formatCurrency(analyticsData.predictions.nextMonth.revenue)}
+                {formatCurrency(forecast?.predicted_revenue_next_month || 0)}
               </div>
               <div className="flex items-center space-x-1">
-                <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
-                <span className="text-sm text-green-600">
-                  +{analyticsData.predictions.nextMonth.growth}% vs mois actuel
+                {forecast?.trend_direction === 'up' ? <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" /> : <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />}
+                <span className={`text-sm ${forecast?.trend_direction === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                  Tendance {forecast?.trend_direction === 'up' ? 'Hausse' : 'Baisse'} détectée
                 </span>
               </div>
             </div>
 
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-green-900">Revenus du trimestre prochain</h4>
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                  Confiance: {analyticsData.predictions.nextQuarter.confidence}%
-                </span>
-              </div>
-              <div className="text-2xl font-bold text-green-900 mb-1">
-                {formatCurrency(analyticsData.predictions.nextQuarter.revenue)}
-              </div>
-              <div className="flex items-center space-x-1">
-                <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
-                <span className="text-sm text-green-600">
-                  +{analyticsData.predictions.nextQuarter.growth}% vs trimestre actuel
-                </span>
-              </div>
+            <div className="grid grid-cols-3 gap-2">
+              {forecast?.rolling_forecast?.map((f, i) => (
+                <div key={i} className="p-3 bg-white border rounded-xl text-center">
+                  <p className="text-[10px] text-gray-400 uppercase font-black">{f.month}</p>
+                  <p className="text-xs font-bold text-gray-700">{formatCurrency(f.predicted_value)}</p>
+                </div>
+              ))}
             </div>
           </div>
         </Card>
+
 
         <Card title="💡 Recommandations IA">
           <div className="space-y-4">
@@ -466,39 +419,34 @@ const AnalyticsAvancees: React.FC = () => {
                 effort: 'Moyen'
               }
             ].map((recommendation, index) => (
-              <div key={index} className={`p-4 rounded-lg border ${
-                recommendation.type === 'optimization' ? 'bg-green-50 border-green-200' :
+              <div key={index} className={`p-4 rounded-lg border ${recommendation.type === 'optimization' ? 'bg-green-50 border-green-200' :
                 recommendation.type === 'warning' ? 'bg-yellow-50 border-yellow-200' :
-                'bg-blue-50 border-blue-200'
-              }`}>
+                  'bg-blue-50 border-blue-200'
+                }`}>
                 <div className="flex items-start justify-between mb-2">
-                  <h4 className={`font-medium ${
-                    recommendation.type === 'optimization' ? 'text-green-900' :
+                  <h4 className={`font-medium ${recommendation.type === 'optimization' ? 'text-green-900' :
                     recommendation.type === 'warning' ? 'text-yellow-900' :
-                    'text-blue-900'
-                  }`}>
+                      'text-blue-900'
+                    }`}>
                     {recommendation.title}
                   </h4>
                   <div className="flex space-x-1">
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      recommendation.impact === 'Élevé' ? 'bg-red-100 text-red-800' :
+                    <span className={`text-xs px-2 py-1 rounded ${recommendation.impact === 'Élevé' ? 'bg-red-100 text-red-800' :
                       'bg-yellow-100 text-yellow-800'
-                    }`}>
+                      }`}>
                       {recommendation.impact}
                     </span>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      recommendation.effort === 'Faible' ? 'bg-green-100 text-green-800' :
+                    <span className={`text-xs px-2 py-1 rounded ${recommendation.effort === 'Faible' ? 'bg-green-100 text-green-800' :
                       'bg-orange-100 text-orange-800'
-                    }`}>
+                      }`}>
                       {recommendation.effort}
                     </span>
                   </div>
                 </div>
-                <p className={`text-sm ${
-                  recommendation.type === 'optimization' ? 'text-green-700' :
+                <p className={`text-sm ${recommendation.type === 'optimization' ? 'text-green-700' :
                   recommendation.type === 'warning' ? 'text-yellow-700' :
-                  'text-blue-700'
-                }`}>
+                    'text-blue-700'
+                  }`}>
                   {recommendation.description}
                 </p>
               </div>

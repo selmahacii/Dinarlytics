@@ -58,240 +58,234 @@ ChartJS.register(
   Filler
 );
 
+import { budgetService, Budget as BudgetUI, BudgetItem as BudgetItemUI } from '../../services/modules/budgetService';
+
 const Budget: React.FC = () => {
-  const { formatCurrency, user, companyData } = useApp();
-  const { t } = useTranslation();
+  const { formatCurrency, user } = useApp();
   const { has } = usePermission();
-  
+
   // États principaux
   const [activeTab, setActiveTab] = useState<'overview' | 'elaboration' | 'suivi' | 'ecarts' | 'previsions'>('overview');
-  const [selectedExercice, setSelectedExercice] = useState(() => {
-    return new Date().getFullYear().toString();
-  });
-  const [selectedPeriod, setSelectedPeriod] = useState(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  });
-  
-  // États pour les modals
-  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
-  const [isLigneModalOpen, setIsLigneModalOpen] = useState(false);
-  const [isEcartModalOpen, setIsEcartModalOpen] = useState(false);
-  const [isPrevisionModalOpen, setIsPrevisionModalOpen] = useState(false);
-  const [isViewBudgetModalOpen, setIsViewBudgetModalOpen] = useState(false);
-  const [isAnalyseModalOpen, setIsAnalyseModalOpen] = useState(false);
-  
-  // États pour les données
-  const [budgets, setBudgets] = useState<Budget[]>([]);
-  const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
-  const [selectedLigne, setSelectedLigne] = useState<LigneBudget | null>(null);
-  const [selectedEcart, setSelectedEcart] = useState<EcartBudget | null>(null);
-  const [loadingBudgets, setLoadingBudgets] = useState(false);
+  const [selectedExercice, setSelectedExercice] = useState(new Date().getFullYear().toString());
 
-  // Charger les budgets depuis l'API
+  // États pour les données
+  const [budgets, setBudgets] = useState<BudgetUI[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Charger les budgets depuis l'API Réelle
+  const loadBudgets = async () => {
+    try {
+      setLoading(true);
+      const data = await budgetService.getAll();
+      setBudgets(data);
+    } catch (err) {
+      console.error('Failed to load budgets:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadBudgets = async () => {
-      setLoadingBudgets(true);
-      try {
-        const data = await api.budgets.list();
-        setBudgets(data || []);
-      } catch (err) {
-        console.error('Failed to load budgets:', err);
-        setBudgets([]);
-      } finally {
-        setLoadingBudgets(false);
-      }
-    };
     loadBudgets();
   }, []);
 
+  const handleSync = async (id: string) => {
+    try {
+      await budgetService.sync(id);
+      loadBudgets();
+    } catch (err) {
+      alert("Erreur lors de la synchronisation avec la comptabilité.");
+    }
+  };
+
+
   // Fallback mock data (temporaire si API ne retourne rien)
   const displayBudgets = budgets.length > 0 ? budgets : [
-      {
-        id: 'bud-001',
-        nom: 'Budget Initial 2025',
-        description: 'Budget initial pour l\'exercice 2025',
-        exercice: '2025',
-        type: 'initial' as const,
-        statut: 'approuvé' as const,
-        dateCreation: '2024-12-15',
-        dateDebut: '2025-01-01',
-        dateFin: '2025-12-31',
-        dateValidation: '2024-12-20',
-        creePar: 'Admin',
-        validePar: 'Manager',
-        lignes: [
-          {
-            id: 'ligne-001',
-            code: 'VTE-001',
-            libelle: 'Ventes Produits',
-            categorie: 'ventes',
-            type: 'recette',
-            compteComptable: '701',
-            periode: '2025',
-            montantBudget: 12000000,
-            montantReel: 12500000,
-            ecart: 500000,
-            ecartPourcentage: 4.17,
-            statut: 'depasse',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-002',
-            code: 'VTE-002',
-            libelle: 'Ventes Services',
-            categorie: 'ventes',
-            type: 'recette',
-            compteComptable: '706',
-            periode: '2025',
-            montantBudget: 8000000,
-            montantReel: 7500000,
-            ecart: -500000,
-            ecartPourcentage: -6.25,
-            statut: 'non_atteint',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-003',
-            code: 'ACH-001',
-            libelle: 'Achats Matières Premières',
-            categorie: 'achats',
-            type: 'depense',
-            compteComptable: '601',
-            periode: '2025',
-            montantBudget: 6000000,
-            montantReel: 5800000,
-            ecart: -200000,
-            ecartPourcentage: -3.33,
-            statut: 'en_cours',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-004',
-            code: 'CHG-001',
-            libelle: 'Charges Personnel',
-            categorie: 'charges',
-            type: 'depense',
-            compteComptable: '641',
-            periode: '2025',
-            montantBudget: 3500000,
-            montantReel: 3600000,
-            ecart: 100000,
-            ecartPourcentage: 2.86,
-            statut: 'depasse',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-005',
-            code: 'CHG-002',
-            libelle: 'Charges Exploitation',
-            categorie: 'charges',
-            type: 'depense',
-            compteComptable: '622',
-            periode: '2025',
-            montantBudget: 2000000,
-            montantReel: 1950000,
-            ecart: -50000,
-            ecartPourcentage: -2.5,
-            statut: 'en_cours',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          }
-        ],
-        lignesBudget: [
-          {
-            id: 'ligne-001',
-            code: 'VTE-001',
-            libelle: 'Ventes Produits',
-            categorie: 'ventes',
-            type: 'recette',
-            compteComptable: '701',
-            periode: '2025',
-            montantBudget: 12000000,
-            montantReel: 12500000,
-            ecart: 500000,
-            ecartPourcentage: 4.17,
-            statut: 'depasse',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-002',
-            code: 'VTE-002',
-            libelle: 'Ventes Services',
-            categorie: 'ventes',
-            type: 'recette',
-            compteComptable: '706',
-            periode: '2025',
-            montantBudget: 8000000,
-            montantReel: 7500000,
-            ecart: -500000,
-            ecartPourcentage: -6.25,
-            statut: 'non_atteint',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-003',
-            code: 'ACH-001',
-            libelle: 'Achats Matières Premières',
-            categorie: 'achats',
-            type: 'depense',
-            compteComptable: '601',
-            periode: '2025',
-            montantBudget: 6000000,
-            montantReel: 5800000,
-            ecart: -200000,
-            ecartPourcentage: -3.33,
-            statut: 'en_cours',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-004',
-            code: 'CHG-001',
-            libelle: 'Charges Personnel',
-            categorie: 'charges',
-            type: 'depense',
-            compteComptable: '641',
-            periode: '2025',
-            montantBudget: 3500000,
-            montantReel: 3600000,
-            ecart: 100000,
-            ecartPourcentage: 2.86,
-            statut: 'depasse',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          },
-          {
-            id: 'ligne-005',
-            code: 'CHG-002',
-            libelle: 'Charges Exploitation',
-            categorie: 'charges',
-            type: 'depense',
-            compteComptable: '622',
-            periode: '2025',
-            montantBudget: 2000000,
-            montantReel: 1950000,
-            ecart: -50000,
-            ecartPourcentage: -2.5,
-            statut: 'en_cours',
-            dateCreation: '2024-12-01',
-            dateModification: '2024-12-15'
-          }
-        ],
-        totalRecettes: 20000000,
-        totalDepenses: 11500000,
-        solde: 8500000,
-        soldeBudget: 8500000,
-        version: 1
-      }
-    ];
-  
+    {
+      id: 'bud-001',
+      nom: 'Budget Initial 2025',
+      description: 'Budget initial pour l\'exercice 2025',
+      exercice: '2025',
+      type: 'initial' as const,
+      statut: 'approuvé' as const,
+      dateCreation: '2024-12-15',
+      dateDebut: '2025-01-01',
+      dateFin: '2025-12-31',
+      dateValidation: '2024-12-20',
+      creePar: 'Admin',
+      validePar: 'Manager',
+      lignes: [
+        {
+          id: 'ligne-001',
+          code: 'VTE-001',
+          libelle: 'Ventes Produits',
+          categorie: 'ventes',
+          type: 'recette',
+          compteComptable: '701',
+          periode: '2025',
+          montantBudget: 12000000,
+          montantReel: 12500000,
+          ecart: 500000,
+          ecartPourcentage: 4.17,
+          statut: 'depasse',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-002',
+          code: 'VTE-002',
+          libelle: 'Ventes Services',
+          categorie: 'ventes',
+          type: 'recette',
+          compteComptable: '706',
+          periode: '2025',
+          montantBudget: 8000000,
+          montantReel: 7500000,
+          ecart: -500000,
+          ecartPourcentage: -6.25,
+          statut: 'non_atteint',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-003',
+          code: 'ACH-001',
+          libelle: 'Achats Matières Premières',
+          categorie: 'achats',
+          type: 'depense',
+          compteComptable: '601',
+          periode: '2025',
+          montantBudget: 6000000,
+          montantReel: 5800000,
+          ecart: -200000,
+          ecartPourcentage: -3.33,
+          statut: 'en_cours',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-004',
+          code: 'CHG-001',
+          libelle: 'Charges Personnel',
+          categorie: 'charges',
+          type: 'depense',
+          compteComptable: '641',
+          periode: '2025',
+          montantBudget: 3500000,
+          montantReel: 3600000,
+          ecart: 100000,
+          ecartPourcentage: 2.86,
+          statut: 'depasse',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-005',
+          code: 'CHG-002',
+          libelle: 'Charges Exploitation',
+          categorie: 'charges',
+          type: 'depense',
+          compteComptable: '622',
+          periode: '2025',
+          montantBudget: 2000000,
+          montantReel: 1950000,
+          ecart: -50000,
+          ecartPourcentage: -2.5,
+          statut: 'en_cours',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        }
+      ],
+      lignesBudget: [
+        {
+          id: 'ligne-001',
+          code: 'VTE-001',
+          libelle: 'Ventes Produits',
+          categorie: 'ventes',
+          type: 'recette',
+          compteComptable: '701',
+          periode: '2025',
+          montantBudget: 12000000,
+          montantReel: 12500000,
+          ecart: 500000,
+          ecartPourcentage: 4.17,
+          statut: 'depasse',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-002',
+          code: 'VTE-002',
+          libelle: 'Ventes Services',
+          categorie: 'ventes',
+          type: 'recette',
+          compteComptable: '706',
+          periode: '2025',
+          montantBudget: 8000000,
+          montantReel: 7500000,
+          ecart: -500000,
+          ecartPourcentage: -6.25,
+          statut: 'non_atteint',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-003',
+          code: 'ACH-001',
+          libelle: 'Achats Matières Premières',
+          categorie: 'achats',
+          type: 'depense',
+          compteComptable: '601',
+          periode: '2025',
+          montantBudget: 6000000,
+          montantReel: 5800000,
+          ecart: -200000,
+          ecartPourcentage: -3.33,
+          statut: 'en_cours',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-004',
+          code: 'CHG-001',
+          libelle: 'Charges Personnel',
+          categorie: 'charges',
+          type: 'depense',
+          compteComptable: '641',
+          periode: '2025',
+          montantBudget: 3500000,
+          montantReel: 3600000,
+          ecart: 100000,
+          ecartPourcentage: 2.86,
+          statut: 'depasse',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        },
+        {
+          id: 'ligne-005',
+          code: 'CHG-002',
+          libelle: 'Charges Exploitation',
+          categorie: 'charges',
+          type: 'depense',
+          compteComptable: '622',
+          periode: '2025',
+          montantBudget: 2000000,
+          montantReel: 1950000,
+          ecart: -50000,
+          ecartPourcentage: -2.5,
+          statut: 'en_cours',
+          dateCreation: '2024-12-01',
+          dateModification: '2024-12-15'
+        }
+      ],
+      totalRecettes: 20000000,
+      totalDepenses: 11500000,
+      solde: 8500000,
+      soldeBudget: 8500000,
+      version: 1
+    }
+  ];
+
   const [ecarts] = useState<EcartBudget[]>([
     {
       id: 'ecart-001',
@@ -328,7 +322,7 @@ const Budget: React.FC = () => {
       dateDetection: '2025-01-15'
     }
   ]);
-  
+
   const [previsions] = useState<PrevisionFinanciere[]>([
     {
       id: 'prev-001',
@@ -345,7 +339,7 @@ const Budget: React.FC = () => {
       precision: 85
     }
   ]);
-  
+
   // Calculs des KPIs
   const kpis = useMemo(() => {
     const budgetActif = budgets.find(b => b.statut === 'en_cours' || b.statut === 'approuvé');
@@ -360,22 +354,22 @@ const Budget: React.FC = () => {
         nombreEcartDefavorable: 0
       };
     }
-    
+
     const totalBudget = budgetActif.totalRecettes - budgetActif.totalDepenses;
     const totalReel = budgetActif.lignesBudget
       .filter((l: LigneBudget) => l.type === 'recette')
       .reduce((sum: number, l: LigneBudget) => sum + l.montantReel, 0) -
       budgetActif.lignesBudget
-      .filter((l: LigneBudget) => l.type === 'depense')
-      .reduce((sum: number, l: LigneBudget) => sum + l.montantReel, 0);
-    
+        .filter((l: LigneBudget) => l.type === 'depense')
+        .reduce((sum: number, l: LigneBudget) => sum + l.montantReel, 0);
+
     const ecartTotal = totalReel - totalBudget;
     const tauxRealisation = totalBudget !== 0 ? (totalReel / totalBudget) * 100 : 0;
-    
+
     const ecartsPeriode = ecarts.filter(e => e.periode === selectedPeriod);
     const nombreEcartFavorable = ecartsPeriode.filter(e => e.typeEcart === 'favorable').length;
     const nombreEcartDefavorable = ecartsPeriode.filter(e => e.typeEcart === 'defavorable').length;
-    
+
     return {
       totalBudget,
       totalReel,
@@ -386,18 +380,18 @@ const Budget: React.FC = () => {
       nombreEcartDefavorable
     };
   }, [budgets, ecarts, selectedPeriod]);
-  
+
   // Suivi budget
   const suiviBudget = useMemo(() => {
     const budgetActif = budgets.find(b => b.statut === 'en_cours' || b.statut === 'approuvé');
     if (!budgetActif) return null;
-    
+
     const lignesPeriode = budgetActif.lignesBudget.filter((l: LigneBudget) => l.periode === selectedPeriod || l.periode === selectedExercice);
     const totalBudget = lignesPeriode.reduce((sum: number, l: LigneBudget) => sum + (l.type === 'recette' ? l.montantBudget : -l.montantBudget), 0);
     const totalReel = lignesPeriode.reduce((sum: number, l: LigneBudget) => sum + (l.type === 'recette' ? l.montantReel : -l.montantReel), 0);
     const ecartTotal = totalReel - totalBudget;
     const tauxRealisation = totalBudget !== 0 ? (totalReel / totalBudget) * 100 : 0;
-    
+
     return {
       budgetId: budgetActif.id,
       budget: budgetActif,
@@ -414,7 +408,7 @@ const Budget: React.FC = () => {
       dateCalcul: new Date().toISOString()
     } as SuiviBudget;
   }, [budgets, ecarts, selectedPeriod, selectedExercice]);
-  
+
   // Fonctions de gestion
   const handleCreerBudget = () => {
     const nomNouveauBudget = `Budget ${selectedExercice}`;
@@ -439,17 +433,17 @@ const Budget: React.FC = () => {
     setSelectedBudget(nouveauBudget);
     setIsBudgetModalOpen(true);
   };
-  
+
   const handleAnalyserEcart = (ecart: EcartBudget) => {
     setSelectedEcart(ecart);
     setIsEcartModalOpen(true);
   };
-  
+
   // Données pour graphiques
   const chartDataRecettesDepenses = useMemo(() => {
     const budgetActif = budgets.find(b => b.statut === 'en_cours' || b.statut === 'approuvé');
     if (!budgetActif) return null;
-    
+
     const recettesBudget = budgetActif.lignesBudget
       .filter((l: LigneBudget) => l.type === 'recette')
       .reduce((sum: number, l: LigneBudget) => sum + l.montantBudget, 0);
@@ -462,7 +456,7 @@ const Budget: React.FC = () => {
     const depensesReel = budgetActif.lignesBudget
       .filter((l: LigneBudget) => l.type === 'depense')
       .reduce((sum: number, l: LigneBudget) => sum + l.montantReel, 0);
-    
+
     return {
       labels: ['Recettes', 'Dépenses'],
       datasets: [
@@ -483,7 +477,7 @@ const Budget: React.FC = () => {
       ]
     };
   }, [budgets]);
-  
+
   return (
     <div className="space-y-6 p-6">
       {/* En-tête */}
@@ -523,7 +517,7 @@ const Budget: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* KPIs Principaux */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card title="Budget Total">
@@ -532,25 +526,24 @@ const Budget: React.FC = () => {
             <div className="text-sm text-gray-600">Exercice {selectedExercice}</div>
           </div>
         </Card>
-        
+
         <Card title="Réalisé">
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600 mb-2">{formatCurrency(kpis.totalReel)}</div>
             <div className="text-sm text-gray-600">Montant réel</div>
           </div>
         </Card>
-        
+
         <Card title="Écart">
           <div className="text-center">
-            <div className={`text-2xl font-bold mb-2 ${
-              kpis.ecartTotal >= 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
+            <div className={`text-2xl font-bold mb-2 ${kpis.ecartTotal >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
               {kpis.ecartTotal >= 0 ? '+' : ''}{formatCurrency(kpis.ecartTotal)}
             </div>
             <div className="text-sm text-gray-600">Taux réalisation: {kpis.tauxRealisation.toFixed(1)}%</div>
           </div>
         </Card>
-        
+
         <Card title="Écarts Détectés">
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-600 mb-2">{kpis.nombreEcart}</div>
@@ -560,7 +553,7 @@ const Budget: React.FC = () => {
           </div>
         </Card>
       </div>
-      
+
       {/* Onglets */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="border-b border-gray-200">
@@ -577,11 +570,10 @@ const Budget: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`${
-                    activeTab === tab.id
+                  className={`${activeTab === tab.id
                       ? 'border-purple-500 text-purple-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2`}
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2`}
                 >
                   <Icon className="h-5 w-5" />
                   <span>{tab.name}</span>
@@ -590,7 +582,7 @@ const Budget: React.FC = () => {
             })}
           </nav>
         </div>
-        
+
         <div className="p-6">
           {/* Vue d'ensemble */}
           {activeTab === 'overview' && (
@@ -625,7 +617,7 @@ const Budget: React.FC = () => {
                     </div>
                   )}
                 </Card>
-                
+
                 <Card title="Taux de Réalisation">
                   <div className="space-y-4">
                     <div className="text-center">
@@ -636,11 +628,10 @@ const Budget: React.FC = () => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-4">
                       <div
-                        className={`h-4 rounded-full ${
-                          kpis.tauxRealisation >= 100 ? 'bg-green-500' :
-                          kpis.tauxRealisation >= 80 ? 'bg-blue-500' :
-                          kpis.tauxRealisation >= 50 ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}
+                        className={`h-4 rounded-full ${kpis.tauxRealisation >= 100 ? 'bg-green-500' :
+                            kpis.tauxRealisation >= 80 ? 'bg-blue-500' :
+                              kpis.tauxRealisation >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}
                         style={{ width: `${Math.min(100, kpis.tauxRealisation)}%` }}
                       />
                     </div>
@@ -657,7 +648,7 @@ const Budget: React.FC = () => {
                   </div>
                 </Card>
               </div>
-              
+
               {suiviBudget && (
                 <Card title="Top 5 Écarts">
                   <div className="overflow-x-auto">
@@ -684,14 +675,12 @@ const Budget: React.FC = () => {
                             <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                               {formatCurrency(ecart.ligneBudget.montantReel)}
                             </td>
-                            <td className={`px-4 py-3 whitespace-nowrap text-sm font-medium ${
-                              ecart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
-                            }`}>
+                            <td className={`px-4 py-3 whitespace-nowrap text-sm font-medium ${ecart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
+                              }`}>
                               {ecart.typeEcart === 'favorable' ? '+' : ''}{formatCurrency(ecart.montantEcart)}
                             </td>
-                            <td className={`px-4 py-3 whitespace-nowrap text-sm ${
-                              ecart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
-                            }`}>
+                            <td className={`px-4 py-3 whitespace-nowrap text-sm ${ecart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
+                              }`}>
                               {ecart.pourcentageEcart >= 0 ? '+' : ''}{ecart.pourcentageEcart.toFixed(2)}%
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap text-sm">
@@ -711,7 +700,7 @@ const Budget: React.FC = () => {
               )}
             </div>
           )}
-          
+
           {/* Élaboration */}
           {activeTab === 'elaboration' && (
             <div className="space-y-4">
@@ -727,19 +716,18 @@ const Budget: React.FC = () => {
                   </button>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {budgets.map((budget) => (
                   <Card key={budget.id}>
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-semibold text-gray-900">{budget.nom}</h4>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          budget.statut === 'approuvé' ? 'bg-green-100 text-green-800' :
-                          budget.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                          budget.statut === 'validé' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${budget.statut === 'approuvé' ? 'bg-green-100 text-green-800' :
+                            budget.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                              budget.statut === 'validé' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                          }`}>
                           {budget.statut}
                         </span>
                       </div>
@@ -783,7 +771,7 @@ const Budget: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           {/* Suivi */}
           {activeTab === 'suivi' && suiviBudget && (
             <div className="space-y-4">
@@ -800,7 +788,7 @@ const Budget: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <Card title="Budget">
                   <div className="text-center">
@@ -818,7 +806,7 @@ const Budget: React.FC = () => {
                   </div>
                 </Card>
               </div>
-              
+
               <Card title="Lignes Budgétaires">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -845,19 +833,17 @@ const Budget: React.FC = () => {
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-600">
                             {formatCurrency(ligne.montantReel)}
                           </td>
-                          <td className={`px-4 py-3 whitespace-nowrap text-sm text-right font-medium ${
-                            ligne.ecart >= 0 && ligne.type === 'recette' ? 'text-green-600' :
-                            ligne.ecart < 0 && ligne.type === 'depense' ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <td className={`px-4 py-3 whitespace-nowrap text-sm text-right font-medium ${ligne.ecart >= 0 && ligne.type === 'recette' ? 'text-green-600' :
+                              ligne.ecart < 0 && ligne.type === 'depense' ? 'text-green-600' : 'text-red-600'
+                            }`}>
                             {ligne.ecart >= 0 ? '+' : ''}{formatCurrency(ligne.ecart)}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              ligne.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                              ligne.statut === 'atteint' ? 'bg-green-100 text-green-800' :
-                              ligne.statut === 'depasse' ? 'bg-red-100 text-red-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ligne.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                                ligne.statut === 'atteint' ? 'bg-green-100 text-green-800' :
+                                  ligne.statut === 'depasse' ? 'bg-red-100 text-red-800' :
+                                    'bg-gray-100 text-gray-800'
+                              }`}>
                               {ligne.statut}
                             </span>
                           </td>
@@ -869,7 +855,7 @@ const Budget: React.FC = () => {
               </Card>
             </div>
           )}
-          
+
           {/* Écarts */}
           {activeTab === 'ecarts' && (
             <div className="space-y-4">
@@ -883,7 +869,7 @@ const Budget: React.FC = () => {
                   <span>Analyse Automatique</span>
                 </button>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <Card title="Écarts Favorables">
                   <div className="text-center">
@@ -902,7 +888,7 @@ const Budget: React.FC = () => {
                   </div>
                 </Card>
               </div>
-              
+
               <Card title="Liste des Écarts">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
@@ -922,34 +908,30 @@ const Budget: React.FC = () => {
                         <tr key={ecart.id}>
                           <td className="px-4 py-3 text-sm text-gray-900">{ecart.ligneBudget.libelle}</td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{ecart.periode}</td>
-                          <td className={`px-4 py-3 whitespace-nowrap text-sm text-right font-medium ${
-                            ecart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
-                          }`}>
+                          <td className={`px-4 py-3 whitespace-nowrap text-sm text-right font-medium ${ecart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
+                            }`}>
                             {ecart.typeEcart === 'favorable' ? '+' : ''}{formatCurrency(ecart.montantEcart)}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              ecart.typeEcart === 'favorable' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                            }`}>
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ecart.typeEcart === 'favorable' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              }`}>
                               {ecart.typeEcart}
                             </span>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              ecart.gravite === 'critique' ? 'bg-red-100 text-red-800' :
-                              ecart.gravite === 'majeur' ? 'bg-orange-100 text-orange-800' :
-                              ecart.gravite === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ecart.gravite === 'critique' ? 'bg-red-100 text-red-800' :
+                                ecart.gravite === 'majeur' ? 'bg-orange-100 text-orange-800' :
+                                  ecart.gravite === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-gray-100 text-gray-800'
+                              }`}>
                               {ecart.gravite}
                             </span>
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap">
-                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              ecart.statut === 'resolu' ? 'bg-green-100 text-green-800' :
-                              ecart.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                              'bg-yellow-100 text-yellow-800'
-                            }`}>
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${ecart.statut === 'resolu' ? 'bg-green-100 text-green-800' :
+                                ecart.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                              }`}>
                               {ecart.statut}
                             </span>
                           </td>
@@ -969,7 +951,7 @@ const Budget: React.FC = () => {
               </Card>
             </div>
           )}
-          
+
           {/* Prévisions */}
           {activeTab === 'previsions' && (
             <div className="space-y-4">
@@ -985,7 +967,7 @@ const Budget: React.FC = () => {
                   </button>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {previsions.map((prev) => (
                   <Card key={prev.id}>
@@ -1028,7 +1010,7 @@ const Budget: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Modal Analyse Écart */}
       <Modal
         isOpen={isEcartModalOpen}
@@ -1042,7 +1024,7 @@ const Budget: React.FC = () => {
               <div className="font-semibold text-gray-900 mb-2">{selectedEcart.ligneBudget.libelle}</div>
               <div className="text-sm text-gray-600">Code: {selectedEcart.ligneBudget.code}</div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-gray-600">Budget</div>
@@ -1054,36 +1036,34 @@ const Budget: React.FC = () => {
               </div>
               <div>
                 <div className="text-sm text-gray-600">Écart</div>
-                <div className={`font-semibold text-lg ${
-                  selectedEcart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`font-semibold text-lg ${selectedEcart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {selectedEcart.typeEcart === 'favorable' ? '+' : ''}{formatCurrency(selectedEcart.montantEcart)}
                 </div>
               </div>
               <div>
                 <div className="text-sm text-gray-600">Pourcentage</div>
-                <div className={`font-semibold text-lg ${
-                  selectedEcart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`font-semibold text-lg ${selectedEcart.typeEcart === 'favorable' ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {selectedEcart.pourcentageEcart >= 0 ? '+' : ''}{selectedEcart.pourcentageEcart.toFixed(2)}%
                 </div>
               </div>
             </div>
-            
+
             {selectedEcart.cause && (
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Cause identifiée</h4>
                 <p className="text-sm text-gray-700 bg-yellow-50 p-3 rounded-lg">{selectedEcart.cause}</p>
               </div>
             )}
-            
+
             {selectedEcart.actionCorrective && (
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">Action corrective</h4>
                 <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg">{selectedEcart.actionCorrective}</p>
               </div>
             )}
-            
+
             <div className="flex justify-end space-x-3 pt-4">
               <button
                 onClick={() => setIsEcartModalOpen(false)}

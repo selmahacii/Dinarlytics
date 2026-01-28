@@ -5,7 +5,19 @@ export interface FinancialKPIs {
     accounts_receivable: number;
     collection_rate: number;
     margin_net_pct: number;
+    dso_days: number;
+    bfr_value: number;
+    break_even_point: number;
+    solvency_ratio: number;
     currency: string;
+}
+
+export interface RollingForecast {
+    predicted_revenue_next_month: number;
+    average_monthly: number;
+    trend_direction: 'up' | 'down';
+    rolling_forecast: Array<{ month: string, predicted_value: number }>;
+    confidence_score: number;
 }
 
 export interface ChartPoint {
@@ -47,6 +59,14 @@ export const analyticService = {
      */
     getAlerts: async () => {
         const response = await apiClient.get<SmartAlert[]>('/analytics/alerts');
+        return response.data;
+    },
+
+    /**
+     * AI Rolling Plan Forecast
+     */
+    getForecast: async () => {
+        const response = await apiClient.get<RollingForecast>('/analytics/forecast');
         return response.data;
     }
 };

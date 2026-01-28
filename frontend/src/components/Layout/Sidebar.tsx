@@ -125,32 +125,34 @@ const Sidebar: React.FC = () => {
       ].filter(Boolean)
     },
 
-    // 5. Shared Reports
+    // 5. Shared Reports & Strategic Performance
     has('rapports-basic') && {
       type: 'submenu',
       icon: DocumentChartBarIcon,
-      label: 'Rapports & Archives',
+      label: 'Performance & Rapports',
       isOpen: rapportsMenuOpen,
       onToggle: () => setRapportsMenuOpen(!rapportsMenuOpen),
       subItems: [
         { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: 'Analyses Commerciales' },
-        { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: 'Flux de Trésorerie' }
-      ]
+        { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: 'Flux de Trésorerie' },
+        has('rapports-advanced') && { path: '/dashboard/analytics', icon: ArrowTrendingUpIcon, label: 'Pilotage (DSO/BFR)' }
+      ].filter(Boolean)
     },
 
-    // 6. Security & Admin (Only for Top Roles)
-    has('admin-users') && {
+    // 6. Security, Audit & Separation of Duties
+    has('audit-read') && {
       type: 'submenu',
       icon: ShieldCheckIcon,
-      label: 'Paramètres & Accès',
+      label: 'Contrôle & Accès',
       isOpen: false, // Hidden by default
       onToggle: () => { },
       subItems: [
-        { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: 'Droits des Utilisateurs' },
-        { path: '/audit-explorer', icon: ShieldCheckIcon, label: 'Traçabilité & Audit' },
+        { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: 'Droits (SoD)' },
+        { path: '/audit-explorer', icon: ShieldCheckIcon, label: 'Traçabilité & Fraude' },
         { path: '/parametres', icon: CogIcon, label: 'Réglages Système' }
       ]
     }
+
   ] as Array<SidebarItem | false>).filter(Boolean) as SidebarItem[];
 
   return (

@@ -50,6 +50,10 @@ import GlossaryTerm from '../../components/UI/GlossaryTerm';
 import Tooltip from '../../components/UI/Tooltip';
 import { invoiceService, Invoice, ArticleItem } from '../../services/modules/invoiceService';
 import { clientsService, Client } from '../../services/modules/clientsService';
+import { collectionService, OverdueInvoice, AgingBalance } from '../../services/modules/collectionService';
+import LIAContextualButton from '../../components/AI/LIAContextualButton';
+
+
 import {
   genererRelancesAutomatiques,
   analyserRentabiliteClient,
@@ -62,6 +66,7 @@ import {
 } from '../../utils/facturesVente';
 
 // NOTE: Legacy variable names kept for minimal changes, but data now fetched from API
+
 
 // Interfaces TypeScript
 type StatutFacture = 'brouillon' | 'validée' | 'payée' | 'en_retard' | 'annulée';
@@ -232,18 +237,26 @@ const FacturesVente = () => {
   // ========================================
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [overdueInvoices, setOverdueInvoices] = useState<OverdueInvoice[]>([]);
+  const [agingBalance, setAgingBalance] = useState<AgingBalance | null>(null);
+  const [livraisons, setLivraisons] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [errorData, setErrorData] = useState<string | null>(null);
+
 
   const loadData = async () => {
     setLoadingData(true);
     try {
-      const [fetchedInvoices, fetchedClients] = await Promise.all([
+      const [fetchedInvoices, fetchedClients, fetchedOverdue, fetchedAging] = await Promise.all([
         invoiceService.getAll('sale'),
-        clientsService.getAll()
+        clientsService.getAll(),
+        collectionService.getOverdue(),
+        collectionService.getAgingBalance()
       ]);
       setInvoices(fetchedInvoices);
       setClients(fetchedClients);
+      setOverdueInvoices(fetchedOverdue);
+      setAgingBalance(fetchedAging);
       setErrorData(null);
     } catch (err) {
       console.error('Erreur chargement ventes dynamiques:', err);
@@ -253,13 +266,21 @@ const FacturesVente = () => {
     }
   };
 
+
   useEffect(() => {
     loadData();
     // In a real environment, we could set up a Poll or WebSocket here for Real-Time
   }, []);
 
+  // Aliases pour la compatibilité avec le code existant
+  // (Plus besoin car remplacés globalement par invoices/clients)
+
+
+
+
   // Navigation et filtres
   const [activeTab, setActiveTab] = useState('factures');
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('tous');
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
@@ -465,7 +486,7 @@ const FacturesVente = () => {
 
   // Calculer les relances automatiques intelligentes
   const relancesAutomatiques = useMemo(() => {
-    const facturesNonPayees = mockFacturesVente
+    const facturesNonPayees = invoices
       .filter((f: any) => f.statut !== 'payee')
       .map((f: any) => ({
         id: f.numero || f.id?.toString() || '',
@@ -482,7 +503,7 @@ const FacturesVente = () => {
 
   // Analyser la rentabilité par client
   const analysesRentabilite = useMemo(() => {
-    const facturesAvecMarge = mockFacturesVente.map((f: any) => ({
+    const facturesAvecMarge = invoices.map((f: any) => ({
       id: f.numero || f.id?.toString() || '',
       clientId: f.client || '',
       clientNom: f.client || 'Client',
@@ -507,7 +528,7 @@ const FacturesVente = () => {
 
   // Générer les prévisions de recouvrement
   const previsionsRecouvrement = useMemo(() => {
-    const facturesNonPayees = mockFacturesVente
+    const facturesNonPayees = invoices
       .filter((f: any) => f.statut !== 'payee')
       .map((f: any) => ({
         id: f.numero || f.id?.toString() || '',
@@ -531,7 +552,7 @@ const FacturesVente = () => {
 
   // Générer les propositions d'escompte
   const propositionsEscompte = useMemo(() => {
-    const facturesEnRetard = mockFacturesVente
+    const facturesEnRetard = invoices
       .filter((f: any) => {
         if (f.statut === 'payee') return false;
         const dateEcheance = new Date(f.dateEcheance || f.date);
@@ -1259,7 +1280,7 @@ const FacturesVente = () => {
     const periode = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
     // Calcul des totaux des factures de la période
-    const facturesPeriode = mockFacturesVente.filter((f: any) => {
+    const facturesPeriode = invoices.filter((f: any) => {
       const factureDate = new Date(f.date);
       const currentMonth = today.getMonth();
       const currentYear = today.getFullYear();
@@ -1301,26 +1322,26 @@ const FacturesVente = () => {
     // Vérifications de conformité
     const verifications = {
       factures: {
-        total: mockFacturesVente.length,
-        conformes: mockFacturesVente.filter((f: any) => f.numero && f.client && f.total > 0).length,
-        nonConformes: mockFacturesVente.filter((f: any) => !f.numero || !f.client || f.total <= 0).length
+        total: invoices.length,
+        conformes: invoices.filter((f: any) => f.numero && f.client && f.total > 0).length,
+        nonConformes: invoices.filter((f: any) => !f.numero || !f.client || f.total <= 0).length
       },
       tva: {
-        tauxCorrect: mockFacturesVente.every((f: any) => Math.abs((f.tva || 0) - (f.montantHT || 0) * 0.19) < 0.01),
+        tauxCorrect: invoices.every((f: any) => Math.abs((f.tva || 0) - (f.montantHT || 0) * 0.19) < 0.01),
         declarationsEnRetard: 0, // À calculer selon les échéances
-        montantTotal: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
+        montantTotal: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
       },
       numerotation: {
-        facturesSansNumero: mockFacturesVente.filter((f: any) => !f.numero).length,
+        facturesSansNumero: invoices.filter((f: any) => !f.numero).length,
         numerosDupliques: 0, // À vérifier
         sequenceCorrecte: true // À vérifier
       },
       echeances: {
-        facturesEnRetard: mockFacturesVente.filter((f: any) => {
+        facturesEnRetard: invoices.filter((f: any) => {
           const echeance = new Date(f.dateEcheance || f.date);
           return echeance < today && f.statut !== 'payée';
         }).length,
-        totalEnRetard: mockFacturesVente.filter((f: any) => {
+        totalEnRetard: invoices.filter((f: any) => {
           const echeance = new Date(f.dateEcheance || f.date);
           return echeance < today && f.statut !== 'payée';
         }).reduce((sum: number, f: any) => sum + f.total, 0)
@@ -1376,29 +1397,29 @@ const FacturesVente = () => {
           numero: '701',
           libelle: 'Ventes de biens',
           soldeInitial: 0,
-          debit: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0),
+          debit: invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0),
           credit: 0,
-          soldeFinal: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0)
+          soldeFinal: invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0)
         },
         {
           numero: '44571',
           libelle: 'TVA collectée',
           soldeInitial: 0,
           debit: 0,
-          credit: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
-          soldeFinal: -mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
+          credit: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
+          soldeFinal: -invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
         },
         {
           numero: '411',
           libelle: 'Clients',
           soldeInitial: 0,
-          debit: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
+          debit: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
           credit: 0,
-          soldeFinal: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
+          soldeFinal: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
         }
       ],
-      totalDebit: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
-      totalCredit: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
+      totalDebit: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
+      totalCredit: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
     };
 
     setReportData(grandLivre);
@@ -1413,24 +1434,24 @@ const FacturesVente = () => {
         {
           numero: '701',
           libelle: 'Ventes de biens',
-          soldeDebiteur: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0),
+          soldeDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0),
           soldeCrediteur: 0
         },
         {
           numero: '44571',
           libelle: 'TVA collectée',
           soldeDebiteur: 0,
-          soldeCrediteur: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
+          soldeCrediteur: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
         },
         {
           numero: '411',
           libelle: 'Clients',
-          soldeDebiteur: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
+          soldeDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
           soldeCrediteur: 0
         }
       ],
-      totalDebiteur: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
-      totalCrediteur: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
+      totalDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
+      totalCrediteur: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
     };
 
     setReportData(balance);
@@ -1441,7 +1462,7 @@ const FacturesVente = () => {
     const journal = {
       type: 'Journal des Ventes',
       periode: `${dateFrom} - ${dateTo}`,
-      ecritures: mockFacturesVente.map((facture: any, index: number) => ({
+      ecritures: invoices.map((facture: any, index: number) => ({
         numero: index + 1,
         date: facture.date,
         piece: facture.numero,
@@ -1451,8 +1472,8 @@ const FacturesVente = () => {
         debit: facture.montantHT || 0,
         credit: 0
       })).concat(
-        mockFacturesVente.map((facture: any, index: number) => ({
-          numero: mockFacturesVente.length + index + 1,
+        invoices.map((facture: any, index: number) => ({
+          numero: invoices.length + index + 1,
           date: facture.date,
           piece: facture.numero,
           libelle: `TVA sur vente à ${facture.client}`,
@@ -1462,8 +1483,8 @@ const FacturesVente = () => {
           credit: facture.tva || 0
         }))
       ).concat(
-        mockFacturesVente.map((facture: any, index: number) => ({
-          numero: (mockFacturesVente.length * 2) + index + 1,
+        invoices.map((facture: any, index: number) => ({
+          numero: (invoices.length * 2) + index + 1,
           date: facture.date,
           piece: facture.numero,
           libelle: `Facturation client ${facture.client}`,
@@ -1484,15 +1505,15 @@ const FacturesVente = () => {
       type: 'État de TVA',
       periode: `${dateFrom} - ${dateTo}`,
       tvaCollectee: {
-        montant: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
-        nombreFactures: mockFacturesVente.length
+        montant: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
+        nombreFactures: invoices.length
       },
       tvaDeductible: {
         montant: 0, // À calculer selon les achats
         nombreFactures: 0
       },
-      tvaAVerser: mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
-      details: mockFacturesVente.map((facture: any) => ({
+      tvaAVerser: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
+      details: invoices.map((facture: any) => ({
         numero: facture.numero,
         date: facture.date,
         client: facture.client,
@@ -1795,7 +1816,7 @@ const FacturesVente = () => {
         numero: nouvelleFacture.numero || `${prefix}-2024-${String(Date.now()).slice(-6)}`,
         typeDocument: nouvelleFacture.typeDocument,
         devise: nouvelleFacture.devise,
-        client: mockClients.find(c => c.id === nouvelleFacture.client)?.nom || 'Client',
+        client: clients.find(c => c.id === nouvelleFacture.client)?.nom || 'Client',
         date: nouvelleFacture.date,
         dateEcheance: nouvelleFacture.dateEcheance,
         conditionPaiement: nouvelleFacture.conditionPaiement,
@@ -1899,10 +1920,10 @@ const FacturesVente = () => {
   // (Supprimé: redondant avec la version calculée via useMemo plus haut)
 
   // Statistiques des factures
-  const totalFactures = mockFacturesVente.length;
-  const totalMontant = mockFacturesVente.reduce((sum, f) => sum + (f.total || 0), 0);
-  const facturesPayees = mockFacturesVente.filter(f => f.statut === 'payée').length;
-  const facturesEnAttente = mockFacturesVente.filter(f => f.statut === 'validée').length;
+  const totalFactures = invoices.length;
+  const totalMontant = invoices.reduce((sum, f) => sum + (f.total || 0), 0);
+  const facturesPayees = invoices.filter(f => f.statut === 'payée').length;
+  const facturesEnAttente = invoices.filter(f => f.statut === 'validée').length;
 
   // Statistiques des livraisons
   const totalLivraisons = livraisons.length;
@@ -2112,10 +2133,11 @@ const FacturesVente = () => {
                 { id: 'liste', name: 'Liste des Factures', icon: DocumentTextIcon },
                 { id: 'brouillons', name: 'Brouillons', icon: PencilIcon },
                 { id: 'paiements', name: 'Paiements', icon: BanknotesIcon },
-                { id: 'relances', name: 'Relances', icon: ExclamationTriangleIcon },
+                { id: 'recouvrement', name: 'Recouvrement IA', icon: ExclamationTriangleIcon },
                 { id: 'livraisons', name: 'Suivi des Livraisons', icon: TruckIcon },
                 { id: 'rapports', name: 'Rapports', icon: ChartBarIcon },
                 { id: 'analytics', name: 'Analytics', icon: ChartPieIcon }
+
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -2174,7 +2196,7 @@ const FacturesVente = () => {
                       'Export en cours',
                       'Génération du fichier d\'export des factures...',
                       [
-                        `Nombre de factures: ${mockFacturesVente.length}`,
+                        `Nombre de factures: ${invoices.length}`,
                         'Format: Excel (.xlsx)',
                         'Le fichier sera téléchargé automatiquement une fois prêt.'
                       ]
@@ -2189,7 +2211,7 @@ const FacturesVente = () => {
                       'Impression en cours',
                       'Préparation de l\'impression de toutes les factures...',
                       [
-                        `Nombre de factures: ${mockFacturesVente.length}`,
+                        `Nombre de factures: ${invoices.length}`,
                         'Format: PDF',
                         'L\'aperçu d\'impression s\'ouvrira dans une nouvelle fenêtre.'
                       ]
@@ -2234,7 +2256,7 @@ const FacturesVente = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {mockFacturesVente.map((facture) => (
+                    {invoices.map((facture) => (
                       <tr key={facture.numero} className="hover:bg-gray-50">
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
                           <div>
@@ -4098,7 +4120,81 @@ const FacturesVente = () => {
           </div>
         )}
 
+        {activeTab === 'recouvrement' && (
+          <div className="space-y-6">
+            {/* Aging Balance Widget */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <Card className="text-center p-4 border-2 border-slate-100">
+                <p className="text-[10px] uppercase font-black text-slate-400">À Jour</p>
+                <p className="text-lg font-bold text-emerald-600">{formatCurrency(agingBalance?.current || 0)}</p>
+              </Card>
+              <Card className="text-center p-4 border-2 border-amber-100">
+                <p className="text-[10px] uppercase font-black text-amber-400">1-30 Jours</p>
+                <p className="text-lg font-bold text-amber-600">{formatCurrency(agingBalance?.["1_30"] || 0)}</p>
+              </Card>
+              <Card className="text-center p-4 border-2 border-orange-100">
+                <p className="text-[10px] uppercase font-black text-orange-400">31-60 Jours</p>
+                <p className="text-lg font-bold text-orange-600">{formatCurrency(agingBalance?.["31_60"] || 0)}</p>
+              </Card>
+              <Card className="text-center p-4 border-2 border-red-100">
+                <p className="text-[10px] uppercase font-black text-red-400">61-90 Jours</p>
+                <p className="text-lg font-bold text-red-600">{formatCurrency(agingBalance?.["61_90"] || 0)}</p>
+              </Card>
+              <Card className="text-center p-4 border-2 border-black">
+                <p className="text-[10px] uppercase font-black text-gray-500">&gt; 90 Jours</p>
+                <p className="text-lg font-bold text-red-900">{formatCurrency(agingBalance?.over_90 || 0)}</p>
+              </Card>
+
+            </div>
+
+            <Card title="Factures en Retard (Analyse de Risque IA)">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-red-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-black text-red-800 uppercase tracking-wider">N°</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-red-800 uppercase tracking-wider">Date Échéance</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-red-800 uppercase tracking-wider">Retard</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-red-800 uppercase tracking-wider">Montant TTC</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-red-800 uppercase tracking-wider">Dernière Action</th>
+                      <th className="px-6 py-3 text-left text-xs font-black text-red-800 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-100">
+                    {overdueInvoices.map((inv) => (
+                      <tr key={inv.id} className="hover:bg-red-50/50">
+                        <td className="px-6 py-4 font-bold text-slate-800">{inv.invoice_number}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{new Date(inv.due_date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4">
+                          <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">+{inv.days_late} jours</span>
+                        </td>
+                        <td className="px-6 py-4 font-bold">{formatCurrency(inv.total_ttc)}</td>
+                        <td className="px-6 py-4 text-xs italic text-slate-500">
+                          {inv.last_action_type ? `${inv.last_action_type} (${new Date(inv.last_action_date!).toLocaleDateString()})` : "Aucune action"}
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={async () => {
+                              await collectionService.recordAction({ invoice_id: inv.id, action_type: 'email', notes: 'Automated follow-up' });
+                              loadData();
+                            }}
+                            className="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-slate-700"
+                          >
+                            Relancer (Email)
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {overdueInvoices.length === 0 && <p className="p-10 text-center text-slate-400">Félicitations ! Aucune créance client en retard détectée.</p>}
+              </div>
+            </Card>
+          </div>
+        )}
+
         {activeTab === 'livraisons' && (
+
           <div className="space-y-6">
             {/* Statistiques des livraisons */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -4500,7 +4596,7 @@ const FacturesVente = () => {
                         required
                       >
                         <option value="">Sélectionner un client</option>
-                        {mockClients.map(client => (
+                        {clients.map(client => (
                           <option key={client.id} value={client.id}>{client.nom}</option>
                         ))}
                       </select>
@@ -4508,7 +4604,7 @@ const FacturesVente = () => {
                     {nouvelleFacture.client && (
                       <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                         {(() => {
-                          const selectedClient = mockClients.find(c => c.id === nouvelleFacture.client);
+                          const selectedClient = clients.find(c => c.id === nouvelleFacture.client);
                           return selectedClient ? (
                             <div className="text-sm text-slate-700 space-y-2">
                               <p className="font-semibold text-slate-900">{selectedClient.nom}</p>
@@ -5244,7 +5340,7 @@ const FacturesVente = () => {
                     <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">Client</label>
                     <p className="text-lg font-bold text-slate-900">{selectedFacture.client}</p>
                     <p className="text-sm text-slate-500 mt-1">
-                      {mockClients.find(c => c.nom === selectedFacture.client)?.email || 'Email non disponible'}
+                      {clients.find(c => c.nom === selectedFacture.client)?.email || 'Email non disponible'}
                     </p>
                   </div>
                   <div>
@@ -5919,15 +6015,15 @@ const FacturesVente = () => {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-blue-700">Nombre de factures:</span>
-                  <span className="font-medium text-blue-900">{mockFacturesVente.length}</span>
+                  <span className="font-medium text-blue-900">{invoices.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-blue-700">Chiffre d'affaires HT:</span>
-                  <span className="font-medium text-blue-900">{formatCurrency(mockFacturesVente.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0))}</span>
+                  <span className="font-medium text-blue-900">{formatCurrency(invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0))}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-blue-700">TVA collectée:</span>
-                  <span className="font-medium text-blue-900">{formatCurrency(mockFacturesVente.reduce((sum: number, f: any) => sum + (f.tva || 0), 0))}</span>
+                  <span className="font-medium text-blue-900">{formatCurrency(invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0))}</span>
                 </div>
               </div>
             </div>

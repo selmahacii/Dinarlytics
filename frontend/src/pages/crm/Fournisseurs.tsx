@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { 
-  PlusIcon, 
-  PencilIcon, 
+import {
+  PlusIcon,
+  PencilIcon,
   TrashIcon,
   DocumentTextIcon,
   DocumentIcon,
@@ -38,7 +38,8 @@ import Card from '../../components/UI/Card';
 import Modal from '../../components/UI/Modal';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../hooks/useTranslation';
-import api from '../../services/api';
+// import api from '../../services/api'; // Removed in favor of useSuppliers
+import { useSuppliers } from '../../hooks/useSuppliers';
 import { Fournisseur } from '../../types';
 import LineChart from '../../components/Charts/LineChart';
 import BarChart from '../../components/Charts/BarChart';
@@ -66,20 +67,25 @@ const Fournisseurs: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // States for dynamic suppliers loading
-  const [fournisseurs, setFournisseurs] = useState<any[]>([]);
-  const [loadingFournisseurs, setLoadingFournisseurs] = useState(true);
-  const [fournisseursError, setFournisseursError] = useState<string | null>(null);
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+      try {
+        await deleteSupplier(id);
+      } catch (err) {
+        console.error("Erreur lors de la suppression:", err);
+      }
+    }
+  };
 
-  useEffect(() => {
-    setLoadingFournisseurs(true);
-    api.suppliers.getAll()
-      .then(data => {
-        setFournisseurs(data);
-      })
-      .catch(() => setFournisseursError('Erreur lors du chargement des fournisseurs'))
-      .finally(() => setLoadingFournisseurs(false));
-  }, []);
+  // States for dynamic suppliers loading
+  const {
+    suppliers: fournisseurs,
+    loading: loadingFournisseurs,
+    error: fournisseursError,
+    createSupplier,
+    updateSupplier,
+    deleteSupplier
+  } = useSuppliers();
 
   const mockFournisseurs = fournisseurs;
 
@@ -91,7 +97,7 @@ const Fournisseurs: React.FC = () => {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [isPaiementModalOpen, setIsPaiementModalOpen] = useState(false);
   const [selectedFacture, setSelectedFacture] = useState<any>(null);
-  
+
   // États pour les nouvelles fonctionnalités
   const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false);
   const [isOptimisationModalOpen, setIsOptimisationModalOpen] = useState(false);
@@ -105,7 +111,7 @@ const Fournisseurs: React.FC = () => {
     details: string[];
     nextSteps: string[];
   } | null>(null);
-  
+
   // Calculer les analyses de performance
   const analysesPerformance = useMemo(() => {
     const historique = mockFournisseurs.flatMap((fournisseur: any) => {
@@ -124,9 +130,9 @@ const Fournisseurs: React.FC = () => {
         };
       });
     });
-    
+
     const analyses = analyserPerformanceFournisseur(historique);
-    
+
     // Mettre à jour les noms des fournisseurs
     analyses.forEach((analyse, fournisseurId) => {
       const fournisseur = mockFournisseurs.find((f: any) => (f.id?.toString() || f.nom) === fournisseurId);
@@ -134,10 +140,10 @@ const Fournisseurs: React.FC = () => {
         analyse.fournisseurNom = fournisseur.nom || fournisseurId;
       }
     });
-    
+
     return Array.from(analyses.values());
   }, []);
-  
+
   // Optimiser les coûts
   const optimisationsCouts = useMemo(() => {
     const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any) => ({
@@ -148,10 +154,10 @@ const Fournisseurs: React.FC = () => {
       delaiPaiement: 30 + Math.random() * 30,
       qualite: 75 + Math.random() * 20
     }));
-    
+
     return optimiserCouts(fournisseursAvecDonnees);
   }, []);
-  
+
   // Générer les prévisions d'achats
   const previsionsAchats = useMemo(() => {
     const historique = mockFournisseurs.flatMap((fournisseur: any) => {
@@ -166,10 +172,10 @@ const Fournisseurs: React.FC = () => {
         };
       });
     });
-    
+
     return genererPrevisionsAchats(historique, 6);
   }, []);
-  
+
   // Générer les opportunités de négociation
   const opportunitesNegociation = useMemo(() => {
     const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any) => ({
@@ -181,10 +187,10 @@ const Fournisseurs: React.FC = () => {
       qualite: 75 + Math.random() * 20,
       delaiLivraison: 5 + Math.random() * 20
     }));
-    
+
     return genererOpportunitesNegociation(fournisseursAvecDonnees);
   }, []);
-  
+
   // Évaluer les risques
   const risquesFournisseurs = useMemo(() => {
     const totalCA = mockFournisseurs.reduce((sum: number, f: any) => sum + (f.montantTotal || 0), 0);
@@ -197,7 +203,7 @@ const Fournisseurs: React.FC = () => {
       localisation: fournisseur.adresse || 'Algérie',
       nombreCommandes: Math.floor(Math.random() * 30) + 5
     }));
-    
+
     return evaluerRisquesFournisseurs(fournisseursAvecDonnees);
   }, []);
 
@@ -351,7 +357,7 @@ const Fournisseurs: React.FC = () => {
               Actions Rapides
             </h3>
             <div className="space-y-3">
-              <button 
+              <button
                 onClick={() => {
                   setSelectedFournisseur(null);
                   setIsModalOpen(true);
@@ -361,21 +367,21 @@ const Fournisseurs: React.FC = () => {
                 <PlusIcon className="h-5 w-5" />
                 Nouveau fournisseur
               </button>
-              <button 
+              <button
                 onClick={() => setIsNouvelleFactureModalOpen(true)}
                 className="w-full p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <DocumentTextIcon className="h-5 w-5" />
                 + Nouvelle facture fournisseur
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/rapports/achats-fournisseurs')}
                 className="w-full p-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <ChartBarIcon className="h-5 w-5" />
                 Rapport achats
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => {
                   // Ouvrir la modal de paiement avec la première facture en attente
@@ -383,7 +389,7 @@ const Fournisseurs: React.FC = () => {
                     .flatMap(f => (f as any).factures || [])
                     .filter((f: any) => f.statut === 'En attente' || f.statut === 'À payer')
                     .sort((a: any, b: any) => new Date(a.dateEcheance || '').getTime() - new Date(b.dateEcheance || '').getTime());
-                  
+
                   if (facturesEnAttente.length > 0) {
                     setSelectedFacture(facturesEnAttente[0]);
                     setIsPaiementModalOpen(true);
@@ -410,8 +416,8 @@ const Fournisseurs: React.FC = () => {
           title={selectedFournisseur ? 'Modifier Fournisseur' : 'Nouveau Fournisseur'}
           size="lg"
         >
-          <form 
-            onSubmit={(e) => {
+          <form
+            onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const nom = formData.get('nom') as string;
@@ -420,31 +426,48 @@ const Fournisseurs: React.FC = () => {
               const adresse = formData.get('adresse') as string;
               const notes = formData.get('notes') as string;
 
-              // Ici vous pouvez ajouter la logique de sauvegarde
-              setSuccessData({
-                title: `✅ Fournisseur ${selectedFournisseur ? 'modifié' : 'créé'} avec succès !`,
-                message: `Le fournisseur "${nom}" a été ${selectedFournisseur ? 'mis à jour' : 'ajouté'} à votre liste.`,
-                details: [
-                  `Nom : ${nom}`,
-                  contact ? `Contact : ${contact}` : null,
-                  email ? `Email : ${email}` : null,
-                  adresse ? `Adresse : ${adresse}` : null
-                ].filter(Boolean) as string[],
-                nextSteps: [
-                  'Créer une première commande pour ce fournisseur',
-                  'Configurer les conditions de paiement',
-                  'Ajouter des notes sur les délais de livraison'
-                ]
-              });
-              setIsModalOpen(false);
-              setSelectedFournisseur(null);
-              setShowSuccessMessage(true);
-              e.currentTarget.reset();
-              
-              setTimeout(() => {
-                setShowSuccessMessage(false);
-                setSuccessData(null);
-              }, 5000);
+              const apiData = {
+                name: nom,
+                phone: contact,
+                email: email,
+                address: adresse,
+                // note: notes // not supported by backend yet
+              };
+
+              try {
+                if (selectedFournisseur) {
+                  await updateSupplier(selectedFournisseur.id, apiData);
+                } else {
+                  await createSupplier(apiData);
+                }
+
+                setSuccessData({
+                  title: `✅ Fournisseur ${selectedFournisseur ? 'modifié' : 'créé'} avec succès !`,
+                  message: `Le fournisseur "${nom}" a été ${selectedFournisseur ? 'mis à jour' : 'ajouté'} à votre liste.`,
+                  details: [
+                    `Nom : ${nom}`,
+                    contact ? `Contact : ${contact}` : null,
+                    email ? `Email : ${email}` : null,
+                    adresse ? `Adresse : ${adresse}` : null
+                  ].filter(Boolean) as string[],
+                  nextSteps: [
+                    'Créer une première commande pour ce fournisseur',
+                    'Configurer les conditions de paiement',
+                    'Ajouter des notes sur les délais de livraison'
+                  ]
+                });
+                setIsModalOpen(false);
+                setSelectedFournisseur(null);
+                setShowSuccessMessage(true);
+                // e.currentTarget.reset(); // Form resets automatically or we can force it if needed, but closing modal usually enough.
+
+                setTimeout(() => {
+                  setShowSuccessMessage(false);
+                  setSuccessData(null);
+                }, 5000);
+              } catch (err: any) {
+                alert("Erreur: " + err.message);
+              }
             }}
             className="space-y-4"
           >
@@ -462,7 +485,7 @@ const Fournisseurs: React.FC = () => {
                   placeholder="Ex: Fournisseur ABC"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Contact
@@ -475,7 +498,7 @@ const Fournisseurs: React.FC = () => {
                   placeholder="Ex: +213 XXX XX XX XX"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Email
@@ -717,7 +740,7 @@ const Fournisseurs: React.FC = () => {
                   <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
                   Signature Électronique
                 </h3>
-                
+
                 {!signatureData && !showSignaturePad && (
                   <div className="space-y-3">
                     <p className="text-sm text-gray-600 mb-3">
@@ -793,7 +816,7 @@ const Fournisseurs: React.FC = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
@@ -907,7 +930,7 @@ const Fournisseurs: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => setIsPaiementModalOpen(false)}
@@ -1092,7 +1115,7 @@ const Fournisseurs: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -1104,7 +1127,7 @@ const Fournisseurs: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -1132,11 +1155,10 @@ const Fournisseurs: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
+                className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
                     ? 'border-amber-500 text-amber-600 bg-amber-50'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <tab.icon className="h-5 w-5 mr-2" />
                 {tab.name}
@@ -1149,138 +1171,143 @@ const Fournisseurs: React.FC = () => {
       {/* Contenu des onglets */}
       {activeTab === 'liste' && (
         <Card title="Liste des Fournisseurs">
-        {/* Section Analyses Avancées */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-          <button
-            onClick={() => setIsPerformanceModalOpen(true)}
-            className="flex items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
-          >
-            <ChartBarIcon className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Performance</span>
-          </button>
-          <button
-            onClick={() => setIsOptimisationModalOpen(true)}
-            className="flex items-center justify-center p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
-          >
-            <CurrencyDollarIcon className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Optimisation</span>
-          </button>
-          <button
-            onClick={() => setIsPrevisionsAchatsModalOpen(true)}
-            className="flex items-center justify-center p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
-          >
-            <ChartPieIcon className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Prévisions</span>
-          </button>
-          <button
-            onClick={() => setIsNegociationsModalOpen(true)}
-            className="flex items-center justify-center p-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg"
-          >
-            <SparklesIcon className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Négociations</span>
-            {opportunitesNegociation.length > 0 && (
-              <span className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs">
-                {opportunitesNegociation.length}
-              </span>
-            )}
-          </button>
-          <button
-            onClick={() => setIsRisquesModalOpen(true)}
-            className="flex items-center justify-center p-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg hover:from-red-700 hover:to-rose-700 transition-all shadow-lg"
-          >
-            <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Risques</span>
-            {risquesFournisseurs.filter(r => r.niveauRisque === 'eleve' || r.niveauRisque === 'critique').length > 0 && (
-              <span className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs">
-                {risquesFournisseurs.filter(r => r.niveauRisque === 'eleve' || r.niveauRisque === 'critique').length}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Search and Actions */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <div className="w-full sm:w-auto">
-            <input
-              type="text"
-              placeholder="Rechercher par nom ou NIF..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full sm:w-64 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-            />
+          {/* Section Analyses Avancées */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <button
+              onClick={() => setIsPerformanceModalOpen(true)}
+              className="flex items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+            >
+              <ChartBarIcon className="h-5 w-5 mr-2" />
+              <span className="font-semibold">Performance</span>
+            </button>
+            <button
+              onClick={() => setIsOptimisationModalOpen(true)}
+              className="flex items-center justify-center p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+            >
+              <CurrencyDollarIcon className="h-5 w-5 mr-2" />
+              <span className="font-semibold">Optimisation</span>
+            </button>
+            <button
+              onClick={() => setIsPrevisionsAchatsModalOpen(true)}
+              className="flex items-center justify-center p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
+            >
+              <ChartPieIcon className="h-5 w-5 mr-2" />
+              <span className="font-semibold">Prévisions</span>
+            </button>
+            <button
+              onClick={() => setIsNegociationsModalOpen(true)}
+              className="flex items-center justify-center p-4 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg"
+            >
+              <SparklesIcon className="h-5 w-5 mr-2" />
+              <span className="font-semibold">Négociations</span>
+              {opportunitesNegociation.length > 0 && (
+                <span className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs">
+                  {opportunitesNegociation.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsRisquesModalOpen(true)}
+              className="flex items-center justify-center p-4 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg hover:from-red-700 hover:to-rose-700 transition-all shadow-lg"
+            >
+              <ExclamationTriangleIcon className="h-5 w-5 mr-2" />
+              <span className="font-semibold">Risques</span>
+              {risquesFournisseurs.filter(r => r.niveauRisque === 'eleve' || r.niveauRisque === 'critique').length > 0 && (
+                <span className="ml-2 px-2 py-1 bg-white/20 rounded-full text-xs">
+                  {risquesFournisseurs.filter(r => r.niveauRisque === 'eleve' || r.niveauRisque === 'critique').length}
+                </span>
+              )}
+            </button>
           </div>
-          
-          <button
-            onClick={handleAdd}
-            className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            {t('ajouter')} Fournisseur
-          </button>
-        </div>
 
-        {/* Suppliers Table */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fournisseur
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  NIF
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Solde Dû
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredFournisseurs.map((fournisseur) => (
-                <tr key={fournisseur.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{fournisseur.nom}</div>
-                      <div className="text-sm text-gray-500">{fournisseur.adresse}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{fournisseur.nif}</td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{fournisseur.telephone}</div>
-                    <div className="text-sm text-gray-500">{fournisseur.email}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-medium text-red-600">
-                      {formatCurrency(fournisseur.soldeDu)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        type="button"
-                        onClick={() => handleEdit(fournisseur)}
-                              className="text-slate-600 hover:text-slate-800"
-                        aria-label="Modifier"
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
-                      <button type="button" className="text-red-600 hover:text-red-900" aria-label="Supprimer">
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </td>
+          {/* Search and Actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+            <div className="w-full sm:w-auto">
+              <input
+                type="text"
+                placeholder="Rechercher par nom ou NIF..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-64 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              />
+            </div>
+
+            <button
+              onClick={handleAdd}
+              className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              {t('ajouter')} Fournisseur
+            </button>
+          </div>
+
+          {/* Suppliers Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fournisseur
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    NIF
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Contact
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Solde Dû
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredFournisseurs.map((fournisseur) => (
+                  <tr key={fournisseur.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{fournisseur.nom}</div>
+                        <div className="text-sm text-gray-500">{fournisseur.adresse}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{fournisseur.nif}</td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900">{fournisseur.telephone}</div>
+                      <div className="text-sm text-gray-500">{fournisseur.email}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-medium text-red-600">
+                        {formatCurrency(fournisseur.soldeDu)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => handleEdit(fournisseur)}
+                          className="text-slate-600 hover:text-slate-800"
+                          aria-label="Modifier"
+                        >
+                          <PencilIcon className="h-5 w-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => fournisseur.id && handleDelete(fournisseur.id)}
+                          className="text-red-600 hover:text-red-900"
+                          aria-label="Supprimer"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
 
       {/* Onglet Commandes */}
@@ -1378,21 +1405,21 @@ const Fournisseurs: React.FC = () => {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-2">
-                  <button 
+                  <button
                     onClick={handleNouvelleCommande}
                     className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium"
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
                     Nouvelle Commande
                   </button>
-                  <button 
+                  <button
                     onClick={() => alert('Export des commandes en cours...')}
                     className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium"
                   >
                     <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
                     Exporter
                   </button>
-                  <button 
+                  <button
                     onClick={() => alert('Impression de toutes les commandes en cours...')}
                     className="flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors text-sm font-medium"
                   >
@@ -1409,7 +1436,7 @@ const Fournisseurs: React.FC = () => {
                 <SparklesIcon className="h-5 w-5 mr-2 text-slate-600" />
                 Indicateurs de Performance - Bons de Commande
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Taux de complétion */}
                 <div className="bg-white rounded-lg p-4 border border-slate-200">
@@ -1537,20 +1564,20 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirCommande({numero: 'CMD-2024-001', fournisseur: 'ABC Corp SPA', montant: 125000, statut: 'Livrée'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirCommande({ numero: 'CMD-2024-001', fournisseur: 'ABC Corp SPA', montant: 125000, statut: 'Livrée' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleImprimerCommande({numero: 'CMD-2024-001'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
+                          <button
+                            onClick={() => handleImprimerCommande({ numero: 'CMD-2024-001' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
                           >
                             <PrinterIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleDupliquerCommande({numero: 'CMD-2024-001'})}
+                          <button
+                            onClick={() => handleDupliquerCommande({ numero: 'CMD-2024-001' })}
                             className="text-purple-600 hover:text-purple-900" title="Dupliquer"
                           >
                             <DocumentDuplicateIcon className="h-5 w-5" />
@@ -1592,20 +1619,20 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirCommande({numero: 'CMD-2024-002', fournisseur: 'Tech Solutions SARL', montant: 275000, statut: 'En attente'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirCommande({ numero: 'CMD-2024-002', fournisseur: 'Tech Solutions SARL', montant: 275000, statut: 'En attente' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleConfirmerCommande({numero: 'CMD-2024-002'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Confirmer"
+                          <button
+                            onClick={() => handleConfirmerCommande({ numero: 'CMD-2024-002' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Confirmer"
                           >
                             <CheckCircleIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleModifierCommande({numero: 'CMD-2024-002'})}
+                          <button
+                            onClick={() => handleModifierCommande({ numero: 'CMD-2024-002' })}
                             className="text-orange-600 hover:text-orange-900" title="Modifier"
                           >
                             <PencilIcon className="h-5 w-5" />
@@ -1647,21 +1674,21 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirCommande({numero: 'CMD-2024-003', fournisseur: 'Office Supplies Co', montant: 85000, statut: 'En préparation'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirCommande({ numero: 'CMD-2024-003', fournisseur: 'Office Supplies Co', montant: 85000, statut: 'En préparation' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleMarquerLivraison({numero: 'CMD-2024-003'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Marquer en livraison"
+                          <button
+                            onClick={() => handleMarquerLivraison({ numero: 'CMD-2024-003' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Marquer en livraison"
                           >
                             <TruckIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleImprimerCommande({numero: 'CMD-2024-003'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
+                          <button
+                            onClick={() => handleImprimerCommande({ numero: 'CMD-2024-003' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
                           >
                             <PrinterIcon className="h-5 w-5" />
                           </button>
@@ -1702,21 +1729,21 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirCommande({numero: 'CMD-2024-004', fournisseur: 'Logistics Pro EURL', montant: 45000, statut: 'En livraison'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirCommande({ numero: 'CMD-2024-004', fournisseur: 'Logistics Pro EURL', montant: 45000, statut: 'En livraison' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleMarquerLivree({numero: 'CMD-2024-004'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Marquer livrée"
+                          <button
+                            onClick={() => handleMarquerLivree({ numero: 'CMD-2024-004' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Marquer livrée"
                           >
                             <CheckCircleIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleSuiviCommande({numero: 'CMD-2024-004'})}
-                              className="text-slate-600 hover:text-slate-800" title="Suivi"
+                          <button
+                            onClick={() => handleSuiviCommande({ numero: 'CMD-2024-004' })}
+                            className="text-slate-600 hover:text-slate-800" title="Suivi"
                           >
                             <TruckIcon className="h-5 w-5" />
                           </button>
@@ -1757,20 +1784,20 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirCommande({numero: 'CMD-2024-005', fournisseur: 'Maintenance Plus SPA', montant: 180000, statut: 'En retard'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirCommande({ numero: 'CMD-2024-005', fournisseur: 'Maintenance Plus SPA', montant: 180000, statut: 'En retard' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleRelancerCommande({numero: 'CMD-2024-005'})}
-                              className="text-red-600 hover:text-red-800" title="Urgent - Relancer"
+                          <button
+                            onClick={() => handleRelancerCommande({ numero: 'CMD-2024-005' })}
+                            className="text-red-600 hover:text-red-800" title="Urgent - Relancer"
                           >
                             <ExclamationTriangleIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleModifierCommande({numero: 'CMD-2024-005'})}
+                          <button
+                            onClick={() => handleModifierCommande({ numero: 'CMD-2024-005' })}
                             className="text-orange-600 hover:text-orange-900" title="Modifier"
                           >
                             <PencilIcon className="h-5 w-5" />
@@ -1812,21 +1839,21 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirCommande({numero: 'CMD-2024-006', fournisseur: 'Clean Services SARL', montant: 65000, statut: 'Annulée'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirCommande({ numero: 'CMD-2024-006', fournisseur: 'Clean Services SARL', montant: 65000, statut: 'Annulée' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleRetablirCommande({numero: 'CMD-2024-006'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Rétablir"
+                          <button
+                            onClick={() => handleRetablirCommande({ numero: 'CMD-2024-006' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Rétablir"
                           >
                             <ArrowTrendingUpIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleSupprimerCommande({numero: 'CMD-2024-006'})}
-                              className="text-red-600 hover:text-red-800" title="Supprimer"
+                          <button
+                            onClick={() => handleSupprimerCommande({ numero: 'CMD-2024-006' })}
+                            className="text-red-600 hover:text-red-800" title="Supprimer"
                           >
                             <TrashIcon className="h-5 w-5" />
                           </button>
@@ -1865,7 +1892,7 @@ const Fournisseurs: React.FC = () => {
                   <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
                   Exporter
                 </button>
-                <button 
+                <button
                   onClick={handleNouvelleFacture}
                   className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                 >
@@ -1952,20 +1979,20 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirFacture({numero: 'FAC-2024-001', fournisseur: 'Fournisseur ABC SPA', montant: 125000, statut: 'Payée'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirFacture({ numero: 'FAC-2024-001', fournisseur: 'Fournisseur ABC SPA', montant: 125000, statut: 'Payée' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleImprimerFacture({numero: 'FAC-2024-001'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
+                          <button
+                            onClick={() => handleImprimerFacture({ numero: 'FAC-2024-001' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
                           >
                             <PrinterIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleDupliquerFacture({numero: 'FAC-2024-001'})}
+                          <button
+                            onClick={() => handleDupliquerFacture({ numero: 'FAC-2024-001' })}
                             className="text-purple-600 hover:text-purple-900" title="Dupliquer"
                           >
                             <DocumentDuplicateIcon className="h-5 w-5" />
@@ -1991,21 +2018,21 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirFacture({numero: 'FAC-2024-002', fournisseur: 'Tech Solutions SARL', montant: 275000, statut: 'En attente'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirFacture({ numero: 'FAC-2024-002', fournisseur: 'Tech Solutions SARL', montant: 275000, statut: 'En attente' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handlePayerFacture({numero: 'FAC-2024-002'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Payer"
+                          <button
+                            onClick={() => handlePayerFacture({ numero: 'FAC-2024-002' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Payer"
                           >
                             <BanknotesIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleImprimerFacture({numero: 'FAC-2024-002'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
+                          <button
+                            onClick={() => handleImprimerFacture({ numero: 'FAC-2024-002' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
                           >
                             <PrinterIcon className="h-5 w-5" />
                           </button>
@@ -2030,21 +2057,21 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirFacture({numero: 'FAC-2024-003', fournisseur: 'Office Supplies Co', montant: 85000, statut: 'En retard'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirFacture({ numero: 'FAC-2024-003', fournisseur: 'Office Supplies Co', montant: 85000, statut: 'En retard' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleUrgentPayerFacture({numero: 'FAC-2024-003'})}
-                              className="text-red-600 hover:text-red-800" title="Urgent - Payer"
+                          <button
+                            onClick={() => handleUrgentPayerFacture({ numero: 'FAC-2024-003' })}
+                            className="text-red-600 hover:text-red-800" title="Urgent - Payer"
                           >
                             <ExclamationTriangleIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleImprimerFacture({numero: 'FAC-2024-003'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
+                          <button
+                            onClick={() => handleImprimerFacture({ numero: 'FAC-2024-003' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
                           >
                             <PrinterIcon className="h-5 w-5" />
                           </button>
@@ -2069,20 +2096,20 @@ const Fournisseurs: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleVoirFacture({numero: 'FAC-2024-004', fournisseur: 'Logistics Pro EURL', montant: 45000, statut: 'Payée'})}
-                              className="text-slate-600 hover:text-slate-800" title="Voir détails"
+                          <button
+                            onClick={() => handleVoirFacture({ numero: 'FAC-2024-004', fournisseur: 'Logistics Pro EURL', montant: 45000, statut: 'Payée' })}
+                            className="text-slate-600 hover:text-slate-800" title="Voir détails"
                           >
                             <EyeIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleImprimerFacture({numero: 'FAC-2024-004'})}
-                              className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
+                          <button
+                            onClick={() => handleImprimerFacture({ numero: 'FAC-2024-004' })}
+                            className="text-emerald-600 hover:text-emerald-800" title="Imprimer"
                           >
                             <PrinterIcon className="h-5 w-5" />
                           </button>
-                          <button 
-                            onClick={() => handleDupliquerFacture({numero: 'FAC-2024-004'})}
+                          <button
+                            onClick={() => handleDupliquerFacture({ numero: 'FAC-2024-004' })}
                             className="text-purple-600 hover:text-purple-900" title="Dupliquer"
                           >
                             <DocumentDuplicateIcon className="h-5 w-5" />
@@ -2265,7 +2292,7 @@ const Fournisseurs: React.FC = () => {
                 <p className="text-3xl font-bold text-blue-800">5</p>
                 <p className="text-sm text-blue-600">Livraisons en cours</p>
               </div>
-              
+
               <div className="bg-green-50 rounded-lg p-6 border border-green-200">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-green-800">Livrées</h3>
@@ -2274,7 +2301,7 @@ const Fournisseurs: React.FC = () => {
                 <p className="text-3xl font-bold text-green-800">18</p>
                 <p className="text-sm text-green-600">Cette semaine</p>
               </div>
-              
+
               <div className="bg-orange-50 rounded-lg p-6 border border-orange-200">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-orange-800">En Retard</h3>
@@ -2327,7 +2354,7 @@ const Fournisseurs: React.FC = () => {
                 <span className="text-slate-500 dark:text-slate-400 ml-1">vs mois dernier</span>
               </div>
             </div>
-            
+
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border-2 border-slate-200 dark:border-slate-700 shadow-md hover:shadow-xl transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg group-hover:scale-110 transition-transform shadow-lg">
@@ -2339,7 +2366,7 @@ const Fournisseurs: React.FC = () => {
               <p className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">ABC Corp</p>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">35% du volume total</p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border-2 border-slate-200 dark:border-slate-700 shadow-md hover:shadow-xl transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg group-hover:scale-110 transition-transform shadow-lg">
@@ -2351,7 +2378,7 @@ const Fournisseurs: React.FC = () => {
               <p className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">7.2</p>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">jours de livraison</p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl p-6 border-2 border-slate-200 dark:border-slate-700 shadow-md hover:shadow-xl transition-all duration-300 group">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-gradient-to-br from-slate-600 to-slate-800 rounded-lg group-hover:scale-110 transition-transform shadow-lg">
@@ -2573,288 +2600,288 @@ const Fournisseurs: React.FC = () => {
       >
         <div className="max-h-[80vh] overflow-y-auto pr-2">
           <form className="space-y-6">
-          {/* Informations générales */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <BuildingOfficeIcon className="h-5 w-5 mr-2 text-blue-600" />
-              Informations Générales
-            </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom de l'entreprise *
-              </label>
-              <input
-                type="text"
-                defaultValue={selectedFournisseur?.nom || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ex: Fournisseur ABC SPA"
-                  required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                  NIF (15 chiffres) *
-              </label>
-              <input
-                type="text"
-                defaultValue={selectedFournisseur?.nif || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="123456789012345"
-                maxLength={15}
-                  required
-              />
-            </div>
-            
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type d'entreprise
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Type d'entreprise">
-                  <option>SPA (Société par Actions)</option>
-                  <option>SARL (Société à Responsabilité Limitée)</option>
-                  <option>EURL (Entreprise Unipersonnelle à Responsabilité Limitée)</option>
-                  <option>SNC (Société en Nom Collectif)</option>
-                  <option>Autre</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Secteur d'activité
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Secteur d'activité">
-                  <option>Matériel de bureau</option>
-                  <option>Équipements informatiques</option>
-                  <option>Fournitures de bureau</option>
-                  <option>Services de transport</option>
-                  <option>Services de maintenance</option>
-                  <option>Services de nettoyage</option>
-                  <option>Services de sécurité</option>
-                  <option>Autre</option>
-                </select>
-              </div>
-            </div>
-          </div>
+            {/* Informations générales */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <BuildingOfficeIcon className="h-5 w-5 mr-2 text-blue-600" />
+                Informations Générales
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nom de l'entreprise *
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={selectedFournisseur?.nom || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ex: Fournisseur ABC SPA"
+                    required
+                  />
+                </div>
 
-          {/* Adresse et contact */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <MapPinIcon className="h-5 w-5 mr-2 text-green-600" />
-              Adresse et Contact
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Adresse complète *
-              </label>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    NIF (15 chiffres) *
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue={selectedFournisseur?.nif || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="123456789012345"
+                    maxLength={15}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type d'entreprise
+                  </label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Type d'entreprise">
+                    <option>SPA (Société par Actions)</option>
+                    <option>SARL (Société à Responsabilité Limitée)</option>
+                    <option>EURL (Entreprise Unipersonnelle à Responsabilité Limitée)</option>
+                    <option>SNC (Société en Nom Collectif)</option>
+                    <option>Autre</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Secteur d'activité
+                  </label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Secteur d'activité">
+                    <option>Matériel de bureau</option>
+                    <option>Équipements informatiques</option>
+                    <option>Fournitures de bureau</option>
+                    <option>Services de transport</option>
+                    <option>Services de maintenance</option>
+                    <option>Services de nettoyage</option>
+                    <option>Services de sécurité</option>
+                    <option>Autre</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Adresse et contact */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <MapPinIcon className="h-5 w-5 mr-2 text-green-600" />
+                Adresse et Contact
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adresse complète *
+                  </label>
+                  <textarea
+                    defaultValue={selectedFournisseur?.adresse || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Rue, numéro, ville, wilaya, code postal"
+                    rows={3}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Téléphone principal *
+                  </label>
+                  <input
+                    type="tel"
+                    defaultValue={selectedFournisseur?.telephone || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+213 XX XXX XXX"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Téléphone secondaire
+                  </label>
+                  <input
+                    type="tel"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+213 XX XXX XXX"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email principal *
+                  </label>
+                  <input
+                    type="email"
+                    defaultValue={selectedFournisseur?.email || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="contact@example.com"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email secondaire
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="comptabilite@example.com"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Informations financières */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <CurrencyDollarIcon className="h-5 w-5 mr-2 text-purple-600" />
+                Informations Financières
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Banque
+                  </label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Banque">
+                    <option>Banque Nationale d'Algérie (BNA)</option>
+                    <option>Crédit Populaire d'Algérie (CPA)</option>
+                    <option>Banque Extérieure d'Algérie (BEA)</option>
+                    <option>Banque de l'Agriculture et du Développement Rural (BADR)</option>
+                    <option>Banque de Développement Local (BDL)</option>
+                    <option>Autre</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Numéro de compte
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="1234567890"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Conditions de paiement
+                  </label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Conditions de paiement">
+                    <option>Paiement comptant</option>
+                    <option>30 jours</option>
+                    <option>45 jours</option>
+                    <option>60 jours</option>
+                    <option>90 jours</option>
+                    <option>Autre</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Limite de crédit (DA)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="1000000"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Informations de contact */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <UserGroupIcon className="h-5 w-5 mr-2 text-orange-600" />
+                Personnes de Contact
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contact commercial
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Nom et prénom"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Téléphone contact commercial
+                  </label>
+                  <input
+                    type="tel"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="+213 XX XXX XXX"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Contact comptabilité
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Nom et prénom"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email contact comptabilité
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="comptabilite@example.com"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Notes et observations */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <DocumentTextIcon className="h-5 w-5 mr-2 text-gray-600" />
+                Notes et Observations
+              </h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Notes internes
+                </label>
                 <textarea
-                defaultValue={selectedFournisseur?.adresse || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Rue, numéro, ville, wilaya, code postal"
-                  rows={3}
-                  required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone principal *
-              </label>
-              <input
-                type="tel"
-                defaultValue={selectedFournisseur?.telephone || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="+213 XX XXX XXX"
-                  required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone secondaire
-                </label>
-                <input
-                  type="tel"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="+213 XX XXX XXX"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email principal *
-              </label>
-              <input
-                type="email"
-                defaultValue={selectedFournisseur?.email || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="contact@example.com"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email secondaire
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="comptabilite@example.com"
+                  placeholder="Informations supplémentaires, conditions spéciales, etc."
+                  rows={4}
                 />
               </div>
             </div>
-          </div>
-          
-          {/* Informations financières */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <CurrencyDollarIcon className="h-5 w-5 mr-2 text-purple-600" />
-              Informations Financières
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Banque
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Banque">
-                  <option>Banque Nationale d'Algérie (BNA)</option>
-                  <option>Crédit Populaire d'Algérie (CPA)</option>
-                  <option>Banque Extérieure d'Algérie (BEA)</option>
-                  <option>Banque de l'Agriculture et du Développement Rural (BADR)</option>
-                  <option>Banque de Développement Local (BDL)</option>
-                  <option>Autre</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Numéro de compte
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="1234567890"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Conditions de paiement
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="Conditions de paiement">
-                  <option>Paiement comptant</option>
-                  <option>30 jours</option>
-                  <option>45 jours</option>
-                  <option>60 jours</option>
-                  <option>90 jours</option>
-                  <option>Autre</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Limite de crédit (DA)
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="1000000"
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* Informations de contact */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <UserGroupIcon className="h-5 w-5 mr-2 text-orange-600" />
-              Personnes de Contact
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact commercial
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Nom et prénom"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone contact commercial
-                </label>
-                <input
-                  type="tel"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="+213 XX XXX XXX"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Contact comptabilité
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Nom et prénom"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email contact comptabilité
-                </label>
-                <input
-                  type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="comptabilite@example.com"
-                />
-              </div>
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <CheckCircleIcon className="h-5 w-5 mr-2" />
+                {selectedFournisseur ? 'Modifier Fournisseur' : 'Ajouter Fournisseur'}
+              </button>
             </div>
-          </div>
-
-          {/* Notes et observations */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-              <DocumentTextIcon className="h-5 w-5 mr-2 text-gray-600" />
-              Notes et Observations
-            </h3>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes internes
-              </label>
-              <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Informations supplémentaires, conditions spéciales, etc."
-                rows={4}
-              />
-            </div>
-          </div>
-          
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-            >
-              <CheckCircleIcon className="h-5 w-5 mr-2" />
-              {selectedFournisseur ? 'Modifier Fournisseur' : 'Ajouter Fournisseur'}
-            </button>
-          </div>
-        </form>
+          </form>
         </div>
       </Modal>
 
@@ -2889,14 +2916,13 @@ const Fournisseurs: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      selectedCommande.statut === 'Livrée' ? 'bg-green-100 text-green-800' :
-                      selectedCommande.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
-                      selectedCommande.statut === 'En préparation' ? 'bg-blue-100 text-blue-800' :
-                      selectedCommande.statut === 'En livraison' ? 'bg-yellow-100 text-yellow-800' :
-                      selectedCommande.statut === 'En retard' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedCommande.statut === 'Livrée' ? 'bg-green-100 text-green-800' :
+                        selectedCommande.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
+                          selectedCommande.statut === 'En préparation' ? 'bg-blue-100 text-blue-800' :
+                            selectedCommande.statut === 'En livraison' ? 'bg-yellow-100 text-yellow-800' :
+                              selectedCommande.statut === 'En retard' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                      }`}>
                       {selectedCommande.statut}
                     </span>
                   </div>
@@ -3274,7 +3300,7 @@ const Fournisseurs: React.FC = () => {
                 />
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
@@ -3326,12 +3352,11 @@ const Fournisseurs: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      selectedFacture.statut === 'Payée' ? 'bg-green-100 text-green-800' :
-                      selectedFacture.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
-                      selectedFacture.statut === 'En retard' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedFacture.statut === 'Payée' ? 'bg-green-100 text-green-800' :
+                        selectedFacture.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
+                          selectedFacture.statut === 'En retard' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
+                      }`}>
                       {selectedFacture.statut}
                     </span>
                   </div>
@@ -3494,7 +3519,7 @@ const Fournisseurs: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => setIsPaiementModalOpen(false)}
@@ -3699,7 +3724,7 @@ const Fournisseurs: React.FC = () => {
                 <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
                 Signature Électronique
               </h3>
-              
+
               {!signatureData && !showSignaturePad && (
                 <div className="space-y-3">
                   <p className="text-sm text-gray-600 mb-3">
@@ -3775,7 +3800,7 @@ const Fournisseurs: React.FC = () => {
                 </div>
               )}
             </div>
-            
+
             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
@@ -3795,382 +3820,371 @@ const Fournisseurs: React.FC = () => {
           </form>
         </div>
       </Modal>
-    
+
       {/* Modal Analyse de Performance */}
       <Modal
-      isOpen={isPerformanceModalOpen}
-      onClose={() => setIsPerformanceModalOpen(false)}
-      title="Analyse de Performance des Fournisseurs"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-800">
-            Analyse de performance basée sur la qualité, les délais, le service et le DPO.
-          </p>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Fournisseur</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Score</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Qualité</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Délai Liv.</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Service</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">DPO</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Classement</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {analysesPerformance.slice(0, 10).map((analyse) => (
-                <tr key={analyse.fournisseurId} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-sm font-medium text-slate-900">{analyse.fournisseurNom}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                      analyse.scorePerformance >= 85 ? 'bg-green-100 text-green-800' :
-                      analyse.scorePerformance >= 70 ? 'bg-blue-100 text-blue-800' :
-                      analyse.scorePerformance >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {analyse.scorePerformance}/100
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-right">{analyse.tauxQualite.toFixed(1)}%</td>
-                  <td className="px-4 py-3 text-sm text-right">{analyse.delaiLivraisonMoyen.toFixed(0)}j</td>
-                  <td className="px-4 py-3 text-sm text-right">{analyse.tauxService.toFixed(1)}%</td>
-                  <td className="px-4 py-3 text-sm text-right">{analyse.dpoMoyen.toFixed(0)}j</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      analyse.classement === 'excellent' ? 'bg-green-100 text-green-800' :
-                      analyse.classement === 'bon' ? 'bg-blue-100 text-blue-800' :
-                      analyse.classement === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
-                      analyse.classement === 'faible' ? 'bg-orange-100 text-orange-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {analyse.classement}
-                    </span>
-                  </td>
+        isOpen={isPerformanceModalOpen}
+        onClose={() => setIsPerformanceModalOpen(false)}
+        title="Analyse de Performance des Fournisseurs"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              Analyse de performance basée sur la qualité, les délais, le service et le DPO.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Fournisseur</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Score</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Qualité</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Délai Liv.</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Service</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">DPO</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Classement</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsPerformanceModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Optimisation des Coûts */}
-    <Modal
-      isOpen={isOptimisationModalOpen}
-      onClose={() => setIsOptimisationModalOpen(false)}
-      title="Optimisation des Coûts Fournisseurs"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-          <p className="text-sm text-green-800">
-            Opportunités d'optimisation des coûts avec stratégies de négociation, volume et paiement.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          {optimisationsCouts.slice(0, 10).map((opt) => (
-            <div key={opt.fournisseurId} className="p-4 rounded-lg border-2 border-green-200 bg-green-50">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h4 className="font-semibold text-slate-900">{opt.fournisseurNom}</h4>
-                  <p className="text-sm text-slate-600">Économie potentielle: {formatCurrency(opt.economiePotentielle)} ({opt.economiePourcentage.toFixed(1)}%)</p>
-                </div>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  opt.priorite === 'haute' ? 'bg-red-100 text-red-800' :
-                  opt.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-blue-100 text-blue-800'
-                }`}>
-                  {opt.priorite}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div>
-                  <p className="text-xs text-slate-600">Coût actuel</p>
-                  <p className="text-lg font-bold text-slate-900">{formatCurrency(opt.coutActuel)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-600">Coût optimisé</p>
-                  <p className="text-lg font-bold text-green-600">{formatCurrency(opt.coutOptimise)}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-slate-600">Stratégies:</p>
-                {opt.strategies.map((strategy, idx) => (
-                  <div key={idx} className="bg-white p-2 rounded text-xs">
-                    <span className="font-medium">{strategy.description}</span>
-                    <span className="ml-2 text-green-600">({formatCurrency(strategy.economie)})</span>
-                  </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {analysesPerformance.slice(0, 10).map((analyse) => (
+                  <tr key={analyse.fournisseurId} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{analyse.fournisseurNom}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${analyse.scorePerformance >= 85 ? 'bg-green-100 text-green-800' :
+                          analyse.scorePerformance >= 70 ? 'bg-blue-100 text-blue-800' :
+                            analyse.scorePerformance >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                        }`}>
+                        {analyse.scorePerformance}/100
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-right">{analyse.tauxQualite.toFixed(1)}%</td>
+                    <td className="px-4 py-3 text-sm text-right">{analyse.delaiLivraisonMoyen.toFixed(0)}j</td>
+                    <td className="px-4 py-3 text-sm text-right">{analyse.tauxService.toFixed(1)}%</td>
+                    <td className="px-4 py-3 text-sm text-right">{analyse.dpoMoyen.toFixed(0)}j</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${analyse.classement === 'excellent' ? 'bg-green-100 text-green-800' :
+                          analyse.classement === 'bon' ? 'bg-blue-100 text-blue-800' :
+                            analyse.classement === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
+                              analyse.classement === 'faible' ? 'bg-orange-100 text-orange-800' :
+                                'bg-red-100 text-red-800'
+                        }`}>
+                        {analyse.classement}
+                      </span>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsOptimisationModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Prévisions d'Achats */}
-    <Modal
-      isOpen={isPrevisionsAchatsModalOpen}
-      onClose={() => setIsPrevisionsAchatsModalOpen(false)}
-      title="Prévisions d'Achats par Fournisseur"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-          <p className="text-sm text-purple-800">
-            Prévisions d'achats sur 6 mois basées sur l'historique, la tendance et la saisonnalité.
-          </p>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Fournisseur</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Période</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Montant Prévu</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Probabilité</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Confiance</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {previsionsAchats.slice(0, 20).map((prev, idx) => (
-                <tr key={idx} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-sm font-medium text-slate-900">{prev.fournisseurNom}</td>
-                  <td className="px-4 py-3 text-sm text-right">{prev.periode}</td>
-                  <td className="px-4 py-3 text-sm text-right font-semibold">{formatCurrency(prev.montantPrevu)}</td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="w-16 bg-slate-200 rounded-full h-2 mr-2">
-                        <div
-                          className={`h-2 rounded-full ${
-                            prev.probabilite >= 80 ? 'bg-green-500' :
-                            prev.probabilite >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${prev.probabilite}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-xs font-medium">{prev.probabilite.toFixed(0)}%</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      prev.confiance === 'haute' ? 'bg-green-100 text-green-800' :
-                      prev.confiance === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {prev.confiance}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsPrevisionsAchatsModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Opportunités de Négociation */}
-    <Modal
-      isOpen={isNegociationsModalOpen}
-      onClose={() => setIsNegociationsModalOpen(false)}
-      title="Opportunités de Négociation"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-          <p className="text-sm text-amber-800">
-            Opportunités de négociation identifiées pour optimiser les relations fournisseurs.
-          </p>
-        </div>
-        
-        <div className="space-y-3">
-          {opportunitesNegociation.slice(0, 15).map((neg) => (
-            <div
-              key={neg.id}
-              className={`p-4 rounded-lg border-2 ${
-                neg.priorite === 'haute' ? 'bg-red-50 border-red-300' :
-                neg.priorite === 'moyenne' ? 'bg-yellow-50 border-yellow-300' :
-                'bg-blue-50 border-blue-300'
-              }`}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsPerformanceModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h4 className="font-semibold text-slate-900">{neg.fournisseurNom}</h4>
-                  <p className="text-sm text-slate-700">{neg.objectif}</p>
-                </div>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  neg.statut === 'terminee' ? 'bg-green-100 text-green-800' :
-                  neg.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {neg.statut}
-                </span>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <span className="text-slate-600">Type:</span>
-                  <span className="ml-2 font-medium capitalize">{neg.type}</span>
-                </div>
-                <div>
-                  <span className="text-slate-600">Actuel:</span>
-                  <span className="ml-2 font-medium">{typeof neg.valeurActuelle === 'number' ? formatCurrency(neg.valeurActuelle) : neg.valeurActuelle}</span>
-                </div>
-                <div>
-                  <span className="text-slate-600">Cible:</span>
-                  <span className="ml-2 font-medium text-green-600">{typeof neg.valeurCible === 'number' ? formatCurrency(neg.valeurCible) : neg.valeurCible}</span>
-                </div>
-                {neg.economiePotentielle > 0 && (
+              Fermer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Optimisation des Coûts */}
+      <Modal
+        isOpen={isOptimisationModalOpen}
+        onClose={() => setIsOptimisationModalOpen(false)}
+        title="Optimisation des Coûts Fournisseurs"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <p className="text-sm text-green-800">
+              Opportunités d'optimisation des coûts avec stratégies de négociation, volume et paiement.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {optimisationsCouts.slice(0, 10).map((opt) => (
+              <div key={opt.fournisseurId} className="p-4 rounded-lg border-2 border-green-200 bg-green-50">
+                <div className="flex items-start justify-between mb-3">
                   <div>
-                    <span className="text-slate-600">Économie:</span>
-                    <span className="ml-2 font-bold text-green-600">{formatCurrency(neg.economiePotentielle)}</span>
+                    <h4 className="font-semibold text-slate-900">{opt.fournisseurNom}</h4>
+                    <p className="text-sm text-slate-600">Économie potentielle: {formatCurrency(opt.economiePotentielle)} ({opt.economiePourcentage.toFixed(1)}%)</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${opt.priorite === 'haute' ? 'bg-red-100 text-red-800' :
+                      opt.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                    }`}>
+                    {opt.priorite}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div>
+                    <p className="text-xs text-slate-600">Coût actuel</p>
+                    <p className="text-lg font-bold text-slate-900">{formatCurrency(opt.coutActuel)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-600">Coût optimisé</p>
+                    <p className="text-lg font-bold text-green-600">{formatCurrency(opt.coutOptimise)}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-slate-600">Stratégies:</p>
+                  {opt.strategies.map((strategy, idx) => (
+                    <div key={idx} className="bg-white p-2 rounded text-xs">
+                      <span className="font-medium">{strategy.description}</span>
+                      <span className="ml-2 text-green-600">({formatCurrency(strategy.economie)})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsOptimisationModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Prévisions d'Achats */}
+      <Modal
+        isOpen={isPrevisionsAchatsModalOpen}
+        onClose={() => setIsPrevisionsAchatsModalOpen(false)}
+        title="Prévisions d'Achats par Fournisseur"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <p className="text-sm text-purple-800">
+              Prévisions d'achats sur 6 mois basées sur l'historique, la tendance et la saisonnalité.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Fournisseur</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Période</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Montant Prévu</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Probabilité</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Confiance</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {previsionsAchats.slice(0, 20).map((prev, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{prev.fournisseurNom}</td>
+                    <td className="px-4 py-3 text-sm text-right">{prev.periode}</td>
+                    <td className="px-4 py-3 text-sm text-right font-semibold">{formatCurrency(prev.montantPrevu)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center">
+                        <div className="w-16 bg-slate-200 rounded-full h-2 mr-2">
+                          <div
+                            className={`h-2 rounded-full ${prev.probabilite >= 80 ? 'bg-green-500' :
+                                prev.probabilite >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                            style={{ width: `${prev.probabilite}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-medium">{prev.probabilite.toFixed(0)}%</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${prev.confiance === 'haute' ? 'bg-green-100 text-green-800' :
+                          prev.confiance === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
+                        {prev.confiance}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsPrevisionsAchatsModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Opportunités de Négociation */}
+      <Modal
+        isOpen={isNegociationsModalOpen}
+        onClose={() => setIsNegociationsModalOpen(false)}
+        title="Opportunités de Négociation"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+            <p className="text-sm text-amber-800">
+              Opportunités de négociation identifiées pour optimiser les relations fournisseurs.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {opportunitesNegociation.slice(0, 15).map((neg) => (
+              <div
+                key={neg.id}
+                className={`p-4 rounded-lg border-2 ${neg.priorite === 'haute' ? 'bg-red-50 border-red-300' :
+                    neg.priorite === 'moyenne' ? 'bg-yellow-50 border-yellow-300' :
+                      'bg-blue-50 border-blue-300'
+                  }`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h4 className="font-semibold text-slate-900">{neg.fournisseurNom}</h4>
+                    <p className="text-sm text-slate-700">{neg.objectif}</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${neg.statut === 'terminee' ? 'bg-green-100 text-green-800' :
+                      neg.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                    }`}>
+                    {neg.statut}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-slate-600">Type:</span>
+                    <span className="ml-2 font-medium capitalize">{neg.type}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-600">Actuel:</span>
+                    <span className="ml-2 font-medium">{typeof neg.valeurActuelle === 'number' ? formatCurrency(neg.valeurActuelle) : neg.valeurActuelle}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-600">Cible:</span>
+                    <span className="ml-2 font-medium text-green-600">{typeof neg.valeurCible === 'number' ? formatCurrency(neg.valeurCible) : neg.valeurCible}</span>
+                  </div>
+                  {neg.economiePotentielle > 0 && (
+                    <div>
+                      <span className="text-slate-600">Économie:</span>
+                      <span className="ml-2 font-bold text-green-600">{formatCurrency(neg.economiePotentielle)}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${neg.difficulte === 'facile' ? 'bg-green-100 text-green-800' :
+                      neg.difficulte === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                    }`}>
+                    {neg.difficulte}
+                  </span>
+                  <span className="text-xs text-slate-500">Date limite: {new Date(neg.dateLimite).toLocaleDateString('fr-FR')}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsNegociationsModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Évaluation des Risques */}
+      <Modal
+        isOpen={isRisquesModalOpen}
+        onClose={() => setIsRisquesModalOpen(false)}
+        title="Évaluation des Risques Fournisseurs"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+            <p className="text-sm text-red-800">
+              Évaluation des risques liés aux fournisseurs : concentration, qualité, délais, localisation.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {risquesFournisseurs.slice(0, 10).map((risque) => (
+              <div
+                key={risque.fournisseurId}
+                className={`p-4 rounded-lg border-2 ${risque.niveauRisque === 'critique' ? 'bg-red-50 border-red-300' :
+                    risque.niveauRisque === 'eleve' ? 'bg-orange-50 border-orange-300' :
+                      risque.niveauRisque === 'moyen' ? 'bg-yellow-50 border-yellow-300' :
+                        'bg-green-50 border-green-300'
+                  }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 className="font-semibold text-slate-900">{risque.fournisseurNom}</h4>
+                    <p className="text-sm text-slate-600">Score de risque: {risque.scoreRisque}/100</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${risque.niveauRisque === 'critique' ? 'bg-red-200 text-red-800' :
+                      risque.niveauRisque === 'eleve' ? 'bg-orange-200 text-orange-800' :
+                        risque.niveauRisque === 'moyen' ? 'bg-yellow-200 text-yellow-800' :
+                          'bg-green-200 text-green-800'
+                    }`}>
+                    {risque.niveauRisque}
+                  </span>
+                </div>
+
+                <div className="space-y-2 mb-3">
+                  <p className="text-xs font-semibold text-slate-600">Facteurs de risque:</p>
+                  {risque.facteursRisque.map((facteur, idx) => (
+                    <div key={idx} className="bg-white p-2 rounded text-xs">
+                      <span className="font-medium capitalize">{facteur.type}:</span>
+                      <span className="ml-2">{facteur.description}</span>
+                      <span className={`ml-2 px-1 py-0.5 rounded text-xs ${facteur.impact === 'eleve' ? 'bg-red-100 text-red-800' :
+                          facteur.impact === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-blue-100 text-blue-800'
+                        }`}>
+                        {facteur.impact}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {risque.recommandations.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">Recommandations:</p>
+                    <ul className="list-disc list-inside text-xs text-slate-700 space-y-1">
+                      {risque.recommandations.map((rec, idx) => (
+                        <li key={idx}>{rec}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
-              
-              <div className="mt-3 flex items-center justify-between">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  neg.difficulte === 'facile' ? 'bg-green-100 text-green-800' :
-                  neg.difficulte === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  {neg.difficulte}
-                </span>
-                <span className="text-xs text-slate-500">Date limite: {new Date(neg.dateLimite).toLocaleDateString('fr-FR')}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsNegociationsModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Évaluation des Risques */}
-    <Modal
-      isOpen={isRisquesModalOpen}
-      onClose={() => setIsRisquesModalOpen(false)}
-      title="Évaluation des Risques Fournisseurs"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-          <p className="text-sm text-red-800">
-            Évaluation des risques liés aux fournisseurs : concentration, qualité, délais, localisation.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          {risquesFournisseurs.slice(0, 10).map((risque) => (
-            <div
-              key={risque.fournisseurId}
-              className={`p-4 rounded-lg border-2 ${
-                risque.niveauRisque === 'critique' ? 'bg-red-50 border-red-300' :
-                risque.niveauRisque === 'eleve' ? 'bg-orange-50 border-orange-300' :
-                risque.niveauRisque === 'moyen' ? 'bg-yellow-50 border-yellow-300' :
-                'bg-green-50 border-green-300'
-              }`}
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsRisquesModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h4 className="font-semibold text-slate-900">{risque.fournisseurNom}</h4>
-                  <p className="text-sm text-slate-600">Score de risque: {risque.scoreRisque}/100</p>
-                </div>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  risque.niveauRisque === 'critique' ? 'bg-red-200 text-red-800' :
-                  risque.niveauRisque === 'eleve' ? 'bg-orange-200 text-orange-800' :
-                  risque.niveauRisque === 'moyen' ? 'bg-yellow-200 text-yellow-800' :
-                  'bg-green-200 text-green-800'
-                }`}>
-                  {risque.niveauRisque}
-                </span>
-              </div>
-              
-              <div className="space-y-2 mb-3">
-                <p className="text-xs font-semibold text-slate-600">Facteurs de risque:</p>
-                {risque.facteursRisque.map((facteur, idx) => (
-                  <div key={idx} className="bg-white p-2 rounded text-xs">
-                    <span className="font-medium capitalize">{facteur.type}:</span>
-                    <span className="ml-2">{facteur.description}</span>
-                    <span className={`ml-2 px-1 py-0.5 rounded text-xs ${
-                      facteur.impact === 'eleve' ? 'bg-red-100 text-red-800' :
-                      facteur.impact === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
-                      {facteur.impact}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              
-              {risque.recommandations.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-slate-200">
-                  <p className="text-xs font-semibold text-slate-600 mb-1">Recommandations:</p>
-                  <ul className="list-disc list-inside text-xs text-slate-700 space-y-1">
-                    {risque.recommandations.map((rec, idx) => (
-                      <li key={idx}>{rec}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))}
+              Fermer
+            </button>
+          </div>
         </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsRisquesModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
+      </Modal>
     </div>
   );
 };

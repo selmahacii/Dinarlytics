@@ -47,3 +47,42 @@ class Payment(Base):
     mode = Column(Enum(PaymentMode), default=PaymentMode.BANK_TRANSFER)
     reference = Column(String(100))
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class Budget(Base):
+    __tablename__ = "budgets"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    exercice = Column(String(10), nullable=False) # e.g. "2025"
+    status = Column(String(50), default="draft") # draft, active, closed
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    
+    items = relationship("BudgetItem", back_populates="budget", cascade="all, delete-orphan")
+
+class BudgetItem(Base):
+    __tablename__ = "budget_items"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    budget_id = Column(UUID(as_uuid=True), ForeignKey("budgets.id"), nullable=False, index=True)
+    category = Column(String(100), nullable=False) # e.g. "Salaires", "Loyers", "Ventes"
+    account_code = Column(String(50)) # Optional mapping to SCF account
+    budgeted_amount = Column(Numeric(18, 2), nullable=False)
+    actual_amount = Column(Numeric(18, 2), default=0)
+    variance = Column(Numeric(18, 2), default=0)
+    
+    budget = relationship("Budget", back_populates="items")
+
+class CollectionAction(Base):
+    """Tracking debt collection actions (Relances)"""
+    __tablename__ = "collection_actions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    invoice_id = Column(UUID(as_uuid=True), ForeignKey("invoices.id"), nullable=False, index=True)
+    action_type = Column(String(50), nullable=False) # email, phone, mail, legal
+    action_date = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    status = Column(String(50), default="completed") # sent, failed, pending
+    notes = Column(String(500))
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+

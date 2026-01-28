@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import type { Article } from '../types';
-import axios from 'axios';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { articlesService } from '../services/modules/articlesService';
 
-export type ProductsContextType = { 
+export type ProductsContextType = {
   products: Article[];
   loading: boolean;
   error: string | null;
@@ -16,54 +17,74 @@ export type ProductsContextType = {
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
 
 export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [products, setProductsState] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  // Fetch articles from API
-  const refreshProducts = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get('/api/v1/articles');
-      setProductsState(response.data || []);
-    } catch (err) {
-      console.error('Error fetching articles:', err);
-      setError('Failed to load articles');
-      setProductsState([]);
-    } finally {
-      setLoading(false);
+  const {
+    data: products = [],
+    isLoading: loading,
+    error: queryError
+  } = useQuery({
+    queryKey: ['articles'],
+    queryFn: articlesService.getAll,
+    staleTime: 60000,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<Article> }) => articlesService.update(id, patch),
+    onMutate: async ({ id, patch }) => {
+      await queryClient.cancelQueries({ queryKey: ['articles'] });
+      const previous = queryClient.getQueryData<Article[]>(['articles']);
+      if (previous) {
+        queryClient.setQueryData<Article[]>(['articles'], previous.map(p =>
+          p.id === id ? { ...p, ...patch } : p
+        ));
+      }
+      return { previous };
+    },
+    onError: (err, vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['articles'], context.previous);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
     }
-  };
-
-  useEffect(() => {
-    refreshProducts();
-  }, []);
+  });
 
   const getById = (id: string) => products.find(p => p.id === id);
 
+  // Legacy support: setProducts treats it as a cache override or simple state (but passing it to backend might be too much)
+  // We'll implementing it as updating the query data locally for now.
   const setProducts = (next: Article[]) => {
-    setProductsState(next);
-  };
-  
-  const updateProduct = (id: string, patch: Partial<Article>) => {
-    setProductsState(prev => prev.map(p => p.id === id ? { ...p, ...patch } : p));
-  };
-  
-  const adjustStock = (id: string, delta: number) => {
-    setProductsState(prev => prev.map(p => p.id === id ? { ...p, stock: Math.max(0, p.stock + delta) } : p));
+    queryClient.setQueryData(['articles'], next);
   };
 
-  const value = useMemo<ProductsContextType>(() => ({ 
-    products, 
-    loading, 
-    error,
-    getById, 
-    setProducts, 
-    updateProduct, 
-    adjustStock, 
-    refreshProducts 
-  }), [products, loading, error]);
+  const updateProduct = (id: string, patch: Partial<Article>) => {
+    updateMutation.mutate({ id, patch });
+  };
+
+  const adjustStock = (id: string, delta: number) => {
+    const product = products.find(p => p.id === id);
+    if (product) {
+      const newStock = Math.max(0, product.stock + delta);
+      updateMutation.mutate({ id, patch: { stock: newStock } });
+    }
+  };
+
+  const refreshProducts = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['articles'] });
+  };
+
+  const value = useMemo<ProductsContextType>(() => ({
+    products,
+    loading,
+    error: queryError ? (queryError as Error).message : null,
+    getById,
+    setProducts,
+    updateProduct,
+    adjustStock,
+    refreshProducts
+  }), [products, loading, queryError]);
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
 };

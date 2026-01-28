@@ -1,85 +1,99 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { suppliersService, Supplier } from '../services/modules/suppliersService';
 
-/**
- * Custom Hook for Real-Time Supplier Management
- * Provides CRUD operations with optimistic updates
- */
 export const useSuppliers = () => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const loadSuppliers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await suppliersService.getAll();
-      setSuppliers(data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load suppliers');
-      console.error('Supplier loading error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Query for Suppliers
+  const {
+    data: suppliers = [],
+    isLoading: loading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: suppliersService.getAll,
+    staleTime: 60000,
+  });
 
-  useEffect(() => {
-    loadSuppliers();
-  }, []);
+  // Mutation for Create
+  const createMutation = useMutation({
+    mutationFn: suppliersService.create,
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: ['suppliers'] });
+      const previous = queryClient.getQueryData<Supplier[]>(['suppliers']);
 
-  const createSupplier = async (data: Partial<Supplier>) => {
-    // Optimistic update
-    const tempId = `temp-${Date.now()}`;
-    const optimisticSupplier = { ...data, id: tempId } as Supplier;
-    setSuppliers(prev => [optimisticSupplier, ...prev]);
+      if (previous) {
+        queryClient.setQueryData<Supplier[]>(['suppliers'], [
+          ...previous,
+          { ...newData, id: `temp-${Date.now()}` } as Supplier
+        ]);
+      }
+      return { previous };
+    },
+    onError: (err, newData, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['suppliers'], context.previous);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    },
+  });
 
-    try {
-      const newSupplier = await suppliersService.create(data);
-      setSuppliers(prev => prev.map(s => s.id === tempId ? newSupplier : s));
-      return newSupplier;
-    } catch (err: any) {
-      setSuppliers(prev => prev.filter(s => s.id !== tempId));
-      setError(err.message);
-      throw err;
-    }
-  };
+  // Mutation for Update
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Supplier> }) => suppliersService.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['suppliers'] });
+      const previous = queryClient.getQueryData<Supplier[]>(['suppliers']);
 
-  const updateSupplier = async (id: string, data: Partial<Supplier>) => {
-    const originalSuppliers = [...suppliers];
-    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
+      if (previous) {
+        queryClient.setQueryData<Supplier[]>(['suppliers'], previous.map(s =>
+          s.id === id ? { ...s, ...data } : s
+        ));
+      }
+      return { previous };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['suppliers'], context.previous);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    },
+  });
 
-    try {
-      const updated = await suppliersService.update(id, data);
-      setSuppliers(prev => prev.map(s => s.id === id ? updated : s));
-      return updated;
-    } catch (err: any) {
-      setSuppliers(originalSuppliers);
-      setError(err.message);
-      throw err;
-    }
-  };
+  // Mutation for Delete
+  const deleteMutation = useMutation({
+    mutationFn: suppliersService.delete,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['suppliers'] });
+      const previous = queryClient.getQueryData<Supplier[]>(['suppliers']);
 
-  const deleteSupplier = async (id: string) => {
-    const originalSuppliers = [...suppliers];
-    setSuppliers(prev => prev.filter(s => s.id !== id));
-
-    try {
-      await suppliersService.delete(id);
-    } catch (err: any) {
-      setSuppliers(originalSuppliers);
-      setError(err.message);
-      throw err;
-    }
-  };
+      if (previous) {
+        queryClient.setQueryData<Supplier[]>(['suppliers'], previous.filter(s => s.id !== id));
+      }
+      return { previous };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['suppliers'], context.previous);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+    },
+  });
 
   return {
     suppliers,
     loading,
-    error,
-    refresh: loadSuppliers,
-    createSupplier,
-    updateSupplier,
-    deleteSupplier
+    error: error ? (error as Error).message : null,
+    refresh: refetch,
+    createSupplier: (data: Partial<Supplier>) => createMutation.mutateAsync(data),
+    updateSupplier: (id: string, data: Partial<Supplier>) => updateMutation.mutateAsync({ id, data }),
+    deleteSupplier: (id: string) => deleteMutation.mutateAsync(id)
   };
 };

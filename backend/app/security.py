@@ -237,16 +237,20 @@ class RBACManager:
         return action in allowed_actions
 
     @staticmethod
-    def get_user_permissions(roles: List[str]) -> List[str]:
-        """Get all permissions for a user based on roles"""
+    def get_user_permissions(roles: List[str], db_permissions: List[str] = None) -> List[str]:
+        """Get all permissions for a user based on roles and DB overrides"""
         from app.config import ROLES
 
         permissions = set()
         for role in roles:
             if role in ROLES:
                 permissions.update(ROLES[role]["permissions"])
+        
+        if db_permissions:
+            permissions.update(db_permissions)
 
         return list(permissions)
+
 
 
 import redis

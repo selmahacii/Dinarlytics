@@ -13,6 +13,8 @@ from app.models.models import Article, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field
+from app.utils.audit import log_audit
+import json
 
 router = APIRouter(prefix="/articles", tags=["articles"])
 
@@ -276,6 +278,10 @@ async def create_article(
     db.commit()
     db.refresh(article)
     
+    # Audit Log
+    log_audit(db, current_user, "CREATE", "ARTICLE", str(article.id), {"name": article.name})
+    db.commit()
+    
     return ArticleResponse(
         id=str(article.id),
         name=article.name,
@@ -319,6 +325,10 @@ async def update_article(
     db.commit()
     db.refresh(article)
     
+    # Audit Log
+    log_audit(db, current_user, "UPDATE", "ARTICLE", str(article.id), request.dict(exclude_unset=True))
+    db.commit()
+    
     return ArticleResponse(
         id=str(article.id),
         name=article.name,
@@ -355,6 +365,10 @@ async def delete_article(
     article.is_active = False
     article.updated_at = datetime.utcnow()
     
+    db.commit()
+    
+    # Audit Log
+    log_audit(db, current_user, "DELETE", "ARTICLE", str(article_id))
     db.commit()
     
     return None

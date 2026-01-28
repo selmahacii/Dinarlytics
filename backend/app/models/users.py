@@ -49,6 +49,7 @@ class User(Base):
     last_name = Column(String(255))
     is_active = Column(Boolean, default=True, index=True)
     is_verified = Column(Boolean, default=False)
+    permissions = Column(JSON, default=[]) # Specific extra/restricted permissions
     last_login = Column(DateTime, default=None)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
@@ -92,10 +93,12 @@ class Role(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(50), unique=True, nullable=False, index=True)
     description = Column(String(500))
+    permissions = Column(JSON, default=[]) # List of specific permissions
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Relationships
     users = relationship("User", secondary="user_roles", back_populates="roles")
+
 
 class UserRole(Base):
     __tablename__ = "user_roles"

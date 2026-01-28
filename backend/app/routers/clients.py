@@ -14,6 +14,9 @@ from app.models.models import Client, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field, EmailStr
+from app.websocket_manager import manager
+from app.utils.audit import log_audit
+import json
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -217,6 +220,19 @@ async def create_client(
     db.commit()
     db.refresh(client)
     
+    # Notify via WebSocket
+    await manager.broadcast(json.dumps({
+        "type": "CLIENT_CREATED",
+        "data": {
+            "id": str(client.id),
+            "name": client.name
+        }
+    }))
+
+    # Audit Log
+    log_audit(db, current_user, "CREATE", "CLIENT", str(client.id), {"name": client.name})
+    db.commit()
+
     return ClientResponse(
         id=str(client.id),
         name=client.name,
@@ -258,6 +274,19 @@ async def update_client(
     db.commit()
     db.refresh(client)
     
+    # Notify via WebSocket
+    await manager.broadcast(json.dumps({
+        "type": "CLIENT_UPDATED",
+        "data": {
+            "id": str(client.id),
+            "name": client.name
+        }
+    }))
+
+    # Audit Log
+    log_audit(db, current_user, "UPDATE", "CLIENT", str(client.id), request.dict(exclude_unset=True))
+    db.commit()
+
     return ClientResponse(
         id=str(client.id),
         name=client.name,
@@ -294,4 +323,16 @@ async def delete_client(
     client.updated_at = datetime.now()
     db.commit()
     
+    # Notify via WebSocket
+    await manager.broadcast(json.dumps({
+        "type": "CLIENT_DELETED",
+        "data": {
+            "id": str(client.id)
+        }
+    }))
+
+    # Audit Log
+    log_audit(db, current_user, "DELETE", "CLIENT", str(client_id))
+    db.commit()
+
     return None

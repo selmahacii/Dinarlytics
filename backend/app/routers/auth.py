@@ -220,7 +220,8 @@ async def login(
     
     # Get user roles and permissions
     roles = [role.name for role in user.roles]
-    permissions = RBACManager.get_user_permissions(roles)
+    permissions = RBACManager.get_user_permissions(roles, user.permissions)
+
     
     # Create tokens
     access_token = JWTManager.create_access_token(

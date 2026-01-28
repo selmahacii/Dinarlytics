@@ -1,103 +1,70 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
+from app.database import get_db
+from app.routers.auth import get_current_user
+from app.security import TokenData
+from app.models.financial import Budget, BudgetItem
+from app.services.budgeting import BudgetingService
+from app.utils.audit import log_audit
+from pydantic import BaseModel
+
+from decimal import Decimal
 
 router = APIRouter(prefix="/budgets", tags=["budgets"])
 
-class LigneBudget(BaseModel):
-    id: str
-    code: str
-    libelle: str
-    categorie: str
-    type: str
-    compteComptable: str
-    periode: str
-    montantBudget: float
-    montantReel: float
-    ecart: float
-    ecartPourcentage: float
-    statut: str
-    dateCreation: str
-    dateModification: str
+class BudgetItemSchema(BaseModel):
+    category: str
+    account_code: Optional[str] = None
+    budgeted_amount: Decimal
 
-class Budget(BaseModel):
-    id: str
-    nom: str
-    description: Optional[str] = None
+class BudgetCreate(BaseModel):
+    name: str
     exercice: str
-    type: str
-    statut: str
-    dateCreation: str
-    dateDebut: str
-    dateFin: str
-    dateValidation: Optional[str] = None
-    creePar: Optional[str] = None
-    validePar: Optional[str] = None
-    lignes: List[LigneBudget] = []
+    items: List[BudgetItemSchema]
 
-# In-memory sample data (replace with DB calls later)
-_sample_budget = [
-    Budget(
-        id="bud-001",
-        nom="Budget Initial 2025",
-        description="Budget initial pour l'exercice 2025",
-        exercice="2025",
-        type="initial",
-        statut="approuvé",
-        dateCreation="2024-12-15",
-        dateDebut="2025-01-01",
-        dateFin="2025-12-31",
-        dateValidation="2024-12-20",
-        creePar="Admin",
-        validePar="Manager",
-        lignes=[
-            LigneBudget(
-                id="ligne-001",
-                code="VTE-001",
-                libelle="Ventes Produits",
-                categorie="ventes",
-                type="recette",
-                compteComptable="701",
-                periode="2025",
-                montantBudget=12000000,
-                montantReel=12500000,
-                ecart=500000,
-                ecartPourcentage=4.17,
-                statut="depasse",
-                dateCreation="2024-12-01",
-                dateModification="2024-12-15",
-            )
-        ],
+@router.get("/")
+def list_budgets(db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
+    return db.query(Budget).filter(Budget.company_id == current_user.company_id).all()
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def create_budget(request: BudgetCreate, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
+    budget = Budget(
+        company_id=current_user.company_id,
+        name=request.name,
+        exercice=request.exercice,
+        status="draft"
     )
-]
-
-@router.get("/", response_model=List[Budget])
-def list_budgets():
-    return _sample_budget
-
-@router.get("/{budget_id}", response_model=Budget)
-def get_budget(budget_id: str):
-    for b in _sample_budget:
-        if b.id == budget_id:
-            return b
-    raise HTTPException(status_code=404, detail="Budget not found")
-
-@router.post("/", response_model=Budget)
-def create_budget(budget: Budget):
-    _sample_budget.append(budget)
+    db.add(budget)
+    db.flush()
+    
+    for item in request.items:
+        db.add(BudgetItem(
+            budget_id=budget.id,
+            category=item.category,
+            account_code=item.account_code,
+            budgeted_amount=item.budgeted_amount
+        ))
+    
+    db.commit()
+    db.refresh(budget)
+    log_audit(db, current_user, "CREATE", "BUDGET", str(budget.id), {"name": budget.name})
+    db.commit()
     return budget
 
-@router.put("/{budget_id}", response_model=Budget)
-def update_budget(budget_id: str, budget: Budget):
-    for i, b in enumerate(_sample_budget):
-        if b.id == budget_id:
-            _sample_budget[i] = budget
-            return budget
-    raise HTTPException(status_code=404, detail="Budget not found")
+@router.post("/{budget_id}/sync")
+def sync_budget(budget_id: str, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
+    """Force an update of 'Actual' amounts from the ledger."""
+    budget = BudgetingService.sync_actual_amounts(db, budget_id)
+    if not budget:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    log_audit(db, current_user, "SYNC", "BUDGET", budget_id)
+    db.commit()
+    return budget
 
-@router.delete("/{budget_id}")
-def delete_budget(budget_id: str):
-    global _sample_budget
-    _sample_budget = [b for b in _sample_budget if b.id != budget_id]
-    return {"status": "deleted"}
+
+@router.get("/summary/{exercice}")
+def get_budget_summary(exercice: str, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
+    return BudgetingService.get_summary(db, current_user.company_id, exercice)

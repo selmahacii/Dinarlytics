@@ -36,5 +36,10 @@ export const clientsService = {
 
     delete: async (id: string) => {
         await apiClient.delete(`/clients/${id}`);
+    },
+
+    getStats: async () => {
+        const response = await apiClient.get<any>('/clients/stats');
+        return response.data;
     }
 };

@@ -64,7 +64,10 @@ type KPISet = {
     performance: number;
     codeCompte: string;
   };
+  budgetUsage?: number;
+  overdueAmount?: number;
 };
+
 
 const Dashboard: React.FC = () => {
   const { formatCurrency, planComptable } = useApp();
@@ -166,8 +169,21 @@ const Dashboard: React.FC = () => {
       value: kpis.rotationStocks.ratio,
       unit: 'x',
       trend: (kpis.rotationStocks.performance ?? 0) >= 0 ? 'up' : 'down'
+    },
+    {
+      name: 'Utilisation Budget',
+      value: kpis.budgetUsage ?? 0,
+      unit: '%',
+      trend: (kpis.budgetUsage ?? 0) < 90 ? 'up' : 'down'
+    },
+    {
+      name: 'Créances en retard',
+      value: kpis.overdueAmount ?? 0,
+      unit: 'DZD',
+      trend: 'down'
     }
   ] : [];
+
 
   // Données comptables SCF/IFRS
   const normesComptables = {
@@ -479,15 +495,15 @@ const Dashboard: React.FC = () => {
         <div className="text-center">
           <div className="mb-2">
             <span className={`inline-block w-3 h-3 rounded-full ${businessWeather.status === 'excellent' ? 'bg-green-500' :
-                businessWeather.status === 'good' ? 'bg-blue-500' :
-                  businessWeather.status === 'average' ? 'bg-yellow-500' :
-                    'bg-red-500'
+              businessWeather.status === 'good' ? 'bg-blue-500' :
+                businessWeather.status === 'average' ? 'bg-yellow-500' :
+                  'bg-red-500'
               }`}></span>
           </div>
           <div className={`text-base font-bold ${businessWeather.status === 'excellent' ? 'text-green-600' :
-              businessWeather.status === 'good' ? 'text-blue-600' :
-                businessWeather.status === 'average' ? 'text-yellow-600' :
-                  'text-red-600'
+            businessWeather.status === 'good' ? 'text-blue-600' :
+              businessWeather.status === 'average' ? 'text-yellow-600' :
+                'text-red-600'
             }`}>{businessWeather.indicator}</div>
           <div className="text-sm text-gray-600">{businessWeather.description}</div>
         </div>
@@ -596,8 +612,8 @@ const Dashboard: React.FC = () => {
                   key={timeframe}
                   onClick={() => setActiveTimeframe(timeframe)}
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${activeTimeframe === timeframe
-                      ? 'bg-white text-blue-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                     }`}
                 >
                   {timeframe === 'day' && 'Jour'}
@@ -956,8 +972,8 @@ const Dashboard: React.FC = () => {
                           {kpis.creancesClients.delaiMoyen} jours
                         </span>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${kpis.creancesClients.risque === 'Faible'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
                           }`}>
                           {kpis.creancesClients.risque}
                         </span>
@@ -1302,13 +1318,13 @@ const Dashboard: React.FC = () => {
                 const Icon = alert.icon || BellIcon;
                 return (
                   <div key={index} className={`flex items-start space-x-3 p-4 rounded-lg border ${alert.priority === 'high' ? 'bg-red-50 border-red-200' :
-                      alert.priority === 'medium' ? 'bg-yellow-50 border-yellow-200' :
-                        'bg-blue-50 border-blue-200'
+                    alert.priority === 'medium' ? 'bg-yellow-50 border-yellow-200' :
+                      'bg-blue-50 border-blue-200'
                     }`}>
                     <div className="flex items-center space-x-2">
                       <Icon className={`h-5 w-5 mt-0.5 ${alert.priority === 'high' ? 'text-red-600' :
-                          alert.priority === 'medium' ? 'text-yellow-600' :
-                            'text-blue-600'
+                        alert.priority === 'medium' ? 'text-yellow-600' :
+                          'text-blue-600'
                         }`} />
                     </div>
                     <div className="flex-1">
@@ -1385,12 +1401,12 @@ const Dashboard: React.FC = () => {
             <div className="mb-6">
               <div className="flex items-start space-x-3">
                 <div className={`p-2 rounded-lg ${selectedAlert.type === 'warning' ? 'bg-yellow-100' :
-                    selectedAlert.type === 'info' ? 'bg-blue-100' :
-                      'bg-green-100'
+                  selectedAlert.type === 'info' ? 'bg-blue-100' :
+                    'bg-green-100'
                   }`}>
                   <selectedAlert.icon className={`h-5 w-5 ${selectedAlert.type === 'warning' ? 'text-yellow-600' :
-                      selectedAlert.type === 'info' ? 'text-blue-600' :
-                        'text-green-600'
+                    selectedAlert.type === 'info' ? 'text-blue-600' :
+                      'text-green-600'
                     }`} />
                 </div>
                 <div>
@@ -1429,8 +1445,8 @@ const Dashboard: React.FC = () => {
                   }
                 }}
                 className={`px-4 py-2 text-white rounded-lg transition-colors ${selectedAlert.priority === 'high' ? 'bg-red-600 hover:bg-red-700' :
-                    selectedAlert.priority === 'medium' ? 'bg-blue-600 hover:bg-blue-700' :
-                      'bg-green-600 hover:bg-green-700'
+                  selectedAlert.priority === 'medium' ? 'bg-blue-600 hover:bg-blue-700' :
+                    'bg-green-600 hover:bg-green-700'
                   }`}
               >
                 {selectedAlert.action}

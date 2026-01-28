@@ -21,6 +21,7 @@ import {
   type PrevisionRevenusClient,
   type InteractionCRM
 } from '../../utils/clients';
+import { exportToCSV } from '../../utils/export';
 
 const Clients: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
@@ -28,9 +29,17 @@ const Clients: React.FC = () => {
   const { has } = usePermission();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  
+
   // Hook pour charger les clients dynamiquement
-  const { clients: rawApiClients, stats: clientStats, loading: loadingClients, error: errorClients } = useClients();
+  const {
+    clients: rawApiClients,
+    stats: clientStats,
+    loading: loadingClients,
+    error: errorClients,
+    createClient,
+    updateClient,
+    deleteClient
+  } = useClients();
   // Map API clients to app Client type
   const apiClients: Client[] = (rawApiClients || []).map((c: any) => ({
     id: c.id,
@@ -50,7 +59,7 @@ const Clients: React.FC = () => {
     permissions: c.permissions,
     notes: c.notes,
   }));
-  
+
   // États pour les nouvelles fonctionnalités
   const [isAnalyseValeurModalOpen, setIsAnalyseValeurModalOpen] = useState(false);
   const [isPrevisionsRevenusModalOpen, setIsPrevisionsRevenusModalOpen] = useState(false);
@@ -106,11 +115,11 @@ const Clients: React.FC = () => {
   const communicationStats = { totalCommunications: 0, communicationsEnAttente: 0, relancesEnCours: 0, montantTotalEnRetard: 0 };
   const statistiquesRapports = { totalRapports: 0, rapportsGeneres: 0, rapportsEnCours: 0, tailleTotale: '0 MB' };
   const metriquesRapports: any[] = [];
-  
+
   // Calculer les analyses de valeur client
   const analysesValeurClient = useMemo(() => {
     if (!apiClients || apiClients.length === 0) return [];
-    
+
     const historique = apiClients.flatMap((client: any) => {
       const nombreFactures = Math.floor(Math.random() * 20) + 5;
       return Array.from({ length: nombreFactures }, (_, i) => {
@@ -124,23 +133,23 @@ const Clients: React.FC = () => {
         };
       });
     });
-    
+
     const analyses = calculerValeurClient(historique);
-    
+
     analyses.forEach((analyse, clientId) => {
       const client = apiClients.find((c: any) => (c.id?.toString() || c.name) === clientId);
       if (client) {
         analyse.clientNom = client.nom || clientId;
       }
     });
-    
+
     return Array.from(analyses.values());
   }, [apiClients]);
-  
+
   // Segmenter les clients
   const segmentsClients = useMemo(() => {
     if (!apiClients || apiClients.length === 0) return [];
-    
+
     const clientsAvecDonnees = apiClients.map((client: any) => ({
       id: client.id?.toString() || client.nom || '',
       nom: client.nom || '',
@@ -150,14 +159,14 @@ const Clients: React.FC = () => {
       margeMoyenne: 20 + Math.random() * 20,
       frequenceAchat: Math.floor(Math.random() * 12) + 1
     }));
-    
+
     return segmenterClients(clientsAvecDonnees);
   }, [apiClients]);
-  
+
   // Générer les prévisions de revenus
   const previsionsRevenus = useMemo(() => {
     if (!apiClients || apiClients.length === 0) return [];
-    
+
     const historique = apiClients.flatMap((client: any) => {
       const nombreFactures = Math.floor(Math.random() * 12) + 3;
       return Array.from({ length: nombreFactures }, (_, i) => {
@@ -170,10 +179,10 @@ const Clients: React.FC = () => {
         };
       });
     });
-    
+
     return genererPrevisionsRevenusClient(historique, 6);
   }, [apiClients]);
-  
+
   // Générer les interactions CRM
   const interactionsCRM = useMemo(() => {
     const clientsAvecDonnees = analysesValeurClient.map(analyse => ({
@@ -184,10 +193,10 @@ const Clients: React.FC = () => {
       scoreValeur: analyse.scoreValeur,
       tendance: analyse.tendance
     }));
-    
+
     return genererInteractionsCRM(clientsAvecDonnees);
   }, [analysesValeurClient]);
-  
+
   // Calculer les métriques du portefeuille
   const metriquesPortefeuille = useMemo(() => {
     const clientsAvecDonnees = analysesValeurClient.map(analyse => ({
@@ -196,7 +205,7 @@ const Clients: React.FC = () => {
       dsoMoyen: 45, // Estimation
       scoreValeur: analyse.scoreValeur
     }));
-    
+
     return calculerMetriquesPortefeuille(clientsAvecDonnees);
   }, [analysesValeurClient]);
 
@@ -249,7 +258,7 @@ const Clients: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-bold">{pageContent.title}</h1>
+                  <h1 className="text-3xl font-bold">{pageContent.title}</h1>
                   <HelpButton pageId="clients" variant="icon" className="text-white/80 hover:text-white" />
                   <LIAContextualButton
                     question="Comment améliorer ma relation avec mes clients ?"
@@ -270,8 +279,8 @@ const Clients: React.FC = () => {
         </div>
 
         {/* Contenu adaptatif - Conseils et Insights */}
-        <AdaptiveContentDisplay 
-          pageId="clients" 
+        <AdaptiveContentDisplay
+          pageId="clients"
           context={contentContext}
           showTips={true}
           showInsights={true}
@@ -385,7 +394,7 @@ const Clients: React.FC = () => {
                   </div>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full bg-gradient-to-r ${zone.couleur} rounded-full transition-all duration-500`}
                     style={{ width: `${Math.round((zone.ca / caTotal) * 100)}%` }}
                   ></div>
@@ -506,23 +515,46 @@ const Clients: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (editingClient) {
-      // Mise à jour du client existant via API
-      console.log('Client mis à jour:', editingClient.id, formData);
-      // TODO: Implement API call to update client
-    } else {
-      // Ajout d'un nouveau client via API
-      const newClient: Client = {
-        id: `C${Date.now()}`,
-        ...formData
-      };
-      console.log('Nouveau client ajouté:', newClient);
-      // TODO: Implement API call to create client
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+      try {
+        await deleteClient(id);
+      } catch (err) {
+        console.error("Erreur lors de la suppression:", err);
+      }
     }
-    
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Convertir formData au format API
+    const apiData = {
+      name: formData.nom,
+      email: formData.email,
+      phone: formData.telephone,
+      address: formData.adresse,
+      tax_id: formData.nif,
+      credit_limit: formData.limiteCredit,
+      payment_terms: formData.delaiPaiement,
+      notes: formData.notes
+    };
+
+    try {
+      if (editingClient) {
+        // Mise à jour du client existant via API
+        if (editingClient.id) {
+          await updateClient(editingClient.id, apiData);
+        }
+      } else {
+        // Ajout d'un nouveau client via API
+        await createClient(apiData);
+      }
+    } catch (err) {
+      console.error("Erreur lors de l'enregistrement du client:", err);
+      // Optional: show error toast
+    }
+
     setIsModalOpen(false);
     setEditingClient(null);
     setFormData({
@@ -572,8 +604,19 @@ const Clients: React.FC = () => {
   };
 
   const handleDownloadRapport = (rapport: any) => {
-    const formatInfo = formatsRapport.find(f => f.value === rapport.format);
-    alert(`📥 Téléchargement en cours...\n\n📄 Rapport: ${rapport.nom}\n📊 Format: ${formatInfo?.label}\n💾 Taille: ${rapport.taille}\n\n✅ Téléchargement terminé !`);
+    if (rapport.format === 'csv' || rapport.format === 'excel') {
+      const dataToExport = apiClients.map(c => ({
+        Nom: c.nom,
+        Email: c.email,
+        Telephone: c.telephone,
+        Ville: c.adresse,
+        Solde: c.solde
+      }));
+      exportToCSV(dataToExport, `Rapport_Clients_${new Date().toISOString().split('T')[0]}`);
+    } else {
+      alert(`Le format ${rapport.format} n'est pas encore supporté nativement. Utilisation de l'impression navigateur.`);
+      window.print();
+    }
   };
 
   // Données simulées pour les fonctionnalités ERPNext
@@ -635,11 +678,10 @@ const Clients: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-                }`}
+                className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                  ? 'border-emerald-500 text-emerald-600 bg-emerald-50'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
               >
                 <tab.icon className="h-5 w-5 mr-2" />
                 {tab.name}
@@ -662,7 +704,7 @@ const Clients: React.FC = () => {
                     className="w-full sm:w-64 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   />
                 </div>
-                
+
                 <button
                   onClick={handleAdd}
                   className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
@@ -753,7 +795,11 @@ const Clients: React.FC = () => {
                             >
                               <PhoneIcon className="h-5 w-5" />
                             </button>
-                            <button className="text-red-600 dark:text-red-400 hover:text-red-800" title="Supprimer">
+                            <button
+                              onClick={() => client.id && handleDelete(client.id)}
+                              className="text-red-600 dark:text-red-400 hover:text-red-800"
+                              title="Supprimer"
+                            >
                               <TrashIcon className="h-5 w-5" />
                             </button>
                           </div>
@@ -771,27 +817,27 @@ const Clients: React.FC = () => {
                     <ExclamationTriangleIcon className="h-5 w-5 text-slate-700" />
                     <span>Relances en Cours</span>
                   </h3>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('relances')}
                     className="px-3 py-1.5 text-xs bg-slate-700 text-white rounded-lg hover:bg-slate-800 font-medium"
                   >
                     Voir Toutes
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="p-3 bg-red-50 rounded-lg border border-red-200">
-                  <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex items-center justify-between">
+                      <div>
                         <p className="text-xs text-slate-600 font-medium">Critiques</p>
                         <p className="text-2xl font-bold text-slate-900">3</p>
-                    </div>
+                      </div>
                       <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
+                    </div>
                   </div>
-                </div>
                   <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex items-center justify-between">
+                      <div>
                         <p className="text-xs text-slate-600 font-medium">En Attente</p>
                         <p className="text-2xl font-bold text-slate-900">8</p>
                       </div>
@@ -803,12 +849,12 @@ const Clients: React.FC = () => {
                       <div>
                         <p className="text-xs text-slate-600 font-medium">Payées</p>
                         <p className="text-2xl font-bold text-slate-900">15</p>
-                    </div>
+                      </div>
                       <CheckCircleIcon className="h-8 w-8 text-emerald-600" />
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-4">
                   <h4 className="text-xs font-medium text-slate-600 uppercase mb-2">Relances Récentes</h4>
                   <div className="space-y-2">
@@ -844,27 +890,27 @@ const Clients: React.FC = () => {
                     <ChartBarIcon className="h-5 w-5 text-slate-700" />
                     <span>Analytics Clients</span>
                   </h3>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('analytics')}
                     className="px-3 py-1.5 text-xs bg-slate-700 text-white rounded-lg hover:bg-slate-800 font-medium"
                   >
                     Voir Détails
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex items-center justify-between">
+                      <div>
                         <p className="text-xs text-slate-600 font-medium">Total Clients</p>
                         <p className="text-xl font-bold text-slate-900">1,250</p>
-                    </div>
+                      </div>
                       <UserGroupIcon className="h-8 w-8 text-slate-600" />
+                    </div>
                   </div>
-                </div>
                   <div className="p-3 bg-slate-100 rounded-lg border border-slate-300">
-                  <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex items-center justify-between">
+                      <div>
                         <p className="text-xs text-slate-700 font-medium">Actifs</p>
                         <p className="text-xl font-bold text-slate-900">980</p>
                       </div>
@@ -876,10 +922,10 @@ const Clients: React.FC = () => {
                       <div>
                         <p className="text-xs text-slate-600 font-medium">CA Total</p>
                         <p className="text-xl font-bold text-slate-900">2.45M دج</p>
-                    </div>
+                      </div>
                       <CurrencyDollarIcon className="h-8 w-8 text-slate-600" />
+                    </div>
                   </div>
-                </div>
                   <div className="p-3 bg-slate-100 rounded-lg border border-slate-300">
                     <div className="flex items-center justify-between">
                       <div>
@@ -887,37 +933,37 @@ const Clients: React.FC = () => {
                         <p className="text-xl font-bold text-slate-900">78.4%</p>
                       </div>
                       <ChartPieIcon className="h-8 w-8 text-slate-700" />
+                    </div>
                   </div>
                 </div>
-              </div>
 
                 <div className="mt-4">
                   <h4 className="text-xs font-medium text-slate-600 uppercase mb-2">Top Clients par Performance</h4>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-200">
-                        <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
                         <BuildingOfficeIcon className="h-4 w-4 text-slate-600" />
                         <span className="text-sm text-slate-900">Entreprise ABC</span>
-                          </div>
+                      </div>
                       <span className="text-xs text-emerald-600 font-medium">+15.2%</span>
-                        </div>
+                    </div>
                     <div className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-200">
                       <div className="flex items-center space-x-2">
                         <BuildingOfficeIcon className="h-4 w-4 text-slate-600" />
                         <span className="text-sm text-slate-900">Groupe GHI</span>
                       </div>
                       <span className="text-xs text-emerald-600 font-medium">+22.1%</span>
-                  </div>
+                    </div>
                     <div className="flex items-center justify-between p-2 bg-slate-50 rounded border border-slate-200">
-                          <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
                         <BuildingOfficeIcon className="h-4 w-4 text-slate-600" />
                         <span className="text-sm text-slate-900">Société XYZ</span>
-                            </div>
+                      </div>
                       <span className="text-xs text-emerald-600 font-medium">+8.7%</span>
-                          </div>
-                        </div>
+                    </div>
                   </div>
-                </Card>
+                </div>
+              </Card>
 
               {/* Section Analyses Visuelles Rapides */}
               <Card className="p-5">
@@ -926,26 +972,26 @@ const Clients: React.FC = () => {
                     <ChartBarIcon className="h-5 w-5 text-slate-700" />
                     <span>Analyses Visuelles</span>
                   </h3>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('rapports')}
                     className="px-3 py-1.5 text-xs bg-slate-700 text-white rounded-lg hover:bg-slate-800 font-medium"
                   >
                     Voir Graphiques
                   </button>
-                            </div>
-                
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-medium text-slate-900">Ventes par Secteur</h4>
                       <ChartBarIcon className="h-5 w-5 text-slate-600" />
-                          </div>
+                    </div>
                     <p className="text-xs text-slate-600 mb-2">6 secteurs d'activité</p>
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-slate-600 dark:text-slate-400">Technologie</span>
                         <span className="font-medium">850K DA</span>
-                        </div>
+                      </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-slate-600 dark:text-slate-400">Industrie</span>
                         <span className="font-medium">720K DA</span>
@@ -1000,8 +1046,8 @@ const Clients: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  </div>
-                </Card>
+                </div>
+              </Card>
 
               {/* Section Suivi des Livraisons Rapides - Améliorée */}
               <Card className="p-6">
@@ -1015,15 +1061,15 @@ const Clients: React.FC = () => {
                       <p className="text-sm text-slate-600">Vue d'ensemble de vos opérations logistiques</p>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setActiveTab('livraisons')}
                     className="px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-lg hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300 font-medium text-sm flex items-center gap-2"
                   >
                     <EyeIcon className="h-4 w-4" />
                     Voir Détails Complets
                   </button>
-              </div>
-                
+                </div>
+
                 {/* Statistiques principales améliorées */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 shadow-md hover:shadow-xl transition-all duration-300 group">
@@ -1034,14 +1080,14 @@ const Clients: React.FC = () => {
                       <div className="text-right">
                         <p className="text-xs text-blue-700 font-semibold uppercase tracking-wide">En Transit</p>
                         <p className="text-3xl font-extrabold text-blue-900 mt-1">5</p>
+                      </div>
                     </div>
-                  </div>
                     <div className="pt-3 border-t border-blue-200">
                       <p className="text-sm text-blue-800 font-medium">Livraisons en cours</p>
                       <p className="text-xs text-blue-600 mt-1">Délai moyen: 2.3 jours</p>
                       <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
                         <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-                    </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1060,9 +1106,9 @@ const Clients: React.FC = () => {
                       <p className="text-xs text-emerald-600 mt-1">Taux de réussite: 72%</p>
                       <div className="mt-2 w-full bg-emerald-200 rounded-full h-2">
                         <div className="bg-emerald-600 h-2 rounded-full" style={{ width: '72%' }}></div>
+                      </div>
                     </div>
                   </div>
-                </div>
 
                   <div className="p-5 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border-2 border-red-200 shadow-md hover:shadow-xl transition-all duration-300 group">
                     <div className="flex items-center justify-between mb-3">
@@ -1072,16 +1118,16 @@ const Clients: React.FC = () => {
                       <div className="text-right">
                         <p className="text-xs text-red-700 font-semibold uppercase tracking-wide">En Retard</p>
                         <p className="text-3xl font-extrabold text-red-900 mt-1">2</p>
-                    </div>
                       </div>
+                    </div>
                     <div className="pt-3 border-t border-red-200">
                       <p className="text-sm text-red-800 font-medium">Nécessitent suivi urgent</p>
                       <p className="text-xs text-red-600 mt-1">Retard moyen: 3 jours</p>
                       <div className="mt-2 w-full bg-red-200 rounded-full h-2">
                         <div className="bg-red-600 h-2 rounded-full" style={{ width: '8%' }}></div>
-                    </div>
                       </div>
                     </div>
+                  </div>
                 </div>
 
                 {/* Métriques supplémentaires */}
@@ -1306,7 +1352,7 @@ const Clients: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div className="bg-white p-4 rounded-lg border border-blue-200">
                     <p className="text-xs text-slate-600 mb-1">CA Total</p>
@@ -1325,7 +1371,7 @@ const Clients: React.FC = () => {
                     <p className="text-xl font-bold text-orange-900">{metriquesPortefeuille.concentration.toFixed(1)}%</p>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200">
                   <p className="text-sm font-semibold text-slate-700 mb-2">Répartition par Segments</p>
                   <div className="space-y-2">
@@ -1335,13 +1381,11 @@ const Clients: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <div className="w-32 bg-slate-200 rounded-full h-2">
                             <div
-                              className={`h-2 rounded-full ${
-                               
-                                segment === 'vip' ? 'bg-purple-500' :
+                              className={`h-2 rounded-full ${segment === 'vip' ? 'bg-purple-500' :
                                 segment === 'strategique' ? 'bg-blue-500' :
-                                segment === 'regulier' ? 'bg-green-500' :
-                                'bg-yellow-500'
-                              }`}
+                                  segment === 'regulier' ? 'bg-green-500' :
+                                    'bg-yellow-500'
+                                }`}
                               style={{ width: `${(count / metriquesPortefeuille.nombreClients) * 100}%` }}
                             ></div>
                           </div>
@@ -1352,7 +1396,7 @@ const Clients: React.FC = () => {
                   </div>
                 </div>
               </Card>
-              
+
               {/* Actions CRM */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button
@@ -1420,7 +1464,7 @@ const Clients: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1432,7 +1476,7 @@ const Clients: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1441,10 +1485,10 @@ const Clients: React.FC = () => {
                     </div>
                     <div className="p-3 bg-red-100 rounded-lg">
                       <ExclamationCircleIcon className="h-6 w-6 text-red-600" />
+                    </div>
                   </div>
                 </div>
-                </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1473,7 +1517,7 @@ const Clients: React.FC = () => {
                     <option value="appel">Appels</option>
                     <option value="rendez-vous">RDV</option>
                   </select>
-                  
+
                   <select
                     value={relanceFilter}
                     onChange={(e) => setRelanceFilter(e.target.value)}
@@ -1487,7 +1531,7 @@ const Clients: React.FC = () => {
                     <option value="mise_en_demeure">Mise en demeure</option>
                   </select>
                 </div>
-                
+
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setIsNewCommunicationModalOpen(true)}
@@ -1517,28 +1561,26 @@ const Clients: React.FC = () => {
                         <div key={comm.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3">
-                              <div className={`p-2 rounded-lg ${
-                                typeInfo?.color === 'blue' ? 'bg-blue-100' :
+                              <div className={`p-2 rounded-lg ${typeInfo?.color === 'blue' ? 'bg-blue-100' :
                                 typeInfo?.color === 'green' ? 'bg-green-100' :
-                                typeInfo?.color === 'red' ? 'bg-red-100' :
-                                typeInfo?.color === 'orange' ? 'bg-orange-100' :
-                                'bg-purple-100'
-                              }`}>
+                                  typeInfo?.color === 'red' ? 'bg-red-100' :
+                                    typeInfo?.color === 'orange' ? 'bg-orange-100' :
+                                      'bg-purple-100'
+                                }`}>
                                 {comm.type === 'email' ? <EnvelopeIcon className="h-5 w-5 text-blue-600" /> :
-                                 comm.type === 'call' ? <PhoneIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> :
-                                 comm.type === 'meeting' ? <CalendarIcon className="h-5 w-5 text-orange-600" /> :
-                                 comm.type === 'proposition' ? <DocumentTextIcon className="h-5 w-5 text-blue-600" /> :
-                                 <ExclamationCircleIcon className="h-5 w-5 text-red-600 dark:text-red-400" />}
+                                  comm.type === 'call' ? <PhoneIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> :
+                                    comm.type === 'meeting' ? <CalendarIcon className="h-5 w-5 text-orange-600" /> :
+                                      comm.type === 'proposition' ? <DocumentTextIcon className="h-5 w-5 text-blue-600" /> :
+                                        <ExclamationCircleIcon className="h-5 w-5 text-red-600 dark:text-red-400" />}
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
                                   <h4 className="text-sm font-medium text-gray-900">{comm.sujet}</h4>
-                                  <span className={`px-2 py-1 text-xs rounded-full ${
-                                    comm.priorite === 'urgente' ? 'bg-red-100 text-red-800' :
+                                  <span className={`px-2 py-1 text-xs rounded-full ${comm.priorite === 'urgente' ? 'bg-red-100 text-red-800' :
                                     comm.priorite === 'haute' ? 'bg-orange-100 text-orange-800' :
-                                    comm.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-green-100 text-green-800'
-                                  }`}>
+                                      comm.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                                        'bg-green-100 text-green-800'
+                                    }`}>
                                     {comm.priorite}
                                   </span>
                                 </div>
@@ -1551,16 +1593,15 @@ const Clients: React.FC = () => {
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span className={`px-2 py-1 text-xs rounded-full ${
-                                comm.statut === 'envoye' ? 'bg-green-100 text-green-800' :
+                              <span className={`px-2 py-1 text-xs rounded-full ${comm.statut === 'envoye' ? 'bg-green-100 text-green-800' :
                                 comm.statut === 'lu' ? 'bg-green-100 text-green-800' :
-                                comm.statut === 'repondu' ? 'bg-emerald-100 text-emerald-800' :
-                                comm.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-slate-900 dark:text-slate-100'
-                              }`}>
+                                  comm.statut === 'repondu' ? 'bg-emerald-100 text-emerald-800' :
+                                    comm.statut === 'en_attente' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-slate-900 dark:text-slate-100'
+                                }`}>
                                 {comm.statut === 'envoye' ? 'Envoyé' :
-                                 comm.statut === 'lu' ? 'Lu' :
-                                 comm.statut === 'repondu' ? 'Répondu' :
-                                 comm.statut === 'en_attente' ? 'En attente' : 'Annulé'}
+                                  comm.statut === 'lu' ? 'Lu' :
+                                    comm.statut === 'repondu' ? 'Répondu' :
+                                      comm.statut === 'en_attente' ? 'En attente' : 'Annulé'}
                               </span>
                               <button type="button" aria-label="Voir les détails" className="text-gray-400 hover:text-slate-600 dark:text-slate-400">
                                 <EyeIcon className="h-4 w-4" />
@@ -1585,11 +1626,10 @@ const Clients: React.FC = () => {
                         <div key={relance.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition-shadow">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start space-x-3">
-                              <div className={`p-2 rounded-lg ${
-                                typeInfo?.color === 'yellow' ? 'bg-yellow-100' :
+                              <div className={`p-2 rounded-lg ${typeInfo?.color === 'yellow' ? 'bg-yellow-100' :
                                 typeInfo?.color === 'orange' ? 'bg-orange-100' :
-                                'bg-red-100'
-                              }`}>
+                                  'bg-red-100'
+                                }`}>
                                 <ExclamationCircleIcon className="h-5 w-5 text-red-600 dark:text-red-400" />
                               </div>
                               <div className="flex-1">
@@ -1597,19 +1637,18 @@ const Clients: React.FC = () => {
                                   <h4 className="text-sm font-medium text-gray-900">
                                     {typeInfo?.label} - {relance.factureId}
                                   </h4>
-                                  <span className={`px-2 py-1 text-xs rounded-full ${
-                                    relance.statut === 'envoyee' ? 'bg-blue-100 text-blue-800' :
+                                  <span className={`px-2 py-1 text-xs rounded-full ${relance.statut === 'envoyee' ? 'bg-blue-100 text-blue-800' :
                                     relance.statut === 'lue' ? 'bg-green-100 text-green-800' :
-                                    relance.statut === 'payee' ? 'bg-emerald-100 text-emerald-800' :
-                                    'bg-yellow-100 text-yellow-800'
-                                  }`}>
+                                      relance.statut === 'payee' ? 'bg-emerald-100 text-emerald-800' :
+                                        'bg-yellow-100 text-yellow-800'
+                                    }`}>
                                     {relance.statut === 'envoyee' ? 'Envoyée' :
-                                     relance.statut === 'lue' ? 'Lue' :
-                                     relance.statut === 'payee' ? 'Payée' : 'En attente'}
+                                      relance.statut === 'lue' ? 'Lue' :
+                                        relance.statut === 'payee' ? 'Payée' : 'En attente'}
                                   </span>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                  Relance envoyée le {new Date(relance.dateRelance).toLocaleDateString('fr-FR')} 
+                                  Relance envoyée le {new Date(relance.dateRelance).toLocaleDateString('fr-FR')}
                                   par {canalInfo?.label} pour un montant de {formatCurrency(relance.montant)}
                                 </p>
                                 <div className="flex items-center space-x-4 mt-2 text-xs text-slate-500 dark:text-slate-400">
@@ -1651,7 +1690,7 @@ const Clients: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1663,7 +1702,7 @@ const Clients: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1675,7 +1714,7 @@ const Clients: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
@@ -1697,10 +1736,10 @@ const Clients: React.FC = () => {
                       <div>
                         <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">{metrique.nom}</p>
                         <p className="text-2xl font-bold text-gray-900">
-                          {metrique.unite === 'DZD' ? formatCurrency(metrique.valeur) : 
-                           metrique.unite === '%' ? `${metrique.valeur}%` :
-                           metrique.unite === '/5' ? `${metrique.valeur}/5` :
-                           metrique.valeur}
+                          {metrique.unite === 'DZD' ? formatCurrency(metrique.valeur) :
+                            metrique.unite === '%' ? `${metrique.valeur}%` :
+                              metrique.unite === '/5' ? `${metrique.valeur}/5` :
+                                metrique.valeur}
                         </p>
                         <div className="flex items-center mt-1">
                           {metrique.evolution >= 0 ? (
@@ -1734,7 +1773,7 @@ const Clients: React.FC = () => {
                     </option>
                   ))}
                 </select>
-                
+
                 <button
                   onClick={() => setIsNouveauRapportModalOpen(true)}
                   className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
@@ -1755,20 +1794,19 @@ const Clients: React.FC = () => {
                         <div key={rapport.id} className="bg-white border-2 border-slate-200 rounded-xl p-6 hover:shadow-lg hover:border-emerald-300 transition-all">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-start space-x-4">
-                              <div className={`p-4 rounded-xl ${
-                                rapport.type === 'ventes' ? 'bg-cyan-100' :
+                              <div className={`p-4 rounded-xl ${rapport.type === 'ventes' ? 'bg-cyan-100' :
                                 rapport.type === 'paiements' ? 'bg-emerald-100' :
-                                rapport.type === 'relances' ? 'bg-amber-100' :
-                                rapport.type === 'satisfaction' ? 'bg-slate-100' :
-                                rapport.type === 'performance' ? 'bg-cyan-100' :
-                                'bg-red-100'
-                              }`}>
+                                  rapport.type === 'relances' ? 'bg-amber-100' :
+                                    rapport.type === 'satisfaction' ? 'bg-slate-100' :
+                                      rapport.type === 'performance' ? 'bg-cyan-100' :
+                                        'bg-red-100'
+                                }`}>
                                 {rapport.type === 'ventes' ? <ChartBarIcon className="h-8 w-8 text-cyan-600" /> :
-                                 rapport.type === 'paiements' ? <BanknotesIcon className="h-8 w-8 text-emerald-600" /> :
-                                 rapport.type === 'relances' ? <ExclamationCircleIcon className="h-8 w-8 text-amber-600" /> :
-                                 rapport.type === 'satisfaction' ? <CheckCircleIcon className="h-8 w-8 text-slate-600" /> :
-                                 rapport.type === 'performance' ? <ArrowTrendingUpIcon className="h-8 w-8 text-cyan-600" /> :
-                                 <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />}
+                                  rapport.type === 'paiements' ? <BanknotesIcon className="h-8 w-8 text-emerald-600" /> :
+                                    rapport.type === 'relances' ? <ExclamationCircleIcon className="h-8 w-8 text-amber-600" /> :
+                                      rapport.type === 'satisfaction' ? <CheckCircleIcon className="h-8 w-8 text-slate-600" /> :
+                                        rapport.type === 'performance' ? <ArrowTrendingUpIcon className="h-8 w-8 text-cyan-600" /> :
+                                          <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />}
                               </div>
                               <div>
                                 <h3 className="text-xl font-bold text-slate-900 mb-2">{rapport.nom}</h3>
@@ -1786,54 +1824,52 @@ const Clients: React.FC = () => {
                               </div>
                             </div>
                             <div>
-                              <span className={`inline-flex px-3 py-1.5 text-xs font-bold rounded-lg border ${
-                                rapport.statut === 'termine' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
+                              <span className={`inline-flex px-3 py-1.5 text-xs font-bold rounded-lg border ${rapport.statut === 'termine' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
                                 rapport.statut === 'en_cours' ? 'bg-amber-100 text-amber-700 border-amber-300' :
-                                rapport.statut === 'generer' ? 'bg-cyan-100 text-cyan-700 border-cyan-300' :
-                                'bg-red-100 text-red-700 border-red-300'
-                              }`}>
+                                  rapport.statut === 'generer' ? 'bg-cyan-100 text-cyan-700 border-cyan-300' :
+                                    'bg-red-100 text-red-700 border-red-300'
+                                }`}>
                                 {rapport.statut === 'termine' ? '✓ Terminé' :
-                                 rapport.statut === 'en_cours' ? '⏳ En cours' :
-                                 rapport.statut === 'generer' ? '📊 À générer' : '✗ Erreur'}
+                                  rapport.statut === 'en_cours' ? '⏳ En cours' :
+                                    rapport.statut === 'generer' ? '📊 À générer' : '✗ Erreur'}
                               </span>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center justify-between pt-4 border-t-2 border-slate-100">
                             <div className="flex items-center space-x-4">
-                              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold ${
-                                rapport.format === 'pdf' ? 'bg-red-50 text-red-700 border border-red-200' :
+                              <div className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold ${rapport.format === 'pdf' ? 'bg-red-50 text-red-700 border border-red-200' :
                                 rapport.format === 'excel' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                                rapport.format === 'html' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' :
-                                'bg-slate-50 text-slate-700 border border-slate-200'
-                              }`}>
+                                  rapport.format === 'html' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' :
+                                    'bg-slate-50 text-slate-700 border border-slate-200'
+                                }`}>
                                 {formatInfo?.label}
                               </div>
                               <span className="text-sm font-medium text-slate-600">{rapport.taille}</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <button 
+                              <button
                                 onClick={() => handleDownloadRapport(rapport)}
-                                className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors text-sm font-medium" 
+                                className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors text-sm font-medium"
                                 title="Télécharger"
                               >
                                 <DocumentArrowDownIcon className="h-4 w-4 inline mr-1" />
                                 Télécharger
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleViewRapport(rapport)}
-                                className="p-1.5 bg-cyan-100 text-cyan-600 rounded-lg hover:bg-cyan-200 transition-colors" 
+                                className="p-1.5 bg-cyan-100 text-cyan-600 rounded-lg hover:bg-cyan-200 transition-colors"
                                 title="Voir"
                               >
                                 <EyeIcon className="h-4 w-4" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => {
                                   if (confirm(`Êtes-vous sûr de vouloir supprimer le rapport "${rapport.nom}" ?`)) {
                                     alert('Rapport supprimé avec succès !');
                                   }
                                 }}
-                                className="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors" 
+                                className="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
                                 title="Supprimer"
                               >
                                 <TrashIcon className="h-4 w-4" />
@@ -1885,7 +1921,7 @@ const Clients: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <h4 className="font-semibold text-gray-900">Contact</h4>
                 <div className="space-y-2">
@@ -1927,11 +1963,10 @@ const Clients: React.FC = () => {
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-blue-600">Catégorie de Risque</p>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    selectedClient.categorieRisque === 'faible' ? 'bg-green-100 text-green-800' :
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${selectedClient.categorieRisque === 'faible' ? 'bg-green-100 text-green-800' :
                     selectedClient.categorieRisque === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
+                      'bg-red-100 text-red-800'
+                    }`}>
                     {selectedClient.categorieRisque}
                   </span>
                 </div>
@@ -2004,9 +2039,8 @@ const Clients: React.FC = () => {
                           <p className="text-sm font-medium text-gray-900">{payment.invoice}</p>
                           <p className="text-xs text-slate-500 dark:text-slate-400">{payment.date}</p>
                         </div>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          payment.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs rounded-full ${payment.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {payment.status === 'paid' ? 'Payé' : 'En retard'}
                         </span>
                       </div>
@@ -2054,26 +2088,24 @@ const Clients: React.FC = () => {
                 {clientCommunications.map((comm) => (
                   <div key={comm.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${
-                        comm.type === 'email' ? 'bg-blue-100' :
+                      <div className={`p-2 rounded-lg ${comm.type === 'email' ? 'bg-blue-100' :
                         comm.type === 'call' ? 'bg-green-100' : 'bg-purple-100'
-                      }`}>
+                        }`}>
                         {comm.type === 'email' ? <EnvelopeIcon className="h-5 w-5 text-blue-600" /> :
-                         comm.type === 'call' ? <PhoneIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> :
-                         <CalendarIcon className="h-5 w-5 text-purple-600" />}
+                          comm.type === 'call' ? <PhoneIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> :
+                            <CalendarIcon className="h-5 w-5 text-purple-600" />}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900">{comm.subject}</p>
                         <p className="text-xs text-slate-500 dark:text-slate-400">{comm.date}</p>
                       </div>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      comm.status === 'sent' ? 'bg-green-100 text-green-800' :
+                    <span className={`px-2 py-1 text-xs rounded-full ${comm.status === 'sent' ? 'bg-green-100 text-green-800' :
                       comm.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {comm.status === 'sent' ? 'Envoyé' :
-                       comm.status === 'completed' ? 'Terminé' : 'Planifié'}
+                        comm.status === 'completed' ? 'Terminé' : 'Planifié'}
                     </span>
                   </div>
                 ))}
@@ -2149,7 +2181,7 @@ const Clients: React.FC = () => {
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Facture *
@@ -2185,7 +2217,7 @@ const Clients: React.FC = () => {
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Canal de communication *
@@ -2229,7 +2261,7 @@ const Clients: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Date de relance
@@ -2277,7 +2309,7 @@ L'équipe comptable"
                 defaultValue="2.0"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Prochaine échéance
@@ -2342,7 +2374,7 @@ L'équipe comptable"
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Format de sortie *
@@ -2378,7 +2410,7 @@ L'équipe comptable"
                 ))}
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Date de début
@@ -2467,20 +2499,19 @@ L'équipe comptable"
             <div className="bg-slate-50 rounded-lg p-6 border border-slate-200">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4">
-                  <div className={`p-4 rounded-xl ${
-                    selectedRapport.type === 'ventes' ? 'bg-cyan-100' :
+                  <div className={`p-4 rounded-xl ${selectedRapport.type === 'ventes' ? 'bg-cyan-100' :
                     selectedRapport.type === 'paiements' ? 'bg-emerald-100' :
-                    selectedRapport.type === 'relances' ? 'bg-amber-100' :
-                    selectedRapport.type === 'satisfaction' ? 'bg-slate-100' :
-                    selectedRapport.type === 'performance' ? 'bg-cyan-100' :
-                    'bg-red-100'
-                  }`}>
+                      selectedRapport.type === 'relances' ? 'bg-amber-100' :
+                        selectedRapport.type === 'satisfaction' ? 'bg-slate-100' :
+                          selectedRapport.type === 'performance' ? 'bg-cyan-100' :
+                            'bg-red-100'
+                    }`}>
                     {selectedRapport.type === 'ventes' ? <ChartBarIcon className="h-8 w-8 text-cyan-600" /> :
-                     selectedRapport.type === 'paiements' ? <BanknotesIcon className="h-8 w-8 text-emerald-600" /> :
-                     selectedRapport.type === 'relances' ? <ExclamationCircleIcon className="h-8 w-8 text-amber-600" /> :
-                     selectedRapport.type === 'satisfaction' ? <CheckCircleIcon className="h-8 w-8 text-slate-600" /> :
-                     selectedRapport.type === 'performance' ? <ArrowTrendingUpIcon className="h-8 w-8 text-cyan-600" /> :
-                     <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />}
+                      selectedRapport.type === 'paiements' ? <BanknotesIcon className="h-8 w-8 text-emerald-600" /> :
+                        selectedRapport.type === 'relances' ? <ExclamationCircleIcon className="h-8 w-8 text-amber-600" /> :
+                          selectedRapport.type === 'satisfaction' ? <CheckCircleIcon className="h-8 w-8 text-slate-600" /> :
+                            selectedRapport.type === 'performance' ? <ArrowTrendingUpIcon className="h-8 w-8 text-cyan-600" /> :
+                              <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />}
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 mb-2">{selectedRapport.nom}</h3>
@@ -2502,15 +2533,14 @@ L'équipe comptable"
                   </div>
                 </div>
                 <div>
-                  <span className={`inline-flex px-3 py-1.5 text-xs font-bold rounded-lg border ${
-                    selectedRapport?.statut === 'termine' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
+                  <span className={`inline-flex px-3 py-1.5 text-xs font-bold rounded-lg border ${selectedRapport?.statut === 'termine' ? 'bg-emerald-100 text-emerald-700 border-emerald-300' :
                     selectedRapport?.statut === 'en_cours' ? 'bg-amber-100 text-amber-700 border-amber-300' :
-                    selectedRapport?.statut === 'generer' ? 'bg-cyan-100 text-cyan-700 border-cyan-300' :
-                    'bg-red-100 text-red-700 border-red-300'
-                  }`}>
+                      selectedRapport?.statut === 'generer' ? 'bg-cyan-100 text-cyan-700 border-cyan-300' :
+                        'bg-red-100 text-red-700 border-red-300'
+                    }`}>
                     {selectedRapport?.statut === 'termine' ? '✓ Terminé' :
-                     selectedRapport?.statut === 'en_cours' ? '⏳ En cours' :
-                     selectedRapport?.statut === 'generer' ? '📊 À générer' : '✗ Erreur'}
+                      selectedRapport?.statut === 'en_cours' ? '⏳ En cours' :
+                        selectedRapport?.statut === 'generer' ? '📊 À générer' : '✗ Erreur'}
                   </span>
                 </div>
               </div>
@@ -2521,7 +2551,7 @@ L'équipe comptable"
               {selectedRapport.type === 'ventes' && (
                 <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">📊 Analyse des Ventes par Client - {selectedRapport.periode}</h4>
-                  
+
                   {/* Résumé exécutif */}
                   <div className="grid grid-cols-3 gap-4">
                     <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
@@ -2569,9 +2599,8 @@ L'équipe comptable"
                               <td className="px-4 py-3 text-sm font-bold text-slate-900">{client.ca.toLocaleString()} DZD</td>
                               <td className="px-4 py-3 text-sm text-slate-600">{client.part}%</td>
                               <td className="px-4 py-3 text-sm text-right">
-                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  client.evolution >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                }`}>
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${client.evolution >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                  }`}>
                                   {client.evolution >= 0 ? '↗' : '↘'} {Math.abs(client.evolution)}%
                                 </span>
                               </td>
@@ -2587,7 +2616,7 @@ L'équipe comptable"
               {selectedRapport.type === 'paiements' && (
                 <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">💰 Analyse des Paiements et Retards - {selectedRapport.periode}</h4>
-                  
+
                   {/* Statistiques des paiements */}
                   <div className="grid grid-cols-4 gap-4">
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
@@ -2629,11 +2658,10 @@ L'équipe comptable"
                           <div className="text-right mr-4">
                             <div className="font-bold text-red-600">{formatCurrency(retard.montant)}</div>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            retard.priorite === 'haute' ? 'bg-red-100 text-red-700' :
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${retard.priorite === 'haute' ? 'bg-red-100 text-red-700' :
                             retard.priorite === 'moyenne' ? 'bg-amber-100 text-amber-700' :
-                            'bg-slate-100 text-slate-700'
-                          }`}>
+                              'bg-slate-100 text-slate-700'
+                            }`}>
                             {retard.priorite}
                           </span>
                         </div>
@@ -2646,7 +2674,7 @@ L'équipe comptable"
               {selectedRapport.type === 'relances' && (
                 <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">📧 Suivi des Relances Clients - {selectedRapport.periode}</h4>
-                  
+
                   <div className="grid grid-cols-3 gap-4">
                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                       <div className="text-sm text-slate-600 mb-1">Relances envoyées</div>
@@ -2673,7 +2701,7 @@ L'équipe comptable"
               {selectedRapport.type === 'satisfaction' && (
                 <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⭐ Enquête Satisfaction Clients - {selectedRapport.periode}</h4>
-                  
+
                   <div className="grid grid-cols-4 gap-4">
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
                       <div className="text-sm text-slate-600 mb-1">Score moyen</div>
@@ -2723,7 +2751,7 @@ L'équipe comptable"
               {selectedRapport.type === 'performance' && (
                 <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">📈 Performance Clients VIP - {selectedRapport.periode}</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
                       <div className="text-sm text-slate-600 mb-1">CA VIP</div>
@@ -2746,7 +2774,7 @@ L'équipe comptable"
               {selectedRapport.type === 'risques' && (
                 <div className="space-y-6">
                   <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⚠️ Évaluation des Risques Clients - {selectedRapport.periode}</h4>
-                  
+
                   <div className="grid grid-cols-3 gap-4">
                     <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                       <div className="text-sm text-slate-600 mb-1">Risque élevé</div>
@@ -2808,283 +2836,279 @@ L'équipe comptable"
           </div>
         )}
       </Modal>
-    
+
       {/* Modal Analyse de Valeur Client (CLV) */}
       <Modal
-      isOpen={isAnalyseValeurModalOpen}
-      onClose={() => setIsAnalyseValeurModalOpen(false)}
-      title="Analyse de Valeur Client (CLV)"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-          <p className="text-sm text-purple-800">
-            Analyse de la valeur client basée sur le CLV (Customer Lifetime Value), le CAC (Customer Acquisition Cost) et les métriques de performance.
-          </p>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Client</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">CLV</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">CAC</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Ratio CLV/CAC</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Panier Moyen</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Fréquence</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Score</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Tendance</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {analysesValeurClient.slice(0, 10).map((analyse) => (
-                <tr key={analyse.clientId} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-sm font-medium text-slate-900">{analyse.clientNom}</td>
-                  <td className="px-4 py-3 text-sm text-right">{formatCurrency(analyse.clv)}</td>
-                  <td className="px-4 py-3 text-sm text-right">{formatCurrency(analyse.cac)}</td>
-                  <td className="px-4 py-3 text-sm text-right font-semibold text-green-600">{analyse.ratioClvCac.toFixed(2)}x</td>
-                  <td className="px-4 py-3 text-sm text-right">{formatCurrency(analyse.panierMoyen)}</td>
-                  <td className="px-4 py-3 text-sm text-right">{analyse.frequenceAchat.toFixed(1)}/an</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${
-                      analyse.scoreValeur >= 85 ? 'bg-green-100 text-green-800' :
-                      analyse.scoreValeur >= 70 ? 'bg-blue-100 text-blue-800' :
-                      analyse.scoreValeur >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {analyse.scoreValeur}/100
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      analyse.tendance === 'croissance' ? 'bg-green-100 text-green-800' :
-                      analyse.tendance === 'stabilite' ? 'bg-blue-100 text-blue-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {analyse.tendance === 'croissance' ? '↗' : analyse.tendance === 'stabilite' ? '→' : '↘'}
-                    </span>
-                  </td>
+        isOpen={isAnalyseValeurModalOpen}
+        onClose={() => setIsAnalyseValeurModalOpen(false)}
+        title="Analyse de Valeur Client (CLV)"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+            <p className="text-sm text-purple-800">
+              Analyse de la valeur client basée sur le CLV (Customer Lifetime Value), le CAC (Customer Acquisition Cost) et les métriques de performance.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Client</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">CLV</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">CAC</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Ratio CLV/CAC</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Panier Moyen</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Fréquence</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Score</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Tendance</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsAnalyseValeurModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Prévisions de Revenus par Client */}
-    <Modal
-      isOpen={isPrevisionsRevenusModalOpen}
-      onClose={() => setIsPrevisionsRevenusModalOpen(false)}
-      title="Prévisions de Revenus par Client"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-          <p className="text-sm text-green-800">
-            Prévisions de revenus sur 6 mois basées sur l'historique, la tendance et la saisonnalité.
-          </p>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Client</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Période</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Revenus Prévu</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Probabilité</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Confiance</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {previsionsRevenus.slice(0, 20).map((prev, idx) => (
-                <tr key={idx} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 text-sm font-medium text-slate-900">{prev.clientNom}</td>
-                  <td className="px-4 py-3 text-sm text-right">{prev.periode}</td>
-                  <td className="px-4 py-3 text-sm text-right font-semibold">{formatCurrency(prev.revenusPrevu)}</td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="w-16 bg-slate-200 rounded-full h-2 mr-2">
-                        <div
-                          className={`h-2 rounded-full ${
-                            prev.probabilite >= 80 ? 'bg-green-500' :
-                            prev.probabilite >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}
-                          style={{ width: `${prev.probabilite}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-xs font-medium">{prev.probabilite.toFixed(0)}%</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      prev.confiance === 'haute' ? 'bg-green-100 text-green-800' :
-                      prev.confiance === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {prev.confiance}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsPrevisionsRevenusModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Interactions CRM */}
-    <Modal
-      isOpen={isCrmModalOpen}
-      onClose={() => setIsCrmModalOpen(false)}
-      title="Interactions CRM - Actions Recommandées"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-800">
-            Interactions CRM recommandées basées sur l'analyse de valeur client, la tendance et l'activité récente.
-          </p>
-        </div>
-        
-        <div className="space-y-3">
-          {interactionsCRM.slice(0, 10).map((interaction) => (
-            <div
-              key={interaction.id}
-              className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50"
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {analysesValeurClient.slice(0, 10).map((analyse) => (
+                  <tr key={analyse.clientId} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{analyse.clientNom}</td>
+                    <td className="px-4 py-3 text-sm text-right">{formatCurrency(analyse.clv)}</td>
+                    <td className="px-4 py-3 text-sm text-right">{formatCurrency(analyse.cac)}</td>
+                    <td className="px-4 py-3 text-sm text-right font-semibold text-green-600">{analyse.ratioClvCac.toFixed(2)}x</td>
+                    <td className="px-4 py-3 text-sm text-right">{formatCurrency(analyse.panierMoyen)}</td>
+                    <td className="px-4 py-3 text-sm text-right">{analyse.frequenceAchat.toFixed(1)}/an</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${analyse.scoreValeur >= 85 ? 'bg-green-100 text-green-800' :
+                        analyse.scoreValeur >= 70 ? 'bg-blue-100 text-blue-800' :
+                          analyse.scoreValeur >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
+                        {analyse.scoreValeur}/100
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${analyse.tendance === 'croissance' ? 'bg-green-100 text-green-800' :
+                        analyse.tendance === 'stabilite' ? 'bg-blue-100 text-blue-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                        {analyse.tendance === 'croissance' ? '↗' : analyse.tendance === 'stabilite' ? '→' : '↘'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsAnalyseValeurModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  {interaction.type === 'appel' && <PhoneIcon className="h-5 w-5 text-blue-600" />}
-                  {interaction.type === 'email' && <EnvelopeIcon className="h-5 w-5 text-blue-600" />}
-                  {interaction.type === 'reunion' && <CalendarIcon className="h-5 w-5 text-blue-600" />}
-                  {interaction.type === 'proposition' && <DocumentTextIcon className="h-5 w-5 text-blue-600" />}
-                  {interaction.type === 'relance' && <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />}
-                  {interaction.type === 'suivi' && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
-                  <h4 className="font-semibold text-slate-900">{interaction.sujet}</h4>
-                </div>
-                <span className="text-xs text-slate-500">{new Date(interaction.date).toLocaleDateString('fr-FR')}</span>
-              </div>
-              <p className="text-sm text-slate-700 mb-2">{interaction.description}</p>
-              {interaction.prochaineAction && (
-                <div className="mt-3 pt-3 border-t border-slate-200">
-                  <p className="text-xs font-semibold text-slate-600 mb-1">Prochaine action:</p>
-                  <p className="text-sm text-slate-800">{interaction.prochaineAction}</p>
-                  {interaction.dateProchaineAction && (
-                    <p className="text-xs text-slate-500 mt-1">
-                      Date: {new Date(interaction.dateProchaineAction).toLocaleDateString('fr-FR')}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+              Fermer
+            </button>
+          </div>
         </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsCrmModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </Modal>
-    
-    {/* Modal Segmentation Clients */}
-    <Modal
-      isOpen={isSegmentationModalOpen}
-      onClose={() => setIsSegmentationModalOpen(false)}
-      title="Segmentation des Clients"
-      size="xl"
-    >
-      <div className="space-y-6">
-        <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-          <p className="text-sm text-indigo-800">
-            Segmentation automatique des clients selon leur valeur, fréquence d'achat, marge et DSO.
-          </p>
-        </div>
-        
-        <div className="space-y-4">
-          {[...segmentsClients.entries()].map(([segmentId, clientIds]) => {
-            const segmentNames: Record<string, string> = {
-              vip: 'Clients VIP',
-              strategique: 'Clients Stratégiques',
-              reguliers: 'Clients Réguliers',
-              occasionnels: 'Clients Occasionnels',
-              a_risque: 'Clients à Risque'
-            };
-            
-            const segmentColors: Record<string, string> = {
-              vip: 'bg-purple-500',
-              strategique: 'bg-blue-500',
-              reguliers: 'bg-green-500',
-              occasionnels: 'bg-yellow-500',
-              a_risque: 'bg-red-500'
-            };
-            
-            return (
-              <div
-                key={segmentId}
-                className={`p-4 rounded-lg border-2 ${segmentColors[segmentId] || 'bg-slate-100 border-slate-300'}`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-lg">{segmentNames[segmentId] || segmentId}</h4>
-                  <span className="px-3 py-1 bg-white/50 rounded-full text-sm font-medium">
-                    {clientIds.length} client(s)
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                  {clientIds.slice(0, 8).map((clientId) => {
-                    const client = (apiClients || []).find((c: any) => (c.id?.toString() || c.name) === clientId);
-                    return (
-                      <div key={clientId} className="bg-white/50 p-2 rounded text-xs">
-                        {client?.nom || clientId}
+      </Modal>
+
+      {/* Modal Prévisions de Revenus par Client */}
+      <Modal
+        isOpen={isPrevisionsRevenusModalOpen}
+        onClose={() => setIsPrevisionsRevenusModalOpen(false)}
+        title="Prévisions de Revenus par Client"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <p className="text-sm text-green-800">
+              Prévisions de revenus sur 6 mois basées sur l'historique, la tendance et la saisonnalité.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Client</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Période</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Revenus Prévu</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Probabilité</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Confiance</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {previsionsRevenus.slice(0, 20).map((prev, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50">
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900">{prev.clientNom}</td>
+                    <td className="px-4 py-3 text-sm text-right">{prev.periode}</td>
+                    <td className="px-4 py-3 text-sm text-right font-semibold">{formatCurrency(prev.revenusPrevu)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center">
+                        <div className="w-16 bg-slate-200 rounded-full h-2 mr-2">
+                          <div
+                            className={`h-2 rounded-full ${prev.probabilite >= 80 ? 'bg-green-500' :
+                              prev.probabilite >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                            style={{ width: `${prev.probabilite}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-medium">{prev.probabilite.toFixed(0)}%</span>
                       </div>
-                    );
-                  })}
-                  {clientIds.length > 8 && (
-                    <div className="bg-white/50 p-2 rounded text-xs font-medium">
-                      +{clientIds.length - 8} autres
-                    </div>
-                  )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${prev.confiance === 'haute' ? 'bg-green-100 text-green-800' :
+                        prev.confiance === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                        {prev.confiance}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsPrevisionsRevenusModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Interactions CRM */}
+      <Modal
+        isOpen={isCrmModalOpen}
+        onClose={() => setIsCrmModalOpen(false)}
+        title="Interactions CRM - Actions Recommandées"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              Interactions CRM recommandées basées sur l'analyse de valeur client, la tendance et l'activité récente.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {interactionsCRM.slice(0, 10).map((interaction) => (
+              <div
+                key={interaction.id}
+                className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {interaction.type === 'appel' && <PhoneIcon className="h-5 w-5 text-blue-600" />}
+                    {interaction.type === 'email' && <EnvelopeIcon className="h-5 w-5 text-blue-600" />}
+                    {interaction.type === 'reunion' && <CalendarIcon className="h-5 w-5 text-blue-600" />}
+                    {interaction.type === 'proposition' && <DocumentTextIcon className="h-5 w-5 text-blue-600" />}
+                    {interaction.type === 'relance' && <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />}
+                    {interaction.type === 'suivi' && <CheckCircleIcon className="h-5 w-5 text-green-600" />}
+                    <h4 className="font-semibold text-slate-900">{interaction.sujet}</h4>
+                  </div>
+                  <span className="text-xs text-slate-500">{new Date(interaction.date).toLocaleDateString('fr-FR')}</span>
                 </div>
+                <p className="text-sm text-slate-700 mb-2">{interaction.description}</p>
+                {interaction.prochaineAction && (
+                  <div className="mt-3 pt-3 border-t border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">Prochaine action:</p>
+                    <p className="text-sm text-slate-800">{interaction.prochaineAction}</p>
+                    {interaction.dateProchaineAction && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        Date: {new Date(interaction.dateProchaineAction).toLocaleDateString('fr-FR')}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsCrmModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+            >
+              Fermer
+            </button>
+          </div>
         </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={() => setIsSegmentationModalOpen(false)}
-            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
-          >
-            Fermer
-          </button>
+      </Modal>
+
+      {/* Modal Segmentation Clients */}
+      <Modal
+        isOpen={isSegmentationModalOpen}
+        onClose={() => setIsSegmentationModalOpen(false)}
+        title="Segmentation des Clients"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+            <p className="text-sm text-indigo-800">
+              Segmentation automatique des clients selon leur valeur, fréquence d'achat, marge et DSO.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {[...segmentsClients.entries()].map(([segmentId, clientIds]) => {
+              const segmentNames: Record<string, string> = {
+                vip: 'Clients VIP',
+                strategique: 'Clients Stratégiques',
+                reguliers: 'Clients Réguliers',
+                occasionnels: 'Clients Occasionnels',
+                a_risque: 'Clients à Risque'
+              };
+
+              const segmentColors: Record<string, string> = {
+                vip: 'bg-purple-500',
+                strategique: 'bg-blue-500',
+                reguliers: 'bg-green-500',
+                occasionnels: 'bg-yellow-500',
+                a_risque: 'bg-red-500'
+              };
+
+              return (
+                <div
+                  key={segmentId}
+                  className={`p-4 rounded-lg border-2 ${segmentColors[segmentId] || 'bg-slate-100 border-slate-300'}`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-lg">{segmentNames[segmentId] || segmentId}</h4>
+                    <span className="px-3 py-1 bg-white/50 rounded-full text-sm font-medium">
+                      {clientIds.length} client(s)
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                    {clientIds.slice(0, 8).map((clientId) => {
+                      const client = (apiClients || []).find((c: any) => (c.id?.toString() || c.name) === clientId);
+                      return (
+                        <div key={clientId} className="bg-white/50 p-2 rounded text-xs">
+                          {client?.nom || clientId}
+                        </div>
+                      );
+                    })}
+                    {clientIds.length > 8 && (
+                      <div className="bg-white/50 p-2 rounded text-xs font-medium">
+                        +{clientIds.length - 8} autres
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              onClick={() => setIsSegmentationModalOpen(false)}
+              className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+            >
+              Fermer
+            </button>
+          </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
     </div>
   );
 };

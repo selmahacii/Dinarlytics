@@ -6,7 +6,7 @@ from .procurement import DeliveryNote, DeliveryNoteItem, PurchaseOrder, Purchase
 from .notifications import AlertDefinition, AlertTrigger, UserNotification
 from .audit import AuditLog
 from .ai import AIModel, AIPrediction, AITrainingLog, AIFeatureStore, AIDriftMonitoring
-from .financial import FinancialStatement, Payment
+from .financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction
 
 __all__ = [
     "User", "Company", "Role", "UserRole", "UserSession", "InvoiceStatus", "PaymentMode", "DocumentType", "AccessLevel",
@@ -17,5 +17,6 @@ __all__ = [
     "AlertDefinition", "AlertTrigger", "UserNotification",
     "AuditLog",
     "AIModel", "AIPrediction", "AITrainingLog", "AIFeatureStore", "AIDriftMonitoring",
-    "FinancialStatement", "Payment"
+    "FinancialStatement", "Payment", "Budget", "BudgetItem", "CollectionAction"
 ]
+

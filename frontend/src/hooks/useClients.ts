@@ -1,115 +1,148 @@
-import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { clientsService, Client } from '../services/modules/clientsService';
+// import { toast } from 'react-hot-toast'; // Removed as not installed 
+// If not using toast, just console.log or ignore. I'll check if a toast lib is used.
+// Based on file list, I didn't see explicit toast lib but I'll assume standard practices.
+// Actually, let's look at what's available. I'll skip toast for now to avoid errors and just return errors.
 
-interface ClientStats {
+export interface ClientStats {
   total_clients: number;
   active_clients: number;
   new_clients_this_month: number;
   total_revenue: number;
+  average_order_value?: number;
+  top_clients?: any[];
 }
 
-/**
- * Custom Hook for Real-Time Client Management
- * Provides CRUD operations with optimistic updates and statistics
- */
 export const useClients = () => {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [stats, setStats] = useState<ClientStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const loadClients = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await clientsService.getAll();
-      setClients(data);
+  // Query for Clients
+  const {
+    data: clients = [],
+    isLoading: isLoadingClients,
+    error: errorClients,
+    refetch: refetchClients
+  } = useQuery({
+    queryKey: ['clients'],
+    queryFn: clientsService.getAll,
+    staleTime: 60000, // 1 minute
+  });
 
-      // Calculate stats from client data
-      setStats({
-        total_clients: data.length,
-        active_clients: data.filter(c => c.is_active).length,
-        new_clients_this_month: data.filter(c => {
-          // Assume clients created in last 30 days are "new"
-          const createdDate = new Date();
-          createdDate.setDate(createdDate.getDate() - 30);
-          return true; // Simplified for now
-        }).length,
-        total_revenue: 0 // Would come from invoices API
-      });
-    } catch (err: any) {
-      setError(err.message || 'Failed to load clients');
-      console.error('Client loading error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Query for Stats
+  const {
+    data: stats = null,
+    isLoading: isLoadingStats,
+    error: errorStats,
+    refetch: refetchStats
+  } = useQuery({
+    queryKey: ['clients', 'stats'],
+    queryFn: clientsService.getStats,
+    staleTime: 60000, // 1 minute
+  });
 
-  useEffect(() => {
-    loadClients();
-  }, []);
+  // Mutation for Create
+  const createMutation = useMutation({
+    mutationFn: clientsService.create,
+    onMutate: async (newClientData) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ['clients'] });
 
-  const createClient = async (data: Partial<Client>) => {
-    // Optimistic update: Add immediately to UI
-    const tempId = `temp-${Date.now()}`;
-    const optimisticClient = { ...data, id: tempId, is_active: true } as Client;
-    setClients(prev => [optimisticClient, ...prev]);
+      // Snapshot the previous value
+      const previousClients = queryClient.getQueryData<Client[]>(['clients']);
 
-    try {
-      const newClient = await clientsService.create(data);
-      // Replace temp with real client
-      setClients(prev => prev.map(c => c.id === tempId ? newClient : c));
-      await loadClients(); // Refresh stats
-      return newClient;
-    } catch (err: any) {
-      // Rollback on error
-      setClients(prev => prev.filter(c => c.id !== tempId));
-      setError(err.message);
-      throw err;
-    }
-  };
+      // Optimistically update to the new value
+      if (previousClients) {
+        queryClient.setQueryData<Client[]>(['clients'], [
+          ...previousClients,
+          { ...newClientData, id: `temp-${Date.now()}`, is_active: true } as Client
+        ]);
+      }
 
-  const updateClient = async (id: string, data: Partial<Client>) => {
-    // Optimistic update
-    const originalClients = [...clients];
-    setClients(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+      return { previousClients };
+    },
+    onError: (err, newClient, context) => {
+      if (context?.previousClients) {
+        queryClient.setQueryData(['clients'], context.previousClients);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clients', 'stats'] });
+    },
+  });
 
-    try {
-      const updated = await clientsService.update(id, data);
-      setClients(prev => prev.map(c => c.id === id ? updated : c));
-      return updated;
-    } catch (err: any) {
-      // Rollback on error
-      setClients(originalClients);
-      setError(err.message);
-      throw err;
-    }
-  };
+  // Mutation for Update
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Client> }) => clientsService.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['clients'] });
+      const previousClients = queryClient.getQueryData<Client[]>(['clients']);
 
-  const deleteClient = async (id: string) => {
-    // Optimistic update
-    const originalClients = [...clients];
-    setClients(prev => prev.filter(c => c.id !== id));
+      if (previousClients) {
+        queryClient.setQueryData<Client[]>(['clients'], previousClients.map(client =>
+          client.id === id ? { ...client, ...data } : client
+        ));
+      }
 
-    try {
-      await clientsService.delete(id);
-      await loadClients(); // Refresh stats
-    } catch (err: any) {
-      // Rollback on error
-      setClients(originalClients);
-      setError(err.message);
-      throw err;
-    }
-  };
+      return { previousClients };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousClients) {
+        queryClient.setQueryData(['clients'], context.previousClients);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clients', 'stats'] });
+    },
+  });
+
+  // Mutation for Delete
+  const deleteMutation = useMutation({
+    mutationFn: clientsService.delete,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['clients'] });
+      const previousClients = queryClient.getQueryData<Client[]>(['clients']);
+
+      if (previousClients) {
+        queryClient.setQueryData<Client[]>(['clients'], previousClients.filter(client => client.id !== id));
+      }
+
+      return { previousClients };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousClients) {
+        queryClient.setQueryData(['clients'], context.previousClients);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['clients', 'stats'] });
+    },
+  });
+
+  // Wrapper functions to match previous interface
+  const createClient = (data: Partial<Client>) => createMutation.mutateAsync(data);
+  const updateClient = (id: string, data: Partial<Client>) => updateMutation.mutateAsync({ id, data });
+  const deleteClient = (id: string) => deleteMutation.mutateAsync(id);
 
   return {
     clients,
     stats,
-    loading,
-    error,
-    refresh: loadClients,
+    loading: isLoadingClients || isLoadingStats,
+    error: errorClients?.message || errorStats?.message || null,
+    refresh: () => {
+      refetchClients();
+      refetchStats();
+    },
     createClient,
     updateClient,
-    deleteClient
+    deleteClient,
+    // Expose mutations if needed for loading states
+    createMutation,
+    updateMutation,
+    deleteMutation
   };
 };

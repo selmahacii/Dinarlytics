@@ -14,7 +14,6 @@ from app.database import close_db, init_db
 from app.routers import (
     accounting,
     articles,
-    audit,
     auth,
     budgets,
     clients,
@@ -24,6 +23,8 @@ from app.routers import (
     analytics,
     fiscality,
     audit,
+    users,
+    collections
 )
 
 logger = logging.getLogger(__name__)
@@ -178,9 +179,9 @@ app.include_router(
     tags=["suppliers"],
 )
 
-# Include audit routes
+# Include users routes
 app.include_router(
-    audit.router, prefix=settings.API_PREFIX, tags=["audit"]
+    users.router, prefix=settings.API_PREFIX, tags=["users"]
 )
 
 # Include fiscality routes
@@ -196,9 +197,31 @@ app.include_router(
 # Include reports routes
 app.include_router(
     reports.router,
-    prefix=settings.API_PREFIX + "/reports",
+    prefix=settings.API_PREFIX,
     tags=["reports"],
 )
+
+# Include collections routes
+app.include_router(
+    collections.router,
+    prefix=settings.API_PREFIX,
+    tags=["collections"]
+)
+
+# ========== WEBSOCKETS ==========
+from fastapi import WebSocket, WebSocketDisconnect
+from app.websocket_manager import manager
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Just keep the connection open and listen for pings/messages
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)
