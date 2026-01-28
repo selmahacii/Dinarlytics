@@ -1,41 +1,45 @@
-"""
-Audit & Tracabilité API Endpoints
-"""
-
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
 from app.database import get_db
-from app.models.models import User
-from app.routers.auth import get_current_user
+from app.permissions import get_current_user_from_token, require_permission
+from app.models.audit import AuditLog
 from pydantic import BaseModel
+from datetime import datetime
+import uuid
 
 router = APIRouter(prefix="/audit", tags=["audit"])
 
 class AuditLogResponse(BaseModel):
-    id: str
-    user_id: str
+    id: uuid.UUID
+    user_id: Optional[uuid.UUID]
     action: str
-    resource: str
-    timestamp: str
-    details: Optional[str] = None
+    entity_type: Optional[str]
+    entity_id: Optional[uuid.UUID]
+    old_values: Optional[dict]
+    new_values: Optional[dict]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 @router.get("/logs", response_model=List[AuditLogResponse])
 async def get_audit_logs(
-    user_id: Optional[str] = Query(None),
-    action: Optional[str] = Query(None),
-    resource: Optional[str] = Query(None),
-    start: Optional[datetime] = Query(None),
-    end: Optional[datetime] = Query(None),
+    entity_type: Optional[str] = None,
+    entity_id: Optional[uuid.UUID] = None,
+    limit: int = 50,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user: dict = Depends(require_permission('audit-read'))
 ):
-    # Remplacer par la vraie table d'audit
-    logs = [
-        {"id": "1", "user_id": str(current_user.id), "action": "login", "resource": "auth", "timestamp": datetime.now().isoformat(), "details": "Connexion réussie"},
-        {"id": "2", "user_id": str(current_user.id), "action": "create_invoice", "resource": "invoice", "timestamp": datetime.now().isoformat(), "details": "Facture créée"}
-    ]
-    return [AuditLogResponse(**l) for l in logs]
-
-# Pour la traçabilité, ajouter des hooks dans chaque endpoint critique pour enregistrer les actions dans la table d'audit.
+    """
+    Retrieves audit logs for the company.
+    Supports filtering by entity type and ID.
+    """
+    query = db.query(AuditLog).filter(AuditLog.company_id == user["company_id"])
+    
+    if entity_type:
+        query = query.filter(AuditLog.entity_type == entity_type)
+    if entity_id:
+        query = query.filter(AuditLog.entity_id == entity_id)
+        
+    return query.order_by(AuditLog.created_at.desc()).limit(limit).all()

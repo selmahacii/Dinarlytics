@@ -1,0 +1,121 @@
+/* 
+  ERPNext-inspired Design System for Dinarlytics 
+  Focus: Clean whitespace, standardized grids, and professional financial look.
+*/
+
+:root {
+    --erp-sidebar-width: 240px;
+    --erp-bg-light: #f4f5f6;
+    --erp-border-color: #d1d8dd;
+    --erp-text-main: #1d2129;
+    --erp-primary: #171c26;
+    /* Dark professional header */
+    --erp-accent: #2c3e50;
+    --erp-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background-color: var(--erp-bg-light);
+    color: var(--erp-text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Layout overrides */
+.erp-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.erp-sidebar {
+    width: var(--erp-sidebar-width);
+    background: white;
+    border-right: 1px solid var(--erp-border-color);
+    padding: 1rem 0;
+}
+
+.erp-main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* ERPNext Style Cards */
+.erp-card {
+    background: white;
+    border: 1px solid var(--erp-border-color);
+    border-radius: 4px;
+    /* Slight rounding like ERPNext */
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--erp-card-shadow);
+    transition: transform 0.1s ease;
+}
+
+.erp-card:hover {
+    border-color: #a8b3bc;
+}
+
+/* Dashboard Grid */
+.erp-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Table Design */
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid var(--erp-border-color);
+}
+
+.erp-table th {
+    background: #fdfdfd;
+    text-align: left;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom: 1px solid var(--erp-border-color);
+}
+
+.erp-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+}
+
+/* Chatbot Specific (Clean & Pro) */
+.chatbot-bubble-lia {
+    background: #eef2f6;
+    border: 1px solid #dae1e7;
+    border-radius: 8px 8px 8px 0;
+    padding: 1rem;
+    max-width: 80%;
+}
+
+.chatbot-bubble-user {
+    background: #2b3e50;
+    color: white;
+    border-radius: 8px 8px 0 8px;
+    padding: 1rem;
+    max-width: 80%;
+    margin-left: auto;
+}
+
+/* Form inputs */
+input.erp-input,
+select.erp-select {
+    border: 1px solid var(--erp-border-color);
+    background-color: #f6f8f9;
+    border-radius: 4px;
+    padding: 8px 12px;
+    width: 100%;
+}
+
+input.erp-input:focus {
+    background-color: white;
+    border-color: #2c3e50;
+    outline: none;
+}

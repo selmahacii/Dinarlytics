@@ -96,6 +96,8 @@ async def check_accounting_validate(
     log_sensitive_access('validate_journal_entry', current_user.user_id)
     return current_user
 
+from app.services.calculations import AlgerianFinancialCalculator
+
 # ========== JOURNAL ENTRY ENDPOINTS ==========
 @router.post("/journal-entries", response_model=JournalEntryResponse, status_code=status.HTTP_201_CREATED)
 async def create_journal_entry(
@@ -103,20 +105,24 @@ async def create_journal_entry(
     current_user: TokenData = Depends(check_accounting_create),
     db: Session = Depends(get_db)
 ):
-    """Create a new journal entry"""
+    """Create a new journal entry with Algerian precision"""
     
-    # Validate debit/credit balance
-    total_debit = sum(Decimal(str(line.debit_amount or 0)) for line in request.lines)
-    total_credit = sum(Decimal(str(line.credit_amount or 0)) for line in request.lines)
+    # Validate debit/credit balance using Decimal
+    total_debit = Decimal('0')
+    total_credit = Decimal('0')
+    
+    for line in request.lines:
+        total_debit += Decimal(str(line.debit_amount or 0))
+        total_credit += Decimal(str(line.credit_amount or 0))
     
     if total_debit != total_credit:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Debit and credit amounts must balance. Debit: {total_debit}, Credit: {total_credit}"
+            detail=f"Déséquilibre: Débit ({total_debit}) != Crédit ({total_credit}). La comptabilité SCF exige un équilibre strict."
         )
     
-    # Generate entry number
-    entry_number = f"JE-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    # Generate entry number (Algerian standard: ANNEE-MOIS-NB)
+    entry_number = f"JE-{datetime.now().year}-{datetime.now().month:02d}-{str(uuid.uuid4())[:6].upper()}"
     
     # Create journal entry
     journal_entry = JournalEntry(
@@ -133,24 +139,18 @@ async def create_journal_entry(
     db.add(journal_entry)
     db.flush()
     
-    # Create journal entry lines
+    # Create lines
     for line in request.lines:
         entry_line = JournalEntryLine(
             journal_entry_id=journal_entry.id,
             account_code=line.account_code,
-            debit_amount=line.debit_amount or 0,
-            credit_amount=line.credit_amount or 0,
+            debit_amount=Decimal(str(line.debit_amount or 0)),
+            credit_amount=Decimal(str(line.credit_amount or 0)),
             description=line.description
         )
         db.add(entry_line)
     
     db.commit()
-    
-    logger.info(f"Journal entry created: {entry_number} by user {current_user.username}")
-    
-    # Check alerts for this entry
-    _check_and_trigger_alerts(db, current_user.company_id, journal_entry.id, total_debit)
-    
     return _format_journal_entry(journal_entry)
 
 @router.get("/journal-entries", response_model=List[JournalEntryResponse])
@@ -311,59 +311,29 @@ def _format_journal_entry(entry: JournalEntry) -> JournalEntryResponse:
         created_at=entry.created_at
     )
 
-def _check_and_trigger_alerts(
-    db: Session,
-    company_id: str,
-    entry_id: str,
-    amount: Decimal
-):
-    """Check if amount triggers any defined alerts"""
-    
-    alerts = db.query(AlertDefinition).filter(
-        AlertDefinition.company_id == company_id,
-        AlertDefinition.enabled == True
-    ).all()
-    
-    for alert in alerts:
-        should_trigger = False
-        
-        if alert.comparison_operator == ">":
-            should_trigger = amount > alert.threshold_value
-        elif alert.comparison_operator == "<":
-            should_trigger = amount < alert.threshold_value
-        elif alert.comparison_operator == ">=":
-            should_trigger = amount >= alert.threshold_value
-        elif alert.comparison_operator == "<=":
-            should_trigger = amount <= alert.threshold_value
-        
-        if should_trigger:
-            trigger = AlertTrigger(
-                company_id=company_id,
-                alert_id=alert.id,
-                trigger_value=amount,
-                status="new",
-                priority=alert.severity_level
-            )
-            db.add(trigger)
-    
-    db.commit()
+# ========== HELPER FUNCTIONS MOVED TO TOP OR EXTERNAL ==========
+from app.services.calculations import AlgerianFinancialCalculator
+from app.services.notifications import NotificationService
 
-def _create_approval_notification(
-    db: Session,
-    user_id: str,
-    company_id: str,
-    subject: str,
-    message: str
-):
-    """Create notification for user"""
-    
-    notification = UserNotification(
-        user_id=user_id,
-        company_id=company_id,
-        notification_type="approval_request",
-        subject=subject,
-        message=message,
-        priority="high"
+def _format_journal_entry(entry: JournalEntry) -> JournalEntryResponse:
+    """Format journal entry for response"""
+    return JournalEntryResponse(
+        id=str(entry.id),
+        entry_number=entry.entry_number,
+        entry_date=entry.entry_date,
+        description=entry.description,
+        status=entry.status,
+        total_debit=entry.total_debit,
+        total_credit=entry.total_credit,
+        lines=[
+            JournalEntryLineResponse(
+                id=str(line.id),
+                account_code=line.account_code,
+                debit_amount=line.debit_amount,
+                credit_amount=line.credit_amount,
+                description=line.description
+            )
+            for line in entry.lines
+        ],
+        created_at=entry.created_at
     )
-    db.add(notification)
-    db.commit()

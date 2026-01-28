@@ -1,132 +1,85 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { suppliersService, Supplier } from '../services/modules/suppliersService';
 
-export interface Supplier {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-  country?: string;
-  tax_id?: string;
-  payment_terms?: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface SupplierStats {
-  total_suppliers: number;
-  active_suppliers: number;
-  new_suppliers_this_month: number;
-  total_purchases: number;
-  average_purchase_value: number;
-  top_suppliers: Array<{
-    id: string;
-    name: string;
-    purchases: number;
-  }>;
-}
-
+/**
+ * Custom Hook for Real-Time Supplier Management
+ * Provides CRUD operations with optimistic updates
+ */
 export const useSuppliers = () => {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [stats, setStats] = useState<SupplierStats | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [loadingStats, setLoadingStats] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [errorStats, setErrorStats] = useState<string | null>(null);
 
-  // Fetch suppliers list
-  const fetchSuppliers = async (params?: {
-    skip?: number;
-    limit?: number;
-    search?: string;
-    is_active?: boolean;
-  }) => {
+  const loadSuppliers = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-      const response = await axios.get<Supplier[]>('/api/v1/suppliers/', { params });
-      setSuppliers(response.data);
+      const data = await suppliersService.getAll();
+      setSuppliers(data);
     } catch (err: any) {
-      console.error('Error fetching suppliers:', err);
-      setError(err.response?.data?.detail || 'Erreur lors du chargement des fournisseurs');
-      setSuppliers([]);
+      setError(err.message || 'Failed to load suppliers');
+      console.error('Supplier loading error:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch supplier statistics
-  const fetchStats = async () => {
-    try {
-      setLoadingStats(true);
-      setErrorStats(null);
-      const response = await axios.get<SupplierStats>('/api/v1/suppliers/stats');
-      setStats(response.data);
-    } catch (err: any) {
-      console.error('Error fetching supplier stats:', err);
-      setErrorStats(err.response?.data?.detail || 'Erreur lors du chargement des statistiques');
-      setStats(null);
-    } finally {
-      setLoadingStats(false);
-    }
-  };
-
-  // Create a new supplier
-  const createSupplier = async (supplierData: Partial<Supplier>): Promise<Supplier | null> => {
-    try {
-      const response = await axios.post<Supplier>('/api/v1/suppliers/', supplierData);
-      setSuppliers((prev) => [...prev, response.data]);
-      return response.data;
-    } catch (err: any) {
-      console.error('Error creating supplier:', err);
-      throw new Error(err.response?.data?.detail || 'Erreur lors de la création du fournisseur');
-    }
-  };
-
-  // Update an existing supplier
-  const updateSupplier = async (supplierId: string, supplierData: Partial<Supplier>): Promise<Supplier | null> => {
-    try {
-      const response = await axios.put<Supplier>(`/api/v1/suppliers/${supplierId}`, supplierData);
-      setSuppliers((prev) => prev.map((s) => (s.id === supplierId ? response.data : s)));
-      return response.data;
-    } catch (err: any) {
-      console.error('Error updating supplier:', err);
-      throw new Error(err.response?.data?.detail || 'Erreur lors de la mise à jour du fournisseur');
-    }
-  };
-
-  // Delete a supplier (soft delete)
-  const deleteSupplier = async (supplierId: string): Promise<void> => {
-    try {
-      await axios.delete(`/api/v1/suppliers/${supplierId}`);
-      setSuppliers((prev) => prev.filter((s) => s.id !== supplierId));
-    } catch (err: any) {
-      console.error('Error deleting supplier:', err);
-      throw new Error(err.response?.data?.detail || 'Erreur lors de la suppression du fournisseur');
-    }
-  };
-
-  // Initial fetch on mount
   useEffect(() => {
-    fetchSuppliers();
-    fetchStats();
+    loadSuppliers();
   }, []);
+
+  const createSupplier = async (data: Partial<Supplier>) => {
+    // Optimistic update
+    const tempId = `temp-${Date.now()}`;
+    const optimisticSupplier = { ...data, id: tempId } as Supplier;
+    setSuppliers(prev => [optimisticSupplier, ...prev]);
+
+    try {
+      const newSupplier = await suppliersService.create(data);
+      setSuppliers(prev => prev.map(s => s.id === tempId ? newSupplier : s));
+      return newSupplier;
+    } catch (err: any) {
+      setSuppliers(prev => prev.filter(s => s.id !== tempId));
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const updateSupplier = async (id: string, data: Partial<Supplier>) => {
+    const originalSuppliers = [...suppliers];
+    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
+
+    try {
+      const updated = await suppliersService.update(id, data);
+      setSuppliers(prev => prev.map(s => s.id === id ? updated : s));
+      return updated;
+    } catch (err: any) {
+      setSuppliers(originalSuppliers);
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const deleteSupplier = async (id: string) => {
+    const originalSuppliers = [...suppliers];
+    setSuppliers(prev => prev.filter(s => s.id !== id));
+
+    try {
+      await suppliersService.delete(id);
+    } catch (err: any) {
+      setSuppliers(originalSuppliers);
+      setError(err.message);
+      throw err;
+    }
+  };
 
   return {
     suppliers,
-    stats,
     loading,
-    loadingStats,
     error,
-    errorStats,
-    fetchSuppliers,
-    fetchStats,
+    refresh: loadSuppliers,
     createSupplier,
     updateSupplier,
-    deleteSupplier,
+    deleteSupplier
   };
 };

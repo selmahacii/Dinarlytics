@@ -1,1285 +1,1344 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  DocumentTextIcon, 
-  ChartBarIcon, 
-  PrinterIcon, 
-  ArrowDownTrayIcon,
-  CalendarIcon,
-  EyeIcon,
-  CogIcon,
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  DocumentTextIcon,
   DocumentArrowDownIcon,
-  BanknotesIcon,
+  PrinterIcon,
+  ChartBarIcon,
   CalculatorIcon,
-  BuildingOfficeIcon,
-  UserGroupIcon,
-  ChartPieIcon,
-  TableCellsIcon,
-  DocumentChartBarIcon,
+  ScaleIcon,
+  BanknotesIcon,
   ClipboardDocumentListIcon,
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  ArrowPathIcon,
-  BookOpenIcon
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import BilanComptableWidget from '../../components/Charts/BilanComptableWidget';
-import CompteResultatWidget from '../../components/Charts/CompteResultatWidget';
-import TresorerieWidget from '../../components/Charts/TresorerieWidget';
-import RatiosFinanciersWidget from '../../components/Charts/RatiosFinanciersWidget';
-import GrandLivreWidget from '../../components/Charts/GrandLivreWidget';
-// import BalanceComptableWidget from '../../components/Charts/BalanceComptableWidget'; // Component does not exist
-import TendancesFinancieresChart from '../../components/Charts/TendancesFinancieresChart';
-import RepartitionSectorielleChart from '../../components/Charts/RepartitionSectorielleChart';
-// import ComparaisonTemporelleChart from '../../components/Charts/ComparaisonTemporelleChart'; // Component does not exist
+import Modal from "../../../components/UI/Modal";
 
-const RapportsComptables: React.FC = () => {
-  const { formatCurrency } = useApp();
-  const [selectedPeriod, setSelectedPeriod] = useState('2024');
-  const [selectedReport, setSelectedReport] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-  const [isViewReportModalOpen, setIsViewReportModalOpen] = useState(false);
-  const [viewingReport, setViewingReport] = useState<any>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [generatedReport, setGeneratedReport] = useState<any>(null);
+const EtatsRapports: React.FC = () => {
+  const navigate = useNavigate();
+  const [selectedPeriode, setSelectedPeriode] = useState('2025-04');
+  const [selectedEtat, setSelectedEtat] = useState('bilan');
+  const [isAnalyseGraphiqueModalOpen, setIsAnalyseGraphiqueModalOpen] = useState(false);
+  const [isImprimerModalOpen, setIsImprimerModalOpen] = useState(false);
+  const [etatAImprimer, setEtatAImprimer] = useState('bilan');
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Données de démonstration pour les rapports
-  const reportTypes = [
-    {
-      id: 'bilan',
-      name: 'Bilan Comptable',
-      description: 'Situation patrimoniale de l\'entreprise',
-      icon: BuildingOfficeIcon,
-      category: 'États Financiers',
-      frequency: 'Annuel',
-      complexity: 'Élevée',
-      lastGenerated: '2024-01-15',
-      status: 'Disponible'
-    },
-    {
-      id: 'compte-resultat',
-      name: 'Compte de Résultat',
-      description: 'Résultat d\'exploitation et financier',
-      icon: ChartBarIcon,
-      category: 'États Financiers',
-      frequency: 'Mensuel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-20',
-      status: 'Disponible'
-    },
-    {
-      id: 'flux-tresorerie',
-      name: 'Tableau de Flux de Trésorerie',
-      description: 'Mouvements de liquidités',
-      icon: BanknotesIcon,
-      category: 'États Financiers',
-      frequency: 'Trimestriel',
-      complexity: 'Élevée',
-      lastGenerated: '2024-01-10',
-      status: 'Disponible'
-    },
-    {
-      id: 'grand-livre',
-      name: 'Grand Livre',
-      description: 'Toutes les écritures comptables',
-      icon: BookOpenIcon,
-      category: 'Comptabilité',
-      frequency: 'Mensuel',
-      complexity: 'Faible',
-      lastGenerated: '2024-01-25',
-      status: 'Disponible'
-    },
-    {
-      id: 'balance',
-      name: 'Balance Comptable',
-      description: 'Soldes des comptes par période',
-      icon: CalculatorIcon,
-      category: 'Comptabilité',
-      frequency: 'Mensuel',
-      complexity: 'Faible',
-      lastGenerated: '2024-01-25',
-      status: 'Disponible'
-    },
-    {
-      id: 'journal',
-      name: 'Journal Général',
-      description: 'Chronologie des écritures',
-      icon: ClockIcon,
-      category: 'Comptabilité',
-      frequency: 'Mensuel',
-      complexity: 'Faible',
-      lastGenerated: '2024-01-25',
-      status: 'Disponible'
-    },
-    {
-      id: 'tva',
-      name: 'Déclaration TVA',
-      description: 'Calcul et déclaration de la TVA',
-      icon: DocumentArrowDownIcon,
-      category: 'Fiscal',
-      frequency: 'Mensuel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-30',
-      status: 'En attente'
-    },
-    {
-      id: 'tresorerie',
-      name: 'Rapport de Trésorerie',
-      description: 'Position de liquidité détaillée',
-      icon: BanknotesIcon,
-      category: 'Trésorerie',
-      frequency: 'Hebdomadaire',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-28',
-      status: 'Disponible'
-    },
-    {
-      id: 'clients',
-      name: 'Rapport Clients',
-      description: 'Analyse des comptes clients',
-      icon: UserGroupIcon,
-      category: 'Commercial',
-      frequency: 'Mensuel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-22',
-      status: 'Disponible'
-    },
-    {
-      id: 'fournisseurs',
-      name: 'Rapport Fournisseurs',
-      description: 'Analyse des comptes fournisseurs',
-      icon: BuildingOfficeIcon,
-      category: 'Commercial',
-      frequency: 'Mensuel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-22',
-      status: 'Disponible'
-    },
-    {
-      id: 'ratios',
-      name: 'Ratios Financiers',
-      description: 'Analyse des ratios de performance',
-      icon: CalculatorIcon,
-      category: 'Analytique',
-      frequency: 'Mensuel',
-      complexity: 'Élevée',
-      lastGenerated: '2024-01-28',
-      status: 'Disponible'
-    },
-    {
-      id: 'tendances',
-      name: 'Tendances Financières',
-      description: 'Graphiques d\'évolution des indicateurs',
-      icon: ChartBarIcon,
-      category: 'Analytique',
-      frequency: 'Mensuel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-29',
-      status: 'Disponible'
-    },
-    {
-      id: 'sectorielle',
-      name: 'Analyse Sectorielle',
-      description: 'Répartition par secteur d\'activité',
-      icon: ChartPieIcon,
-      category: 'Analytique',
-      frequency: 'Trimestriel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-25',
-      status: 'Disponible'
-    },
-    {
-      id: 'temporelle',
-      name: 'Comparaison Temporelle',
-      description: 'Analyse comparative dans le temps',
-      icon: CalendarIcon,
-      category: 'Analytique',
-      frequency: 'Mensuel',
-      complexity: 'Moyenne',
-      lastGenerated: '2024-01-30',
-      status: 'Disponible'
-    }
-  ];
-
-  const reportCategories = [
-    { name: 'États Financiers', count: 3, color: 'bg-blue-100 text-blue-800' },
-    { name: 'Comptabilité', count: 3, color: 'bg-green-100 text-green-800' },
-    { name: 'Fiscal', count: 1, color: 'bg-red-100 text-red-800' },
-    { name: 'Trésorerie', count: 1, color: 'bg-yellow-100 text-yellow-800' },
-    { name: 'Commercial', count: 2, color: 'bg-purple-100 text-purple-800' },
-    { name: 'Analytique', count: 4, color: 'bg-indigo-100 text-indigo-800' }
-  ];
-
-  const recentReports = [
-    {
-      id: 1,
-      name: 'Bilan Comptable 2023',
-      type: 'Bilan Comptable',
-      generatedAt: '2024-01-15T10:30:00',
-      status: 'Complété',
-      size: '2.4 MB',
-      format: 'PDF'
-    },
-    {
-      id: 2,
-      name: 'Compte de Résultat Janvier 2024',
-      type: 'Compte de Résultat',
-      generatedAt: '2024-01-20T14:15:00',
-      status: 'Complété',
-      size: '1.8 MB',
-      format: 'PDF'
-    },
-    {
-      id: 3,
-      name: 'Grand Livre Décembre 2023',
-      type: 'Grand Livre',
-      generatedAt: '2024-01-25T09:45:00',
-      status: 'Complété',
-      size: '5.2 MB',
-      format: 'Excel'
-    },
-    {
-      id: 4,
-      name: 'Déclaration TVA Janvier 2024',
-      type: 'Déclaration TVA',
-      generatedAt: '2024-01-30T16:20:00',
-      status: 'En cours',
-      size: '0.8 MB',
-      format: 'PDF'
-    }
-  ];
-
-  const reportStats = {
-    totalReports: 156,
-    generatedThisMonth: 23,
-    pendingReports: 3,
-    averageGenerationTime: '2.3 min'
-  };
-
-  // Données de démonstration pour le bilan comptable
-  const bilanData = {
+  // Données du bilan
+  const bilan = {
     actif: {
-      immobilisations: {
-        immobilisations_incorporelles: 125000,
-        immobilisations_corporelles: 450000,
-        immobilisations_financieres: 75000
-      },
-      stocks: {
-        stocks_marchandises: 180000,
-        stocks_produits_finis: 95000,
-        stocks_matieres_premieres: 45000
-      },
-      creances: {
-        clients: 220000,
-        etat: 15000,
-        autres_creances: 25000
-      },
-      disponibilites: {
-        banque: 185000,
-        caisse: 5000
-      }
+      immobilise: [
+        { compte: '21', libelle: 'Immobilisations corporelles', montant: 2500000 },
+        { compte: '28', libelle: 'Amortissements', montant: -450000 }
+      ],
+      circulant: [
+        { compte: '31', libelle: 'Stocks de marchandises', montant: 850000 },
+        { compte: '411', libelle: 'Clients', montant: 1250000 },
+        { compte: '512', libelle: 'Banque', montant: 450000 },
+        { compte: '53', libelle: 'Caisse', montant: 125000 }
+      ]
     },
     passif: {
-      capitaux_propres: {
-        capital_social: 500000,
-        reserves: 125000,
-        resultat_net: 85000
-      },
-      dettes: {
-        dettes_fournisseurs: 95000,
-        dettes_fiscales: 25000,
-        dettes_sociales: 15000,
-        autres_dettes: 20000
-      }
+      capitaux: [
+        { compte: '10', libelle: 'Capital social', montant: 1000000 },
+        { compte: '12', libelle: 'Résultat de l\'exercice', montant: 850000 }
+      ],
+      dettes: [
+        { compte: '16', libelle: 'Emprunts', montant: 1500000 },
+        { compte: '401', libelle: 'Fournisseurs', montant: 890000 },
+        { compte: '4457', libelle: 'TVA collectée', montant: 285000 },
+        { compte: '42', libelle: 'Personnel', montant: 200000 }
+      ]
     }
   };
 
-  const compteResultatData = {
-    chiffre_affaires: 1250000,
-    achats: -450000,
-    charges_personnel: -280000,
-    charges_exploitation: -120000,
-    dotations_amortissements: -35000,
-    resultat_exploitation: 365000,
-    resultat_financier: 15000,
-    resultat_exceptionnel: -5000,
-    impot_societes: -93750,
-    resultat_net: 281250
+  // Données du compte de résultat
+  const compteResultat = {
+    produits: [
+      { compte: '70', libelle: 'Ventes de marchandises', montant: 5200000 },
+      { compte: '76', libelle: 'Produits financiers', montant: 45000 }
+    ],
+    charges: [
+      { compte: '60', libelle: 'Achats consommés', montant: 3100000 },
+      { compte: '63', libelle: 'Services', montant: 420000 },
+      { compte: '64', libelle: 'Frais de personnel', montant: 680000 },
+      { compte: '66', libelle: 'Charges financières', montant: 95000 },
+      { compte: '68', libelle: 'Dotations aux amortissements', montant: 100000 }
+    ]
   };
 
-  // Données pour les widgets enrichis
-  const tresorerieData = {
-    solde_initial: 150000,
-    encaissements: {
-      ventes: 800000,
-      creances_recouvrees: 120000,
-      autres_encaissements: 30000
-    },
-    decaissements: {
-      achats: 450000,
-      charges_personnel: 280000,
-      charges_exploitation: 120000,
-      investissements: 50000,
-      autres_decaissements: 25000
-    },
-    solde_final: 185000
+  const totalActif = [
+    ...bilan.actif.immobilise,
+    ...bilan.actif.circulant
+  ].reduce((sum, item) => sum + item.montant, 0);
+
+  const totalPassif = [
+    ...bilan.passif.capitaux,
+    ...bilan.passif.dettes
+  ].reduce((sum, item) => sum + item.montant, 0);
+
+  const totalProduits = compteResultat.produits.reduce((sum, item) => sum + item.montant, 0);
+  const totalCharges = compteResultat.charges.reduce((sum, item) => sum + item.montant, 0);
+  const resultat = totalProduits - totalCharges;
+
+  // Données de la Balance Générale (tous les comptes avec soldes débiteurs et créditeurs)
+  // Calcul automatique du résultat pour équilibrer la balance
+  const totalDebitSansResultat = 2500000 + 850000 + 1250000 + 450000 + 125000 + 3100000 + 420000 + 680000 + 95000 + 100000 + 16150;
+  const totalCreditSansResultat = 450000 + 1000000 + 1500000 + 890000 + 285000 + 200000 + 5200000 + 45000;
+  const resultatBalance = totalCreditSansResultat - totalDebitSansResultat;
+  
+  const balanceGenerale = [
+    // Actif Immobilisé
+    { compte: '21', libelle: 'Immobilisations corporelles', debit: 2500000, credit: 0 },
+    { compte: '28', libelle: 'Amortissements', debit: 0, credit: 450000 },
+    // Actif Circulant
+    { compte: '31', libelle: 'Stocks de marchandises', debit: 850000, credit: 0 },
+    { compte: '411', libelle: 'Clients', debit: 1250000, credit: 0 },
+    { compte: '512', libelle: 'Banque', debit: 450000, credit: 0 },
+    { compte: '53', libelle: 'Caisse', debit: 125000, credit: 0 },
+    // Passif - Capitaux
+    { compte: '10', libelle: 'Capital social', debit: 0, credit: 1000000 },
+    { compte: '12', libelle: 'Résultat de l\'exercice', debit: 0, credit: resultatBalance > 0 ? resultatBalance : 0 },
+    // Passif - Dettes
+    { compte: '16', libelle: 'Emprunts', debit: 0, credit: 1500000 },
+    { compte: '401', libelle: 'Fournisseurs', debit: 0, credit: 890000 },
+    { compte: '4457', libelle: 'TVA collectée', debit: 0, credit: 285000 },
+    { compte: '42', libelle: 'Personnel', debit: 0, credit: 200000 },
+    // Produits
+    { compte: '70', libelle: 'Ventes de marchandises', debit: 0, credit: 5200000 },
+    { compte: '76', libelle: 'Produits financiers', debit: 0, credit: 45000 },
+    // Charges
+    { compte: '60', libelle: 'Achats consommés', debit: 3100000, credit: 0 },
+    { compte: '63', libelle: 'Services', debit: 420000, credit: 0 },
+    { compte: '64', libelle: 'Frais de personnel', debit: 680000, credit: 0 },
+    { compte: '66', libelle: 'Charges financières', debit: 95000, credit: 0 },
+    { compte: '68', libelle: 'Dotations aux amortissements', debit: 100000, credit: 0 },
+    { compte: '4456', libelle: 'TVA déductible', debit: 16150, credit: 0 }
+  ].sort((a, b) => a.compte.localeCompare(b.compte));
+
+  const totalDebitBalance = balanceGenerale.reduce((sum, item) => sum + item.debit, 0);
+  const totalCreditBalance = balanceGenerale.reduce((sum, item) => sum + item.credit, 0);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('fr-DZ', {
+      style: 'currency',
+      currency: 'DZD',
+      minimumFractionDigits: 0
+    }).format(amount);
   };
 
-  const ratiosFinanciersData = {
-    ratio_liquidite_generale: 1.8,
-    ratio_liquidite_reduite: 1.2,
-    ratio_liquidite_immediate: 0.4,
-    ratio_endettement: 0.35,
-    ratio_autonomie: 0.65,
-    ratio_couverture_dettes: 4.2,
-    marge_brute: 32.5,
-    marge_exploitation: 12.8,
-    marge_nette: 8.2,
-    roe: 18.5,
-    roa: 12.3,
-    rotation_stocks: 5.8,
-    delai_paiement_clients: 35,
-    delai_paiement_fournisseurs: 45,
-    croissance_ca: 12.5,
-    croissance_resultat: 15.8,
-    croissance_effectif: 8.2
-  };
-
-  const grandLivreData = [
-    {
-      id: '1',
-      date: '2024-01-15',
-      numero: 'FAC001',
-      compte: '411000',
-      libelle: 'Vente de marchandises',
-      debit: 0,
-      credit: 50000,
-      solde: -50000,
-      piece: 'FAC001',
-      journal: 'VT'
-    },
-    {
-      id: '2',
-      date: '2024-01-15',
-      numero: 'FAC001',
-      compte: '701000',
-      libelle: 'Vente de marchandises',
-      debit: 50000,
-      credit: 0,
-      solde: 50000,
-      piece: 'FAC001',
-      journal: 'VT'
-    },
-    {
-      id: '3',
-      date: '2024-01-16',
-      numero: 'ACH001',
-      compte: '401000',
-      libelle: 'Achat de matières premières',
-      debit: 25000,
-      credit: 0,
-      solde: 25000,
-      piece: 'ACH001',
-      journal: 'ACH'
-    },
-    {
-      id: '4',
-      date: '2024-01-16',
-      numero: 'ACH001',
-      compte: '601000',
-      libelle: 'Achat de matières premières',
-      debit: 0,
-      credit: 25000,
-      solde: -25000,
-      piece: 'ACH001',
-      journal: 'ACH'
-    }
+  const etatsDisponibles = [
+    { id: 'bilan', nom: 'Bilan Comptable', icon: ScaleIcon, color: 'emerald' },
+    { id: 'resultat', nom: 'Compte de Résultat', icon: ChartBarIcon, color: 'cyan' },
+    { id: 'flux', nom: 'Flux de Trésorerie', icon: BanknotesIcon, color: 'amber' },
+    { id: 'balance', nom: 'Balance Générale', icon: CalculatorIcon, color: 'slate' }
   ];
 
-  const balanceComptableData = [
-    {
-      compte: '411000',
-      libelle: 'Clients',
-      solde_debut: 120000,
-      debit: 0,
-      credit: 50000,
-      solde_fin: 170000,
-      type: 'actif' as const,
-      classe: 'Créances'
-    },
-    {
-      compte: '401000',
-      libelle: 'Fournisseurs',
-      solde_debut: 80000,
-      debit: 25000,
-      credit: 0,
-      solde_fin: 55000,
-      type: 'passif' as const,
-      classe: 'Dettes'
-    },
-    {
-      compte: '601000',
-      libelle: 'Achats',
-      solde_debut: 0,
-      debit: 0,
-      credit: 25000,
-      solde_fin: -25000,
-      type: 'charge' as const,
-      classe: 'Charges d\'exploitation'
-    },
-    {
-      compte: '701000',
-      libelle: 'Ventes',
-      solde_debut: 0,
-      debit: 50000,
-      credit: 0,
-      solde_fin: 50000,
-      type: 'produit' as const,
-      classe: 'Produits d\'exploitation'
-    }
-  ];
+  const handleImprimerEtatsOfficiels = () => {
+    setIsImprimerModalOpen(true);
+  };
 
-  const handleGenerateReport = async (reportType: string) => {
-    setIsGenerating(true);
-    setSelectedReport(reportType);
+  const handleConfirmImprimer = () => {
+    // Créer une nouvelle fenêtre pour l'impression
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Veuillez autoriser les pop-ups pour imprimer les états officiels.');
+      return;
+    }
+
+    // Générer le contenu HTML pour l'impression
+    const etatNom = etatsDisponibles.find(e => e.id === etatAImprimer)?.nom || 'État Comptable';
+    const periode = selectedPeriode;
     
-    // Simulation de génération de rapport
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    let contenuHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>${etatNom} - ${periode}</title>
+        <style>
+          @media print {
+            @page {
+              size: A4;
+              margin: 2cm;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 12px;
+            }
+          }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #000;
+          }
+          .header {
+            text-align: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+          }
+          .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+          }
+          .header h2 {
+            font-size: 18px;
+            margin: 5px 0;
+          }
+          .info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+          }
+          .info p {
+            margin: 5px 0;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+          }
+          th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+          }
+          .total {
+            font-weight: bold;
+            background-color: #f0f0f0;
+          }
+          .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #000;
+            text-align: center;
+            font-size: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>ÉTAT COMPTABLE OFFICIEL</h1>
+          <h2>${etatNom}</h2>
+          <p>Période: ${periode}</p>
+          <p>Date d'édition: ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+        </div>
+    `;
+
+    // Ajouter le contenu selon l'état sélectionné
+    if (etatAImprimer === 'bilan') {
+      contenuHTML += `
+        <div class="info">
+          <p><strong>BILAN COMPTABLE</strong></p>
+          <p>Période: ${periode}</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ACTIF</th>
+              <th style="text-align: right;">Montant (DA)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="2"><strong>ACTIF IMMOBILISÉ</strong></td></tr>
+      `;
+      bilan.actif.immobilise.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td>${item.compte} - ${item.libelle}</td>
+            <td style="text-align: right;">${formatCurrency(item.montant)}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr><td colspan="2"><strong>ACTIF CIRCULANT</strong></td></tr>
+      `;
+      bilan.actif.circulant.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td>${item.compte} - ${item.libelle}</td>
+            <td style="text-align: right;">${formatCurrency(item.montant)}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr class="total">
+              <td><strong>TOTAL ACTIF</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(totalActif)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th>PASSIF</th>
+              <th style="text-align: right;">Montant (DA)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="2"><strong>CAPITAUX PROPRES</strong></td></tr>
+      `;
+      bilan.passif.capitaux.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td>${item.compte} - ${item.libelle}</td>
+            <td style="text-align: right;">${formatCurrency(item.montant)}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr><td colspan="2"><strong>DETTES</strong></td></tr>
+      `;
+      bilan.passif.dettes.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td>${item.compte} - ${item.libelle}</td>
+            <td style="text-align: right;">${formatCurrency(item.montant)}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr class="total">
+              <td><strong>TOTAL PASSIF</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(totalPassif)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    } else if (etatAImprimer === 'resultat') {
+      contenuHTML += `
+        <div class="info">
+          <p><strong>COMPTE DE RÉSULTAT</strong></p>
+          <p>Période: ${periode}</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>PRODUITS</th>
+              <th style="text-align: right;">Montant (DA)</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      compteResultat.produits.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td>${item.compte} - ${item.libelle}</td>
+            <td style="text-align: right;">${formatCurrency(item.montant)}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr class="total">
+              <td><strong>TOTAL PRODUITS</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(totalProduits)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th>CHARGES</th>
+              <th style="text-align: right;">Montant (DA)</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      compteResultat.charges.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td>${item.compte} - ${item.libelle}</td>
+            <td style="text-align: right;">${formatCurrency(item.montant)}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr class="total">
+              <td><strong>TOTAL CHARGES</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(totalCharges)}</strong></td>
+            </tr>
+            <tr class="total">
+              <td><strong>RÉSULTAT NET</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(resultat)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    } else if (etatAImprimer === 'balance') {
+      contenuHTML += `
+        <div class="info">
+          <p><strong>BALANCE GÉNÉRALE</strong></p>
+          <p>Période: ${periode}</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%;">Compte</th>
+              <th style="width: 45%;">Libellé</th>
+              <th style="width: 20%; text-align: right;">Débit (DA)</th>
+              <th style="width: 20%; text-align: right;">Crédit (DA)</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      balanceGenerale.forEach(item => {
+        contenuHTML += `
+          <tr>
+            <td><strong>${item.compte}</strong></td>
+            <td>${item.libelle}</td>
+            <td style="text-align: right;">${item.debit > 0 ? formatCurrency(item.debit) : '-'}</td>
+            <td style="text-align: right;">${item.credit > 0 ? formatCurrency(item.credit) : '-'}</td>
+          </tr>
+        `;
+      });
+      contenuHTML += `
+            <tr class="total" style="border-top: 3px solid #000;">
+              <td colspan="2"><strong>TOTAL GÉNÉRAL</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(totalDebitBalance)}</strong></td>
+              <td style="text-align: right;"><strong>${formatCurrency(totalCreditBalance)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border: 1px solid #ddd; border-radius: 5px;">
+          <p style="margin: 5px 0;"><strong>Vérification de l'équilibre:</strong></p>
+          <p style="margin: 5px 0;">Total Débit: ${formatCurrency(totalDebitBalance)}</p>
+          <p style="margin: 5px 0;">Total Crédit: ${formatCurrency(totalCreditBalance)}</p>
+          <p style="margin: 5px 0; ${totalDebitBalance === totalCreditBalance ? 'color: #008000; font-weight: bold;' : 'color: #ff0000; font-weight: bold;'}">
+            ${totalDebitBalance === totalCreditBalance ? '✓ Balance équilibrée' : '⚠ Balance déséquilibrée'}
+          </p>
+        </div>
+      `;
+    } else {
+      contenuHTML += `
+        <div class="info">
+          <p><strong>${etatNom.toUpperCase()}</strong></p>
+          <p>Période: ${periode}</p>
+          <p>Cet état sera disponible prochainement.</p>
+        </div>
+      `;
+    }
+
+    contenuHTML += `
+        <div class="footer">
+          <p>Document généré le ${new Date().toLocaleString('fr-FR')}</p>
+          <p>Ce document est un état comptable officiel conforme aux normes comptables algériennes.</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(contenuHTML);
+    printWindow.document.close();
     
-    const reportData = {
-      type: reportType,
-      period: selectedPeriod,
-      generatedAt: new Date().toISOString(),
-      data: reportType === 'bilan' ? bilanData : 
-            reportType === 'compte-resultat' ? compteResultatData : 
-            { message: 'Données de démonstration' }
-    };
-    
-    setGeneratedReport(reportData);
-    setIsGenerating(false);
-    setIsReportModalOpen(true);
-  };
-
-  const handleExportReport = (format: string) => {
-    alert(`Export du rapport en format ${format} en cours...`);
-  };
-
-  const handleExportAll = () => {
-    alert('Export de tous les rapports en cours... Cette action va télécharger tous les rapports disponibles.');
-  };
-
-  const handleViewReport = (reportId: number) => {
-    const report = recentReports.find(r => r.id === reportId);
-    if (report) {
-      setViewingReport(report);
-      setIsViewReportModalOpen(true);
-    }
-  };
-
-  const handleDownloadReport = (reportId: number) => {
-    const report = recentReports.find(r => r.id === reportId);
-    if (report) {
-      try {
-        // Créer un contenu de rapport simulé
-        const reportContent = `
-RAPPORT: ${report.name}
-Type: ${report.type}
-Généré le: ${new Date(report.generatedAt).toLocaleString('fr-FR')}
-Statut: ${report.status}
-Taille: ${report.size}
-Format: ${report.format}
-
----
-Ceci est un rapport de démonstration.
-Dans une application réelle, ce fichier contiendrait les données complètes du rapport.
-        `.trim();
-
-        // Créer un blob selon le format
-        const mimeType = report.format === 'PDF' 
-          ? 'application/pdf' 
-          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        
-        const blob = new Blob([reportContent], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${report.name.replace(/\s+/g, '_')}.${report.format.toLowerCase()}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('Erreur lors du téléchargement:', error);
-        alert('Erreur lors du téléchargement du rapport');
-      }
-    }
-  };
-
-  const handlePrintReport = (reportId: number) => {
-    const report = recentReports.find(r => r.id === reportId);
-    if (report) {
-      // Ouvrir le rapport dans une modal pour impression
-      setViewingReport(report);
-      setIsViewReportModalOpen(true);
-      // Attendre que la modal soit ouverte puis imprimer
-      setTimeout(() => {
-        window.print();
-      }, 500);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Disponible': return 'text-green-600 bg-green-100';
-      case 'En cours': return 'text-yellow-600 bg-yellow-100';
-      case 'En attente': return 'text-orange-600 bg-orange-100';
-      case 'Complété': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  const getComplexityColor = (complexity: string) => {
-    switch (complexity) {
-      case 'Faible': return 'text-green-600 bg-green-100';
-      case 'Moyenne': return 'text-yellow-600 bg-yellow-100';
-      case 'Élevée': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
+    // Attendre que le contenu soit chargé puis déclencher l'impression
+    setTimeout(() => {
+      printWindow.print();
+      setIsImprimerModalOpen(false);
+    }, 500);
   };
 
   return (
-    <div className="space-y-6">
-      {/* En-tête - Palette Slate Professionnelle Améliorée */}
-      <div className="relative bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-8 rounded-2xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm overflow-hidden">
-        {/* Effet de fond décoratif */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-slate-300/10 to-transparent dark:from-slate-600/10 rounded-full blur-3xl -mr-48 -mt-48"></div>
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-slate-300/10 to-transparent dark:from-slate-600/10 rounded-full blur-3xl -ml-36 -mb-36"></div>
-        
-        <div className="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div className="flex items-start space-x-5">
-            <div className="bg-gradient-to-br from-slate-700 to-slate-800 dark:from-slate-600 dark:to-slate-700 p-4 rounded-2xl shadow-lg">
-              <DocumentTextIcon className="h-9 w-9 text-white" />
+    <div className="space-y-6 p-6">
+      {/* En-tête */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-slate-100 rounded-lg">
+              <DocumentTextIcon className="h-8 w-8 text-slate-600" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                Rapports Comptables
-              </h1>
-              <p className="text-slate-600 dark:text-slate-400 mt-2 text-base">
-                Génération et gestion des rapports comptables conformes SCF/IFRS
-              </p>
+              <h1 className="text-2xl font-bold text-slate-900">États & Rapports Comptables</h1>
+              <p className="text-slate-600">Bilan, compte de résultat et états financiers</p>
             </div>
           </div>
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm px-6 py-4 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
-            <div className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Horodatage
-            </div>
-            <div className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {currentTime.toLocaleString('fr-FR')}
-            </div>
-            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-              <div className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-                Période
-              </div>
-              <div className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                {selectedPeriod}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Statistiques rapides - Enrichies avec palette Slate */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-5 rounded-xl border border-blue-200 dark:border-blue-700 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-blue-400/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-blue-600 dark:bg-blue-500 p-2 rounded-lg">
-                <DocumentTextIcon className="h-6 w-6 text-white" />
-            </div>
-              <CheckCircleIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </div>
-            <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">{reportStats.totalReports}</div>
-            <div className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">Total Rapports</div>
-            <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
-              <span className="font-semibold">14 types</span> disponibles
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-400/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                <ChartBarIcon className="h-6 w-6 text-white" />
-            </div>
-              <ArrowPathIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          </div>
-            <div className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">{reportStats.generatedThisMonth}</div>
-            <div className="text-sm text-emerald-700 dark:text-emerald-300 font-medium mt-1">Générés ce Mois</div>
-            <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">
-              <span className="font-semibold">+18%</span> vs mois dernier
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-amber-400/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
-                <ClockIcon className="h-6 w-6 text-white" />
-            </div>
-              <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          </div>
-            <div className="text-3xl font-bold text-amber-900 dark:text-amber-100">{reportStats.pendingReports}</div>
-            <div className="text-sm text-amber-700 dark:text-amber-300 font-medium mt-1">En Attente</div>
-            <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-              <span className="font-semibold">À générer</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/20 dark:to-violet-800/20 p-5 rounded-xl border border-violet-200 dark:border-violet-700 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-violet-400/10 rounded-full -mr-10 -mt-10"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-violet-600 dark:bg-violet-500 p-2 rounded-lg">
-                <ClockIcon className="h-6 w-6 text-white" />
-            </div>
-              <CheckCircleIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-          </div>
-            <div className="text-3xl font-bold text-violet-900 dark:text-violet-100">{reportStats.averageGenerationTime}</div>
-            <div className="text-sm text-violet-700 dark:text-violet-300 font-medium mt-1">Temps Moyen</div>
-            <div className="mt-2 text-xs text-violet-600 dark:text-violet-400">
-              <span className="font-semibold">Très rapide</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres et contrôles - Palette Slate */}
-      <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg">
-              <CalendarIcon className="h-5 w-5 text-slate-700 dark:text-slate-300" />
-            </div>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 rounded-lg px-4 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-slate-500"
+            <select title="Sélectionner une période"
+              value={selectedPeriode}
+              onChange={(e) => setSelectedPeriode(e.target.value)}
+              className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500"
             >
-              <option value="2024">Exercice 2024</option>
-              <option value="2023">Exercice 2023</option>
-              <option value="2022">Exercice 2022</option>
+              <option value="2025-04">Avril 2025</option>
+              <option value="2025-03">Mars 2025</option>
+              <option value="2025-02">Février 2025</option>
+              <option value="2025-01">Janvier 2025</option>
+              <option value="2024">Année 2024</option>
             </select>
-          </div>
-          
-          <div className="flex gap-2">
-          <button
-            onClick={() => setIsConfigModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-          >
-            <CogIcon className="h-5 w-5 mr-2" />
-            Configuration
-          </button>
-            <button
-              onClick={handleExportAll}
-              className="flex items-center px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors shadow-sm"
-            >
-              <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
-              Exporter Tout
+            <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium">
+              <PrinterIcon className="h-5 w-5 inline mr-2" />
+              Imprimer
+            </button>
+            <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium">
+              <DocumentArrowDownIcon className="h-5 w-5 inline mr-2" />
+              Exporter
             </button>
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* Catégories de rapports - Palette Slate Enrichie */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-            <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-3">
-              <ChartPieIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
-                </div>
-            Catégories de Rapports
-          </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg">6 catégories</span>
-              </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {reportCategories.map((category, index) => {
-            const colors = [
-              { bg: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20', border: 'border-blue-200 dark:border-blue-700', text: 'text-blue-700 dark:text-blue-300', badge: 'bg-blue-600' },
-              { bg: 'from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20', border: 'border-emerald-200 dark:border-emerald-700', text: 'text-emerald-700 dark:text-emerald-300', badge: 'bg-emerald-600' },
-              { bg: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20', border: 'border-red-200 dark:border-red-700', text: 'text-red-700 dark:text-red-300', badge: 'bg-red-600' },
-              { bg: 'from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20', border: 'border-amber-200 dark:border-amber-700', text: 'text-amber-700 dark:text-amber-300', badge: 'bg-amber-600' },
-              { bg: 'from-violet-50 to-violet-100 dark:from-violet-900/20 dark:to-violet-800/20', border: 'border-violet-200 dark:border-violet-700', text: 'text-violet-700 dark:text-violet-300', badge: 'bg-violet-600' },
-              { bg: 'from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20', border: 'border-indigo-200 dark:border-indigo-700', text: 'text-indigo-700 dark:text-indigo-300', badge: 'bg-indigo-600' }
-            ];
-            const color = colors[index];
+      {/* Navigation des états */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          {etatsDisponibles.map((etat) => {
+            const Icon = etat.icon;
             return (
-              <div key={category.name} className={`bg-gradient-to-br ${color.bg} p-5 rounded-xl border ${color.border} hover:shadow-lg transition-all cursor-pointer relative overflow-hidden`}>
-                <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
-                <div className="relative text-center">
-                  <div className={`${color.badge} w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center`}>
-                    <span className="text-white font-bold text-lg">{category.count}</span>
-                  </div>
-                  <p className={`text-xs font-semibold ${color.text} mb-1`}>{category.name}</p>
-                  <p className={`text-[10px] ${color.text} opacity-75`}>rapports</p>
+              <button
+                key={etat.id}
+                onClick={() => setSelectedEtat(etat.id)}
+                className={`flex items-center p-4 rounded-lg border-2 transition-all ${
+                  selectedEtat === etat.id
+                    ? 'border-slate-500 bg-slate-50'
+                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+              >
+                <div className={`p-2 bg-${etat.color}-100 rounded-lg mr-3`}>
+                  <Icon className={`h-5 w-5 text-${etat.color}-600`} />
                 </div>
-              </div>
+                <span className="text-sm font-semibold text-slate-900">{etat.nom}</span>
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Graphiques Enrichis - Palette Slate Professionnelle */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-            <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-3">
-              <ChartBarIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+      {/* Bilan Comptable */}
+      {selectedEtat === 'bilan' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Actif */}
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <h3 className="text-lg font-bold text-slate-900">ACTIF</h3>
             </div>
-            Analyses Graphiques Avancées
-          </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg">Période: {selectedPeriod}</span>
-        </div>
-        <div className="space-y-6">
-          {/* Tendances Financières */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-50 dark:bg-slate-900 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                  <div className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded mr-2">
-                    <ChartBarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  Tendances Financières
-                </h3>
-                <span className="text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">Vue sur 6 mois</span>
-              </div>
-            </div>
-            <div className="p-6">
-              <TendancesFinancieresChart period={selectedPeriod} />
-            </div>
-          </div>
-          
-          {/* Répartition Sectorielle */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-50 dark:bg-slate-900 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                  <div className="bg-emerald-100 dark:bg-emerald-900/30 p-1.5 rounded mr-2">
-                    <ChartPieIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  Répartition Sectorielle
-                </h3>
-                <span className="text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">Par secteur d'activité</span>
-              </div>
-            </div>
-            <div className="p-6">
-              <RepartitionSectorielleChart period={selectedPeriod} />
-            </div>
-          </div>
-          
-          {/* Comparaison Temporelle */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="bg-slate-50 dark:bg-slate-900 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                  <div className="bg-violet-100 dark:bg-violet-900/30 p-1.5 rounded mr-2">
-                    <CalendarIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                  </div>
-                  Comparaison Temporelle
-                </h3>
-                <span className="text-xs text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-1 rounded border border-slate-200 dark:border-slate-700">Années comparées</span>
-              </div>
-            </div>
-            <div className="p-6">
-              {/* <ComparaisonTemporelleChart period={selectedPeriod} /> */}
-              <p className="text-slate-500">Comparaison temporelle à charger via API</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Types de rapports - Design Enrichi Palette Slate */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-            <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-3">
-              <DocumentTextIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
-            </div>
-            Types de Rapports Disponibles
-          </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg">{reportTypes.length} rapports</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reportTypes.map((report) => {
-            const IconComponent = report.icon;
-            return (
-              <Card key={report.id} className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-slate-400 dark:hover:border-slate-500 transition-all">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start space-x-3 flex-1 min-w-0">
-                    <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg flex-shrink-0">
-                      <IconComponent className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+            <div className="p-6 space-y-6">
+              {/* Actif immobilisé */}
+              <div>
+                <h4 className="text-sm font-bold text-slate-700 mb-3 uppercase">Actif Immobilisé</h4>
+                <div className="space-y-2">
+                  {bilan.actif.immobilise.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm text-slate-700">{item.compte} - {item.libelle}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(item.montant)}</span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 truncate">{report.name}</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{report.description}</p>
-                    </div>
-                  </div>
-                  <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${
-                    report.status === 'Disponible' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' :
-                    report.status === 'En attente' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700' :
-                    'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
-                  } flex-shrink-0 ml-2`}>
-                    {report.status}
-                  </span>
-                </div>
-                
-                <div className="space-y-2 mb-4 bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-600 dark:text-slate-400">Catégorie:</span>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{report.category}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-600 dark:text-slate-400">Fréquence:</span>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{report.frequency}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-600 dark:text-slate-400">Complexité:</span>
-                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                      report.complexity === 'Faible' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
-                      report.complexity === 'Moyenne' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
-                      'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                    }`}>
-                      {report.complexity}
+                  ))}
+                  <div className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <span className="text-sm font-bold text-cyan-900">Sous-total Immobilisé</span>
+                    <span className="text-sm font-bold text-cyan-900">
+                      {formatCurrency(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0))}
                     </span>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-600 dark:text-slate-400">Dernière génération:</span>
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">{report.lastGenerated}</span>
+                </div>
+              </div>
+
+              {/* Actif circulant */}
+              <div>
+                <h4 className="text-sm font-bold text-slate-700 mb-3 uppercase">Actif Circulant</h4>
+                <div className="space-y-2">
+                  {bilan.actif.circulant.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm text-slate-700">{item.compte} - {item.libelle}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(item.montant)}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <span className="text-sm font-bold text-cyan-900">Sous-total Circulant</span>
+                    <span className="text-sm font-bold text-cyan-900">
+                      {formatCurrency(bilan.actif.circulant.reduce((s, i) => s + i.montant, 0))}
+                    </span>
                   </div>
                 </div>
+              </div>
 
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleGenerateReport(report.id)}
-                    disabled={isGenerating}
-                    className="flex-1 flex items-center justify-center px-4 py-2.5 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                  >
-                    {isGenerating && selectedReport === report.id ? (
-                      <ArrowPathIcon className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <DocumentTextIcon className="h-4 w-4 mr-2" />
-                    )}
-                    {isGenerating && selectedReport === report.id ? 'Génération...' : 'Générer'}
-                  </button>
-                  
-                  <button
-                    onClick={() => handleExportReport('PDF')}
-                    className="px-3 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                    title="Imprimer"
-                  >
-                    <PrinterIcon className="h-4 w-4" />
-                  </button>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Rapports récents - Palette Slate Professionnelle */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-            <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-3">
-              <ClockIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+              {/* Total Actif */}
+              <div className="flex items-center justify-between p-4 bg-emerald-100 rounded-lg border-2 border-emerald-300">
+                <span className="text-base font-bold text-emerald-900">TOTAL ACTIF</span>
+                <span className="text-xl font-bold text-emerald-900">{formatCurrency(totalActif)}</span>
+              </div>
             </div>
-            Rapports Récents
-          </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-lg">{recentReports.length} rapports</span>
+          </div>
+
+          {/* Passif */}
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <h3 className="text-lg font-bold text-slate-900">PASSIF</h3>
+            </div>
+            <div className="p-6 space-y-6">
+              {/* Capitaux propres */}
+              <div>
+                <h4 className="text-sm font-bold text-slate-700 mb-3 uppercase">Capitaux Propres</h4>
+                <div className="space-y-2">
+                  {bilan.passif.capitaux.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm text-slate-700">{item.compte} - {item.libelle}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(item.montant)}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <span className="text-sm font-bold text-cyan-900">Sous-total Capitaux</span>
+                    <span className="text-sm font-bold text-cyan-900">
+                      {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dettes */}
+              <div>
+                <h4 className="text-sm font-bold text-slate-700 mb-3 uppercase">Dettes</h4>
+                <div className="space-y-2">
+                  {bilan.passif.dettes.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                      <span className="text-sm text-slate-700">{item.compte} - {item.libelle}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(item.montant)}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between p-3 bg-cyan-50 rounded-lg border border-cyan-200">
+                    <span className="text-sm font-bold text-cyan-900">Sous-total Dettes</span>
+                    <span className="text-sm font-bold text-cyan-900">
+                      {formatCurrency(bilan.passif.dettes.reduce((s, i) => s + i.montant, 0))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Passif */}
+              <div className="flex items-center justify-between p-4 bg-emerald-100 rounded-lg border-2 border-emerald-300">
+                <span className="text-base font-bold text-emerald-900">TOTAL PASSIF</span>
+                <span className="text-xl font-bold text-emerald-900">{formatCurrency(totalPassif)}</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <Card className="overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+      )}
+
+      {/* Compte de Résultat */}
+      {selectedEtat === 'resultat' && (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+          <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900">COMPTE DE RÉSULTAT</h3>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Charges */}
+              <div className="space-y-4">
+                <h4 className="text-base font-bold text-slate-900 mb-3">CHARGES</h4>
+                <div className="space-y-2">
+                  {compteResultat.charges.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                      <span className="text-sm text-slate-700">{item.compte} - {item.libelle}</span>
+                      <span className="text-sm font-bold text-red-600">{formatCurrency(item.montant)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between p-4 bg-red-100 rounded-lg border-2 border-red-300">
+                  <span className="text-base font-bold text-red-900">TOTAL CHARGES</span>
+                  <span className="text-xl font-bold text-red-900">{formatCurrency(totalCharges)}</span>
+                </div>
+              </div>
+
+              {/* Produits */}
+              <div className="space-y-4">
+                <h4 className="text-base font-bold text-slate-900 mb-3">PRODUITS</h4>
+                <div className="space-y-2">
+                  {compteResultat.produits.map((item, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                      <span className="text-sm text-slate-700">{item.compte} - {item.libelle}</span>
+                      <span className="text-sm font-bold text-emerald-600">{formatCurrency(item.montant)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between p-4 bg-emerald-100 rounded-lg border-2 border-emerald-300">
+                  <span className="text-base font-bold text-emerald-900">TOTAL PRODUITS</span>
+                  <span className="text-xl font-bold text-emerald-900">{formatCurrency(totalProduits)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Résultat */}
+            <div className="mt-6 p-6 bg-gradient-to-br from-slate-50 to-white rounded-lg border-2 border-slate-300">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  {resultat >= 0 ? (
+                    <ArrowTrendingUpIcon className="h-8 w-8 text-emerald-600" />
+                  ) : (
+                    <ArrowTrendingDownIcon className="h-8 w-8 text-red-600" />
+                  )}
+                  <div>
+                    <p className="text-sm text-slate-600">Résultat de l'exercice</p>
+                    <p className={`text-3xl font-bold ${resultat >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatCurrency(resultat)}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-slate-600">Marge nette</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {((resultat / totalProduits) * 100).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Flux de Trésorerie */}
+      {selectedEtat === 'flux' && (
+        <div className="space-y-6">
+          {/* Tableau des flux */}
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <h3 className="text-lg font-bold text-slate-900">TABLEAU DES FLUX DE TRÉSORERIE</h3>
+              <p className="text-sm text-slate-600 mt-1">Méthode indirecte - Période : {selectedPeriode}</p>
+            </div>
+            <div className="p-6">
+              {/* Flux opérationnels */}
+              <div className="mb-6">
+                <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center">
+                  <div className="w-1 h-6 bg-emerald-500 mr-3"></div>
+                  FLUX DE TRÉSORERIE LIÉS À L'ACTIVITÉ
+                </h4>
+                <div className="space-y-2 ml-4">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">Résultat net de l'exercice</span>
+                    <span className="text-sm font-bold text-emerald-600">{formatCurrency(resultat)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700 ml-4">+ Dotations aux amortissements</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(100000)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700 ml-4">- Variation des stocks</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(85000)})</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700 ml-4">- Variation des créances clients</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(125000)})</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700 ml-4">+ Variation des dettes fournisseurs</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(95000)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-emerald-100 rounded-lg border-2 border-emerald-300 mt-3">
+                    <span className="text-base font-bold text-emerald-900">Flux net de trésorerie généré par l'activité</span>
+                    <span className="text-xl font-bold text-emerald-900">{formatCurrency(resultat + 100000 - 85000 - 125000 + 95000)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Flux d'investissement */}
+              <div className="mb-6">
+                <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center">
+                  <div className="w-1 h-6 bg-cyan-500 mr-3"></div>
+                  FLUX DE TRÉSORERIE LIÉS AUX INVESTISSEMENTS
+                </h4>
+                <div className="space-y-2 ml-4">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">- Acquisition immobilisations</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(450000)})</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">+ Cession d'immobilisations</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(80000)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-cyan-100 rounded-lg border-2 border-cyan-300 mt-3">
+                    <span className="text-base font-bold text-cyan-900">Flux net de trésorerie lié aux investissements</span>
+                    <span className="text-xl font-bold text-red-900">({formatCurrency(370000)})</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Flux de financement */}
+              <div className="mb-6">
+                <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center">
+                  <div className="w-1 h-6 bg-amber-500 mr-3"></div>
+                  FLUX DE TRÉSORERIE LIÉS AU FINANCEMENT
+                </h4>
+                <div className="space-y-2 ml-4">
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">+ Augmentation de capital</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">+ Nouveaux emprunts</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(500000)}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">- Remboursement emprunts</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(180000)})</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="text-sm text-slate-700">- Dividendes versés</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(120000)})</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-amber-100 rounded-lg border-2 border-amber-300 mt-3">
+                    <span className="text-base font-bold text-amber-900">Flux net de trésorerie lié au financement</span>
+                    <span className="text-xl font-bold text-amber-900">{formatCurrency(200000)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Variation de trésorerie */}
+              <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg text-white">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                    <span className="text-base font-medium">Trésorerie d'ouverture</span>
+                    <span className="text-lg font-bold">{formatCurrency(450000)}</span>
+                  </div>
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+                    <span className="text-base font-medium">Variation nette de trésorerie</span>
+                    <span className="text-lg font-bold text-emerald-400">
+                      {formatCurrency((resultat + 100000 - 85000 - 125000 + 95000) - 370000 + 200000)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between pt-2">
+                    <span className="text-lg font-bold">Trésorerie de clôture</span>
+                    <span className="text-2xl font-bold text-emerald-400">
+                      {formatCurrency(450000 + ((resultat + 100000 - 85000 - 125000 + 95000) - 370000 + 200000))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Graphique de flux */}
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Visualisation des Flux</h3>
+            <div className="space-y-4">
+              {[
+                { label: 'Flux Opérationnels', montant: (resultat + 100000 - 85000 - 125000 + 95000), color: 'emerald', pourcent: 100 },
+                { label: 'Flux d\'Investissement', montant: -370000, color: 'red', pourcent: 40 },
+                { label: 'Flux de Financement', montant: 200000, color: 'amber', pourcent: 22 }
+              ].map((flux, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-slate-700">{flux.label}</span>
+                    <span className={`font-bold ${flux.montant >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatCurrency(flux.montant)}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-3">
+                    <div 
+                      className={`h-3 rounded-full ${
+                        flux.color === 'emerald' ? 'bg-emerald-500' :
+                        flux.color === 'red' ? 'bg-red-500' :
+                        'bg-amber-500'
+                      }`}
+                      style={{ width: `${flux.pourcent}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Balance Générale */}
+      {selectedEtat === 'balance' && (() => {
+        const balanceData = [
+          { compte: '21', libelle: 'Immobilisations corporelles', debit: 2500000, credit: 0, solde: 2500000 },
+          { compte: '28', libelle: 'Amortissements', debit: 0, credit: 450000, solde: -450000 },
+          { compte: '31', libelle: 'Stocks de marchandises', debit: 850000, credit: 0, solde: 850000 },
+          { compte: '411', libelle: 'Clients', debit: 1250000, credit: 0, solde: 1250000 },
+          { compte: '512', libelle: 'Banque', debit: 450000, credit: 0, solde: 450000 },
+          { compte: '53', libelle: 'Caisse', debit: 125000, credit: 0, solde: 125000 },
+          { compte: '10', libelle: 'Capital social', debit: 0, credit: 1000000, solde: -1000000 },
+          { compte: '12', libelle: 'Résultat', debit: 0, credit: resultat, solde: -resultat },
+          { compte: '16', libelle: 'Emprunts', debit: 0, credit: 1500000, solde: -1500000 },
+          { compte: '401', libelle: 'Fournisseurs', debit: 0, credit: 890000, solde: -890000 },
+          { compte: '4457', libelle: 'TVA collectée', debit: 0, credit: 285000, solde: -285000 },
+          { compte: '70', libelle: 'Ventes', debit: 0, credit: 5200000, solde: -5200000 },
+          { compte: '60', libelle: 'Achats', debit: 3100000, credit: 0, solde: 3100000 },
+          { compte: '64', libelle: 'Frais de personnel', debit: 680000, credit: 0, solde: 680000 }
+        ];
+        
+        const totalDebitBalance = balanceData.reduce((sum, ligne) => sum + ligne.debit, 0);
+        const totalCreditBalance = balanceData.reduce((sum, ligne) => sum + ligne.credit, 0);
+        
+        return (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+          <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900">BALANCE GÉNÉRALE</h3>
+            <p className="text-sm text-slate-600 mt-1">Tous les comptes - Période : {selectedPeriode}</p>
+          </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-              <thead className="bg-slate-50 dark:bg-slate-900">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Nom du Rapport
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Généré le
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Taille
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase">Compte</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase">Libellé</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Débit</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Crédit</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Solde</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                {recentReports.map((report, index) => (
-                  <tr key={report.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
-                          <DocumentTextIcon className="h-4 w-4 text-slate-700 dark:text-slate-300" />
-                        </div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{report.name}</div>
-                      </div>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {balanceData.map((ligne, i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-3 whitespace-nowrap">
+                      <span className="text-sm font-mono font-bold text-slate-900">{ligne.compte}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-slate-600 dark:text-slate-400">{report.type}</div>
+                    <td className="px-6 py-3">
+                      <span className="text-sm text-slate-700">{ligne.libelle}</span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
-                        {new Date(report.generatedAt).toLocaleString('fr-FR')}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-lg text-xs font-semibold border ${
-                        report.status === 'Complété' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' :
-                        'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700'
-                      }`}>
-                        {report.status}
+                    <td className="px-6 py-3 text-right">
+                      <span className="text-sm font-semibold text-cyan-600">
+                        {ligne.debit > 0 ? formatCurrency(ligne.debit) : '-'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-1">
-                        <div className={`w-2 h-2 rounded-full ${
-                          report.format === 'PDF' ? 'bg-red-500' : 'bg-emerald-500'
-                        }`}></div>
-                        <div className="text-sm text-slate-600 dark:text-slate-400">{report.size}</div>
-                      </div>
+                    <td className="px-6 py-3 text-right">
+                      <span className="text-sm font-semibold text-emerald-600">
+                        {ligne.credit > 0 ? formatCurrency(ligne.credit) : '-'}
+                      </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => handleViewReport(report.id)}
-                          className="p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" 
-                          title="Voir"
-                        >
-                          <EyeIcon className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={() => handleDownloadReport(report.id)}
-                          className="p-2 text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors" 
-                          title="Télécharger"
-                        >
-                          <ArrowDownTrayIcon className="h-4 w-4" />
-                        </button>
-                        <button 
-                          onClick={() => handlePrintReport(report.id)}
-                          className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors" 
-                          title="Imprimer"
-                        >
-                          <PrinterIcon className="h-4 w-4" />
-                        </button>
-                      </div>
+                    <td className="px-6 py-3 text-right">
+                      <span className={`text-sm font-bold ${ligne.solde >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
+                        {formatCurrency(Math.abs(ligne.solde))} {ligne.solde < 0 ? 'C' : 'D'}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
+              <tfoot className="bg-slate-50 border-t-2 border-slate-300">
+                <tr>
+                  <td colSpan={2} className="px-6 py-4 text-right">
+                    <span className="text-sm font-bold text-slate-900">TOTAUX GÉNÉRAUX :</span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="text-base font-bold text-cyan-600">{formatCurrency(totalDebitBalance)}</span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="text-base font-bold text-emerald-600">{formatCurrency(totalCreditBalance)}</span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="text-base font-bold text-slate-900">
+                      {totalDebitBalance === totalCreditBalance ? '✓ Équilibré' : 'Déséquilibre'}
+                    </span>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
-        </Card>
+        </div>
+        );
+      })()}
+
+      {/* Ratios financiers détaillés */}
+      <div className="bg-gradient-to-br from-slate-50 to-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
+          <CalculatorIcon className="h-6 w-6 text-slate-600 mr-2" />
+          Ratios Financiers Clés
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Ratio de liquidité */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-slate-600 font-semibold">Ratio de liquidité</p>
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                <BanknotesIcon className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-emerald-600 mb-2">
+              {(bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / bilan.passif.dettes.reduce((s, i) => s + i.montant, 0)).toFixed(2)}
+            </p>
+            <p className="text-xs text-slate-500 mb-3">Actif circulant / Dettes CT</p>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                className="bg-emerald-500 h-2 rounded-full"
+                style={{ width: `${Math.min((bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / bilan.passif.dettes.reduce((s, i) => s + i.montant, 0)) * 50, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-emerald-700 mt-2 font-medium">✓ Solvabilité correcte</p>
+          </div>
+
+          {/* Ratio d'endettement */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-slate-600 font-semibold">Ratio d'endettement</p>
+              <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                <ScaleIcon className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-amber-600 mb-2">
+              {((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0)) * 100).toFixed(1)}%
+            </p>
+            <p className="text-xs text-slate-500 mb-3">Dettes / Capitaux propres</p>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                className="bg-amber-500 h-2 rounded-full"
+                style={{ width: `${Math.min(((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0)) * 100) / 2, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-amber-700 mt-2 font-medium">⚠ Endettement élevé</p>
+          </div>
+
+          {/* Rentabilité nette */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-slate-600 font-semibold">Rentabilité nette</p>
+              <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                <ChartBarIcon className="h-5 w-5 text-cyan-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-cyan-600 mb-2">
+              {((resultat / totalProduits) * 100).toFixed(1)}%
+            </p>
+            <p className="text-xs text-slate-500 mb-3">Résultat net / CA total</p>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                className="bg-cyan-500 h-2 rounded-full"
+                style={{ width: `${((resultat / totalProduits) * 100) * 5}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-cyan-700 mt-2 font-medium">✓ Performance solide</p>
+          </div>
+
+          {/* Marge brute */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm text-slate-600 font-semibold">Marge brute</p>
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-emerald-600 mb-2">
+              {(((totalProduits - compteResultat.charges.find(c => c.compte === '60')!.montant) / totalProduits) * 100).toFixed(1)}%
+            </p>
+            <p className="text-xs text-slate-500 mb-3">Marge commerciale / CA</p>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div 
+                className="bg-emerald-500 h-2 rounded-full"
+                style={{ width: `${(((totalProduits - compteResultat.charges.find(c => c.compte === '60')!.montant) / totalProduits) * 100) * 2}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-emerald-700 mt-2 font-medium">✓ Marge satisfaisante</p>
+          </div>
+        </div>
+
+        {/* Ratios supplémentaires */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {/* ROE */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm text-slate-600 font-semibold">ROE (Return on Equity)</p>
+                <p className="text-xs text-slate-500">Rendement des capitaux propres</p>
+              </div>
+              <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-600" />
+            </div>
+            <p className="text-2xl font-bold text-emerald-600">
+              {((resultat / bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0)) * 100).toFixed(1)}%
+            </p>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-xs text-slate-600">
+                Résultat : {formatCurrency(resultat)}<br/>
+                Capitaux propres : {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0))}
+              </p>
+            </div>
+          </div>
+
+          {/* ROA */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm text-slate-600 font-semibold">ROA (Return on Assets)</p>
+                <p className="text-xs text-slate-500">Rendement de l'actif total</p>
+              </div>
+              <ChartBarIcon className="h-5 w-5 text-cyan-600" />
+            </div>
+            <p className="text-2xl font-bold text-cyan-600">
+              {((resultat / totalActif) * 100).toFixed(1)}%
+            </p>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-xs text-slate-600">
+                Résultat : {formatCurrency(resultat)}<br/>
+                Total actif : {formatCurrency(totalActif)}
+              </p>
+            </div>
+          </div>
+
+          {/* Fonds de roulement */}
+          <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm text-slate-600 font-semibold">Fonds de Roulement</p>
+                <p className="text-xs text-slate-500">Capacité de financement CT</p>
+              </div>
+              <BanknotesIcon className="h-5 w-5 text-slate-600" />
+            </div>
+            <p className="text-2xl font-bold text-slate-900">
+              {formatCurrency(
+                (bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + bilan.passif.dettes.find(d => d.compte === '16')!.montant) - 
+                (bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0))
+              )}
+            </p>
+            <div className="mt-3 pt-3 border-t border-slate-200">
+              <p className="text-xs text-slate-600">
+                Ressources stables : {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + 1500000)}<br/>
+                Emplois stables : {formatCurrency(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0))}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Modal de rapport généré */}
-      <Modal
-        isOpen={isReportModalOpen}
-        onClose={() => setIsReportModalOpen(false)}
-        title={`Rapport ${selectedReport} - ${selectedPeriod}`}
-        size="lg"
-      >
-        <div className="space-y-6">
-          <div className="bg-green-50 border border-green-200 rounded-md p-4">
-            <div className="flex">
-              <CheckCircleIcon className="h-5 w-5 text-green-400" />
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800">
-                  Rapport généré avec succès !
-                </h3>
-                <p className="text-sm text-green-700 mt-1">
-                  Le rapport a été généré le {new Date().toLocaleString('fr-FR')}
-                </p>
+      {/* Analyse comparative */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Évolution des principaux postes */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Évolution des Postes Clés</h3>
+          <div className="space-y-3">
+            {[
+              { poste: 'Chiffre d\'affaires', actuel: 5200000, precedent: 4850000, color: 'emerald' },
+              { poste: 'Charges d\'exploitation', actuel: 4200000, precedent: 4100000, color: 'red' },
+              { poste: 'Résultat net', actuel: resultat, precedent: 725000, color: 'cyan' },
+              { poste: 'Trésorerie', actuel: 575000, precedent: 450000, color: 'amber' }
+            ].map((item, i) => {
+              const evolution = ((item.actuel - item.precedent) / item.precedent) * 100;
+              return (
+                <div key={i} className="p-3 bg-slate-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-700">{item.poste}</span>
+                    <span className={`text-xs font-bold ${evolution >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {evolution >= 0 ? '↗' : '↘'} {Math.abs(evolution).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-600">
+                    <span>N-1: {formatCurrency(item.precedent)}</span>
+                    <span className="font-bold text-slate-900">N: {formatCurrency(item.actuel)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Graphique de structure */}
+        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Structure du Bilan</h3>
+          <div className="space-y-4">
+            {/* Actif */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700">Actif Immobilisé</span>
+                <span className="text-sm font-bold text-slate-900">
+                  {((Math.abs(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0)) / totalActif) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-3">
+                <div 
+                  className="bg-cyan-500 h-3 rounded-full"
+                  style={{ width: `${((Math.abs(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0)) / totalActif) * 100)}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700">Actif Circulant</span>
+                <span className="text-sm font-bold text-slate-900">
+                  {((bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / totalActif) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-3">
+                <div 
+                  className="bg-emerald-500 h-3 rounded-full"
+                  style={{ width: `${((bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / totalActif) * 100)}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Passif */}
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700">Capitaux Propres</span>
+                <span className="text-sm font-bold text-slate-900">
+                  {((bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-3">
+                <div 
+                  className="bg-emerald-500 h-3 rounded-full"
+                  style={{ width: `${((bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100)}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700">Dettes</span>
+                <span className="text-sm font-bold text-slate-900">
+                  {((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-3">
+                <div 
+                  className="bg-amber-500 h-3 rounded-full"
+                  style={{ width: `${((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100)}%` }}
+                ></div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {selectedReport === 'bilan' && (
-            <div className="space-y-6">
-              <BilanComptableWidget data={bilanData} period={selectedPeriod} />
-            </div>
-          )}
+      {/* Actions rapides */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <button className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shadow-sm">
+          <DocumentArrowDownIcon className="h-5 w-5 text-emerald-600 mr-2" />
+          <span className="text-sm font-semibold text-slate-700">Exporter en PDF</span>
+        </button>
+        <button className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shadow-sm">
+          <DocumentArrowDownIcon className="h-5 w-5 text-emerald-600 mr-2" />
+          <span className="text-sm font-semibold text-slate-700">Exporter en Excel</span>
+        </button>
+        <button 
+          onClick={handleImprimerEtatsOfficiels}
+          className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shadow-sm hover:shadow-md cursor-pointer"
+        >
+          <PrinterIcon className="h-5 w-5 text-slate-600 mr-2" />
+          <span className="text-sm font-semibold text-slate-700">Imprimer États Officiels</span>
+        </button>
+        <button 
+          onClick={() => setIsAnalyseGraphiqueModalOpen(true)}
+          className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shadow-sm hover:shadow-md cursor-pointer"
+        >
+          <ChartBarIcon className="h-5 w-5 text-cyan-600 mr-2" />
+          <span className="text-sm font-semibold text-slate-700">Analyse Graphique</span>
+        </button>
+      </div>
 
-          {selectedReport === 'compte-resultat' && (
-            <div className="space-y-6">
-              <CompteResultatWidget data={compteResultatData} period={selectedPeriod} />
-                </div>
-          )}
+      {/* Modal Analyse Graphique */}
+      <Modal
+        isOpen={isAnalyseGraphiqueModalOpen}
+        onClose={() => setIsAnalyseGraphiqueModalOpen(false)}
+        title="Analyse Graphique des États Comptables"
+        size="xl"
+      >
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              📊 Visualisez vos états comptables sous forme de graphiques interactifs pour une meilleure compréhension de vos données financières.
+            </p>
+          </div>
 
-          {selectedReport === 'flux-tresorerie' && (
-            <div className="space-y-6">
-              <TresorerieWidget data={tresorerieData} period={selectedPeriod} />
-                </div>
-          )}
-
-          {selectedReport === 'ratios' && (
-            <div className="space-y-6">
-              <RatiosFinanciersWidget data={ratiosFinanciersData} period={selectedPeriod} />
-                </div>
-          )}
-
-          {selectedReport === 'grand-livre' && (
-            <div className="space-y-6">
-              <GrandLivreWidget data={grandLivreData} period={selectedPeriod} />
-                </div>
-          )}
-
-          {selectedReport === 'balance' && (
-            <div className="space-y-6">
-              <BalanceComptableWidget data={balanceComptableData} period={selectedPeriod} />
-                </div>
-          )}
-
-          {selectedReport === 'tendances' && (
-            <div className="space-y-6">
-              <TendancesFinancieresChart period={selectedPeriod} />
-                </div>
-          )}
-
-          {selectedReport === 'sectorielle' && (
-            <div className="space-y-6">
-              <RepartitionSectorielleChart period={selectedPeriod} />
-                </div>
-          )}
-
-          {selectedReport === 'temporelle' && (
-            <div className="space-y-6">
-              {/* <ComparaisonTemporelleChart period={selectedPeriod} /> */}
-              <p className="text-slate-500">Comparaison temporelle à charger via API</p>
-            </div>
-          )}
-
-          <div className="flex justify-end space-x-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
-              onClick={() => handleExportReport('PDF')}
-              className="flex items-center px-5 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all shadow-sm font-medium"
+              onClick={() => {
+                setIsAnalyseGraphiqueModalOpen(false);
+                navigate('/dashboard/graphiques');
+              }}
+              className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all text-left"
             >
-              <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-              Exporter PDF
+              <ChartBarIcon className="h-8 w-8 text-blue-600 mb-3" />
+              <h3 className="font-bold text-slate-900 mb-2">Graphiques Interactifs</h3>
+              <p className="text-sm text-slate-600">
+                Accédez aux graphiques interactifs du dashboard pour analyser vos données financières.
+              </p>
             </button>
+
             <button
-              onClick={() => handleExportReport('Excel')}
-              className="flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-sm font-medium"
+              onClick={() => {
+                setIsAnalyseGraphiqueModalOpen(false);
+                navigate('/rapports-analytics');
+              }}
+              className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg border-2 border-emerald-200 hover:border-emerald-400 hover:shadow-lg transition-all text-left"
             >
-              <TableCellsIcon className="h-4 w-4 mr-2" />
-              Exporter Excel
+              <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-3" />
+              <h3 className="font-bold text-slate-900 mb-2">Rapports & Analytics</h3>
+              <p className="text-sm text-slate-600">
+                Consultez les rapports détaillés avec analyses graphiques et statistiques.
+              </p>
             </button>
-            <button
-              onClick={() => setIsReportModalOpen(false)}
-              className="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
-            >
-              Fermer
-            </button>
+          </div>
+
+          <div className="bg-slate-50 p-4 rounded-lg">
+            <h4 className="font-semibold text-slate-900 mb-2">Types d'analyses disponibles :</h4>
+            <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
+              <li>Évolution du bilan (actif/passif) sur plusieurs périodes</li>
+              <li>Analyse du compte de résultat (charges/produits)</li>
+              <li>Graphiques de trésorerie et flux de caisse</li>
+              <li>Comparaisons périodiques (mois/mois, année/année)</li>
+              <li>Ratios financiers et indicateurs de performance</li>
+            </ul>
           </div>
         </div>
       </Modal>
 
-      {/* Modal de configuration */}
+      {/* Modal Imprimer États Officiels */}
       <Modal
-        isOpen={isConfigModalOpen}
-        onClose={() => setIsConfigModalOpen(false)}
-        title="Configuration des Rapports"
-        size="md"
+        isOpen={isImprimerModalOpen}
+        onClose={() => setIsImprimerModalOpen(false)}
+        title="Imprimer États Officiels"
       >
         <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              Sélectionnez l'état comptable que vous souhaitez imprimer. Le document sera généré au format officiel conforme aux normes comptables algériennes.
+            </p>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Période par défaut
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              État à imprimer <span className="text-red-500">*</span>
             </label>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+            <select title="Sélectionner un état à imprimer"
+              value={etatAImprimer}
+              onChange={(e) => setEtatAImprimer(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white"
             >
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
+              {etatsDisponibles.map(etat => (
+                <option key={etat.id} value={etat.id}>
+                  {etat.nom}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Format d'export par défaut
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Période
             </label>
-            <select className="w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="pdf">PDF</option>
-              <option value="excel">Excel</option>
-              <option value="csv">CSV</option>
-            </select>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="autoGenerate"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            <input title="Sélectionner un mois" placeholder="mm/yyyy"
+              type="month"
+              value={selectedPeriode}
+              onChange={(e) => setSelectedPeriode(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 bg-white"
             />
-            <label htmlFor="autoGenerate" className="ml-2 block text-sm text-gray-900">
-              Génération automatique des rapports mensuels
-            </label>
           </div>
 
-          <div className="flex justify-end space-x-3">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <p className="text-sm text-amber-800">
+              <strong>⚠️ Important:</strong> Assurez-vous que votre navigateur autorise les pop-ups pour l'impression. 
+              Le document sera ouvert dans une nouvelle fenêtre et l'impression sera déclenchée automatiquement.
+            </p>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200">
             <button
-              onClick={() => setIsConfigModalOpen(false)}
-              className="px-5 py-2.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
+              onClick={() => setIsImprimerModalOpen(false)}
+              className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
             >
               Annuler
             </button>
             <button
-              onClick={() => {
-                setIsConfigModalOpen(false);
-                alert('Configuration sauvegardée avec succès !');
-              }}
-              className="px-5 py-2.5 bg-gradient-to-r from-slate-700 to-slate-800 dark:from-slate-600 dark:to-slate-700 text-white rounded-lg hover:from-slate-800 hover:to-slate-900 dark:hover:from-slate-700 dark:hover:to-slate-800 transition-all shadow-sm font-medium"
+              onClick={handleConfirmImprimer}
+              className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center"
             >
-              Sauvegarder
+              <PrinterIcon className="h-5 w-5 mr-2" />
+              Imprimer
             </button>
           </div>
         </div>
-      </Modal>
-
-      {/* Modal de visualisation de rapport */}
-      <Modal
-        isOpen={isViewReportModalOpen}
-        onClose={() => {
-          setIsViewReportModalOpen(false);
-          setViewingReport(null);
-        }}
-        title={viewingReport ? viewingReport.name : 'Visualisation du Rapport'}
-        size="lg"
-      >
-        {viewingReport && (
-          <div className="space-y-6">
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">Type:</span>
-                  <p className="text-gray-900 dark:text-gray-100 mt-1">{viewingReport.type}</p>
-                </div>
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">Format:</span>
-                  <p className="text-gray-900 dark:text-gray-100 mt-1">{viewingReport.format}</p>
-                </div>
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">Généré le:</span>
-                  <p className="text-gray-900 dark:text-gray-100 mt-1">
-                    {new Date(viewingReport.generatedAt).toLocaleString('fr-FR')}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">Taille:</span>
-                  <p className="text-gray-900 dark:text-gray-100 mt-1">{viewingReport.size}</p>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-slate-600 dark:text-slate-400 font-medium">Statut:</span>
-                  <p className="mt-1">
-                    <span className={`px-3 py-1 rounded-lg text-xs font-semibold border ${
-                      viewingReport.status === 'Complété' 
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' 
-                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700'
-                    }`}>
-                      {viewingReport.status}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Aperçu du Rapport
-              </h3>
-              <div className="space-y-4 text-sm text-gray-700 dark:text-gray-300">
-                <p>
-                  <strong>Nom:</strong> {viewingReport.name}
-                </p>
-                <p>
-                  <strong>Type:</strong> {viewingReport.type}
-                </p>
-                <p>
-                  <strong>Date de génération:</strong> {new Date(viewingReport.generatedAt).toLocaleString('fr-FR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </p>
-                <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 italic">
-                    📄 Ceci est un aperçu du rapport. Dans une application réelle, 
-                    le contenu complet du rapport serait affiché ici avec toutes les données financières, 
-                    graphiques et analyses détaillées.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-              <button
-                onClick={() => handleDownloadReport(viewingReport.id)}
-                className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium"
-              >
-                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                Télécharger
-              </button>
-              <button
-                onClick={() => handlePrintReport(viewingReport.id)}
-                className="flex items-center px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors font-medium"
-              >
-                <PrinterIcon className="h-4 w-4 mr-2" />
-                Imprimer
-              </button>
-              <button
-                onClick={() => {
-                  setIsViewReportModalOpen(false);
-                  setViewingReport(null);
-                }}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors font-medium"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        )}
       </Modal>
     </div>
   );
 };
 
-export default RapportsComptables;
+export default EtatsRapports;
+

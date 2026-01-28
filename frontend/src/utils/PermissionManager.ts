@@ -411,6 +411,22 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
 ];
 export const USER_ROLES: UserRole[] = [
   {
+    id: 'directeur',
+    name: 'Directeur Général',
+    description: 'Accès décisionnel total et audit stratégique',
+    permissions: AVAILABLE_PERMISSIONS.map(p => p.id),
+    companyTypes: ['eurl', 'sarl', 'spa'],
+    accessLevels: ['professional', 'enterprise']
+  },
+  {
+    id: 'expert-comptable',
+    name: 'Expert-Comptable',
+    description: 'Accès total à la comptabilité, clôture et consolidation',
+    permissions: AVAILABLE_PERMISSIONS.map(p => p.id).filter(id => id !== 'admin-users'),
+    companyTypes: ['sarl', 'spa'],
+    accessLevels: ['professional', 'enterprise']
+  },
+  {
     id: 'admin',
     name: 'Administrateur',
     description: 'Accès complet au système',
@@ -596,8 +612,8 @@ export const USER_ROLES: UserRole[] = [
 // Gestionnaire de permissions
 export class PermissionManager {
   static getUserPermissions(
-    userRole: string, 
-    companyType: string, 
+    userRole: string,
+    companyType: string,
     accessLevel: string
   ): string[] {
     const role = USER_ROLES.find(r => r.id === userRole);
@@ -634,8 +650,8 @@ export class PermissionManager {
     companyType: string,
     accessLevel: string
   ): UserRole[] {
-    return USER_ROLES.filter(role => 
-      role.companyTypes.includes(companyType) && 
+    return USER_ROLES.filter(role =>
+      role.companyTypes.includes(companyType) &&
       role.accessLevels.includes(accessLevel)
     );
   }
@@ -662,26 +678,26 @@ export class PermissionManager {
   }
 
   static getRecommendedRoleForCompanyType(
-    companyType: string, 
+    companyType: string,
     accessLevel: string,
     userCount: number
   ): string {
     const availableRoles = this.getAvailableRoles(companyType, accessLevel);
-    
+
     if (companyType === 'eurl') {
       return userCount <= 2 ? 'comptable-junior' : 'comptable';
     }
-    
+
     if (companyType === 'sarl') {
       if (userCount <= 5) return 'comptable';
       return 'comptable-senior';
     }
-    
+
     if (companyType === 'spa') {
       if (userCount <= 10) return 'comptable-senior';
       return 'admin';
     }
-    
+
     return 'utilisateur';
   }
 }

@@ -249,94 +249,113 @@ class RBACManager:
         return list(permissions)
 
 
+import redis
+import json
+import os
+
+# Redis connection for sessions and rate limiting
+redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379/0"), decode_responses=True)
+
 # ========== SESSION MANAGER ==========
 class SessionManager:
-    """Manages user sessions and login attempts"""
-
-    # In-memory storage (should be replaced with Redis in production)
-    _active_sessions: Dict[str, Dict[str, Any]] = {}
-    _login_attempts: Dict[str, List[datetime]] = {}
+    """Manages user sessions and login attempts using Redis for cross-instance consistency."""
 
     @staticmethod
     def create_session(
         user_id: str, company_id: str, ip_address: str, user_agent: str
     ) -> str:
-        """Create a new user session"""
-        session_id = f"{user_id}_{int(datetime.now(timezone.utc).timestamp())}"
-
-        SessionManager._active_sessions[session_id] = {
+        """Create a new user session in Redis"""
+        session_id = f"sess:{user_id}:{int(datetime.now(timezone.utc).timestamp())}"
+        
+        session_data = {
             "user_id": user_id,
             "company_id": company_id,
             "ip_address": ip_address,
             "user_agent": user_agent,
-            "created_at": datetime.now(timezone.utc),
-            "last_activity": datetime.now(timezone.utc),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "last_activity": datetime.now(timezone.utc).isoformat(),
         }
 
-        logger.info("Session created for user %s", user_id)
+        # Set session with expiration
+        redis_client.setex(
+            session_id,
+            settings.SESSION_EXPIRE_MINUTES * 60,
+            json.dumps(session_data)
+        )
+
+        logger.info("Session created in Redis for user %s", user_id)
         return session_id
 
     @staticmethod
     def get_session(session_id: str) -> Optional[Dict[str, Any]]:
-        """Get session details if valid and not expired"""
-        if session_id not in SessionManager._active_sessions:
+        """Get session details from Redis if valid and not expired"""
+        data = redis_client.get(session_id)
+        if not data:
             return None
 
-        session = SessionManager._active_sessions[session_id]
-        created_at = session["created_at"]
-
-        # Check if session expired
-        if datetime.now(timezone.utc) - created_at > timedelta(
-            minutes=settings.SESSION_EXPIRE_MINUTES
-        ):
-            del SessionManager._active_sessions[session_id]
-            return None
-
-        # Update last activity
-        session["last_activity"] = datetime.now(timezone.utc)
+        session = json.loads(data)
+        
+        # Update last activity and extend expiration
+        session["last_activity"] = datetime.now(timezone.utc).isoformat()
+        redis_client.setex(
+            session_id,
+            settings.SESSION_EXPIRE_MINUTES * 60,
+            json.dumps(session)
+        )
+        
         return session
 
     @staticmethod
     def invalidate_session(session_id: str) -> bool:
-        """Invalidate a session"""
-        if session_id in SessionManager._active_sessions:
-            del SessionManager._active_sessions[session_id]
-            logger.info("Session invalidated: %s", session_id)
+        """Invalidate a session in Redis"""
+        result = redis_client.delete(session_id)
+        if result:
+            logger.info("Session invalidated in Redis: %s", session_id)
             return True
         return False
 
     @staticmethod
     def record_login_attempt(username: str, success: bool) -> bool:
         """
-        Record a login attempt. Returns True if allowed, False otherwise.
+        Record a login attempt in Redis.
         """
-        now = datetime.now(timezone.utc)
-
-        if username not in SessionManager._login_attempts:
-            SessionManager._login_attempts[username] = []
-
-        # Remove old attempts (older than timeout)
-        timeout = timedelta(minutes=settings.LOGIN_ATTEMPT_TIMEOUT_MINUTES)
-        SessionManager._login_attempts[username] = [
-            attempt
-            for attempt in SessionManager._login_attempts[username]
-            if now - attempt < timeout
-        ]
-
-        if not success:
-            SessionManager._login_attempts[username].append(now)
-
-            if (
-                len(SessionManager._login_attempts[username])
-                >= settings.MAX_LOGIN_ATTEMPTS
-            ):
-                logger.warning(
-                    "Too many login attempts for user %s",
-                    username,
-                )
-                return False
-        else:
-            # Reset attempts on successful login
-            SessionManager._login_attempts[username] = []
-
+        key = f"login_attempts:{username}"
+        
+        if success:
+            redis_client.delete(key)
+            return True
+            
+        # Increment attempts
+        attempts = redis_client.incr(key)
+        if attempts == 1:
+            redis_client.expire(key, settings.LOGIN_ATTEMPT_TIMEOUT_MINUTES * 60)
+            
+        if attempts >= settings.MAX_LOGIN_ATTEMPTS:
+            logger.warning("Too many login attempts for user %s", username)
+            return False
+            
         return True
+
+# ========== RATE LIMITER ==========
+class RateLimiter:
+    """Simple Redis-based rate limiter"""
+    
+    @staticmethod
+    def is_rate_limited(key: str, limit: int, period: int) -> bool:
+        """Check if a key is within rate limits"""
+        if not settings.RATE_LIMIT_ENABLED:
+            return False
+            
+        redis_key = f"rate_limit:{key}"
+        current = redis_client.get(redis_key)
+        
+        if current and int(current) >= limit:
+            return True
+            
+        pipe = redis_client.pipeline()
+        pipe.incr(redis_key)
+        if not current:
+            pipe.expire(redis_key, period)
+        pipe.execute()
+        
+        return False

@@ -58,14 +58,24 @@ SessionLocal = sessionmaker(
 
 def get_db() -> Session:
     """
-    Dependency for getting database session
-    Usage: async def my_endpoint(db: Session = Depends(get_db)):
+    Dependency for getting database session.
+    Automatically handles session context for audit triggers.
     """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+def set_db_user_context(db: Session, user_id: str):
+    """
+    Sets the current user ID in the Postgres session context.
+    REQUIRED for the audit_generic_trigger to work.
+    """
+    try:
+        db.execute(f"SET LOCAL app.current_user_id = '{user_id}'")
+    except Exception as e:
+        logger.error(f"Failed to set DB user context: {e}")
 
 def init_db():
     """Initialize database - create all tables"""

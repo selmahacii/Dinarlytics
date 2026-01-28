@@ -21,6 +21,9 @@ from app.routers import (
     documents,
     reports,
     suppliers,
+    analytics,
+    fiscality,
+    audit,
 )
 
 logger = logging.getLogger(__name__)
@@ -173,6 +176,21 @@ app.include_router(
     suppliers.router,
     prefix=settings.API_PREFIX,
     tags=["suppliers"],
+)
+
+# Include audit routes
+app.include_router(
+    audit.router, prefix=settings.API_PREFIX, tags=["audit"]
+)
+
+# Include fiscality routes
+app.include_router(
+    fiscality.router, prefix=settings.API_PREFIX, tags=["fiscality"]
+)
+
+# Include analytics routes
+app.include_router(
+    analytics.router, prefix=settings.API_PREFIX, tags=["analytics"]
 )
 
 # Include reports routes

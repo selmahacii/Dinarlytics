@@ -3,15 +3,20 @@ import torch.nn as nn
 from typing import Dict, Any
 
 class ERPFeatureEncoder(nn.Module):
-    """Encode les features tabulaires ERP en vecteur latent avec dropout."""
-    def __init__(self, input_dim: int, hidden_dim: int = 128, n_layers: int = 2, dropout: float = 0.2):
+    """Encode les features tabulaires ERP en vecteur latent avec BatchNorm et Dropout."""
+    def __init__(self, input_dim: int, hidden_dim: int = 128, n_layers: int = 2, dropout: float = 0.3):
         super().__init__()
-        layers = [nn.Linear(input_dim, hidden_dim), nn.ReLU(), nn.Dropout(dropout)]
+        layers = []
+        # First layer
+        layers += [nn.Linear(input_dim, hidden_dim), nn.BatchNorm1d(hidden_dim), nn.ReLU(), nn.Dropout(dropout)]
+        # Hidden layers
         for _ in range(n_layers - 1):
-            layers += [nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Dropout(dropout)]
+            layers += [nn.Linear(hidden_dim, hidden_dim), nn.BatchNorm1d(hidden_dim), nn.ReLU(), nn.Dropout(dropout)]
         self.encoder = nn.Sequential(*layers)
 
     def forward(self, x):
+        if x.size(0) <= 1: # Handle single samples during inference
+            self.encoder.eval()
         return self.encoder(x)
 
 class MultiTaskHead(nn.Module):

@@ -78,8 +78,12 @@ PERMISSION_CATEGORIES = {
 
 # ========== ROLE DEFINITIONS ==========
 
+# ========== ROLE DEFINITIONS (Hierarchical & Professional) ==========
+
 ROLE_PERMISSIONS = {
-    'admin': list(sum(PERMISSION_CATEGORIES.values(), [])),
+    'directeur': list(sum(PERMISSION_CATEGORIES.values(), [])),
+    
+    'expert-comptable': list(sum(PERMISSION_CATEGORIES.values(), [])), # All access except user management of other admins
     
     'comptable-senior': [
         'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close',
@@ -100,36 +104,7 @@ ROLE_PERMISSIONS = {
         'lia-access', 'lia-chatbot', 'lia-analyses'
     ],
     
-    'comptable-junior': [
-        'comptabilite-read',
-        'facturation-read', 'facturation-create',
-        'stocks-read',
-        'paie-read',
-        'rapports-basic',
-        'lia-access', 'lia-chatbot'
-    ],
-    
-    'manager': [
-        'comptabilite-read',
-        'facturation-read', 'facturation-validate',
-        'stocks-read',
-        'paie-read',
-        'rapports-basic', 'rapports-advanced',
-        'audit-read',
-        'lia-access', 'lia-chatbot', 'lia-analyses'
-    ],
-    
-    'auditeur': [
-        'comptabilite-read',
-        'facturation-read',
-        'stocks-read',
-        'paie-read',
-        'rapports-basic', 'rapports-advanced',
-        'audit-read', 'audit-full',
-        'lia-access', 'lia-analyses'
-    ],
-    
-    'vendeur': [
+    'gestionnaire-ventes': [
         'clients-manage',
         'facturation-read', 'facturation-create',
         'stocks-read',
@@ -137,10 +112,22 @@ ROLE_PERMISSIONS = {
         'lia-access', 'lia-chatbot'
     ],
     
-    'utilisateur': [
+    'gestionnaire-stocks': [
+        'stocks-read', 'stocks-move', 'stocks-inventory',
+        'fournisseurs-manage',
+        'rapports-basic'
+    ],
+    
+    'auditeur': [
         'comptabilite-read',
         'facturation-read',
         'stocks-read',
+        'rapports-basic', 'rapports-advanced',
+        'audit-read', 'audit-full',
+        'lia-access'
+    ],
+    
+    'consultant': [
         'rapports-basic',
         'lia-access', 'lia-chatbot'
     ]
@@ -187,7 +174,7 @@ async def get_current_user_from_token(credentials = Depends(security)):
     token = credentials.credentials
     
     try:
-        payload = JWTManager.verify_access_token(token)
+        payload = JWTManager.verify_token(token, token_type="access")
         user_id = payload.get("user_id")
         roles = payload.get("roles", [])
         

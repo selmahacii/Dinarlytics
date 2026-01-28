@@ -1,256 +1,76 @@
-# Dinarlytics - README Principal
+# Dinarlytics v1.1.0 🚀
 
-**Plateforme ERP/IA intégrée pour analyse financière prédictive et automatisation d'entreprise.**
+**Plateforme ERP Intelligente & Analyse Financière Prédictive (Conformité Algérienne SCF)**
 
-## 🚀 Démarrage Rapide
+Dinarlytics transforme la gestion financière classique en un système décisionnel proactif grâce à l'incorporation de modèles PyTorch multitâches et une interface épurée inspirée d'ERPNext.
 
-### Prérequis
-- Node.js 18+
-- Python 3.10+
-- PostgreSQL 14+
-- Git
+---
 
-### Installation (5 minutes)
+## 🛠️ Architecture & Stack Logicielle
+
+- **Backend** : FastAPI (Python) - Haute performance, typage strict, architecture modulaire.
+- **Frontend** : React 18 + TypeScript + Vite - Expérience fluide avec design system "Desk" (Inter font, minimalist UI).
+- **IA** : PyTorch - Modèle propriétaire pour le scoring de risque, prévisions de cash-flow et détection d'anomalies.
+- **Base de Données** : PostgreSQL 15 - Schéma unifié et optimisé pour le Big Data financier.
+- **Queue de Tâches** : Celery + Redis - Traitement asynchrone des entraînements IA.
+
+---
+
+## ✨ Points Forts & UX
+
+- **Intelligence Artificielle LIA** : Chatbot expert capable d'analyser vos états financiers en langage naturel.
+- **Lutte contre le Overfitting** : Modèles IA stabilisés par BatchNorm et Dropout agressif pour une précision accrue.
+- **Fiscalité DZ Native** : Génération et impression automatique des déclarations G50, IBS, TAP, et IRG.
+- **Expérience Utilisateur** : Chargement fluide avec Skeleton Screens, menus hiérarchisés et design pro-comptable.
+- **Sécurité RBAC** : Gestion fine des accès (Directeur, Comptable Senior, Analyste, Utilisateur).
+
+---
+
+## 🚀 Installation Rapide (Docker)
+
+La plateforme est entièrement dockerisée pour un déploiement en une seule commande.
 
 ```bash
-# 1. Cloner le projet
-git clone <repository>
+# 1. Cloner et entrer dans le dossier
+git clone <url-repo>
 cd Dinarlytics
 
-# 2. Configurer l'environnement
-cp .env.example .env
-# Éditer .env avec vos paramètres
-
-# 3. Base de données
-createdb dinarlytics
-psql dinarlytics < database/schema_complete.sql
-psql dinarlytics < database/ai_procedures_snapshot_drift.sql
-
-# 4. Backend (Terminal 1)
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# 5. Frontend (Terminal 2)
-cd frontend
-npm install
-npm run dev
+# 2. Lancer toute l'infrastructure
+docker-compose up --build
 ```
 
-**Frontend:** http://localhost:5173  
-**Backend API:** http://localhost:8000  
-**Backend Docs:** http://localhost:8000/docs
+- **Dashboard** : [http://localhost:5173](http://localhost:5173)
+- **API (Swagger)** : [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 📁 Structure du Projet
+## 📂 Structure du Code Nettoyée
 
-```
+```text
 Dinarlytics/
-├── backend/                # Service IA (FastAPI + PyTorch)
-├── frontend/               # Interface utilisateur (React + TypeScript)
-├── database/               # Schémas PostgreSQL
-├── docs/                   # Documentation
-├── README.md               # Ce fichier
-└── STRUCTURE.md            # Structure détaillée
+├── backend/            # API FastAPI & Services IA
+│   ├── app/
+│   │   ├── models/     # Modèles SQLAlchemy (Splittés)
+│   │   ├── services/   # Logique métier & Chatbot
+│   │   └── tasks/      # Tâches Celery (Background)
+├── frontend/           # Interface React TS
+│   ├── src/
+│   │   ├── components/ # Composants UI (Skeleton, Modal, etc.)
+│   │   └── pages/      # Pages modulaires (LIA, Accounting, Sales)
+├── database/           # Schéma SQL Unified & Migrations
+└── docker-compose.yml  # Orchestration Full-Stack
 ```
 
-Voir [STRUCTURE.md](STRUCTURE.md) pour la structure complète.
-
 ---
 
-## ✨ Fonctionnalités Principales
+## 📊 Roadmap
 
-### 🎯 Prédictions Financières
-- **Analyse de risque** : Évaluation instantanée du risque financier
-- **Liquidité** : Capacité de paiement à court/long terme
-- **Rentabilité** : Marge bénéficiaire et ROI
-- **Solvabilité** : Capacité à servir la dette
-- **Détection d'anomalies** : Identification de données inhabituelles
-- **Suggestions priorisées** : Recommandations d'amélioration actionnables
-
-### 📊 Dashboards & Rapports
-- Dashboard financier en temps réel
-- Analyses multidimensionnelles
-- Rapports personnalisables
-- Export données (PDF, Excel)
-- Visualisations avancées (graphiques, heatmaps)
-
-### 💼 Gestion ERP Complète
-- **Facturation** : Factures de vente/achat
-- **Clients/Fournisseurs** : Gestion des partenaires
-- **Budgets** : Planification et suivi budgétaire
-- **Inventaire** : Gestion des stocks et mouvements
-- **Trésorerie** : Suivi des flux de cash
-- **Fiscalité** : Déclarations et conformité
-- **Audit** : Traçabilité des opérations
-
-### 🤖 Intelligence Artificielle
-- Modèle PyTorch multitâche
-- Entraînement continu
-- Monitoring de drift
-- Feature store versionnée
-- Analyse prédictive avancée
-
-### 🔐 Sécurité & Conformité
-- Authentification et autorisation (RBAC)
-- Chiffrement des données sensibles
-- Audit trail complet
-- RGPD compliant
-- Conformité fiscale locale
+- [x] Unification du schéma de données SQL.
+- [x] Modularisation de l'IA (Celery workers).
+- [x] Design System "Professional Desk" (CSS).
+- [ ] OCR Intelligent pour saisie de factures (Phase 2).
+- [ ] Intégration bancaire automatisée (Phase 3).
 
 ---
-
-## 🏗️ Architecture
-
-### Couches
-1. **Frontend** : React + TypeScript + Tailwind CSS
-2. **Backend** : FastAPI + PyTorch + SQLAlchemy
-3. **Database** : PostgreSQL avec 50+ tables + procédures
-
-### Modèle IA
-- **Architecture** : Encoder multitâche + 6 heads de sortie
-- **Données d'entrée** : 20 features financières tabulaires
-- **Sortie** : Prédictions multitâches + analyse enrichie + suggestions
-- **Entraînement** : SGD multi-tâche avec early stopping
-
----
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [STRUCTURE.md](STRUCTURE.md) | Structure complète du projet |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Architecture générale |
-| [API.md](docs/API.md) | Documentation API complète |
-| [Backend README](backend/README.md) | Guide backend IA |
-| [Frontend README](frontend/README.md) | Guide frontend React |
-
----
-
-## 🚀 Déploiement
-
-### Local (Développement)
-```bash
-# Voir section Démarrage Rapide
-```
-
-### Docker Compose (À venir)
-```bash
-docker-compose up
-```
-
-### Kubernetes (À venir)
-```bash
-kubectl apply -f k8s/
-```
-
-### Production
-Voir [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-
----
-
-## 📊 API Endpoints Principaux
-
-### Prédictions
-```bash
-POST /predict
-{
-  "model_name": "erp_multitask_v1",
-  "features": {...},
-  "company_id": 123
-}
-```
-
-### Entraînement
-```bash
-POST /train
-{
-  "model_name": "erp_multitask_v1",
-  "train_data": [...],
-  "epochs": 20
-}
-```
-
-Voir [docs/API.md](docs/API.md) pour tous les endpoints.
-
----
-
-## 🛠️ Technologies
-
-| Aspect | Technology |
-|--------|-----------|
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS |
-| **Backend** | FastAPI, PyTorch, SQLAlchemy, Pydantic |
-| **Database** | PostgreSQL 14+ |
-| **DevTools** | Docker, Git, npm, pip |
-
----
-
-## 📈 Roadmap
-
-### Phase 1 (MVP) ✅
-- Architecture multi-couche
-- Prédictions multitâches
-- Dashboards principaux
-- DB schéma complet
-
-### Phase 2 (Production Lite)
-- JWT authentication
-- Model versioning
-- Feature store optimisé
-- Basic monitoring
-
-### Phase 3 (Robustesse)
-- Redis cache
-- Async database
-- Advanced monitoring (Prometheus)
-- API security (rate limiting)
-
-### Phase 4 (Scaling)
-- Microservices
-- Kubernetes
-- Real-time analytics
-- Advanced drift detection
-
----
-
-## 👥 Contribution
-
-### Signaler un bug
-1. Ouvrir une issue avec description détaillée
-2. Inclure steps to reproduce
-3. Attacher logs/screenshots
-
-### Proposer une feature
-1. Discuter l'idée en issue/discussion
-2. Forker le repo
-3. Créer une branch `feature/xyz`
-4. Commiter et proposer une PR
-
-Voir [CONTRIBUTING.md](docs/CONTRIBUTING.md) pour les détails.
-
----
-
-## 📝 License
-
-**Propriétaire**. Voir [PROPRIETE_INTELLECTUELLE.md](PROPRIETE_INTELLECTUELLE.md)
-
----
-
-## 📞 Support
-
-- 📧 Email: support@dinarlytics.com
-- 💬 Discussions: GitHub Issues
-- 📖 Docs: https://dinarlytics.io/docs
-
----
-
-## ⭐ Merci !
-
-Si vous trouvez ce projet utile, n'hésitez pas à l'étoiler ⭐
-
----
-
-**Dinarlytics v1.0.0** | Production Ready | MIT License  
-Construit avec ❤️ pour les CFO et financiers modernes.
+**Dinarlytics** | Par Selma & l'équipe AI Expert.
+*Propriétaire - Tous droits réservés.*
