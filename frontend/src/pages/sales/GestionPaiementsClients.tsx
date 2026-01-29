@@ -18,125 +18,11 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
 import { useApp } from '../../context/AppContext';
 import api from '../../services/api';
 
-// Données de démonstration pour les paiements
-const mockPaiements = [
-  {
-    id: 'PAY-2025-001',
-    factureId: 'FAC-2025-001',
-    client: 'Entreprise SARL DZ',
-    dateFacture: '2025-01-15',
-    dateEcheance: '2025-02-15',
-    datePaiement: '2025-01-18',
-    montant: 125000,
-    montantPaye: 125000,
-    modePaiement: 'virement',
-    reference: 'VIR-789456123',
-    statut: 'paye',
-    retard: 0
-  },
-  {
-    id: 'PAY-2025-002',
-    factureId: 'FAC-2025-002',
-    client: 'Commerce ABC',
-    dateFacture: '2025-01-12',
-    dateEcheance: '2025-02-12',
-    datePaiement: null,
-    montant: 98000,
-    montantPaye: 0,
-    modePaiement: null,
-    reference: null,
-    statut: 'en_attente',
-    retard: 0
-  },
-  {
-    id: 'PAY-2025-003',
-    factureId: 'FAC-2025-003',
-    client: 'Société XYZ EURL',
-    dateFacture: '2025-01-10',
-    dateEcheance: '2025-02-10',
-    datePaiement: '2025-01-20',
-    montant: 76000,
-    montantPaye: 76000,
-    modePaiement: 'cheque',
-    reference: 'CHQ-123456789',
-    statut: 'paye',
-    retard: 0
-  },
-  {
-    id: 'PAY-2025-004',
-    factureId: 'FAC-2025-004',
-    client: 'Métallurgie Atlas',
-    dateFacture: '2025-01-08',
-    dateEcheance: '2025-01-23',
-    datePaiement: '2025-01-25',
-    montant: 145000,
-    montantPaye: 145000,
-    modePaiement: 'virement',
-    reference: 'VIR-987654321',
-    statut: 'paye',
-    retard: 2
-  },
-  {
-    id: 'PAY-2025-005',
-    factureId: 'FAC-2025-005',
-    client: 'TechInnov Algeria',
-    dateFacture: '2025-01-05',
-    dateEcheance: '2025-01-20',
-    datePaiement: null,
-    montant: 54000,
-    montantPaye: 0,
-    modePaiement: null,
-    reference: null,
-    statut: 'en_retard',
-    retard: 15
-  },
-  {
-    id: 'PAY-2025-006',
-    factureId: 'FAC-2025-006',
-    client: 'Services Pro DZ',
-    dateFacture: '2025-01-03',
-    dateEcheance: '2025-01-18',
-    datePaiement: '2025-01-15',
-    montant: 89000,
-    montantPaye: 89000,
-    modePaiement: 'especes',
-    reference: 'ESP-2025-001',
-    statut: 'paye',
-    retard: -3
-  },
-  {
-    id: 'PAY-2025-007',
-    factureId: 'FAC-2025-007',
-    client: 'Industrie Moderne',
-    dateFacture: '2025-01-01',
-    dateEcheance: '2025-01-16',
-    datePaiement: null,
-    montant: 112000,
-    montantPaye: 0,
-    modePaiement: null,
-    reference: null,
-    statut: 'en_retard',
-    retard: 19
-  },
-  {
-    id: 'PAY-2025-008',
-    factureId: 'FAC-2025-008',
-    client: 'Distribution Nord',
-    dateFacture: '2024-12-28',
-    dateEcheance: '2025-01-12',
-    datePaiement: '2025-01-10',
-    montant: 67000,
-    montantPaye: 67000,
-    modePaiement: 'carte',
-    reference: 'CART-456789123',
-    statut: 'paye',
-    retard: -2
-  }
-];
+// Les données sont maintenant récupérées via l'API
+
 
 const GestionPaiementsClients: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -159,30 +45,29 @@ const GestionPaiementsClients: React.FC = () => {
       .finally(() => setLoadingPaiements(false));
   }, []);
 
-  const mockPaiements = paiements;
 
   // Calcul des statistiques
   const stats = useMemo(() => {
-    const total = mockPaiements.length;
-    const payes = mockPaiements.filter(p => p.statut === 'paye').length;
-    const enAttente = mockPaiements.filter(p => p.statut === 'en_attente').length;
-    const enRetard = mockPaiements.filter(p => p.statut === 'en_retard').length;
-    
-    const montantTotal = mockPaiements.reduce((sum, p) => sum + p.montant, 0);
-    const montantPaye = mockPaiements.reduce((sum, p) => sum + p.montantPaye, 0);
+    const total = paiements.length;
+    const payes = paiements.filter(p => p.statut === 'paye').length;
+    const enAttente = paiements.filter(p => p.statut === 'en_attente').length;
+    const enRetard = paiements.filter(p => p.statut === 'en_retard').length;
+
+    const montantTotal = paiements.reduce((sum, p) => sum + p.montant, 0);
+    const montantPaye = paiements.reduce((sum, p) => sum + p.montantPaye, 0);
     const montantEnAttente = montantTotal - montantPaye;
-    const montantEnRetard = mockPaiements
+    const montantEnRetard = paiements
       .filter(p => p.statut === 'en_retard')
       .reduce((sum, p) => sum + p.montant, 0);
-    
+
     const tauxEncaissement = (montantPaye / montantTotal) * 100;
-    
+
     // Répartition par mode de paiement
     const modesPaiement = {
-      virement: mockPaiements.filter(p => p.modePaiement === 'virement').length,
-      cheque: mockPaiements.filter(p => p.modePaiement === 'cheque').length,
-      especes: mockPaiements.filter(p => p.modePaiement === 'especes').length,
-      carte: mockPaiements.filter(p => p.modePaiement === 'carte').length
+      virement: paiements.filter(p => p.modePaiement === 'virement').length,
+      cheque: paiements.filter(p => p.modePaiement === 'cheque').length,
+      especes: paiements.filter(p => p.modePaiement === 'especes').length,
+      carte: paiements.filter(p => p.modePaiement === 'carte').length
     };
 
     return {
@@ -201,22 +86,22 @@ const GestionPaiementsClients: React.FC = () => {
 
   // Filtrage des paiements
   const filteredPaiements = useMemo(() => {
-    return mockPaiements.filter(paiement => {
-      const matchesSearch = 
+    return paiements.filter(paiement => {
+      const matchesSearch =
         paiement.factureId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         paiement.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (paiement.reference && paiement.reference.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-      const matchesStatus = 
+
+      const matchesStatus =
         filterStatus === 'tous' ||
         (filterStatus === 'payes' && paiement.statut === 'paye') ||
         (filterStatus === 'en_attente' && paiement.statut === 'en_attente') ||
         (filterStatus === 'en_retard' && paiement.statut === 'en_retard');
-      
-      const matchesMode = 
+
+      const matchesMode =
         filterMode === 'tous' ||
         paiement.modePaiement === filterMode;
-      
+
       return matchesSearch && matchesStatus && matchesMode;
     });
   }, [searchTerm, filterStatus, filterMode]);
@@ -227,7 +112,7 @@ const GestionPaiementsClients: React.FC = () => {
       'en_attente': { label: 'En Attente', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' },
       'en_retard': { label: 'En Retard', className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' }
     };
-    
+
     const status = statusMap[statut] || { label: statut, className: 'bg-gray-100 text-gray-800' };
     return (
       <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${status.className}`}>
@@ -267,7 +152,7 @@ const GestionPaiementsClients: React.FC = () => {
         p.statut
       ])
     ].map(row => row.join(',')).join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -648,23 +533,20 @@ const GestionPaiementsClients: React.FC = () => {
                   </div>
                 )}
                 {selectedPaiement.retard !== 0 && (
-                  <div className={`rounded-lg p-4 border ${
-                    selectedPaiement.retard > 0 
-                      ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' 
-                      : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-                  }`}>
-                    <label className={`text-xs font-semibold uppercase tracking-wide block mb-2 ${
-                      selectedPaiement.retard > 0 
-                        ? 'text-red-600 dark:text-red-400' 
-                        : 'text-emerald-600 dark:text-emerald-400'
+                  <div className={`rounded-lg p-4 border ${selectedPaiement.retard > 0
+                    ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                    : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
                     }`}>
+                    <label className={`text-xs font-semibold uppercase tracking-wide block mb-2 ${selectedPaiement.retard > 0
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-emerald-600 dark:text-emerald-400'
+                      }`}>
                       {selectedPaiement.retard > 0 ? 'Retard' : 'Avance'}
                     </label>
-                    <p className={`font-bold text-lg ${
-                      selectedPaiement.retard > 0 
-                        ? 'text-red-600 dark:text-red-400' 
-                        : 'text-emerald-600 dark:text-emerald-400'
-                    }`}>
+                    <p className={`font-bold text-lg ${selectedPaiement.retard > 0
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-emerald-600 dark:text-emerald-400'
+                      }`}>
                       {selectedPaiement.retard > 0 ? '+' : ''}{selectedPaiement.retard} jours
                     </p>
                   </div>

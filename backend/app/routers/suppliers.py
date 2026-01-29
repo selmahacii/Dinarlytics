@@ -12,13 +12,15 @@ from app.database import get_db
 from app.models.models import Supplier, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
-from pydantic import BaseModel, Field
+from app.utils.fiscal_validator import validate_nif
+from pydantic import BaseModel, Field, field_validator
 from app.utils.audit import log_audit
 import json
 
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])
 
 # ========== REQUEST/RESPONSE MODELS ==========
+
 class SupplierResponse(BaseModel):
     id: str
     name: str
@@ -45,6 +47,13 @@ class CreateSupplierRequest(BaseModel):
     tax_id: Optional[str] = None
     payment_terms: Optional[int] = 30
 
+    @field_validator('tax_id')
+    @classmethod
+    def validate_nif_field(cls, v: Optional[str]) -> Optional[str]:
+        if v and not validate_nif(v):
+            raise ValueError('Le NIF doit comporter 15 ou 20 chiffres.')
+        return v
+
 class UpdateSupplierRequest(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
@@ -56,6 +65,13 @@ class UpdateSupplierRequest(BaseModel):
     tax_id: Optional[str] = None
     payment_terms: Optional[int] = None
     is_active: Optional[bool] = None
+
+    @field_validator('tax_id')
+    @classmethod
+    def validate_nif_field(cls, v: Optional[str]) -> Optional[str]:
+        if v and not validate_nif(v):
+            raise ValueError('Le NIF doit comporter 15 ou 20 chiffres.')
+        return v
 
 class SupplierStatsResponse(BaseModel):
     total_suppliers: int

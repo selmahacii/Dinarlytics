@@ -24,8 +24,12 @@ from app.routers import (
     fiscality,
     audit,
     users,
-    collections
+    collections,
+    invoices,
+    hr
 )
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -207,6 +211,36 @@ app.include_router(
     prefix=settings.API_PREFIX,
     tags=["collections"]
 )
+
+# Include invoices routes
+app.include_router(
+    invoices.router,
+    prefix=settings.API_PREFIX,
+    tags=["invoices"]
+)
+
+# Include hr routes
+app.include_router(
+    hr.router,
+    prefix=settings.API_PREFIX,
+    tags=["hr"]
+)
+
+from app.routers import payments
+app.include_router(
+    payments.router,
+    prefix=settings.API_PREFIX,
+    tags=["payments"]
+)
+
+from app.routers import ocr
+app.include_router(
+    ocr.router,
+    prefix=settings.API_PREFIX,
+    tags=["ocr"]
+)
+
+
 
 # ========== WEBSOCKETS ==========
 from fastapi import WebSocket, WebSocketDisconnect

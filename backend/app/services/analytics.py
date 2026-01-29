@@ -79,6 +79,11 @@ class AnalyticService:
         """Detection of financial anomalies or risks."""
         alerts = []
         
+        # Get latest statement for comparison
+        statement = db.query(FinancialStatement).filter(
+            FinancialStatement.company_id == company_id
+        ).order_by(FinancialStatement.exercice.desc()).first()
+        
         # 1. DSO Alert (Delay of Payment)
         # Simplified logic: If AR > 50% of annual revenue
         health = AnalyticService.get_financial_health_kpis(db, company_id)
@@ -92,6 +97,7 @@ class AnalyticService:
             
         # 2. Anomaly Detection: Suspect Expense Variation
         if statement:
+
             # Check if current operating expenses are > 50% above historical average (if multiple statements exist)
             all_statements = db.query(FinancialStatement).filter(FinancialStatement.company_id == company_id).all()
             if len(all_statements) > 1:

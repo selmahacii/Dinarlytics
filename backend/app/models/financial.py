@@ -12,6 +12,9 @@ class PaymentMode(str, enum.Enum):
     CHECK = "check"
     BANK_TRANSFER = "bank_transfer"
     CREDIT_CARD = "credit_card"
+    CCP = "ccp"                 # Compte Courant Postal
+    EFFET = "effet"             # Lettre de change / Traite
+    VERSEMENT = "versement"     # Versement espèces banque
 
 class FinancialStatement(Base):
     __tablename__ = "financial_statements"
@@ -47,6 +50,13 @@ class Payment(Base):
     mode = Column(Enum(PaymentMode), default=PaymentMode.BANK_TRANSFER)
     reference = Column(String(100))
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    # Gestion des Chèques (Coffre-fort)
+    check_status = Column(Enum('received', 'deposited', 'cleared', 'rejected', 'cancelled', name='check_status_enum'), nullable=True)
+    check_number = Column(String(50), nullable=True)
+    bank_name = Column(String(100), nullable=True)
+    due_date = Column(Date, nullable=True) # Date encaissement prévu
+    deposit_slip_number = Column(String(50), nullable=True) # Numéro bordereau remise
 
 class Budget(Base):
     __tablename__ = "budgets"

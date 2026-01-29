@@ -20,6 +20,9 @@ class PaymentMode(str, enum.Enum):
     CHECK = "check"
     BANK_TRANSFER = "bank_transfer"
     CREDIT_CARD = "credit_card"
+    CCP = "ccp"
+    EFFET = "effet"
+    VERSEMENT = "versement"
 
 class DocumentType(str, enum.Enum):
     INVOICE = "invoice"

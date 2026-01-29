@@ -143,94 +143,7 @@ interface PropositionEscompte {
   dateLimite?: string;
 }
 
-// Données initiales pour les relances
-const initialRelances = [
-  {
-    id: 1,
-    numero: 'REL-2024-001',
-    facture: 'FAC-2024-001',
-    client: 'SARL DZ',
-    montant: 125000,
-    dateEcheance: '2024-01-15',
-    dateRelance: '2024-01-20',
-    type: '1ère relance',
-    statut: 'En attente',
-    couleur: 'bg-amber-100 text-amber-800',
-    motif: 'Paiement en retard',
-    contact: 'contact@sarldz.dz',
-    telephone: '+213 555 123 456'
-  },
-  {
-    id: 2,
-    numero: 'REL-2024-002',
-    facture: 'FAC-2024-002',
-    client: 'Entreprise ABC',
-    montant: 85000,
-    dateEcheance: '2024-01-18',
-    dateRelance: '2024-01-25',
-    type: '2ème relance',
-    statut: 'Relancé',
-    couleur: 'bg-orange-100 text-orange-800',
-    motif: 'Paiement en retard',
-    contact: 'comptabilite@entreprise-abc.dz',
-    telephone: '+213 555 789 012'
-  },
-  {
-    id: 3,
-    numero: 'REL-2024-003',
-    facture: 'FAC-2024-003',
-    client: 'Société XYZ',
-    montant: 200000,
-    dateEcheance: '2024-01-20',
-    dateRelance: '2024-01-30',
-    type: 'Mise en demeure',
-    statut: 'Urgent',
-    couleur: 'bg-red-100 text-red-800',
-    motif: 'Paiement en retard',
-    contact: 'admin@societe-xyz.dz',
-    telephone: '+213 555 345 678'
-  }
-];
-
-// Données initiales pour les communications
-const initialCommunications = [
-  {
-    id: 1,
-    type: 'Email',
-    client: 'SARL DZ',
-    sujet: 'Relance de paiement - Facture FAC-2024-001',
-    date: '2024-01-20',
-    statut: 'Envoyé',
-    couleur: 'bg-blue-100 text-blue-800',
-    contenu:
-      "Madame, Monsieur,\n\nNous vous informons que votre facture FAC-2024-001 d'un montant de 125,000 DZD est en retard de paiement depuis le 15/01/2024.\n\nNous vous remercions de bien vouloir procéder au règlement dans les plus brefs délais.\n\nCordialement,\nL'équipe comptable"
-  },
-  {
-    id: 2,
-    type: 'Appel téléphonique',
-    client: 'Entreprise ABC',
-    sujet: 'Relance téléphonique - Facture FAC-2024-002',
-    date: '2024-01-25',
-    statut: 'Effectué',
-    couleur: 'bg-green-100 text-green-800',
-    contenu:
-      "Appel effectué le 25/01/2024 à 14h30. Le client confirme le règlement pour le 30/01/2024. Suivi à effectuer."
-  },
-  {
-    id: 3,
-    type: 'Lettre recommandée',
-    client: 'Société XYZ',
-    sujet: 'Mise en demeure - Facture FAC-2024-003',
-    date: '2024-01-30',
-    statut: 'En cours',
-    couleur: 'bg-orange-100 text-orange-800',
-    contenu:
-      'Lettre recommandée envoyée le 30/01/2024. Délai de 8 jours pour le règlement avant procédure de recouvrement.'
-  }
-];
-
-type Communication = (typeof initialCommunications)[number];
-
+// Les données sont maintenant récupérées via les services réels
 const FacturesVente = () => {
   // ========================================
   // ÉTATS PRINCIPAUX (DYNAMIC REAL-TIME)
@@ -243,6 +156,7 @@ const FacturesVente = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [errorData, setErrorData] = useState<string | null>(null);
 
+  const [communications, setCommunications] = useState<any[]>([]);
 
   const loadData = async () => {
     setLoadingData(true);
@@ -266,21 +180,12 @@ const FacturesVente = () => {
     }
   };
 
-
   useEffect(() => {
     loadData();
-    // In a real environment, we could set up a Poll or WebSocket here for Real-Time
   }, []);
-
-  // Aliases pour la compatibilité avec le code existant
-  // (Plus besoin car remplacés globalement par invoices/clients)
-
-
-
 
   // Navigation et filtres
   const [activeTab, setActiveTab] = useState('factures');
-
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('tous');
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
@@ -293,8 +198,8 @@ const FacturesVente = () => {
   const [isBrouillonModalOpen, setIsBrouillonModalOpen] = useState(false);
   const [brouillonToValidate, setBrouillonToValidate] = useState<any>(null);
   const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
-  const [communications, setCommunications] = useState<Communication[]>(initialCommunications);
-  const [selectedCommunication, setSelectedCommunication] = useState<Communication | null>(null);
+
+  const [selectedCommunication, setSelectedCommunication] = useState<any | null>(null);
   const [isCommunicationModalOpen, setIsCommunicationModalOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'7j' | '30j' | '3M' | '1A'>('30j');
   const [dateFrom, setDateFrom] = useState(new Date().toISOString().split('T')[0]);
@@ -320,6 +225,7 @@ const FacturesVente = () => {
   }>({ montantHT: 0, tauxTVA: 19, montantTVA: 0, montantTTC: 0 });
   const [conformiteResults, setConformiteResults] = useState<any>(null);
   const [filterLivraisonStatus, setFilterLivraisonStatus] = useState('tous');
+
 
   // Gestion de la période (7j, 30j, 3M, 1A)
   const handlePeriodChange = (period: '7j' | '30j' | '3M' | '1A') => {
@@ -436,53 +342,7 @@ const FacturesVente = () => {
   // ========================================
 
   // Données initiales pour les relances
-  const initialRelances = [
-    {
-      id: 1,
-      numero: 'REL-2024-001',
-      facture: 'FAC-2024-001',
-      client: 'SARL DZ',
-      montant: 125000,
-      dateEcheance: '2024-01-15',
-      dateRelance: '2024-01-20',
-      type: '1ère relance',
-      statut: 'En attente',
-      couleur: 'bg-amber-100 text-amber-800',
-      motif: 'Paiement en retard',
-      contact: 'contact@sarldz.dz',
-      telephone: '+213 555 123 456'
-    },
-    {
-      id: 2,
-      numero: 'REL-2024-002',
-      facture: 'FAC-2024-002',
-      client: 'Entreprise ABC',
-      montant: 85000,
-      dateEcheance: '2024-01-18',
-      dateRelance: '2024-01-25',
-      type: '2ème relance',
-      statut: 'Relancé',
-      couleur: 'bg-orange-100 text-orange-800',
-      motif: 'Paiement en retard',
-      contact: 'comptabilite@entreprise-abc.dz',
-      telephone: '+213 555 789 012'
-    },
-    {
-      id: 3,
-      numero: 'REL-2024-003',
-      facture: 'FAC-2024-003',
-      client: 'Société XYZ',
-      montant: 200000,
-      dateEcheance: '2024-01-20',
-      dateRelance: '2024-01-30',
-      type: 'Mise en demeure',
-      statut: 'Urgent',
-      couleur: 'bg-red-100 text-red-800',
-      motif: 'Paiement en retard',
-      contact: 'admin@societe-xyz.dz',
-      telephone: '+213 555 345 678'
-    }
-  ];
+  
 
   // Calculer les relances automatiques intelligentes
   const relancesAutomatiques = useMemo(() => {
@@ -493,8 +353,8 @@ const FacturesVente = () => {
         numero: f.numero || '',
         clientId: f.client || '',
         clientNom: f.client || 'Client',
-        montant: f.total || f.montantHT || 0,
-        dateEcheance: f.dateEcheance || f.date || new Date().toISOString().split('T')[0],
+        montant: f.total_ttc || f.total_ht || 0,
+        dateEcheance: f.date_echeance || f.date_emission || new Date().toISOString().split('T')[0],
         statut: f.statut || 'validee'
       }));
 
@@ -507,13 +367,13 @@ const FacturesVente = () => {
       id: f.numero || f.id?.toString() || '',
       clientId: f.client || '',
       clientNom: f.client || 'Client',
-      montantHT: f.montantHT || 0,
-      montantTTC: f.total || f.montantHT || 0,
-      date: f.date || new Date().toISOString().split('T')[0],
-      dateEcheance: f.dateEcheance || f.date || new Date().toISOString().split('T')[0],
-      datePaiement: f.statut === 'payee' ? f.datePaiement || f.date : undefined,
+      montantHT: f.total_ht || 0,
+      montantTTC: f.total_ttc || f.total_ht || 0,
+      date: f.date_emission || new Date().toISOString().split('T')[0],
+      dateEcheance: f.date_echeance || f.date_emission || new Date().toISOString().split('T')[0],
+      datePaiement: f.statut === 'payee' ? f.date_paiement || f.date_emission : undefined,
       statut: f.statut || 'validee',
-      margeBrute: (f.montantHT || 0) * 0.3 // Estimation 30% de marge
+      margeBrute: (f.total_ht || 0) * 0.3 // Estimation 30% de marge
     }));
 
     const dateDebut = new Date();
@@ -534,8 +394,8 @@ const FacturesVente = () => {
         id: f.numero || f.id?.toString() || '',
         numero: f.numero || '',
         clientId: f.client || '',
-        montant: f.total || f.montantHT || 0,
-        dateEcheance: f.dateEcheance || f.date || new Date().toISOString().split('T')[0],
+        montant: f.total_ttc || f.total_ht || 0,
+        dateEcheance: f.date_echeance || f.date_emission || new Date().toISOString().split('T')[0],
         statut: f.statut || 'validee'
       }));
 
@@ -555,20 +415,20 @@ const FacturesVente = () => {
     const facturesEnRetard = invoices
       .filter((f: any) => {
         if (f.statut === 'payee') return false;
-        const dateEcheance = new Date(f.dateEcheance || f.date);
+        const dateEcheance = new Date(f.date_echeance || f.date_emission);
         const maintenant = new Date();
         return maintenant > dateEcheance;
       })
       .map((f: any) => {
-        const dateEcheance = new Date(f.dateEcheance || f.date);
+        const dateEcheance = new Date(f.date_echeance || f.date_emission);
         const maintenant = new Date();
         const joursRetard = Math.floor((maintenant.getTime() - dateEcheance.getTime()) / (1000 * 60 * 60 * 24));
 
         return {
           id: f.numero || f.id?.toString() || '',
           numero: f.numero || '',
-          montant: f.total || f.montantHT || 0,
-          dateEcheance: f.dateEcheance || f.date || new Date().toISOString().split('T')[0],
+          montant: f.total_ttc || f.total_ht || 0,
+          dateEcheance: f.date_echeance || f.date_emission || new Date().toISOString().split('T')[0],
           joursRetard
         };
       });
@@ -866,7 +726,7 @@ const FacturesVente = () => {
           [
             `Numéro: ${facture.numero}`,
             `Client: ${facture.client}`,
-            `Montant: ${formatCurrency(facture.total)}`,
+            `Montant: ${formatCurrency(facture.total_ttc)}`,
             `Date de suppression: ${new Date().toLocaleDateString('fr-FR')}`
           ]
         );
@@ -888,7 +748,7 @@ const FacturesVente = () => {
       [
         `Destinataire: ${facture.client}`,
         `Numéro de facture: ${facture.numero}`,
-        `Montant: ${formatCurrency(facture.total)}`,
+        `Montant: ${formatCurrency(facture.total_ttc)}`,
         `Date d'envoi: ${new Date().toLocaleString('fr-FR')}`
       ]
     );
@@ -906,7 +766,7 @@ const FacturesVente = () => {
         ? {
           ...l,
           statut: newStatus,
-          dateLivraisonReelle: newStatus === 'livree' ? new Date().toISOString().split('T')[0] : l.dateLivraisonReelle
+          dateLivraisonReelle: newStatus === 'livree' ? new Date().toISOString().split('T')[0] : l.date_livraison_reelle
         }
         : l
     ));
@@ -916,7 +776,7 @@ const FacturesVente = () => {
       setSelectedLivraison((prev: any) => ({
         ...prev,
         statut: newStatus,
-        dateLivraisonReelle: newStatus === 'livree' ? new Date().toISOString().split('T')[0] : prev.dateLivraisonReelle
+        dateLivraisonReelle: newStatus === 'livree' ? new Date().toISOString().split('T')[0] : prev.date_livraison_reelle
       }));
     }
 
@@ -970,7 +830,7 @@ const FacturesVente = () => {
       `Informations de contact pour ${livraison.client}`,
       [
         `Téléphone: ${livraison.contactClient}`,
-        `Adresse: ${livraison.adresseLivraison || 'Non spécifiée'}`,
+        `Adresse: ${livraison.addressLivraison || 'Non spécifiée'}`,
         `Livraison: ${livraison.numero}`
       ]
     );
@@ -1109,7 +969,7 @@ const FacturesVente = () => {
       const montantRemise = sousTotal * (remise / 100);
       const total = sousTotal - montantRemise;
 
-      updatedArticle.total = total;
+      updatedArticle.total_ttc = total;
     }
 
     setArticleEnCours(updatedArticle);
@@ -1143,7 +1003,7 @@ const FacturesVente = () => {
 
       const newArticle = {
         id: Date.now(),
-        nom: selectedProduct.nom,
+        nom: selectedProduct.name,
         description: articleEnCours.description || '',
         prixUnitaire: prixBase,
         quantite: quantite,
@@ -1281,14 +1141,14 @@ const FacturesVente = () => {
 
     // Calcul des totaux des factures de la période
     const facturesPeriode = invoices.filter((f: any) => {
-      const factureDate = new Date(f.date);
+      const factureDate = new Date(f.date_emission);
       const currentMonth = today.getMonth();
       const currentYear = today.getFullYear();
       return factureDate.getMonth() === currentMonth && factureDate.getFullYear() === currentYear;
     });
 
-    const chiffreAffaires = facturesPeriode.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0);
-    const tvaCollectee = facturesPeriode.reduce((sum: number, f: any) => sum + (f.tva || 0), 0);
+    const chiffreAffaires = facturesPeriode.reduce((sum: number, f: any) => sum + (f.total_ht || 0), 0);
+    const tvaCollectee = facturesPeriode.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0);
 
     const declaration = {
       id: `G50-${Date.now()}`,
@@ -1309,9 +1169,9 @@ const FacturesVente = () => {
       [
         `Période: ${declaration.periode}`,
         `Chiffre d'affaires HT: ${formatCurrency(declaration.chiffreAffaires)}`,
-        `TVA collectée: ${formatCurrency(declaration.tvaCollectee)}`,
-        `TVA à verser: ${formatCurrency(declaration.tvaAVerser)}`,
-        `Date de génération: ${new Date(declaration.dateGeneration).toLocaleDateString('fr-FR')}`
+        `TVA collectée: ${formatCurrency(declaration.total_tvaCollectee)}`,
+        `TVA à verser: ${formatCurrency(declaration.total_tvaAVerser)}`,
+        `Date de génération: ${new Date(declaration.date_emissionGeneration).toLocaleDateString('fr-FR')}`
       ]
     );
   };
@@ -1323,13 +1183,13 @@ const FacturesVente = () => {
     const verifications = {
       factures: {
         total: invoices.length,
-        conformes: invoices.filter((f: any) => f.numero && f.client && f.total > 0).length,
-        nonConformes: invoices.filter((f: any) => !f.numero || !f.client || f.total <= 0).length
+        conformes: invoices.filter((f: any) => f.numero && f.client && f.total_ttc > 0).length,
+        nonConformes: invoices.filter((f: any) => !f.numero || !f.client || f.total_ttc <= 0).length
       },
       tva: {
-        tauxCorrect: invoices.every((f: any) => Math.abs((f.tva || 0) - (f.montantHT || 0) * 0.19) < 0.01),
+        tauxCorrect: invoices.every((f: any) => Math.abs((f.total_tva || 0) - (f.total_ht || 0) * 0.19) < 0.01),
         declarationsEnRetard: 0, // À calculer selon les échéances
-        montantTotal: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
+        montantTotal: invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0)
       },
       numerotation: {
         facturesSansNumero: invoices.filter((f: any) => !f.numero).length,
@@ -1338,19 +1198,19 @@ const FacturesVente = () => {
       },
       echeances: {
         facturesEnRetard: invoices.filter((f: any) => {
-          const echeance = new Date(f.dateEcheance || f.date);
+          const echeance = new Date(f.date_echeance || f.date_emission);
           return echeance < today && f.statut !== 'payée';
         }).length,
         totalEnRetard: invoices.filter((f: any) => {
-          const echeance = new Date(f.dateEcheance || f.date);
+          const echeance = new Date(f.date_echeance || f.date_emission);
           return echeance < today && f.statut !== 'payée';
-        }).reduce((sum: number, f: any) => sum + f.total, 0)
+        }).reduce((sum: number, f: any) => sum + f.total_ttc, 0)
       }
     };
 
     const scoreConformite = Math.round(
-      ((verifications.factures.conformes / verifications.factures.total) * 40 +
-        (verifications.tva.tauxCorrect ? 30 : 0) +
+      ((verifications.factures.conformes / verifications.factures.total_ttc) * 40 +
+        (verifications.total_tva.tauxCorrect ? 30 : 0) +
         (verifications.numerotation.facturesSansNumero === 0 ? 20 : 0) +
         (verifications.echeances.facturesEnRetard === 0 ? 10 : 0))
     );
@@ -1363,7 +1223,7 @@ const FacturesVente = () => {
       verifications,
       recommandations: [
         ...(verifications.factures.nonConformes > 0 ? ['Corriger les factures non conformes'] : []),
-        ...(verifications.tva.tauxCorrect ? [] : ['Vérifier les calculs de TVA']),
+        ...(verifications.total_tva.tauxCorrect ? [] : ['Vérifier les calculs de TVA']),
         ...(verifications.numerotation.facturesSansNumero > 0 ? ['Compléter la numérotation des factures'] : []),
         ...(verifications.echeances.facturesEnRetard > 0 ? ['Suivre les échéances de paiement'] : [])
       ],
@@ -1379,8 +1239,8 @@ const FacturesVente = () => {
       'Vérification de conformité terminée',
       `Score de conformité: ${scoreConformite}% (${niveauColor})`,
       [
-        `Factures conformes: ${resultats.verifications.factures.conformes}/${resultats.verifications.factures.total}`,
-        `TVA correcte: ${resultats.verifications.tva.tauxCorrect ? 'Oui' : 'Non'}`,
+        `Factures conformes: ${resultats.verifications.factures.conformes}/${resultats.verifications.factures.total_ttc}`,
+        `TVA correcte: ${resultats.verifications.total_tva.tauxCorrect ? 'Oui' : 'Non'}`,
         `Factures en retard: ${resultats.verifications.echeances.facturesEnRetard}`,
         ...(resultats.recommandations.length > 0 ? ['Recommandations disponibles dans le rapport'] : [])
       ]
@@ -1397,29 +1257,29 @@ const FacturesVente = () => {
           numero: '701',
           libelle: 'Ventes de biens',
           soldeInitial: 0,
-          debit: invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0),
+          debit: invoices.reduce((sum: number, f: any) => sum + (f.total_ht || 0), 0),
           credit: 0,
-          soldeFinal: invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0)
+          soldeFinal: invoices.reduce((sum: number, f: any) => sum + (f.total_ht || 0), 0)
         },
         {
           numero: '44571',
           libelle: 'TVA collectée',
           soldeInitial: 0,
           debit: 0,
-          credit: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
-          soldeFinal: -invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
+          credit: invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0),
+          soldeFinal: -invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0)
         },
         {
           numero: '411',
           libelle: 'Clients',
           soldeInitial: 0,
-          debit: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
+          debit: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0),
           credit: 0,
-          soldeFinal: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
+          soldeFinal: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0)
         }
       ],
-      totalDebit: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
-      totalCredit: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
+      totalDebit: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0),
+      totalCredit: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0)
     };
 
     setReportData(grandLivre);
@@ -1434,24 +1294,24 @@ const FacturesVente = () => {
         {
           numero: '701',
           libelle: 'Ventes de biens',
-          soldeDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0),
+          soldeDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total_ht || 0), 0),
           soldeCrediteur: 0
         },
         {
           numero: '44571',
           libelle: 'TVA collectée',
           soldeDebiteur: 0,
-          soldeCrediteur: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0)
+          soldeCrediteur: invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0)
         },
         {
           numero: '411',
           libelle: 'Clients',
-          soldeDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
+          soldeDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0),
           soldeCrediteur: 0
         }
       ],
-      totalDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0),
-      totalCrediteur: invoices.reduce((sum: number, f: any) => sum + (f.total || 0), 0)
+      totalDebiteur: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0),
+      totalCrediteur: invoices.reduce((sum: number, f: any) => sum + (f.total_ttc || 0), 0)
     };
 
     setReportData(balance);
@@ -1464,33 +1324,33 @@ const FacturesVente = () => {
       periode: `${dateFrom} - ${dateTo}`,
       ecritures: invoices.map((facture: any, index: number) => ({
         numero: index + 1,
-        date: facture.date,
+        date: facture.date_emission,
         piece: facture.numero,
         libelle: `Vente à ${facture.client}`,
         compte: '701',
         libelleCompte: 'Ventes de biens',
-        debit: facture.montantHT || 0,
+        debit: facture.total_ht || 0,
         credit: 0
       })).concat(
         invoices.map((facture: any, index: number) => ({
           numero: invoices.length + index + 1,
-          date: facture.date,
+          date: facture.date_emission,
           piece: facture.numero,
           libelle: `TVA sur vente à ${facture.client}`,
           compte: '44571',
           libelleCompte: 'TVA collectée',
           debit: 0,
-          credit: facture.tva || 0
+          credit: facture.total_tva || 0
         }))
       ).concat(
         invoices.map((facture: any, index: number) => ({
           numero: (invoices.length * 2) + index + 1,
-          date: facture.date,
+          date: facture.date_emission,
           piece: facture.numero,
           libelle: `Facturation client ${facture.client}`,
           compte: '411',
           libelleCompte: 'Clients',
-          debit: facture.total || 0,
+          debit: facture.total_ttc || 0,
           credit: 0
         }))
       )
@@ -1505,21 +1365,21 @@ const FacturesVente = () => {
       type: 'État de TVA',
       periode: `${dateFrom} - ${dateTo}`,
       tvaCollectee: {
-        montant: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
+        montant: invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0),
         nombreFactures: invoices.length
       },
       tvaDeductible: {
         montant: 0, // À calculer selon les achats
         nombreFactures: 0
       },
-      tvaAVerser: invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0),
+      tvaAVerser: invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0),
       details: invoices.map((facture: any) => ({
         numero: facture.numero,
-        date: facture.date,
+        date: facture.date_emission,
         client: facture.client,
-        montantHT: facture.montantHT || 0,
-        tva: facture.tva || 0,
-        montantTTC: facture.total || 0
+        montantHT: facture.total_ht || 0,
+        tva: facture.total_tva || 0,
+        montantTTC: facture.total_ttc || 0
       }))
     };
 
@@ -1594,7 +1454,7 @@ const FacturesVente = () => {
         type === 'Appel téléphonique' ? 'bg-green-100 text-green-800' :
           'bg-orange-100 text-orange-800',
       contenu: type === 'Email' ?
-        `Madame, Monsieur,\n\nNous vous informons que votre facture ${relance.facture} d'un montant de ${formatCurrency(relance.montant)} est en retard de paiement depuis le ${relance.dateEcheance}.\n\nNous vous remercions de bien vouloir procéder au règlement dans les plus brefs délais.\n\nCordialement,\nL'équipe comptable` :
+        `Madame, Monsieur,\n\nNous vous informons que votre facture ${relance.facture} d'un montant de ${formatCurrency(relance.montant)} est en retard de paiement depuis le ${relance.date_echeance}.\n\nNous vous remercions de bien vouloir procéder au règlement dans les plus brefs délais.\n\nCordialement,\nL'équipe comptable` :
         `Communication ${type.toLowerCase()} effectuée le ${new Date().toLocaleDateString('fr-FR')} pour la relance ${relance.numero}.`
     };
 
@@ -1694,7 +1554,7 @@ const FacturesVente = () => {
           if (field === 'prixUnitaire' || field === 'quantite' || field === 'remise') {
             const sousTotal = updated.prixUnitaire * updated.quantite;
             const montantRemise = sousTotal * (updated.remise / 100);
-            updated.total = sousTotal - montantRemise;
+            updated.total_ttc = sousTotal - montantRemise;
           }
           return updated;
         }
@@ -1720,7 +1580,7 @@ const FacturesVente = () => {
   const calculateTotals = () => {
     // Calcul du sous-total HT (somme des totaux des articles)
     const sousTotalHT = nouvelleFacture.articles.reduce((sum: number, article: Article) => {
-      return sum + ((article as any).total || 0);
+      return sum + ((article as any).total_ttc || 0);
     }, 0);
 
     // Calcul des remises totales
@@ -1753,8 +1613,8 @@ const FacturesVente = () => {
 
   // Calcul automatique de la date d'échéance
   React.useEffect(() => {
-    if (nouvelleFacture.date && nouvelleFacture.conditionPaiement) {
-      const dateFacture = new Date(nouvelleFacture.date);
+    if (nouvelleFacture.date_emission && nouvelleFacture.conditionPaiement) {
+      const dateFacture = new Date(nouvelleFacture.date_emission);
       const jours = parseInt(nouvelleFacture.conditionPaiement);
       if (jours > 0) {
         dateFacture.setDate(dateFacture.getDate() + jours);
@@ -1765,11 +1625,11 @@ const FacturesVente = () => {
       } else {
         setNouvelleFacture((prev: any) => ({
           ...prev,
-          dateEcheance: nouvelleFacture.date
+          dateEcheance: nouvelleFacture.date_emission
         }));
       }
     }
-  }, [nouvelleFacture.date, nouvelleFacture.conditionPaiement]);
+  }, [nouvelleFacture.date_emission, nouvelleFacture.conditionPaiement]);
 
   // Synchroniser la devise avec le contexte global
   React.useEffect(() => {
@@ -1802,7 +1662,7 @@ const FacturesVente = () => {
     const total = sousTotal - montantRemise;
 
     // Mettre à jour le total seulement s'il a changé
-    if (Math.abs(total - (articleEnCours.total || 0)) > 0.01) {
+    if (Math.abs(total - (articleEnCours.total_ttc || 0)) > 0.01) {
       setArticleEnCours((prev: any) => ({ ...prev, total }));
     }
   }, [articleEnCours.prixUnitaire, articleEnCours.quantite, articleEnCours.remise]);
@@ -1816,9 +1676,9 @@ const FacturesVente = () => {
         numero: nouvelleFacture.numero || `${prefix}-2024-${String(Date.now()).slice(-6)}`,
         typeDocument: nouvelleFacture.typeDocument,
         devise: nouvelleFacture.devise,
-        client: clients.find(c => c.id === nouvelleFacture.client)?.nom || 'Client',
-        date: nouvelleFacture.date,
-        dateEcheance: nouvelleFacture.dateEcheance,
+        client: clients.find(c => c.id === nouvelleFacture.client)?.name || 'Client',
+        date: nouvelleFacture.date_emission,
+        dateEcheance: nouvelleFacture.date_echeance,
         conditionPaiement: nouvelleFacture.conditionPaiement,
         reference: nouvelleFacture.reference,
         notes: nouvelleFacture.notes,
@@ -1834,12 +1694,12 @@ const FacturesVente = () => {
         id: String(newFacture.id),
         numero: newFacture.numero,
         client: newFacture.client,
-        date: typeof newFacture.date === 'string' ? newFacture.date : new Date(newFacture.date).toISOString(),
+        date: typeof newFacture.date_emission === 'string' ? newFacture.date_emission : new Date(newFacture.date_emission).toISOString(),
         dateEcheance:
-          typeof newFacture.dateEcheance === 'string'
-            ? newFacture.dateEcheance
-            : new Date(newFacture.dateEcheance).toISOString(),
-        montant: newFacture.total,
+          typeof newFacture.date_echeance === 'string'
+            ? newFacture.date_echeance
+            : new Date(newFacture.date_echeance).toISOString(),
+        montant: newFacture.total_ttc,
         statut: 'brouillon',
         articles: newFacture.articles as ArticleFacture[]
       };
@@ -1850,10 +1710,10 @@ const FacturesVente = () => {
         [
           `Numéro: ${newFacture.numero}`,
           `Client: ${newFacture.client}`,
-          `Montant HT: ${formatCurrency(newFacture.montantHT)}`,
-          `TVA (19%): ${formatCurrency(newFacture.tva)}`,
-          `Total TTC: ${formatCurrency(newFacture.total)}`,
-          `Date: ${new Date(newFacture.date).toLocaleDateString('fr-FR')}`,
+          `Montant HT: ${formatCurrency(newFacture.total_ht)}`,
+          `TVA (19%): ${formatCurrency(newFacture.total_tva)}`,
+          `Total TTC: ${formatCurrency(newFacture.total_ttc)}`,
+          `Date: ${new Date(newFacture.date_emission).toLocaleDateString('fr-FR')}`,
           ...(newFacture.signature ? ['✅ Signature électronique incluse'] : [])
         ]
       );
@@ -1921,9 +1781,9 @@ const FacturesVente = () => {
 
   // Statistiques des factures
   const totalFactures = invoices.length;
-  const totalMontant = invoices.reduce((sum, f) => sum + (f.total || 0), 0);
-  const facturesPayees = invoices.filter(f => f.statut === 'payée').length;
-  const facturesEnAttente = invoices.filter(f => f.statut === 'validée').length;
+  const totalMontant = invoices.reduce((sum, f) => sum + (f.total_ttc || 0), 0);
+  const facturesPayees = invoices.filter(f => f.statut === 'paid').length;
+  const facturesEnAttente = invoices.filter(f => f.statut === 'validated').length;
 
   // Statistiques des livraisons
   const totalLivraisons = livraisons.length;
@@ -2274,17 +2134,17 @@ const FacturesVente = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          {new Date(facture.date).toLocaleDateString('fr-FR')}
+                          {new Date(facture.date_emission).toLocaleDateString('fr-FR')}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900">{facture.client}</td>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          {formatCurrency(facture.montantHT)}
+                          {formatCurrency(facture.total_ht)}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-900">
-                          {formatCurrency(facture.tva)}
+                          {formatCurrency(facture.total_tva)}
                         </td>
                         <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {formatCurrency(facture.total)}
+                          {formatCurrency(facture.total_ttc)}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(facture.statut)}`}>
@@ -2805,7 +2665,7 @@ const FacturesVente = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center space-x-2">
                             <CalendarIcon className="h-4 w-4 text-slate-400" />
-                            <span className="text-sm text-slate-600 dark:text-slate-400">{new Date(paiement.date).toLocaleDateString('fr-FR')}</span>
+                            <span className="text-sm text-slate-600 dark:text-slate-400">{new Date(paiement.date_emission).toLocaleDateString('fr-FR')}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -2993,10 +2853,10 @@ const FacturesVente = () => {
                           <span className="text-slate-600">Canaux:</span>
                           <span className="font-medium ml-2">{relance.canaux.join(', ')}</span>
                         </div>
-                        {relance.dateProchaineRelance && (
+                        {relance.date_prochaine_relance && (
                           <div>
                             <span className="text-slate-600">Prochaine relance:</span>
-                            <span className="font-medium ml-2">{new Date(relance.dateProchaineRelance).toLocaleDateString('fr-FR')}</span>
+                            <span className="font-medium ml-2">{new Date(relance.date_prochaine_relance).toLocaleDateString('fr-FR')}</span>
                           </div>
                         )}
                       </div>
@@ -3220,7 +3080,7 @@ const FacturesVente = () => {
                   ].map((client, i) => (
                     <div key={i} className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-slate-700">{client.nom}</span>
+                        <span className="font-medium text-slate-700">{client.name}</span>
                         <span className="font-bold text-slate-900">{formatCurrency(client.ca)}</span>
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-2">
@@ -3416,7 +3276,7 @@ const FacturesVente = () => {
                       <tr key={relance.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-slate-900">{relance.numero}</div>
-                          <div className="text-sm text-slate-500">{relance.dateRelance}</div>
+                          <div className="text-sm text-slate-500">{relance.date_emissionRelance}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-slate-900">{relance.client}</div>
@@ -3486,7 +3346,7 @@ const FacturesVente = () => {
                         </div>
                         <div>
                           <h4 className="text-sm font-medium text-slate-900">{communication.sujet}</h4>
-                          <p className="text-sm text-slate-500">{communication.client} • {communication.date}</p>
+                          <p className="text-sm text-slate-500">{communication.client} • {communication.date_emission}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -4394,13 +4254,13 @@ const FacturesVente = () => {
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-900">{livraison.client}</td>
                             <td className="px-6 py-4 text-sm text-gray-900">
-                              {new Date(livraison.dateCommande).toLocaleDateString('fr-FR')}
+                              {new Date(livraison.date_commande).toLocaleDateString('fr-FR')}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-900">
                               <div>
-                                <div className="text-xs text-gray-500">Prévue: {new Date(livraison.dateLivraisonPrevue).toLocaleDateString('fr-FR')}</div>
-                                {livraison.dateLivraisonReelle && (
-                                  <div className="text-xs text-green-600">Réelle: {new Date(livraison.dateLivraisonReelle).toLocaleDateString('fr-FR')}</div>
+                                <div className="text-xs text-gray-500">Prévue: {new Date(livraison.date_livraison_prevue).toLocaleDateString('fr-FR')}</div>
+                                {livraison.date_livraison_reelle && (
+                                  <div className="text-xs text-green-600">Réelle: {new Date(livraison.date_livraison_reelle).toLocaleDateString('fr-FR')}</div>
                                 )}
                               </div>
                             </td>
@@ -4566,7 +4426,7 @@ const FacturesVente = () => {
                               N° {nouvelleFacture.numero || (nouvelleFacture.typeDocument === 'devis' ? 'DEV-AUTO' : 'FAC-AUTO')}
                             </p>
                             <p className="text-xs text-slate-500 mt-2">
-                              {nouvelleFacture.date ? new Date(nouvelleFacture.date).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR')}
+                              {nouvelleFacture.date_emission ? new Date(nouvelleFacture.date_emission).toLocaleDateString('fr-FR') : new Date().toLocaleDateString('fr-FR')}
                             </p>
                           </div>
                         </div>
@@ -4597,7 +4457,7 @@ const FacturesVente = () => {
                       >
                         <option value="">Sélectionner un client</option>
                         {clients.map(client => (
-                          <option key={client.id} value={client.id}>{client.nom}</option>
+                          <option key={client.id} value={client.id}>{client.name}</option>
                         ))}
                       </select>
                     </div>
@@ -4607,14 +4467,14 @@ const FacturesVente = () => {
                           const selectedClient = clients.find(c => c.id === nouvelleFacture.client);
                           return selectedClient ? (
                             <div className="text-sm text-slate-700 space-y-2">
-                              <p className="font-semibold text-slate-900">{selectedClient.nom}</p>
+                              <p className="font-semibold text-slate-900">{selectedClient.name}</p>
                               <p className="flex items-center gap-2 text-slate-600">
                                 <MapPinIcon className="h-4 w-4 text-slate-400" />
-                                {selectedClient.adresse}
+                                {selectedClient.address}
                               </p>
                               <p className="flex items-center gap-2 text-slate-600">
                                 <PhoneIcon className="h-4 w-4 text-slate-400" />
-                                {selectedClient.telephone}
+                                {selectedClient.phone}
                               </p>
                               <p className="flex items-center gap-2 text-slate-600">
                                 <EnvelopeIcon className="h-4 w-4 text-slate-400" />
@@ -4642,7 +4502,7 @@ const FacturesVente = () => {
                         <input
                           id="fv-date-facture"
                           type="date"
-                          value={nouvelleFacture.date}
+                          value={nouvelleFacture.date_emission}
                           onChange={(e) => setNouvelleFacture((prev: any) => ({ ...prev, date: e.target.value }))}
                           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white transition-colors"
                           required
@@ -4655,7 +4515,7 @@ const FacturesVente = () => {
                         <input
                           id="fv-date-echeance"
                           type="date"
-                          value={nouvelleFacture.dateEcheance}
+                          value={nouvelleFacture.date_echeance}
                           onChange={(e) => setNouvelleFacture((prev: any) => ({ ...prev, dateEcheance: e.target.value }))}
                           className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white transition-colors"
                         />
@@ -4752,7 +4612,7 @@ const FacturesVente = () => {
                         <option value="">Sélectionner un article</option>
                         {products.map(p => (
                           <option key={p.id} value={p.id}>
-                            {p.nom} - {formatCurrency(p.prixUnitaire)}
+                            {p.name} - {formatCurrency(p.prixUnitaire)}
                           </option>
                         ))}
                       </select>
@@ -4806,7 +4666,7 @@ const FacturesVente = () => {
                         <input
                           id="fv-article-mobile-total"
                           type="text"
-                          value={formatCurrency(articleEnCours.total)}
+                          value={formatCurrency(articleEnCours.total_ttc)}
                           className="w-full px-3 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 font-medium"
                           readOnly
                         />
@@ -4908,7 +4768,7 @@ const FacturesVente = () => {
                         <option value="">Sélectionner un article</option>
                         {products.map(p => (
                           <option key={p.id} value={p.id}>
-                            {p.nom} - {formatCurrency(p.prixUnitaire)}
+                            {p.name} - {formatCurrency(p.prixUnitaire)}
                           </option>
                         ))}
                       </select>
@@ -4945,7 +4805,7 @@ const FacturesVente = () => {
                       <input
                         aria-label="Total"
                         type="text"
-                        value={formatCurrency(articleEnCours.total)}
+                        value={formatCurrency(articleEnCours.total_ttc)}
                         className="col-span-2 px-3 py-2 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 font-medium"
                         readOnly
                       />
@@ -5014,13 +4874,13 @@ const FacturesVente = () => {
                         <div className="block lg:hidden space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <div className="text-slate-800 font-medium">{article.nom}</div>
+                              <div className="text-slate-800 font-medium">{article.name}</div>
                               {(article as any)?.description && (
                                 <div className="text-xs text-slate-500 mt-1">{(article as any).description}</div>
                               )}
                             </div>
                             <div className="text-right">
-                              <div className="text-lg font-semibold text-slate-800">{formatCurrency((article as any).total)}</div>
+                              <div className="text-lg font-semibold text-slate-800">{formatCurrency((article as any).total_ttc)}</div>
                             </div>
                           </div>
 
@@ -5087,7 +4947,7 @@ const FacturesVente = () => {
                         {/* Version desktop */}
                         <div className="hidden lg:grid grid-cols-12 gap-3 items-center">
                           <div className="col-span-4">
-                            <div className="text-slate-800 font-medium">{article.nom}</div>
+                            <div className="text-slate-800 font-medium">{article.name}</div>
                             {article?.description && (
                               <div className="text-xs text-slate-500 mt-1">{article.description}</div>
                             )}
@@ -5119,7 +4979,7 @@ const FacturesVente = () => {
                             max="100"
                             step="0.1"
                           />
-                          <div className="col-span-2 text-slate-800 font-semibold">{formatCurrency((article as any).total)}</div>
+                          <div className="col-span-2 text-slate-800 font-semibold">{formatCurrency((article as any).total_ttc)}</div>
                           <div className="col-span-2 flex gap-2">
                             <button
                               type="button"
@@ -5178,19 +5038,19 @@ const FacturesVente = () => {
                       <span>Sous-total HT:</span>
                       <span>{formatCurrency(calculateTotals().sousTotalHT)}</span>
                     </div>
-                    {calculateTotals().totalRemises > 0 && (
+                    {calculateTotals().total_ttcRemises > 0 && (
                       <div className="flex justify-between items-center text-sm text-slate-600">
                         <span>Remises:</span>
-                        <span className="text-emerald-600">-{formatCurrency(calculateTotals().totalRemises)}</span>
+                        <span className="text-emerald-600">-{formatCurrency(calculateTotals().total_ttcRemises)}</span>
                       </div>
                     )}
                     <div className="flex justify-between items-center text-sm text-slate-600">
                       <span>Total HT:</span>
-                      <span className="font-semibold">{formatCurrency(calculateTotals().totalHT)}</span>
+                      <span className="font-semibold">{formatCurrency(calculateTotals().total_ttcHT)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm text-slate-600">
                       <span>TVA ({calculateTotals().tauxTVA.toFixed(0)}%):</span>
-                      <span>{formatCurrency(calculateTotals().tva)}</span>
+                      <span>{formatCurrency(calculateTotals().total_tva)}</span>
                     </div>
                     <div className="text-xs text-slate-500 mt-1">
                       Devise: {nouvelleFacture.devise}
@@ -5198,7 +5058,7 @@ const FacturesVente = () => {
                     <div className="border-t border-slate-200 pt-3">
                       <div className="flex justify-between items-center text-lg font-bold text-slate-800">
                         <span>Total TTC:</span>
-                        <span className="text-emerald-600">{formatCurrency(calculateTotals().totalTTC)}</span>
+                        <span className="text-emerald-600">{formatCurrency(calculateTotals().total_ttcTTC)}</span>
                       </div>
                     </div>
                     {nouvelleFacture.conditionPaiement !== '0' && (
@@ -5277,7 +5137,7 @@ const FacturesVente = () => {
               <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 shadow-sm">
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                   <div className="text-sm text-slate-600">
-                    <p className="font-semibold text-slate-800 text-lg">Total: {formatCurrency(calculateTotals().totalTTC)}</p>
+                    <p className="font-semibold text-slate-800 text-lg">Total: {formatCurrency(calculateTotals().total_ttcTTC)}</p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-stretch sm:items-center">
                     <button
@@ -5340,15 +5200,15 @@ const FacturesVente = () => {
                     <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">Client</label>
                     <p className="text-lg font-bold text-slate-900">{selectedFacture.client}</p>
                     <p className="text-sm text-slate-500 mt-1">
-                      {clients.find(c => c.nom === selectedFacture.client)?.email || 'Email non disponible'}
+                      {clients.find(c => c.name === selectedFacture.client)?.email || 'Email non disponible'}
                     </p>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">Date de facturation</label>
-                    <p className="text-lg font-bold text-slate-900">{new Date(selectedFacture.date).toLocaleDateString('fr-FR')}</p>
-                    {selectedFacture.dateEcheance && (
+                    <p className="text-lg font-bold text-slate-900">{new Date(selectedFacture.date_emission).toLocaleDateString('fr-FR')}</p>
+                    {selectedFacture.date_echeance && (
                       <p className="text-sm text-slate-500 mt-1">
-                        Échéance: {new Date(selectedFacture.dateEcheance).toLocaleDateString('fr-FR')}
+                        Échéance: {new Date(selectedFacture.date_echeance).toLocaleDateString('fr-FR')}
                       </p>
                     )}
                   </div>
@@ -5384,7 +5244,7 @@ const FacturesVente = () => {
                     <tbody className="bg-white divide-y divide-slate-200">
                       {selectedFacture.articles?.map((article: any, idx: number) => (
                         <tr key={article.id || idx} className="hover:bg-slate-50">
-                          <td className="px-6 py-4 text-sm font-medium text-slate-900">{article.nom || article.article}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900">{article.name || article.article}</td>
                           <td className="px-6 py-4 text-sm text-slate-600">{article.description || '-'}</td>
                           <td className="px-6 py-4 text-sm text-slate-900 text-center">{article.quantite || 1}</td>
                           <td className="px-6 py-4 text-sm text-slate-900 text-right">{formatCurrency(article.prixUnitaire || 0)}</td>
@@ -5392,7 +5252,7 @@ const FacturesVente = () => {
                             {article.remise ? `${article.remise}%` : '0%'}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-slate-900 text-right">
-                            {formatCurrency(article.total || (article.prixUnitaire || 0) * (article.quantite || 1))}
+                            {formatCurrency(article.total_ttc || (article.prixUnitaire || 0) * (article.quantite || 1))}
                           </td>
                         </tr>
                       ))}
@@ -5408,15 +5268,15 @@ const FacturesVente = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-emerald-700">Sous-total HT:</span>
-                      <span className="font-medium text-emerald-900">{formatCurrency(selectedFacture.montantHT || 0)}</span>
+                      <span className="font-medium text-emerald-900">{formatCurrency(selectedFacture.total_ht || 0)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-emerald-700">TVA (19%):</span>
-                      <span className="font-medium text-emerald-900">{formatCurrency(selectedFacture.tva || 0)}</span>
+                      <span className="font-medium text-emerald-900">{formatCurrency(selectedFacture.total_tva || 0)}</span>
                     </div>
                     <div className="flex justify-between text-lg font-bold text-emerald-900 border-t border-emerald-300 pt-3 mt-3">
                       <span>Total TTC:</span>
-                      <span>{formatCurrency(selectedFacture.total || 0)}</span>
+                      <span>{formatCurrency(selectedFacture.total_ttc || 0)}</span>
                     </div>
                   </div>
                 </div>
@@ -5430,11 +5290,11 @@ const FacturesVente = () => {
                         <span className="font-medium text-blue-900">{selectedFacture.conditionsPaiement} jours</span>
                       </div>
                     )}
-                    {selectedFacture.dateEcheance && (
+                    {selectedFacture.date_echeance && (
                       <div className="flex justify-between">
                         <span className="text-blue-700">Date d'échéance:</span>
                         <span className="font-medium text-blue-900">
-                          {new Date(selectedFacture.dateEcheance).toLocaleDateString('fr-FR')}
+                          {new Date(selectedFacture.date_echeance).toLocaleDateString('fr-FR')}
                         </span>
                       </div>
                     )}
@@ -5464,21 +5324,21 @@ const FacturesVente = () => {
                       <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                         <div>
                           <p className="font-medium text-slate-800">411 - Clients</p>
-                          <p className="text-xs text-slate-500">Débit: {formatCurrency(selectedFacture.total || 0)}</p>
+                          <p className="text-xs text-slate-500">Débit: {formatCurrency(selectedFacture.total_ttc || 0)}</p>
                         </div>
                         <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full">Validée</span>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                         <div>
                           <p className="font-medium text-slate-800">701 - Ventes</p>
-                          <p className="text-xs text-slate-500">Crédit: {formatCurrency(selectedFacture.montantHT || 0)}</p>
+                          <p className="text-xs text-slate-500">Crédit: {formatCurrency(selectedFacture.total_ht || 0)}</p>
                         </div>
                         <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full">Validée</span>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
                         <div>
                           <p className="font-medium text-slate-800">44571 - TVA Collectée</p>
-                          <p className="text-xs text-slate-500">Crédit: {formatCurrency(selectedFacture.tva || 0)}</p>
+                          <p className="text-xs text-slate-500">Crédit: {formatCurrency(selectedFacture.total_tva || 0)}</p>
                         </div>
                         <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded-full">Validée</span>
                       </div>
@@ -5504,7 +5364,7 @@ const FacturesVente = () => {
                             <div>
                               <p className="font-medium text-slate-900">{paiement.numero}</p>
                               <p className="text-xs text-slate-500">
-                                {paiement.mode} • {new Date(paiement.date).toLocaleDateString('fr-FR')}
+                                {paiement.mode} • {new Date(paiement.date_emission).toLocaleDateString('fr-FR')}
                               </p>
                             </div>
                           </div>
@@ -5658,7 +5518,7 @@ const FacturesVente = () => {
                     <div className="space-y-1">
                       <p className="text-slate-600"><span className="font-medium">Facture:</span> {selectedFacture.numero}</p>
                       <p className="text-slate-600"><span className="font-medium">Client:</span> {selectedFacture.client}</p>
-                      <p className="text-slate-600"><span className="font-medium">Montant total:</span> {formatCurrency(selectedFacture.total)}</p>
+                      <p className="text-slate-600"><span className="font-medium">Montant total:</span> {formatCurrency(selectedFacture.total_ttc)}</p>
                     </div>
                   </div>
                   <div className="w-16 h-16 bg-emerald-200 rounded-full flex items-center justify-center">
@@ -5677,7 +5537,7 @@ const FacturesVente = () => {
                     <input
                       id="fv-paiement-montant"
                       type="number"
-                      defaultValue={selectedFacture.total}
+                      defaultValue={selectedFacture.total_ttc}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white transition-colors"
                       step="0.01"
                       required
@@ -5745,11 +5605,11 @@ const FacturesVente = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-slate-500">Montant facture:</span>
-                    <p className="font-medium text-slate-800">{formatCurrency(selectedFacture.total)}</p>
+                    <p className="font-medium text-slate-800">{formatCurrency(selectedFacture.total_ttc)}</p>
                   </div>
                   <div>
                     <span className="text-slate-500">Montant payé:</span>
-                    <p className="font-medium text-emerald-600">{formatCurrency(selectedFacture.total)}</p>
+                    <p className="font-medium text-emerald-600">{formatCurrency(selectedFacture.total_ttc)}</p>
                   </div>
                   <div>
                     <span className="text-slate-500">Solde restant:</span>
@@ -5893,7 +5753,7 @@ const FacturesVente = () => {
                   <input
                     id="fv-montant-ht-calc"
                     type="number"
-                    value={tvaCalculationData.montantHT || ''}
+                    value={tvaCalculationData.total_ht || ''}
                     onChange={(e) => {
                       const montantHT = parseFloat(e.target.value) || 0;
                       calculateTVA(montantHT, tvaCalculationData.tauxTVA);
@@ -5933,7 +5793,7 @@ const FacturesVente = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-blue-700">Montant HT:</span>
-                    <span className="font-semibold text-blue-800">{formatCurrency(tvaCalculationData.montantHT)}</span>
+                    <span className="font-semibold text-blue-800">{formatCurrency(tvaCalculationData.total_ht)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-blue-700">TVA ({tvaCalculationData.tauxTVA}%):</span>
@@ -5960,7 +5820,7 @@ const FacturesVente = () => {
                     'Calcul TVA terminé',
                     'Le calcul de la TVA a été effectué avec succès.',
                     [
-                      `Montant HT: ${formatCurrency(tvaCalculationData.montantHT)}`,
+                      `Montant HT: ${formatCurrency(tvaCalculationData.total_ht)}`,
                       `TVA (${tvaCalculationData.tauxTVA}%): ${formatCurrency(tvaCalculationData.montantTVA)}`,
                       `Total TTC: ${formatCurrency(tvaCalculationData.montantTTC)}`,
                       'Ces valeurs peuvent être utilisées pour votre facture.'
@@ -6019,11 +5879,11 @@ const FacturesVente = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-blue-700">Chiffre d'affaires HT:</span>
-                  <span className="font-medium text-blue-900">{formatCurrency(invoices.reduce((sum: number, f: any) => sum + (f.montantHT || 0), 0))}</span>
+                  <span className="font-medium text-blue-900">{formatCurrency(invoices.reduce((sum: number, f: any) => sum + (f.total_ht || 0), 0))}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-blue-700">TVA collectée:</span>
-                  <span className="font-medium text-blue-900">{formatCurrency(invoices.reduce((sum: number, f: any) => sum + (f.tva || 0), 0))}</span>
+                  <span className="font-medium text-blue-900">{formatCurrency(invoices.reduce((sum: number, f: any) => sum + (f.total_tva || 0), 0))}</span>
                 </div>
               </div>
             </div>
@@ -6078,7 +5938,7 @@ const FacturesVente = () => {
                     <div className="text-3xl font-bold text-green-600">{conformiteResults.score}%</div>
                     <div>
                       <div className="text-lg font-medium text-gray-900">{conformiteResults.niveau}</div>
-                      <div className="text-sm text-gray-500">Date: {conformiteResults.dateVerification}</div>
+                      <div className="text-sm text-gray-500">Date: {conformiteResults.date_verification}</div>
                     </div>
                   </div>
                 </div>
@@ -6089,7 +5949,7 @@ const FacturesVente = () => {
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span>Total:</span>
-                        <span>{conformiteResults.verifications.factures.total}</span>
+                        <span>{conformiteResults.verifications.factures.total_ttc}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Conformes:</span>
@@ -6107,13 +5967,13 @@ const FacturesVente = () => {
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span>Taux correct:</span>
-                        <span className={conformiteResults.verifications.tva.tauxCorrect ? "text-green-600" : "text-red-600"}>
-                          {conformiteResults.verifications.tva.tauxCorrect ? "Oui" : "Non"}
+                        <span className={conformiteResults.verifications.total_tva.tauxCorrect ? "text-green-600" : "text-red-600"}>
+                          {conformiteResults.verifications.total_tva.tauxCorrect ? "Oui" : "Non"}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Montant total:</span>
-                        <span>{formatCurrency(conformiteResults.verifications.tva.montantTotal)}</span>
+                        <span>{formatCurrency(conformiteResults.verifications.total_tva.montantTotal)}</span>
                       </div>
                     </div>
                   </div>
@@ -6205,9 +6065,9 @@ const FacturesVente = () => {
                       <tfoot className="bg-gray-50">
                         <tr>
                           <td colSpan={3} className="px-4 py-3 text-sm font-medium text-gray-900">TOTAUX</td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.totalDebit)}</td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.totalCredit)}</td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.totalDebit - reportData.totalCredit)}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.total_ttcDebit)}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.total_ttcCredit)}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.total_ttcDebit - reportData.total_ttcCredit)}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -6240,8 +6100,8 @@ const FacturesVente = () => {
                       <tfoot className="bg-gray-50">
                         <tr>
                           <td colSpan={2} className="px-4 py-3 text-sm font-medium text-gray-900">TOTAUX</td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.totalDebiteur)}</td>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.totalCrediteur)}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.total_ttcDebiteur)}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 text-right">{formatCurrency(reportData.total_ttcCrediteur)}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -6268,7 +6128,7 @@ const FacturesVente = () => {
                         {reportData.ecritures.map((ecriture: any, index: number) => (
                           <tr key={index}>
                             <td className="px-4 py-3 text-sm text-gray-900">{ecriture.numero}</td>
-                            <td className="px-4 py-3 text-sm text-gray-900">{ecriture.date}</td>
+                            <td className="px-4 py-3 text-sm text-gray-900">{ecriture.date_emission}</td>
                             <td className="px-4 py-3 text-sm text-gray-900">{ecriture.piece}</td>
                             <td className="px-4 py-3 text-sm text-gray-900">{ecriture.libelle}</td>
                             <td className="px-4 py-3 text-sm text-gray-900">{ecriture.compte} - {ecriture.libelleCompte}</td>
@@ -6287,12 +6147,12 @@ const FacturesVente = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <h5 className="font-medium text-blue-900 mb-2">TVA Collectée</h5>
-                      <p className="text-2xl font-bold text-blue-600">{formatCurrency(reportData.tvaCollectee.montant)}</p>
-                      <p className="text-sm text-blue-700">{reportData.tvaCollectee.nombreFactures} factures</p>
+                      <p className="text-2xl font-bold text-blue-600">{formatCurrency(reportData.total_tvaCollectee.montant)}</p>
+                      <p className="text-sm text-blue-700">{reportData.total_tvaCollectee.nombreFactures} factures</p>
                     </div>
                     <div className="bg-green-50 p-4 rounded-lg">
                       <h5 className="font-medium text-green-900 mb-2">TVA à Verser</h5>
-                      <p className="text-2xl font-bold text-green-600">{formatCurrency(reportData.tvaAVerser)}</p>
+                      <p className="text-2xl font-bold text-green-600">{formatCurrency(reportData.total_tvaAVerser)}</p>
                     </div>
                   </div>
 
@@ -6312,10 +6172,10 @@ const FacturesVente = () => {
                         {reportData.details.map((detail: any, index: number) => (
                           <tr key={index}>
                             <td className="px-4 py-3 text-sm font-medium text-gray-900">{detail.numero}</td>
-                            <td className="px-4 py-3 text-sm text-gray-900">{detail.date}</td>
+                            <td className="px-4 py-3 text-sm text-gray-900">{detail.date_emission}</td>
                             <td className="px-4 py-3 text-sm text-gray-900">{detail.client}</td>
-                            <td className="px-4 py-3 text-sm text-gray-900 text-right">{formatCurrency(detail.montantHT)}</td>
-                            <td className="px-4 py-3 text-sm text-gray-900 text-right">{formatCurrency(detail.tva)}</td>
+                            <td className="px-4 py-3 text-sm text-gray-900 text-right">{formatCurrency(detail.total_ht)}</td>
+                            <td className="px-4 py-3 text-sm text-gray-900 text-right">{formatCurrency(detail.total_tva)}</td>
                             <td className="px-4 py-3 text-sm text-gray-900 text-right">{formatCurrency(detail.montantTTC)}</td>
                           </tr>
                         ))}
@@ -6376,7 +6236,7 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <span className="text-slate-600">Date de relance:</span>
-                    <span className="ml-2 font-medium text-slate-900">{selectedRelance.dateRelance}</span>
+                    <span className="ml-2 font-medium text-slate-900">{selectedRelance.date_emissionRelance}</span>
                   </div>
                   <div>
                     <span className="text-slate-600">Statut:</span>
@@ -6400,7 +6260,7 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <span className="text-gray-600">Téléphone:</span>
-                    <span className="ml-2 font-medium text-gray-900">{selectedRelance.telephone}</span>
+                    <span className="ml-2 font-medium text-gray-900">{selectedRelance.phone}</span>
                   </div>
                 </div>
               </div>
@@ -6418,7 +6278,7 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <span className="text-gray-600">Date d'échéance:</span>
-                    <span className="ml-2 font-medium text-gray-900">{selectedRelance.dateEcheance}</span>
+                    <span className="ml-2 font-medium text-gray-900">{selectedRelance.date_echeance}</span>
                   </div>
                   <div>
                     <span className="text-gray-600">Motif:</span>
@@ -6473,7 +6333,7 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <span className="text-slate-600">Date:</span>
-                    <span className="ml-2 font-medium text-slate-900">{selectedCommunication.date}</span>
+                    <span className="ml-2 font-medium text-slate-900">{selectedCommunication.date_emission}</span>
                   </div>
                   <div>
                     <span className="text-slate-600">Client:</span>
@@ -6515,7 +6375,7 @@ const FacturesVente = () => {
                       [
                         `Type: ${selectedCommunication.type}`,
                         `Client: ${selectedCommunication.client}`,
-                        `Date: ${selectedCommunication.date}`,
+                        `Date: ${selectedCommunication.date_emission}`,
                         'Cette communication sera archivée dans l\'historique.'
                       ]
                     );
@@ -6627,16 +6487,16 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Date de commande</label>
-                    <p className="text-gray-900">{new Date(selectedLivraison.dateCommande).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-gray-900">{new Date(selectedLivraison.date_commande).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Date de livraison prévue</label>
-                    <p className="text-gray-900">{new Date(selectedLivraison.dateLivraisonPrevue).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-gray-900">{new Date(selectedLivraison.date_livraison_prevue).toLocaleDateString('fr-FR')}</p>
                   </div>
-                  {selectedLivraison.dateLivraisonReelle && (
+                  {selectedLivraison.date_livraison_reelle && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Date de livraison réelle</label>
-                      <p className="text-green-600 font-medium">{new Date(selectedLivraison.dateLivraisonReelle).toLocaleDateString('fr-FR')}</p>
+                      <p className="text-green-600 font-medium">{new Date(selectedLivraison.date_livraison_reelle).toLocaleDateString('fr-FR')}</p>
                     </div>
                   )}
                 </div>
@@ -6670,7 +6530,7 @@ const FacturesVente = () => {
                   <div className="flex items-start">
                     <MapPinIcon className="h-5 w-5 text-gray-400 mr-2 mt-0.5" />
                     <div>
-                      <p className="text-gray-900">{selectedLivraison.adresseLivraison}</p>
+                      <p className="text-gray-900">{selectedLivraison.addressLivraison}</p>
                       <p className="text-sm text-gray-500 mt-1">Contact: {selectedLivraison.contactClient}</p>
                     </div>
                   </div>
@@ -6685,7 +6545,7 @@ const FacturesVente = () => {
                     <div key={article.id} className="bg-gray-50 p-4 rounded-lg">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium text-gray-900">{article.nom}</p>
+                          <p className="font-medium text-gray-900">{article.name}</p>
                           <p className="text-sm text-gray-500">
                             Quantité: {(article as any).quantite} | Conditionnement: {article.conditionnement}
                           </p>
@@ -6837,7 +6697,7 @@ const FacturesVente = () => {
                     </div>
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Date de Création</label>
                   </div>
-                  <p className="text-lg font-semibold text-slate-900">{(selectedBrouillon as any)?.date}</p>
+                  <p className="text-lg font-semibold text-slate-900">{(selectedBrouillon as any)?.date_emission}</p>
                 </div>
               </div>
 
@@ -6955,7 +6815,7 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <span className="text-slate-500">Date:</span>
-                    <p className="font-medium text-slate-800">{new Date(brouillonToValidate.date).toLocaleDateString('fr-FR')}</p>
+                    <p className="font-medium text-slate-800">{new Date(brouillonToValidate.date_emission).toLocaleDateString('fr-FR')}</p>
                   </div>
                   <div>
                     <span className="text-slate-500">Statut actuel:</span>
@@ -7114,7 +6974,7 @@ const FacturesVente = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-slate-800">{selectedPaiement.numero}</h3>
-                    <p className="text-slate-600">Paiement reçu le {new Date(selectedPaiement.date).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-slate-600">Paiement reçu le {new Date(selectedPaiement.date_emission).toLocaleDateString('fr-FR')}</p>
                   </div>
                 </div>
               </div>
@@ -7157,7 +7017,7 @@ const FacturesVente = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Date de réception:</span>
-                      <span className="font-medium text-slate-800">{new Date(selectedPaiement.date).toLocaleDateString('fr-FR')}</span>
+                      <span className="font-medium text-slate-800">{new Date(selectedPaiement.date_emission).toLocaleDateString('fr-FR')}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">ID Paiement:</span>
@@ -7190,7 +7050,7 @@ const FacturesVente = () => {
                         <h2 style="color: #1e293b; font-size: 24px; margin-bottom: 20px; font-weight: 600;">REÇU DE PAIEMENT</h2>
                         <div style="background: white; padding: 20px; border-radius: 12px; border: 2px solid #10b981; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                           <p style="margin: 0; font-size: 20px; font-weight: 700; color: #1e293b;">${selectedPaiement.numero}</p>
-                          <p style="margin: 8px 0 0 0; color: #64748b; font-size: 16px;">Paiement reçu le ${new Date(selectedPaiement.date).toLocaleDateString('fr-FR')}</p>
+                          <p style="margin: 8px 0 0 0; color: #64748b; font-size: 16px;">Paiement reçu le ${new Date(selectedPaiement.date_emission).toLocaleDateString('fr-FR')}</p>
                         </div>
                       </div>
                       
@@ -7210,7 +7070,7 @@ const FacturesVente = () => {
                           <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
                             <p style="margin: 10px 0; color: #64748b;"><strong style="color: #1e293b;">Référence:</strong> <span style="color: #64748b;">${selectedPaiement.reference}</span></p>
                             <p style="margin: 10px 0; color: #64748b;"><strong style="color: #1e293b;">Statut:</strong> <span style="background: ${selectedPaiement.statut === 'Confirmé' ? '#dcfce7' : '#fef3c7'}; color: ${selectedPaiement.statut === 'Confirmé' ? '#166534' : '#92400e'}; padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 600;">${selectedPaiement.statut}</span></p>
-                            <p style="margin: 10px 0; color: #64748b;"><strong style="color: #1e293b;">Date:</strong> <span style="color: #64748b;">${new Date(selectedPaiement.date).toLocaleDateString('fr-FR')}</span></p>
+                            <p style="margin: 10px 0; color: #64748b;"><strong style="color: #1e293b;">Date:</strong> <span style="color: #64748b;">${new Date(selectedPaiement.date_emission).toLocaleDateString('fr-FR')}</span></p>
                             <p style="margin: 10px 0; color: #64748b;"><strong style="color: #1e293b;">ID:</strong> <span style="color: #64748b; font-family: monospace;">#${selectedPaiement.id}</span></p>
                           </div>
                         </div>
@@ -7659,8 +7519,8 @@ const FacturesVente = () => {
                   <tr key={prev.factureId} className="hover:bg-slate-50">
                     <td className="px-4 py-3 text-sm font-medium text-slate-900">{prev.numeroFacture}</td>
                     <td className="px-4 py-3 text-sm text-right">{formatCurrency(prev.montant)}</td>
-                    <td className="px-4 py-3 text-sm text-right">{new Date(prev.dateEcheance).toLocaleDateString('fr-FR')}</td>
-                    <td className="px-4 py-3 text-sm text-right">{new Date(prev.datePrevisionRecouvrement).toLocaleDateString('fr-FR')}</td>
+                    <td className="px-4 py-3 text-sm text-right">{new Date(prev.date_echeance).toLocaleDateString('fr-FR')}</td>
+                    <td className="px-4 py-3 text-sm text-right">{new Date(prev.date_emissionPrevisionRecouvrement).toLocaleDateString('fr-FR')}</td>
                     <td className="px-4 py-3 text-sm text-right">{prev.delaiPrevu}j</td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center">
@@ -7735,7 +7595,7 @@ const FacturesVente = () => {
                     <td className="px-4 py-3 text-sm text-right font-semibold text-green-600">{escompte.taux}%</td>
                     <td className="px-4 py-3 text-sm text-right text-red-600">-{formatCurrency(escompte.montantRemise)}</td>
                     <td className="px-4 py-3 text-sm text-right font-bold text-green-600">{formatCurrency(escompte.montantFinal)}</td>
-                    <td className="px-4 py-3 text-sm text-right">{new Date(escompte.dateLimite).toLocaleDateString('fr-FR')}</td>
+                    <td className="px-4 py-3 text-sm text-right">{new Date(escompte.date_limite).toLocaleDateString('fr-FR')}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${escompte.statut === 'accepte' ? 'bg-green-100 text-green-800' :
                         escompte.statut === 'refuse' ? 'bg-red-100 text-red-800' :
@@ -7766,3 +7626,4 @@ const FacturesVente = () => {
 };
 
 export default FacturesVente;
+

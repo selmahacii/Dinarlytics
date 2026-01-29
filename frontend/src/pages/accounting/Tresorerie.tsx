@@ -56,6 +56,164 @@ interface BankAccount {
   currency: string;
 }
 
+// --- Composant Gestion des Chèques ---
+const ChecksManagement: React.FC = () => {
+  const [checks, setChecks] = useState<any[]>([]);
+  const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
+  const [depositDate, setDepositDate] = useState(new Date().toISOString().split('T')[0]);
+  const [bankAccount, setBankAccount] = useState('512001'); // BNA par défaut
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    fetchChecks();
+  }, []);
+
+  const fetchChecks = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/payments/checks-in-safe', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setChecks(data);
+      }
+    } catch (error) {
+      console.error("Erreur chargement chèques", error);
+    }
+  };
+
+  const handleGenerateDeposit = async () => {
+    if (selectedChecks.length === 0) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/payments/deposit-checks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          payment_ids: selectedChecks,
+          bank_account_code: bankAccount,
+          deposit_date: depositDate
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setSuccessMessage(`Bordereau ${result.slip_number} créé avec succès! Montant: ${result.total_amount} DZD`);
+        setSelectedChecks([]);
+        fetchChecks(); // Refresh list
+      }
+    } catch (error) {
+      console.error("Erreur remise chèque", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedChecks(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const totalSelected = checks.filter(c => selectedChecks.includes(c.id)).reduce((sum, c) => sum + Number(c.amount), 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-bold text-amber-900 flex items-center">
+            <BanknotesIcon className="h-6 w-6 mr-2" />
+            Coffre-fort: Chèques en attente
+          </h3>
+          <p className="text-sm text-amber-800">Sélectionnez les chèques à remettre en banque.</p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-semibold text-amber-900">Total au Coffre</p>
+          <p className="text-2xl font-bold text-amber-700">
+            {new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(checks.reduce((s, c) => s + Number(c.amount), 0))}
+          </p>
+        </div>
+      </div>
+
+      {successMessage && (
+        <div className="p-4 bg-green-100 text-green-800 rounded-lg flex items-center border border-green-300">
+          <CheckIcon className="h-5 w-5 mr-2" />
+          {successMessage}
+        </div>
+      )}
+
+      <div className="bg-white rounded-lg shadow border border-slate-200 p-6">
+        <div className="flex justify-between items-end mb-4">
+          <div className="flex space-x-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Date de remise</label>
+              <input type="date" value={depositDate} onChange={e => setDepositDate(e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Compte Bancaire</label>
+              <select value={bankAccount} onChange={e => setBankAccount(e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                <option value="512001">BNA - Compte Principal</option>
+                <option value="512002">BADR - Compte Secondaire</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <button
+              onClick={handleGenerateDeposit}
+              disabled={selectedChecks.length === 0 || loading}
+              className={`px-4 py-2 rounded-lg font-medium text-white transition-colors ${selectedChecks.length === 0 ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            >
+              {loading ? 'Traitement...' : `Générer Bordereau (${new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(totalSelected)})`}
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                  <input type="checkbox"
+                    onChange={e => setSelectedChecks(e.target.checked ? checks.map(c => c.id) : [])}
+                    checked={selectedChecks.length === checks.length && checks.length > 0}
+                  />
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date Réception</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">N° Chèque</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Ref Paiement</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Montant</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-slate-200">
+              {checks.length === 0 ? (
+                <tr><td colSpan={5} className="px-6 py-4 text-center text-slate-500">Aucun chèque au coffre.</td></tr>
+              ) : (
+                checks.map((check) => (
+                  <tr key={check.id} className={selectedChecks.includes(check.id) ? 'bg-blue-50' : ''}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input type="checkbox" checked={selectedChecks.includes(check.id)} onChange={() => toggleSelect(check.id)} />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{check.payment_date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">{check.check_number || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">Paiement #{check.id.substring(0, 8)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 text-right font-bold">
+                      {new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(Number(check.amount))}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Tresorerie: React.FC = () => {
   // Mock data - Comptes bancaires
   const [bankAccounts] = useState<BankAccount[]>([
@@ -141,14 +299,14 @@ const Tresorerie: React.FC = () => {
   const totalOutflow = useMemo(() => visibleTransactions.filter(t => t.type === 'outflow').reduce((sum, t) => sum + t.amount, 0), [visibleTransactions]);
   const netCashFlow = totalInflow - totalOutflow;
   const pendingAmount = useMemo(() => visibleTransactions.filter(t => t.status === 'pending').reduce((sum, t) => sum + (t.type === 'outflow' ? t.amount : -t.amount), 0), [visibleTransactions]);
-  
+
   // Générer les échéances automatiques
   const echeancesAutomatiques = useMemo(() => {
     const caMensuel = company?.revenueMonth || 2500000;
     const chargesMensuelles = caMensuel * 0.7;
     const dso = 45; // Estimation
     const dpo = 30; // Estimation
-    
+
     return genererEcheancesAutomatiques({
       caMensuel,
       chargesMensuelles,
@@ -158,7 +316,7 @@ const Tresorerie: React.FC = () => {
       nombreMois: 3
     });
   }, [company]);
-  
+
   // Générer les prévisions de trésorerie
   const previsionsTresorerie = useMemo(() => {
     return genererPrevisionsTresorerie(
@@ -168,19 +326,19 @@ const Tresorerie: React.FC = () => {
       new Date().toISOString().split('T')[0]
     );
   }, [totalBalance, echeancesAutomatiques]);
-  
+
   // Détecter les alertes de liquidité
   const alertesLiquidite = useMemo(() => {
     const seuilMinimum = totalBalance * 0.1; // 10% du solde actuel comme seuil
     return detecterAlertesLiquidite(previsionsTresorerie, seuilMinimum, -500000);
   }, [previsionsTresorerie, totalBalance]);
-  
+
   // Calculer les métriques
   const metriquesTresorerie = useMemo(() => {
     const seuilMinimum = totalBalance * 0.1;
     return calculerMetriquesTresorerie(previsionsTresorerie, seuilMinimum);
   }, [previsionsTresorerie, totalBalance]);
-  
+
   // Planifier les besoins de financement
   const planFinancement = useMemo(() => {
     const seuilMinimum = totalBalance * 0.1;
@@ -300,22 +458,20 @@ const Tresorerie: React.FC = () => {
         <div className="flex border-b border-slate-200">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${
-              activeTab === 'overview'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'overview'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             <BanknotesIcon className="h-5 w-5 inline mr-2" />
             Aperçu
           </button>
           <button
             onClick={() => setActiveTab('forecast')}
-            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${
-              activeTab === 'forecast'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'forecast'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             <ChartBarIcon className="h-5 w-5 inline mr-2" />
             Prévisions
@@ -326,29 +482,42 @@ const Tresorerie: React.FC = () => {
               // Optionnel: rediriger vers la page dédiée
               // window.location.href = '/rapprochement-bancaire';
             }}
-            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${
-              activeTab === 'reconciliation'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'reconciliation'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             <ArrowPathIcon className="h-5 w-5 inline mr-2" />
             Rapprochement
           </button>
           <button
             onClick={() => setActiveTab('liquidity')}
-            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${
-              activeTab === 'liquidity'
-                ? 'border-b-2 border-blue-600 text-blue-600'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'liquidity'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             <DocumentTextIcon className="h-5 w-5 inline mr-2" />
             Liquidités
           </button>
+          <button
+            onClick={() => setActiveTab('checks')}
+            className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'checks'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-slate-600 hover:text-slate-900'
+              }`}
+          >
+            <CheckIcon className="h-5 w-5 inline mr-2" />
+            Gestion Chèques
+          </button>
         </div>
 
         <div className="p-6">
+          {/* Onglet Chèques */}
+          {activeTab === 'checks' && (
+            <ChecksManagement />
+          )}
+
           {/* Onglet Aperçu */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
@@ -461,7 +630,7 @@ const Tresorerie: React.FC = () => {
           {activeTab === 'forecast' && (
             <div className="space-y-6">
               <CashFlowForecast bankAccounts={visibleAccounts} transactions={visibleTransactions} />
-              
+
               {/* Alertes de Liquidité */}
               {alertesLiquidite.length > 0 && (
                 <Card className="p-6">
@@ -474,16 +643,15 @@ const Tresorerie: React.FC = () => {
                       {alertesLiquidite.length} alerte(s)
                     </span>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {alertesLiquidite.slice(0, 5).map((alerte) => (
                       <div
                         key={alerte.id}
-                        className={`p-4 rounded-lg border-2 ${
-                          alerte.type === 'critique' ? 'bg-red-50 border-red-300' :
+                        className={`p-4 rounded-lg border-2 ${alerte.type === 'critique' ? 'bg-red-50 border-red-300' :
                           alerte.type === 'avertissement' ? 'bg-yellow-50 border-yellow-300' :
-                          'bg-blue-50 border-blue-300'
-                        }`}
+                            'bg-blue-50 border-blue-300'
+                          }`}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
@@ -521,7 +689,7 @@ const Tresorerie: React.FC = () => {
                   </div>
                 </Card>
               )}
-              
+
               {/* Métriques de Trésorerie */}
               <Card className="p-6">
                 <h3 className="text-lg font-semibold text-slate-900 mb-4">Métriques de Trésorerie</h3>
@@ -543,7 +711,7 @@ const Tresorerie: React.FC = () => {
                     <p className="text-xl font-bold text-red-900">{metriquesTresorerie.joursSousSeuil} jours</p>
                   </div>
                 </div>
-                
+
                 {metriquesTresorerie.pointBas && (
                   <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <p className="text-sm font-semibold text-amber-900 mb-1">Point Bas de Trésorerie</p>
@@ -553,7 +721,7 @@ const Tresorerie: React.FC = () => {
                   </div>
                 )}
               </Card>
-              
+
               {/* Planification de Financement */}
               {planFinancement.besoins.length > 0 && (
                 <Card className="p-6">
@@ -562,21 +730,19 @@ const Tresorerie: React.FC = () => {
                     {planFinancement.besoins.map((besoin, idx) => (
                       <div
                         key={idx}
-                        className={`p-4 rounded-lg border-2 ${
-                          besoin.priorite === 'critique' ? 'bg-red-50 border-red-300' :
+                        className={`p-4 rounded-lg border-2 ${besoin.priorite === 'critique' ? 'bg-red-50 border-red-300' :
                           besoin.priorite === 'haute' ? 'bg-orange-50 border-orange-300' :
-                          'bg-yellow-50 border-yellow-300'
-                        }`}
+                            'bg-yellow-50 border-yellow-300'
+                          }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-semibold text-slate-900">
                             Besoin de financement - {new Date(besoin.date).toLocaleDateString('fr-FR')}
                           </h4>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            besoin.priorite === 'critique' ? 'bg-red-200 text-red-800' :
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${besoin.priorite === 'critique' ? 'bg-red-200 text-red-800' :
                             besoin.priorite === 'haute' ? 'bg-orange-200 text-orange-800' :
-                            'bg-yellow-200 text-yellow-800'
-                          }`}>
+                              'bg-yellow-200 text-yellow-800'
+                            }`}>
                             {besoin.priorite}
                           </span>
                         </div>
@@ -599,7 +765,7 @@ const Tresorerie: React.FC = () => {
                   </div>
                 </Card>
               )}
-              
+
               {/* Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
@@ -621,17 +787,17 @@ const Tresorerie: React.FC = () => {
           )}
 
           {/* Onglet Rapprochement */}
-            {/* {activeTab === 'reconciliation' && (
+          {/* {activeTab === 'reconciliation' && (
               <BankReconciliation bankAccounts={bankAccounts} transactions={transactions} />
             )} */}
 
           {/* Onglet Liquidités */}
-            {/* {activeTab === 'liquidity' && (
+          {/* {activeTab === 'liquidity' && (
               <LiquidityDashboard bankAccounts={bankAccounts} transactions={transactions} />
             )} */}
         </div>
       </div>
-      
+
       {/* Modal Simulation de Scénario */}
       <Modal
         isOpen={isScenarioModalOpen}
@@ -645,7 +811,7 @@ const Tresorerie: React.FC = () => {
               Simulez l'impact de différents scénarios sur votre trésorerie (variation CA, délais clients/fournisseurs, investissements).
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -692,7 +858,7 @@ const Tresorerie: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <div className="flex justify-end space-x-3">
             <button
               onClick={() => setIsScenarioModalOpen(false)}
@@ -707,7 +873,7 @@ const Tresorerie: React.FC = () => {
           </div>
         </div>
       </Modal>
-      
+
       {/* Modal Gestion des Échéances */}
       <Modal
         isOpen={isEcheancesModalOpen}
@@ -721,7 +887,7 @@ const Tresorerie: React.FC = () => {
               Gérez et planifiez vos échéances de trésorerie (encaissements et décaissements) pour optimiser votre cash flow.
             </p>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
@@ -740,24 +906,21 @@ const Tresorerie: React.FC = () => {
                     <td className="px-4 py-3 text-sm text-slate-900">{new Date(echeance.date).toLocaleDateString('fr-FR')}</td>
                     <td className="px-4 py-3 text-sm text-slate-900">{echeance.libelle}</td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        echeance.type === 'encaissement' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${echeance.type === 'encaissement' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {echeance.type === 'encaissement' ? 'Entrée' : 'Sortie'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600">{echeance.categorie}</td>
-                    <td className={`px-4 py-3 text-sm text-right font-semibold ${
-                      echeance.type === 'encaissement' ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                    <td className={`px-4 py-3 text-sm text-right font-semibold ${echeance.type === 'encaissement' ? 'text-green-600' : 'text-red-600'
+                      }`}>
                       {echeance.type === 'encaissement' ? '+' : '-'}{formatCurrency(echeance.montant)}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        echeance.statut === 'confirme' ? 'bg-blue-100 text-blue-800' :
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${echeance.statut === 'confirme' ? 'bg-blue-100 text-blue-800' :
                         echeance.statut === 'probable' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                          'bg-gray-100 text-gray-800'
+                        }`}>
                         {echeance.statut}
                       </span>
                     </td>
@@ -766,7 +929,7 @@ const Tresorerie: React.FC = () => {
               </tbody>
             </table>
           </div>
-          
+
           <div className="flex justify-end">
             <button
               onClick={() => setIsEcheancesModalOpen(false)}

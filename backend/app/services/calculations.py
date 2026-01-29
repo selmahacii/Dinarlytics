@@ -37,41 +37,77 @@ class AlgerianFinancialCalculator:
         }
 
     @staticmethod
-    def calculate_g50_summary(net_sales_ht: Decimal, net_purchases_ht: Decimal) -> Dict[str, Any]:
+    def calculate_g50_summary(
+        net_sales_ht: Decimal, 
+        net_purchases_ht: Decimal,
+        irg_amount: Decimal = Decimal('0'),
+        stamp_duty: Decimal = Decimal('0'),
+        tap_rate: Decimal = None
+    ) -> Dict[str, Any]:
         """
-        Calculates the G50 tax summary for a month.
+        Calculates the G50 tax summary (Déclaration mensuelle).
         - TVA Collectée (Sales)
         - TVA Déductible (Purchases)
-        - TAP (2% on Sales)
-        - TVA à Verser
+        - TAP (Taxe sur l'Activité Professionnelle)
+        - IRG (Retenue à la source salaires/honoraires)
+        - Droit de Timbre
         """
+        rate_tap = tap_rate if tap_rate is not None else AlgerianFinancialCalculator.TAP_RATE
+        
         tva_collected = (net_sales_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         tva_deductible = (net_purchases_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-        tap = (net_sales_ht * AlgerianFinancialCalculator.TAP_RATE).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         
-        tva_to_pay = max(Decimal('0'), tva_collected - tva_deductible)
-        total_due = tva_to_pay + tap
+        # TAP = CA * Taux (avec réfaction 25% ou 50% possible, ici simplifié)
+        tap = (net_sales_ht * rate_tap).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        
+        # TVA à payer = (Collectée - Déductible) ou crédit reportable
+        diff_tva = tva_collected - tva_deductible
+        tva_to_pay = diff_tva if diff_tva > 0 else Decimal('0')
+        credit_tva = abs(diff_tva) if diff_tva < 0 else Decimal('0')
+        
+        total_due = tva_to_pay + tap + irg_amount + stamp_duty
 
         return {
             "tva_collected": float(tva_collected),
             "tva_deductible": float(tva_deductible),
+            "credit_tva_reportable": float(credit_tva),
             "tap": float(tap),
+            "irg": float(irg_amount),
+            "timbre": float(stamp_duty),
             "tva_to_pay": float(tva_to_pay),
             "total_due": float(total_due)
         }
 
+    # Taux IBS (Impôt sur les Bénéfices des Sociétés)
+    IBS_RATES = {
+        'production': Decimal('0.19'),      # Biens
+        'btph': Decimal('0.23'),            # Batiment
+        'tourisme': Decimal('0.23'),        # Activités touristiques (souvent assimilé ou taux réduit spécifique)
+        'services': Decimal('0.26'),        # Commerce et services (Standard)
+        'mixte': Decimal('0.26')            # Par défaut
+    }
+
     @staticmethod
-    def calculate_ibs(net_profit_accounting: Decimal, reintegrations: Decimal = Decimal('0'), deductions: Decimal = Decimal('0')) -> Dict[str, Decimal]:
+    def calculate_ibs(
+        net_profit_accounting: Decimal, 
+        reintegrations: Decimal = Decimal('0'), 
+        deductions: Decimal = Decimal('0'),
+        activity_sector: str = 'services'
+    ) -> Dict[str, Decimal]:
         """
         Calculates the Impôt sur les Bénéfices des Sociétés (IBS).
-        Standard rate: 26% (can be 19% for production or 23% for building)
+        Standard rate: 26% (Services), 23% (BTPH), 19% (Production).
         """
         profit_taxable = net_profit_accounting + reintegrations - deductions
-        ibs_rate = Decimal('0.26')
+        if profit_taxable < 0:
+            profit_taxable = Decimal('0')
+
+        ibs_rate = AlgerianFinancialCalculator.IBS_RATES.get(activity_sector.lower(), Decimal('0.26'))
         ibs_amount = (profit_taxable * ibs_rate).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         
         return {
             "profit_taxable": profit_taxable,
+            "ibs_rate": ibs_rate,
             "ibs_amount": ibs_amount,
-            "net_after_tax": profit_taxable - ibs_amount
+            "net_after_tax": (net_profit_accounting + reintegrations - deductions) - ibs_amount
         }

@@ -84,7 +84,7 @@ const EtatsRapports: React.FC = () => {
   const totalDebitSansResultat = 2500000 + 850000 + 1250000 + 450000 + 125000 + 3100000 + 420000 + 680000 + 95000 + 100000 + 16150;
   const totalCreditSansResultat = 450000 + 1000000 + 1500000 + 890000 + 285000 + 200000 + 5200000 + 45000;
   const resultatBalance = totalCreditSansResultat - totalDebitSansResultat;
-  
+
   const balanceGenerale = [
     // Actif Immobilisé
     { compte: '21', libelle: 'Immobilisations corporelles', debit: 2500000, credit: 0 },
@@ -129,7 +129,8 @@ const EtatsRapports: React.FC = () => {
     { id: 'bilan', nom: 'Bilan Comptable', icon: ScaleIcon, color: 'emerald' },
     { id: 'resultat', nom: 'Compte de Résultat', icon: ChartBarIcon, color: 'cyan' },
     { id: 'flux', nom: 'Flux de Trésorerie', icon: BanknotesIcon, color: 'amber' },
-    { id: 'balance', nom: 'Balance Générale', icon: CalculatorIcon, color: 'slate' }
+    { id: 'balance', nom: 'Balance Générale', icon: CalculatorIcon, color: 'slate' },
+    { id: 'grand-livre', nom: 'Grand Livre', icon: ClipboardDocumentListIcon, color: 'indigo' }
   ];
 
   const handleImprimerEtatsOfficiels = () => {
@@ -147,7 +148,7 @@ const EtatsRapports: React.FC = () => {
     // Générer le contenu HTML pour l'impression
     const etatNom = etatsDisponibles.find(e => e.id === etatAImprimer)?.nom || 'État Comptable';
     const periode = selectedPeriode;
-    
+
     let contenuHTML = `
       <!DOCTYPE html>
       <html>
@@ -434,7 +435,7 @@ const EtatsRapports: React.FC = () => {
 
     printWindow.document.write(contenuHTML);
     printWindow.document.close();
-    
+
     // Attendre que le contenu soit chargé puis déclencher l'impression
     setTimeout(() => {
       printWindow.print();
@@ -472,9 +473,15 @@ const EtatsRapports: React.FC = () => {
               <PrinterIcon className="h-5 w-5 inline mr-2" />
               Imprimer
             </button>
-            <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium">
-              <DocumentArrowDownIcon className="h-5 w-5 inline mr-2" />
-              Exporter
+            <button
+              onClick={() => {
+                const year = selectedPeriode.split('-')[0];
+                window.open(`http://localhost:8000/fiscality/liasse-fiscale/xml?year=${year}&token=${localStorage.getItem('token')}`, '_blank');
+              }}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium flex items-center"
+            >
+              <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
+              Exporter Jibaya XML
             </button>
           </div>
         </div>
@@ -489,11 +496,10 @@ const EtatsRapports: React.FC = () => {
               <button
                 key={etat.id}
                 onClick={() => setSelectedEtat(etat.id)}
-                className={`flex items-center p-4 rounded-lg border-2 transition-all ${
-                  selectedEtat === etat.id
-                    ? 'border-slate-500 bg-slate-50'
-                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                }`}
+                className={`flex items-center p-4 rounded-lg border-2 transition-all ${selectedEtat === etat.id
+                  ? 'border-slate-500 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
               >
                 <div className={`p-2 bg-${etat.color}-100 rounded-lg mr-3`}>
                   <Icon className={`h-5 w-5 text-${etat.color}-600`} />
@@ -822,12 +828,11 @@ const EtatsRapports: React.FC = () => {
                     </span>
                   </div>
                   <div className="w-full bg-slate-200 rounded-full h-3">
-                    <div 
-                      className={`h-3 rounded-full ${
-                        flux.color === 'emerald' ? 'bg-emerald-500' :
+                    <div
+                      className={`h-3 rounded-full ${flux.color === 'emerald' ? 'bg-emerald-500' :
                         flux.color === 'red' ? 'bg-red-500' :
-                        'bg-amber-500'
-                      }`}
+                          'bg-amber-500'
+                        }`}
                       style={{ width: `${flux.pourcent}%` }}
                     ></div>
                   </div>
@@ -856,75 +861,152 @@ const EtatsRapports: React.FC = () => {
           { compte: '60', libelle: 'Achats', debit: 3100000, credit: 0, solde: 3100000 },
           { compte: '64', libelle: 'Frais de personnel', debit: 680000, credit: 0, solde: 680000 }
         ];
-        
+
         const totalDebitBalance = balanceData.reduce((sum, ligne) => sum + ligne.debit, 0);
         const totalCreditBalance = balanceData.reduce((sum, ligne) => sum + ligne.credit, 0);
-        
+
         return (
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-          <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
-            <h3 className="text-lg font-bold text-slate-900">BALANCE GÉNÉRALE</h3>
-            <p className="text-sm text-slate-600 mt-1">Tous les comptes - Période : {selectedPeriode}</p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase">Compte</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase">Libellé</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Débit</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Crédit</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Solde</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
-                {balanceData.map((ligne, i) => (
-                  <tr key={i} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-3 whitespace-nowrap">
-                      <span className="text-sm font-mono font-bold text-slate-900">{ligne.compte}</span>
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200">
+            <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <h3 className="text-lg font-bold text-slate-900">BALANCE GÉNÉRALE</h3>
+              <p className="text-sm text-slate-600 mt-1">Tous les comptes - Période : {selectedPeriode}</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase">Compte</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 uppercase">Libellé</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Débit</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Crédit</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-slate-600 uppercase">Solde</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-200">
+                  {balanceData.map((ligne, i) => (
+                    <tr key={i} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <span className="text-sm font-mono font-bold text-slate-900">{ligne.compte}</span>
+                      </td>
+                      <td className="px-6 py-3">
+                        <span className="text-sm text-slate-700">{ligne.libelle}</span>
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <span className="text-sm font-semibold text-cyan-600">
+                          {ligne.debit > 0 ? formatCurrency(ligne.debit) : '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <span className="text-sm font-semibold text-emerald-600">
+                          {ligne.credit > 0 ? formatCurrency(ligne.credit) : '-'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <span className={`text-sm font-bold ${ligne.solde >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
+                          {formatCurrency(Math.abs(ligne.solde))} {ligne.solde < 0 ? 'C' : 'D'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-slate-50 border-t-2 border-slate-300">
+                  <tr>
+                    <td colSpan={2} className="px-6 py-4 text-right">
+                      <span className="text-sm font-bold text-slate-900">TOTAUX GÉNÉRAUX :</span>
                     </td>
-                    <td className="px-6 py-3">
-                      <span className="text-sm text-slate-700">{ligne.libelle}</span>
+                    <td className="px-6 py-4 text-right">
+                      <span className="text-base font-bold text-cyan-600">{formatCurrency(totalDebitBalance)}</span>
                     </td>
-                    <td className="px-6 py-3 text-right">
-                      <span className="text-sm font-semibold text-cyan-600">
-                        {ligne.debit > 0 ? formatCurrency(ligne.debit) : '-'}
-                      </span>
+                    <td className="px-6 py-4 text-right">
+                      <span className="text-base font-bold text-emerald-600">{formatCurrency(totalCreditBalance)}</span>
                     </td>
-                    <td className="px-6 py-3 text-right">
-                      <span className="text-sm font-semibold text-emerald-600">
-                        {ligne.credit > 0 ? formatCurrency(ligne.credit) : '-'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3 text-right">
-                      <span className={`text-sm font-bold ${ligne.solde >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
-                        {formatCurrency(Math.abs(ligne.solde))} {ligne.solde < 0 ? 'C' : 'D'}
+                    <td className="px-6 py-4 text-right">
+                      <span className="text-base font-bold text-slate-900">
+                        {totalDebitBalance === totalCreditBalance ? '✓ Équilibré' : 'Déséquilibre'}
                       </span>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot className="bg-slate-50 border-t-2 border-slate-300">
-                <tr>
-                  <td colSpan={2} className="px-6 py-4 text-right">
-                    <span className="text-sm font-bold text-slate-900">TOTAUX GÉNÉRAUX :</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="text-base font-bold text-cyan-600">{formatCurrency(totalDebitBalance)}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="text-base font-bold text-emerald-600">{formatCurrency(totalCreditBalance)}</span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="text-base font-bold text-slate-900">
-                      {totalDebitBalance === totalCreditBalance ? '✓ Équilibré' : 'Déséquilibre'}
-                    </span>
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                </tfoot>
+              </table>
+            </div>
           </div>
-        </div>
+        );
+      })()}
+
+      {/* Grand Livre */}
+      {selectedEtat === 'grand-livre' && (() => {
+        const grandLivreData = [
+          {
+            compte: '512',
+            nom: 'Banque Standard Chartered',
+            ecritures: [
+              { date: '2025-04-01', libelle: 'Solde à nouveau', debit: 450000, credit: 0, solde: 450000 },
+              { date: '2025-04-05', libelle: 'Vente Facture F2025-001', debit: 125000, credit: 0, solde: 575000 },
+              { date: '2025-04-10', libelle: 'Paiement Fournisseur Sarl ABC', debit: 0, credit: 85000, solde: 490000 },
+              { date: '2025-04-15', libelle: 'Virement salaire Avril', debit: 0, credit: 150000, solde: 340000 }
+            ]
+          },
+          {
+            compte: '411',
+            nom: 'Clients Collectifs',
+            ecritures: [
+              { date: '2025-04-01', libelle: 'Solde à nouveau', debit: 1250000, credit: 0, solde: 1250000 },
+              { date: '2025-04-05', libelle: 'Facture F2025-001 - Client XYZ', debit: 85000, credit: 0, solde: 1335000 },
+              { date: '2025-04-20', libelle: 'Règlement Facture F2025-001', debit: 0, credit: 85000, solde: 1250000 }
+            ]
+          }
+        ];
+
+        return (
+          <div className="space-y-6">
+            {grandLivreData.map((compte, idx) => (
+              <div key={idx} className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                <div className="px-6 py-4 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="p-2 bg-indigo-600 text-white rounded mr-3 font-mono font-bold">
+                      {compte.compte}
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">{compte.nom}</h3>
+                  </div>
+                  <div className="text-sm font-medium text-indigo-700">
+                    Solde final: {formatCurrency(compte.ecritures[compte.ecritures.length - 1].solde)}
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Libellé</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Débit</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Crédit</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Solde</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-200">
+                      {compte.ecritures.map((ecriture, i) => (
+                        <tr key={i} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-3 whitespace-nowrap text-sm text-slate-600">
+                            {new Date(ecriture.date).toLocaleDateString('fr-FR')}
+                          </td>
+                          <td className="px-6 py-3 text-sm text-slate-900">{ecriture.libelle}</td>
+                          <td className="px-6 py-3 text-right text-sm font-medium text-slate-900">
+                            {ecriture.debit > 0 ? formatCurrency(ecriture.debit) : '-'}
+                          </td>
+                          <td className="px-6 py-3 text-right text-sm font-medium text-slate-900">
+                            {ecriture.credit > 0 ? formatCurrency(ecriture.credit) : '-'}
+                          </td>
+                          <td className={`px-6 py-3 text-right text-sm font-bold ${ecriture.solde >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
+                            {formatCurrency(Math.abs(ecriture.solde))} {ecriture.solde < 0 ? 'C' : 'D'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+          </div>
         );
       })()}
 
@@ -948,7 +1030,7 @@ const EtatsRapports: React.FC = () => {
             </p>
             <p className="text-xs text-slate-500 mb-3">Actif circulant / Dettes CT</p>
             <div className="w-full bg-slate-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-emerald-500 h-2 rounded-full"
                 style={{ width: `${Math.min((bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / bilan.passif.dettes.reduce((s, i) => s + i.montant, 0)) * 50, 100)}%` }}
               ></div>
@@ -969,7 +1051,7 @@ const EtatsRapports: React.FC = () => {
             </p>
             <p className="text-xs text-slate-500 mb-3">Dettes / Capitaux propres</p>
             <div className="w-full bg-slate-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-amber-500 h-2 rounded-full"
                 style={{ width: `${Math.min(((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0)) * 100) / 2, 100)}%` }}
               ></div>
@@ -990,7 +1072,7 @@ const EtatsRapports: React.FC = () => {
             </p>
             <p className="text-xs text-slate-500 mb-3">Résultat net / CA total</p>
             <div className="w-full bg-slate-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-cyan-500 h-2 rounded-full"
                 style={{ width: `${((resultat / totalProduits) * 100) * 5}%` }}
               ></div>
@@ -1011,7 +1093,7 @@ const EtatsRapports: React.FC = () => {
             </p>
             <p className="text-xs text-slate-500 mb-3">Marge commerciale / CA</p>
             <div className="w-full bg-slate-200 rounded-full h-2">
-              <div 
+              <div
                 className="bg-emerald-500 h-2 rounded-full"
                 style={{ width: `${(((totalProduits - compteResultat.charges.find(c => c.compte === '60')!.montant) / totalProduits) * 100) * 2}%` }}
               ></div>
@@ -1036,7 +1118,7 @@ const EtatsRapports: React.FC = () => {
             </p>
             <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-slate-600">
-                Résultat : {formatCurrency(resultat)}<br/>
+                Résultat : {formatCurrency(resultat)}<br />
                 Capitaux propres : {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0))}
               </p>
             </div>
@@ -1056,7 +1138,7 @@ const EtatsRapports: React.FC = () => {
             </p>
             <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-slate-600">
-                Résultat : {formatCurrency(resultat)}<br/>
+                Résultat : {formatCurrency(resultat)}<br />
                 Total actif : {formatCurrency(totalActif)}
               </p>
             </div>
@@ -1073,13 +1155,13 @@ const EtatsRapports: React.FC = () => {
             </div>
             <p className="text-2xl font-bold text-slate-900">
               {formatCurrency(
-                (bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + bilan.passif.dettes.find(d => d.compte === '16')!.montant) - 
+                (bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + bilan.passif.dettes.find(d => d.compte === '16')!.montant) -
                 (bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0))
               )}
             </p>
             <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-slate-600">
-                Ressources stables : {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + 1500000)}<br/>
+                Ressources stables : {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + 1500000)}<br />
                 Emplois stables : {formatCurrency(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0))}
               </p>
             </div>
@@ -1131,7 +1213,7 @@ const EtatsRapports: React.FC = () => {
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-3">
-                <div 
+                <div
                   className="bg-cyan-500 h-3 rounded-full"
                   style={{ width: `${((Math.abs(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0)) / totalActif) * 100)}%` }}
                 ></div>
@@ -1146,7 +1228,7 @@ const EtatsRapports: React.FC = () => {
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-3">
-                <div 
+                <div
                   className="bg-emerald-500 h-3 rounded-full"
                   style={{ width: `${((bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / totalActif) * 100)}%` }}
                 ></div>
@@ -1162,7 +1244,7 @@ const EtatsRapports: React.FC = () => {
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-3">
-                <div 
+                <div
                   className="bg-emerald-500 h-3 rounded-full"
                   style={{ width: `${((bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100)}%` }}
                 ></div>
@@ -1177,7 +1259,7 @@ const EtatsRapports: React.FC = () => {
                 </span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-3">
-                <div 
+                <div
                   className="bg-amber-500 h-3 rounded-full"
                   style={{ width: `${((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100)}%` }}
                 ></div>
@@ -1197,14 +1279,14 @@ const EtatsRapports: React.FC = () => {
           <DocumentArrowDownIcon className="h-5 w-5 text-emerald-600 mr-2" />
           <span className="text-sm font-semibold text-slate-700">Exporter en Excel</span>
         </button>
-        <button 
+        <button
           onClick={handleImprimerEtatsOfficiels}
           className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shadow-sm hover:shadow-md cursor-pointer"
         >
           <PrinterIcon className="h-5 w-5 text-slate-600 mr-2" />
           <span className="text-sm font-semibold text-slate-700">Imprimer États Officiels</span>
         </button>
-        <button 
+        <button
           onClick={() => setIsAnalyseGraphiqueModalOpen(true)}
           className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shadow-sm hover:shadow-md cursor-pointer"
         >
@@ -1314,7 +1396,7 @@ const EtatsRapports: React.FC = () => {
 
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <p className="text-sm text-amber-800">
-              <strong>⚠️ Important:</strong> Assurez-vous que votre navigateur autorise les pop-ups pour l'impression. 
+              <strong>⚠️ Important:</strong> Assurez-vous que votre navigateur autorise les pop-ups pour l'impression.
               Le document sera ouvert dans une nouvelle fenêtre et l'impression sera déclenchée automatiquement.
             </p>
           </div>

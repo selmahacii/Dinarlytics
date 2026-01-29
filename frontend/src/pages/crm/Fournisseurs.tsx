@@ -19,6 +19,7 @@ import {
   EyeIcon,
   PrinterIcon,
   ArrowDownTrayIcon,
+  ArrowPathIcon,
   FunnelIcon,
   CalendarIcon,
   BuildingOfficeIcon,
@@ -61,6 +62,320 @@ import {
   type RisqueFournisseur
 } from '../../utils/fournisseurs';
 
+// --- Composant Formulaire Facture avec OCR ---
+
+interface InvoiceFormWithOCRProps {
+  topFournisseurs: any[];
+  onClose: () => void;
+}
+
+const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs, onClose }) => {
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [scannedFile, setScannedFile] = useState<File | null>(null);
+  const [formData, setFormData] = useState({
+    fournisseur: '',
+    numero: '',
+    dateEmission: new Date().toISOString().split('T')[0],
+    dateEcheance: '',
+    totalHT: 0,
+    totalTVA: 0,
+    totalTTC: 0,
+    notes: ''
+  });
+  const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [showSignaturePad, setShowSignaturePad] = useState(false);
+  const { formatCurrency } = useApp();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setScannedFile(file);
+      await processOCR(file);
+    }
+  };
+
+  const processOCR = async (file: File) => {
+    setOcrLoading(true);
+    const data = new FormData();
+    data.append('file', file);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8000/ocr/analyze', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: data
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          const extracted = result.data;
+
+          // Auto-fill logic
+          setFormData(prev => ({
+            ...prev,
+            totalTTC: extracted.total_amount || prev.totalTTC,
+            dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
+            notes: `[OCR] NIF détecté: ${extracted.merchant_nif || 'Non'}. \n` + prev.notes
+          }));
+
+          // Tentative de mapping fournisseur
+          if (extracted.merchant_nif) {
+            const matched = topFournisseurs.find(f => f.nif === extracted.merchant_nif);
+            if (matched) {
+              setFormData(prev => ({
+                ...prev,
+                fournisseur: matched.nom,
+                totalTTC: extracted.total_amount || prev.totalTTC,
+                dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
+              }));
+              alert(`OCR Terminé ! Fournisseur détecté: ${matched.nom}. Montant: ${extracted.total_amount}`);
+            } else {
+              alert(`OCR Terminé ! Montant: ${extracted.total_amount}, NIF: ${extracted.merchant_nif}`);
+            }
+          } else {
+            alert(`OCR Terminé ! Montant: ${extracted.total_amount}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("OCR Error", error);
+      alert("Erreur lors de l'analyse OCR.");
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+
+  // Helper to convert DD/MM/YYYY to YYYY-MM-DD
+  const formatDateForInput = (dateStr: string) => {
+    if (!dateStr) return '';
+    // Basic parser assuming DD/MM/YYYY or similar
+    const parts = dateStr.split(/[\/\-\.]/);
+    if (parts.length === 3) {
+      // Assume day/month/year if first part is small? Or strict format?
+      // Let's assume DD/MM/YYYY
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return dateStr;
+  }
+
+  return (
+    <form className="space-y-6">
+      {/* Zone OCR */}
+      <div className="bg-indigo-50 border-2 border-dashed border-indigo-300 rounded-lg p-6 text-center hover:bg-indigo-100 transition-colors cursor-pointer relative">
+        <input
+          type="file"
+          accept="image/*,application/pdf"
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          onChange={handleFileChange}
+        />
+        {ocrLoading ? (
+          <div className="flex flex-col items-center">
+            <ArrowPathIcon className="h-10 w-10 text-indigo-600 animate-spin" />
+            <p className="mt-2 text-sm font-medium text-indigo-800">Analyse intelligente en cours...</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <DocumentTextIcon className="h-10 w-10 text-indigo-500 mb-2" />
+            <p className="text-sm font-medium text-indigo-900">
+              {scannedFile ? `Fichier prêt: ${scannedFile.name}` : "Scanner / Importer une facture"}
+            </p>
+            <p className="text-xs text-indigo-600 mt-1">
+              {scannedFile ? "Cliquez pour changer" : "Glissez un fichier ou cliquez pour utiliser la caméra"}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Informations générales */}
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <DocumentTextIcon className="h-5 w-5 mr-2 text-blue-600" />
+          Informations Générales
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Fournisseur *
+            </label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              value={formData.fournisseur}
+              onChange={e => setFormData({ ...formData, fournisseur: e.target.value })}
+            >
+              <option value="">Sélectionner un fournisseur</option>
+              {topFournisseurs.map((f, idx) => (
+                <option key={idx} value={f.nom}>{f.nom}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Numéro de Facture *
+            </label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="FAC-2024-XXX"
+              required
+              value={formData.numero}
+              onChange={e => setFormData({ ...formData, numero: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date d'émission *
+            </label>
+            <input
+              type="date"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              value={formData.dateEmission}
+              onChange={e => setFormData({ ...formData, dateEmission: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date d'échéance *
+            </label>
+            <input
+              type="date"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+              value={formData.dateEcheance}
+              onChange={e => setFormData({ ...formData, dateEcheance: e.target.value })}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Articles (Simplifié pour l'exemple, normalement dynamique) */}
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />
+          Articles (Saisie manuelle pour l'instant)
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">L'extraction automatique des lignes d'articles est prévue pour la version 2.0.</p>
+      </div>
+
+      {/* Totaux */}
+      <div className="bg-blue-50 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <CurrencyDollarIcon className="h-5 w-5 mr-2 text-blue-600" />
+          Totaux (Détectés par OCR)
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Total HT</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="0"
+              value={formData.totalHT}
+              onChange={e => setFormData({ ...formData, totalHT: Number(e.target.value) })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Total TVA</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="0"
+              value={formData.totalTVA}
+              onChange={e => setFormData({ ...formData, totalTVA: Number(e.target.value) })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Total TTC</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-bold"
+              placeholder="0"
+              value={formData.totalTTC}
+              onChange={e => setFormData({ ...formData, totalTTC: Number(e.target.value) })}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Signature Électronique */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
+          Signature Électronique
+        </h3>
+
+        {!signatureData && !showSignaturePad && (
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowSignaturePad(true)}
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium"
+            >
+              <DocumentCheckIcon className="h-5 w-5" />
+              Ajouter une signature
+            </button>
+          </div>
+        )}
+
+        {showSignaturePad && !signatureData && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg border-2 border-gray-300 p-2">
+              <SignaturePad
+                onSave={(dataUrl: string) => {
+                  setSignatureData(dataUrl);
+                  setShowSignaturePad(false);
+                }}
+                onCancel={() => setShowSignaturePad(false)}
+                className="w-full"
+              />
+            </div>
+          </div>
+        )}
+
+        {signatureData && (
+          <div className="space-y-3">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 flex items-center gap-2">
+              <CheckCircleIcon className="h-5 w-5" />
+              Signature ajoutée avec succès
+            </div>
+            <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
+              <img src={signatureData} alt="Signature" className="h-16 object-contain" />
+              <button onClick={() => setSignatureData(null)} className="text-xs text-red-600 mt-2">Supprimer</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          onClick={(e) => {
+            e.preventDefault();
+            alert('Facture OCR créée avec succès !');
+            onClose();
+          }}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+        >
+          <CheckCircleIcon className="h-5 w-5 mr-2" />
+          Créer Facture
+        </button>
+      </div>
+    </form>
+  );
+};
+
 const Fournisseurs: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
   const { t } = useTranslation();
@@ -97,6 +412,7 @@ const Fournisseurs: React.FC = () => {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [isPaiementModalOpen, setIsPaiementModalOpen] = useState(false);
   const [selectedFacture, setSelectedFacture] = useState<any>(null);
+  const [nifError, setNifError] = useState<string | null>(null);
 
   // États pour les nouvelles fonctionnalités
   const [isPerformanceModalOpen, setIsPerformanceModalOpen] = useState(false);
@@ -112,21 +428,29 @@ const Fournisseurs: React.FC = () => {
     nextSteps: string[];
   } | null>(null);
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('liste');
+  const [filterStatus, setFilterStatus] = useState('tous');
+  const [selectedCommande, setSelectedCommande] = useState<any>(null);
+  const [isCommandeModalOpen, setIsCommandeModalOpen] = useState(false);
+  const [isNouvelleCommandeModalOpen, setIsNouvelleCommandeModalOpen] = useState(false);
+  const [isFactureModalOpen, setIsFactureModalOpen] = useState(false);
+
   // Calculer les analyses de performance
   const analysesPerformance = useMemo(() => {
     const historique = mockFournisseurs.flatMap((fournisseur: any) => {
-      const nombreCommandes = Math.floor(Math.random() * 20) + 5;
+      const nombreCommandes = Math.floor(0.5 * 20) + 5;
       return Array.from({ length: nombreCommandes }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (nombreCommandes - i));
         return {
           fournisseurId: fournisseur.id?.toString() || fournisseur.nom || '',
           montant: (fournisseur.montantTotal || 1000000) / nombreCommandes,
-          delaiLivraison: 5 + Math.random() * 20,
-          qualite: 75 + Math.random() * 20,
-          service: 70 + Math.random() * 25,
+          delaiLivraison: 5 + 0.5 * 20,
+          qualite: 75 + 0.5 * 20,
+          service: 70 + 0.5 * 25,
           date: date.toISOString().split('T')[0],
-          dpo: 30 + Math.random() * 30
+          dpo: 30 + 0.5 * 30
         };
       });
     });
@@ -150,9 +474,9 @@ const Fournisseurs: React.FC = () => {
       id: fournisseur.id?.toString() || fournisseur.nom || '',
       nom: fournisseur.nom || '',
       coutActuel: fournisseur.montantTotal || 1000000,
-      nombreCommandes: Math.floor(Math.random() * 30) + 5,
-      delaiPaiement: 30 + Math.random() * 30,
-      qualite: 75 + Math.random() * 20
+      nombreCommandes: Math.floor(0.5 * 30) + 5,
+      delaiPaiement: 30 + 0.5 * 30,
+      qualite: 75 + 0.5 * 20
     }));
 
     return optimiserCouts(fournisseursAvecDonnees);
@@ -161,7 +485,7 @@ const Fournisseurs: React.FC = () => {
   // Générer les prévisions d'achats
   const previsionsAchats = useMemo(() => {
     const historique = mockFournisseurs.flatMap((fournisseur: any) => {
-      const nombreCommandes = Math.floor(Math.random() * 12) + 3;
+      const nombreCommandes = Math.floor(0.5 * 12) + 3;
       return Array.from({ length: nombreCommandes }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (nombreCommandes - i));
@@ -182,10 +506,10 @@ const Fournisseurs: React.FC = () => {
       id: fournisseur.id?.toString() || fournisseur.nom || '',
       nom: fournisseur.nom || '',
       coutActuel: fournisseur.montantTotal || 1000000,
-      nombreCommandes: Math.floor(Math.random() * 30) + 5,
-      delaiPaiement: 30 + Math.random() * 30,
-      qualite: 75 + Math.random() * 20,
-      delaiLivraison: 5 + Math.random() * 20
+      nombreCommandes: Math.floor(0.5 * 30) + 5,
+      delaiPaiement: 30 + 0.5 * 30,
+      qualite: 75 + 0.5 * 20,
+      delaiLivraison: 5 + 0.5 * 20
     }));
 
     return genererOpportunitesNegociation(fournisseursAvecDonnees);
@@ -198,10 +522,10 @@ const Fournisseurs: React.FC = () => {
       id: fournisseur.id?.toString() || fournisseur.nom || '',
       nom: fournisseur.nom || '',
       partCA: totalCA > 0 ? ((fournisseur.montantTotal || 0) / totalCA) * 100 : 0,
-      delaiLivraison: 5 + Math.random() * 20,
-      qualite: 75 + Math.random() * 20,
+      delaiLivraison: 5 + 0.5 * 20,
+      qualite: 75 + 0.5 * 20,
       localisation: fournisseur.adresse || 'Algérie',
-      nombreCommandes: Math.floor(Math.random() * 30) + 5
+      nombreCommandes: Math.floor(0.5 * 30) + 5
     }));
 
     return evaluerRisquesFournisseurs(fournisseursAvecDonnees);
@@ -221,17 +545,21 @@ const Fournisseurs: React.FC = () => {
   // INTERFACE EURL MICRO-ENTREPRISE
   // ========================================
   if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
-    const totalAchats = Math.round(companyData.revenueMonth * 0.45);
-    const nombreFournisseurs = Math.max(3, Math.floor(companyData.clientsCount * 0.4));
-    const dettesFournisseurs = Math.round(totalAchats * 0.35);
-    const facturesAPayer = Math.floor(nombreFournisseurs * 1.5);
+    const totalAchats = fournisseurs.reduce((sum, f) => sum + Number(f.total_purchases || 0), 0);
+    const nombreFournisseurs = fournisseurs.length;
+    const dettesFournisseurs = fournisseurs.reduce((sum, f) => sum + Number(f.balance || 0), 0);
+    const facturesAPayer = fournisseurs.reduce((sum, f) => sum + (f.pending_invoices_count || 0), 0);
+
 
     // Top 3 fournisseurs
-    const topFournisseurs = [
-      { nom: 'Fournisseur Principal A', montant: Math.round(totalAchats * 0.40), factures: 8, delai: 30 },
-      { nom: 'Fournisseur B', montant: Math.round(totalAchats * 0.30), factures: 5, delai: 45 },
-      { nom: 'Fournisseur C', montant: Math.round(totalAchats * 0.20), factures: 3, delai: 20 }
-    ];
+    const topFournisseurs = fournisseurs.slice(0, 3).map(f => ({
+      nom: (f as any).nom || (f as any).name || '',
+      nif: (f as any).nif || (f as any).tax_id || '',
+      montant: Number((f as any).total_purchases || 0),
+      factures: (f as any).invoices_count || 0,
+      delai: (f as any).average_payment_days || 30
+    }));
+
 
     return (
       <div className="space-y-6 max-w-7xl mx-auto p-6">
@@ -262,7 +590,7 @@ const Fournisseurs: React.FC = () => {
               </div>
             </div>
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Volume Achats</h3>
-            <p className="text-3xl font-extrabold text-slate-900">{totalAchats?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+            <p className="text-3xl font-extrabold text-slate-900">{totalAchats?.toLocaleString('fr-FR', { style: 'currency', currency: 'DZD' })}</p>
             <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-emerald-600 font-semibold">📦 Ce mois</p>
             </div>
@@ -288,7 +616,7 @@ const Fournisseurs: React.FC = () => {
               </div>
             </div>
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Dettes Fournisseurs</h3>
-            <p className="text-3xl font-extrabold text-slate-900">{dettesFournisseurs?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+            <p className="text-3xl font-extrabold text-slate-900">{dettesFournisseurs?.toLocaleString('fr-FR', { style: 'currency', currency: 'DZD' })}</p>
             <div className="mt-3 pt-3 border-t border-slate-200">
               <p className="text-xs text-amber-600 font-semibold">💳 À payer</p>
             </div>
@@ -317,7 +645,7 @@ const Fournisseurs: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-extrabold text-emerald-600">{fournisseur.montant?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+                    <p className="text-2xl font-extrabold text-emerald-600">{fournisseur.montant?.toLocaleString('fr-FR', { style: 'currency', currency: 'DZD' })}</p>
                     <p className="text-xs text-slate-500">{Math.round((fournisseur.montant / totalAchats) * 100)}% du total</p>
                   </div>
                 </div>
@@ -412,6 +740,7 @@ const Fournisseurs: React.FC = () => {
           onClose={() => {
             setIsModalOpen(false);
             setSelectedFournisseur(null);
+            setNifError(null);
           }}
           title={selectedFournisseur ? 'Modifier Fournisseur' : 'Nouveau Fournisseur'}
           size="lg"
@@ -426,11 +755,19 @@ const Fournisseurs: React.FC = () => {
               const adresse = formData.get('adresse') as string;
               const notes = formData.get('notes') as string;
 
+              const tax_id = formData.get('tax_id') as string;
+
+              if (nifError) {
+                alert("Veuillez corriger les erreurs avant de soumettre.");
+                return;
+              }
+
               const apiData = {
                 name: nom,
                 phone: contact,
                 email: email,
                 address: adresse,
+                tax_id: tax_id,
                 // note: notes // not supported by backend yet
               };
 
@@ -484,6 +821,36 @@ const Fournisseurs: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Ex: Fournisseur ABC"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  NIF (Numéro d'Identification Fiscale)
+                </label>
+                <input
+                  type="text"
+                  name="tax_id"
+                  defaultValue={selectedFournisseur?.tax_id || selectedFournisseur?.nif || ''}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${nifError ? 'border-red-500 py-2' : 'border-gray-300'
+                    }`}
+                  placeholder="15 chiffres"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    // Validation simple : doit être numérique. La longueur 15/20 est recommandée mais on peut être souple ou strict.
+                    // Le backend est strict (15 ou 20). Soyons stricts aussi pour le feedback visuel.
+                    if (val && !/^\d{15}$|^\d{20}$/.test(val)) {
+                      setNifError("Le NIF doit comporter 15 ou 20 chiffres");
+                    } else {
+                      setNifError(null);
+                    }
+                  }}
+                />
+                {nifError && (
+                  <p className="text-xs text-red-500 mt-1 flex items-center">
+                    <ExclamationTriangleIcon className="h-3 w-3 mr-1" />
+                    {nifError}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -571,278 +938,15 @@ const Fournisseurs: React.FC = () => {
           title="Nouvelle Facture Fournisseur"
           size="xl"
         >
+
           <div className="max-h-[80vh] overflow-y-auto pr-2">
-            <form className="space-y-6">
-              {/* Informations générales */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <DocumentTextIcon className="h-5 w-5 mr-2 text-blue-600" />
-                  Informations Générales
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Fournisseur *
-                    </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required aria-label="Fournisseur">
-                      <option value="">Sélectionner un fournisseur</option>
-                      {topFournisseurs.map((f, idx) => (
-                        <option key={idx} value={f.nom}>{f.nom}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Numéro de Facture *
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="FAC-2024-XXX"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date d'émission *
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                      aria-label="Date d'émission"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Date d'échéance *
-                    </label>
-                    <input
-                      type="date"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                      aria-label="Date d'échéance"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Articles */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />
-                  Articles
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Article</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Nom de l'article"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Prix Unitaire HT</label>
-                      <input
-                        type="number"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">TVA (%)</label>
-                      <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="TVA">
-                        <option value="19">19%</option>
-                        <option value="9">9%</option>
-                        <option value="0">0%</option>
-                      </select>
-                    </div>
-                    <div className="flex items-end">
-                      <button
-                        type="button"
-                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                      >
-                        Ajouter
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Totaux */}
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <CurrencyDollarIcon className="h-5 w-5 mr-2 text-blue-600" />
-                  Totaux
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Total HT</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Total TVA</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Total TTC</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-bold"
-                      placeholder="0"
-                      readOnly
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <DocumentTextIcon className="h-5 w-5 mr-2 text-gray-600" />
-                  Notes
-                </h3>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Notes internes
-                  </label>
-                  <textarea
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Notes sur la facture..."
-                    rows={4}
-                  />
-                </div>
-              </div>
-
-              {/* Signature Électronique */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
-                  Signature Électronique
-                </h3>
-
-                {!signatureData && !showSignaturePad && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-600 mb-3">
-                      Ajoutez une signature électronique à cette facture. Vous pouvez dessiner votre signature dans le champ ci-dessous.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setShowSignaturePad(true)}
-                      className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium"
-                    >
-                      <DocumentCheckIcon className="h-5 w-5" />
-                      Ajouter une signature
-                    </button>
-                  </div>
-                )}
-
-                {showSignaturePad && !signatureData && (
-                  <div className="space-y-4">
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
-                      💡 Tracez votre signature dans le champ ci-dessous avec votre souris ou votre doigt (sur écran tactile)
-                    </div>
-                    <div className="bg-white rounded-lg border-2 border-gray-300 p-2">
-                      <SignaturePad
-                        onSave={(dataUrl: string) => {
-                          setSignatureData(dataUrl);
-                          setShowSignaturePad(false);
-                        }}
-                        onCancel={() => setShowSignaturePad(false)}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {signatureData && (
-                  <div className="space-y-3">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 flex items-center gap-2">
-                      <CheckCircleIcon className="h-5 w-5" />
-                      Signature ajoutée avec succès
-                    </div>
-                    <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700">Aperçu de la signature :</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSignatureData(null);
-                            setShowSignaturePad(false);
-                          }}
-                          className="text-xs text-red-600 hover:text-red-800 font-medium"
-                        >
-                          Supprimer
-                        </button>
-                      </div>
-                      <div className="bg-gray-50 rounded border border-gray-300 p-3">
-                        <img
-                          src={signatureData}
-                          alt="Signature"
-                          className="w-full h-24 object-contain"
-                        />
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowSignaturePad(true);
-                        setSignatureData(null);
-                      }}
-                      className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
-                    >
-                      Modifier la signature
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => setIsNouvelleFactureModalOpen(false)}
-                  className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert('Facture créée avec succès !');
-                    setIsNouvelleFactureModalOpen(false);
-                  }}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-                >
-                  <CheckCircleIcon className="h-5 w-5 mr-2" />
-                  Créer Facture
-                </button>
-              </div>
-            </form>
+            <InvoiceFormWithOCR
+              topFournisseurs={topFournisseurs}
+              onClose={() => setIsNouvelleFactureModalOpen(false)}
+            />
           </div>
         </Modal>
 
-        {/* Modal Paiement pour EURL */}
         <Modal
           isOpen={isPaiementModalOpen}
           onClose={() => setIsPaiementModalOpen(false)}
@@ -962,13 +1066,7 @@ const Fournisseurs: React.FC = () => {
   // INTERFACE STANDARD (autres entreprises)
   // ========================================
   // Note: isModalOpen et selectedFournisseur sont déjà déclarés plus haut (avant le return early)
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('liste');
-  const [filterStatus, setFilterStatus] = useState('tous');
-  const [selectedCommande, setSelectedCommande] = useState<any>(null);
-  const [isCommandeModalOpen, setIsCommandeModalOpen] = useState(false);
-  const [isNouvelleCommandeModalOpen, setIsNouvelleCommandeModalOpen] = useState(false);
-  const [isFactureModalOpen, setIsFactureModalOpen] = useState(false);
+
 
   const filteredFournisseurs = mockFournisseurs.filter(fournisseur =>
     fournisseur.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1156,8 +1254,8 @@ const Fournisseurs: React.FC = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                    ? 'border-amber-500 text-amber-600 bg-amber-50'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                  ? 'border-amber-500 text-amber-600 bg-amber-50'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                   }`}
               >
                 <tab.icon className="h-5 w-5 mr-2" />
@@ -2917,11 +3015,11 @@ const Fournisseurs: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedCommande.statut === 'Livrée' ? 'bg-green-100 text-green-800' :
-                        selectedCommande.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
-                          selectedCommande.statut === 'En préparation' ? 'bg-blue-100 text-blue-800' :
-                            selectedCommande.statut === 'En livraison' ? 'bg-yellow-100 text-yellow-800' :
-                              selectedCommande.statut === 'En retard' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
+                      selectedCommande.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
+                        selectedCommande.statut === 'En préparation' ? 'bg-blue-100 text-blue-800' :
+                          selectedCommande.statut === 'En livraison' ? 'bg-yellow-100 text-yellow-800' :
+                            selectedCommande.statut === 'En retard' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
                       }`}>
                       {selectedCommande.statut}
                     </span>
@@ -3353,9 +3451,9 @@ const Fournisseurs: React.FC = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${selectedFacture.statut === 'Payée' ? 'bg-green-100 text-green-800' :
-                        selectedFacture.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
-                          selectedFacture.statut === 'En retard' ? 'bg-red-100 text-red-800' :
-                            'bg-gray-100 text-gray-800'
+                      selectedFacture.statut === 'En attente' ? 'bg-orange-100 text-orange-800' :
+                        selectedFacture.statut === 'En retard' ? 'bg-red-100 text-red-800' :
+                          'bg-gray-100 text-gray-800'
                       }`}>
                       {selectedFacture.statut}
                     </span>
@@ -3554,270 +3652,21 @@ const Fournisseurs: React.FC = () => {
         title="Nouvelle Facture Fournisseur"
         size="xl"
       >
-        <div className="max-h-[80vh] overflow-y-auto pr-2">
-          <form className="space-y-6">
-            {/* Informations générales */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <DocumentTextIcon className="h-5 w-5 mr-2 text-blue-600" />
-                Informations Générales
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fournisseur *
-                  </label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required aria-label="Fournisseur">
-                    <option value="">Sélectionner un fournisseur</option>
-                    <option value="abc">Fournisseur ABC SPA</option>
-                    <option value="tech">Tech Solutions SARL</option>
-                    <option value="office">Office Supplies Co</option>
-                    <option value="logistics">Logistics Pro EURL</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Numéro de Facture *
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="FAC-2024-XXX"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date d'émission *
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                    aria-label="Date d'émission"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date d'échéance *
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                    aria-label="Date d'échéance"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Articles */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />
-                Articles
-              </h3>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Article</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Nom de l'article"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Prix Unitaire HT</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">TVA (%)</label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" aria-label="TVA">
-                      <option value="19">19%</option>
-                      <option value="9">9%</option>
-                      <option value="0">0%</option>
-                    </select>
-                  </div>
-                  <div className="flex items-end">
-                    <button
-                      type="button"
-                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      Ajouter
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Totaux */}
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <CurrencyDollarIcon className="h-5 w-5 mr-2 text-blue-600" />
-                Totaux
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Total HT</label>
-                  <input
-                    type="number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0"
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Total TVA</label>
-                  <input
-                    type="number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0"
-                    readOnly
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Total TTC</label>
-                  <input
-                    type="number"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-bold"
-                    placeholder="0"
-                    readOnly
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <DocumentTextIcon className="h-5 w-5 mr-2 text-gray-600" />
-                Notes
-              </h3>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Notes internes
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Notes sur la facture..."
-                  rows={4}
-                />
-              </div>
-            </div>
-
-            {/* Signature Électronique */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
-                Signature Électronique
-              </h3>
-
-              {!signatureData && !showSignaturePad && (
-                <div className="space-y-3">
-                  <p className="text-sm text-gray-600 mb-3">
-                    Ajoutez une signature électronique à cette facture. Vous pouvez dessiner votre signature dans le champ ci-dessous.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowSignaturePad(true)}
-                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium"
-                  >
-                    <DocumentCheckIcon className="h-5 w-5" />
-                    Ajouter une signature
-                  </button>
-                </div>
-              )}
-
-              {showSignaturePad && !signatureData && (
-                <div className="space-y-4">
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
-                    💡 Tracez votre signature dans le champ ci-dessous avec votre souris ou votre doigt (sur écran tactile)
-                  </div>
-                  <div className="bg-white rounded-lg border-2 border-gray-300 p-2">
-                    <SignaturePad
-                      onSave={(dataUrl: string) => {
-                        setSignatureData(dataUrl);
-                        setShowSignaturePad(false);
-                      }}
-                      onCancel={() => setShowSignaturePad(false)}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {signatureData && (
-                <div className="space-y-3">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 flex items-center gap-2">
-                    <CheckCircleIcon className="h-5 w-5" />
-                    Signature ajoutée avec succès
-                  </div>
-                  <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">Aperçu de la signature :</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSignatureData(null);
-                          setShowSignaturePad(false);
-                        }}
-                        className="text-xs text-red-600 hover:text-red-800 font-medium"
-                      >
-                        Supprimer
-                      </button>
-                    </div>
-                    <div className="bg-gray-50 rounded border border-gray-300 p-3">
-                      <img
-                        src={signatureData}
-                        alt="Signature"
-                        className="w-full h-24 object-contain"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowSignaturePad(true);
-                      setSignatureData(null);
-                    }}
-                    className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
-                  >
-                    Modifier la signature
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={() => setIsNouvelleFactureModalOpen(false)}
-                className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-              >
-                <CheckCircleIcon className="h-5 w-5 mr-2" />
-                Créer Facture
-              </button>
-            </div>
-          </form>
+        <div className="space-y-6">
+          <InvoiceFormWithOCR
+            onClose={() => {
+              setIsNouvelleFactureModalOpen(false);
+              setSignatureData(null);
+              setShowSignaturePad(false);
+            }}
+            topFournisseurs={fournisseurs.slice(0, 10).map((f: any) => ({
+              nom: f.name || f.nom || '',
+              nif: f.tax_id || f.nif || '',
+              montant: Number(f.total_purchases || f.soldeDu || 0),
+              factures: f.invoices_count || 0,
+              delai: f.average_payment_days || 30
+            }))}
+          />
         </div>
       </Modal>
 
@@ -3854,9 +3703,9 @@ const Fournisseurs: React.FC = () => {
                     <td className="px-4 py-3 text-sm font-medium text-slate-900">{analyse.fournisseurNom}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-bold ${analyse.scorePerformance >= 85 ? 'bg-green-100 text-green-800' :
-                          analyse.scorePerformance >= 70 ? 'bg-blue-100 text-blue-800' :
-                            analyse.scorePerformance >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
+                        analyse.scorePerformance >= 70 ? 'bg-blue-100 text-blue-800' :
+                          analyse.scorePerformance >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
                         }`}>
                         {analyse.scorePerformance}/100
                       </span>
@@ -3867,10 +3716,10 @@ const Fournisseurs: React.FC = () => {
                     <td className="px-4 py-3 text-sm text-right">{analyse.dpoMoyen.toFixed(0)}j</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${analyse.classement === 'excellent' ? 'bg-green-100 text-green-800' :
-                          analyse.classement === 'bon' ? 'bg-blue-100 text-blue-800' :
-                            analyse.classement === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
-                              analyse.classement === 'faible' ? 'bg-orange-100 text-orange-800' :
-                                'bg-red-100 text-red-800'
+                        analyse.classement === 'bon' ? 'bg-blue-100 text-blue-800' :
+                          analyse.classement === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
+                            analyse.classement === 'faible' ? 'bg-orange-100 text-orange-800' :
+                              'bg-red-100 text-red-800'
                         }`}>
                         {analyse.classement}
                       </span>
@@ -3915,8 +3764,8 @@ const Fournisseurs: React.FC = () => {
                     <p className="text-sm text-slate-600">Économie potentielle: {formatCurrency(opt.economiePotentielle)} ({opt.economiePourcentage.toFixed(1)}%)</p>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${opt.priorite === 'haute' ? 'bg-red-100 text-red-800' :
-                      opt.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
+                    opt.priorite === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
                     }`}>
                     {opt.priorite}
                   </span>
@@ -3993,7 +3842,7 @@ const Fournisseurs: React.FC = () => {
                         <div className="w-16 bg-slate-200 rounded-full h-2 mr-2">
                           <div
                             className={`h-2 rounded-full ${prev.probabilite >= 80 ? 'bg-green-500' :
-                                prev.probabilite >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                              prev.probabilite >= 60 ? 'bg-yellow-500' : 'bg-red-500'
                               }`}
                             style={{ width: `${prev.probabilite}%` }}
                           ></div>
@@ -4003,8 +3852,8 @@ const Fournisseurs: React.FC = () => {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${prev.confiance === 'haute' ? 'bg-green-100 text-green-800' :
-                          prev.confiance === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                        prev.confiance === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
                         }`}>
                         {prev.confiance}
                       </span>
@@ -4045,8 +3894,8 @@ const Fournisseurs: React.FC = () => {
               <div
                 key={neg.id}
                 className={`p-4 rounded-lg border-2 ${neg.priorite === 'haute' ? 'bg-red-50 border-red-300' :
-                    neg.priorite === 'moyenne' ? 'bg-yellow-50 border-yellow-300' :
-                      'bg-blue-50 border-blue-300'
+                  neg.priorite === 'moyenne' ? 'bg-yellow-50 border-yellow-300' :
+                    'bg-blue-50 border-blue-300'
                   }`}
               >
                 <div className="flex items-start justify-between mb-2">
@@ -4055,8 +3904,8 @@ const Fournisseurs: React.FC = () => {
                     <p className="text-sm text-slate-700">{neg.objectif}</p>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${neg.statut === 'terminee' ? 'bg-green-100 text-green-800' :
-                      neg.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
+                    neg.statut === 'en_cours' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}>
                     {neg.statut}
                   </span>
@@ -4085,8 +3934,8 @@ const Fournisseurs: React.FC = () => {
 
                 <div className="mt-3 flex items-center justify-between">
                   <span className={`px-2 py-1 rounded text-xs font-medium ${neg.difficulte === 'facile' ? 'bg-green-100 text-green-800' :
-                      neg.difficulte === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                    neg.difficulte === 'moyenne' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
                     }`}>
                     {neg.difficulte}
                   </span>
@@ -4126,9 +3975,9 @@ const Fournisseurs: React.FC = () => {
               <div
                 key={risque.fournisseurId}
                 className={`p-4 rounded-lg border-2 ${risque.niveauRisque === 'critique' ? 'bg-red-50 border-red-300' :
-                    risque.niveauRisque === 'eleve' ? 'bg-orange-50 border-orange-300' :
-                      risque.niveauRisque === 'moyen' ? 'bg-yellow-50 border-yellow-300' :
-                        'bg-green-50 border-green-300'
+                  risque.niveauRisque === 'eleve' ? 'bg-orange-50 border-orange-300' :
+                    risque.niveauRisque === 'moyen' ? 'bg-yellow-50 border-yellow-300' :
+                      'bg-green-50 border-green-300'
                   }`}
               >
                 <div className="flex items-start justify-between mb-3">
@@ -4137,9 +3986,9 @@ const Fournisseurs: React.FC = () => {
                     <p className="text-sm text-slate-600">Score de risque: {risque.scoreRisque}/100</p>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${risque.niveauRisque === 'critique' ? 'bg-red-200 text-red-800' :
-                      risque.niveauRisque === 'eleve' ? 'bg-orange-200 text-orange-800' :
-                        risque.niveauRisque === 'moyen' ? 'bg-yellow-200 text-yellow-800' :
-                          'bg-green-200 text-green-800'
+                    risque.niveauRisque === 'eleve' ? 'bg-orange-200 text-orange-800' :
+                      risque.niveauRisque === 'moyen' ? 'bg-yellow-200 text-yellow-800' :
+                        'bg-green-200 text-green-800'
                     }`}>
                     {risque.niveauRisque}
                   </span>
@@ -4152,8 +4001,8 @@ const Fournisseurs: React.FC = () => {
                       <span className="font-medium capitalize">{facteur.type}:</span>
                       <span className="ml-2">{facteur.description}</span>
                       <span className={`ml-2 px-1 py-0.5 rounded text-xs ${facteur.impact === 'eleve' ? 'bg-red-100 text-red-800' :
-                          facteur.impact === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-blue-100 text-blue-800'
+                        facteur.impact === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
                         }`}>
                         {facteur.impact}
                       </span>

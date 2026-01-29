@@ -20,6 +20,29 @@ from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field
 
+def generate_document_number(db: Session, model, column, company_id, prefix, date_obj):
+    """Génère un numéro séquentiel format PREFIX/ANNEE/SEQ"""
+    year = date_obj.year
+    pattern = f"{prefix}/{year}/%"
+    # Recherche du dernier numéro pour cette année
+    last = db.query(column).filter(
+        model.company_id == company_id,
+        column.like(pattern)
+    ).order_by(column.desc()).first()
+    
+    if last:
+        try:
+            # last est un Row(val) donc last[0]
+            seq_str = last[0].split('/')[-1]
+            seq = int(seq_str)
+            new_seq = seq + 1
+        except (ValueError, IndexError):
+            new_seq = 1
+    else:
+        new_seq = 1
+    
+    return f"{prefix}/{year}/{str(new_seq).zfill(5)}"
+
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 # ========== REQUEST/RESPONSE MODELS ==========
@@ -105,7 +128,10 @@ async def create_delivery_note(
     # You must implement DeliveryNote and DeliveryNoteItem models in models.py
     from app.models.models import DeliveryNote, DeliveryNoteItem
 
-    delivery_number = f"BL-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    delivery_number = generate_document_number(
+        db, DeliveryNote, DeliveryNote.delivery_number, 
+        current_user.company_id, "BL", request.delivery_date
+    )
     note = DeliveryNote(
         company_id=current_user.company_id,
         delivery_number=delivery_number,
@@ -289,7 +315,10 @@ async def create_purchase_order(
     db: Session = Depends(get_db)
 ):
     from app.models.models import PurchaseOrder, PurchaseOrderItem
-    order_number = f"BC-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    order_number = generate_document_number(
+        db, PurchaseOrder, PurchaseOrder.order_number,
+        current_user.company_id, "BC", request.order_date
+    )
     po = PurchaseOrder(
         company_id=current_user.company_id,
         order_number=order_number,
@@ -520,7 +549,10 @@ async def create_purchase_note(
     db: Session = Depends(get_db)
 ):
     from app.models.models import PurchaseNote, PurchaseNoteItem
-    note_number = f"BA-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:8].upper()}"
+    note_number = generate_document_number(
+        db, PurchaseNote, PurchaseNote.note_number,
+        current_user.company_id, "BA", request.note_date
+    )
     pn = PurchaseNote(
         company_id=current_user.company_id,
         note_number=note_number,
