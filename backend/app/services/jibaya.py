@@ -2,11 +2,11 @@ from typing import Dict, Any, List
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app.models.models import JournalEntry, JournalEntryLine
+from app.models import JournalEntry, JournalEntryLine
 
 class JibayaService:
     """
-    Service dédié à la génération de la Liasse Fiscale (Jibaya).
+    Service d????di???? ???? la g????n????ration de la Liasse Fiscale (Jibaya).
     Mappe les comptes comptables vers les codes cases Jibaya.
     """
 
@@ -16,38 +16,38 @@ class JibayaService:
             "A020": ["21"],     # Immob Corporelles
             "A030": ["22"],     # Terrains
             "A040": ["23"],     # Batiments
-            "A050": ["26", "27"], # Immob Financières
+            "A050": ["26", "27"], # Immob Financi????res
             "A100": ["30", "31", "32"], # Stocks
             "A110": ["411", "413", "416"], # Clients
-            "A140": ["512", "53", "54"], # Trésorerie
+            "A140": ["512", "53", "54"], # Tr????sorerie
         },
         "PASSIF": {
             "P010": ["101"],    # Capital social
-            "P020": ["105", "106"], # Primes et réserves
-            "P040": ["12"],     # Résultat net
+            "P020": ["105", "106"], # Primes et r????serves
+            "P040": ["12"],     # R????sultat net
             "P100": ["164"],    # Emprunts bancaires
             "P120": ["401", "404"], # Fournisseurs
             "P130": ["42", "43", "44"], # Dettes fiscales et sociales
         },
         "TCR": {
             "R010": ["70"],     # Ventes de marchandises
-            "R020": ["72"],     # Production stockée
-            "R030": ["60"],     # Achats consommés
-            "R040": ["61", "62"], # Services extérieurs
-            "R050": ["63"],     # Impôts et taxes
+            "R020": ["72"],     # Production stock????e
+            "R030": ["60"],     # Achats consomm????s
+            "R040": ["61", "62"], # Services ext????rieurs
+            "R050": ["63"],     # Imp????ts et taxes
             "R060": ["64"],     # Frais de personnel
             "R070": ["68"],     # Dotations aux amortissements
             "R080": ["75"],     # Autres produits op
             "R090": ["65"],     # Autres charges op
             "R100": ["76"],     # Produits financiers
-            "R110": ["66"],     # Charges financières
-            "R120": ["69"],     # Impôts sur les bénéfices (IBS)
+            "R110": ["66"],     # Charges financi????res
+            "R120": ["69"],     # Imp????ts sur les b????n????fices (IBS)
         }
     }
 
     @staticmethod
     def calculate_case_value(db: Session, company_id: str, year: int, prefixes: List[str], credit_positive: bool = True) -> float:
-        """Calcule la somme des soldes pour une liste de préfixes de comptes."""
+        """Calcule la somme des soldes pour une liste de pr????fixes de comptes."""
         total = Decimal('0')
         for prefix in prefixes:
             val = JibayaService._get_balance(db, company_id, year, prefix, credit_is_positive=credit_positive)
@@ -71,12 +71,12 @@ class JibayaService:
     @staticmethod
     def get_tcr_data(db: Session, company_id: str, year: int) -> Dict[str, Any]:
         result = {}
-        # TCR : Produits (7) positifs, Charges (6) négatives pour le calcul du résultat,
-        # Mais dans le XML Jibaya, les montants sont généralement absolus dans leurs cases respectives.
+        # TCR : Produits (7) positifs, Charges (6) n????gatives pour le calcul du r????sultat,
+        # Mais dans le XML Jibaya, les montants sont g????n????ralement absolus dans leurs cases respectives.
         # R010 (Ventes) -> Credit
         # R030 (Achats) -> Debit
         
-        # Logique spécifique par case
+        # Logique sp????cifique par case
         mapping = JibayaService.MAPPING_JIBAYA["TCR"]
         
         # Produits
@@ -95,7 +95,7 @@ class JibayaService:
         result["R110"] = abs(JibayaService.calculate_case_value(db, company_id, year, mapping["R110"], False))
         result["R120"] = abs(JibayaService.calculate_case_value(db, company_id, year, mapping["R120"], False))
         
-        # Calcul Résultat Net
+        # Calcul R????sultat Net
         total_produits = result["R010"] + result["R020"] + result["R080"] + result["R100"]
         total_charges = result["R030"] + result["R040"] + result["R050"] + result["R060"] + result["R070"] + result["R090"] + result["R110"] + result["R120"]
         result["ReferenceResultat"] = total_produits - total_charges
@@ -104,7 +104,7 @@ class JibayaService:
 
     @staticmethod
     def generate_xml_liasse(db: Session, company_id: str, year: int) -> str:
-        """Génère le XML complet structuré selon la norme Jibaya."""
+        """G????n????re le XML complet structur???? selon la norme Jibaya."""
         actif = JibayaService.get_actif_data(db, company_id, year)
         passif = JibayaService.get_passif_data(db, company_id, year)
         tcr = JibayaService.get_tcr_data(db, company_id, year)

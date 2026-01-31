@@ -10,13 +10,13 @@ logger = logging.getLogger(__name__)
 _loaded_models = {}
 
 class PredictionService:
-    """Service centralisé de prédiction avec analyse financière détaillée."""
+    """Service centralis???? de pr????diction avec analyse financi????re d????taill????e."""
 
     @staticmethod
     def get_model(model_name: str) -> ERPModel:
-        """Charge le modèle avec caching."""
+        """Charge le mod????le avec caching."""
         if model_name not in MODEL_CONFIG:
-            raise ValueError(f"Modèle inconnu: {model_name}")
+            raise ValueError(f"Mod????le inconnu: {model_name}")
         if model_name not in _loaded_models:
             cfg = MODEL_CONFIG[model_name]
             model = ERPModel(cfg["input_dim"], cfg["task_outputs"], cfg["hidden_dim"], cfg["n_layers"])
@@ -24,14 +24,14 @@ class PredictionService:
                 try:
                     model.load_state_dict(torch.load(cfg["model_path"]))
                 except Exception as e:
-                    logger.warning(f"Impossible de charger le modèle à {cfg['model_path']}: {e}")
+                    logger.warning(f"Impossible de charger le mod????le ???? {cfg['model_path']}: {e}")
             model.eval()
             _loaded_models[model_name] = model
         return _loaded_models[model_name]
 
     @staticmethod
     def predict(model_name: str, features: Dict[str, Any], company_id: int = None) -> Dict[str, Any]:
-        """Prédit et analyse la situation financière complète."""
+        """Pr????dit et analyse la situation financi????re compl????te."""
         model = PredictionService.get_model(model_name)
         
         # Convertir les features en tensor
@@ -44,10 +44,10 @@ class PredictionService:
         result = {k: float(v.squeeze().item()) if v.numel() == 1 else v.squeeze().tolist() 
                   for k, v in outputs.items()}
         
-        # Analyser et enrichir les prédictions
+        # Analyser et enrichir les pr????dictions
         financial_analysis = PredictionService._analyze_financial_situation(result)
         
-        # Générer les suggestions détaillées
+        # G????n????rer les suggestions d????taill????es
         suggestions = PredictionService._generate_suggestions(result)
         
         return {
@@ -61,75 +61,75 @@ class PredictionService:
 
     @staticmethod
     def _analyze_financial_situation(predictions: Dict[str, Any]) -> Dict[str, str]:
-        """Analyse la situation financière basée sur les prédictions."""
+        """Analyse la situation financi????re bas????e sur les pr????dictions."""
         analysis = {}
         
         # Analyser le risque
         risk_score = predictions.get('risk', 0.5)
         if risk_score > 0.7:
-            analysis['risk'] = "⚠️ RISQUE ÉLEVÉ - Intervention urgente recommandée"
+            analysis['risk'] = "???????????? RISQUE ?????LEV????? - Intervention urgente recommand????e"
         elif risk_score > 0.4:
-            analysis['risk'] = "⚠️ RISQUE MODÉRÉ - Surveillance étroite requise"
+            analysis['risk'] = "???????????? RISQUE MOD?????R????? - Surveillance ????troite requise"
         else:
-            analysis['risk'] = "✅ RISQUE FAIBLE - Situation stable"
+            analysis['risk'] = "??????? RISQUE FAIBLE - Situation stable"
         
-        # Analyser la liquidité
+        # Analyser la liquidit????
         liquidity = predictions.get('liquidity', 0.5)
         if liquidity < 0.3:
-            analysis['liquidity'] = "🔴 LIQUIDITÉ CRITIQUE - Risque de trésorerie immédiate"
+            analysis['liquidity'] = "????????? LIQUIDIT????? CRITIQUE - Risque de tr????sorerie imm????diate"
         elif liquidity < 0.6:
-            analysis['liquidity'] = "🟡 LIQUIDITÉ FRAGILE - Attention à la gestion de trésorerie"
+            analysis['liquidity'] = "???????? LIQUIDIT????? FRAGILE - Attention ???? la gestion de tr????sorerie"
         else:
-            analysis['liquidity'] = "🟢 LIQUIDITÉ CONFORTABLE - Bonne capacité de paiement"
+            analysis['liquidity'] = "???????? LIQUIDIT????? CONFORTABLE - Bonne capacit???? de paiement"
         
-        # Analyser la rentabilité
+        # Analyser la rentabilit????
         profitability = predictions.get('profitability', 0.5)
         if profitability < 0.3:
-            analysis['profitability'] = "📉 RENTABILITÉ FAIBLE - Réviser la stratégie tarifaire"
+            analysis['profitability'] = "?????????? RENTABILIT????? FAIBLE - R????viser la strat????gie tarifaire"
         elif profitability < 0.6:
-            analysis['profitability'] = "📊 RENTABILITÉ MODÉRÉE - Optimisation des coûts requise"
+            analysis['profitability'] = "????????? RENTABILIT????? MOD?????R?????E - Optimisation des co????ts requise"
         else:
-            analysis['profitability'] = "📈 RENTABILITÉ SAINE - Marges satisfaisantes"
+            analysis['profitability'] = "????????? RENTABILIT????? SAINE - Marges satisfaisantes"
         
-        # Analyser la solvabilité
+        # Analyser la solvabilit????
         solvency = predictions.get('solvency', 0.5)
         if solvency < 0.3:
-            analysis['solvency'] = "⛔ SOLVABILITÉ MAUVAISE - Risque de défaut"
+            analysis['solvency'] = "???????? SOLVABILIT????? MAUVAISE - Risque de d????faut"
         elif solvency < 0.6:
-            analysis['solvency'] = "⚠️ SOLVABILITÉ FRAGILE - Réduire l'endettement"
+            analysis['solvency'] = "???????????? SOLVABILIT????? FRAGILE - R????duire l'endettement"
         else:
-            analysis['solvency'] = "✅ SOLVABILITÉ SOLIDE - Situation stable"
+            analysis['solvency'] = "??????? SOLVABILIT????? SOLIDE - Situation stable"
         
-        # Détection d'anomalies
+        # D????tection d'anomalies
         anomaly = predictions.get('anomaly', 0)
         if anomaly > 0.5:
-            analysis['anomaly'] = "🚨 ANOMALIE DÉTECTÉE - Vérifier les données de saisie"
+            analysis['anomaly'] = "???????? ANOMALIE D?????TECT?????E - V????rifier les donn????es de saisie"
         else:
-            analysis['anomaly'] = "✓ Pas d'anomalie détectée"
+            analysis['anomaly'] = "??????? Pas d'anomalie d????tect????e"
         
         return analysis
 
     @staticmethod
     def _generate_suggestions(predictions: Dict[str, Any]) -> Dict[str, Tuple[float, str]]:
-        """Génère les suggestions d'amélioration basées sur les scores."""
+        """G????n????re les suggestions d'am????lioration bas????es sur les scores."""
         suggestion_scores = predictions.get('suggestion', [0] * len(IMPROVEMENT_CATEGORIES))
         
         # Assurer que suggestion_scores est une liste
         if not isinstance(suggestion_scores, list):
             suggestion_scores = [suggestion_scores]
         
-        # Créer un dictionnaire avec scores et descriptions
+        # Cr????er un dictionnaire avec scores et descriptions
         suggestions = {}
         for i, (score, category) in enumerate(zip(suggestion_scores, IMPROVEMENT_CATEGORIES)):
-            priority = "🔴 CRITIQUE" if score > 0.7 else "🟡 IMPORTANT" if score > 0.4 else "🟢 À EXPLORER"
+            priority = "????????? CRITIQUE" if score > 0.7 else "???????? IMPORTANT" if score > 0.4 else "???????? ????? EXPLORER"
             suggestions[category] = (float(score), priority)
         
-        # Trier par score décroissant
+        # Trier par score d????croissant
         return dict(sorted(suggestions.items(), key=lambda x: x[1][0], reverse=True))
 
     @staticmethod
     def _determine_risk_level(predictions: Dict[str, Any]) -> str:
-        """Détermine le niveau de risque global."""
+        """D????termine le niveau de risque global."""
         risk_score = predictions.get('risk', 0.5)
         anomaly_score = predictions.get('anomaly', 0)
         solvency_score = predictions.get('solvency', 0.5)
@@ -139,18 +139,18 @@ class PredictionService:
         if global_risk > 0.7:
             return "CRITIQUE"
         elif global_risk > 0.4:
-            return "ÉLEVÉ"
+            return "?????LEV?????"
         else:
             return "FAIBLE"
 
     @staticmethod
     def _calculate_health_score(predictions: Dict[str, Any]) -> float:
-        """Calcule un score de santé financière global (0-100)."""
+        """Calcule un score de sant???? financi????re global (0-100)."""
         weights = {
             'risk': -0.25,           # Moins le risque, mieux c'est
-            'liquidity': 0.25,       # Plus de liquidité, mieux
-            'profitability': 0.25,   # Plus de rentabilité, mieux
-            'solvency': 0.25         # Plus de solvabilité, mieux
+            'liquidity': 0.25,       # Plus de liquidit????, mieux
+            'profitability': 0.25,   # Plus de rentabilit????, mieux
+            'solvency': 0.25         # Plus de solvabilit????, mieux
         }
         
         score = 100
@@ -160,4 +160,4 @@ class PredictionService:
         
         return max(0, min(100, score))
 
-# La sortie 'suggestion' contient désormais des scores par catégorie d'amélioration ERP/finance.
+# La sortie 'suggestion' contient d????sormais des scores par cat????gorie d'am????lioration ERP/finance.

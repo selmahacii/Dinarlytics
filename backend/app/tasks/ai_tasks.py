@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 @celery_app.task(bind=True)
 def train_model_task(self, model_name: str, train_data: list, epochs: int = 20):
-    """Tâche Celery pour l'entraînement asynchrone du modèle."""
+    """T????che Celery pour l'entra????nement asynchrone du mod????le."""
     db = SessionLocal()
     
-    # Créer un log d'entraînement
+    # Cr????er un log d'entra????nement
     model = db.query(AIModel).filter(AIModel.name == model_name).first()
     log = AITrainingLog(
         model_id=model.id if model else None,
@@ -29,21 +29,21 @@ def train_model_task(self, model_name: str, train_data: list, epochs: int = 20):
     try:
         self.update_state(state='PROGRESS', meta={'progress': 0})
         
-        # Obtenir le modèle via PredictionService (caching + chargement)
+        # Obtenir le mod????le via PredictionService (caching + chargement)
         torch_model = PredictionService.get_model(model_name)
         
-        # Lancer l'entraînement
+        # Lancer l'entra????nement
         result = TrainingService.train_model(
             torch_model, 
             train_data, 
             epochs=epochs
         )
         
-        # Sauvegarder l'artefact si nécessaire
+        # Sauvegarder l'artefact si n????cessaire
         if MODEL_CONFIG[model_name]["model_path"]:
             torch.save(torch_model.state_dict(), MODEL_CONFIG[model_name]["model_path"])
         
-        # Mettre à jour le log
+        # Mettre ???? jour le log
         log.status = "success"
         log.ended_at = datetime.now(timezone.utc)
         log.metrics = result
@@ -52,7 +52,7 @@ def train_model_task(self, model_name: str, train_data: list, epochs: int = 20):
         return result
         
     except Exception as e:
-        logger.error(f"Erreur lors de l'entraînement asynchrone: {e}")
+        logger.error(f"Erreur lors de l'entra????nement asynchrone: {e}")
         log.status = "failed"
         log.notes = str(e)
         log.ended_at = datetime.now(timezone.utc)

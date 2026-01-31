@@ -11,7 +11,7 @@ import logging
 import uuid
 
 from app.database import get_db
-from app.models.models import (
+from app.models import (
     JournalEntry,
     JournalEntryLine,
     ChartOfAccount,
@@ -120,7 +120,7 @@ async def create_journal_entry(
     if total_debit != total_credit:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Déséquilibre: Débit ({total_debit}) != Crédit ({total_credit}). La comptabilité SCF exige un équilibre strict."
+            detail=f"D????s????quilibre: D????bit ({total_debit}) != Cr????dit ({total_credit}). La comptabilit???? SCF exige un ????quilibre strict."
         )
     
     # Generate entry number (Algerian standard: ANNEE-MOIS-NB)

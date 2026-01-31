@@ -7,7 +7,7 @@ from decimal import Decimal
 import uuid
 
 from app.database import get_db
-from app.models.models import Payment, JournalEntry, JournalEntryLine, Invoice, PaymentMode
+from app.models import Payment, JournalEntry, JournalEntryLine, Invoice, PaymentMode
 from app.routers.auth import get_current_user
 from app.security import TokenData
 from app.services.calculations import AlgerianFinancialCalculator
@@ -38,8 +38,8 @@ async def deposit_checks(
     db: Session = Depends(get_db)
 ):
     """
-    Crée un Bordereau de Remise de Chèques et génère l'écriture comptable.
-    Transfert du compte 511 (Valeurs à l'encaissement) vers 512 (Banque).
+    Cr????e un Bordereau de Remise de Ch????ques et g????n????re l'????criture comptable.
+    Transfert du compte 511 (Valeurs ???? l'encaissement) vers 512 (Banque).
     """
     
     # 1. Validate Payments
@@ -53,7 +53,7 @@ async def deposit_checks(
     ).all()
     
     if len(payments) != len(request.payment_ids):
-        raise HTTPException(status_code=400, detail="Certains paiements sont introuvables ou déjà déposés.")
+        raise HTTPException(status_code=400, detail="Certains paiements sont introuvables ou d????j???? d????pos????s.")
         
     total_amount = sum(p.amount for p in payments)
     
@@ -67,14 +67,14 @@ async def deposit_checks(
         p.due_date = request.deposit_date # Or expected clearing date
     
     # 4. Generate Accounting Entry
-    # Credit 511 (Chèques à l'encaissement) -> Debit 512 (Banque)
+    # Credit 511 (Ch????ques ???? l'encaissement) -> Debit 512 (Banque)
     
     entry = JournalEntry(
         company_id=current_user.company_id,
         journal_type="BQ", # Banque
         entry_number=generate_document_number(db, JournalEntry, JournalEntry.entry_number, current_user.company_id, "BQ", request.deposit_date),
         entry_date=request.deposit_date,
-        description=f"Remise de chèques N° {slip_number}",
+        description=f"Remise de ch????ques N???? {slip_number}",
         status="approved",
         created_by=current_user.user_id,
         total_debit=total_amount,
@@ -87,17 +87,17 @@ async def deposit_checks(
     line_bank = JournalEntryLine(
         journal_entry_id=entry.id,
         account_code=request.bank_account_code,
-        description=f"Remise chèques {slip_number}",
+        description=f"Remise ch????ques {slip_number}",
         debit_amount=total_amount,
         credit_amount=0
     )
     db.add(line_bank)
     
-    # Line 2: Credit Valeurs à l'encaissement (511)
+    # Line 2: Credit Valeurs ???? l'encaissement (511)
     line_checks = JournalEntryLine(
         journal_entry_id=entry.id,
         account_code="511000",
-        description=f"Remise chèques {slip_number}",
+        description=f"Remise ch????ques {slip_number}",
         debit_amount=0,
         credit_amount=total_amount
     )
@@ -105,14 +105,14 @@ async def deposit_checks(
     
     db.commit()
     
-    return {"message": "Bordereau créé avec succès", "slip_number": slip_number, "total_amount": total_amount}
+    return {"message": "Bordereau cr???????? avec succ????s", "slip_number": slip_number, "total_amount": total_amount}
 
 @router.get("/checks-in-safe", response_model=List[PaymentResponse])
 async def get_checks_in_safe(
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Récupère tous les chèques actuellement au coffre (Statut 'received')."""
+    """R????cup????re tous les ch????ques actuellement au coffre (Statut 'received')."""
     checks = db.query(Payment).filter(
         Payment.company_id == current_user.company_id,
         Payment.check_status == 'received' # Not 'checklist' which is error

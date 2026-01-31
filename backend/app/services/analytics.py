@@ -90,8 +90,8 @@ class AnalyticService:
         if health["accounts_receivable"] > (health["total_sales"] * 0.5):
             alerts.append({
                 "type": "danger",
-                "title": "Risque de Liquidité",
-                "message": "Vos créances clients dépassent 50% de votre CA annuel. Action requise sur le recouvrement.",
+                "title": "Risque de Liquidit????",
+                "message": "Vos cr????ances clients d????passent 50% de votre CA annuel. Action requise sur le recouvrement.",
                 "code": "HIGH_AR"
             })
             
@@ -105,8 +105,8 @@ class AnalyticService:
                 if statement.operating_expenses > (avg_expenses * Decimal('1.5')):
                     alerts.append({
                         "type": "warning",
-                        "title": "Anomalie de Charge Détectée",
-                        "message": f"Vos charges d'exploitation ce mois-ci sont 50% supérieures à votre moyenne habituelle. Suspicion de doublon ou hausse anormale.",
+                        "title": "Anomalie de Charge D????tect????e",
+                        "message": f"Vos charges d'exploitation ce mois-ci sont 50% sup????rieures ???? votre moyenne habituelle. Suspicion de doublon ou hausse anormale.",
                         "code": "EXPENSE_ANOMALY"
                     })
 
@@ -147,5 +147,4 @@ class AnalyticService:
             "rolling_forecast": forecast,
             "confidence_score": 0.85
         }
-
 

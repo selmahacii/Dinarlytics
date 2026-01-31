@@ -15,7 +15,7 @@ async def train_model_endpoint(
     batch_size: int = 8,
     db: Session = Depends(get_db)
 ):
-    # Charger le modèle ERP (à adapter selon votre logique)
+    # Charger le mod????le ERP (???? adapter selon votre logique)
     model = ERPModel()
     result = TrainingService.train_model(model, train_data, epochs, lr, batch_size)
     return {"status": "success", "metrics": result}

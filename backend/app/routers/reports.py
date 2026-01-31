@@ -8,7 +8,7 @@ from app.routers.auth import get_current_user
 from app.security import TokenData
 from app.models.inventory import Invoice, Article
 from app.models.financial import Payment
-from app.models.models import Client, Supplier
+from app.models import Client, Supplier
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 

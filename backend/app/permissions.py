@@ -14,7 +14,7 @@ import logging
 
 from app.security import JWTManager
 from app.database import get_db
-from app.models.models import AuditLog
+from app.models import AuditLog
 
 logger = logging.getLogger(__name__)
 

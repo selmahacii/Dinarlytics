@@ -9,7 +9,7 @@ from datetime import datetime, date
 from decimal import Decimal
 
 from app.database import get_db
-from app.models.models import JournalEntry, JournalEntryLine, ChartOfAccount, User
+from app.models import JournalEntry, JournalEntryLine, ChartOfAccount, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field
@@ -93,7 +93,7 @@ async def check_accounting_access(
 # ========== JOURNAL ENDPOINTS ==========
 @router.get("/journaux", response_model=List[JournalSummaryResponse])
 async def get_journaux_summary(
-    periode: Optional[str] = Query(None, description="Période (YYYY-MM)"),
+    periode: Optional[str] = Query(None, description="P????riode (YYYY-MM)"),
     current_user: TokenData = Depends(check_accounting_access),
     db: Session = Depends(get_db)
 ):
@@ -127,7 +127,7 @@ async def get_journaux_summary(
         'AC': ('Journal des Achats', 'amber'),
         'BQ': ('Journal de Banque', 'cyan'),
         'CA': ('Journal de Caisse', 'slate'),
-        'OD': ('Opérations Diverses', 'red')
+        'OD': ('Op????rations Diverses', 'red')
     }
     
     return [
@@ -240,16 +240,16 @@ async def get_bilan(
 
         item = BilanItem(compte=acc_code, libelle=f"Compte {acc_code}", montant=abs(solde))
 
-        # Classification SCF simplifiée
-        if acc_code.startswith('2'): # Actif Immobilisé
+        # Classification SCF simplifi????e
+        if acc_code.startswith('2'): # Actif Immobilis????
             if solde > 0:
                 actif["immobilise"].append(item)
                 total_actif += solde
-            else: # Amortissements (comptes 28, 29 souvent créditeurs, affichés en négatif à l'actif ou positif au passif?)
-                  # En SCF, amortissements viennent réduire l'actif. 
-                  # Ici on fait simple: si solde débiteur -> Actif, si créditeur -> Passif ou Actif négatif
+            else: # Amortissements (comptes 28, 29 souvent cr????diteurs, affich????s en n????gatif ???? l'actif ou positif au passif?)
+                  # En SCF, amortissements viennent r????duire l'actif. 
+                  # Ici on fait simple: si solde d????biteur -> Actif, si cr????diteur -> Passif ou Actif n????gatif
                   # Pour l'affichage bilan standard: Actif Net.
-                actif["immobilise"].append(BilanItem(compte=acc_code, libelle=f"Amort/Prov {acc_code}", montant=solde)) # Solde est négatif
+                actif["immobilise"].append(BilanItem(compte=acc_code, libelle=f"Amort/Prov {acc_code}", montant=solde)) # Solde est n????gatif
                 total_actif += solde
 
         elif acc_code.startswith('3'): # Stocks (Actif)
@@ -257,7 +257,7 @@ async def get_bilan(
             total_actif += solde
             
         elif acc_code.startswith('4'): # Tiers (Actif ou Passif selon solde)
-            if solde > 0: # Créance -> Actif
+            if solde > 0: # Cr????ance -> Actif
                 actif["circulant"].append(item)
                 total_actif += solde
             else: # Dette -> Passif
@@ -268,20 +268,20 @@ async def get_bilan(
              if solde > 0:
                 actif["circulant"].append(item)
                 total_actif += solde
-             else: # Découvert -> Passif
+             else: # D????couvert -> Passif
                 passif["dettes"].append(item)
                 total_passif += abs(solde)
 
         elif acc_code.startswith('1'): # Capitaux (Passif)
             passif["capitaux"].append(item)
-            total_passif += abs(solde) # Solde est normalement négatif (Crédit), on ajoute la valeur absolue au total passif
+            total_passif += abs(solde) # Solde est normalement n????gatif (Cr????dit), on ajoute la valeur absolue au total passif
         
-    # Equilibrage (Résultat) = Actif - Passif (hors résultat)
+    # Equilibrage (R????sultat) = Actif - Passif (hors r????sultat)
     resultat = total_actif - total_passif
     if resultat != 0:
         passif["capitaux"].append(BilanItem(
             compte="12", 
-            libelle="Résultat de l'exercice (calculé)", 
+            libelle="R????sultat de l'exercice (calcul????)", 
             montant=resultat
         ))
         total_passif += resultat
@@ -333,18 +333,18 @@ async def get_compte_resultat(
     for acc_code, debit, credit in balances:
         debit = debit or Decimal(0)
         credit = credit or Decimal(0)
-        solde = credit - debit # Pour le résultat, Crédit = Positif (Produit), Débit = Positif (Charge) -> attention signe
+        solde = credit - debit # Pour le r????sultat, Cr????dit = Positif (Produit), D????bit = Positif (Charge) -> attention signe
         
         # Convention: Afficher montants positifs
         
         if acc_code.startswith('7'): # Produits
-            # Solde créditeur normal
+            # Solde cr????diteur normal
             net = credit - debit
             produits.append(CompteResultatItem(compte=acc_code, libelle=f"Produit {acc_code}", montant=net))
             total_produits += net
             
         elif acc_code.startswith('6'): # Charges
-            # Solde débiteur normal
+            # Solde d????biteur normal
             net = debit - credit
             charges.append(CompteResultatItem(compte=acc_code, libelle=f"Charge {acc_code}", montant=net))
             total_charges += net
@@ -422,7 +422,7 @@ async def get_flux_tresorerie(
     """Calculated Cash Flow Statement (Simplified SCF)"""
     from sqlalchemy import func, extract
 
-    # 1. Calculer variation nette de trésorerie (Comptes Classe 5)
+    # 1. Calculer variation nette de tr????sorerie (Comptes Classe 5)
     query = db.query(
         func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount)
     ).join(JournalEntry).filter(
@@ -443,11 +443,11 @@ async def get_flux_tresorerie(
 
     variation_nette = query.scalar() or Decimal(0)
 
-    # Note: Sans une comptabilité analytique ou des codes flux, difficile de séparer
+    # Note: Sans une comptabilit???? analytique ou des codes flux, difficile de s????parer
     # exploitation/investissement/financement automatiquement.
     # Pour l'instant, on attribue la variation au "Cash Flow Net"
-    # et on met des placeholders intelligents à zéro pour le reste, ou on essaie d'estimer.
-    # On va laisser les placeholder à 0 pour être "propre" au lieu de fake data.
+    # et on met des placeholders intelligents ???? z????ro pour le reste, ou on essaie d'estimer.
+    # On va laisser les placeholder ???? 0 pour ????tre "propre" au lieu de fake data.
     
     exploitation = {
         "flux_net": variation_nette, 

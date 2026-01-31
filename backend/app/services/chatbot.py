@@ -25,16 +25,16 @@ class FinancialChatbot:
         msg = message.lower().strip()
         
         # Intent Discovery (Simulating a correct NLP model)
-        if any(kw in msg for kw in ["forecast", "prévision", "prochain", "futur"]):
+        if any(kw in msg for kw in ["forecast", "pr????vision", "prochain", "futur"]):
             return self._handle_forecasting()
         
         if any(kw in msg for kw in ["risque", "danger", "alerte", "risk"]):
             return self._handle_risk_analysis()
         
-        if any(kw in msg for kw in ["fiscal", "impôt", "tva", "ibs", "tax"]):
+        if any(kw in msg for kw in ["fiscal", "imp????t", "tva", "ibs", "tax"]):
             return self._handle_fiscal_inquiry()
         
-        if any(kw in msg for kw in ["santé", "score", "performance", "rapport"]):
+        if any(kw in msg for kw in ["sant????", "score", "performance", "rapport"]):
             return self._handle_health_score()
 
         return self._handle_general_query(msg)
@@ -52,13 +52,13 @@ class FinancialChatbot:
             
             return {
                 "type": "lia",
-                "content": f"Basé sur l'analyse de vos {self.financial_data.get('invoices_total')} factures, je prévois une tendance de CA de {forecast_rev:,.2f} DZD pour la période suivante (Score de confiance: 92%).",
+                "content": f"Bas???? sur l'analyse de vos {self.financial_data.get('invoices_total')} factures, je pr????vois une tendance de CA de {forecast_rev:,.2f} DZD pour la p????riode suivante (Score de confiance: 92%).",
                 "data": raw_prediction,
-                "suggestions": ["Détailler par mois", "Voir scenarios pessimistes", "Plan d'action"]
+                "suggestions": ["D????tailler par mois", "Voir scenarios pessimistes", "Plan d'action"]
             }
         except Exception as e:
             logger.error(f"Error in forecasting: {e}")
-            return {"content": "Désolé, je n'ai pas pu générer de prévisions précises avec les données actuelles."}
+            return {"content": "D????sol????, je n'ai pas pu g????n????rer de pr????visions pr????cises avec les donn????es actuelles."}
 
     def _handle_risk_analysis(self) -> Dict[str, Any]:
         """Uses the Multi-task model to assess risk."""
@@ -68,18 +68,18 @@ class FinancialChatbot:
         risk_level = analysis.get("risk_level", "Unknown")
         health = analysis.get("health_score", 0)
         
-        content = f"Analyse de Risque Financier:\n- Niveau global: **{risk_level}**\n- Score de santé: {health:.1f}/100\n\n"
+        content = f"Analyse de Risque Financier:\n- Niveau global: **{risk_level}**\n- Score de sant????: {health:.1f}/100\n\n"
         
         if health < 50:
-            content += "⚠️ Attention: Votre liquidité est sous les seuils de sécurité SCF."
+            content += "???????????? Attention: Votre liquidit???? est sous les seuils de s????curit???? SCF."
         else:
-            content += "✅ Votre structure financière est conforme aux benchmarks de votre secteur."
+            content += "??????? Votre structure financi????re est conforme aux benchmarks de votre secteur."
 
         return {
             "type": "lia",
             "content": content,
             "data": analysis,
-            "suggestions": ["Comment améliorer mon score?", "Détail de la solvabilité"]
+            "suggestions": ["Comment am????liorer mon score?", "D????tail de la solvabilit????"]
         }
 
     def _handle_fiscal_inquiry(self) -> Dict[str, Any]:
@@ -89,8 +89,8 @@ class FinancialChatbot:
         
         return {
             "type": "lia",
-            "content": f"Pour l'exercice en cours, votre estimation de TVA collectée est de {tva:,.2f} DZD. N'oubliez pas que votre G50 doit être déposée avant le 20 du mois prochain.",
-            "suggestions": ["Générer G50", "Simuler IBS", "Calendrier fiscal"]
+            "content": f"Pour l'exercice en cours, votre estimation de TVA collect????e est de {tva:,.2f} DZD. N'oubliez pas que votre G50 doit ????tre d????pos????e avant le 20 du mois prochain.",
+            "suggestions": ["G????n????rer G50", "Simuler IBS", "Calendrier fiscal"]
         }
 
     def _handle_health_score(self) -> Dict[str, Any]:
@@ -101,16 +101,16 @@ class FinancialChatbot:
         
         return {
             "type": "lia",
-            "content": f"Résumé Financier:\n- Chiffre d'Affaires: {revenue:,.2f} DZD\n- Résultat Net: {net_income:,.2f} DZD\n- Marge Net: {margin:.1f}%\n\nVotre rentabilité est au-dessus de la moyenne du secteur (14%).",
-            "suggestions": ["Analyse des charges", "Comparer à N-1"]
+            "content": f"R????sum???? Financier:\n- Chiffre d'Affaires: {revenue:,.2f} DZD\n- R????sultat Net: {net_income:,.2f} DZD\n- Marge Net: {margin:.1f}%\n\nVotre rentabilit???? est au-dessus de la moyenne du secteur (14%).",
+            "suggestions": ["Analyse des charges", "Comparer ???? N-1"]
         }
 
     def _handle_general_query(self, msg: str) -> Dict[str, Any]:
         """Fallback for unknown intents."""
         return {
             "type": "lia",
-            "content": "Je suis LIA, votre assistante financière. Je peux analyser vos risques, prédire votre trésorerie ou simuler vos impôts (G50, IBS). Que souhaitez-vous analyser ?",
-            "suggestions": ["Analyse de risque", "Prévisions de CA", "Fiscalité"]
+            "content": "Je suis LIA, votre assistante financi????re. Je peux analyser vos risques, pr????dire votre tr????sorerie ou simuler vos imp????ts (G50, IBS). Que souhaitez-vous analyser ?",
+            "suggestions": ["Analyse de risque", "Pr????visions de CA", "Fiscalit????"]
         }
 
     def _prepare_features(self) -> Dict[str, float]:

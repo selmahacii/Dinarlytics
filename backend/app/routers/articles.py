@@ -9,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from app.database import get_db
-from app.models.models import Article, User
+from app.models import Article, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field
@@ -186,7 +186,7 @@ async def get_article_stats(
     ).group_by(Article.category).all()
     
     categories = [
-        {"name": cat or "Sans catégorie", "count": count}
+        {"name": cat or "Sans cat????gorie", "count": count}
         for cat, count in categories_query
     ]
     

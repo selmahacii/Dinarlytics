@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from app.models.models import Supplier
+from app.models import Supplier
 from app.security import TokenData
 
 class InternalControlService:
@@ -25,7 +25,7 @@ class InternalControlService:
         if hasattr(supplier, 'created_by') and supplier.created_by == current_user.user_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Violation de la Séparation des Tâches (SoD) : Vous ne pouvez pas valider de paiements pour un fournisseur que vous avez vous-même créé."
+                detail="Violation de la S????paration des T????ches (SoD) : Vous ne pouvez pas valider de paiements pour un fournisseur que vous avez vous-m????me cr????????."
             )
 
     @staticmethod

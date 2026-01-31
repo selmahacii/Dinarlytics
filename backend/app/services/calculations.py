@@ -45,11 +45,11 @@ class AlgerianFinancialCalculator:
         tap_rate: Decimal = None
     ) -> Dict[str, Any]:
         """
-        Calculates the G50 tax summary (Déclaration mensuelle).
-        - TVA Collectée (Sales)
-        - TVA Déductible (Purchases)
-        - TAP (Taxe sur l'Activité Professionnelle)
-        - IRG (Retenue à la source salaires/honoraires)
+        Calculates the G50 tax summary (D????claration mensuelle).
+        - TVA Collect????e (Sales)
+        - TVA D????ductible (Purchases)
+        - TAP (Taxe sur l'Activit???? Professionnelle)
+        - IRG (Retenue ???? la source salaires/honoraires)
         - Droit de Timbre
         """
         rate_tap = tap_rate if tap_rate is not None else AlgerianFinancialCalculator.TAP_RATE
@@ -57,10 +57,10 @@ class AlgerianFinancialCalculator:
         tva_collected = (net_sales_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         tva_deductible = (net_purchases_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         
-        # TAP = CA * Taux (avec réfaction 25% ou 50% possible, ici simplifié)
+        # TAP = CA * Taux (avec r????faction 25% ou 50% possible, ici simplifi????)
         tap = (net_sales_ht * rate_tap).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         
-        # TVA à payer = (Collectée - Déductible) ou crédit reportable
+        # TVA ???? payer = (Collect????e - D????ductible) ou cr????dit reportable
         diff_tva = tva_collected - tva_deductible
         tva_to_pay = diff_tva if diff_tva > 0 else Decimal('0')
         credit_tva = abs(diff_tva) if diff_tva < 0 else Decimal('0')
@@ -78,13 +78,13 @@ class AlgerianFinancialCalculator:
             "total_due": float(total_due)
         }
 
-    # Taux IBS (Impôt sur les Bénéfices des Sociétés)
+    # Taux IBS (Imp????t sur les B????n????fices des Soci????t????s)
     IBS_RATES = {
         'production': Decimal('0.19'),      # Biens
         'btph': Decimal('0.23'),            # Batiment
-        'tourisme': Decimal('0.23'),        # Activités touristiques (souvent assimilé ou taux réduit spécifique)
+        'tourisme': Decimal('0.23'),        # Activit????s touristiques (souvent assimil???? ou taux r????duit sp????cifique)
         'services': Decimal('0.26'),        # Commerce et services (Standard)
-        'mixte': Decimal('0.26')            # Par défaut
+        'mixte': Decimal('0.26')            # Par d????faut
     }
 
     @staticmethod
@@ -95,7 +95,7 @@ class AlgerianFinancialCalculator:
         activity_sector: str = 'services'
     ) -> Dict[str, Decimal]:
         """
-        Calculates the Impôt sur les Bénéfices des Sociétés (IBS).
+        Calculates the Imp????t sur les B????n????fices des Soci????t????s (IBS).
         Standard rate: 26% (Services), 23% (BTPH), 19% (Production).
         """
         profit_taxable = net_profit_accounting + reintegrations - deductions

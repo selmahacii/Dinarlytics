@@ -3,13 +3,13 @@ from sqlalchemy import text
 
 def generate_document_number(db: Session, model, column, company_id, prefix, date_obj):
     """
-    Génère un numéro séquentiel format PREFIX/ANNEE/SEQ (ex: FACT/2026/00001)
-    Réinitialise la séquence chaque année.
+    G????n????re un num????ro s????quentiel format PREFIX/ANNEE/SEQ (ex: FACT/2026/00001)
+    R????initialise la s????quence chaque ann????e.
     """
     year = date_obj.year
     pattern = f"{prefix}/{year}/%"
     
-    # Recherche du dernier numéro pour cette année
+    # Recherche du dernier num????ro pour cette ann????e
     # On utilise column directement dans le filter
     last = db.query(column).filter(
         model.company_id == company_id,

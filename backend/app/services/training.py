@@ -6,15 +6,15 @@ from app.models.erp_model import ERPModel
 logger = logging.getLogger(__name__)
 
 class TrainingService:
-    """Service d'entraînement robuste avec suivi des métriques."""
+    """Service d'entra????nement robuste avec suivi des m????triques."""
 
     @staticmethod
     def train_model(model: ERPModel, train_data: List[Dict[str, Any]], 
                    epochs: int = 10, lr: float = 1e-3, batch_size: int = 8) -> Dict[str, Any]:
-        """Entraîne le modèle avec loss multitâche et validation."""
+        """Entra????ne le mod????le avec loss multit????che et validation."""
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
         
-        # Poids pour chaque tâche (importance relative)
+        # Poids pour chaque t????che (importance relative)
         task_weights = {
             "risk": 1.0,
             "liquidity": 1.0,
@@ -37,7 +37,7 @@ class TrainingService:
             for i in range(0, len(train_data), batch_size):
                 batch = train_data[i:i+batch_size]
                 
-                # Préparer les données du batch
+                # Pr????parer les donn????es du batch
                 batch_x = []
                 batch_y = {}
                 
@@ -55,7 +55,7 @@ class TrainingService:
                 optimizer.zero_grad()
                 outputs = model(x)
                 
-                # Calcul du loss multitâche
+                # Calcul du loss multit????che
                 total_loss = 0.0
                 for task, weight in task_weights.items():
                     if task in outputs and task in batch_y and len(batch_y[task]) > 0:
@@ -79,7 +79,7 @@ class TrainingService:
             if avg_epoch_loss < best_loss:
                 best_loss = avg_epoch_loss
             else:
-                logger.info(f"Epoch {epoch+1}/{epochs} - Loss: {avg_epoch_loss:.4f} (convergé)")
+                logger.info(f"Epoch {epoch+1}/{epochs} - Loss: {avg_epoch_loss:.4f} (converg????)")
             
             if (epoch + 1) % max(1, epochs // 10) == 0:
                 logger.info(f"Epoch {epoch+1}/{epochs} - Loss: {avg_epoch_loss:.4f}")
@@ -94,7 +94,7 @@ class TrainingService:
 
     @staticmethod
     def evaluate_model(model: ERPModel, test_data: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Évalue le modèle sur les données de test."""
+        """?????value le mod????le sur les donn????es de test."""
         model.eval()
         criterion = torch.nn.MSELoss()
         

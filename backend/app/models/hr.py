@@ -15,7 +15,8 @@ class Employee(Base):
     
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
-    ssn = Column(String(20), unique=True) # Numéro Sécurité Sociale (CNAS)
+    matricule = Column(String(50), unique=True, index=True)
+    ssn = Column(String(20), unique=True) # Num????ro S????curit???? Sociale (CNAS)
     job_title = Column(String(100))
     department = Column(String(100))
     
@@ -37,14 +38,14 @@ class Payslip(Base):
     
     base_salary = Column(Numeric(15, 2))
     bonuses = Column(Numeric(15, 2), default=0) # Primes imposables
-    allowances = Column(Numeric(15, 2), default=0) # Indemnités (Panier/Transport)
+    allowances = Column(Numeric(15, 2), default=0) # Indemnit????s (Panier/Transport)
     
     gross_salary = Column(Numeric(15, 2)) # Salaire Brut
     
     cotisation_cnas = Column(Numeric(15, 2)) # 9%
     irg_amount = Column(Numeric(15, 2)) # Retenue IRG
     
-    net_salary = Column(Numeric(15, 2)) # Net à payer
+    net_salary = Column(Numeric(15, 2)) # Net ???? payer
     
     payment_status = Column(String(50), default="pending") # pending, paid
     payment_date = Column(Date, nullable=True)

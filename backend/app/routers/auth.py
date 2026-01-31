@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import logging
 
 from app.database import get_db
-from app.models.models import User, Company, UserRole, Role, UserSession
+from app.models import User, Company, UserRole, Role, UserSession
 from app.security import (
     PasswordManager,
     JWTManager,
@@ -100,7 +100,7 @@ async def get_current_user(
     
     return token_data
 
-async def require_permission(
+def require_permission(
     required_permission: str
 ) -> callable:
     """Factory for permission requirement dependency"""

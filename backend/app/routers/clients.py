@@ -10,7 +10,7 @@ from decimal import Decimal
 import uuid
 
 from app.database import get_db
-from app.models.models import Client, User
+from app.models import Client, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field, EmailStr
@@ -28,7 +28,7 @@ class ClientRequest(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
-    country: Optional[str] = "Algérie"
+    country: Optional[str] = "Alg????rie"
     tax_id: Optional[str] = None
     credit_limit: Optional[Decimal] = None
     payment_terms: Optional[int] = 30
@@ -149,7 +149,7 @@ async def get_client_stats(
     # Top clients (placeholder)
     top_clients = [
         {"id": "C001", "name": "Entreprise Alpha", "revenue": 850000},
-        {"id": "C002", "name": "Société Beta", "revenue": 720000},
+        {"id": "C002", "name": "Soci????t???? Beta", "revenue": 720000},
         {"id": "C003", "name": "Groupe Gamma", "revenue": 650000},
     ]
     

@@ -20,7 +20,7 @@ class ERPFeatureEncoder(nn.Module):
         return self.encoder(x)
 
 class MultiTaskHead(nn.Module):
-    """Têtes multitâches pour risque, liquidité, rentabilité, solvabilité, anomalies et suggestions."""
+    """T????tes multit????ches pour risque, liquidit????, rentabilit????, solvabilit????, anomalies et suggestions."""
     def __init__(self, latent_dim: int, task_outputs: Dict[str, int]):
         super().__init__()
         self.heads = nn.ModuleDict({
@@ -37,7 +37,7 @@ class MultiTaskHead(nn.Module):
         return {task: head(x) for task, head in self.heads.items()}
 
 class ERPModel(nn.Module):
-    """Modèle multitâche complet pour analyse financière prédictive."""
+    """Mod????le multit????che complet pour analyse financi????re pr????dictive."""
     def __init__(self, input_dim: int, task_outputs: Dict[str, int], hidden_dim: int = 128, n_layers: int = 2):
         super().__init__()
         self.encoder = ERPFeatureEncoder(input_dim, hidden_dim, n_layers)

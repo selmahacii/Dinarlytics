@@ -74,7 +74,7 @@ def record_action(request: ActionCreate, db: Session = Depends(get_db), current_
 @router.get("/aging-balance")
 def get_aging_balance(db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
     """
-    Standard AR Aging Balance (Balance Agée):
+    Standard AR Aging Balance (Balance Ag????e):
     0-30 days, 31-60 days, 61-90 days, >90 days.
     """
     today = date.today()

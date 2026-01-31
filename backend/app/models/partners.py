@@ -84,10 +84,10 @@ class Client(Base):
     @validates('tax_number')
     def validate_nif(self, key, tax_number):
         if tax_number:
-            # Suppression des espaces éventuels
+            # Suppression des espaces ????ventuels
             clean_nif = tax_number.strip().replace(" ", "")
             if len(clean_nif) != 15 or not clean_nif.isdigit():
-                raise ValueError(f"Le NIF doit contenir exactement 15 chiffres (Format Algérie). Reçu: {tax_number}")
+                raise ValueError(f"Le NIF doit contenir exactement 15 chiffres (Format Alg????rie). Re????u: {tax_number}")
             return clean_nif
         return tax_number
 
@@ -115,7 +115,7 @@ class Supplier(Base):
         if tax_number:
             clean_nif = tax_number.strip().replace(" ", "")
             if len(clean_nif) != 15 or not clean_nif.isdigit():
-                raise ValueError(f"Le NIF fournisseur doit contenir exactement 15 chiffres. Reçu: {tax_number}")
+                raise ValueError(f"Le NIF fournisseur doit contenir exactement 15 chiffres. Re????u: {tax_number}")
             return clean_nif
         return tax_number
 

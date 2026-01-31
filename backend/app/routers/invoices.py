@@ -5,7 +5,7 @@ from datetime import date
 import uuid
 
 from app.database import get_db
-from app.models.models import Invoice, Client, Article, InvoiceItem, JournalEntry, JournalEntryLine, ChartOfAccount
+from app.models import Invoice, Client, Article, InvoiceItem, JournalEntry, JournalEntryLine, ChartOfAccount
 from app.routers.auth import get_current_user
 from app.security import TokenData
 from pydantic import BaseModel, Field
@@ -200,28 +200,28 @@ async def create_invoice(
         total_ht_global += calcs['ht']
         total_tva_global += calcs['tva']
 
-    # 4b. Calcul du Timbre Fiscal (Spécificité Algérie)
-    # Règle: 1% du montant pour paiement ESPÈCES si > seuil (ex: 2500 DA, souvent interprété comme tout paiement espèce)
+    # 4b. Calcul du Timbre Fiscal (Sp????cificit???? Alg????rie)
+    # R????gle: 1% du montant pour paiement ESP????CES si > seuil (ex: 2500 DA, souvent interpr????t???? comme tout paiement esp????ce)
     # On applique 1% du TTC provisoire
     timbre_fiscal = Decimal('0')
     if request.payment_mode == 'cash':
         ttc_provisoire = total_ht_global + total_tva_global
-        if ttc_provisoire > Decimal('2500'): # Seuil d'exonération pratique
-             # Calcul 1% arrondi au Dinar supérieur
+        if ttc_provisoire > Decimal('2500'): # Seuil d'exon????ration pratique
+             # Calcul 1% arrondi au Dinar sup????rieur
              timbre_fiscal = (ttc_provisoire * Decimal('0.01')).quantize(Decimal('1.00'))
-             # Plafond 2500 DA (Ancienne loi) ou 100 000 DA (LFC récente), on met 2500 par sécurité par défaut ou configurable
+             # Plafond 2500 DA (Ancienne loi) ou 100 000 DA (LFC r????cente), on met 2500 par s????curit???? par d????faut ou configurable
              # Pour l'instant on laisse le calcul simple 1%
              
     # 5. Update Invoice Totals
     new_inv.total_htt = total_ht_global
     new_inv.total_tva = total_tva_global
-    # Si le modèle Invoice a un champ timbre, on le remplit, sinon on l'ajoute au TTC ou on crée une ligne 'Timbre'
-    # Pour faire propre, ajoutons une ligne InvoiceItem spéciale 'Timbre Fiscal'
+    # Si le mod????le Invoice a un champ timbre, on le remplit, sinon on l'ajoute au TTC ou on cr????e une ligne 'Timbre'
+    # Pour faire propre, ajoutons une ligne InvoiceItem sp????ciale 'Timbre Fiscal'
     if timbre_fiscal > 0:
-         # On ajoute une ligne spéciale non taxable
+         # On ajoute une ligne sp????ciale non taxable
          item_timbre = InvoiceItem(
             invoice_id=new_inv.id,
-            description="Droit de Timbre (Espèces)",
+            description="Droit de Timbre (Esp????ces)",
             quantity=1,
             unit_price_htt=timbre_fiscal,
             tva_rate=0,
@@ -233,7 +233,7 @@ async def create_invoice(
          # Pas d'ajout au HT, c'est une taxe directe
     
     # Recalcul total TTC
-    # Note: Le timbre n'est PAS du chiffre d'affaires (HT), c'est une taxe collectée pour l'état
+    # Note: Le timbre n'est PAS du chiffre d'affaires (HT), c'est une taxe collect????e pour l'????tat
     new_inv.total_ttc = total_ht_global + total_tva_global + timbre_fiscal
 
     db.commit()
@@ -290,7 +290,7 @@ async def validate_invoice(
         journal_type="VT",
         entry_number=generate_document_number(db, JournalEntry, JournalEntry.entry_number, current_user.company_id, "VT", inv.invoice_date),
         entry_date=inv.invoice_date,
-        description=f"Facture N° {inv.invoice_number}",
+        description=f"Facture N???? {inv.invoice_number}",
         status="approved",
         created_by=current_user.user_id
         # source_document=inv.invoice_number # If field exists
@@ -318,12 +318,12 @@ async def validate_invoice(
     )
     db.add(line_sales)
     
-    # Line 3: TVA Collectée (Credit TVA) -> Compte 445700
+    # Line 3: TVA Collect????e (Credit TVA) -> Compte 445700
     if inv.total_tva > 0:
         line_tva = JournalEntryLine(
             journal_entry_id=entry.id,
             account_code="445700",
-            description=f"TVA Collectée - {inv.invoice_number}",
+            description=f"TVA Collect????e - {inv.invoice_number}",
             debit_amount=0,
             credit_amount=inv.total_tva
         )

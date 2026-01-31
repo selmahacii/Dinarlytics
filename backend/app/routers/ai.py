@@ -23,7 +23,7 @@ class ChatRequest(BaseModel):
 
 @router.post("/predict")
 def ai_predict(req: PredictRequest):
-    """Prédiction IA complète (risque, anomalies, suggestions, etc.)"""
+    """Pr????diction IA compl????te (risque, anomalies, suggestions, etc.)"""
     try:
         result = PredictionService.predict(req.model_name, req.features, req.company_id)
         return result
@@ -44,7 +44,7 @@ def ai_chat(req: ChatRequest, db: Session = Depends(get_db), user: dict = Depend
 
 @router.post("/insights")
 def ai_insights(req: PredictRequest):
-    """Détection d'anomalies et analyse IA"""
+    """D????tection d'anomalies et analyse IA"""
     try:
         result = PredictionService.predict(req.model_name, req.features, req.company_id)
         return {

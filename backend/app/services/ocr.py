@@ -2,16 +2,16 @@ import re
 from typing import Dict, Any, Optional
 import logging
 
-# Essayer d'importer pytesseract et Pillow, mais ne pas planter si absents (mode dégradé)
+# Essayer d'importer pytesseract et Pillow, mais ne pas planter si absents (mode d????grad????)
 try:
     from PIL import Image
     import pytesseract
-    # Configuration sommaire pour windows si nécessaire, souvent tesseract est dans le PATH
+    # Configuration sommaire pour windows si n????cessaire, souvent tesseract est dans le PATH
     # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     HAS_OCR_LIBS = True
 except ImportError:
     HAS_OCR_LIBS = False
-    logging.warning("Bibliothèques OCR (Pillow, pytesseract) manquantes. Le service OCR fonctionnera en mode simulation.")
+    logging.warning("Biblioth????ques OCR (Pillow, pytesseract) manquantes. Le service OCR fonctionnera en mode simulation.")
 
 
 class OCRService:
@@ -20,22 +20,22 @@ class OCRService:
 
     def extract_text(self, file_content: bytes, filename: str) -> str:
         """
-        Extrait le texte brut d'une image ou PDF (conversion nécessaire pour PDF).
-        Pour l'instant, gère principalement les images.
+        Extrait le texte brut d'une image ou PDF (conversion n????cessaire pour PDF).
+        Pour l'instant, g????re principalement les images.
         """
         if not HAS_OCR_LIBS:
-            self.logger.info("OCR non disponible, retour de texte simulé.")
+            self.logger.info("OCR non disponible, retour de texte simul????.")
             return self._get_mock_text()
         
         try:
             from io import BytesIO
             image = Image.open(BytesIO(file_content))
-            # Utilisation du français par défaut
+            # Utilisation du fran????ais par d????faut
             text = pytesseract.image_to_string(image, lang='fra')
             return text
         except Exception as e:
             self.logger.error(f"Erreur OCR: {str(e)}")
-            # Fallback en mode dev si ça échoue (ex: Tesseract pas installé)
+            # Fallback en mode dev si ????a ????choue (ex: Tesseract pas install????)
             return self._get_mock_text()
 
     def parse_invoice_data(self, text: str) -> Dict[str, Any]:
@@ -46,16 +46,16 @@ class OCRService:
             "date": None,
             "total_amount": None,
             "merchant_nif": None,
-            "merchant_name": None,  # Difficile sans base de données ou IA plus poussée
+            "merchant_name": None,  # Difficile sans base de donn????es ou IA plus pouss????e
             "raw_text": text
         }
 
         # 1. Extraction Date (Formats JJ/MM/AAAA, JJ-MM-AAAA, AAAA-MM-JJ)
-        # Regex améliorée pour capturer différents formats
+        # Regex am????lior????e pour capturer diff????rents formats
         date_pattern = r'\b(\d{2}[/.-]\d{2}[/.-]\d{4})\b'
         dates = re.findall(date_pattern, text)
         if dates:
-            # On prend la première date trouvée pour l'instant, souvent la date facture est en haut
+            # On prend la premi????re date trouv????e pour l'instant, souvent la date facture est en haut
             data["date"] = dates[0]
 
         # 2. Extraction NIF (15 ou 20 chiffres)
@@ -65,16 +65,16 @@ class OCRService:
         if nif_match:
             data["merchant_nif"] = nif_match.group(1)
         else:
-            # Tentative de trouver juste une suite de 15 chiffres isolée si précédée de rien de spécifique (plus risqué)
+            # Tentative de trouver juste une suite de 15 chiffres isol????e si pr????c????d????e de rien de sp????cifique (plus risqu????)
             nif_loose = re.search(r'\b(\d{15})\b', text)
             if nif_loose:
                 data["merchant_nif"] = nif_loose.group(1)
 
         # 3. Extraction Montant Total
-        # Cherche "Total TTC", "Net à payer", "Montant" suivi d'un nombre
-        # Le nombre peut avoir des espaces (milliers) et une virgule/point décimal
+        # Cherche "Total TTC", "Net ???? payer", "Montant" suivi d'un nombre
+        # Le nombre peut avoir des espaces (milliers) et une virgule/point d????cimal
         amount_patterns = [
-            r'(?:Total\s+TTC|Net\s+à\s+payer|Montant\s+TTC)\s*[:.]?\s*([\d\s.,]+)',
+            r'(?:Total\s+TTC|Net\s+????\s+payer|Montant\s+TTC)\s*[:.]?\s*([\d\s.,]+)',
             r'Total\s*[:.]?\s*([\d\s.,]+)\s*DZD'
         ]
         
@@ -84,9 +84,9 @@ class OCRService:
                 amount_str = match.group(1)
                 # Nettoyage du montant (enlever espaces, remplacer virgule par point)
                 clean_amount = amount_str.replace(' ', '').replace(',', '.')
-                # Parfois il reste des caractères non numériques à la fin
+                # Parfois il reste des caract????res non num????riques ???? la fin
                 try:
-                    # Extraction du premier float valide dans la chaîne nettoyée
+                    # Extraction du premier float valide dans la cha????ne nettoy????e
                     val = re.search(r'(\d+\.?\d*)', clean_amount)
                     if val:
                         data["total_amount"] = float(val.group(1))
@@ -97,17 +97,17 @@ class OCRService:
         return data
 
     def _get_mock_text(self) -> str:
-        """Texte simulé pour le développement sans Tesseract."""
+        """Texte simul???? pour le d????veloppement sans Tesseract."""
         return """
         EURL SUPER FOURNISSEUR
-        Adresse: 12 Rue de la Liberté, Alger
+        Adresse: 12 Rue de la Libert????, Alger
         NIF: 002315012345678
         RC: 16/00-12345678
         
-        FACTURE N° 2024-001
+        FACTURE N???? 2024-001
         Date: 25/01/2026
         
-        Désignation       Qté    Prix U    Total
+        D????signation       Qt????    Prix U    Total
         Papier A4         10     500.00    5000.00
         Encre Imprimante   2     2500.00   5000.00
         
@@ -115,7 +115,7 @@ class OCRService:
         TVA 19%: 1900.00
         Total TTC: 11900.00 DZD
         
-        Arrêté la présente facture à la somme de: Onze mille neuf cents dinars.
+        Arr????t???? la pr????sente facture ???? la somme de: Onze mille neuf cents dinars.
         """
 
 ocr_service = OCRService()

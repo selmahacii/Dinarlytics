@@ -12,12 +12,12 @@ async def analyze_document(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Analyse un document (Image/PDF) pour extraire les données comptables.
+    Analyse un document (Image/PDF) pour extraire les donn????es comptables.
     Retourne : Date, Montant Total, NIF Fournisseur, et le texte brut.
     """
     # Validation du type de fichier
     if file.content_type not in ["image/jpeg", "image/png", "application/pdf"]:
-        raise HTTPException(status_code=400, detail="Format de fichier non supporté. Utilisez JPG, PNG ou PDF.")
+        raise HTTPException(status_code=400, detail="Format de fichier non support????. Utilisez JPG, PNG ou PDF.")
     
     try:
         content = await file.read()
@@ -25,7 +25,7 @@ async def analyze_document(
         # 1. Extraction du texte (OCR)
         raw_text = ocr_service.extract_text(content, file.filename)
         
-        # 2. Analyse sémantique (RegEx)
+        # 2. Analyse s????mantique (RegEx)
         parsed_data = ocr_service.parse_invoice_data(raw_text)
         
         return {
@@ -35,6 +35,6 @@ async def analyze_document(
         }
         
     except Exception as e:
-        # En prod, logger l'erreur réelle
+        # En prod, logger l'erreur r????elle
         print(f"Erreur endpoint OCR: {e}")
         raise HTTPException(status_code=500, detail="Erreur lors de l'analyse du document.")

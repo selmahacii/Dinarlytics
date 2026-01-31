@@ -62,14 +62,14 @@ class AccountingAutomation:
             description=f"Produit: {invoice.invoice_number}"
         ))
 
-        # Line 3: TVA Collectée (Credit)
+        # Line 3: TVA Collect????e (Credit)
         if invoice.total_tva > 0:
             db.add(JournalEntryLine(
                 journal_entry_id=journal_entry.id,
                 account_code=AccountingAutomation.ACC_TVA_COLLECTEE,
                 debit_amount=0,
                 credit_amount=invoice.total_tva,
-                description=f"TVA Collectée: {invoice.invoice_number}"
+                description=f"TVA Collect????e: {invoice.invoice_number}"
             ))
 
         return journal_entry

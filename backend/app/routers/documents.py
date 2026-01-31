@@ -10,7 +10,7 @@ from decimal import Decimal
 import uuid
 
 from app.database import get_db
-from app.models.models import (
+from app.models import (
     User, Supplier, Client, Article,
     # You must add these models in models.py if not present:
     # DeliveryNote, DeliveryNoteItem, PurchaseOrder, PurchaseOrderItem, PurchaseNote, PurchaseNoteItem
@@ -21,10 +21,10 @@ from app.security import TokenData, RBACManager
 from pydantic import BaseModel, Field
 
 def generate_document_number(db: Session, model, column, company_id, prefix, date_obj):
-    """Génère un numéro séquentiel format PREFIX/ANNEE/SEQ"""
+    """G????n????re un num????ro s????quentiel format PREFIX/ANNEE/SEQ"""
     year = date_obj.year
     pattern = f"{prefix}/{year}/%"
-    # Recherche du dernier numéro pour cette année
+    # Recherche du dernier num????ro pour cette ann????e
     last = db.query(column).filter(
         model.company_id == company_id,
         column.like(pattern)
@@ -126,7 +126,7 @@ async def create_delivery_note(
 ):
     """Create a new delivery note with barcode for each item"""
     # You must implement DeliveryNote and DeliveryNoteItem models in models.py
-    from app.models.models import DeliveryNote, DeliveryNoteItem
+    from app.models import DeliveryNote, DeliveryNoteItem
 
     delivery_number = generate_document_number(
         db, DeliveryNote, DeliveryNote.delivery_number, 
@@ -178,7 +178,7 @@ async def list_delivery_notes(
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import DeliveryNote
+    from app.models import DeliveryNote
     notes = db.query(DeliveryNote).filter(
         DeliveryNote.company_id == current_user.company_id
     ).order_by(DeliveryNote.delivery_date.desc()).offset(skip).limit(limit).all()
@@ -200,7 +200,7 @@ async def get_delivery_note(
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import DeliveryNote, DeliveryNoteItem
+    from app.models import DeliveryNote, DeliveryNoteItem
     note = db.query(DeliveryNote).options(joinedload(DeliveryNote.items)).filter(
         DeliveryNote.id == note_id,
         DeliveryNote.company_id == current_user.company_id
@@ -232,7 +232,7 @@ async def add_delivery_note_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import DeliveryNote, DeliveryNoteItem
+    from app.models import DeliveryNote, DeliveryNoteItem
     note = db.query(DeliveryNote).filter(
         DeliveryNote.id == note_id,
         DeliveryNote.company_id == current_user.company_id
@@ -266,7 +266,7 @@ async def update_delivery_note_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import DeliveryNoteItem, DeliveryNote
+    from app.models import DeliveryNoteItem, DeliveryNote
     note_item = db.query(DeliveryNoteItem).join(DeliveryNote).filter(
         DeliveryNoteItem.id == item_id,
         DeliveryNoteItem.delivery_note_id == note_id,
@@ -295,7 +295,7 @@ async def delete_delivery_note_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import DeliveryNoteItem, DeliveryNote
+    from app.models import DeliveryNoteItem, DeliveryNote
     note_item = db.query(DeliveryNoteItem).join(DeliveryNote).filter(
         DeliveryNoteItem.id == item_id,
         DeliveryNoteItem.delivery_note_id == note_id,
@@ -314,7 +314,7 @@ async def create_purchase_order(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseOrder, PurchaseOrderItem
+    from app.models import PurchaseOrder, PurchaseOrderItem
     order_number = generate_document_number(
         db, PurchaseOrder, PurchaseOrder.order_number,
         current_user.company_id, "BC", request.order_date
@@ -368,7 +368,7 @@ async def list_purchase_orders(
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseOrder
+    from app.models import PurchaseOrder
     orders = db.query(PurchaseOrder).filter(
         PurchaseOrder.company_id == current_user.company_id
     ).order_by(PurchaseOrder.order_date.desc()).offset(skip).limit(limit).all()
@@ -391,7 +391,7 @@ async def get_purchase_order(
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseOrder
+    from app.models import PurchaseOrder
     from sqlalchemy.orm import joinedload
     order = db.query(PurchaseOrder).options(joinedload(PurchaseOrder.items)).filter(
         PurchaseOrder.id == order_id,
@@ -426,7 +426,7 @@ async def add_purchase_order_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseOrder, PurchaseOrderItem
+    from app.models import PurchaseOrder, PurchaseOrderItem
     order = db.query(PurchaseOrder).filter(
         PurchaseOrder.id == order_id,
         PurchaseOrder.company_id == current_user.company_id
@@ -462,7 +462,7 @@ async def update_purchase_order_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseOrderItem, PurchaseOrder
+    from app.models import PurchaseOrderItem, PurchaseOrder
     po_item = db.query(PurchaseOrderItem).join(PurchaseOrder).filter(
         PurchaseOrderItem.id == item_id,
         PurchaseOrderItem.purchase_order_id == order_id,
@@ -493,7 +493,7 @@ async def delete_purchase_order_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseOrderItem, PurchaseOrder
+    from app.models import PurchaseOrderItem, PurchaseOrder
     po_item = db.query(PurchaseOrderItem).join(PurchaseOrder).filter(
         PurchaseOrderItem.id == item_id,
         PurchaseOrderItem.purchase_order_id == order_id,
@@ -548,7 +548,7 @@ async def create_purchase_note(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseNote, PurchaseNoteItem
+    from app.models import PurchaseNote, PurchaseNoteItem
     note_number = generate_document_number(
         db, PurchaseNote, PurchaseNote.note_number,
         current_user.company_id, "BA", request.note_date
@@ -605,7 +605,7 @@ async def list_purchase_notes(
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseNote
+    from app.models import PurchaseNote
     notes = db.query(PurchaseNote).filter(
         PurchaseNote.company_id == current_user.company_id
     ).order_by(PurchaseNote.note_date.desc()).offset(skip).limit(limit).all()
@@ -628,7 +628,7 @@ async def get_purchase_note(
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseNote
+    from app.models import PurchaseNote
     note = db.query(PurchaseNote).options(joinedload(PurchaseNote.items)).filter(
         PurchaseNote.id == note_id,
         PurchaseNote.company_id == current_user.company_id
@@ -663,7 +663,7 @@ async def add_purchase_note_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseNote, PurchaseNoteItem
+    from app.models import PurchaseNote, PurchaseNoteItem
     note = db.query(PurchaseNote).filter(
         PurchaseNote.id == note_id,
         PurchaseNote.company_id == current_user.company_id
@@ -701,7 +701,7 @@ async def update_purchase_note_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseNoteItem, PurchaseNote
+    from app.models import PurchaseNoteItem, PurchaseNote
     pn_item = db.query(PurchaseNoteItem).join(PurchaseNote).filter(
         PurchaseNoteItem.id == item_id,
         PurchaseNoteItem.purchase_note_id == note_id,
@@ -734,7 +734,7 @@ async def delete_purchase_note_item(
     current_user: TokenData = Depends(check_document_access),
     db: Session = Depends(get_db)
 ):
-    from app.models.models import PurchaseNoteItem, PurchaseNote
+    from app.models import PurchaseNoteItem, PurchaseNote
     pn_item = db.query(PurchaseNoteItem).join(PurchaseNote).filter(
         PurchaseNoteItem.id == item_id,
         PurchaseNoteItem.purchase_note_id == note_id,
@@ -781,7 +781,7 @@ class NotificationResponse(BaseModel):
 
 @router.get("/kpis", response_model=List[KPIResponse])
 async def get_kpis(
-    period: Optional[str] = Query(None, description="Filtrer par période (mois, trimestre, année)"),
+    period: Optional[str] = Query(None, description="Filtrer par p????riode (mois, trimestre, ann????e)"),
     company_id: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
@@ -803,8 +803,8 @@ async def get_financial_indicators(
 ):
     # Dummy indicators, replace with real queries
     indicators = [
-        {"name": "Liquidité", "value": 1.8, "unit": "ratio", "period": period or "mois"},
-        {"name": "Solvabilité", "value": 0.65, "unit": "ratio", "period": period or "mois"},
+        {"name": "Liquidit????", "value": 1.8, "unit": "ratio", "period": period or "mois"},
+        {"name": "Solvabilit????", "value": 0.65, "unit": "ratio", "period": period or "mois"},
     ]
     return [FinancialIndicatorResponse(**i) for i in indicators]
 
@@ -923,4 +923,3 @@ async def get_business_weather(
         indicator="Excellente",
         description="Conditions favorables"
     )
-

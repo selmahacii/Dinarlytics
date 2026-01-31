@@ -192,11 +192,11 @@ MODEL_CONFIG: Dict[str, dict] = {
         "n_layers": 2,
         "task_outputs": {
             "risk": 1,  # Score de risque financier (0-1)
-            "liquidity": 1,  # Score de liquidité (0-1)
-            "profitability": 1,  # Score de rentabilité (0-1)
-            "solvency": 1,  # Score de solvabilité (0-1)
-            "anomaly": 1,  # Détection d'anomalies (0-1)
-            "suggestion": 5,  # Suggestions d'amélioration (5 catégories)
+            "liquidity": 1,  # Score de liquidit???? (0-1)
+            "profitability": 1,  # Score de rentabilit???? (0-1)
+            "solvency": 1,  # Score de solvabilit???? (0-1)
+            "anomaly": 1,  # D????tection d'anomalies (0-1)
+            "suggestion": 5,  # Suggestions d'am????lioration (5 cat????gories)
         },
         "model_path": None,
     }

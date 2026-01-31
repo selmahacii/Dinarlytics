@@ -9,7 +9,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from app.database import get_db
-from app.models.models import Supplier, User
+from app.models import Supplier, User
 from app.routers.auth import get_current_user
 from app.security import TokenData, RBACManager
 from app.utils.fiscal_validator import validate_nif
@@ -43,7 +43,7 @@ class CreateSupplierRequest(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
-    country: Optional[str] = "Algérie"
+    country: Optional[str] = "Alg????rie"
     tax_id: Optional[str] = None
     payment_terms: Optional[int] = 30
 
