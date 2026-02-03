@@ -3,8 +3,8 @@ import json
 from typing import List, Dict, Any, Optional
 from sqlalchemy import select, func, insert, text
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine
-from app.models import AIPrediction, FinancialStatement, Invoice, Payment, AIModel
+from app.core.database import SessionLocal, engine
+from app.core.models import AIPrediction, FinancialStatement, Invoice, Payment, AIModel
 
 logger = logging.getLogger(__name__)
 

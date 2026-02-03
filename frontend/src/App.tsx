@@ -1,66 +1,60 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import ErrorBoundary from './components/Effects/ErrorBoundary';
-import Layout from './components/Layout/Layout';
+import ErrorBoundary from './shared/components/Effects/ErrorBoundary';
+import Layout from './core/layout/Layout';
 import Login from './pages/Login';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute } from './core/ProtectedRoute';
 
 // Dashboard
-import DashboardAdaptatif from './pages/dashboard/DashboardAdaptatif';
-import VueTempsReel from './pages/dashboard/VueTempsReel';
-import AnalyticsAvancees from './pages/dashboard/AnalyticsAvancees';
-import GraphiquesInteractifs from './pages/dashboard/GraphiquesInteractifs';
-import AlertesIntelligentes from './pages/dashboard/AlertesIntelligentes';
-import CalendrierRappels from './pages/dashboard/CalendrierRappels';
-import TableauBordPersonnalisable from './pages/dashboard/TableauBordPersonnalisable';
+import DashboardAdaptatif from './features/dashboard/pages/DashboardAdaptatif';
+import VueTempsReel from './features/dashboard/pages/VueTempsReel';
+import AnalyticsAvancees from './features/dashboard/pages/AnalyticsAvancees';
+import GraphiquesInteractifs from './features/dashboard/pages/GraphiquesInteractifs';
+import AlertesIntelligentes from './features/dashboard/pages/AlertesIntelligentes';
+import CalendrierRappels from './features/dashboard/pages/CalendrierRappels';
+import TableauBordPersonnalisable from './features/dashboard/pages/TableauBordPersonnalisable';
 
-// CRM & Inventory
-import Clients from './pages/crm/Clients';
-import Fournisseurs from './pages/crm/Fournisseurs';
-import Articles from './pages/inventory/Articles';
-import Inventaire from './pages/inventory/Inventaire';
+// Operations (Commercial, CRM, Inventory, Sales)
+import Clients from './features/operations/pages/Clients';
+import Fournisseurs from './features/operations/pages/Fournisseurs';
+import Articles from './features/operations/pages/Articles';
+import Inventaire from './features/operations/pages/Inventaire';
+import FacturesVente from './features/operations/pages/FacturesVente';
+import GestionPaiementsClients from './features/operations/pages/GestionPaiementsClients';
 
-// Sales
-import FacturesVente from './pages/sales/FacturesVente';
-import GestionPaiementsClients from './pages/sales/GestionPaiementsClients';
-import AnalyticsFacturation from './pages/analytics/AnalyticsFacturation';
+// Finance (Accounting & Analytics)
+import AnalyticsFacturation from './features/finance/pages/AnalyticsFacturation';
+import RapportsComptables from './features/finance/pages/RapportsComptables';
+import DocumentsFiscaux from './features/finance/pages/DocumentsFiscaux';
+import Fiscalite from './features/finance/pages/Fiscalite';
+import ConsolidationCompta from './features/finance/pages/Consolidation';
+import TemplatesDocuments from './features/finance/pages/TemplatesDocuments';
+import Statistiques from './features/finance/pages/Statistiques';
+import VentesClients from './features/finance/pages/VentesClients';
+import AchatsFournisseurs from './features/finance/pages/AchatsFournisseurs';
+import StocksProduits from './features/finance/pages/StocksProduits';
+import TresorerieBanque from './features/finance/pages/TresorerieBanque';
+import ComptabiliteResultats from './features/finance/pages/ComptabiliteResultats';
+import FiscaliteDeclarations from './features/finance/pages/FiscaliteDeclarations';
+import PersonnalisesComparatifs from './features/finance/pages/PersonnalisesComparatifs';
+import Audit from './features/finance/pages/Audit';
 
-// Accounting & Fiscal
-import RapportsComptables from './pages/accounting/RapportsComptables';
-import DocumentsFiscaux from './pages/accounting/DocumentsFiscaux';
-import Fiscalite from './pages/accounting/Fiscalite';
-import ConsolidationCompta from './pages/accounting/Consolidation';
-import TemplatesDocuments from './pages/accounting/comptabilite/TemplatesDocuments';
+// AI
+import ChatbotLIA from './features/ai/pages/ChatbotLIA';
+import AnalysesLIA from './features/ai/pages/AnalysesLIA';
+import EntrainementModeleIA from './features/ai/pages/EntrainementModeleIA';
 
-// AI & Analytics
-import ChatbotLIA from './pages/ai/ChatbotLIA';
-import AnalysesLIA from './pages/ai/AnalysesLIA';
-import EntrainementModeleIA from './pages/ai/EntrainementModeleIA';
-import Audit from './pages/analytics/Audit';
-import Statistiques from './pages/analytics/Statistiques';
+// System & Admin
+import GestionUtilisateurs from './features/system/pages/GestionUtilisateurs';
+import AdminRoleManagement from './features/system/pages/AdminRoleManagement';
+import Parametres from './features/system/pages/Parametres';
+import ConfigurationAvancee from './features/system/pages/ConfigurationAvancee';
+import Integrations from './features/system/pages/Integrations';
 
-// Reports (Modular)
-import VentesClients from './pages/analytics/rapports/VentesClients';
-import AchatsFournisseurs from './pages/analytics/rapports/AchatsFournisseurs';
-import StocksProduits from './pages/analytics/rapports/StocksProduits';
-import TresorerieBanque from './pages/analytics/rapports/TresorerieBanque';
-import ComptabiliteResultats from './pages/analytics/rapports/ComptabiliteResultats';
-import FiscaliteDeclarations from './pages/analytics/rapports/FiscaliteDeclarations';
-import PersonnalisesComparatifs from './pages/analytics/rapports/PersonnalisesComparatifs';
+const BudgetPage = React.lazy(() => import('./features/finance/pages/Budget'));
+const RapprochementBancairePage = React.lazy(() => import('./features/finance/pages/RapprochementBancaire'));
 
-// Admin & Settings
-import GestionUtilisateurs from './pages/settings/GestionUtilisateurs';
-import AdminRoleManagement from './pages/admin/AdminRoleManagement';
-import Parametres from './pages/settings/Parametres';
-import ConfigurationAvancee from './pages/settings/ConfigurationAvancee';
-import Integrations from './pages/settings/Integrations';
-
-import Paie from './pages/hr/Paie';
-
-const BudgetPage = React.lazy(() => import('./pages/analytics/Budget'));
-const RapprochementBancairePage = React.lazy(() => import('./pages/accounting/RapprochementBancaire'));
-
-import { useRealtime } from './hooks/useRealtime';
+import { useRealtime } from './shared/hooks/useRealtime';
 
 function App() {
   useRealtime();
@@ -120,8 +114,6 @@ function App() {
                   <Route path="/configuration-avancee" element={<ProtectedRoute requiredRole="admin"><ConfigurationAvancee /></ProtectedRoute>} />
                   <Route path="/integrations" element={<ProtectedRoute requiredRole="admin"><Integrations /></ProtectedRoute>} />
 
-                  {/* HR */}
-                  <Route path="/paie" element={<ProtectedRoute requiredPermission="paie-read"><Paie /></ProtectedRoute>} />
 
                   {/* Lazy Loaded */}
                   <Route path="/budget" element={<BudgetPage />} />

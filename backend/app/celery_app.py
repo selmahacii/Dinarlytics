@@ -1,6 +1,6 @@
 from celery import Celery
 import os
-from app.config import settings
+from app.core.config import settings
 
 # Configure Celery to use Redis as broker and backend
 celery_app = Celery(

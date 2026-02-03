@@ -15,12 +15,11 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        if (token) {
+        if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // For Audit Traceability: Send current company context if available
         const companyId = localStorage.getItem('company_id');
-        if (companyId) {
+        if (companyId && config.headers) {
             config.headers['X-Company-ID'] = companyId;
         }
         return config;

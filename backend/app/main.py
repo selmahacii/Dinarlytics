@@ -9,25 +9,9 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.gzip import GZipMiddleware
 
-from app.config import settings
-from app.database import close_db, init_db
-from app.routers import (
-    accounting,
-    articles,
-    auth,
-    budgets,
-    clients,
-    documents,
-    reports,
-    suppliers,
-    analytics,
-    fiscality,
-    audit,
-    users,
-    collections,
-    invoices,
-    hr
-)
+from app.core.config import settings
+from app.core.database import close_db, init_db
+from app.api.v1.api import api_router
 
 
 
@@ -75,6 +59,31 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 # GZIP Compression
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Rate Limiting
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.errors import RateLimitExceeded
+from app.core.limiter import limiter
+
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(request, exc):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Too many requests, please try again later."},
+    )
+
+# Sentry Integration
+import sentry_sdk
+if settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        environment=settings.APP_ENVIRONMENT,
+    )
 
 
 # ========== EXCEPTION HANDLERS ==========
@@ -133,118 +142,14 @@ async def root():
 
 
 # ========== API ROUTERS ==========
-# Include authentication routes
-app.include_router(
-    auth.router, prefix=settings.API_PREFIX, tags=["authentication"]
-)
-
-# Include accounting routes
-app.include_router(
-    accounting.router, prefix=settings.API_PREFIX, tags=["accounting"]
-)
-
-
-# Include budget routes
-app.include_router(
-    budgets.router, prefix=settings.API_PREFIX, tags=["budgets"]
-)
-
-# Include document routes
-app.include_router(
-    documents.router,
-    prefix=settings.API_PREFIX,
-    tags=["documents"],
-)
-
-app.include_router(
-    audit.router,
-    prefix=settings.API_PREFIX,
-    tags=["audit"],
-)
-
-# Include client routes
-app.include_router(
-    clients.router,
-    prefix=settings.API_PREFIX,
-    tags=["clients"],
-)
-
-# Include article routes
-app.include_router(
-    articles.router,
-    prefix=settings.API_PREFIX,
-    tags=["articles"],
-)
-
-# Include supplier routes
-app.include_router(
-    suppliers.router,
-    prefix=settings.API_PREFIX,
-    tags=["suppliers"],
-)
-
-# Include users routes
-app.include_router(
-    users.router, prefix=settings.API_PREFIX, tags=["users"]
-)
-
-# Include fiscality routes
-app.include_router(
-    fiscality.router, prefix=settings.API_PREFIX, tags=["fiscality"]
-)
-
-# Include analytics routes
-app.include_router(
-    analytics.router, prefix=settings.API_PREFIX, tags=["analytics"]
-)
-
-# Include reports routes
-app.include_router(
-    reports.router,
-    prefix=settings.API_PREFIX,
-    tags=["reports"],
-)
-
-# Include collections routes
-app.include_router(
-    collections.router,
-    prefix=settings.API_PREFIX,
-    tags=["collections"]
-)
-
-# Include invoices routes
-app.include_router(
-    invoices.router,
-    prefix=settings.API_PREFIX,
-    tags=["invoices"]
-)
-
-# Include hr routes
-app.include_router(
-    hr.router,
-    prefix=settings.API_PREFIX,
-    tags=["hr"]
-)
-
-from app.routers import payments
-app.include_router(
-    payments.router,
-    prefix=settings.API_PREFIX,
-    tags=["payments"]
-)
-
-from app.routers import ocr
-app.include_router(
-    ocr.router,
-    prefix=settings.API_PREFIX,
-    tags=["ocr"]
-)
+# ========== API ROUTERS ==========
+app.include_router(api_router, prefix=settings.API_PREFIX)
 
 
 
 # ========== WEBSOCKETS ==========
 from fastapi import WebSocket, WebSocketDisconnect
-from app.websocket_manager import manager
+from app.core.websocket import manager
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

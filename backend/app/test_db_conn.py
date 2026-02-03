@@ -1,4 +1,4 @@
-from app.database import init_db
+from app.core.database import init_db
 import logging
 logging.basicConfig(level=logging.INFO)
 try:
