@@ -41,5 +41,10 @@ export const clientsService = {
     getStats: async () => {
         const response = await apiClient.get<any>('/clients/stats');
         return response.data;
+    },
+
+    getGroups: async () => {
+        const response = await apiClient.get<any>('/clients/groups');
+        return response.data;
     }
 };

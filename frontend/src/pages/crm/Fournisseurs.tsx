@@ -1068,12 +1068,16 @@ const Fournisseurs: React.FC = () => {
   // Note: isModalOpen et selectedFournisseur sont déjà déclarés plus haut (avant le return early)
 
 
-  const filteredFournisseurs = mockFournisseurs.filter(fournisseur =>
-    fournisseur.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fournisseur.nif.includes(searchTerm)
-  );
+  const { suppliers, loading, createSupplier, updateSupplier, deleteSupplier } = useSuppliers();
 
-  const handleEdit = (fournisseur: Fournisseur) => {
+  const filteredFournisseurs = useMemo(() => {
+    return (suppliers || []).filter(fournisseur =>
+      fournisseur.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (fournisseur.nif && fournisseur.nif.includes(searchTerm))
+    );
+  }, [suppliers, searchTerm]);
+
+  const handleEdit = (fournisseur: any) => {
     setSelectedFournisseur(fournisseur);
     setIsModalOpen(true);
   };

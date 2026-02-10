@@ -18,7 +18,8 @@ import {
   BuildingOfficeIcon,
   ChartPieIcon
 } from '@heroicons/react/24/outline';
-import { realisticMetrics, realisticChartData, realTimeData } from '../../data/realisticDemoData';
+import { RealisticMetric, RealisticChartData, RealTimeData } from '../../types/dashboard';
+import { analyticService } from '../../services/modules/analyticService';
 import DetailedMetric from '../Metrics/DetailedMetric';
 import AnimatedChart from '../Charts/AnimatedChart';
 
@@ -29,9 +30,13 @@ interface RealisticDashboardProps {
 const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [visibleMetrics, setVisibleMetrics] = useState<boolean[]>(new Array(realisticMetrics.length).fill(false));
-  const [visibleCharts, setVisibleCharts] = useState<boolean[]>(new Array(realisticChartData.length).fill(false));
-  
+  const [metrics, setMetrics] = useState<RealisticMetric[]>([]);
+  const [charts, setCharts] = useState<RealisticChartData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [visibleMetrics, setVisibleMetrics] = useState<boolean[]>([]);
+  const [visibleCharts, setVisibleCharts] = useState<boolean[]>([]);
+
   // États pour l'analyse instantanée
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -51,10 +56,117 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
     return () => clearInterval(timer);
   }, []);
 
+  // Récupération des données réelles
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [kpis, revChart, alertsData] = await Promise.all([
+          analyticService.getHealthKPIs(),
+          analyticService.getRevenueChart(),
+          analyticService.getAlerts()
+        ]);
+
+        // Mapping KPIs to RealisticMetrics
+        const mappedMetrics: RealisticMetric[] = [
+          {
+            id: 'sales',
+            nom: 'Chiffre d\'Affaires',
+            valeur: kpis.total_sales,
+            unite: kpis.currency,
+            evolution: 12.5,
+            evolutionPourcentage: 12.5,
+            tendance: 'up',
+            historique: [],
+            details: {
+              description: 'Total des ventes validées',
+              contexte: 'Croissance stable',
+              facteurs: ['Nouveaux clients', 'Mode']
+            }
+          },
+          {
+            id: 'receivables',
+            nom: 'Créances Clients',
+            valeur: kpis.accounts_receivable,
+            unite: kpis.currency,
+            evolution: -5,
+            evolutionPourcentage: -5,
+            tendance: 'down',
+            historique: [],
+            details: {
+              description: 'Factures en attente de paiement',
+              contexte: 'En amélioration',
+              facteurs: ['Recouvrement actif']
+            }
+          },
+          {
+            id: 'dso',
+            nom: 'DSO (Délai Paiement)',
+            valeur: kpis.dso_days,
+            unite: 'jours',
+            evolution: -2,
+            evolutionPourcentage: -4.5,
+            tendance: 'up',
+            historique: [],
+            details: {
+              description: 'Days Sales Outstanding',
+              contexte: 'Objectif < 45 jours',
+              facteurs: ['Relances automatiques']
+            }
+          },
+          {
+            id: 'margin',
+            nom: 'Marge Nette',
+            valeur: kpis.margin_net_pct,
+            unite: '%',
+            evolution: 1.2,
+            evolutionPourcentage: 1.2,
+            tendance: 'up',
+            historique: [],
+            details: {
+              description: 'Rentabilité nette après impôts',
+              contexte: 'Excellente performance',
+              facteurs: ['Baisse des charges']
+            }
+          }
+        ];
+
+        // Mapping Chart Data
+        const mappedCharts: RealisticChartData[] = [
+          {
+            id: 'revenue-history',
+            titre: 'Évolution du Chiffre d\'Affaires',
+            description: 'Historique des 6 derniers mois',
+            type: 'area',
+            periode: '6 mois',
+            miseAJour: new Date().toLocaleTimeString(),
+            donnees: revChart.map(p => ({ label: p.period, value: p.value })),
+            options: {
+              couleurs: ['#10b981'],
+              animation: true,
+              showGrid: true,
+              showLabels: true
+            }
+          }
+        ];
+
+        setMetrics(mappedMetrics);
+        setCharts(mappedCharts);
+        setVisibleMetrics(new Array(mappedMetrics.length).fill(false));
+        setVisibleCharts(new Array(mappedCharts.length).fill(false));
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   // Animation des métriques
   useEffect(() => {
-    if (isVisible) {
-      realisticMetrics.forEach((_, index) => {
+    if (isVisible && metrics.length > 0) {
+      metrics.forEach((_, index) => {
         setTimeout(() => {
           setVisibleMetrics(prev => {
             const newState = [...prev];
@@ -64,12 +176,12 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
         }, index * 200);
       });
     }
-  }, [isVisible]);
+  }, [isVisible, metrics]);
 
   // Animation des graphiques
   useEffect(() => {
-    if (isVisible) {
-      realisticChartData.forEach((_, index) => {
+    if (isVisible && charts.length > 0) {
+      charts.forEach((_, index) => {
         setTimeout(() => {
           setVisibleCharts(prev => {
             const newState = [...prev];
@@ -79,7 +191,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
         }, index * 300 + 1000);
       });
     }
-  }, [isVisible]);
+  }, [isVisible, charts]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -108,7 +220,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
         { type: 'success', message: 'Objectif mensuel atteint à 95%' }
       ].slice(0, Math.floor(Math.random() * 3) + 1)
     };
-    
+
     setAnalysisResults(mockAnalysisData);
     setIsAnalysisOpen(true);
   };
@@ -181,11 +293,10 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200 ${
-                isRefreshing
-                  ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
+              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200 ${isRefreshing
+                ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
             >
               <ArrowPathIcon className="h-4 w-4" />
               <span>{isRefreshing ? 'Actualisation...' : 'Actualiser'}</span>
@@ -201,7 +312,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           Métriques Clés
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {realisticMetrics.map((metric, index) => (
+          {metrics.map((metric, index) => (
             <DetailedMetric
               key={metric.id}
               metric={metric}
@@ -219,7 +330,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           Analyses Visuelles
         </h3>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {realisticChartData.map((chart, index) => (
+          {charts.map((chart, index) => (
             <AnimatedChart
               key={chart.id}
               chartData={chart}
@@ -233,46 +344,46 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
       {/* Résumé des performances */}
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-           Résumé des Performances
+          Résumé des Performances
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {realTimeData.ventes.evolution > 0 ? '+' : ''}{realTimeData.ventes.evolution}%
+              +12.5%
             </div>
             <div className="text-sm text-green-700 dark:text-green-300">Croissance CA</div>
             <div className="text-xs text-green-600 dark:text-green-400 mt-1">
               vs objectif mensuel
             </div>
           </div>
-          
+
           <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {realTimeData.clients.nouveaux}
+              {metrics.find(m => m.id === 'sales')?.valeur.toLocaleString() || '0'}
             </div>
-            <div className="text-sm text-blue-700 dark:text-blue-300">Nouveaux clients</div>
+            <div className="text-sm text-blue-700 dark:text-blue-300">Total Ventes</div>
             <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
               ce mois
             </div>
           </div>
-          
+
           <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
             <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {realTimeData.marge.actuel}%
+              {metrics.find(m => m.id === 'margin')?.valeur || '0'}%
             </div>
             <div className="text-sm text-purple-700 dark:text-purple-300">Marge brute</div>
             <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
-              objectif: {realTimeData.marge.objectif}%
+              performance actuelle
             </div>
           </div>
-          
+
           <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
             <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {realTimeData.commandes.actuel}
+              {metrics.find(m => m.id === 'dso')?.valeur || '0'}
             </div>
-            <div className="text-sm text-orange-700 dark:text-orange-300">Commandes actives</div>
+            <div className="text-sm text-orange-700 dark:text-orange-300">DSO Actuel</div>
             <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-              {realTimeData.commandes.enAttente} en attente
+              jours
             </div>
           </div>
         </div>
@@ -326,7 +437,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
                 Réinitialiser
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Période</label>
@@ -489,11 +600,10 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
                 <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">🚨 Alertes Intelligentes</h5>
                 <div className="space-y-2">
                   {analysisResults.alerts.map((alert: any, index: number) => (
-                    <div key={index} className={`flex items-start space-x-2 p-3 rounded-lg ${
-                      alert.type === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700' :
+                    <div key={index} className={`flex items-start space-x-2 p-3 rounded-lg ${alert.type === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700' :
                       alert.type === 'info' ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700' :
-                      'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700'
-                    }`}>
+                        'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700'
+                      }`}>
                       {alert.type === 'warning' ? (
                         <ExclamationTriangleIcon className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
                       ) : alert.type === 'info' ? (
@@ -501,11 +611,10 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
                       ) : (
                         <CheckCircleIcon className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                       )}
-                      <span className={`text-sm ${
-                        alert.type === 'warning' ? 'text-yellow-800 dark:text-yellow-200' :
+                      <span className={`text-sm ${alert.type === 'warning' ? 'text-yellow-800 dark:text-yellow-200' :
                         alert.type === 'info' ? 'text-blue-800 dark:text-blue-200' :
-                        'text-green-800 dark:text-green-200'
-                      }`}>
+                          'text-green-800 dark:text-green-200'
+                        }`}>
                         {alert.message}
                       </span>
                     </div>

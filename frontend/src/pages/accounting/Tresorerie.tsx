@@ -214,47 +214,51 @@ const ChecksManagement: React.FC = () => {
   );
 };
 
-const Tresorerie: React.FC = () => {
-  // Mock data - Comptes bancaires
-  const [bankAccounts] = useState<BankAccount[]>([
-    {
-      id: 'bank_1',
-      name: 'Compte Principal - BNA',
-      bank: 'Banque Nationale d\'Algérie',
-      iban: 'DZ86 0070 0000 0000 0000 0000',
-      balance: 45000000,
-      lastUpdated: '2024-11-11',
-      currency: 'DZD'
-    },
-    {
-      id: 'bank_2',
-      name: 'Compte Opérationnel - ABC',
-      bank: 'Arab Bank Algeria',
-      iban: 'DZ86 0060 0000 0000 0000 0001',
-      balance: 12500000,
-      lastUpdated: '2024-11-11',
-      currency: 'DZD'
-    },
-    {
-      id: 'bank_3',
-      name: 'Compte Multi-Devise - BADR',
-      bank: 'Banque BADR',
-      iban: 'DZ86 0080 0000 0000 0000 0002',
-      balance: 2500000,
-      lastUpdated: '2024-11-10',
-      currency: 'DZD'
-    }
-  ]);
+import treasuryService from '../../services/modules/treasuryService';
 
-  // Mock transactions
-  const [transactions] = useState<Transaction[]>([
-    { id: 'txn_1', date: '2024-11-11', description: 'Vente Facture #INV-2024-001', type: 'inflow', amount: 5000000, status: 'cleared', bank: 'BNA', reference: 'VIR-001' },
-    { id: 'txn_2', date: '2024-11-11', description: 'Paiement Fournisseur Acme Corp', type: 'outflow', amount: 2500000, status: 'cleared', bank: 'BNA', reference: 'CHQ-5678' },
-    { id: 'txn_3', date: '2024-11-11', description: 'Salaires Novembre', type: 'outflow', amount: 8000000, status: 'pending', bank: 'ABC', reference: 'VIREMENT-NOV' },
-    { id: 'txn_4', date: '2024-11-10', description: 'Avance Client - Projet X', type: 'inflow', amount: 3000000, status: 'reconciled', bank: 'BNA', reference: 'VIR-002' },
-    { id: 'txn_5', date: '2024-11-10', description: 'Frais de tenue de compte', type: 'outflow', amount: 50000, status: 'cleared', bank: 'ABC', reference: 'FRAIS-OCT' },
-    { id: 'txn_6', date: '2024-11-09', description: 'Remboursement Prêt', type: 'outflow', amount: 1500000, status: 'cleared', bank: 'BNA', reference: 'PRET-001' },
-  ]);
+const Tresorerie: React.FC = () => {
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [accountsData, transactionsData] = await Promise.all([
+          treasuryService.getAccounts(),
+          treasuryService.getTransactions({ limit: 10 })
+        ]);
+
+        setBankAccounts(accountsData.map(acc => ({
+          id: acc.id,
+          name: acc.bank_name,
+          bank: acc.bank_name,
+          iban: acc.iban || '',
+          balance: Number(acc.balance),
+          lastUpdated: new Date().toISOString().split('T')[0],
+          currency: acc.currency
+        })));
+
+        setTransactions(transactionsData.map(tx => ({
+          id: tx.id,
+          date: tx.date,
+          description: tx.label,
+          type: tx.type === 'credit' ? 'inflow' : 'outflow',
+          amount: Number(tx.amount),
+          status: 'cleared', // Default to cleared for approved journal entries
+          bank: 'Compte ' + tx.account_code,
+          reference: tx.reference
+        })));
+      } catch (error) {
+        console.error("Error fetching treasury data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'overview' | 'forecast' | 'reconciliation' | 'liquidity'>('overview');
   const [isScenarioModalOpen, setIsScenarioModalOpen] = useState(false);

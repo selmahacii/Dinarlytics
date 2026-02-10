@@ -7,6 +7,7 @@ from app.modules.finance.router_accounting_reports import router as accounting_r
 from app.modules.finance.router_budgets import router as budgets_router
 from app.modules.finance.router_fiscality import router as fiscality_router
 from app.modules.finance.router_analytics import router as analytics_router
+from app.modules.finance.router_treasury import router as treasury_router
 from app.modules.operations.router_invoices import router as invoices_router
 from app.modules.operations.router_payments import router as payments_router
 from app.modules.operations.router_collections import router as collections_router
@@ -31,6 +32,7 @@ api_router.include_router(accounting_reports_router)
 api_router.include_router(budgets_router)
 api_router.include_router(fiscality_router)
 api_router.include_router(analytics_router)
+api_router.include_router(treasury_router)
 api_router.include_router(invoices_router)
 api_router.include_router(payments_router)
 api_router.include_router(collections_router)

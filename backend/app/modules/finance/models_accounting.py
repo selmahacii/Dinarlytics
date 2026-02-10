@@ -56,3 +56,19 @@ class JournalEntryLine(Base):
     
     # Relationships
     journal_entry = relationship("JournalEntry", back_populates="lines")
+
+class BankAccount(Base):
+    __tablename__ = "bank_accounts"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    account_code = Column(String(50), ForeignKey("chart_of_accounts.account_code"), nullable=False, index=True)
+    bank_name = Column(String(255), nullable=False)
+    iban = Column(String(50), nullable=True)
+    currency = Column(String(3), default="DZD")
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    
+    # Relationship to ChartOfAccount exists via account_code 
+    # (assuming company_id matches as well)

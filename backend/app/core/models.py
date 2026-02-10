@@ -1,5 +1,5 @@
 from app.modules.auth.models import User, Company, Role, UserRole, UserSession, InvoiceStatus, PaymentMode, DocumentType, AccessLevel
-from app.modules.finance.models_accounting import ChartOfAccount, JournalEntry, JournalEntryLine
+from app.modules.finance.models_accounting import ChartOfAccount, JournalEntry, JournalEntryLine, BankAccount
 from app.modules.operations.models_inventory import Invoice, InvoiceItem, Article
 from app.modules.operations.models_partners import Client, Supplier
 from app.modules.operations.models_procurement import DeliveryNote, DeliveryNoteItem, PurchaseOrder, PurchaseOrderItem, PurchaseNote, PurchaseNoteItem
@@ -10,7 +10,7 @@ from app.modules.finance.models_financial import FinancialStatement, Payment, Bu
 
 __all__ = [
     "User", "Company", "Role", "UserRole", "UserSession", "InvoiceStatus", "PaymentMode", "DocumentType", "AccessLevel",
-    "ChartOfAccount", "JournalEntry", "JournalEntryLine",
+    "ChartOfAccount", "JournalEntry", "JournalEntryLine", "BankAccount",
     "Invoice", "InvoiceItem", "Article",
     "Client", "Supplier",
     "DeliveryNote", "DeliveryNoteItem", "PurchaseOrder", "PurchaseOrderItem", "PurchaseNote", "PurchaseNoteItem",

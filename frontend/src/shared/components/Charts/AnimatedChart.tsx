@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { RealisticChartData } from '../../data/realisticDemoData';
+import { RealisticChartData } from '../../types/dashboard';
 
 interface AnimatedChartProps {
   chartData: RealisticChartData;
@@ -7,10 +7,10 @@ interface AnimatedChartProps {
   animationDelay?: number;
 }
 
-const AnimatedChart: React.FC<AnimatedChartProps> = ({ 
-  chartData, 
-  isVisible, 
-  animationDelay = 0 
+const AnimatedChart: React.FC<AnimatedChartProps> = ({
+  chartData,
+  isVisible,
+  animationDelay = 0
 }) => {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -30,20 +30,20 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   const animateChart = () => {
     const duration = 2000; // 2 secondes
     const startTime = Date.now();
-    
+
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       setAnimationProgress(progress);
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         setIsAnimating(false);
       }
     };
-    
+
     requestAnimationFrame(animate);
   };
 
@@ -52,7 +52,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
     const maxValue = Math.max(...donnees.map(d => d.valeur || d.prevision || 0));
     const minValue = Math.min(...donnees.map(d => d.valeur || d.prevision || 0));
     const range = maxValue - minValue;
-    
+
     const points = donnees.map((point, index) => {
       const x = (index / (donnees.length - 1)) * 100;
       const y = 100 - ((point.valeur || point.prevision || 0) - minValue) / range * 100;
@@ -76,7 +76,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
               opacity="0.5"
             />
           ))}
-          
+
           {/* Ligne de données */}
           <polyline
             points={points.map(p => `${p.x},${p.y}`).join(' ')}
@@ -87,7 +87,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             strokeDashoffset="0"
             className="transition-all duration-2000 ease-out"
           />
-          
+
           {/* Points de données */}
           {points.map((point, index) => (
             <circle
@@ -109,7 +109,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             </circle>
           ))}
         </svg>
-        
+
         {/* Labels */}
         <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 dark:text-gray-400">
           {donnees.slice(0, 5).map((point, index) => (
@@ -123,29 +123,29 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   const renderBarChart = () => {
     const { donnees } = chartData;
     const maxValue = Math.max(...donnees.map(d => d.valeur));
-    
+
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
         <div className="flex items-end justify-between h-full space-x-2">
           {donnees.map((bar, index) => {
             const height = (bar.valeur / maxValue) * 100;
             const animatedHeight = height * animationProgress;
-            
+
             return (
               <div key={index} className="flex-1 flex flex-col items-center">
                 <div className="relative w-full flex flex-col items-center">
                   {/* Barre */}
                   <div
                     className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t transition-all duration-1000 ease-out"
-                    style={{ 
+                    style={{
                       height: `${animatedHeight}%`,
                       transitionDelay: `${index * 100}ms`
                     }}
                   >
                     {/* Valeur animée */}
-                    <div 
+                    <div
                       className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-700 dark:text-gray-300"
-                      style={{ 
+                      style={{
                         opacity: animationProgress > 0.5 ? 1 : 0,
                         transitionDelay: `${index * 100 + 500}ms`
                       }}
@@ -153,7 +153,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
                       {bar.valeur.toLocaleString()}
                     </div>
                   </div>
-                  
+
                   {/* Label */}
                   <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center">
                     {bar.region}
@@ -170,9 +170,9 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   const renderDoughnutChart = () => {
     const { donnees } = chartData;
     const total = donnees.reduce((sum, item) => sum + item.valeur, 0);
-    
+
     let cumulativePercentage = 0;
-    
+
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4 flex items-center justify-center">
         <svg className="w-48 h-48" viewBox="0 0 100 100">
@@ -181,12 +181,12 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             const animatedPercentage = percentage * animationProgress;
             const startAngle = cumulativePercentage * 3.6;
             const endAngle = (cumulativePercentage + animatedPercentage) * 3.6;
-            
+
             const x1 = 50 + 40 * Math.cos((startAngle - 90) * Math.PI / 180);
             const y1 = 50 + 40 * Math.sin((startAngle - 90) * Math.PI / 180);
             const x2 = 50 + 40 * Math.cos((endAngle - 90) * Math.PI / 180);
             const y2 = 50 + 40 * Math.sin((endAngle - 90) * Math.PI / 180);
-            
+
             const largeArcFlag = animatedPercentage > 50 ? 1 : 0;
             const pathData = [
               `M 50 50`,
@@ -194,23 +194,23 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
               `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
               `Z`
             ].join(' ');
-            
+
             cumulativePercentage += percentage;
-            
+
             return (
               <path
                 key={index}
                 d={pathData}
                 fill={segment.couleur || chartData.options.couleurs[index]}
                 className="transition-all duration-1000 ease-out"
-                style={{ 
+                style={{
                   opacity: animationProgress > index * 0.3 ? 1 : 0,
                   transitionDelay: `${index * 200}ms`
                 }}
               />
             );
           })}
-          
+
           {/* Cercle intérieur */}
           <circle
             cx="50"
@@ -221,15 +221,15 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             style={{ opacity: animationProgress > 0.5 ? 1 : 0 }}
           />
         </svg>
-        
+
         {/* Légende */}
         <div className="absolute bottom-4 left-4 right-4">
           <div className="grid grid-cols-3 gap-2">
             {donnees.map((item, index) => (
               <div key={index} className="flex items-center space-x-2">
-                <div 
+                <div
                   className="w-3 h-3 rounded-full"
-                  style={{ 
+                  style={{
                     backgroundColor: item.couleur || chartData.options.couleurs[index],
                     opacity: animationProgress > index * 0.3 ? 1 : 0,
                     transitionDelay: `${index * 200}ms`
@@ -249,23 +249,23 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   const renderAreaChart = () => {
     const { donnees } = chartData;
     const maxValue = Math.max(...donnees.map(d => Math.max(d.produits, d.services, d.maintenance)));
-    
+
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           {/* Aire produits */}
           <path
-            d={`M 0,100 ${donnees.map((d, i) => 
+            d={`M 0,100 ${donnees.map((d, i) =>
               `L ${(i / (donnees.length - 1)) * 100},${100 - (d.produits / maxValue) * 100}`
             ).join(' ')} L 100,100 Z`}
             fill="url(#gradient-produits)"
             opacity={animationProgress * 0.7}
             className="transition-all duration-2000 ease-out"
           />
-          
+
           {/* Aire services */}
           <path
-            d={`M 0,100 ${donnees.map((d, i) => 
+            d={`M 0,100 ${donnees.map((d, i) =>
               `L ${(i / (donnees.length - 1)) * 100},${100 - (d.services / maxValue) * 100}`
             ).join(' ')} L 100,100 Z`}
             fill="url(#gradient-services)"
@@ -273,10 +273,10 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             className="transition-all duration-2000 ease-out"
             style={{ transitionDelay: '200ms' }}
           />
-          
+
           {/* Aire maintenance */}
           <path
-            d={`M 0,100 ${donnees.map((d, i) => 
+            d={`M 0,100 ${donnees.map((d, i) =>
               `L ${(i / (donnees.length - 1)) * 100},${100 - (d.maintenance / maxValue) * 100}`
             ).join(' ')} L 100,100 Z`}
             fill="url(#gradient-maintenance)"
@@ -284,20 +284,20 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             className="transition-all duration-2000 ease-out"
             style={{ transitionDelay: '400ms' }}
           />
-          
+
           {/* Définitions des gradients */}
           <defs>
             <linearGradient id="gradient-produits" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8"/>
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2"/>
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
             </linearGradient>
             <linearGradient id="gradient-services" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.8"/>
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.2"/>
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.2" />
             </linearGradient>
             <linearGradient id="gradient-maintenance" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8"/>
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.2"/>
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.2" />
             </linearGradient>
           </defs>
         </svg>
@@ -309,20 +309,20 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
     const { donnees } = chartData;
     const maxPrice = Math.max(...donnees.map(d => d.prix));
     const maxVolume = Math.max(...donnees.map(d => d.volume));
-    
+
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           {/* Axes */}
-          <line x1="10" y1="90" x2="90" y2="90" stroke="#e5e7eb" strokeWidth="1"/>
-          <line x1="10" y1="10" x2="10" y2="90" stroke="#e5e7eb" strokeWidth="1"/>
-          
+          <line x1="10" y1="90" x2="90" y2="90" stroke="#e5e7eb" strokeWidth="1" />
+          <line x1="10" y1="10" x2="10" y2="90" stroke="#e5e7eb" strokeWidth="1" />
+
           {/* Points */}
           {donnees.map((point, index) => {
             const x = 10 + (point.prix / maxPrice) * 80;
             const y = 90 - (point.volume / maxVolume) * 80;
             const size = 2 + (point.marge / 50) * 3; // Taille basée sur la marge
-            
+
             return (
               <circle
                 key={index}
@@ -345,7 +345,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             );
           })}
         </svg>
-        
+
         {/* Labels des axes */}
         <div className="absolute bottom-0 left-0 text-xs text-gray-500 dark:text-gray-400">
           Prix (DZD)
@@ -397,7 +397,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
           )}
         </div>
       </div>
-      
+
       {/* Graphique */}
       {renderChart()}
     </div>

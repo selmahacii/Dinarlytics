@@ -5,18 +5,17 @@ Client API Endpoints - Client management, statistics, and analysis
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime, date
+from datetime import datetime
 from decimal import Decimal
-import uuid
+import json
 
 from app.core.database import get_db
-from app.core.models import Client, User
+from app.core.models import Client
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData, RBACManager
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr
 from app.core.websocket import manager
 from app.utils.audit import log_audit
-import json
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -28,11 +27,15 @@ class ClientRequest(BaseModel):
     address: Optional[str] = None
     city: Optional[str] = None
     postal_code: Optional[str] = None
-    country: Optional[str] = "Alg????rie"
+    country: Optional[str] = "Algerie"
     tax_id: Optional[str] = None
     credit_limit: Optional[Decimal] = None
     payment_terms: Optional[int] = 30
     notes: Optional[str] = None
+    sector: Optional[str] = None
+    size: Optional[str] = None
+    risk_category: Optional[str] = "faible"
+    state: Optional[str] = None
 
 class ClientResponse(BaseModel):
     id: str
@@ -47,6 +50,10 @@ class ClientResponse(BaseModel):
     credit_limit: Optional[Decimal]
     payment_terms: Optional[int]
     is_active: bool
+    sector: Optional[str]
+    size: Optional[str]
+    risk_category: Optional[str]
+    state: Optional[str]
     created_at: datetime
     updated_at: datetime
 
@@ -108,6 +115,10 @@ async def list_clients(
             credit_limit=c.credit_limit,
             payment_terms=c.payment_terms,
             is_active=c.is_active,
+            sector=c.sector,
+            size=c.size,
+            risk_category=c.risk_category,
+            state=c.state.value if c.state else None,
             created_at=c.created_at,
             updated_at=c.updated_at
         ) for c in clients
@@ -120,7 +131,6 @@ async def get_client_stats(
 ):
     """Get client statistics and KPIs"""
     from sqlalchemy import func, extract
-    from datetime import datetime
     
     # Total clients
     total = db.query(func.count(Client.id)).filter(
@@ -142,14 +152,12 @@ async def get_client_stats(
         extract('year', Client.created_at) == current_year
     ).scalar() or 0
     
-    # TODO: Calculate revenue from invoices/orders when those models are ready
     total_revenue = Decimal("5250000")  # Placeholder
     avg_order_value = Decimal("35000")   # Placeholder
     
-    # Top clients (placeholder)
     top_clients = [
         {"id": "C001", "name": "Entreprise Alpha", "revenue": 850000},
-        {"id": "C002", "name": "Soci????t???? Beta", "revenue": 720000},
+        {"id": "C002", "name": "Société Beta", "revenue": 720000},
         {"id": "C003", "name": "Groupe Gamma", "revenue": 650000},
     ]
     
@@ -190,6 +198,10 @@ async def get_client(
         credit_limit=client.credit_limit,
         payment_terms=client.payment_terms,
         is_active=client.is_active,
+        sector=client.sector,
+        size=client.size,
+        risk_category=client.risk_category,
+        state=client.state.value if client.state else None,
         created_at=client.created_at,
         updated_at=client.updated_at
     )
@@ -213,6 +225,10 @@ async def create_client(
         tax_id=request.tax_id,
         credit_limit=request.credit_limit,
         payment_terms=request.payment_terms,
+        sector=request.sector,
+        size=request.size,
+        risk_category=request.risk_category,
+        state=request.state,
         is_active=True
     )
     
@@ -220,16 +236,11 @@ async def create_client(
     db.commit()
     db.refresh(client)
     
-    # Notify via WebSocket
     await manager.broadcast(json.dumps({
         "type": "CLIENT_CREATED",
-        "data": {
-            "id": str(client.id),
-            "name": client.name
-        }
+        "data": {"id": str(client.id), "name": client.name}
     }))
 
-    # Audit Log
     log_audit(db, current_user, "CREATE", "CLIENT", str(client.id), {"name": client.name})
     db.commit()
 
@@ -246,6 +257,10 @@ async def create_client(
         credit_limit=client.credit_limit,
         payment_terms=client.payment_terms,
         is_active=client.is_active,
+        sector=client.sector,
+        size=client.size,
+        risk_category=client.risk_category,
+        state=client.state.value if client.state else None,
         created_at=client.created_at,
         updated_at=client.updated_at
     )
@@ -266,7 +281,6 @@ async def update_client(
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     
-    # Update fields
     for field, value in request.dict(exclude_unset=True).items():
         setattr(client, field, value)
     
@@ -274,16 +288,11 @@ async def update_client(
     db.commit()
     db.refresh(client)
     
-    # Notify via WebSocket
     await manager.broadcast(json.dumps({
         "type": "CLIENT_UPDATED",
-        "data": {
-            "id": str(client.id),
-            "name": client.name
-        }
+        "data": {"id": str(client.id), "name": client.name}
     }))
 
-    # Audit Log
     log_audit(db, current_user, "UPDATE", "CLIENT", str(client.id), request.dict(exclude_unset=True))
     db.commit()
 
@@ -300,6 +309,10 @@ async def update_client(
         credit_limit=client.credit_limit,
         payment_terms=client.payment_terms,
         is_active=client.is_active,
+        sector=client.sector,
+        size=client.size,
+        risk_category=client.risk_category,
+        state=client.state.value if client.state else None,
         created_at=client.created_at,
         updated_at=client.updated_at
     )
@@ -323,16 +336,47 @@ async def delete_client(
     client.updated_at = datetime.now()
     db.commit()
     
-    # Notify via WebSocket
     await manager.broadcast(json.dumps({
         "type": "CLIENT_DELETED",
-        "data": {
-            "id": str(client.id)
-        }
+        "data": {"id": str(client.id)}
     }))
 
-    # Audit Log
     log_audit(db, current_user, "DELETE", "CLIENT", str(client_id))
     db.commit()
 
     return None
+
+@router.get("/groups")
+async def list_client_groups(
+    current_user: TokenData = Depends(check_client_access),
+    db: Session = Depends(get_db)
+):
+    """Categorize clients into groups for CRM analysis"""
+    from sqlalchemy import func
+    
+    sectors = db.query(
+        Client.sector, 
+        func.count(Client.id).label('count')
+    ).filter(Client.company_id == current_user.company_id).group_by(Client.sector).all()
+    
+    sizes = db.query(
+        Client.size, 
+        func.count(Client.id).label('count')
+    ).filter(Client.company_id == current_user.company_id).group_by(Client.size).all()
+    
+    risks = db.query(
+        Client.risk_category, 
+        func.count(Client.id).label('count')
+    ).filter(Client.company_id == current_user.company_id).group_by(Client.risk_category).all()
+    
+    regions = db.query(
+        Client.state, 
+        func.count(Client.id).label('count')
+    ).filter(Client.company_id == current_user.company_id).group_by(Client.state).all()
+
+    return {
+        "secteurs": [{"name": s.sector or "Non défini", "count": s.count} for s in sectors],
+        "tailles": [{"name": s.size or "Non défini", "count": s.count} for s in sizes],
+        "risques": [{"name": s.risk_category or "faible", "count": s.count} for s in risks],
+        "regions": [{"name": s.state.value if s.state else "Non défini", "count": s.count} for s in regions]
+    }

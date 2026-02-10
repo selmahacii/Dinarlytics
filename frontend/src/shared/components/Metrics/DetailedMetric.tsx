@@ -9,7 +9,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
-import { RealisticMetric } from '../../data/realisticDemoData';
+import { RealisticMetric } from '../../types/dashboard';
 
 interface DetailedMetricProps {
   metric: RealisticMetric;
@@ -17,10 +17,10 @@ interface DetailedMetricProps {
   animationDelay?: number;
 }
 
-const DetailedMetric: React.FC<DetailedMetricProps> = ({ 
-  metric, 
-  isVisible, 
-  animationDelay = 0 
+const DetailedMetric: React.FC<DetailedMetricProps> = ({
+  metric,
+  isVisible,
+  animationDelay = 0
 }) => {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
@@ -45,19 +45,19 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
     const animate = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      
+
       // Easing function pour une animation plus naturelle
       const easeOutCubic = 1 - Math.pow(1 - progress, 3);
       const currentValue = startValue + (endValue - startValue) * easeOutCubic;
-      
+
       setAnimatedValue(currentValue);
       setAnimationProgress(progress);
-      
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       }
     };
-    
+
     requestAnimationFrame(animate);
   };
 
@@ -99,7 +99,7 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
 
   const getAlertIcon = () => {
     if (metric.details.alertes && metric.details.alertes.length > 0) {
-      return metric.tendance === 'up' ? 
+      return metric.tendance === 'up' ?
         <CheckCircleIcon className="h-4 w-4 text-green-500" /> :
         <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />;
     }
@@ -145,7 +145,7 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
             </span>
           </div>
         </div>
-        
+
         {/* Barre de progression vers l'objectif */}
         {metric.objectif && (
           <div className="mt-3">
@@ -155,14 +155,13 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all duration-2000 ease-out ${
-                  getProgressPercentage() >= 100 
-                    ? 'bg-green-500' 
-                    : getProgressPercentage() >= 80 
-                    ? 'bg-blue-500' 
-                    : 'bg-yellow-500'
-                }`}
-                style={{ 
+                className={`h-2 rounded-full transition-all duration-2000 ease-out ${getProgressPercentage() >= 100
+                    ? 'bg-green-500'
+                    : getProgressPercentage() >= 80
+                      ? 'bg-blue-500'
+                      : 'bg-yellow-500'
+                  }`}
+                style={{
                   width: `${getProgressPercentage() * animationProgress}%`,
                   transitionDelay: '500ms'
                 }}
@@ -214,17 +213,16 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
             {metric.details.alertes.map((alerte, index) => (
               <div
                 key={index}
-                className={`flex items-center space-x-2 text-sm p-2 rounded ${
-                  metric.tendance === 'up' 
+                className={`flex items-center space-x-2 text-sm p-2 rounded ${metric.tendance === 'up'
                     ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
                     : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-                }`}
+                  }`}
                 style={{
                   opacity: animationProgress > 0.7 ? 1 : 0,
                   transitionDelay: `${index * 100 + 700}ms`
                 }}
               >
-                {metric.tendance === 'up' ? 
+                {metric.tendance === 'up' ?
                   <CheckCircleIcon className="h-4 w-4" /> :
                   <ExclamationTriangleIcon className="h-4 w-4" />
                 }
@@ -258,7 +256,7 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
               </div>
             ))}
           </div>
-          
+
           <div className="mt-3 flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400">
             <ChartBarIcon className="h-3 w-3" />
             <span>Données mises à jour en temps réel</span>
