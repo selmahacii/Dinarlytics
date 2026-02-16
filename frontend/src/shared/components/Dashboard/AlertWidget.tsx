@@ -9,7 +9,7 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
-import { AlertWidgetProps } from '../../types/widgets';
+import { AlertWidgetProps } from '@/types/widgets';
 import BaseWidget from './BaseWidget';
 
 const AlertWidget: React.FC<AlertWidgetProps> = ({
@@ -253,3 +253,5 @@ const AlertWidget: React.FC<AlertWidgetProps> = ({
 };
 
 export default AlertWidget;
+
+

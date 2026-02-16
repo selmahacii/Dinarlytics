@@ -1,5 +1,5 @@
 import React from 'react';
-import { PaletteElement } from '../../types/reportEditor';
+import { PaletteElement } from '@/types/reportEditor';
 
 interface PaletteProps {
   elements: PaletteElement[];
@@ -118,3 +118,5 @@ const PaletteItem: React.FC<PaletteItemProps> = ({ element, onClick }) => {
 };
 
 export default Palette;
+
+

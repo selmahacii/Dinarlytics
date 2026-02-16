@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Theme, themes, defaultTheme } from '../types/themes';
+import { Theme, themes, defaultTheme } from '@/types/themes';
 
 interface ThemeContextType {
   currentTheme: Theme;
@@ -26,7 +26,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   useEffect(() => {
     const savedThemeId = localStorage.getItem('selectedTheme');
     const savedCustomTheme = localStorage.getItem('customTheme');
-    
+
     if (savedCustomTheme) {
       try {
         const parsedCustomTheme = JSON.parse(savedCustomTheme);
@@ -96,10 +96,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   const toggleDarkMode = () => {
-    const newTheme = isDarkMode 
+    const newTheme = isDarkMode
       ? themes.find(t => t.mode === 'light') || themes[0]
       : themes.find(t => t.mode === 'dark') || themes[1];
-    
+
     if (newTheme) {
       setCurrentTheme(newTheme);
     }

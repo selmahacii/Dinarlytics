@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { usePermission } from '../hooks/usePermission';
+import { usePermission } from '@shared/hooks/usePermission';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export interface ProtectedRouteProps {
@@ -139,3 +139,4 @@ export function useCanAccess(
 
   return true;
 }
+

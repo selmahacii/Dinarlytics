@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DocumentSignature, DocumentQRMetadata } from '../../types/index';
+import { DocumentSignature, DocumentQRMetadata } from '@/index';
 import QRCodeDisplay from './QRCodeDisplay';
 import SignatureViewer from './SignatureViewer';
 import ElectronicSignatureModal from './ElectronicSignatureModal';
@@ -195,3 +195,4 @@ const DocumentWithSignatureDisplay: React.FC<DocumentWithSignatureDisplayProps> 
 };
 
 export default DocumentWithSignatureDisplay;
+

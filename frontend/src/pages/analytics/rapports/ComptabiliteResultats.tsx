@@ -22,8 +22,8 @@ import {
   MagnifyingGlassIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../../context/AppContext';
-import { useAccountingStatements } from '../../../hooks/useAccountingStatements';
+import { useApp } from '@core/context/AppContext';
+import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', minimumFractionDigits: 0 }).format(amount);
 
@@ -2221,3 +2221,5 @@ const ComptabiliteResultats: React.FC = () => {
 };
 
 export default ComptabiliteResultats;
+
+

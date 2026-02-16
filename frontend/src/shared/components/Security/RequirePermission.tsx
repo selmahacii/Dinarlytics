@@ -1,6 +1,6 @@
 import React from 'react';
 import Card from '../UI/Card';
-import { usePermission } from '../../hooks/usePermission';
+import { usePermission } from '@shared/hooks/usePermission';
 import { ShieldCheckIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -56,3 +56,4 @@ const RequirePermission: React.FC<Props> = ({ permission, children, hide }) => {
 };
 
 export default RequirePermission;
+

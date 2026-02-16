@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useApp } from '../context/AppContext';
-import { PermissionManager } from '../utils/PermissionManager';
+import { useApp } from '@core/context/AppContext';
+import { PermissionManager } from '@shared/utils/PermissionManager';
 
 export function usePermission() {
   const { user } = useApp();
@@ -24,3 +24,4 @@ export function usePermission() {
     permissions: effectivePermissions,
   };
 }
+

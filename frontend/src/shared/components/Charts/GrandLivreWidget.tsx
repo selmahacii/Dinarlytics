@@ -15,8 +15,8 @@ import {
   PlusIcon,
   MinusIcon
 } from '@heroicons/react/24/outline';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 
 interface EcritureComptable {
   id: string;
@@ -458,3 +458,5 @@ const GrandLivreWidget: React.FC<GrandLivreWidgetProps> = ({ data, period, selec
 };
 
 export default GrandLivreWidget;
+
+

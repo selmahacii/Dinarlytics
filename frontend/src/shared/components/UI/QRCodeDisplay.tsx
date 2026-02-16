@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { DocumentQRMetadata } from '../../types/index';
+import { DocumentQRMetadata } from '@/index';
 import { ArrowDownTrayIcon, PrinterIcon } from '@heroicons/react/24/outline';
 
 interface QRCodeDisplayProps {
@@ -163,3 +163,4 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
 };
 
 export default QRCodeDisplay;
+

@@ -17,8 +17,8 @@ import {
   KeyIcon,
   CircleStackIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
 import axios from 'axios';
 
 const Audit: React.FC = () => {

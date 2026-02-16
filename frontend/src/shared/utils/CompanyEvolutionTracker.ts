@@ -1,4 +1,4 @@
-import { getRevenueSegment, RevenueSegment } from '../types/revenueSegments';
+import { getRevenueSegment, RevenueSegment } from '@/types/revenueSegments';
 
 export interface RevenueDataPoint {
   date: string;
@@ -351,4 +351,6 @@ export class CompanyEvolutionTracker {
     };
   }
 }
+
+
 

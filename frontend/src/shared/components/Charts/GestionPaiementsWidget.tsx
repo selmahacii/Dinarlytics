@@ -20,7 +20,7 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '@core/context/AppContext';
 import Card from '../UI/Card';
 
 interface GestionPaiementsWidgetProps {
@@ -1555,3 +1555,4 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
 
 
 export default GestionPaiementsWidget;
+

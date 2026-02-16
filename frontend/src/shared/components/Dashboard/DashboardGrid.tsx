@@ -10,7 +10,7 @@ import {
   DocumentArrowDownIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import { WidgetGridProps, DashboardWidget, WidgetSize, WidgetType } from '../../types/widgets';
+import { WidgetGridProps, DashboardWidget, WidgetSize, WidgetType } from '@/types/widgets';
 import KPIWidget from './KPIWidget';
 import ChartWidget from './ChartWidget';
 import AIInsightWidget from './AIInsightWidget';
@@ -301,4 +301,6 @@ const DashboardGrid: React.FC<WidgetGridProps> = ({
 };
 
 export default DashboardGrid;
+
+
 

@@ -6,9 +6,7 @@ from datetime import datetime, timedelta
 from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
-from app.core.models.inventory import Invoice, Article
-from app.core.models.financial import Payment
-from app.core.models import Client, Supplier
+from app.core.models import Client, Supplier, Invoice, Article, Payment
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 

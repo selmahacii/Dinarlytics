@@ -21,22 +21,22 @@ import {
   XCircleIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
 // Centralized product catalog
-import { useProducts } from '../../context/ProductsContext';
-import { Article } from '../../types';
-import RapportsArticlesWidget from '../../components/Charts/RapportsArticlesWidget';
-import GestionCategoriesWidget from '../../components/Charts/GestionCategoriesWidget';
-import GestionTarifsWidget from '../../components/Charts/GestionTarifsWidget';
-import GestionFournisseursWidget from '../../components/Charts/GestionFournisseursWidget';
-import SuccessMessage from '../../components/UI/SuccessMessage';
-import HelpButton from '../../components/UI/HelpButton';
-import Tooltip from '../../components/UI/Tooltip';
+import { useProducts } from '@core/context/ProductsContext';
+import { Article } from '@/types';
+import RapportsArticlesWidget from '@shared/components/Charts/RapportsArticlesWidget';
+import GestionCategoriesWidget from '@shared/components/Charts/GestionCategoriesWidget';
+import GestionTarifsWidget from '@shared/components/Charts/GestionTarifsWidget';
+import GestionFournisseursWidget from '@shared/components/Charts/GestionFournisseursWidget';
+import SuccessMessage from '@shared/components/UI/SuccessMessage';
+import HelpButton from '@shared/components/UI/HelpButton';
+import Tooltip from '@shared/components/UI/Tooltip';
 import axios from 'axios';
-import { useArticles } from '../../hooks/useArticles';
+import { useArticles } from '@shared/hooks/useArticles';
 
 // Données de codes-barres initiales
 const initialBarcodesData = [
@@ -2505,3 +2505,6 @@ const Articles: React.FC = () => {
 };
 
 export default Articles;
+
+
+

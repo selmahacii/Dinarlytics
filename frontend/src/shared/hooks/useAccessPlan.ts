@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '@core/context/AppContext';
 import { usePermission } from './usePermission';
 import { planAccess, summarizeAccess, AccessPlan } from '../security/accessPlanner';
 
@@ -23,3 +23,4 @@ export function useAccessPlan(): { plan: AccessPlan; summary: ReturnType<typeof 
   const summary = useMemo(() => summarizeAccess(plan), [plan]);
   return { plan, summary };
 }
+

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon, UserGroupIcon, BuildingOfficeIcon, BanknotesIcon, ChartBarIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import { clientsService } from '../../services/modules/clientsService';
-import GroupesClientsChart from '../../components/Charts/GroupesClientsChart';
-import MetricsDashboard from '../../components/Charts/MetricsDashboard';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import { clientsService } from '@/services/modules/clientsService';
+import GroupesClientsChart from '@shared/components/Charts/GroupesClientsChart';
+import MetricsDashboard from '@shared/components/Charts/MetricsDashboard';
 
 interface GroupeClient {
   id: string;
@@ -528,3 +528,6 @@ const GroupesClients: React.FC = () => {
 };
 
 export default GroupesClients;
+
+
+

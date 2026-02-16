@@ -1,5 +1,5 @@
 import apiClient from '../apiClient';
-import { Article } from '../../types';
+import { Article } from '@/types';
 
 // Backend Response Structure
 interface ArticleResponse {
@@ -75,3 +75,5 @@ export const articlesService = {
         await apiClient.delete(`/articles/${id}`);
     }
 };
+
+

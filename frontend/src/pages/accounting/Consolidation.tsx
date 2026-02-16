@@ -28,9 +28,9 @@ import {
   MinusIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
 import {
   calculerConsolidation,
   detecterTransactionsInterSocietes,
@@ -40,7 +40,7 @@ import {
   type EntrepriseConsolidation,
   type TransactionInterSocietes,
   type DonneesConsolidees
-} from '../../utils/consolidation';
+} from '@shared/utils/consolidation';
 
 const Consolidation: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -1545,3 +1545,6 @@ const Consolidation: React.FC = () => {
 };
 
 export default Consolidation;
+
+
+

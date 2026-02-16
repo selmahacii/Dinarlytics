@@ -1,5 +1,5 @@
 import React from 'react';
-import { DocumentSignature } from '../../types/index';
+import { DocumentSignature } from '@/index';
 import { CheckCircleIcon, UserCircleIcon, CalendarIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 interface SignatureViewerProps {
@@ -134,3 +134,4 @@ const SignatureViewer: React.FC<SignatureViewerProps> = ({
 };
 
 export default SignatureViewer;
+

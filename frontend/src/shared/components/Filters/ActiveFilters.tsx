@@ -4,7 +4,7 @@ import {
   XMarkIcon,
   AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
-import { FilterGroup, FilterCondition, reportFilterFields, operatorLabels } from '../../types/filters';
+import { FilterGroup, FilterCondition, reportFilterFields, operatorLabels } from '@/types/filters';
 
 interface ActiveFiltersProps {
   filters: FilterGroup[];
@@ -174,3 +174,5 @@ const ActiveFilters: React.FC<ActiveFiltersProps> = ({
 };
 
 export default ActiveFilters;
+
+

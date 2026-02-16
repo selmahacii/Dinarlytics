@@ -20,10 +20,10 @@ import {
   UserGroupIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { COMPANY_TYPES, ACCESS_LEVELS, COMPANY_SIZES, AVAILABLE_MODULES } from "../../types/CompanyTypes";
-import Modal from '../../components/UI/Modal';
-import Card from '../../components/UI/Card';
-import CompanyWizard from '../../components/CompanyWizard';
+import { COMPANY_TYPES, ACCESS_LEVELS, COMPANY_SIZES, AVAILABLE_MODULES } from "@/types/CompanyTypes";
+import Modal from '@shared/components/UI/Modal';
+import Card from '@shared/components/UI/Card';
+import CompanyWizard from '@shared/components/CompanyWizard';
 
 interface Company {
   id: number;
@@ -551,4 +551,7 @@ const GestionAcces: React.FC = () => {
 };
 
 export default GestionAcces;
+
+
+
 

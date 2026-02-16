@@ -10,7 +10,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
-import { FilterGroup, FilterCondition, FilterField, SavedView, reportFilterFields, defaultSavedViews, getOperatorsForFieldType, operatorLabels } from '../../types/filters';
+import { FilterGroup, FilterCondition, FilterField, SavedView, reportFilterFields, defaultSavedViews, getOperatorsForFieldType, operatorLabels } from '@/types/filters';
 import FilterConditionEditor from './FilterConditionEditor';
 import SavedViewsManager from './SavedViewsManager';
 
@@ -352,3 +352,5 @@ const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
 };
 
 export default AdvancedFilters;
+
+

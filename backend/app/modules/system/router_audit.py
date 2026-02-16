@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
 from app.core.permissions import get_current_user_from_token, require_permission
-from app.core.models.audit import AuditLog
+from app.core.models import AuditLog
 from pydantic import BaseModel
 from datetime import datetime
 import uuid

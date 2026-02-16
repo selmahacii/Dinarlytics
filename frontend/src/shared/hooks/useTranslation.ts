@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { translations } from '../utils/translations';
-import { Langue } from '../types';
+import { translations } from '@shared/utils/translations';
+import { Langue } from '@/types';
 
 export const useTranslation = () => {
   const [currentLang, setCurrentLang] = useState<Langue>('fr');
@@ -15,3 +15,5 @@ export const useTranslation = () => {
 
   return { t, currentLang, changeLang };
 };
+
+

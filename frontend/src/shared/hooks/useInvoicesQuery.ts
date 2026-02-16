@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { invoiceService, Invoice } from '../services/modules/invoiceService';
+import { invoiceService, Invoice } from '@/services/modules/invoiceService';
 import { queryKeys } from '../lib/queryClient';
 
 /**
@@ -79,3 +79,4 @@ export const useInvoicesQuery = (type?: 'sale' | 'purchase') => {
         isCancelling: cancelMutation.isPending,
     };
 };
+

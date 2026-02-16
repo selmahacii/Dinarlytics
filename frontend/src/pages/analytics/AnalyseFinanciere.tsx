@@ -7,12 +7,12 @@ import {
   CalculatorIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { computeRatios } from '../../utils/ratios';
-import { getBenchmarks } from '../../utils/benchmarks';
-import { generateRatioAlerts } from '../../utils/ratioAlerts';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { computeRatios } from '@shared/utils/ratios';
+import { getBenchmarks } from '@shared/utils/benchmarks';
+import { generateRatioAlerts } from '@shared/utils/ratioAlerts';
 import {
   simulerScenario,
   genererAlertesFinancieres,
@@ -22,7 +22,7 @@ import {
   type ScenarioSimulation,
   type AlerteFinanciere,
   type PrevisionFinanciere
-} from '../../utils/analysePredictive';
+} from '@shared/utils/analysePredictive';
 
 const AnalyseFinanciere: React.FC = () => {
   const { user, companyData, formatCurrency } = useApp();
@@ -554,3 +554,6 @@ const AnalyseFinanciere: React.FC = () => {
 };
 
 export default AnalyseFinanciere;
+
+
+

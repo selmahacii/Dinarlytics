@@ -1,4 +1,4 @@
-import { getRevenueSegment, RevenueSegment } from '../types/revenueSegments';
+import { getRevenueSegment, RevenueSegment } from '@/types/revenueSegments';
 
 export interface ComplianceItem {
   id: string;
@@ -364,4 +364,6 @@ export class FiscalComplianceChecker {
     return calendar;
   }
 }
+
+
 

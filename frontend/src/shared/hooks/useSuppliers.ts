@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { suppliersService, Supplier } from '../services/modules/suppliersService';
+import { suppliersService, Supplier } from '@/services/modules/suppliersService';
 
 export const useSuppliers = () => {
   const queryClient = useQueryClient();
@@ -97,3 +97,4 @@ export const useSuppliers = () => {
     deleteSupplier: (id: string) => deleteMutation.mutateAsync(id)
   };
 };
+

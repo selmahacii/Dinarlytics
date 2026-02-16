@@ -1,6 +1,6 @@
 import React from 'react';
-import { usePermission } from '../hooks/usePermission';
-import { PermissionManager } from '../utils/PermissionManager';
+import { usePermission } from '@shared/hooks/usePermission';
+import { PermissionManager } from '@shared/utils/PermissionManager';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 
 export interface UserRoleBadgeProps {
@@ -110,3 +110,4 @@ export const UserProfileHeader: React.FC<{ compact?: boolean }> = ({ compact = f
     </div>
   );
 };
+

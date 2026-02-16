@@ -7,7 +7,7 @@ import type {
   TopClientDetail,
   TopClientSummary,
   ClientMetricsGeneric
-} from '../types/reports';
+} from '@/types/reports';
 
 export interface SalesReportData {
   salesData: SalesKpis;
@@ -38,3 +38,5 @@ export function useSalesReports(period: string) {
 
   return { data, loading, error };
 }
+
+

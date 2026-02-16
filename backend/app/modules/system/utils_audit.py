@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from app.core.models.audit import AuditLog
-from app.core.models import User
+from app.core.models import AuditLog, User
 import uuid
 import json
 

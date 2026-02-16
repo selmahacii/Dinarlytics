@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { FilterCondition, FilterField, reportFilterFields, getOperatorsForFieldType, operatorLabels } from '../../types/filters';
+import { FilterCondition, FilterField, reportFilterFields, getOperatorsForFieldType, operatorLabels } from '@/types/filters';
 
 interface FilterConditionEditorProps {
   condition: FilterCondition;
@@ -238,3 +238,5 @@ const FilterConditionEditor: React.FC<FilterConditionEditorProps> = ({
 };
 
 export default FilterConditionEditor;
+
+

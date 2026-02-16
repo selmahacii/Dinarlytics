@@ -13,8 +13,8 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar } from 'react-chartjs-2';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 
 interface CompteResultatWidgetProps {
   data: {
@@ -531,3 +531,5 @@ const CompteResultatWidget: React.FC<CompteResultatWidgetProps> = ({ data, perio
 };
 
 export default CompteResultatWidget;
+
+

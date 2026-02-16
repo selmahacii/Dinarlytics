@@ -28,11 +28,11 @@ import {
   ArrowUpOnSquareIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../../context/AppContext';
-import { useLocalStorage } from '../../../hooks/useLocalStorage';
+import { useApp } from '@core/context/AppContext';
+import { useLocalStorage } from '@shared/hooks/useLocalStorage';
 // ...existing code...
-import { usePermission } from '../../../hooks/usePermission';
-// import RequirePermission from '../../../components/Security/RequirePermission'; // Component does not exist
+import { usePermission } from '@shared/hooks/usePermission';
+// import RequirePermission from '../@shared/components/Security/RequirePermission'; // Component does not exist
 
 const FiscaliteDeclarations: React.FC = () => {
   const { user, companyData, formatCurrency, currentDevise, currentCountry, fiscalRates, calculateTVA, getTVARate, fiscalDocuments } = useApp();
@@ -3446,3 +3446,5 @@ const FiscaliteDeclarations: React.FC = () => {
 };
 
 export default FiscaliteDeclarations;
+
+

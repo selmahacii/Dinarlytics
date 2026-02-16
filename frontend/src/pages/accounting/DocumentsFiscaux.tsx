@@ -14,11 +14,11 @@ import {
   BuildingOfficeIcon,
   UserIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from "../../context/AppContext";
-import { FiscalDocument, Country, getDocumentEquivalent } from '../../utils/fiscalDocuments';
-import Modal from '../../components/UI/Modal';
-import Card from '../../components/UI/Card';
-import { usePermission } from '../../hooks/usePermission';
+import { useApp } from "@core/context/AppContext";
+import { FiscalDocument, Country, getDocumentEquivalent } from '@shared/utils/fiscalDocuments';
+import Modal from '@shared/components/UI/Modal';
+import Card from '@shared/components/UI/Card';
+import { usePermission } from '@shared/hooks/usePermission';
 
 const DocumentsFiscaux: React.FC = () => {
   const { 
@@ -439,4 +439,7 @@ const DocumentsFiscaux: React.FC = () => {
 };
 
 export default DocumentsFiscaux;
+
+
+
 

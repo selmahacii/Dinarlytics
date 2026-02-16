@@ -1,6 +1,6 @@
 import React from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
-import { useLIA } from '../../hooks/useLIA';
+import { useLIA } from '@shared/hooks/useLIA';
 
 interface LIAContextualButtonProps {
   /**
@@ -94,3 +94,4 @@ const LIAContextualButton: React.FC<LIAContextualButtonProps> = ({
 };
 
 export default LIAContextualButton;
+

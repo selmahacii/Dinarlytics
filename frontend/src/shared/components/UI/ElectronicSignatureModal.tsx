@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DocumentSignature, DocumentQRMetadata } from '../../types/index';
+import { DocumentSignature, DocumentQRMetadata } from '@/index';
 import Modal from './Modal';
 import SignaturePad from './SignaturePad';
 import QRCodeDisplay from './QRCodeDisplay';
@@ -314,3 +314,4 @@ const ElectronicSignatureModal: React.FC<ElectronicSignatureModalProps> = ({
 };
 
 export default ElectronicSignatureModal;
+

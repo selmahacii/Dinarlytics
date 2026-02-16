@@ -1,4 +1,4 @@
-import { ModuleDef } from '../types/security';
+import { ModuleDef } from '@/types/security';
 
 export const MODULES: ModuleDef[] = [
   { id: 'dashboard', name: 'Tableau de bord', route: '/dashboard', requiredPermission: 'rapports-basic', minSegment: 'micro', dataNeeds: ['kpi-core'] },
@@ -11,3 +11,5 @@ export const MODULES: ModuleDef[] = [
   { id: 'audit', name: 'Audit', route: '/audit', requiredPermission: 'audit-read', minSegment: 'large', dataNeeds: ['audit-logs'] },
   { id: 'admin', name: 'Administration', route: '/admin', requiredPermission: 'admin-users', minSegment: 'large', dataNeeds: ['users-core'] }
 ];
+
+

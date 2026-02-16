@@ -1,4 +1,4 @@
-import { COMPANY_TYPES, ACCESS_LEVELS } from '../types/CompanyTypes';
+import { COMPANY_TYPES, ACCESS_LEVELS } from '@/types/CompanyTypes';
 
 export interface UserPermission {
   id: string;

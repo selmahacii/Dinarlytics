@@ -18,8 +18,8 @@ import {
   PauseIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 import Card from '../UI/Card';
 
 interface ClotureComptableWidgetProps {
@@ -369,3 +369,5 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
 };
 
 export default ClotureComptableWidget;
+
+

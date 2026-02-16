@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { SparklesIcon, LightBulbIcon, XMarkIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
-import { useApp } from '../../context/AppContext';
-import { useLIA } from '../../hooks/useLIA';
-import { detectAnomalies, comparePeriods } from '../../utils/financialAnalysis';
+import { useApp } from '@core/context/AppContext';
+import { useLIA } from '@shared/hooks/useLIA';
+import { detectAnomalies, comparePeriods } from '@shared/utils/financialAnalysis';
 
 interface LIAInsight {
   id: string;
@@ -284,4 +284,6 @@ const LIAInsightsWidget: React.FC<LIAInsightsWidgetProps> = ({
 };
 
 export default LIAInsightsWidget;
+
+
 

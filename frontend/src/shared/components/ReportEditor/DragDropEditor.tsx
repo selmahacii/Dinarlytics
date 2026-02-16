@@ -7,7 +7,7 @@ import {
   DocumentDuplicateIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import { WidgetElement, WidgetConfig, PaletteElement, paletteElements } from '../../types/reportEditor';
+import { WidgetElement, WidgetConfig, PaletteElement, paletteElements } from '@/types/reportEditor';
 import WidgetRenderer from './WidgetRenderer';
 import Palette from './Palette';
 import GridCanvas from './GridCanvas';
@@ -385,3 +385,5 @@ const TextConfigPanel: React.FC<{
 };
 
 export default DragDropEditor;
+
+

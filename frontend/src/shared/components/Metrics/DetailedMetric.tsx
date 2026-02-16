@@ -9,7 +9,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
-import { RealisticMetric } from '../../types/dashboard';
+import { RealisticMetric } from '@/types/dashboard';
 
 interface DetailedMetricProps {
   metric: RealisticMetric;
@@ -268,3 +268,5 @@ const DetailedMetric: React.FC<DetailedMetricProps> = ({
 };
 
 export default DetailedMetric;
+
+

@@ -14,7 +14,7 @@ import {
   CurrencyDollarIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
-import { AIInsight, insightCategories, insightTypes, impactLevels } from '../../types/aiInsights';
+import { AIInsight, insightCategories, insightTypes, impactLevels } from '@/types/aiInsights';
 
 interface InsightDetailProps {
   insight: AIInsight;
@@ -292,3 +292,5 @@ const InsightDetail: React.FC<InsightDetailProps> = ({ insight, onAction }) => {
 };
 
 export default InsightDetail;
+
+

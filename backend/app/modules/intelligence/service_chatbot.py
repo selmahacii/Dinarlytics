@@ -3,7 +3,7 @@ import re
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from sqlalchemy.orm import Session
-from app.core.db_manager import DatabaseManager
+from app.db import DatabaseManager
 from app.modules.intelligence.service_prediction import PredictionService
 
 logger = logging.getLogger(__name__)

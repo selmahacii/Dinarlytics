@@ -12,8 +12,8 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 
 interface BilanComptableWidgetProps {
   data: {
@@ -565,3 +565,5 @@ const BilanComptableWidget: React.FC<BilanComptableWidgetProps> = ({ data, perio
 };
 
 export default BilanComptableWidget;
+
+

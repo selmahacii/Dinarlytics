@@ -8,7 +8,7 @@ import {
   CheckCircleIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../context/AppContext';
+import { useApp } from '@core/context/AppContext';
 
 interface Insight {
   id: string;
@@ -243,4 +243,5 @@ const LIAProactiveInsights: React.FC<LIAProactiveInsightsProps> = ({
 };
 
 export default LIAProactiveInsights;
+
 

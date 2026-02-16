@@ -13,8 +13,8 @@ import {
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend,
   ArcElement, BarElement, RadialLinearScale, Filler
 } from 'chart.js';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend,
@@ -916,3 +916,5 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
 };
 
 export default GestionFournisseursWidget;
+
+

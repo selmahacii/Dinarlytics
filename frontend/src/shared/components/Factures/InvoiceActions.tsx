@@ -1,7 +1,7 @@
 import React from 'react';
 import SignatureButton from './SignatureButton';
 import SignaturePreview from './SignaturePreview';
-import { formatCurrency } from '../../utils/format';
+import { formatCurrency } from '@shared/utils/format';
 
 interface InvoiceActionsProps {
   totalTTC: number;
@@ -74,3 +74,4 @@ const InvoiceActions: React.FC<InvoiceActionsProps> = ({
 };
 
 export default InvoiceActions;
+

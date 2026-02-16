@@ -5,7 +5,7 @@ import {
   ComputerDesktopIcon,
   PaintBrushIcon
 } from '@heroicons/react/24/outline';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '@core/context/ThemeContext';
 
 interface ThemeToggleProps {
   showThemeSelector?: boolean;
@@ -68,3 +68,4 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
 };
 
 export default ThemeToggle;
+

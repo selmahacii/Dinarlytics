@@ -31,7 +31,7 @@ import {
   ScaleIcon,
   DocumentChartBarIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../context/AppContext';
+import { useApp } from '@core/context/AppContext';
 import { usePermission } from '../../shared/hooks/usePermission';
 
 type SidebarIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;

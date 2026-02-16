@@ -11,7 +11,7 @@ from app.core.security import TokenData
 from pydantic import BaseModel, Field
 from decimal import Decimal
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
-from app.utils.std_sequences import generate_document_number
+from app.core.sequences import generate_document_number
 from datetime import datetime
 
 

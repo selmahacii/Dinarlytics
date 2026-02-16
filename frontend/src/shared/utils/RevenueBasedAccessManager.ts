@@ -5,8 +5,8 @@ import {
   getSegmentProgress, 
   getNextSegment, 
   getDistanceToNextThreshold 
-} from '../types/revenueSegments';
-import { COMPANY_TYPES, ACCESS_LEVELS } from '../types/CompanyTypes';
+} from '@/types/revenueSegments';
+import { COMPANY_TYPES, ACCESS_LEVELS } from '@/types/CompanyTypes';
 import { PermissionManager, USER_ROLES } from './PermissionManager';
 
 export interface RevenueBasedRecommendation {
@@ -373,4 +373,6 @@ export class RevenueBasedAccessManager {
     };
   }
 }
+
+
 

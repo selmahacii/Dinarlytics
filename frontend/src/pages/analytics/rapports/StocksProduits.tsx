@@ -27,7 +27,7 @@ import {
   ClipboardDocumentListIcon,
   TagIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../../context/AppContext';
+import { useApp } from '@core/context/AppContext';
 // ...existing code...
 
 const StocksProduits: React.FC = () => {
@@ -108,7 +108,7 @@ Généré par Dinarlytics
   // ========================================
   if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
     const formatCurrency = (amount: number) => amount?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
-    
+
     // Données adaptées pour EURL
     const valeurStock = Math.round(companyData.revenueMonth * 0.35); // 35% du CA en stock
     const nombreArticles = Math.max(15, Math.floor(companyData.clientsCount * 0.6));
@@ -250,7 +250,7 @@ Généré par Dinarlytics
                   <p className="text-sm font-bold text-emerald-600">{cat.part}%</p>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full bg-gradient-to-r ${cat.couleur} rounded-full transition-all duration-500`}
                     style={{ width: `${cat.part}%` }}
                   ></div>
@@ -296,21 +296,21 @@ Généré par Dinarlytics
               Actions Rapides
             </h3>
             <div className="space-y-3">
-              <button 
+              <button
                 onClick={handleLaunchInventory}
                 className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <ClipboardDocumentListIcon className="h-5 w-5" />
                 📝 Lancer un inventaire
               </button>
-              <button 
+              <button
                 onClick={handleGenerateRotationReport}
                 className="w-full p-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
               >
                 <ChartBarIcon className="h-5 w-5" />
                 📊 Rapport rotation produits
               </button>
-              <button 
+              <button
                 onClick={handleManageArticles}
                 className="w-full p-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:border-emerald-400 hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
               >
@@ -384,11 +384,11 @@ Généré par Dinarlytics
   };
 
   const topProducts = [
-    { 
-      name: 'Smartphone Galaxy S24', 
-      stock: 45, 
-      valeur: 450000, 
-      rotation: 8.5, 
+    {
+      name: 'Smartphone Galaxy S24',
+      stock: 45,
+      valeur: 450000,
+      rotation: 8.5,
       category: 'Électronique',
       seuilMin: 10,
       seuilMax: 50,
@@ -399,11 +399,11 @@ Généré par Dinarlytics
       venteMensuelle: 12,
       stockage: 'entrepôt A'
     },
-    { 
-      name: 'Laptop Dell XPS 13', 
-      stock: 23, 
-      valeur: 380000, 
-      rotation: 6.2, 
+    {
+      name: 'Laptop Dell XPS 13',
+      stock: 23,
+      valeur: 380000,
+      rotation: 6.2,
       category: 'Informatique',
       seuilMin: 5,
       seuilMax: 25,
@@ -414,11 +414,11 @@ Généré par Dinarlytics
       venteMensuelle: 8,
       stockage: 'entrepôt B'
     },
-    { 
-      name: 'Tablette iPad Pro', 
-      stock: 67, 
-      valeur: 320000, 
-      rotation: 9.1, 
+    {
+      name: 'Tablette iPad Pro',
+      stock: 67,
+      valeur: 320000,
+      rotation: 9.1,
       category: 'Électronique',
       seuilMin: 15,
       seuilMax: 40,
@@ -429,11 +429,11 @@ Généré par Dinarlytics
       venteMensuelle: 15,
       stockage: 'entrepôt A'
     },
-    { 
-      name: 'Écouteurs AirPods', 
-      stock: 89, 
-      valeur: 180000, 
-      rotation: 12.3, 
+    {
+      name: 'Écouteurs AirPods',
+      stock: 89,
+      valeur: 180000,
+      rotation: 12.3,
       category: 'Accessoires',
       seuilMin: 20,
       seuilMax: 60,
@@ -444,11 +444,11 @@ Généré par Dinarlytics
       venteMensuelle: 22,
       stockage: 'entrepôt C'
     },
-    { 
-      name: 'Montre Apple Watch', 
-      stock: 34, 
-      valeur: 150000, 
-      rotation: 7.8, 
+    {
+      name: 'Montre Apple Watch',
+      stock: 34,
+      valeur: 150000,
+      rotation: 7.8,
       category: 'Accessoires',
       seuilMin: 8,
       seuilMax: 30,
@@ -589,11 +589,10 @@ Généré par Dinarlytics
               <button
                 key={view.id}
                 onClick={() => setSelectedView(view.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  selectedView === view.id
+                className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${selectedView === view.id
                     ? 'bg-slate-600 text-white'
                     : 'text-slate-600 hover:text-slate-700 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 <span>{view.title}</span>
@@ -723,7 +722,7 @@ Généré par Dinarlytics
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {topProducts.map((product, index) => (
                     <div key={index} className="bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
@@ -738,11 +737,10 @@ Généré par Dinarlytics
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className={`flex items-center mb-1 ${
-                            product.statut === 'optimal' ? 'text-emerald-600' :
-                            product.statut === 'faible' ? 'text-red-600' :
-                            'text-amber-600'
-                          }`}>
+                          <div className={`flex items-center mb-1 ${product.statut === 'optimal' ? 'text-emerald-600' :
+                              product.statut === 'faible' ? 'text-red-600' :
+                                'text-amber-600'
+                            }`}>
                             {product.trend === 'up' ? (
                               <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
                             ) : product.trend === 'down' ? (
@@ -755,7 +753,7 @@ Généré par Dinarlytics
                           <div className="text-xs text-slate-500">Stock: {product.stock} unités</div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <div className="text-xs text-slate-500 mb-1">Valeur stock</div>
@@ -766,7 +764,7 @@ Généré par Dinarlytics
                           <div className="font-bold text-slate-900">{product.rotation}x/an</div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-3 gap-2 text-xs mb-4">
                         <div className="bg-slate-50 rounded p-2 text-center">
                           <div className="font-medium text-slate-900">{product.marge}%</div>
@@ -781,7 +779,7 @@ Généré par Dinarlytics
                           <div className="text-slate-600">Entrepôt</div>
                         </div>
                       </div>
-                      
+
                       <div className="pt-3 border-t border-slate-200">
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-slate-600">Dernière vente:</span>
@@ -819,22 +817,20 @@ Généré par Dinarlytics
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="text-sm font-black text-slate-900">{product.rotation}x/an</span>
-                            <div className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              product.rotation > 7 ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
-                              product.rotation > 4 ? 'bg-slate-100 text-slate-700 border border-slate-300' :
-                              'bg-slate-200 text-slate-700 border border-slate-400'
-                            }`}>
+                            <div className={`px-2 py-1 rounded-full text-xs font-bold ${product.rotation > 7 ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
+                                product.rotation > 4 ? 'bg-slate-100 text-slate-700 border border-slate-300' :
+                                  'bg-slate-200 text-slate-700 border border-slate-400'
+                              }`}>
                               {product.rotation > 7 ? 'Rapide' : product.rotation > 4 ? 'Normal' : 'Lent'}
                             </div>
                           </div>
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-4 shadow-inner">
-                          <div 
-                            className={`h-4 rounded-full transition-all duration-1500 ease-out flex items-center justify-end pr-3 ${
-                              product.rotation > 7 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
-                              'bg-gradient-to-r from-slate-600 to-slate-700'
-                            }`}
-                            style={{ 
+                          <div
+                            className={`h-4 rounded-full transition-all duration-1500 ease-out flex items-center justify-end pr-3 ${product.rotation > 7 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
+                                'bg-gradient-to-r from-slate-600 to-slate-700'
+                              }`}
+                            style={{
                               width: `${(product.rotation / 10) * 100}%`,
                               transitionDelay: `${index * 100}ms`
                             }}
@@ -858,7 +854,7 @@ Généré par Dinarlytics
                   <ChartPieIcon className="h-5 w-5 mr-2 text-slate-600" />
                   📊 Évolution des Stocks par Catégorie
                 </h3>
-                
+
                 <div className="space-y-4">
                   {categoryEvolution.map((category, index) => (
                     <div key={index} className="bg-white rounded-lg p-4 border border-slate-200">
@@ -884,9 +880,9 @@ Généré par Dinarlytics
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="w-full bg-slate-200 rounded-full h-4">
-                        <div 
+                        <div
                           className={`h-4 bg-slate-${700 - index * 100} rounded-full transition-all duration-1000 ease-out flex items-center justify-end pr-2`}
                           style={{ width: `${(category.current / 1000000) * 100}%` }}
                         >
@@ -916,7 +912,7 @@ Généré par Dinarlytics
                         <g key={i}>
                           <line x1="60" y1={30 + i * 45} x2="660" y2={30 + i * 45} stroke="#e2e8f0" strokeWidth="1.5" />
                           <text x="45" y={35 + i * 45} fill="#64748b" fontSize="12" fontWeight="700" textAnchor="end">
-                            {(5-i) * 170}k
+                            {(5 - i) * 170}k
                           </text>
                         </g>
                       ))}
@@ -1020,7 +1016,7 @@ Généré par Dinarlytics
                   <ChartBarIcon className="h-5 w-5 mr-2 text-slate-600" />
                   📊 Analyse ABC des Produits
                 </h3>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Graphique circulaire ABC */}
                   <div className="bg-white rounded-lg p-6 border border-slate-200">
@@ -1070,7 +1066,7 @@ Généré par Dinarlytics
                             });
                           })()}
                         </svg>
-                        
+
                         {/* Texte au centre */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <div className="text-3xl font-black text-slate-900">{stockData.produitsTotal}</div>
@@ -1100,24 +1096,24 @@ Généré par Dinarlytics
 
                   {/* Détails par catégorie */}
                   <div className="space-y-4">
-                  {abcAnalysis.map((category, index) => (
+                    {abcAnalysis.map((category, index) => (
                       <div key={index} className="bg-white rounded-lg p-4 border border-slate-200">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center space-x-3">
                             <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 text-white rounded-full flex items-center justify-center text-xl font-bold">
-                        {category.category}
-                      </div>
+                              {category.category}
+                            </div>
                             <div>
                               <div className="font-bold text-slate-900">{category.description}</div>
                               <div className="text-sm text-slate-600">{category.products} produits • {category.percentage}%</div>
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="w-full bg-slate-200 rounded-full h-4">
-                          <div 
+                          <div
                             className="h-4 bg-gradient-to-r from-slate-600 to-slate-700 rounded-full transition-all duration-1500 ease-out flex items-center justify-end pr-2"
-                            style={{ 
+                            style={{
                               width: `${category.percentage}%`,
                               transitionDelay: `${index * 200}ms`
                             }}
@@ -1125,12 +1121,12 @@ Généré par Dinarlytics
                             <span className="text-xs text-white font-bold">{category.percentage}%</span>
                           </div>
                         </div>
-                        
+
                         <div className="mt-3 text-lg font-bold text-slate-900 text-center">
                           {category.value.toLocaleString()} DA
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                   </div>
                 </div>
               </div>
@@ -1192,21 +1188,19 @@ Généré par Dinarlytics
                   <BellIcon className="h-5 w-5 mr-2 text-slate-600" />
                   Alertes & Anomalies Actives
                 </h3>
-                
+
                 <div className="space-y-4">
                   {stockAlerts.map((alert, index) => (
-                    <div key={index} className={`bg-white rounded-lg p-4 border-l-4 ${
-                      alert.severity === 'critical' ? 'border-red-500 bg-red-50' :
-                      alert.severity === 'warning' ? 'border-amber-500 bg-amber-50' :
-                      'border-cyan-500 bg-cyan-50'
-                    } border border-slate-200`}>
+                    <div key={index} className={`bg-white rounded-lg p-4 border-l-4 ${alert.severity === 'critical' ? 'border-red-500 bg-red-50' :
+                        alert.severity === 'warning' ? 'border-amber-500 bg-amber-50' :
+                          'border-cyan-500 bg-cyan-50'
+                      } border border-slate-200`}>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            alert.severity === 'critical' ? 'bg-red-100 text-red-600' :
-                            alert.severity === 'warning' ? 'bg-amber-100 text-amber-600' :
-                            'bg-cyan-100 text-cyan-600'
-                          }`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${alert.severity === 'critical' ? 'bg-red-100 text-red-600' :
+                              alert.severity === 'warning' ? 'bg-amber-100 text-amber-600' :
+                                'bg-cyan-100 text-cyan-600'
+                            }`}>
                             {alert.type === 'rupture' && <ExclamationTriangleIcon className="h-4 w-4" />}
                             {alert.type === 'surstock' && <CubeIcon className="h-4 w-4" />}
                             {alert.type === 'dormant' && <ClockIcon className="h-4 w-4" />}
@@ -1217,15 +1211,14 @@ Généré par Dinarlytics
                             <div className="text-sm text-slate-600 capitalize">{alert.type}</div>
                           </div>
                         </div>
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          alert.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                          alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' :
-                          'bg-cyan-100 text-cyan-700'
-                        }`}>
+                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${alert.severity === 'critical' ? 'bg-red-100 text-red-700' :
+                            alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' :
+                              'bg-cyan-100 text-cyan-700'
+                          }`}>
                           {alert.severity}
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
                         {alert.type === 'rupture' && (
                           <>
@@ -1308,7 +1301,7 @@ Généré par Dinarlytics
                           </>
                         )}
                       </div>
-                      
+
                       <div className="pt-3 border-t border-slate-200">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-slate-900">Action recommandée:</span>
@@ -1342,7 +1335,7 @@ Généré par Dinarlytics
                             ];
                             const total = alertTypes.reduce((sum, t) => sum + t.count, 0);
                             let currentOffset = 0;
-                            
+
                             return alertTypes.map((alertType, idx) => {
                               const circumference = 2 * Math.PI * 100;
                               const percentage = (alertType.count / total) * 100;
@@ -1384,12 +1377,12 @@ Généré par Dinarlytics
                             });
                           })()}
                         </svg>
-                        
+
                         {/* Texte au centre */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <div className="text-4xl font-black text-slate-900">{stockAlerts.length}</div>
                           <div className="text-sm text-slate-600 font-semibold">Alertes</div>
-            </div>
+                        </div>
                       </div>
                     </div>
 
@@ -1423,29 +1416,29 @@ Généré par Dinarlytics
                     <h4 className="font-bold text-slate-900 mb-5 text-lg">Analyse par Type d'Alerte</h4>
                     <div className="space-y-5">
                       {[
-                        { 
-                          type: 'Rupture de stock', 
+                        {
+                          type: 'Rupture de stock',
                           count: stockAlerts.filter(a => a.type === 'rupture').length,
                           impact: 'Perte de ventes potentielles',
                           urgence: 'Critique',
                           color: 'red'
                         },
-                        { 
-                          type: 'Surstock', 
+                        {
+                          type: 'Surstock',
                           count: stockAlerts.filter(a => a.type === 'surstock').length,
                           impact: 'Immobilisation de capital',
                           urgence: 'Moyen',
                           color: 'amber'
                         },
-                        { 
-                          type: 'Produits dormants', 
+                        {
+                          type: 'Produits dormants',
                           count: stockAlerts.filter(a => a.type === 'dormant').length,
                           impact: 'Obsolescence probable',
                           urgence: 'Faible',
                           color: 'slate'
                         },
-                        { 
-                          type: 'Anomalie inventaire', 
+                        {
+                          type: 'Anomalie inventaire',
                           count: stockAlerts.filter(a => a.type === 'anomalie').length,
                           impact: 'Écarts de gestion',
                           urgence: 'Moyen',
@@ -1460,23 +1453,21 @@ Généré par Dinarlytics
                                 <span className="text-sm font-bold text-slate-900">{stat.type}</span>
                                 <div className="text-xs text-slate-600">{stat.impact}</div>
                               </div>
-                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                stat.urgence === 'Critique' ? 'bg-red-100 text-red-700 border border-red-300' :
-                                stat.urgence === 'Moyen' ? 'bg-amber-100 text-amber-700 border border-amber-300' :
-                                'bg-slate-100 text-slate-700 border border-slate-300'
-                              }`}>
+                              <div className={`px-3 py-1 rounded-full text-xs font-bold ${stat.urgence === 'Critique' ? 'bg-red-100 text-red-700 border border-red-300' :
+                                  stat.urgence === 'Moyen' ? 'bg-amber-100 text-amber-700 border border-amber-300' :
+                                    'bg-slate-100 text-slate-700 border border-slate-300'
+                                }`}>
                                 {stat.urgence}
                               </div>
                             </div>
                             <div className="flex items-center space-x-3">
                               <div className="w-full bg-slate-200 rounded-full h-4">
-                                <div 
-                                  className={`h-4 rounded-full transition-all duration-1500 ease-out flex items-center justify-center ${
-                                    stat.color === 'red' ? 'bg-gradient-to-r from-red-500 to-red-600' :
-                                    stat.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
-                                    'bg-gradient-to-r from-slate-500 to-slate-600'
-                                  }`}
-                                  style={{ 
+                                <div
+                                  className={`h-4 rounded-full transition-all duration-1500 ease-out flex items-center justify-center ${stat.color === 'red' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                                      stat.color === 'amber' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
+                                        'bg-gradient-to-r from-slate-500 to-slate-600'
+                                    }`}
+                                  style={{
                                     width: `${percentage}%`,
                                     transitionDelay: `${index * 150}ms`
                                   }}
@@ -1507,22 +1498,20 @@ Généré par Dinarlytics
                       <div key={index} className="flex items-start space-x-4">
                         {/* Timeline indicator */}
                         <div className="flex flex-col items-center">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            alert.severity === 'critical' ? 'bg-red-100 text-red-600 border-2 border-red-500' :
-                            alert.severity === 'warning' ? 'bg-amber-100 text-amber-600 border-2 border-amber-500' :
-                            'bg-slate-100 text-slate-600 border-2 border-slate-500'
-                          }`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${alert.severity === 'critical' ? 'bg-red-100 text-red-600 border-2 border-red-500' :
+                              alert.severity === 'warning' ? 'bg-amber-100 text-amber-600 border-2 border-amber-500' :
+                                'bg-slate-100 text-slate-600 border-2 border-slate-500'
+                            }`}>
                             {alert.type === 'rupture' && <ExclamationTriangleIcon className="h-5 w-5" />}
                             {alert.type === 'surstock' && <CubeIcon className="h-5 w-5" />}
                             {alert.type === 'dormant' && <ClockIcon className="h-5 w-5" />}
                             {alert.type === 'anomalie' && <ExclamationCircleIcon className="h-5 w-5" />}
                           </div>
                           {index < 5 && (
-                            <div className={`w-0.5 h-12 ${
-                              alert.severity === 'critical' ? 'bg-red-300' :
-                              alert.severity === 'warning' ? 'bg-amber-300' :
-                              'bg-slate-300'
-                            }`}></div>
+                            <div className={`w-0.5 h-12 ${alert.severity === 'critical' ? 'bg-red-300' :
+                                alert.severity === 'warning' ? 'bg-amber-300' :
+                                  'bg-slate-300'
+                              }`}></div>
                           )}
                         </div>
 
@@ -1530,11 +1519,10 @@ Généré par Dinarlytics
                         <div className="flex-1 pb-4">
                           <div className="flex items-center justify-between mb-2">
                             <div className="font-bold text-slate-900">{alert.product}</div>
-                            <div className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              alert.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                              alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' :
-                              'bg-slate-100 text-slate-700'
-                            }`}>
+                            <div className={`px-2 py-1 rounded-full text-xs font-bold ${alert.severity === 'critical' ? 'bg-red-100 text-red-700' :
+                                alert.severity === 'warning' ? 'bg-amber-100 text-amber-700' :
+                                  'bg-slate-100 text-slate-700'
+                              }`}>
                               {alert.severity}
                             </div>
                           </div>
@@ -1574,16 +1562,15 @@ Généré par Dinarlytics
                           <div className="w-10 h-10 bg-gradient-to-br from-slate-600 to-slate-700 text-white rounded-full flex items-center justify-center text-lg font-bold">
                             {index + 1}
                           </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            product.profitability === 'excellent' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
-                            'bg-slate-100 text-slate-700 border border-slate-300'
-                          }`}>
+                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${product.profitability === 'excellent' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
+                              'bg-slate-100 text-slate-700 border border-slate-300'
+                            }`}>
                             {product.profitability}
                           </div>
                         </div>
-                        
+
                         <h4 className="font-bold text-slate-900 mb-4 text-sm">{product.product}</h4>
-                        
+
                         <div className="space-y-3">
                           <div>
                             <div className="flex items-center justify-between text-xs mb-1">
@@ -1591,33 +1578,33 @@ Généré par Dinarlytics
                               <span className="font-bold text-slate-900">{(product.revenue / 1000).toFixed(0)}k DA</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-2">
-                              <div 
+                              <div
                                 className="h-2 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-1000"
                                 style={{ width: `${(product.revenue / 1450000) * 100}%` }}
                               ></div>
                             </div>
                           </div>
-                          
+
                           <div>
                             <div className="flex items-center justify-between text-xs mb-1">
                               <span className="text-slate-600">Marge</span>
                               <span className="font-bold text-slate-900">{product.margin}%</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-2">
-                              <div 
+                              <div
                                 className="h-2 bg-gradient-to-r from-slate-600 to-slate-700 rounded-full transition-all duration-1000"
                                 style={{ width: `${(product.margin / 30) * 100}%` }}
                               ></div>
                             </div>
                           </div>
-                          
+
                           <div>
                             <div className="flex items-center justify-between text-xs mb-1">
                               <span className="text-slate-600">Rotation</span>
                               <span className="font-bold text-slate-900">{product.stockTurnover}x</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-2">
-                              <div 
+                              <div
                                 className="h-2 bg-gradient-to-r from-slate-500 to-slate-600 rounded-full transition-all duration-1000"
                                 style={{ width: `${(product.stockTurnover / 10) * 100}%` }}
                               ></div>
@@ -1643,9 +1630,9 @@ Généré par Dinarlytics
                               <span className="font-bold text-slate-900 ml-2">{(product.revenue / 1000).toFixed(0)}k</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-3">
-                              <div 
+                              <div
                                 className="h-3 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-1000 ease-out"
-                                style={{ 
+                                style={{
                                   width: `${(product.revenue / 1450000) * 100}%`,
                                   transitionDelay: `${index * 150}ms`
                                 }}
@@ -1669,9 +1656,9 @@ Généré par Dinarlytics
                               <span className="font-bold text-slate-900 ml-2">{product.marketShare}%</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-3">
-                              <div 
+                              <div
                                 className="h-3 bg-gradient-to-r from-slate-500 to-slate-700 rounded-full transition-all duration-1000 ease-out"
-                                style={{ 
+                                style={{
                                   width: `${(product.marketShare / 20) * 100}%`,
                                   transitionDelay: `${index * 150}ms`
                                 }}
@@ -1690,7 +1677,7 @@ Généré par Dinarlytics
                   <ArrowTrendingUpIcon className="h-5 w-5 mr-2 text-slate-600" />
                   Analyse Détaillée des Produits
                 </h3>
-                
+
                 <div className="space-y-6">
                   {productPerformance.map((product, index) => (
                     <div key={index} className="bg-white rounded-lg p-6 border border-slate-200">
@@ -1708,14 +1695,13 @@ Généré par Dinarlytics
                             </span>
                           </div>
                         </div>
-                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          product.profitability === 'excellent' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
-                          'bg-slate-100 text-slate-700 border border-slate-300'
-                        }`}>
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${product.profitability === 'excellent' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
+                            'bg-slate-100 text-slate-700 border border-slate-300'
+                          }`}>
                           {product.profitability}
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
                         <div className="text-center">
                           <div className="text-xs text-slate-500 mb-1">Ventes (unités)</div>
@@ -1734,7 +1720,7 @@ Généré par Dinarlytics
                           <div className="text-2xl font-bold text-slate-900">{product.stockTurnover}x</div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-slate-50 rounded-lg p-4 text-center">
                           <div className="text-xs text-slate-500 mb-1">Part de marché</div>
@@ -1749,9 +1735,9 @@ Généré par Dinarlytics
                           <div className="flex items-center justify-center">
                             <div className="flex items-center">
                               {[...Array(5)].map((_, i) => (
-                                <StarIcon 
-                                  key={i} 
-                                  className={`h-4 w-4 ${i < Math.round(product.customerSatisfaction) ? 'text-yellow-400' : 'text-slate-300'}`} 
+                                <StarIcon
+                                  key={i}
+                                  className={`h-4 w-4 ${i < Math.round(product.customerSatisfaction) ? 'text-yellow-400' : 'text-slate-300'}`}
                                 />
                               ))}
                             </div>
@@ -1779,7 +1765,7 @@ Généré par Dinarlytics
                         <div key={index} className="flex items-center">
                           <div className={`w-8 h-1.5 ${colors[index]} rounded mr-2`}></div>
                           <span className="text-sm font-semibold text-slate-900">{product.product}</span>
-            </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -1792,7 +1778,7 @@ Généré par Dinarlytics
                         <g key={i}>
                           <line x1="60" y1={30 + i * 50} x2="660" y2={30 + i * 50} stroke="#e2e8f0" strokeWidth="1.5" />
                           <text x="45" y={35 + i * 50} fill="#64748b" fontSize="13" fontWeight="700" textAnchor="end">
-                            {(5-i) * 30}
+                            {(5 - i) * 30}
                           </text>
                         </g>
                       ))}
@@ -1911,17 +1897,14 @@ Généré par Dinarlytics
                   {/* Statistiques finales */}
                   <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
                     {productPerformance.map((product, index) => (
-                      <div key={index} className={`text-center p-4 rounded-lg border ${
-                        index === 2 ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-100 border-slate-300'
-                      }`}>
-                        <div className={`text-xs font-semibold mb-2 ${
-                          index === 2 ? 'text-emerald-600' : 'text-slate-600'
+                      <div key={index} className={`text-center p-4 rounded-lg border ${index === 2 ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-100 border-slate-300'
                         }`}>
+                        <div className={`text-xs font-semibold mb-2 ${index === 2 ? 'text-emerald-600' : 'text-slate-600'
+                          }`}>
                           {product.product}
                         </div>
-                        <div className={`text-2xl font-bold ${
-                          index === 2 ? 'text-emerald-700' : 'text-slate-900'
-                        }`}>
+                        <div className={`text-2xl font-bold ${index === 2 ? 'text-emerald-700' : 'text-slate-900'
+                          }`}>
                           {product.sales} ventes
                         </div>
                         <div className="text-xs text-slate-600 mt-1">
@@ -1950,11 +1933,10 @@ Généré par Dinarlytics
                             {[1, 2, 3, 4, 5].map((star) => (
                               <StarIcon
                                 key={star}
-                                className={`h-4 w-4 ${
-                                  star <= Math.floor(product.customerSatisfaction)
+                                className={`h-4 w-4 ${star <= Math.floor(product.customerSatisfaction)
                                     ? 'text-emerald-500 fill-emerald-500'
                                     : 'text-slate-300'
-                                }`}
+                                  }`}
                               />
                             ))}
                           </div>
@@ -1983,7 +1965,7 @@ Généré par Dinarlytics
                             <span className="font-bold text-slate-900">{product.customerSatisfaction}/5</span>
                           </div>
                           <div className="w-full bg-slate-200 rounded-full h-3">
-                            <div 
+                            <div
                               className="h-3 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-1000"
                               style={{ width: `${(product.customerSatisfaction / 5) * 100}%` }}
                             ></div>
@@ -1997,7 +1979,7 @@ Généré par Dinarlytics
                             <span className="font-bold text-slate-900">{product.margin}%</span>
                           </div>
                           <div className="w-full bg-slate-200 rounded-full h-3">
-                            <div 
+                            <div
                               className="h-3 bg-gradient-to-r from-slate-600 to-slate-700 rounded-full transition-all duration-1000"
                               style={{ width: `${(product.margin / 30) * 100}%` }}
                             ></div>
@@ -2045,3 +2027,4 @@ Généré par Dinarlytics
 };
 
 export default StocksProduits;
+

@@ -1,13 +1,13 @@
 import React from 'react';
 import { UserCircleIcon, GlobeAltIcon, CurrencyDollarIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import { UserRoleBadge } from '../UserRoleBadge';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import { UserRoleBadge } from '@shared/components/UserRoleBadge';
 
 
 const Header: React.FC = () => {
   const { user, currentDevise, setCurrentDevise } = useApp();
-  
+
   const { currentLang, changeLang } = useTranslation();
 
   const handleLogout = () => {
@@ -22,14 +22,14 @@ const Header: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="flex items-center">
-           
+
             <h2 className="text-2xl font-semibold text-slate-800">
-            
+
             </h2>
           </div>
-        
+
         </div>
-        
+
         <div className="flex items-center space-x-4">
           {/* Language Selector */}
           <div className="flex items-center space-x-2">

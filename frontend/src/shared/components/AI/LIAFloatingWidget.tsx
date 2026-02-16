@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SparklesIcon, XMarkIcon, ChatBubbleLeftRightIcon, CommandLineIcon, ClockIcon, StarIcon } from '@heroicons/react/24/outline';
-import aiService from '../../services/aiService';
+import aiService from '@features/ai/services/aiService';
 interface ChatMessage {
   type: 'user' | 'lia';
   content: string;
@@ -17,10 +17,10 @@ const InlineLIAChat: React.FC<{
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    
+
     setChatMessages(m => [...m, { type: 'user', content: input }]);
     setLoading(true);
-    
+
     try {
       const response = await aiService.chat(input);
       setChatMessages(m => [...m, { type: 'lia', content: response.content }]);
@@ -38,11 +38,10 @@ const InlineLIAChat: React.FC<{
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {chatMessages.map((msg, i) => (
           <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-xs px-4 py-2 rounded-lg ${
-              msg.type === 'user' 
-                ? 'bg-blue-500 text-white' 
+            <div className={`max-w-xs px-4 py-2 rounded-lg ${msg.type === 'user'
+                ? 'bg-blue-500 text-white'
                 : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white'
-            }`}>
+              }`}>
               {msg.content}
             </div>
           </div>
@@ -88,7 +87,7 @@ const InlineLIAChat: React.FC<{
   );
 };
 import { useLocation } from 'react-router-dom';
-import { useLIA } from '../../hooks/useLIA';
+import { useLIA } from '@shared/hooks/useLIA';
 import { useLIAHistory } from './LIAHistoryProvider';
 
 interface LIAFloatingWidgetProps {
@@ -105,7 +104,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
   const { conversations, favorites } = useLIAHistory();
   const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  
+
   // Charger l'historique au montage
   useEffect(() => {
     loadHistory();
@@ -114,7 +113,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
   // Suggestions contextuelles selon la page actuelle
   const getContextualSuggestions = () => {
     const path = location.pathname;
-    
+
     if (path.includes('/fiscalite') || path.includes('/fiscal')) {
       return [
         "Comment calculer la TVA ?",
@@ -123,7 +122,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Comment optimiser ma charge fiscale ?"
       ];
     }
-    
+
     if (path.includes('/factures') || path.includes('/facturation')) {
       return [
         "Comment créer une facture ?",
@@ -132,7 +131,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Gérer les paiements"
       ];
     }
-    
+
     if (path.includes('/articles') || path.includes('/inventaire')) {
       return [
         "Comment optimiser mes stocks ?",
@@ -141,7 +140,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Analyser la rotation"
       ];
     }
-    
+
     if (path.includes('/clients')) {
       return [
         "Analyser ma clientèle",
@@ -150,7 +149,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Segmenter mes clients"
       ];
     }
-    
+
     if (path.includes('/fournisseurs')) {
       return [
         "Analyser mes achats",
@@ -159,7 +158,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Gérer les commandes"
       ];
     }
-    
+
     if (path.includes('/dashboard')) {
       return [
         "Interpréter mes KPIs",
@@ -168,7 +167,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Prévoir mes revenus"
       ];
     }
-    
+
     if (path.includes('/comptabilite') || path.includes('/gestion-comptable')) {
       return [
         "Comment faire une écriture comptable ?",
@@ -177,7 +176,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         "Faire une clôture comptable"
       ];
     }
-    
+
     // Suggestions par défaut
     return [
       "Comment améliorer ma trésorerie ?",
@@ -194,13 +193,13 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
         e.preventDefault();
         openLIA();
       }
-      
+
       // Ctrl+L pour ouvrir avec contexte
       if ((e.ctrlKey || e.metaKey) && e.key === 'l' && !e.shiftKey) {
         e.preventDefault();
         openLIA(undefined, { page: location.pathname });
       }
-      
+
       // Échap pour fermer
       if (e.key === 'Escape' && isOpen) {
         closeLIA();
@@ -229,7 +228,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
                 <XMarkIcon className="h-4 w-4" />
               </button>
             </div>
-            
+
             {favorites.length > 0 && (
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 flex items-center">
@@ -256,18 +255,18 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
                 ))}
               </div>
             )}
-            
+
             <div>
               <h4 className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Récent</h4>
               {conversations.slice(0, 5).map((conv) => (
                 <button
                   key={conv.id}
-                    onClick={() => {
-                      const question = conv.messages[0]?.content || '';
-                      setSelectedSuggestion(question);
-                      openLIA(question, { page: location.pathname });
-                      setShowHistory(false);
-                    }}
+                  onClick={() => {
+                    const question = conv.messages[0]?.content || '';
+                    setSelectedSuggestion(question);
+                    openLIA(question, { page: location.pathname });
+                    setShowHistory(false);
+                  }}
                   className="w-full text-left p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-xs mb-1"
                 >
                   <div className="truncate">{conv.title}</div>
@@ -280,7 +279,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
             </div>
           </div>
         )}
-        
+
         {/* Bouton principal */}
         <div className="flex space-x-2">
           {conversations.length > 0 && (
@@ -299,12 +298,12 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
             aria-label="Ouvrir l'assistant LIA"
           >
             <SparklesIcon className="h-6 w-6 group-hover:rotate-12 transition-transform" />
-            
+
             {/* Badge de notification (optionnel) */}
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse">
               <span className="text-white">AI</span>
             </span>
-            
+
             {/* Tooltip au survol */}
             <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               <div className="flex items-center gap-2">
@@ -372,7 +371,7 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
 
             {/* Composant StaticAIChat intégré - Version inline */}
             <div className="flex-1 overflow-hidden relative">
-              <InlineLIAChat 
+              <InlineLIAChat
                 onClose={() => {
                   closeLIA();
                   setSelectedSuggestion(null);
@@ -389,4 +388,5 @@ const LIAFloatingWidget: React.FC<LIAFloatingWidgetProps> = ({ className = '' })
 };
 
 export default LIAFloatingWidget;
+
 

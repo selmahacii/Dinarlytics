@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { RealisticChartData } from '../../types/dashboard';
+import { RealisticChartData } from '@/types/dashboard';
 
 interface AnimatedChartProps {
   chartData: RealisticChartData;
@@ -405,3 +405,5 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 };
 
 export default AnimatedChart;
+
+

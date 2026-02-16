@@ -25,10 +25,10 @@ import {
   PencilIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import Card from '../../components/UI/Card';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import { useProducts } from '../../context/ProductsContext';
+import Card from '@shared/components/UI/Card';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import { useProducts } from '@core/context/ProductsContext';
 // ...existing code...
 
 const Inventaire: React.FC = () => {
@@ -2538,3 +2538,5 @@ const Inventaire: React.FC = () => {
 };
 
 export default Inventaire;
+
+

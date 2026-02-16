@@ -198,6 +198,14 @@ MODEL_CONFIG: Dict[str, dict] = {
             "anomaly": 1,  # D????tection d'anomalies (0-1)
             "suggestion": 5,  # Suggestions d'am????lioration (5 cat????gories)
         },
-        "model_path": None,
+    "model_path": None,
     }
 }
+
+IMPROVEMENT_CATEGORIES = [
+    "Optimisation des couts",
+    "Gestion de la tresorerie",
+    "Reduction des risques",
+    "Efficacite operationnelle",
+    "Strategie de croissance"
+]

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.modules.intelligence.service_training import TrainingService
-from app.core.models.erp_model import ERPModel
-from app.core.db_manager import get_db
+from app.modules.intelligence.model_torch import ERPModel
+from app.core.database import get_db
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
 

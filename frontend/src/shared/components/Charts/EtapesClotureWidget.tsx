@@ -14,8 +14,8 @@ import {
   PencilIcon,
   PlayIcon
 } from '@heroicons/react/24/outline';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 import Card from '../UI/Card';
 
 interface EtapesClotureWidgetProps {
@@ -393,3 +393,5 @@ const EtapesClotureWidget: React.FC<EtapesClotureWidgetProps> = ({ period }) => 
 };
 
 export default EtapesClotureWidget;
+
+

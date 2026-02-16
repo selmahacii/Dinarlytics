@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LightBulbIcon, XMarkIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
-import { useApp } from '../../context/AppContext';
-import { Country } from '../../utils/fiscalDocuments';
+import { useApp } from '@core/context/AppContext';
+import { Country } from '@shared/utils/fiscalDocuments';
 
 interface Conseil {
   id: string;
@@ -190,4 +190,6 @@ const ConseilsDuJour: React.FC = () => {
 };
 
 export default ConseilsDuJour;
+
+
 

@@ -12,7 +12,7 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
-import Modal from "../../components/UI/Modal";
+import Modal from "@shared/components/UI/Modal";
 
 const EtatsRapports: React.FC = () => {
   const navigate = useNavigate();
@@ -1423,4 +1423,5 @@ const EtatsRapports: React.FC = () => {
 };
 
 export default EtatsRapports;
+
 

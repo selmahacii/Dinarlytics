@@ -15,7 +15,7 @@ from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData, RBACManager
 from pydantic import BaseModel, EmailStr
 from app.core.websocket import manager
-from app.utils.audit import log_audit
+from app.modules.system.utils_audit import log_audit
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 

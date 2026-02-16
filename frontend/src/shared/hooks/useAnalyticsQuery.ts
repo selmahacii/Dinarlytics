@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { analyticService } from '../services/modules/analyticService';
+import { analyticService } from '@/services/modules/analyticService';
 import { queryKeys } from '../lib/queryClient';
 
 /**
@@ -36,3 +36,4 @@ export const useAnalyticsQuery = () => {
         error: null,
     };
 };
+

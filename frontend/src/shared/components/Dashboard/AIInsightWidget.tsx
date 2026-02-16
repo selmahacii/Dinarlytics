@@ -14,7 +14,7 @@ import {
   EyeIcon
 } from '@heroicons/react/24/outline';
 import BaseWidget from './BaseWidget';
-import { AIInsightWidgetProps } from '../../types/widgets';
+import { AIInsightWidgetProps } from '@/types/widgets';
 
 const AIInsightWidget: React.FC<AIInsightWidgetProps> = ({ data, ...props }) => {
   const { insights, aiStatus, lastUpdate } = data;
@@ -193,4 +193,6 @@ const AIInsightWidget: React.FC<AIInsightWidgetProps> = ({ data, ...props }) => 
 };
 
 export default AIInsightWidget;
+
+
 

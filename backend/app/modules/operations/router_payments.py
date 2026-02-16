@@ -11,7 +11,7 @@ from app.core.models import Payment, JournalEntry, JournalEntryLine, Invoice, Pa
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
-from app.utils.std_sequences import generate_document_number
+from app.core.sequences import generate_document_number
 
 from pydantic import BaseModel
 

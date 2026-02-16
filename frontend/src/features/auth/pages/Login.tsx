@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  EyeIcon, 
-  EyeSlashIcon, 
-  UserIcon, 
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  UserIcon,
   LockClosedIcon,
   BuildingOfficeIcon,
   ShieldCheckIcon,
@@ -15,12 +15,23 @@ import {
   ChevronDownIcon,
   ChevronUpIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../context/AppContext';
-import { useTranslation } from '../hooks/useTranslation';
-import { User } from '../types';
-import currencyIcon from '../Assets/currency.png';
-import api from '../services/api';
-import { convertToUser, DemoUserCredentials } from '../data/demoUsersComplete';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import { User } from '@/types';
+import currencyIcon from '@shared/assets/currency.png';
+import api from '@/services/api';
+
+interface DemoUserCredentials {
+  id: string;
+  email: string;
+  password: string;
+  companyName: string;
+  segment?: string;
+  prenom: string;
+  nom: string;
+  role: string;
+  description: string;
+}
 
 interface LoginFormData {
   email: string;
@@ -225,7 +236,7 @@ const Login: React.FC = () => {
       <div className="relative w-full max-w-lg mx-auto mb-8 text-center">
         <div className="flex items-center justify-center space-x-4 mb-4">
           <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
-            <img src={currencyIcon} alt="Dinarlytic Logo" className="w-12 h-12 bg-white rounded-lg p-2"/>
+            <img src={currencyIcon} alt="Dinarlytic Logo" className="w-12 h-12 bg-white rounded-lg p-2" />
           </div>
           <div>
             <h1 className="text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight">Dinarlytic</h1>
@@ -237,155 +248,155 @@ const Login: React.FC = () => {
 
       {/* Centralized Container */}
       <div className="relative w-full max-w-lg mx-auto space-y-6">
-            {/* Login Form */}
-            <div className="bg-white/98 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/60 p-10">
-              {/* Mobile Branding */}
-              <div className="lg:hidden text-center mb-10">
-                <div className="flex items-center justify-center space-x-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
-                    <span className="text-3xl font-bold text-white">D</span>
-                  </div>
-                  <div>
-                    <h1 className="text-3xl font-bold text-slate-800">Dinarlytic</h1>
-                    <p className="text-slate-600 font-medium">Solutions Financières</p>
-                  </div>
-                </div>
+        {/* Login Form */}
+        <div className="bg-white/98 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/60 p-10">
+          {/* Mobile Branding */}
+          <div className="lg:hidden text-center mb-10">
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
+                <span className="text-3xl font-bold text-white">D</span>
               </div>
-
-              <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold text-slate-800 mb-3">Connexion</h2>
-                <p className="text-slate-600 text-lg">Accédez à votre tableau de bord</p>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800">Dinarlytic</h1>
+                <p className="text-slate-600 font-medium">Solutions Financières</p>
               </div>
+            </div>
+          </div>
 
-              {/* Success Message */}
-              {showSuccess && (
-                <div className="mb-8 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center space-x-4 shadow-sm">
-                  <CheckCircleIcon className="h-6 w-6 text-emerald-600" />
-                  <span className="text-emerald-800 font-medium">Connexion réussie ! Redirection...</span>
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-slate-800 mb-3">Connexion</h2>
+            <p className="text-slate-600 text-lg">Accédez à votre tableau de bord</p>
+          </div>
+
+          {/* Success Message */}
+          {showSuccess && (
+            <div className="mb-8 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center space-x-4 shadow-sm">
+              <CheckCircleIcon className="h-6 w-6 text-emerald-600" />
+              <span className="text-emerald-800 font-medium">Connexion réussie ! Redirection...</span>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-8 p-5 bg-red-50 border border-red-200 rounded-2xl flex items-center space-x-4 shadow-sm">
+              <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+              <span className="text-red-800 font-medium">{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Email Field */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-3">
+                Adresse email
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <UserIcon className="h-5 w-5 text-slate-500" />
                 </div>
-              )}
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="block w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
+                  placeholder="votre@email.com"
+                  required
+                />
+              </div>
+            </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-8 p-5 bg-red-50 border border-red-200 rounded-2xl flex items-center space-x-4 shadow-sm">
-                  <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
-                  <span className="text-red-800 font-medium">{error}</span>
+            {/* Password Field */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-3">
+                Mot de passe
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <LockClosedIcon className="h-5 w-5 text-slate-500" />
                 </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Email Field */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-3">
-                    Adresse email
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <UserIcon className="h-5 w-5 text-slate-500" />
-                    </div>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="block w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
-                      placeholder="votre@email.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Password Field */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-3">
-                    Mot de passe
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <LockClosedIcon className="h-5 w-5 text-slate-500" />
-                    </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      className="block w-full pl-12 pr-14 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
-                      placeholder="••••••••"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center"
-                    >
-                      {showPassword ? (
-                        <EyeSlashIcon className="h-5 w-5 text-slate-500 hover:text-slate-700 transition-colors" />
-                      ) : (
-                        <EyeIcon className="h-5 w-5 text-slate-500 hover:text-slate-700 transition-colors" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Remember Me & Forgot Password */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="rememberMe"
-                      name="rememberMe"
-                      type="checkbox"
-                      checked={formData.rememberMe}
-                      onChange={handleInputChange}
-                      className="h-5 w-5 text-slate-600 focus:ring-slate-500 border-gray-300 rounded-lg"
-                    />
-                    <label htmlFor="rememberMe" className="ml-3 block text-sm font-medium text-slate-700">
-                      Se souvenir de moi
-                    </label>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
-                  >
-                    Mot de passe oublié ?
-                  </button>
-                </div>
-
-                {/* Submit Button */}
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="block w-full pl-12 pr-14 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
+                  placeholder="••••••••"
+                  required
+                />
                 <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-2xl hover:from-slate-800 hover:to-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center"
                 >
-                  {isLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                      <span className="text-lg">Connexion...</span>
-                    </>
+                  {showPassword ? (
+                    <EyeSlashIcon className="h-5 w-5 text-slate-500 hover:text-slate-700 transition-colors" />
                   ) : (
-                    <>
-                      <span className="text-lg">Se connecter</span>
-                      <ArrowRightIcon className="h-6 w-6 ml-3" />
-                    </>
+                    <EyeIcon className="h-5 w-5 text-slate-500 hover:text-slate-700 transition-colors" />
                   )}
                 </button>
-              </form>
-
-              {/* Additional Info */}
-              <div className="mt-10 text-center space-y-3">
-                <p className="text-sm text-slate-600">
-                  Pas encore de compte ?{' '}
-                  <button className="text-slate-700 hover:text-slate-900 font-semibold transition-colors">
-                    Contactez l'administrateur
-                  </button>
-                </p>
-                
               </div>
-
-              {/* Security Notice */}
-            
             </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
+                  className="h-5 w-5 text-slate-600 focus:ring-slate-500 border-gray-300 rounded-lg"
+                />
+                <label htmlFor="rememberMe" className="ml-3 block text-sm font-medium text-slate-700">
+                  Se souvenir de moi
+                </label>
+              </div>
+              <button
+                type="button"
+                className="text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center px-6 py-4 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-2xl hover:from-slate-800 hover:to-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-[1.02] shadow-lg hover:shadow-xl"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+                  <span className="text-lg">Connexion...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-lg">Se connecter</span>
+                  <ArrowRightIcon className="h-6 w-6 ml-3" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Additional Info */}
+          <div className="mt-10 text-center space-y-3">
+            <p className="text-sm text-slate-600">
+              Pas encore de compte ?{' '}
+              <button className="text-slate-700 hover:text-slate-900 font-semibold transition-colors">
+                Contactez l'administrateur
+              </button>
+            </p>
+
+          </div>
+
+          {/* Security Notice */}
+
+        </div>
 
         {/* Demo Users Credentials - Collapsible */}
         <div className="bg-white/98 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/60 overflow-hidden">
@@ -500,3 +511,6 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+
+

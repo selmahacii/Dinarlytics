@@ -1,7 +1,7 @@
 import React from 'react';
-import { User, Devise } from '../types';
-import { COMPANY_SIZES } from '../types/CompanyTypes';
-import { Country } from '../utils/fiscalDocuments';
+import { User, Devise } from '@/types';
+import { COMPANY_SIZES } from '@/types/CompanyTypes';
+import { Country } from '@shared/utils/fiscalDocuments';
 
 export interface ContentContext {
   user: User | null;
@@ -540,4 +540,7 @@ export const AdaptiveContentDisplay: React.FC<{
     </div>
   );
 };
+
+
+
 

@@ -22,8 +22,8 @@ import {
   ArrowPathIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../../context/AppContext';
-import { useTreasuryReports } from '../../../hooks/useTreasuryReports';
+import { useApp } from '@core/context/AppContext';
+import { useTreasuryReports } from '@shared/hooks/useTreasuryReports';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', minimumFractionDigits: 0 }).format(amount);
 
@@ -1930,3 +1930,5 @@ const TresorerieBanque: React.FC = () => {
 };
 
 export default TresorerieBanque;
+
+

@@ -35,19 +35,19 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-// import api from '../../services/api'; // Removed in favor of useSuppliers
-import { useSuppliers } from '../../hooks/useSuppliers';
-import { Fournisseur } from '../../types';
-import LineChart from '../../components/Charts/LineChart';
-import BarChart from '../../components/Charts/BarChart';
-import DoughnutChart from '../../components/Charts/DoughnutChart';
-import HelpButton from '../../components/UI/HelpButton';
-import SuccessMessage from '../../components/UI/SuccessMessage';
-import SignaturePad from '../../components/UI/SignaturePad';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+// import api from '@/services/api'; // Removed in favor of useSuppliers
+import { useSuppliers } from '@shared/hooks/useSuppliers';
+import { Fournisseur } from '@/types';
+import LineChart from '@shared/components/Charts/LineChart';
+import BarChart from '@shared/components/Charts/BarChart';
+import DoughnutChart from '@shared/components/Charts/DoughnutChart';
+import HelpButton from '@shared/components/UI/HelpButton';
+import SuccessMessage from '@shared/components/UI/SuccessMessage';
+import SignaturePad from '@shared/components/UI/SignaturePad';
 // ...existing code...
 import {
   analyserPerformanceFournisseur,
@@ -60,7 +60,7 @@ import {
   type PrevisionAchat,
   type Negociation,
   type RisqueFournisseur
-} from '../../utils/fournisseurs';
+} from '@shared/utils/fournisseurs';
 
 // --- Composant Formulaire Facture avec OCR ---
 
@@ -530,6 +530,13 @@ const Fournisseurs: React.FC = () => {
 
     return evaluerRisquesFournisseurs(fournisseursAvecDonnees);
   }, []);
+
+  const filteredFournisseurs = useMemo(() => {
+    return (fournisseurs || []).filter((fournisseur: any) =>
+      (fournisseur.nom || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (fournisseur.nif && fournisseur.nif.includes(searchTerm))
+    );
+  }, [fournisseurs, searchTerm]);
 
   // Détecter le paramètre URL pour ouvrir automatiquement la modal de nouvelle facture
   useEffect(() => {
@@ -1068,14 +1075,9 @@ const Fournisseurs: React.FC = () => {
   // Note: isModalOpen et selectedFournisseur sont déjà déclarés plus haut (avant le return early)
 
 
-  const { suppliers, loading, createSupplier, updateSupplier, deleteSupplier } = useSuppliers();
-
-  const filteredFournisseurs = useMemo(() => {
-    return (suppliers || []).filter(fournisseur =>
-      fournisseur.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (fournisseur.nif && fournisseur.nif.includes(searchTerm))
-    );
-  }, [suppliers, searchTerm]);
+  // Réutilisation des variables déclarées en haut du composant
+  const suppliers = fournisseurs; // Alias for backward compatibility if needed below
+  const loading = loadingFournisseurs;
 
   const handleEdit = (fournisseur: any) => {
     setSelectedFournisseur(fournisseur);
@@ -4043,3 +4045,7 @@ const Fournisseurs: React.FC = () => {
 };
 
 export default Fournisseurs;
+
+
+
+

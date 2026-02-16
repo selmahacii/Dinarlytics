@@ -2,7 +2,7 @@ import logging
 import joblib
 import numpy as np
 from typing import Dict, Any, Tuple
-from app.core.models.erp_model import ERPModel
+from app.modules.intelligence.model_torch import ERPModel
 from app.core.config import MODEL_CONFIG, IMPROVEMENT_CATEGORIES
 
 logger = logging.getLogger(__name__)

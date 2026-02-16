@@ -6,7 +6,7 @@ import {
   ArrowTrendingDownIcon,
   MinusIcon
 } from '@heroicons/react/24/outline';
-import { AIInsight, insightCategories, insightTypes, impactLevels, insightStatuses } from '../../types/aiInsights';
+import { AIInsight, insightCategories, insightTypes, impactLevels, insightStatuses } from '@/types/aiInsights';
 
 interface InsightCardProps {
   insight: AIInsight;
@@ -131,3 +131,5 @@ const InsightCard: React.FC<InsightCardProps> = ({ insight, isSelected, onClick 
 };
 
 export default InsightCard;
+
+

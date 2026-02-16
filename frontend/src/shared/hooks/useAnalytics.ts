@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { analyticService, FinancialKPIs, ChartPoint, SmartAlert } from '../services/modules/analyticService';
+import { analyticService, FinancialKPIs, ChartPoint, SmartAlert } from '@/services/modules/analyticService';
 
 /**
  * Custom Hook for Real-Time Analytics & KPIs
@@ -50,3 +50,4 @@ export const useAnalytics = () => {
         refresh: loadAnalytics
     };
 };
+

@@ -20,8 +20,8 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 import Card from '../UI/Card';
 
 interface AnalyticsClientsWidgetProps {
@@ -628,3 +628,5 @@ const AnalyticsClientsWidget: React.FC<AnalyticsClientsWidgetProps> = ({ clientI
 };
 
 export default AnalyticsClientsWidget;
+
+

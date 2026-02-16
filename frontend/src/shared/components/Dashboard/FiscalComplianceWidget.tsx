@@ -9,7 +9,7 @@ import {
   BanknotesIcon
 } from '@heroicons/react/24/outline';
 import Card from '../UI/Card';
-import { FiscalComplianceChecker, ComplianceItem } from '../../utils/FiscalComplianceChecker';
+import { FiscalComplianceChecker, ComplianceItem } from '@shared/utils/FiscalComplianceChecker';
 
 interface FiscalComplianceWidgetProps {
   revenue: number;
@@ -251,4 +251,5 @@ const FiscalComplianceWidget: React.FC<FiscalComplianceWidgetProps> = ({
 };
 
 export default FiscalComplianceWidget;
+
 

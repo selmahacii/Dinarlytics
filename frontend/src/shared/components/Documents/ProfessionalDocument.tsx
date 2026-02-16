@@ -1,5 +1,5 @@
 import React from 'react';
-import { financialCalc } from '../../utils/financialCalculations';
+import { financialCalc } from '@shared/utils/financialCalculations';
 
 interface DocumentTemplateProps {
     title: string;
@@ -124,3 +124,4 @@ const ProfessionalDocument: React.FC<DocumentTemplateProps> = ({
 };
 
 export default ProfessionalDocument;
+

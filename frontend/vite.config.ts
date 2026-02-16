@@ -26,3 +26,6 @@ export default defineConfig({
     sourcemap: true
   }
 })
+// Trigger HMR
+
+// Trigger HMR again

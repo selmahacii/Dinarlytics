@@ -7,8 +7,8 @@ import {
   CheckIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
-import { useTheme } from '../../context/ThemeContext';
-import { Theme } from '../../types/themes';
+import { useTheme } from '@core/context/ThemeContext';
+import { Theme } from '@/types/themes';
 import Modal from '../UI/Modal';
 
 interface ThemeSelectorProps {
@@ -265,3 +265,6 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({ isOpen, onClose }) => {
 };
 
 export default ThemeSelector;
+
+
+

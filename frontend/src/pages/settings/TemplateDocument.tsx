@@ -23,9 +23,9 @@ import {
   DocumentIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
 
 const TemplateDocument: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -1033,3 +1033,5 @@ const TemplateDocument: React.FC = () => {
 };
 
 export default TemplateDocument;
+
+

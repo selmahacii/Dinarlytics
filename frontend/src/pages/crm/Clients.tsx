@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, ChartBarIcon, DocumentTextIcon, BanknotesIcon, UserGroupIcon, ExclamationTriangleIcon, PhoneIcon, CheckCircleIcon, CurrencyDollarIcon, CalendarIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, ClockIcon, ExclamationCircleIcon, PaperAirplaneIcon, BellIcon, DocumentArrowDownIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, DocumentChartBarIcon, ChartPieIcon, TruckIcon, BuildingOfficeIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import { usePermission } from '../../hooks/usePermission';
-import { useClients } from '../../hooks/useClients';
-import { Client } from '../../types';
-import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '../../utils/AdaptiveContent';
-import HelpButton from '../../components/UI/HelpButton';
-import LIAContextualButton from '../../components/AI/LIAContextualButton';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import { usePermission } from '@shared/hooks/usePermission';
+import { useClients } from '@shared/hooks/useClients';
+import { Client } from '@/types';
+import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
+import HelpButton from '@shared/components/UI/HelpButton';
+import LIAContextualButton from '@shared/components/AI/LIAContextualButton';
 import {
   segmenterClients,
   calculerValeurClient,
@@ -20,8 +20,8 @@ import {
   type AnalyseValeurClient,
   type PrevisionRevenusClient,
   type InteractionCRM
-} from '../../utils/clients';
-import { exportToCSV } from '../../utils/export';
+} from '@shared/utils/clients';
+import { exportToCSV } from '@shared/utils/export';
 
 const Clients: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
@@ -3114,3 +3114,6 @@ L'équipe comptable"
 };
 
 export default Clients;
+
+
+

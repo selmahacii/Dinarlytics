@@ -1,8 +1,8 @@
 import { MODULES } from './modules';
 import { DATA_DOMAINS } from './dataDomains';
 import { ROLE_DATA_NEEDS } from './roleDataNeeds';
-import { Segment, ModuleDef, DataDomainDef } from '../types/security';
-import { PermissionManager } from '../utils/PermissionManager';
+import { Segment, ModuleDef, DataDomainDef } from '@/types/security';
+import { PermissionManager } from '@shared/utils/PermissionManager';
 
 // Ordered list for segment comparison
 const SEGMENT_ORDER: Segment[] = ['micro','small','medium','large','enterprise'];
@@ -173,3 +173,6 @@ export function summarizeAccess(plan: AccessPlan) {
     upgradeSuggestion: plan.recommendedRoleAdjustments?.[0] || null
   };
 }
+
+
+

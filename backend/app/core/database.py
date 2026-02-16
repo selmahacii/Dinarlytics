@@ -18,16 +18,16 @@ Base = declarative_base()
 def get_engine() -> Engine:
     """Create and return SQLAlchemy engine with connection pooling"""
     
+    print(f"Connecting to DB: {settings.DATABASE_URL}")
     engine = create_engine(
         settings.DATABASE_URL,
-        poolclass=QueuePool,
+        pool_pre_ping=True,
+        pool_recycle=3600,
         pool_size=settings.DATABASE_POOL_SIZE,
         max_overflow=settings.DATABASE_MAX_OVERFLOW,
-        echo=settings.DATABASE_ECHO,
-        echo_pool=False,
         connect_args={
             "connect_timeout": 10,
-            "application_name": settings.APP_NAME
+            "application_name": "Dinarlytics_Backend_ASCII"
         }
     )
     

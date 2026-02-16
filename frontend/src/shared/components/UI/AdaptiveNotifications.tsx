@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { AdaptiveContentGenerator, ContentContext } from '../../utils/AdaptiveContent';
+import { AdaptiveContentGenerator, ContentContext } from '@shared/utils/AdaptiveContent';
 
 interface Notification {
   id: string;
@@ -173,4 +173,5 @@ const AdaptiveNotifications: React.FC<AdaptiveNotificationsProps> = ({
 };
 
 export default AdaptiveNotifications;
+
 

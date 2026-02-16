@@ -6,13 +6,13 @@ import {
   ArrowPathIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import RevenueBasedAccessWidget from '../../components/Dashboard/RevenueBasedAccessWidget';
-import EvolutionTrackerWidget from '../../components/Dashboard/EvolutionTrackerWidget';
-import AdaptiveDashboardLayout from '../../components/Dashboard/AdaptiveDashboardLayout';
-import FiscalComplianceWidget from '../../components/Dashboard/FiscalComplianceWidget';
-import api from '../../services/api';
-import { COMPANY_TYPES } from '../../types/CompanyTypes';
+import Card from '@shared/components/UI/Card';
+import RevenueBasedAccessWidget from '@shared/components/Dashboard/RevenueBasedAccessWidget';
+import EvolutionTrackerWidget from '@shared/components/Dashboard/EvolutionTrackerWidget';
+import AdaptiveDashboardLayout from '@shared/components/Dashboard/AdaptiveDashboardLayout';
+import FiscalComplianceWidget from '@shared/components/Dashboard/FiscalComplianceWidget';
+import api from '@/services/api';
+import { COMPANY_TYPES } from '@/types/CompanyTypes';
 
 const GestionAccesAvancee: React.FC = () => {
 
@@ -332,4 +332,8 @@ const GestionAccesAvancee: React.FC = () => {
 };
 
 export default GestionAccesAvancee;
+
+
+
+
 

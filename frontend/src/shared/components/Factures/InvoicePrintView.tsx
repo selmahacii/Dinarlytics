@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '../../utils/format';
+import { formatCurrency } from '@shared/utils/format';
 import QrCode from './QrCode';
 import Code128 from './Code128';
 
@@ -207,3 +207,4 @@ const InvoicePrintView: React.FC<Props> = ({ invoice }) => {
 };
 
 export default InvoicePrintView;
+

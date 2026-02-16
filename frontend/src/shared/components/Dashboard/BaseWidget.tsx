@@ -9,7 +9,7 @@ import {
   EyeSlashIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline';
-import { BaseWidgetProps } from '../../types/widgets';
+import { BaseWidgetProps } from '@/types/widgets';
 import Card from '../UI/Card';
 
 const BaseWidget: React.FC<BaseWidgetProps> = ({
@@ -193,4 +193,6 @@ const BaseWidget: React.FC<BaseWidgetProps> = ({
 };
 
 export default BaseWidget;
+
+
 

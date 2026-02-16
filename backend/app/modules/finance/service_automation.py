@@ -2,8 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from decimal import Decimal
 import uuid
-from app.core.models.accounting import JournalEntry, JournalEntryLine
-from app.core.models.inventory import Invoice
+from app.core.models import JournalEntry, JournalEntryLine, Invoice
 
 class AccountingAutomation:
     """
@@ -62,14 +61,13 @@ class AccountingAutomation:
             description=f"Produit: {invoice.invoice_number}"
         ))
 
-        # Line 3: TVA Collect????e (Credit)
         if invoice.total_tva > 0:
             db.add(JournalEntryLine(
                 journal_entry_id=journal_entry.id,
                 account_code=AccountingAutomation.ACC_TVA_COLLECTEE,
                 debit_amount=0,
                 credit_amount=invoice.total_tva,
-                description=f"TVA Collect????e: {invoice.invoice_number}"
+                description=f"TVA Collectee: {invoice.invoice_number}"
             ))
 
         return journal_entry

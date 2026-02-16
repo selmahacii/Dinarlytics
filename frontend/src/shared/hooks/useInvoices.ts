@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { invoiceService, Invoice } from '../services/modules/invoiceService';
+import { invoiceService, Invoice } from '@/services/modules/invoiceService';
 
 /**
  * Custom Hook for Real-Time Invoice Management
@@ -72,3 +72,4 @@ export const useInvoices = (type?: 'sale' | 'purchase') => {
         cancelInvoice
     };
 };
+

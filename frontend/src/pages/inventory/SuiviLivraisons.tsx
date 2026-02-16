@@ -15,8 +15,8 @@ import {
   ChartBarIcon,
   ArrowLeftIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import { useApp } from '../../context/AppContext';
+import Card from '@shared/components/UI/Card';
+import { useApp } from '@core/context/AppContext';
 
 const SuiviLivraisons: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -479,4 +479,6 @@ const SuiviLivraisons: React.FC = () => {
 };
 
 export default SuiviLivraisons;
+
+
 

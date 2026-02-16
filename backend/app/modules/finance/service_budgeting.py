@@ -2,8 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from decimal import Decimal
 from typing import List, Dict, Any
-from app.core.models.financial import Budget, BudgetItem
-from app.core.models.accounting import JournalEntry, JournalEntryLine
+from app.core.models import Budget, BudgetItem, JournalEntry, JournalEntryLine
 
 class BudgetingService:
     """

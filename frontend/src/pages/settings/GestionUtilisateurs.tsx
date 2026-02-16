@@ -22,14 +22,14 @@ import {
   KeyIcon,
   LockClosedIcon
 } from '@heroicons/react/24/outline';
-import { PermissionManager, USER_ROLES, AVAILABLE_PERMISSIONS, UserPermission } from '../../utils/PermissionManager';
-import { COMPANY_TYPES, ACCESS_LEVELS } from '../../types/CompanyTypes';
-import { logAction, getLogsForUser, clearLogsForUser, ActivityLogEntry } from '../../utils/ActivityLog';
-import Modal from '../../components/UI/Modal';
-import Card from '../../components/UI/Card';
-import { useApp } from '../../context/AppContext';
-import { usePermission } from '../../hooks/usePermission';
-import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '../../utils/AdaptiveContent';
+import { PermissionManager, USER_ROLES, AVAILABLE_PERMISSIONS, UserPermission } from '@shared/utils/PermissionManager';
+import { COMPANY_TYPES, ACCESS_LEVELS } from '@/types/CompanyTypes';
+import { logAction, getLogsForUser, clearLogsForUser, ActivityLogEntry } from '@shared/utils/ActivityLog';
+import Modal from '@shared/components/UI/Modal';
+import Card from '@shared/components/UI/Card';
+import { useApp } from '@core/context/AppContext';
+import { usePermission } from '@shared/hooks/usePermission';
+import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
 
 interface User {
   id: number;
@@ -1454,3 +1454,6 @@ const GestionUtilisateurs: React.FC = () => {
 };
 
 export default GestionUtilisateurs;
+
+
+

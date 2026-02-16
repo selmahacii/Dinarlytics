@@ -2,59 +2,52 @@ import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './shared/components/Effects/ErrorBoundary';
 import Layout from './core/layout/Layout';
-import Login from './pages/Login';
-import { ProtectedRoute } from './core/ProtectedRoute';
+import Login from '@features/auth/pages/Login';
+import { ProtectedRoute } from '@shared/components/ProtectedRoute';
 
-// Dashboard
-import DashboardAdaptatif from './features/dashboard/pages/DashboardAdaptatif';
-import VueTempsReel from './features/dashboard/pages/VueTempsReel';
-import AnalyticsAvancees from './features/dashboard/pages/AnalyticsAvancees';
-import GraphiquesInteractifs from './features/dashboard/pages/GraphiquesInteractifs';
-import AlertesIntelligentes from './features/dashboard/pages/AlertesIntelligentes';
-import CalendrierRappels from './features/dashboard/pages/CalendrierRappels';
-import TableauBordPersonnalisable from './features/dashboard/pages/TableauBordPersonnalisable';
+// Dashboard Components (Mapped from shared/components)
+import RealisticDashboard from '@shared/components/Dashboard/RealisticDashboard';
+import AnalyticsAvancees from '@features/dashboard/pages/AnalyticsAvancees';
 
-// Operations (Commercial, CRM, Inventory, Sales)
-import Clients from './features/operations/pages/Clients';
-import Fournisseurs from './features/operations/pages/Fournisseurs';
-import Articles from './features/operations/pages/Articles';
-import Inventaire from './features/operations/pages/Inventaire';
-import FacturesVente from './features/operations/pages/FacturesVente';
-import GestionPaiementsClients from './features/operations/pages/GestionPaiementsClients';
+// Operations Components
+import Clients from '@/pages/crm/Clients';
+import Fournisseurs from '@/pages/crm/Fournisseurs';
+import Articles from '@/pages/inventory/Articles';
+import Inventaire from '@/pages/inventory/Inventaire';
+import GestionPaiementsClients from '@features/operations/pages/GestionPaiementsClients';
 
-// Finance (Accounting & Analytics)
-import AnalyticsFacturation from './features/finance/pages/AnalyticsFacturation';
-import RapportsComptables from './features/finance/pages/RapportsComptables';
-import DocumentsFiscaux from './features/finance/pages/DocumentsFiscaux';
-import Fiscalite from './features/finance/pages/Fiscalite';
-import ConsolidationCompta from './features/finance/pages/Consolidation';
-import TemplatesDocuments from './features/finance/pages/TemplatesDocuments';
-import Statistiques from './features/finance/pages/Statistiques';
-import VentesClients from './features/finance/pages/VentesClients';
-import AchatsFournisseurs from './features/finance/pages/AchatsFournisseurs';
-import StocksProduits from './features/finance/pages/StocksProduits';
-import TresorerieBanque from './features/finance/pages/TresorerieBanque';
-import ComptabiliteResultats from './features/finance/pages/ComptabiliteResultats';
-import FiscaliteDeclarations from './features/finance/pages/FiscaliteDeclarations';
-import PersonnalisesComparatifs from './features/finance/pages/PersonnalisesComparatifs';
-import Audit from './features/finance/pages/Audit';
+// Finance Components
+import AnalyticsFacturation from '@/pages/analytics/AnalyticsFacturation';
+import RapportsComptables from '@/pages/accounting/RapportsComptables';
+import DocumentsFiscaux from '@/pages/accounting/DocumentsFiscaux';
+import Fiscalite from '@/pages/accounting/Fiscalite';
+import ConsolidationCompta from '@/pages/accounting/Consolidation';
+import TemplatesDocuments from '@/pages/accounting/comptabilite/TemplatesDocuments';
+import Statistiques from '@/pages/analytics/Statistiques';
+import VentesClients from '@/pages/analytics/rapports/VentesClients';
+import AchatsFournisseurs from '@/pages/analytics/rapports/AchatsFournisseurs';
+import StocksProduits from '@/pages/analytics/rapports/StocksProduits';
+import TresorerieBanque from '@/pages/analytics/rapports/TresorerieBanque';
+import ComptabiliteResultats from '@/pages/analytics/rapports/ComptabiliteResultats';
+import FiscaliteDeclarations from '@/pages/analytics/rapports/FiscaliteDeclarations';
+import PersonnalisesComparatifs from '@/pages/analytics/rapports/PersonnalisesComparatifs';
+import Audit from '@/pages/analytics/Audit';
 
 // AI
-import ChatbotLIA from './features/ai/pages/ChatbotLIA';
-import AnalysesLIA from './features/ai/pages/AnalysesLIA';
-import EntrainementModeleIA from './features/ai/pages/EntrainementModeleIA';
+import ChatbotLIA from '@features/ai/pages/ChatbotLIA';
 
 // System & Admin
-import GestionUtilisateurs from './features/system/pages/GestionUtilisateurs';
-import AdminRoleManagement from './features/system/pages/AdminRoleManagement';
-import Parametres from './features/system/pages/Parametres';
-import ConfigurationAvancee from './features/system/pages/ConfigurationAvancee';
-import Integrations from './features/system/pages/Integrations';
+import GestionUtilisateurs from '@/pages/settings/GestionUtilisateurs';
+import AdminRoleManagement from '@/pages/admin/AdminRoleManagement';
+import Parametres from '@/pages/settings/Parametres';
+import ConfigurationAvancee from '@/pages/settings/ConfigurationAvancee';
+import Integrations from '@/pages/settings/Integrations';
 
-const BudgetPage = React.lazy(() => import('./features/finance/pages/Budget'));
-const RapprochementBancairePage = React.lazy(() => import('./features/finance/pages/RapprochementBancaire'));
+// Lazy Loaded
+const BudgetPage = React.lazy(() => import('@/pages/analytics/Budget'));
+const RapprochementBancairePage = React.lazy(() => import('@/pages/accounting/RapprochementBancaire'));
 
-import { useRealtime } from './shared/hooks/useRealtime';
+import { useRealtime } from '@shared/hooks/useRealtime';
 
 function App() {
   useRealtime();
@@ -70,12 +63,9 @@ function App() {
               <Suspense fallback={<div className="p-8 text-center">Chargement du module...</div>}>
                 <Routes>
                   {/* Dashboard */}
-                  <Route path="/dashboard" element={<DashboardAdaptatif />} />
-                  <Route path="/dashboard/temps-reel" element={<VueTempsReel />} />
+                  <Route path="/dashboard" element={<RealisticDashboard isVisible={true} />} />
+                  <Route path="/dashboard/temps-reel" element={<RealisticDashboard isVisible={true} />} />
                   <Route path="/dashboard/analytics" element={<AnalyticsAvancees />} />
-                  <Route path="/dashboard/alertes" element={<AlertesIntelligentes />} />
-                  <Route path="/dashboard/calendrier" element={<CalendrierRappels />} />
-                  <Route path="/dashboard/personnalisable" element={<TableauBordPersonnalisable />} />
 
                   {/* Commercial */}
                   <Route path="/clients" element={<ProtectedRoute requiredPermission="clients-manage"><Clients /></ProtectedRoute>} />
@@ -84,11 +74,12 @@ function App() {
                   <Route path="/inventaire" element={<ProtectedRoute requiredPermission="stocks-read"><Inventaire /></ProtectedRoute>} />
 
                   {/* Sales */}
-                  <Route path="/factures-vente" element={<ProtectedRoute requiredPermission="facturation-read"><FacturesVente /></ProtectedRoute>} />
+                  <Route path="/factures-vente" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsFacturation /></ProtectedRoute>} />
                   <Route path="/analytics-facturation" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsFacturation /></ProtectedRoute>} />
                   <Route path="/gestion-paiements-clients" element={<ProtectedRoute requiredPermission="facturation-read"><GestionPaiementsClients /></ProtectedRoute>} />
 
                   {/* Accounting */}
+                  <Route path="/comptabilite/etats" element={<ProtectedRoute requiredPermission="comptabilite-read"><RapportsComptables /></ProtectedRoute>} />
                   <Route path="/comptabilite/balance" element={<ProtectedRoute requiredPermission="comptabilite-read"><RapportsComptables /></ProtectedRoute>} />
                   <Route path="/fiscalite" element={<ProtectedRoute requiredPermission="comptabilite-read"><Fiscalite /></ProtectedRoute>} />
                   <Route path="/consolidation" element={<ProtectedRoute requiredPermission="comptabilite-validate"><ConsolidationCompta /></ProtectedRoute>} />
@@ -97,8 +88,8 @@ function App() {
 
                   {/* AI & Audit */}
                   <Route path="/lia/chatbot" element={<ProtectedRoute requiredPermission="lia-access"><ChatbotLIA /></ProtectedRoute>} />
-                  <Route path="/lia/analyses" element={<ProtectedRoute requiredPermission="lia-access"><AnalysesLIA /></ProtectedRoute>} />
-                  <Route path="/entrainement-modele-ia" element={<ProtectedRoute requiredPermission="lia-train"><EntrainementModeleIA /></ProtectedRoute>} />
+                  {/* Mapped AnalysesLIA to Statistiques if missing */}
+                  <Route path="/lia/analyses" element={<ProtectedRoute requiredPermission="lia-access"><Statistiques /></ProtectedRoute>} />
                   <Route path="/audit-explorer" element={<ProtectedRoute requiredPermission="audit-read"><Audit /></ProtectedRoute>} />
                   <Route path="/statistiques" element={<ProtectedRoute requiredPermission="rapports-basic"><Statistiques /></ProtectedRoute>} />
 

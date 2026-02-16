@@ -19,10 +19,10 @@ import {
   PlayIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
 
 const ConfigurationAvancee: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -2995,3 +2995,5 @@ const ConfigurationAvancee: React.FC = () => {
 };
 
 export default ConfigurationAvancee;
+
+

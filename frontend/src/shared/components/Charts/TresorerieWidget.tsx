@@ -15,8 +15,8 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
-import { useTheme } from '../../context/ThemeContext';
-import { useApp } from '../../context/AppContext';
+import { useTheme } from '@core/context/ThemeContext';
+import { useApp } from '@core/context/AppContext';
 
 interface TresorerieWidgetProps {
   data: {
@@ -579,3 +579,5 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({ data, period, previ
 };
 
 export default TresorerieWidget;
+
+

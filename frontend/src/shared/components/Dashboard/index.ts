@@ -25,5 +25,7 @@ export type {
   AlertWidgetProps,
   GridBreakpoints,
   ResponsiveGridConfig
-} from '../../types/widgets';
+} from '@/types/widgets';
+
+
 

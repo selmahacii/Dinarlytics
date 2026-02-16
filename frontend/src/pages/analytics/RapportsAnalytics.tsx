@@ -33,11 +33,11 @@ import {
   ChevronDownIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../context/AppContext';
-import { usePermission } from '../../hooks/usePermission';
-import Card from '../../components/UI/Card';
-import api from '../../services/api';
-import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '../../utils/AdaptiveContent';
+import { useApp } from '@core/context/AppContext';
+import { usePermission } from '@shared/hooks/usePermission';
+import Card from '@shared/components/UI/Card';
+import api from '@/services/api';
+import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
 
 const RapportsAnalytics: React.FC = () => {
   const { companyData, formatCurrency, user } = useApp();
@@ -113,3 +113,5 @@ const RapportsAnalytics: React.FC = () => {
 }
 
 export default RapportsAnalytics;
+
+

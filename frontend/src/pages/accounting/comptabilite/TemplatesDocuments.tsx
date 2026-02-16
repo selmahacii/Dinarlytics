@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Card from '../../../components/UI/Card';
+import Card from '@shared/components/UI/Card';
 import { DocumentTextIcon, PrinterIcon, EyeIcon } from '@heroicons/react/24/outline';
 
 const TemplatesDocuments: React.FC = () => {
@@ -86,3 +86,4 @@ const TemplatesDocuments: React.FC = () => {
 };
 
 export default TemplatesDocuments;
+

@@ -13,7 +13,7 @@ import {
   ArrowPathIcon,
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
-import aiService from '../../services/aiService';
+import aiService from '@/services/aiService';
 interface BilanComplet {
   [key: string]: any;
 }
@@ -1358,3 +1358,4 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
 };
 
 export default BilanViewer;
+

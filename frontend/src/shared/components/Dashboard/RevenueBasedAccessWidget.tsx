@@ -12,8 +12,8 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import Card from '../UI/Card';
-import { RevenueBasedAccessManager } from '../../utils/RevenueBasedAccessManager';
-import { getRevenueSegment, getSegmentProgress } from '../../types/revenueSegments';
+import { RevenueBasedAccessManager } from '@shared/utils/RevenueBasedAccessManager';
+import { getRevenueSegment, getSegmentProgress } from '@/types/revenueSegments';
 
 interface RevenueBasedAccessWidgetProps {
   companyName: string;
@@ -291,4 +291,7 @@ const RevenueBasedAccessWidget: React.FC<RevenueBasedAccessWidgetProps> = ({
 };
 
 export default RevenueBasedAccessWidget;
+
+
+
 

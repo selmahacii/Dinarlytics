@@ -11,15 +11,15 @@ import {
   EyeIcon,
   ChartPieIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import api from '../../services/api';
+import Card from '@shared/components/UI/Card';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import api from '@/services/api';
 import { 
   EquilibreFinancierActuel, 
   EquilibreFinancierPrevisionnel,
   ScenarioRisque 
-} from '../../types';
+} from '@/types';
 
 const EquilibreFinancier: React.FC = () => {
   const { formatCurrency, companyData } = useApp();
@@ -550,3 +550,7 @@ const EquilibreFinancier: React.FC = () => {
 };
 
 export default EquilibreFinancier;
+
+
+
+

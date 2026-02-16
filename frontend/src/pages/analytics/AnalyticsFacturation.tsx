@@ -40,8 +40,8 @@ import {
   Filler,
   RadialLinearScale
 } from 'chart.js';
-import Card from '../../components/UI/Card';
-import { useApp } from '../../context/AppContext';
+import Card from '@shared/components/UI/Card';
+import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(
   CategoryScale,
@@ -502,3 +502,5 @@ const AnalyticsFacturation: React.FC = () => {
 };
 
 export default AnalyticsFacturation;
+
+

@@ -22,10 +22,10 @@ import {
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
-import { useApp } from '../../../context/AppContext';
-import { useSalesReports } from '../../../hooks/useSalesReports';
-import { formatNumber as fmtNumber } from '../../../utils/format';
-import type { ProductPerformance, CategorySplit, TopClientSummary } from '../../types/reports';
+import { useApp } from '@core/context/AppContext';
+import { useSalesReports } from '@shared/hooks/useSalesReports';
+import { formatNumber as fmtNumber } from '@shared/utils/format';
+import type { ProductPerformance, CategorySplit, TopClientSummary } from '@/types/reports';
 
 const VentesClients: React.FC = () => {
   const { user } = useApp();
@@ -357,3 +357,6 @@ const VentesClients: React.FC = () => {
 };
 
 export default VentesClients;
+
+
+

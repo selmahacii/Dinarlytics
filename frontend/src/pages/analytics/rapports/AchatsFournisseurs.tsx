@@ -24,8 +24,8 @@ import {
   TruckIcon,
   BanknotesIcon
 } from '@heroicons/react/24/outline';
-import { useApp } from '../../../context/AppContext';
-import { usePurchaseReports } from '../../../hooks/usePurchaseReports';
+import { useApp } from '@core/context/AppContext';
+import { usePurchaseReports } from '@shared/hooks/usePurchaseReports';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', minimumFractionDigits: 0 }).format(amount);
 
@@ -1808,3 +1808,5 @@ Généré par Dinarlytics
 };
 
 export default AchatsFournisseurs;
+
+

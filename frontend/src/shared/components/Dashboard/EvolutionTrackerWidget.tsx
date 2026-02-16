@@ -10,7 +10,7 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import Card from '../UI/Card';
-import { CompanyEvolutionTracker, RevenueDataPoint } from '../../utils/CompanyEvolutionTracker';
+import { CompanyEvolutionTracker, RevenueDataPoint } from '@shared/utils/CompanyEvolutionTracker';
 
 interface EvolutionTrackerWidgetProps {
   companyName: string;
@@ -394,4 +394,5 @@ const EvolutionTrackerWidget: React.FC<EvolutionTrackerWidgetProps> = ({
 };
 
 export default EvolutionTrackerWidget;
+
 

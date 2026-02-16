@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import type { Article } from '../types';
+import type { Article } from '@/types';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { articlesService } from '../services/modules/articlesService';
+import { articlesService } from '@/services/modules/articlesService';
 
 export type ProductsContextType = {
   products: Article[];

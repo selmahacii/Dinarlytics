@@ -12,9 +12,9 @@ from app.core.database import get_db
 from app.core.models import Supplier, User
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData, RBACManager
-from app.utils.fiscal_validator import validate_nif
+from app.modules.finance.utils_fiscal import validate_nif
 from pydantic import BaseModel, Field, field_validator
-from app.utils.audit import log_audit
+from app.modules.system.utils_audit import log_audit
 import json
 
 router = APIRouter(prefix="/suppliers", tags=["suppliers"])

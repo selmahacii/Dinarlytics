@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { clientsService, Client } from '../services/modules/clientsService';
+import { clientsService, Client } from '@/services/modules/clientsService';
 // import { toast } from 'react-hot-toast'; // Removed as not installed 
 // If not using toast, just console.log or ignore. I'll check if a toast lib is used.
 // Based on file list, I didn't see explicit toast lib but I'll assume standard practices.
@@ -146,3 +146,4 @@ export const useClients = () => {
     deleteMutation
   };
 };
+

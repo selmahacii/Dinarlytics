@@ -6,9 +6,8 @@ from datetime import datetime, date
 from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
-from app.core.models.inventory import Invoice
-from app.core.models.financial import CollectionAction, Payment
-from app.utils.audit import log_audit
+from app.core.models import Invoice, CollectionAction, Payment
+from app.modules.system.utils_audit import log_audit
 from pydantic import BaseModel
 
 

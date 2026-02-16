@@ -27,12 +27,12 @@ import {
   DocumentCheckIcon,
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useTranslation } from '../../hooks/useTranslation';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useTranslation } from '@shared/hooks/useTranslation';
 
-import { useApp } from '../../context/AppContext';
-import api from '../../services/api';
+import { useApp } from '@core/context/AppContext';
+import api from '@/services/api';
 
 const IndicateursPerformance: React.FC = () => {
   const { formatCurrency, planComptable } = useApp();
@@ -1292,3 +1292,5 @@ const IndicateursPerformance: React.FC = () => {
 };
 
 export default IndicateursPerformance;
+
+

@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 # Add the parent directory to sys.path to allow importing from 'app'
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from app.core.database import SessionLocal
+from app.core.database import SessionLocal<
 # Don't import models yet if possible, or use text()
 
 def seed_clients():

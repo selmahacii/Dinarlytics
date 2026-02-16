@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { WidgetElement } from '../../types/reportEditor';
+import { WidgetElement } from '@/types/reportEditor';
 import WidgetRenderer from './WidgetRenderer';
 
 interface GridCanvasProps {
@@ -257,3 +257,5 @@ const GridCanvas: React.FC<GridCanvasProps> = ({
 };
 
 export default GridCanvas;
+
+

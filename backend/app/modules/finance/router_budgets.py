@@ -5,9 +5,9 @@ from datetime import datetime
 from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
-from app.core.models.financial import Budget, BudgetItem
+from app.core.models import Budget, BudgetItem
 from app.modules.finance.service_budgeting import BudgetingService
-from app.utils.audit import log_audit
+from app.modules.system.utils_audit import log_audit
 from pydantic import BaseModel
 
 from decimal import Decimal

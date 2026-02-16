@@ -10,10 +10,10 @@ import {
   ExclamationTriangleIcon,
   KeyIcon
 } from '@heroicons/react/24/outline';
-import { usePermission } from '../../hooks/usePermission';
-import { ProtectedRoute } from '../../components/ProtectedRoute';
-import { PermissionManager, USER_ROLES, AVAILABLE_PERMISSIONS } from '../../utils/PermissionManager';
-import apiClient from '../../services/apiClient';
+import { usePermission } from '@shared/hooks/usePermission';
+import { ProtectedRoute } from '@shared/components/ProtectedRoute';
+import { PermissionManager, USER_ROLES, AVAILABLE_PERMISSIONS } from '@shared/utils/PermissionManager';
+import apiClient from '@/services/apiClient';
 
 interface User {
   id: string;
@@ -281,3 +281,5 @@ export const AdminRoleManagement: React.FC = () => {
 };
 
 export default AdminRoleManagement;
+
+

@@ -14,8 +14,8 @@ import {
   ArrowTrendingDownIcon,
   MinusIcon
 } from '@heroicons/react/24/outline';
-import { AIInsight, insightCategories, insightTypes, impactLevels, insightStatuses } from '../../types/aiInsights';
-import aiService from '../../services/aiService';
+import { AIInsight, insightCategories, insightTypes, impactLevels, insightStatuses } from '@/types/aiInsights';
+import aiService from '@/services/aiService';
 import InsightCard from './InsightCard';
 import InsightDetail from './InsightDetail';
 
@@ -260,3 +260,6 @@ const InsightsPanel: React.FC<InsightsPanelProps> = ({ isOpen, onClose }) => {
 };
 
 export default InsightsPanel;
+
+
+

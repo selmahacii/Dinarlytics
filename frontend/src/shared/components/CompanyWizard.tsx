@@ -11,7 +11,7 @@ import {
   ShieldCheckIcon,
   CogIcon
 } from '@heroicons/react/24/outline';
-import { COMPANY_TYPES, ACCESS_LEVELS, COMPANY_SIZES, AVAILABLE_MODULES } from '../types/CompanyTypes';
+import { COMPANY_TYPES, ACCESS_LEVELS, COMPANY_SIZES, AVAILABLE_MODULES } from '@/types/CompanyTypes';
 
 interface CompanyWizardProps {
   isOpen: boolean;
@@ -497,4 +497,6 @@ const CompanyWizard: React.FC<CompanyWizardProps> = ({ isOpen, onClose, onComple
 };
 
 export default CompanyWizard;
+
+
 

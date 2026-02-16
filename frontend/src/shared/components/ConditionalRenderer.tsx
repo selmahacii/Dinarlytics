@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { getRevenueSegment } from '../types/revenueSegments';
+import { getRevenueSegment } from '@/types/revenueSegments';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
 interface ConditionalRendererProps {
@@ -196,4 +196,6 @@ export const AccessBadge: React.FC<{
 };
 
 export default ConditionalRenderer;
+
+
 

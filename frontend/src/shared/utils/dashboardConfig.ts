@@ -2,7 +2,7 @@
  * Configuration des tableaux de bord selon le rôle, la taille d'entreprise et les besoins
  */
 
-import { User } from '../types';
+import { User } from '@/types';
 import { Country } from './fiscalDocuments';
 
 export type UserRole = 
@@ -793,4 +793,6 @@ function getUtilisateurDashboard(
     alerts: []
   };
 }
+
+
 

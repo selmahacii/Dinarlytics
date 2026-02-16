@@ -1,5 +1,5 @@
 import React from 'react';
-import { WidgetElement } from '../../types/reportEditor';
+import { WidgetElement } from '@/types/reportEditor';
 import {
   ChartBarIcon,
   TableCellsIcon,
@@ -184,3 +184,5 @@ const TextWidget: React.FC<{ element: WidgetElement; isPreviewMode: boolean }> =
 };
 
 export default WidgetRenderer;
+
+

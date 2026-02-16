@@ -1,4 +1,4 @@
-import { RoleDataNeeds } from '../types/security';
+import { RoleDataNeeds } from '@/types/security';
 
 export const ROLE_DATA_NEEDS: RoleDataNeeds[] = [
   {
@@ -43,3 +43,5 @@ export const ROLE_DATA_NEEDS: RoleDataNeeds[] = [
     baseNeeds: ['kpi-core','finance-ratios','ar-ap','gl-core','journaux','audit-logs']
   }
 ];
+
+

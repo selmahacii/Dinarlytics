@@ -15,13 +15,13 @@ import {
   CalculatorIcon,
   BellIcon
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import CashFlowForecast from '../components/Treasury/CashFlowForecast';
-// import BankReconciliation from '../components/Treasury/BankReconciliation';
-// import LiquidityDashboard from '../components/Treasury/LiquidityDashboard';
-import { AppContext } from '../../context/AppContext';
-import type { AppContextType } from '../../context/AppContext';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import CashFlowForecast from '@shared/components/Treasury/CashFlowForecast';
+// import BankReconciliation from '@shared/components/Treasury/BankReconciliation';
+// import LiquidityDashboard from '@shared/components/Treasury/LiquidityDashboard';
+import { AppContext } from '@core/context/AppContext';
+import type { AppContextType } from '@core/context/AppContext';
 import {
   genererPrevisionsTresorerie,
   detecterAlertesLiquidite,
@@ -33,7 +33,7 @@ import {
   type PrevisionTresorerie,
   type AlerteLiquidite,
   type ScenarioTresorerie
-} from '../../utils/tresorerie';
+} from '@shared/utils/tresorerie';
 
 interface Transaction {
   id: string;
@@ -214,7 +214,7 @@ const ChecksManagement: React.FC = () => {
   );
 };
 
-import treasuryService from '../../services/modules/treasuryService';
+import treasuryService from '@/services/modules/treasuryService';
 
 const Tresorerie: React.FC = () => {
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
@@ -949,3 +949,6 @@ const Tresorerie: React.FC = () => {
 };
 
 export default Tresorerie;
+
+
+

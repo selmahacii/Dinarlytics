@@ -1,4 +1,4 @@
-import { DataDomainDef } from '../types/security';
+import { DataDomainDef } from '@/types/security';
 
 export const DATA_DOMAINS: DataDomainDef[] = [
   { id: 'kpi-core', name: 'Indicateurs clés', fields: ['revenueMonth','profitMargin','cashBalance'] },
@@ -18,3 +18,5 @@ export const DATA_DOMAINS: DataDomainDef[] = [
   { id: 'audit-logs', name: 'Logs d’audit', fields: ['auditLog'] },
   { id: 'users-core', name: 'Utilisateurs', fields: ['users'] }
 ];
+
+

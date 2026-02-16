@@ -11,7 +11,7 @@ import {
   CalendarIcon,
   UserIcon
 } from '@heroicons/react/24/outline';
-import { SavedView, FilterGroup, defaultSavedViews } from '../../types/filters';
+import { SavedView, FilterGroup, defaultSavedViews } from '@/types/filters';
 import Modal from '../UI/Modal';
 
 interface SavedViewsManagerProps {
@@ -342,3 +342,5 @@ const SavedViewsManager: React.FC<SavedViewsManagerProps> = ({
 };
 
 export default SavedViewsManager;
+
+

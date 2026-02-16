@@ -1,7 +1,7 @@
 import torch
 import logging
 from typing import Dict, Any, List, Tuple
-from app.core.models.erp_model import ERPModel
+from app.modules.intelligence.model_torch import ERPModel
 
 logger = logging.getLogger(__name__)
 

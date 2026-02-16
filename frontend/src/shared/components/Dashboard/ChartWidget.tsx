@@ -20,7 +20,7 @@ import {
   MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
 import BaseWidget from './BaseWidget';
-import { ChartWidgetProps } from '../../types/widgets';
+import { ChartWidgetProps } from '@/types/widgets';
 
 // Enregistrer les composants Chart.js
 ChartJS.register(
@@ -241,4 +241,6 @@ const ChartWidget: React.FC<ChartWidgetProps> = ({ data, ...props }) => {
 };
 
 export default ChartWidget;
+
+
 

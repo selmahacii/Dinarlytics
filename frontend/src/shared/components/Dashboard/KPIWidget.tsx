@@ -9,7 +9,7 @@ import {
   XCircleIcon
 } from '@heroicons/react/24/outline';
 import BaseWidget from './BaseWidget';
-import { KPIWidgetProps } from '../../types/widgets';
+import { KPIWidgetProps } from '@/types/widgets';
 
 const KPIWidget: React.FC<KPIWidgetProps> = ({ data, ...props }) => {
   const { value, label, unit, trend, status, icon: Icon, color } = data;
@@ -157,4 +157,6 @@ const KPIWidget: React.FC<KPIWidgetProps> = ({ data, ...props }) => {
 };
 
 export default KPIWidget;
+
+
 

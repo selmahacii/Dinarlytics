@@ -8,8 +8,8 @@ import {
   ArrowTrendingDownIcon,
   MinusIcon
 } from '@heroicons/react/24/outline';
-import { AIInsight, insightCategories, insightTypes } from '../../types/aiInsights';
-import aiService from '../../services/aiService';
+import { AIInsight, insightCategories, insightTypes } from '@/types/aiInsights';
+import aiService from '@/services/aiService';
 
 interface InsightsSummaryProps {
   onOpenInsights: () => void;
@@ -212,3 +212,6 @@ const InsightsSummary: React.FC<InsightsSummaryProps> = ({ onOpenInsights }) => 
 };
 
 export default InsightsSummary;
+
+
+

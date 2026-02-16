@@ -28,16 +28,16 @@ import {
   TrashIcon,
   EyeIcon as EyeIconOutline
 } from '@heroicons/react/24/outline';
-import Card from '../../components/UI/Card';
-import Modal from '../../components/UI/Modal';
-import { useApp } from '../../context/AppContext';
-import { useTranslation } from '../../hooks/useTranslation';
-import { usePermission } from '../../hooks/usePermission';
-import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '../../utils/AdaptiveContent';
-import { FiscalDocument, getDocumentEquivalent, Country } from '../../utils/fiscalDocuments';
-import HelpButton from '../../components/UI/HelpButton';
-import GlossaryTerm from '../../components/UI/GlossaryTerm';
-import Tooltip from '../../components/UI/Tooltip';
+import Card from '@shared/components/UI/Card';
+import Modal from '@shared/components/UI/Modal';
+import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
+import { usePermission } from '@shared/hooks/usePermission';
+import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
+import { FiscalDocument, getDocumentEquivalent, Country } from '@shared/utils/fiscalDocuments';
+import HelpButton from '@shared/components/UI/HelpButton';
+import GlossaryTerm from '@shared/components/UI/GlossaryTerm';
+import Tooltip from '@shared/components/UI/Tooltip';
 import {
   genererDeclarationG50,
   genererDeclarationIBS,
@@ -50,7 +50,7 @@ import {
   type DeclarationIRG,
   type DeclarationTAP,
   type CalendrierFiscal
-} from '../../utils/fiscalDeclarations';
+} from '@shared/utils/fiscalDeclarations';
 
 const Fiscalite: React.FC = () => {
   const { formatCurrency, user, currentDevise, currentCountry, planComptable, fiscalRates, tvaRate, calculateTVA, getTVARate, fiscalDocuments } = useApp();
@@ -2143,3 +2143,5 @@ const Fiscalite: React.FC = () => {
 };
 
 export default Fiscalite;
+
+

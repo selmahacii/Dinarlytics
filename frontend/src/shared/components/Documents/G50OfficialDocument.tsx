@@ -1,5 +1,5 @@
 import React from 'react';
-import { financialCalc } from '../../utils/financialCalculations';
+import { financialCalc } from '@shared/utils/financialCalculations';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -104,3 +104,4 @@ const G50OfficialDocument: React.FC<G50DocumentProps> = ({
 };
 
 export default G50OfficialDocument;
+

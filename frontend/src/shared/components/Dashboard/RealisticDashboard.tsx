@@ -18,8 +18,8 @@ import {
   BuildingOfficeIcon,
   ChartPieIcon
 } from '@heroicons/react/24/outline';
-import { RealisticMetric, RealisticChartData, RealTimeData } from '../../types/dashboard';
-import { analyticService } from '../../services/modules/analyticService';
+import { RealisticMetric, RealisticChartData, RealTimeData } from '@/types/dashboard';
+import { analyticService } from '@/services/modules/analyticService';
 import DetailedMetric from '../Metrics/DetailedMetric';
 import AnimatedChart from '../Charts/AnimatedChart';
 
@@ -666,3 +666,6 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
 };
 
 export default RealisticDashboard;
+
+
+
