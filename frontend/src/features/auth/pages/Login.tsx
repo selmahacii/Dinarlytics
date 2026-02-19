@@ -93,11 +93,12 @@ const Login: React.FC = () => {
     setError(null);
     try {
       // Appel API pour login via api.ts
-      const user = await api.auth.login(demoUser.email, demoUser.password);
+      const response = await api.auth.login(demoUser.email, demoUser.password);
+      const user = response.user;
       setUser(user);
       setShowSuccess(true);
       setTimeout(() => {
-        if (user.companyType === 'boutique' || user.nom.includes('Boutique')) {
+        if (user.companyType === 'boutique' || (user.nom && user.nom.includes('Boutique'))) {
           navigate('/dashboard/boutique');
         } else {
           navigate('/dashboard');
@@ -165,11 +166,12 @@ const Login: React.FC = () => {
     setError(null);
     try {
       // Appel API pour login via api.ts
-      const user = await api.auth.login(formData.email, formData.password);
+      const response = await api.auth.login(formData.email, formData.password);
+      const user = response.user;
       setUser(user);
       setShowSuccess(true);
       setTimeout(() => {
-        if (user.companyType === 'boutique' || user.nom.includes('Boutique')) {
+        if (user.companyType === 'boutique' || (user.nom && user.nom.includes('Boutique'))) {
           navigate('/dashboard/boutique');
         } else {
           navigate('/dashboard');

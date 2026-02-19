@@ -29,6 +29,7 @@ export interface RealisticChartData {
         animation: boolean;
         showGrid: boolean;
         showLabels: boolean;
+        currency?: boolean;
     };
 }
 

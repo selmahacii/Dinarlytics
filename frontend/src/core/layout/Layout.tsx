@@ -16,10 +16,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <LIAHistoryProvider userId={user?.id || 'default'}>
-      <div className="min-h-screen bg-slate-50">
+      <div className="flex min-h-screen bg-slate-50 relative">
         <Sidebar />
-        <div className={`flex flex-col min-h-screen transition-all duration-300 ${isSidebarCollapsed ? 'ml-20' : 'ml-64'
-          }`}>
+
+        {/* Main Content Area */}
+        {/* Main Content Area */}
+        <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 w-full ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}`}>
           <Header />
           <div className="px-6 pt-4 pb-2 bg-white border-b border-slate-200">
             <Breadcrumb />
@@ -28,8 +30,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {children}
           </main>
         </div>
+
         <QuickNavigation />
-        <LIAFloatingWidget />
+
       </div>
     </LIAHistoryProvider>
   );

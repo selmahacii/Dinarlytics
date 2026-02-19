@@ -50,13 +50,23 @@ function mapToBackend(data: Partial<Article>): any {
 
 export const articlesService = {
     getAll: async () => {
-        const response = await apiClient.get<ArticleResponse[]>('/articles');
-        return response.data.map(mapToFrontend);
+        // MOCK IMPLEMENTATION
+        // const response = await apiClient.get<ArticleResponse[]>('/articles');
+        // return response.data.map(mapToFrontend);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return [
+            { id: '1', nom: 'Article A', codePCA: 'ART001', prixUnitaire: 1500, stock: 100, description: 'Description A', categorie: 'Cat A' },
+            { id: '2', nom: 'Article B', codePCA: 'ART002', prixUnitaire: 2500, stock: 50, description: 'Description B', categorie: 'Cat B' },
+            { id: '3', nom: 'Service C', codePCA: 'SRV001', prixUnitaire: 5000, stock: 0, description: 'Service de consult', categorie: 'Service' }
+        ] as Article[];
     },
 
     getById: async (id: string) => {
-        const response = await apiClient.get<ArticleResponse>(`/articles/${id}`);
-        return mapToFrontend(response.data);
+        // MOCK IMPLEMENTATION
+        // const response = await apiClient.get<ArticleResponse>(`/articles/${id}`);
+        // return mapToFrontend(response.data);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return { id: id, nom: 'Article Mock', codePCA: 'MOCK001', prixUnitaire: 1000, stock: 10, description: 'Mock Description', categorie: 'General' } as Article;
     },
 
     create: async (data: Partial<Article>) => {

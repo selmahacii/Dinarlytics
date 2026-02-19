@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from app.modules.intelligence.router_ai import router as ai_router
-from app.modules.intelligence.router_training import router as training_router
-from app.modules.intelligence.router_ocr import router as ocr_router
+# from app.modules.intelligence.router_ai import router as ai_router
+# from app.modules.intelligence.router_training import router as training_router
+# from app.modules.intelligence.router_ocr import router as ocr_router
 from app.modules.finance.router_accounting import router as accounting_router
 from app.modules.finance.router_accounting_reports import router as accounting_reports_router
 from app.modules.finance.router_budgets import router as budgets_router
@@ -24,9 +24,9 @@ api_router = APIRouter()
 
 api_router.include_router(auth_router)
 api_router.include_router(users_router)
-api_router.include_router(ai_router)
-api_router.include_router(training_router)
-api_router.include_router(ocr_router)
+# api_router.include_router(ai_router)
+# api_router.include_router(training_router)
+# api_router.include_router(ocr_router)
 api_router.include_router(accounting_router)
 api_router.include_router(accounting_reports_router)
 api_router.include_router(budgets_router)

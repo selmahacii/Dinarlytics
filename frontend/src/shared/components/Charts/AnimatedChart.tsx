@@ -49,14 +49,22 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
   const renderLineChart = () => {
     const { donnees } = chartData;
-    const maxValue = Math.max(...donnees.map(d => d.valeur || d.prevision || 0));
-    const minValue = Math.min(...donnees.map(d => d.valeur || d.prevision || 0));
-    const range = maxValue - minValue;
+    if (!donnees || donnees.length === 0) return null;
 
-    const points = donnees.map((point, index) => {
-      const x = (index / (donnees.length - 1)) * 100;
-      const y = 100 - ((point.valeur || point.prevision || 0) - minValue) / range * 100;
-      return { x, y, ...point };
+    const validData = donnees.map(d => ({
+      ...d,
+      valeur: d.valeur || 0,
+      prevision: d.prevision || 0
+    }));
+
+    const maxValue = Math.max(...validData.map(d => Math.max(d.valeur, d.prevision))) || 100;
+    const minValue = Math.min(...validData.map(d => Math.min(d.valeur, d.prevision))) || 0;
+    const range = maxValue - minValue || 1; // Prevent division by zero
+
+    const points = validData.map((point, index) => {
+      const x = (index / (validData.length - 1)) * 100;
+      const y = 100 - ((point.valeur || point.prevision) - minValue) / range * 100;
+      return { x: isNaN(x) ? 0 : x, y: isNaN(y) ? 0 : y, ...point };
     });
 
     return (
@@ -121,43 +129,69 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   };
 
   const renderBarChart = () => {
-    const { donnees } = chartData;
-    const maxValue = Math.max(...donnees.map(d => d.valeur));
+    const { donnees, options } = chartData;
+    const maxValue = Math.max(...donnees.map(d => d.valeur)) || 100;
+
+    // Grid steps (0, 25%, 50%, 75%, 100%)
+    const gridSteps = [0, 0.25, 0.5, 0.75, 1];
 
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
-        <div className="flex items-end justify-between h-full space-x-2">
+        {/* Background Grid */}
+        <div className="absolute inset-0 px-4 py-8 pointer-events-none flex flex-col justify-between">
+          {[...gridSteps].reverse().map((step, i) => (
+            <div key={i} className="w-full h-px bg-slate-100 dark:bg-slate-700 relative">
+              <span className="absolute -left-0 -top-2 text-[10px] text-slate-400">
+                {options?.currency ?
+                  `${Math.round(maxValue * step).toLocaleString()}k€` :
+                  Math.round(maxValue * step).toLocaleString()}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Use items-stretch to ensure columns have full height context */}
+        <div className="relative flex items-end justify-between h-full space-x-4 pt-4 z-10 ml-6"> {/* ml-6 for y-axis labels */}
           {donnees.map((bar, index) => {
             const height = (bar.valeur / maxValue) * 100;
             const animatedHeight = height * animationProgress;
+            // Dynamic color
+            const color = chartData.options?.couleurs?.[index % (chartData.options?.couleurs?.length || 1)] || '#3b82f6';
 
             return (
-              <div key={index} className="flex-1 flex flex-col items-center">
-                <div className="relative w-full flex flex-col items-center">
-                  {/* Barre */}
+              <div key={index} className="flex-1 flex flex-col justify-end items-center group h-full">
+
+                {/* Bar Container - flex-1 takes available vertical space above label */}
+                <div className="w-full flex-1 flex items-end justify-center relative">
+                  {/* Track/Background for visual guide */}
+                  <div className="absolute inset-x-0 bottom-0 top-0 bg-slate-50 dark:bg-slate-700/20 rounded-t-lg mx-auto w-full max-w-[70%] -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                  {/* The Bar */}
                   <div
-                    className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t transition-all duration-1000 ease-out"
+                    className="w-full max-w-[70%] rounded-t-sm shadow-sm relative transition-all duration-1000 ease-out hover:brightness-110"
                     style={{
                       height: `${animatedHeight}%`,
+                      backgroundColor: color,
+                      opacity: 0.9,
                       transitionDelay: `${index * 100}ms`
                     }}
                   >
-                    {/* Valeur animée */}
+                    {/* Value Label - Always visible above bar */}
                     <div
-                      className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-gray-700 dark:text-gray-300"
+                      className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/90 px-2 py-1 rounded shadow-sm border border-slate-100 dark:border-slate-700 transition-opacity duration-300 pointer-events-none whitespace-nowrap z-20"
                       style={{
                         opacity: animationProgress > 0.5 ? 1 : 0,
-                        transitionDelay: `${index * 100 + 500}ms`
+                        transitionDelay: `${index * 100 + 300}ms`
                       }}
                     >
-                      {bar.valeur.toLocaleString()}
+                      {options?.currency ? `${bar.valeur.toLocaleString()} k€` : bar.valeur.toLocaleString()}
                     </div>
                   </div>
+                </div>
 
-                  {/* Label */}
-                  <div className="mt-2 text-xs text-gray-600 dark:text-gray-400 text-center">
-                    {bar.region}
-                  </div>
+                {/* X-Axis Label */}
+                <div className="mt-3 h-6 text-xs font-semibold text-slate-500 dark:text-slate-400 text-center w-full truncate px-1">
+                  {bar.region || bar.label}
                 </div>
               </div>
             );
@@ -248,15 +282,26 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
   const renderAreaChart = () => {
     const { donnees } = chartData;
-    const maxValue = Math.max(...donnees.map(d => Math.max(d.produits, d.services, d.maintenance)));
+    if (!donnees || donnees.length === 0) return null;
+
+    const safeData = donnees.map(d => ({
+      produits: d.produits || 0,
+      services: d.services || 0,
+      maintenance: d.maintenance || 0
+    }));
+
+    const maxValue = Math.max(...safeData.map(d => Math.max(d.produits, d.services, d.maintenance))) || 1;
+
+    // Helper to avoid NaN when length is 1
+    const getX = (i: number) => safeData.length > 1 ? (i / (safeData.length - 1)) * 100 : 50;
 
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
           {/* Aire produits */}
           <path
-            d={`M 0,100 ${donnees.map((d, i) =>
-              `L ${(i / (donnees.length - 1)) * 100},${100 - (d.produits / maxValue) * 100}`
+            d={`M 0,100 ${safeData.map((d, i) =>
+              `L ${getX(i)},${100 - (d.produits / maxValue) * 100}`
             ).join(' ')} L 100,100 Z`}
             fill="url(#gradient-produits)"
             opacity={animationProgress * 0.7}
@@ -265,8 +310,8 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
           {/* Aire services */}
           <path
-            d={`M 0,100 ${donnees.map((d, i) =>
-              `L ${(i / (donnees.length - 1)) * 100},${100 - (d.services / maxValue) * 100}`
+            d={`M 0,100 ${safeData.map((d, i) =>
+              `L ${getX(i)},${100 - (d.services / maxValue) * 100}`
             ).join(' ')} L 100,100 Z`}
             fill="url(#gradient-services)"
             opacity={animationProgress * 0.7}
@@ -276,8 +321,8 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
           {/* Aire maintenance */}
           <path
-            d={`M 0,100 ${donnees.map((d, i) =>
-              `L ${(i / (donnees.length - 1)) * 100},${100 - (d.maintenance / maxValue) * 100}`
+            d={`M 0,100 ${safeData.map((d, i) =>
+              `L ${getX(i)},${100 - (d.maintenance / maxValue) * 100}`
             ).join(' ')} L 100,100 Z`}
             fill="url(#gradient-maintenance)"
             opacity={animationProgress * 0.7}
@@ -288,27 +333,34 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
           {/* Définitions des gradients */}
           <defs>
             <linearGradient id="gradient-produits" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.2" />
+              <stop offset="0%" stopColor={chartData.options?.couleurs?.[0] || "#3b82f6"} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={chartData.options?.couleurs?.[0] || "#3b82f6"} stopOpacity="0.2" />
             </linearGradient>
             <linearGradient id="gradient-services" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.2" />
+              <stop offset="0%" stopColor={chartData.options?.couleurs?.[1] || "#10b981"} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={chartData.options?.couleurs?.[1] || "#10b981"} stopOpacity="0.2" />
             </linearGradient>
             <linearGradient id="gradient-maintenance" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.2" />
+              <stop offset="0%" stopColor={chartData.options?.couleurs?.[2] || "#f59e0b"} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={chartData.options?.couleurs?.[2] || "#f59e0b"} stopOpacity="0.2" />
             </linearGradient>
           </defs>
         </svg>
+        <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 dark:text-gray-400 px-2 pointer-events-none">
+          {donnees.map((point, index) => (
+            <span key={index}>{point.label || point.mois}</span>
+          ))}
+        </div>
       </div>
     );
   };
 
   const renderScatterChart = () => {
     const { donnees } = chartData;
-    const maxPrice = Math.max(...donnees.map(d => d.prix));
-    const maxVolume = Math.max(...donnees.map(d => d.volume));
+    if (!donnees || donnees.length === 0) return null;
+
+    const maxPrice = Math.max(...donnees.map(d => d.prix || 0)) || 100;
+    const maxVolume = Math.max(...donnees.map(d => d.volume || 0)) || 100;
 
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
@@ -319,17 +371,17 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
           {/* Points */}
           {donnees.map((point, index) => {
-            const x = 10 + (point.prix / maxPrice) * 80;
-            const y = 90 - (point.volume / maxVolume) * 80;
-            const size = 2 + (point.marge / 50) * 3; // Taille basée sur la marge
+            const x = 10 + ((point.prix || 0) / maxPrice) * 80;
+            const y = 90 - ((point.volume || 0) / maxVolume) * 80;
+            const size = 2 + ((point.marge || 0) / 50) * 3; // Taille basée sur la marge
 
             return (
               <circle
                 key={index}
-                cx={x}
-                cy={y}
+                cx={isNaN(x) ? 10 : x}
+                cy={isNaN(y) ? 90 : y}
                 r={size * animationProgress}
-                fill={chartData.options.couleurs[index]}
+                fill={chartData.options.couleurs[index % chartData.options.couleurs.length]}
                 opacity={animationProgress > index * 0.1 ? 0.8 : 0}
                 className="transition-all duration-500 ease-out"
                 style={{ transitionDelay: `${index * 100}ms` }}
@@ -379,25 +431,6 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   return (
     <div ref={chartRef} className="w-full">
       {/* En-tête du graphique */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {chartData.titre}
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          {chartData.description}
-        </p>
-        <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-          <span>Période: {chartData.periode}</span>
-          <span>Mise à jour: {chartData.miseAJour}</span>
-          {isAnimating && (
-            <span className="flex items-center space-x-1 text-blue-600 dark:text-blue-400">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <span>Animation en cours...</span>
-            </span>
-          )}
-        </div>
-      </div>
-
       {/* Graphique */}
       {renderChart()}
     </div>

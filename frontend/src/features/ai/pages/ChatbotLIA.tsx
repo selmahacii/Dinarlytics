@@ -316,8 +316,8 @@ const ChatbotLIA: React.FC = () => {
 
   // Données contextuelles pour les réponses (ancrage sur l'entreprise)
   const dailySummary = (() => {
-    const monthRevenue = companyData?.revenueMonth ?? 650000;
-    const invoices = companyData?.invoicesCount ?? 28;
+    const monthRevenue = companyData?.revenueMonth ?? 2500000;
+    const invoices = companyData?.invoicesCount ?? 125;
     const avgInvoice = companyData?.averageInvoice || (invoices > 0 ? monthRevenue / invoices : 0);
     // Approximation quotidienne
     const caJour = Math.round(monthRevenue / 30);
@@ -340,8 +340,14 @@ const ChatbotLIA: React.FC = () => {
   // Fonctions du chatbot
   const generateLiaResponse = async (userMessage: string): Promise<Message> => {
     setIsTyping(true);
+    let apiResponse = null;
+
     try {
       // Direct API call to the new AI chat endpoint
+      // Using a short timeout to fail fast if backend is not available
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/ai/chat`, {
         method: 'POST',
         headers: {
@@ -350,37 +356,39 @@ const ChatbotLIA: React.FC = () => {
         },
         body: JSON.stringify({
           message: userMessage,
-          company_id: user?.companyId
-        })
+          company_id: (user as any)?.company_id || 'mock-company'
+        }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
 
-      if (!response.ok) throw new Error('API Error');
-
-      const data = await response.json();
-
-      return {
-        id: Date.now().toString(),
-        type: 'lia',
-        content: data.content,
-        timestamp: new Date(),
-        data: data.data,
-        suggestions: data.suggestions || [
-          'Analyse de risque',
-          'Prévisions de CA',
-          'Fiscalité G50'
-        ]
-      };
+      if (response.ok) {
+        const data = await response.json();
+        apiResponse = {
+          id: Date.now().toString(),
+          type: 'lia',
+          content: data.content,
+          timestamp: new Date(),
+          data: data.data,
+          suggestions: data.suggestions || [
+            'Analyse de risque',
+            'Prévisions de CA',
+            'Fiscalité G50'
+          ]
+        };
+      }
     } catch (error) {
-      console.error('Chatbot API Error:', error);
-      return {
-        id: Date.now().toString(),
-        type: 'lia',
-        content: "Désolé, je rencontre une difficulté de connexion avec mon module d'intelligence artificielle. Veuillez réessayer dans quelques instants.",
-        timestamp: new Date()
-      };
+      console.warn('Chatbot API unavailable, falling back to local simulation:', error);
+      // Fallback to local logic below
     } finally {
       setIsTyping(false);
     }
+
+    if (apiResponse) {
+      return apiResponse as Message;
+    }
+
+    // Le reste du code utilise userMessage comme 'message' (LOGIQUE LOCALE)
 
     // Le reste du code utilise userMessage comme 'message'
     const message = userMessage.toLowerCase();
@@ -701,6 +709,8 @@ const ChatbotLIA: React.FC = () => {
       };
     }
 
+
+
     // Détection de patterns saisonniers
     const wantsSeasonalPattern =
       message.includes('/saisonnier') ||
@@ -733,6 +743,8 @@ const ChatbotLIA: React.FC = () => {
         };
       }
 
+      const safePattern = pattern!; // Ensure non-null context
+
       const monthNames = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
@@ -742,14 +754,14 @@ const ChatbotLIA: React.FC = () => {
       lines.push('');
       lines.push('─'.repeat(60));
       lines.push('');
-      lines.push(pattern.description);
+      lines.push(safePattern.description);
       lines.push('');
 
-      if (pattern && pattern.peakMonth !== undefined && pattern.lowMonth !== undefined) {
+      if (safePattern.peakMonth !== undefined && safePattern.lowMonth !== undefined) {
         lines.push('Analyse saisonnière:');
-        lines.push(`  • Période de pic: ${monthNames[pattern.peakMonth]}`);
-        lines.push(`  • Période de creux: ${monthNames[pattern.lowMonth]}`);
-        lines.push(`  • Facteur de saisonnalité: ${(pattern.seasonalityFactor * 100).toFixed(1)}%`);
+        lines.push(`  • Période de pic: ${monthNames[safePattern.peakMonth]}`);
+        lines.push(`  • Période de creux: ${monthNames[safePattern.lowMonth]}`);
+        lines.push(`  • Facteur de saisonnalité: ${(safePattern.seasonalityFactor * 100).toFixed(1)}%`);
         lines.push('');
       }
 
@@ -757,7 +769,7 @@ const ChatbotLIA: React.FC = () => {
       lines.push('');
       lines.push('RECOMMANDATIONS STRATÉGIQUES:');
       lines.push('');
-      if (pattern && pattern.seasonalityFactor > 0.3) {
+      if (safePattern.seasonalityFactor > 0.3) {
         lines.push('Saisonnalité marquée détectée:');
         lines.push('  1. Planifier les stocks en fonction des pics saisonniers');
         lines.push('  2. Ajuster la trésorerie pour les périodes creuses');

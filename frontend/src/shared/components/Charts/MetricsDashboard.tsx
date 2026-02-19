@@ -1,9 +1,9 @@
 import React from 'react';
-import { 
-  ArrowTrendingUpIcon, 
-  ArrowTrendingDownIcon, 
-  UserGroupIcon, 
-  BanknotesIcon, 
+import {
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  UserGroupIcon,
+  BanknotesIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
   ClockIcon
@@ -18,19 +18,19 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
   const totalClients = groupes.reduce((sum, g) => sum + g.nombreClients, 0);
   const totalCA = groupes.reduce((sum, g) => sum + g.chiffreAffaires, 0);
   const soldeMoyenGlobal = groupes.reduce((sum, g) => sum + g.soldeMoyen, 0) / groupes.length;
-  
+
   // Groupe avec le plus de clients
-  const groupePlusPopulaire = groupes.reduce((max, g) => 
+  const groupePlusPopulaire = groupes.reduce((max, g) =>
     g.nombreClients > max.nombreClients ? g : max
   );
-  
+
   // Groupe avec le meilleur CA
-  const groupeMeilleurCA = groupes.reduce((max, g) => 
+  const groupeMeilleurCA = groupes.reduce((max, g) =>
     g.chiffreAffaires > max.chiffreAffaires ? g : max
   );
-  
+
   // Groupe avec le meilleur solde moyen
-  const groupeMeilleurSolde = groupes.reduce((max, g) => 
+  const groupeMeilleurSolde = groupes.reduce((max, g) =>
     g.soldeMoyen > max.soldeMoyen ? g : max
   );
 
@@ -107,15 +107,14 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
                   <Icon className="h-6 w-6" />
                 </div>
               </div>
-                             <div className="mt-4 flex items-center">
-                 {metric.changeType === 'positive' ? (
-                   <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-500 mr-1" />
-                 ) : (
-                   <ArrowTrendingDownIcon className="h-4 w-4 text-red-500 mr-1" />
-                 )}
-                <span className={`text-sm font-medium ${
-                  metric.changeType === 'positive' ? 'text-emerald-600' : 'text-red-600'
-                }`}>
+              <div className="mt-4 flex items-center">
+                {metric.changeType === 'positive' ? (
+                  <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-500 mr-1" />
+                ) : (
+                  <ArrowTrendingDownIcon className="h-4 w-4 text-red-500 mr-1" />
+                )}
+                <span className={`text-sm font-medium ${metric.changeType === 'positive' ? 'text-emerald-600' : 'text-red-600'
+                  }`}>
                   {metric.change}
                 </span>
                 <span className="text-sm text-slate-500 ml-1">vs mois dernier</span>
@@ -196,44 +195,83 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
         </div>
       </div>
 
-      {/* Alertes et recommandations */}
+      {/* Alertes et recommandations dynamiques */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-slate-800 mb-4">
           Alertes et Recommandations
         </h3>
         <div className="space-y-4">
-          <div className="flex items-start space-x-3 p-4 bg-amber-50 rounded-lg border border-amber-200">
-            <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 mt-0.5" />
-            <div>
-              <h4 className="font-medium text-amber-900">Groupe à Risque Élevé</h4>
-              <p className="text-sm text-amber-700 mt-1">
-                Le groupe "Clients à Risque Élevé" présente un solde moyen négatif de -35k DZD. 
-                Recommandation : Mettre en place un plan de recouvrement et un suivi renforcé.
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-            <CheckCircleIcon className="h-5 w-5 text-emerald-600 mt-0.5" />
-            <div>
-              <h4 className="font-medium text-emerald-900">Performance Excellente</h4>
-              <p className="text-sm text-emerald-700 mt-1">
-                Le groupe "Grandes Entreprises" génère le plus de chiffre d'affaires avec 8.5M DZD. 
-                Opportunité : Développer ce segment et proposer des services premium.
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-start space-x-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-            <ClockIcon className="h-5 w-5 text-slate-600 mt-0.5" />
-            <div>
-              <h4 className="font-medium text-slate-800">Action Requise</h4>
-              <p className="text-sm text-slate-600 mt-1">
-                Le groupe "Startups Tech" présente un potentiel de croissance élevé mais des soldes moyens faibles. 
-                Recommandation : Accompagnement personnalisé et conditions de paiement adaptées.
-              </p>
-            </div>
-          </div>
+          {(() => {
+            const riskGroup = groupes.reduce((acc, g) => (g.soldeMoyen < acc.soldeMoyen ? g : acc), groupes[0]);
+            const topGroup = groupes.reduce((acc, g) => (g.chiffreAffaires > acc.chiffreAffaires ? g : acc), groupes[0]);
+            const growthGroup = groupes.find(g => g.nom.toLowerCase().includes('startup') || g.nom.toLowerCase().includes('pme'));
+
+            const alerts = [];
+
+            // Alerte Risque
+            if (riskGroup && riskGroup.soldeMoyen < 0) {
+              alerts.push({
+                type: 'warning',
+                title: 'Groupe à Surveiller',
+                content: `Le groupe "${riskGroup.nom}" présente un solde moyen négatif (${(riskGroup.soldeMoyen / 1000).toFixed(0)}k DZD). Recommandation : Suivi renforcé du recouvrement.`,
+                icon: ExclamationTriangleIcon,
+                colorClasses: 'bg-amber-50 text-amber-600 border-amber-200',
+                titleColor: 'text-amber-900',
+                textColor: 'text-amber-700'
+              });
+            }
+
+            // Alerte Performance
+            if (topGroup) {
+              alerts.push({
+                type: 'success',
+                title: 'Performance Excellente',
+                content: `Le groupe "${topGroup.nom}" génère le meilleur CA (${(topGroup.chiffreAffaires / 1000000).toFixed(1)}M DZD). Opportunité : Fidélisation prioritaire.`,
+                icon: CheckCircleIcon,
+                colorClasses: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                titleColor: 'text-emerald-900',
+                textColor: 'text-emerald-700'
+              });
+            }
+
+            // Alerte Potentiel (fallback sur logique générique si pas de groupe spécifique trouvé)
+            if (growthGroup) {
+              alerts.push({
+                type: 'info',
+                title: 'Potentiel de Croissance',
+                content: `Le segment "${growthGroup.nom}" est stratégique pour l'avenir. Recommandation : Adapter les offres aux besoins spécifiques.`,
+                icon: ClockIcon,
+                colorClasses: 'bg-slate-50 text-slate-600 border-slate-200',
+                titleColor: 'text-slate-800',
+                textColor: 'text-slate-600'
+              });
+            } else {
+              alerts.push({
+                type: 'info',
+                title: 'Action Requise',
+                content: `Analyser la rentabilité des segments clients pour optimiser les marges.`,
+                icon: ClockIcon,
+                colorClasses: 'bg-slate-50 text-slate-600 border-slate-200',
+                titleColor: 'text-slate-800',
+                textColor: 'text-slate-600'
+              });
+            }
+
+            return alerts.map((alert, idx) => {
+              const Icon = alert.icon;
+              return (
+                <div key={idx} className={`flex items-start space-x-3 p-4 rounded-lg border ${alert.colorClasses} bg-opacity-50`}>
+                  <Icon className={`h-5 w-5 mt-0.5`} />
+                  <div>
+                    <h4 className={`font-medium ${alert.titleColor}`}>{alert.title}</h4>
+                    <p className={`text-sm ${alert.textColor} mt-1`}>
+                      {alert.content}
+                    </p>
+                  </div>
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
     </div>

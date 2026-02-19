@@ -409,201 +409,115 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     level: 'intermediate'
   }
 ];
+// RÔLES OFFICIELS (DESIGN HIERARCHIE & DROITS)
 export const USER_ROLES: UserRole[] = [
+  // 1. Gérant / Propriétaire (EURL)
   {
-    id: 'directeur',
-    name: 'Directeur Général',
-    description: 'Accès décisionnel total et audit stratégique',
-    permissions: AVAILABLE_PERMISSIONS.map(p => p.id),
-    companyTypes: ['eurl', 'sarl', 'spa'],
-    accessLevels: ['professional', 'enterprise']
+    id: 'gerant',
+    name: 'Gérant (Propriétaire)',
+    description: 'Accès complet trésorerie et facturation pour gestion quotidienne',
+    permissions: [
+      'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-calendar',
+      'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
+      'rapports-tresorerie', 'rapports-basic', 'rapports-ventes', 'rapports-achats',
+      'clients-manage', 'fournisseurs-manage',
+      'lia-access', 'lia-chatbot' // IA de base
+    ],
+    companyTypes: ['eurl'],
+    accessLevels: ['starter', 'professional']
   },
+
+  // 2. Commercial (SARL/SPA)
   {
-    id: 'expert-comptable',
-    name: 'Expert-Comptable',
-    description: 'Accès total à la comptabilité, clôture et consolidation',
-    permissions: AVAILABLE_PERMISSIONS.map(p => p.id).filter(id => id !== 'admin-users'),
+    id: 'commercial',
+    name: 'Commercial',
+    description: 'Gestion clients, devis et commandes',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'clients-manage',
+      'facturation-read', 'facturation-create', // Juste créer des devis/factures
+      'stocks-read', // Voir les stocks dispo
+      'rapports-basic', 'rapports-ventes', // Voir ses perfs
+      'lia-access' // IA pour aide à la vente
+    ],
     companyTypes: ['sarl', 'spa'],
     accessLevels: ['professional', 'enterprise']
   },
-  {
-    id: 'admin',
-    name: 'Administrateur',
-    description: 'Accès complet au système',
-    permissions: AVAILABLE_PERMISSIONS.map(p => p.id),
-    companyTypes: ['eurl', 'sarl', 'spa'],
-    accessLevels: ['starter', 'professional', 'enterprise']
-  },
+
+  // 3. Comptable (Toutes)
   {
     id: 'comptable',
     name: 'Comptable',
-    description: 'Gestion comptable et financière',
+    description: 'Saisie comptable et fiscalité',
     permissions: [
-      'dashboard-access',
-      'dashboard-overview',
-      'dashboard-charts',
-      'dashboard-alerts',
-      'comptabilite-read',
-      'comptabilite-write',
-      'comptabilite-validate',
-      'facturation-read',
-      'facturation-create',
-      'facturation-validate',
-      'stocks-read',
-      'stocks-move',
-      'paie-read',
-      'paie-create',
-      'rapports-basic',
-      'rapports-advanced',
-      'rapports-comptabilite',
-      'rapports-fiscalite',
-      'lia-access',
-      'lia-chatbot',
-      'lia-analyses'
-    ],
-    companyTypes: ['sarl', 'spa'],
-    accessLevels: ['professional', 'enterprise']
-  },
-  {
-    id: 'comptable-senior',
-    name: 'Comptable Senior',
-    description: 'Comptable avec responsabilités étendues',
-    permissions: [
-      'dashboard-access',
-      'dashboard-overview',
-      'dashboard-charts',
-      'dashboard-alerts',
-      'dashboard-calendar',
-      'comptabilite-read',
-      'comptabilite-write',
-      'comptabilite-validate',
-      'comptabilite-close',
-      'facturation-read',
-      'facturation-create',
-      'facturation-validate',
-      'facturation-cancel',
-      'stocks-read',
-      'stocks-move',
-      'stocks-inventory',
-      'paie-read',
-      'paie-create',
-      'paie-validate',
-      'rapports-basic',
-      'rapports-advanced',
-      'rapports-create',
-      'rapports-comptabilite',
-      'rapports-fiscalite',
-      'audit-read',
-      'template-document',
-      'lia-access',
-      'lia-chatbot',
-      'lia-analyses',
-      'lia-train'
-    ],
-    companyTypes: ['spa'],
-    accessLevels: ['enterprise']
-  },
-  {
-    id: 'comptable-junior',
-    name: 'Comptable Junior',
-    description: 'Comptable débutant',
-    permissions: [
-      'dashboard-access',
-      'dashboard-overview',
-      'dashboard-charts',
-      'comptabilite-read',
-      'facturation-read',
-      'facturation-create',
-      'stocks-read',
-      'paie-read',
-      'rapports-basic',
-      'lia-access',
-      'lia-chatbot'
-    ],
-    companyTypes: ['eurl', 'sarl'],
-    accessLevels: ['starter', 'professional']
-  },
-  {
-    id: 'vendeur',
-    name: 'Vendeur',
-    description: 'Gestion des ventes',
-    permissions: [
-      'dashboard-access',
-      'dashboard-overview',
-      'clients-manage',
-      'facturation-read',
-      'facturation-create',
-      'stocks-read',
-      'rapports-basic',
-      'rapports-ventes',
-      'lia-access',
-      'lia-chatbot'
+      'dashboard-access', 'dashboard-overview',
+      'comptabilite-read', 'comptabilite-write',
+      'facturation-read', 'facturation-validate',
+      'paie-read', 'paie-create',
+      'rapports-comptabilite', 'rapports-fiscalite', 'rapports-basic',
+      'lia-access', 'lia-analyses' // IA pour anomalies
     ],
     companyTypes: ['eurl', 'sarl', 'spa'],
-    accessLevels: ['starter', 'professional', 'enterprise']
+    accessLevels: ['professional', 'enterprise']
   },
+
+  // 4. Responsable Stock (SARL/SPA)
   {
-    id: 'manager',
-    name: 'Manager',
-    description: 'Gestion d\'équipe et validation',
+    id: 'responsable_stock',
+    name: 'Responsable Stock',
+    description: 'Gestion des entrées/sorties et inventaires',
     permissions: [
       'dashboard-access',
-      'dashboard-overview',
-      'dashboard-charts',
-      'dashboard-alerts',
-      'comptabilite-read',
-      'facturation-read',
-      'facturation-validate',
-      'stocks-read',
-      'paie-read',
-      'rapports-basic',
-      'rapports-advanced',
-      'rapports-comptabilite',
-      'audit-read',
-      'lia-access',
-      'lia-chatbot',
-      'lia-analyses'
+      'stocks-read', 'stocks-move', 'stocks-inventory',
+      'fournisseurs-manage',
+      'rapports-stocks', 'rapports-achats'
     ],
     companyTypes: ['sarl', 'spa'],
     accessLevels: ['professional', 'enterprise']
   },
+
+  // 5. DAF (SPA)
   {
-    id: 'auditeur',
-    name: 'Auditeur',
-    description: 'Audit et contrôle',
+    id: 'daf',
+    name: 'D.A.F',
+    description: 'Directeur Admin & Financier - Supervision globale',
     permissions: [
-      'dashboard-access',
-      'dashboard-overview',
-      'dashboard-charts',
-      'comptabilite-read',
-      'facturation-read',
-      'stocks-read',
-      'paie-read',
-      'rapports-basic',
-      'rapports-advanced',
-      'rapports-comptabilite',
+      'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-alerts',
+      'comptabilite-read', 'comptabilite-validate', 'comptabilite-close',
+      'rapports-tresorerie', 'rapports-advanced', 'rapports-create',
+      'paie-read', 'paie-validate',
       'audit-read',
-      'audit-full',
-      'lia-access',
-      'lia-analyses'
+      'lia-access', 'lia-analyses', 'lia-train' // IA avancée
     ],
     companyTypes: ['spa'],
     accessLevels: ['enterprise']
   },
+
+  // 6. Auditeur (SPA)
   {
-    id: 'utilisateur',
-    name: 'Utilisateur',
-    description: 'Accès de base en lecture',
+    id: 'auditeur',
+    name: 'Auditeur Interne',
+    description: 'Contrôle et conformité (Lecture Seule)',
     permissions: [
-      'dashboard-access',
-      'dashboard-overview',
+      'dashboard-access', 'dashboard-overview',
+      'audit-read', 'audit-full',
       'comptabilite-read',
       'facturation-read',
       'stocks-read',
-      'rapports-basic',
-      'lia-access',
-      'lia-chatbot'
+      'paie-read',
+      'rapports-advanced', 'rapports-comptabilite',
+      'lia-access', 'lia-analyses'
     ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 7. Admin IT (Toutes)
+  {
+    id: 'admin',
+    name: 'Administrateur IT',
+    description: 'Accès système complet (Configuration)',
+    permissions: AVAILABLE_PERMISSIONS.map(p => p.id), // "God Mode"
     companyTypes: ['eurl', 'sarl', 'spa'],
     accessLevels: ['starter', 'professional', 'enterprise']
   }
@@ -618,6 +532,11 @@ export class PermissionManager {
   ): string[] {
     const role = USER_ROLES.find(r => r.id === userRole);
     if (!role) return [];
+
+    // ADAPTATION LOGIQUE METIER : L'Admin a toujours accès à tout
+    if (userRole === 'admin') {
+      return AVAILABLE_PERMISSIONS.map(p => p.id);
+    }
 
     // Vérifier si le rôle est compatible avec le type d'entreprise
     if (!role.companyTypes.includes(companyType)) {

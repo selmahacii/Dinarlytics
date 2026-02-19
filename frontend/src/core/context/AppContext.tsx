@@ -46,6 +46,7 @@ interface AppContextType {
   currentCountry: Country;
   planComptable: 'algerien' | 'international';
   isSidebarCollapsed: boolean;
+  isMobileMenuOpen: boolean;
   companyData: CompanyData | null;
   companyMetrics: CompanyMetrics | null;
   loading: boolean;
@@ -56,18 +57,35 @@ interface AppContextType {
   setCurrentDevise: (devise: Devise) => void;
   setPlanComptable: (plan: 'algerien' | 'international') => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setMobileMenuOpen: (open: boolean) => void;
   formatCurrency: (amount: number) => string;
   calculateTVA: (montantHT: number, taux?: 'normal' | 'reduit' | 'intermediaire') => number;
   getTVARate: (taux?: 'normal' | 'reduit' | 'intermediaire') => number;
+  currentLang: 'fr' | 'ar' | 'en';
+  setLang: (lang: 'fr' | 'ar' | 'en') => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const raw = window.localStorage.getItem('app_user');
+      if (raw) {
+        return JSON.parse(raw) as User;
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  });
+
   const [currentDevise, setCurrentDevise] = useState<Devise>('DZD');
+  const [currentLang, setLang] = useState<'fr' | 'ar' | 'en'>('fr');
   const [loading, setLoading] = useState(false);
   const [companyMetrics, setCompanyMetrics] = useState<CompanyMetrics | null>(null);
+
+  // ... (companyData generation logic) ...
   const companyData: CompanyData | null = companyMetrics
     ? {
       revenueMonth: companyMetrics.revenue,
@@ -91,6 +109,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     : null;
 
+
   // Charger le plan comptable depuis localStorage
   const [planComptable, setPlanComptableState] = useState<'algerien' | 'international'>(() => {
     try {
@@ -112,23 +131,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const [isSidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  // Charger un utilisateur persistant si disponible
+  // Sync user changes to localStorage (optional but good for updates)
   useEffect(() => {
-    if (!user) {
-      try {
-        const raw = window.localStorage.getItem('app_user');
-        if (raw) {
-          const persisted = JSON.parse(raw) as User;
-          if (persisted && persisted.nom) {
-            setUser(persisted);
-          }
-        }
-      } catch {
-        // ignore
-      }
+    if (user) {
+      window.localStorage.setItem('app_user', JSON.stringify(user));
+    } else {
+      // Don't clear on null unless explicitly logging out, 
+      // but here we just sync. If logout happens, handleLogout should clear it.
     }
-  }, []);
+  }, [user]);
 
   // Fetch company metrics from API when user changes
   useEffect(() => {
@@ -169,7 +182,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const formatCurrency = (amount: number): string => {
     const symbols: Record<Devise, string> = { DZD: 'DA', EUR: '€', USD: '$' };
-    return `${amount.toLocaleString('fr-FR')} ${symbols[currentDevise]}`;
+    return `${(amount || 0).toLocaleString('fr-FR')} ${symbols[currentDevise]}`;
   };
 
   const calculateTVAContext = (montantHT: number, taux: 'normal' | 'reduit' | 'intermediaire' = 'normal'): number => {
@@ -187,6 +200,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       currentCountry,
       planComptable,
       isSidebarCollapsed,
+      isMobileMenuOpen,
       companyData,
       companyMetrics,
       loading,
@@ -197,9 +211,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setCurrentDevise,
       setPlanComptable,
       setSidebarCollapsed,
+      setMobileMenuOpen,
       formatCurrency,
       calculateTVA: calculateTVAContext,
-      getTVARate
+      getTVARate,
+      currentLang,
+      setLang
     }}>
       {children}
     </AppContext.Provider>

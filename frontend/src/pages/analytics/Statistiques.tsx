@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  DocumentArrowDownIcon, 
-  ChartBarIcon, 
-  ArrowTrendingUpIcon, 
+import {
+  DocumentArrowDownIcon,
+  ChartBarIcon,
+  ArrowTrendingUpIcon,
   CurrencyDollarIcon,
   UserGroupIcon,
   CheckCircleIcon,
@@ -19,7 +19,8 @@ import {
   BookOpenIcon,
   DocumentCheckIcon,
   ScaleIcon,
-  ClipboardDocumentListIcon
+  ClipboardDocumentListIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
@@ -31,7 +32,7 @@ import api from '@/services/api';
 const Statistiques: React.FC = () => {
   const { formatCurrency, planComptable } = useApp();
   const { t } = useTranslation();
-  
+
   // États pour les modals
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -82,8 +83,8 @@ const Statistiques: React.FC = () => {
   // Load KPIs and top clients from backend
   React.useEffect(() => {
     setLoadingKpi(true);
-    api.kpis.getKPIs()
-      .then(data => {
+    api.analytics.getKPIs()
+      .then((data: any) => {
         setKpiComptables(data);
       })
       .catch(() => setKpiError('Erreur lors du chargement des KPIs'))
@@ -182,407 +183,359 @@ const Statistiques: React.FC = () => {
     }
   ];
 
+  if (loadingKpi || !kpiComptables) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+          <p className="text-gray-500 font-medium">Chargement des statistiques...</p>
+        </div>
+      </div>
+    );
+  }
+
   const clientsToDisplay = topClients.length ? topClients : sampleTopClients;
 
   return (
     <div className="space-y-6">
       {/* En-tête de la page */}
-      <div className="bg-white border border-gray-200 p-6 rounded-lg">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">Aperçu Général des Statistiques</h1>
-        <p className="text-gray-600">
-          Vue d'ensemble des performances et métriques clés de l'entreprise
-        </p>
+      {/* Header & Overview Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <ChartBarSquareIcon className="w-32 h-32 text-slate-900" />
+        </div>
+
+        <div className="p-8 relative z-10">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+                Tableau de Bord Financier
+              </h1>
+              <p className="text-slate-500 mt-2 text-lg max-w-2xl">
+                Vue d'ensemble stratégique des performances, de la trésorerie et de la conformité comptable.
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-3 bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span className="flex h-3 w-3 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+              </span>
+              <div className="text-sm">
+                <p className="text-slate-900 font-semibold">Données en Temps Réel</p>
+                <p className="text-slate-500 text-xs text-right">Mise à jour: À l'instant</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Disclaimer */}
+          <div className="mt-8 flex items-start space-x-3 bg-blue-50/50 border border-blue-100 rounded-lg p-3 max-w-3xl">
+            <ExclamationTriangleIcon className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-blue-700">
+              <span className="font-semibold mr-1"> Environnement de Démonstration :</span>
+              {t('disclaimer')} - Les indicateurs financiers et comptables présentés ci-dessous sont générés à titre d'illustration pour simuler les capacités d'analyse de Dinarlytic.
+            </p>
+          </div>
+        </div>
+
+        {/* Decorative Bottom Line */}
+        <div className="h-1 bg-gradient-to-r from-emerald-400 via-blue-500 to-purple-500 w-full"></div>
       </div>
 
-      {/* Disclaimer */}
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-        <div className="flex items-center">
-          <CheckCircleIcon className="h-5 w-5 text-yellow-400 mr-2" />
-          <p className="text-yellow-800 text-sm font-medium">
-            {t('disclaimer')} - Les données présentées sont des simulations pour démonstration
-          </p>
+      {/* 🎯 Métriques Clés Reformatted */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+          <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mb-4 relative z-10" />
+          <p className="text-slate-500 text-sm font-medium mb-1">Chiffre d'Affaires</p>
+          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{formatCurrency(metriques.ventesTotal)}</h3>
+          <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+            <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
+            <span>+{metriques.croissanceCA}%</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+          <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-4 relative z-10" />
+          <p className="text-slate-500 text-sm font-medium mb-1">Marge Brute</p>
+          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.margeBrute}%</h3>
+          <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+            <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
+            <span>+2.1%</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+          <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600 mb-4 relative z-10" />
+          <p className="text-slate-500 text-sm font-medium mb-1">Rotation Stock</p>
+          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.rotationStock}x/an</h3>
+          <div className="flex items-center mt-2 text-xs font-medium text-slate-500">
+            Target: 8x
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+          <UserGroupIcon className="h-8 w-8 text-orange-600 mb-4 relative z-10" />
+          <p className="text-slate-500 text-sm font-medium mb-1">Clients Actifs</p>
+          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.nombreClients}</h3>
+          <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+            <span>+{metriques.nouveauxClients} new</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+          <CheckCircleIcon className="h-8 w-8 text-teal-600 mb-4 relative z-10" />
+          <p className="text-slate-500 text-sm font-medium mb-1">Fidélisation</p>
+          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.tauxFidelisation}%</h3>
+          <div className="flex items-center mt-2 text-xs font-medium text-teal-700 bg-teal-50 w-fit px-2 py-1 rounded-full">
+            Top Tier
+          </div>
         </div>
       </div>
 
-      {/* Métriques clés enrichies */}
-      <Card title="🎯 Métriques Clés">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <CurrencyDollarIcon className="h-8 w-8 text-blue-600" />
-            </div>
-            <p className="text-sm text-gray-500 mb-1">Chiffre d'Affaires Total</p>
-            <p className="text-2xl font-bold text-blue-600">{formatCurrency(metriques.ventesTotal)}</p>
-            <p className="text-xs text-green-600 mt-1">+{metriques.croissanceCA}% vs mois dernier</p>
-          </div>
+      {/* 📚 Section Comptable & Journaux - Premium Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <ArrowTrendingUpIcon className="h-8 w-8 text-green-600" />
-            </div>
-            <p className="text-sm text-gray-500 mb-1">Marge Brute</p>
-            <p className="text-2xl font-bold text-green-600">{metriques.margeBrute}%</p>
-            <p className="text-xs text-green-600 mt-1">+2.1% vs mois dernier</p>
-          </div>
-
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <ChartBarIcon className="h-8 w-8 text-purple-600" />
-            </div>
-            <p className="text-sm text-gray-500 mb-1">Rotation Stock</p>
-            <p className="text-2xl font-bold text-purple-600">{metriques.rotationStock}x/an</p>
-            <p className="text-xs text-blue-600 mt-1">Objectif: 8x/an</p>
-          </div>
-
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <UserGroupIcon className="h-8 w-8 text-orange-600" />
-            </div>
-            <p className="text-sm text-gray-500 mb-1">Clients Actifs</p>
-            <p className="text-2xl font-bold text-orange-600">{metriques.nombreClients}</p>
-            <p className="text-xs text-green-600 mt-1">+{metriques.nouveauxClients} ce mois</p>
-          </div>
-
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <CheckCircleIcon className="h-8 w-8 text-emerald-600" />
-            </div>
-            <p className="text-sm text-gray-500 mb-1">Fidélisation</p>
-            <p className="text-2xl font-bold text-emerald-600">{metriques.tauxFidelisation}%</p>
-            <p className="text-xs text-emerald-600 mt-1">Excellente rétention</p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Section Comptable SCF/IFRS */}
-      <Card title="📚 Indicateurs Comptables">
-        <div className="space-y-6">
-          {/* En-tête avec norme comptable */}
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                  Norme Comptable Active
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  <BookOpenIcon className="h-4 w-4 inline mr-2" />
-                  {normesComptables[planComptable as keyof typeof normesComptables].nom}
-                </p>
-              </div>
-              <div className="text-right">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {normesComptables[planComptable as keyof typeof normesComptables].emoji} {normesComptables[planComptable as keyof typeof normesComptables].code}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* KPI Comptables */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Écritures Comptables */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ClipboardDocumentListIcon className="h-5 w-5 text-blue-600" />
+        {/* Left Col: Accounting Indicators */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Accounting Header */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-indigo-50 rounded-lg">
+                  <BookOpenIcon className="h-6 w-6 text-indigo-600" />
                 </div>
-                <span className="text-xs text-gray-500">Écritures</span>
-              </div>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold text-gray-900">
-                  {kpiComptables.ecrituresComptables.total}
-                </p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-green-600 font-medium">
-                    {kpiComptables.ecrituresComptables.validees} validées
-                  </span>
-                  <span className="text-gray-500">
-                    {kpiComptables.ecrituresComptables.enAttente} en attente
-                  </span>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800">Indicateurs Comptables</h2>
+                  <p className="text-sm text-slate-500">
+                    Norme: <span className="font-semibold text-indigo-600">{normesComptables[planComptable as keyof typeof normesComptables].nom}</span>
+                  </p>
                 </div>
-                <p className="text-xs text-green-600">
-                  +{kpiComptables.ecrituresComptables.evolution}% vs mois dernier
-                </p>
-                <p className="text-xs text-gray-500">
-                  {kpiComptables.ecrituresComptables.parJour} écritures/jour
-                </p>
               </div>
+              <span className="px-4 py-1.5 rounded-full text-sm font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                {normesComptables[planComptable as keyof typeof normesComptables].emoji} {normesComptables[planComptable as keyof typeof normesComptables].code}
+              </span>
             </div>
 
-            {/* TVA */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <DocumentCheckIcon className="h-5 w-5 text-purple-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Écritures */}
+              <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-col">
+                    <span className="text-slate-500 text-sm font-medium">Écritures Totales</span>
+                    <span className="text-2xl font-bold text-slate-800">{kpiComptables.ecrituresComptables.total}</span>
+                  </div>
+                  <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
+                    <ClipboardDocumentListIcon className="h-5 w-5 text-slate-600" />
+                  </div>
                 </div>
-                <span className="text-xs text-gray-500">TVA</span>
-              </div>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(kpiComptables.tva.aVerser)}
-                </p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-purple-600 font-medium">
-                    Collectée: {formatCurrency(kpiComptables.tva.collectee)}
-                  </span>
-                  <span className="text-gray-500">
-                    Déductible: {formatCurrency(kpiComptables.tva.deductible)}
-                  </span>
+                <div className="w-full bg-slate-200 rounded-full h-1.5 mb-2">
+                  <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${(kpiComptables.ecrituresComptables.validees / kpiComptables.ecrituresComptables.total) * 100}%` }}></div>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Taux: {kpiComptables.tva.taux}%
-                </p>
-                <p className="text-xs text-green-600">
-                  +{kpiComptables.tva.evolution}% vs mois dernier
-                </p>
-                <p className="text-xs text-gray-500">
-                  {normesComptables[planComptable as keyof typeof normesComptables].comptes.tva}
-                </p>
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>{kpiComptables.ecrituresComptables.validees} validées</span>
+                  <span className="text-orange-500 font-medium">{kpiComptables.ecrituresComptables.enAttente} attente</span>
+                </div>
               </div>
-            </div>
 
-            {/* Bilan */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <ScaleIcon className="h-5 w-5 text-green-600" />
+              {/* TVA */}
+              <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-col">
+                    <span className="text-slate-500 text-sm font-medium">TVA à Verser</span>
+                    <span className="text-2xl font-bold text-slate-800">{formatCurrency(kpiComptables.tva.aVerser)}</span>
+                  </div>
+                  <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
+                    <DocumentCheckIcon className="h-5 w-5 text-purple-600" />
+                  </div>
                 </div>
-                <span className="text-xs text-gray-500">Bilan</span>
-              </div>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatCurrency(kpiComptables.bilans.actif)}
-                </p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-green-600 font-medium">
-                    Actif: {formatCurrency(kpiComptables.bilans.actif)}
-                  </span>
-                  <span className="text-gray-500">
-                    Passif: {formatCurrency(kpiComptables.bilans.passif)}
-                  </span>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="text-xs">
+                    <p className="text-slate-400">Collectée</p>
+                    <p className="font-semibold text-slate-700">{formatCurrency(kpiComptables.tva.collectee)}</p>
+                  </div>
+                  <div className="text-xs">
+                    <p className="text-slate-400">Déductible</p>
+                    <p className="font-semibold text-slate-700">{formatCurrency(kpiComptables.tva.deductible)}</p>
+                  </div>
                 </div>
-                <p className="text-xs text-blue-600">
-                  Capitaux propres: {formatCurrency(kpiComptables.bilans.capitauxPropres)}
-                </p>
-                <p className="text-xs text-green-600">
-                  +{kpiComptables.bilans.evolution}% vs mois dernier
-                </p>
-                <p className="text-xs text-gray-500">
-                  Dernier bilan: {kpiComptables.bilans.dateDernier}
-                </p>
               </div>
-            </div>
 
-            {/* Ratios Financiers */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <ChartBarIcon className="h-5 w-5 text-orange-600" />
+              {/* Bilan Summary */}
+              <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex flex-col">
+                    <span className="text-slate-500 text-sm font-medium">Total Bilan</span>
+                    <span className="text-2xl font-bold text-slate-800">{formatCurrency(kpiComptables.bilans.actif)}</span>
+                  </div>
+                  <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
+                    <ScaleIcon className="h-5 w-5 text-green-600" />
+                  </div>
                 </div>
-                <span className="text-xs text-gray-500">Ratios</span>
+                <div className="text-xs text-slate-500 mt-2">
+                  <span className="font-medium text-emerald-600">+{kpiComptables.bilans.evolution}%</span> vs période précédente
+                </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-2xl font-bold text-gray-900">
-                  {kpiComptables.ratios.length}
-                </p>
-                <div className="space-y-1">
-                  {kpiComptables.ratios.slice(0, 2).map((ratio: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between text-xs">
-                      <span className="text-gray-600">{ratio.nom}</span>
-                      <span className={`px-1 py-0.5 rounded text-xs ${
-                        ratio.couleur === 'green' ? 'bg-green-100 text-green-800' :
-                        ratio.couleur === 'orange' ? 'bg-orange-100 text-orange-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {ratio.valeur}
-                      </span>
+
+              {/* Ratios Quick View */}
+              <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
+                <div className="flex justify-between items-start mb-3">
+                  <span className="text-slate-500 text-sm font-medium">Ratios Clés</span>
+                  <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
+                    <ChartBarSquareIcon className="h-5 w-5 text-orange-600" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {kpiComptables.ratios.slice(0, 2).map((ratio: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-center text-sm">
+                      <span className="text-slate-600 truncate">{ratio.nom}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${ratio.couleur === 'green' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>{ratio.valeur}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500">
-                  {kpiComptables.ratios.length} ratios suivis
-                </p>
               </div>
+
             </div>
           </div>
 
-          {/* Journaux Comptables */}
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-4">Journaux Comptables</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {kpiComptables.journaux.map((journal: any, index: number) => (
-                <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h5 className="font-medium text-gray-900 text-sm">{journal.nom}</h5>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      journal.statut === 'Validé' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {journal.statut}
-                    </span>
-                  </div>
+          {/* Codes Comptables */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Plan Comptable Simplifié</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {['Ventes', 'Gestion', 'Stocks'].map((section) => (
+                <div key={section} className="space-y-2">
+                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-400">{section}</h4>
                   <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-600">Écritures:</span>
-                      <span className="font-medium">{journal.nombre}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-600">Montant:</span>
-                      <span className="font-medium">{formatCurrency(journal.montant)}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-600">Évolution:</span>
-                      <span className="font-medium text-green-600">+{journal.evolution}%</span>
-                    </div>
+                    {(section === 'Ventes' ? [
+                      { label: 'Ventes biens', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.ventes },
+                      { label: 'Produits finis', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.produits }
+                    ] : section === 'Gestion' ? [
+                      { label: 'TVA Collectée', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.tva },
+                      { label: 'Clients', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.clients }
+                    ] : [
+                      { label: 'Stocks', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.stocks },
+                      { label: 'Immob.', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.immobilisations }
+                    ]).map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+                        <span className="text-slate-600">{item.label}</span>
+                        <span className="font-mono font-medium text-slate-800">{item.code.split(' - ')[0]}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
           </div>
+        </div>
 
-          {/* Codes Comptables Principaux */}
-          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-            <h4 className="font-semibold text-gray-900 mb-4">Codes Comptables Principaux</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <h5 className="font-medium text-gray-900 text-sm">Ventes</h5>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                    <span className="text-gray-600">Ventes de biens</span>
-                    <span className="font-mono text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.ventes}</span>
+        {/* Right Col: Journals & Actions */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 h-full">
+            <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
+              <BookOpenIcon className="h-5 w-5 mr-2 text-slate-400" />
+              Journaux
+            </h3>
+            <div className="space-y-4">
+              {kpiComptables.journaux.map((journal: any, index: number) => (
+                <div key={index} className="group p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-slate-200 hover:shadow-md transition-all">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-semibold text-slate-700">{journal.nom}</h4>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${journal.statut === 'Validé' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {journal.statut}
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                    <span className="text-gray-600">Produits finis</span>
-                    <span className="font-mono text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.produits}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h5 className="font-medium text-gray-900 text-sm">Gestion</h5>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                    <span className="text-gray-600">TVA Collectée</span>
-                    <span className="font-mono text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.tva}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                    <span className="text-gray-600">Clients</span>
-                    <span className="font-mono text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.clients}</span>
+                  <div className="flex justify-between items-end">
+                    <div className="text-xs text-slate-500">
+                      <p>Mise à jour: {journal.lastUpdate || 'N/A'}</p>
+                      <p className="mt-0.5">{journal.entries || 0} lignes</p>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      {/* Mock financial volume for demo looks */}
+                      <span className="font-bold text-slate-800 text-sm">{formatCurrency(journal.entries * 1250)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <h5 className="font-medium text-gray-900 text-sm">Stocks</h5>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                    <span className="text-gray-600">Stocks</span>
-                    <span className="font-mono text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.stocks}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
-                    <span className="text-gray-600">Immobilisations</span>
-                    <span className="font-mono text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.immobilisations}</span>
-                  </div>
-                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Actions Rapides</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <button className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                  <DocumentCheckIcon className="h-5 w-5 mb-1" />
+                  <span className="text-xs font-semibold">Saisie</span>
+                </button>
+                <button className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors">
+                  <CalculatorIcon className="h-5 w-5 mb-1" />
+                  <span className="text-xs font-semibold">TVA</span>
+                </button>
               </div>
             </div>
           </div>
-
-          {/* Actions Comptables */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <button className="flex items-center justify-center p-3 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-colors">
-              <DocumentCheckIcon className="h-4 w-4 text-blue-600 mr-2" />
-              <span className="text-blue-700 text-sm font-medium">Écritures</span>
-            </button>
-            <button className="flex items-center justify-center p-3 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-colors">
-              <CalculatorIcon className="h-4 w-4 text-green-600 mr-2" />
-              <span className="text-green-700 text-sm font-medium">Calcul TVA</span>
-            </button>
-            <button className="flex items-center justify-center p-3 bg-purple-50 hover:bg-purple-100 rounded-lg border border-purple-200 transition-colors">
-              <BookOpenIcon className="h-4 w-4 text-purple-600 mr-2" />
-              <span className="text-purple-700 text-sm font-medium">Plan Comptable</span>
-            </button>
-            <button className="flex items-center justify-center p-3 bg-orange-50 hover:bg-orange-100 rounded-lg border border-orange-200 transition-colors">
-              <ScaleIcon className="h-4 w-4 text-orange-600 mr-2" />
-              <span className="text-orange-700 text-sm font-medium">Bilans</span>
-            </button>
-          </div>
         </div>
-      </Card>
+      </div>
 
-      <Card title="🏆 Top Clients">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 🏆 Top Clients Professional Cards */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-800">Top Clients Stratégiques</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {clientsToDisplay.map((client: any) => (
-            <div key={client.id || client.nom} className="p-6 bg-gradient-to-b from-white to-gray-50 rounded-lg border border-gray-200 shadow-sm space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">{client.nom}</h3>
-                  <p className="text-sm text-gray-600">
-                    CA: {formatCurrency(client.ca || 0)} ({client.pourcentage ?? 0}%)
-                  </p>
-                  <p className="text-xs text-green-600">Croissance: {client.croissance ?? 0}%</p>
-                </div>
-                <div className="text-right">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-2">
-                    {client.secteur || 'Secteur'}
-                  </span>
-                  <div className={`text-sm font-semibold ${client.risque === 'faible' ? 'text-green-600' : client.risque === 'élevé' ? 'text-red-600' : 'text-orange-600'}`}>
-                    Risque: {client.risque || 'N/A'}
+            <div key={client.id || client.nom} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow duration-300">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
+                    {(() => {
+                      const name = typeof client?.nom === 'string' ? client.nom : (client?.name || '?');
+                      return name.substring(0, 2).toUpperCase();
+                    })()}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-800 leading-tight">{client.nom}</h3>
+                    <span className="text-xs font-med
+                    
+                    ium px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{client.secteur}</span>
                   </div>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-gray-700">Raisons principales</p>
-                <ul className="list-disc list-inside text-xs text-gray-600 space-y-1">
-                  {(client.raisonsTop || []).map((raison: string, idx: number) => (
-                    <li key={idx}>{raison}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Délai Paiement</p>
-                  <p className="font-bold text-blue-600">{client.metriques?.delaiPaiement ?? 0} jours</p>
-                </div>
-                <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Renouvellement</p>
-                  <p className="font-bold text-green-600">{client.metriques?.tauxRenouvellement ?? 0}%</p>
-                </div>
-                <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Satisfaction</p>
-                  <p className="font-bold text-purple-600">{client.metriques?.satisfaction ?? 0}/5</p>
-                </div>
-                <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
-                  <p className="text-xs text-gray-500 mb-1">Recommandations</p>
-                  <p className="font-bold text-orange-600">{client.metriques?.recommandations ?? 0}</p>
+                <div className={`p-1.5 rounded-full ${client.risque === 'faible' ? 'bg-emerald-100' : 'bg-orange-100'}`}>
+                  <ShieldCheckIcon className={`h-4 w-4 ${client.risque === 'faible' ? 'text-emerald-600' : 'text-orange-600'}`} />
                 </div>
               </div>
 
-              <div className="mt-2 flex space-x-3">
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                  <p className="text-xs text-slate-500 mb-1">Vol. Affaires</p>
+                  <p className="font-bold text-slate-800">{formatCurrency(client.ca || 0)}</p>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                  <p className="text-xs text-slate-500 mb-1">Performance</p>
+                  <p className="font-bold text-emerald-600">+{client.croissance ?? 0}%</p>
+                </div>
+              </div>
+
+              <div className="flex space-x-2">
                 <button
                   onClick={() => handleViewDetails(client)}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center justify-center"
+                  className="flex-1 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition-colors"
                 >
-                  <EyeIcon className="h-4 w-4 mr-2" />
-                  Voir Détails
+                  Détails Complets
                 </button>
                 <button
                   onClick={() => handleContact(client)}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center justify-center"
+                  className="flex-1 py-2 text-sm font-semibold text-white bg-slate-900 border border-slate-900 rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
                 >
-                  <EnvelopeIcon className="h-4 w-4 mr-2" />
-                  Contacter
-                </button>
-                <button
-                  onClick={() => handleAnalyze(client)}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center justify-center"
-                >
-                  <ChartBarSquareIcon className="h-4 w-4 mr-2" />
-                  Analyser
+                  Action
                 </button>
               </div>
             </div>
           ))}
         </div>
-      </Card>
+      </div>
 
       {/* Navigation vers les autres sections */}
       <Card title="🔗 Accès aux Autres Sections">
@@ -592,21 +545,21 @@ const Statistiques: React.FC = () => {
             <p className="text-blue-700 mb-4">
               Accédez aux 8 graphiques financiers spécialisés pour une analyse approfondie
             </p>
-            <a 
-              href="/statistiques/financier"
+            <a
+              href="/dashboard"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Accéder au Tableau de Bord
             </a>
           </div>
-          
+
           <div className="p-6 bg-white rounded-lg border border-gray-200">
             <h3 className="text-xl font-bold text-green-900 mb-3">📈 Indicateurs de Performance</h3>
             <p className="text-green-700 mb-4">
               Explorez les KPIs financiers détaillés et les recommandations stratégiques
             </p>
-            <a 
-              href="/statistiques/performance"
+            <a
+              href="/dashboard/analytics"
               className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               Voir les Indicateurs
@@ -628,6 +581,7 @@ const Statistiques: React.FC = () => {
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
         title={`Détails Complets - ${selectedClient?.nom}`}
+        size="xl"
       >
         {selectedClient && (
           <div className="space-y-6">

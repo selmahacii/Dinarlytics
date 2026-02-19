@@ -46,6 +46,7 @@ type SidebarLink = {
 
 type SidebarSubmenu = {
   type: 'submenu' | 'nested-submenu';
+  id?: string;
   icon: SidebarIcon;
   label: string;
   isOpen: boolean;
@@ -56,25 +57,32 @@ type SidebarSubmenu = {
 type SidebarItem = SidebarSubmenu | SidebarLink;
 
 const Sidebar: React.FC = () => {
-  const { planComptable, isSidebarCollapsed, setSidebarCollapsed } = useApp();
+  const { planComptable, isSidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setMobileMenuOpen } = useApp();
   const location = useLocation();
   const { has, user } = usePermission();
-  const [dashboardMenuOpen, setDashboardMenuOpen] = useState(false);
-  const [clientsMenuOpen, setClientsMenuOpen] = useState(false);
-  const [statsMenuOpen, setStatsMenuOpen] = useState(false);
-  const [comptaGeneraleMenuOpen, setComptaGeneraleMenuOpen] = useState(false);
-  const [analyticsMenuOpen, setAnalyticsMenuOpen] = useState(false);
-  const [liaMenuOpen, setLiaMenuOpen] = useState(false);
-  const [rapportsMenuOpen, setRapportsMenuOpen] = useState(false);
+
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
+    'intelligence-lia': false,
+    'finance-comptabilite': false,
+    'pilotage-tableaux': false,
+    'operations-commerciales': false,
+    'analyses-rapports': false,
+    'controle-reglages': false
+  });
+
+  const toggleMenu = (key: string) => {
+    setOpenMenus(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const menuItems: SidebarItem[] = ([
     // 1. Core AI Intelligence (User priority)
     has('lia-access') && {
       type: 'submenu',
+      id: 'intelligence-lia',
       icon: SparklesIcon,
       label: 'Intelligence LIA',
-      isOpen: liaMenuOpen,
-      onToggle: () => setLiaMenuOpen(!liaMenuOpen),
+      isOpen: openMenus['intelligence-lia'],
+      onToggle: () => toggleMenu('intelligence-lia'),
       subItems: [
         { path: '/lia/chatbot', icon: SparklesIcon, label: 'Assistant Chatbot' },
         { path: '/lia/analyses', icon: ChartBarIcon, label: 'Analyses Prédictives' },
@@ -85,56 +93,60 @@ const Sidebar: React.FC = () => {
     // 2. Accounting & Fiscal (Finance Heart)
     has('comptabilite-read') && {
       type: 'submenu',
+      id: 'finance-comptabilite',
       icon: CalculatorIcon,
-      label: 'Finance & Comptabilité',
-      isOpen: comptaGeneraleMenuOpen,
-      onToggle: () => setComptaGeneraleMenuOpen(!comptaGeneraleMenuOpen),
+      label: 'Finance & Compta',
+      isOpen: openMenus['finance-comptabilite'],
+      onToggle: () => toggleMenu('finance-comptabilite'),
       subItems: [
         { path: '/comptabilite/etats', icon: DocumentTextIcon, label: 'Balance & Bilan' },
         { path: '/fiscalite', icon: ScaleIcon, label: 'Déclarations Fiscale' },
-        { path: '/comptabilite/journaux', icon: ClipboardDocumentListIcon, label: 'Saisie Journal' }
+        has('comptabilite-write') && { path: '/comptabilite/journaux', icon: ClipboardDocumentListIcon, label: 'Saisie Journal' }
       ].filter(Boolean)
     },
 
     // 3. Operational Dashboards
     has('dashboard-access') && {
       type: 'submenu',
+      id: 'pilotage-tableaux',
       icon: HomeIcon,
-      label: 'Pilotage & Tableaux',
-      isOpen: dashboardMenuOpen,
-      onToggle: () => setDashboardMenuOpen(!dashboardMenuOpen),
+      label: 'Pilotage',
+      isOpen: openMenus['pilotage-tableaux'],
+      onToggle: () => toggleMenu('pilotage-tableaux'),
       subItems: [
         { path: '/dashboard', icon: HomeIcon, label: "Vue Globale" },
-        { path: '/dashboard/alertes', icon: ExclamationTriangleIcon, label: 'Alertes & Risques' },
-        { path: '/dashboard/calendrier', icon: CalendarIcon, label: 'Calendrier Fiscal' }
-      ]
+        has('dashboard-alerts') && { path: '/dashboard/alertes', icon: ExclamationTriangleIcon, label: 'Alertes & Risques' },
+        has('dashboard-calendar') && { path: '/dashboard/calendrier', icon: CalendarIcon, label: 'Calendrier Fiscal' }
+      ].filter(Boolean)
     },
 
     // 4. Commercial & Supply Chain (Impact Finance)
     has('facturation-read') && {
       type: 'submenu',
+      id: 'operations-commerciales',
       icon: ShoppingCartIcon,
-      label: 'Opérations Commerciales',
-      isOpen: clientsMenuOpen,
-      onToggle: () => setClientsMenuOpen(!clientsMenuOpen),
+      label: 'Opérations',
+      isOpen: openMenus['operations-commerciales'],
+      onToggle: () => toggleMenu('operations-commerciales'),
       subItems: [
         { path: '/factures-vente', icon: DocumentTextIcon, label: 'Factures de Vente' },
-        { path: '/clients', icon: UsersIcon, label: 'Portefeuille Clients' },
-        { path: '/fournisseurs', icon: TruckIcon, label: 'Portefeuille Fournisseurs' },
-        { path: '/articles', icon: CubeIcon, label: 'Stock & Articles' }
-      ]
+        has('clients-manage') && { path: '/clients', icon: UsersIcon, label: 'Portefeuille Clients' },
+        has('fournisseurs-manage') && { path: '/fournisseurs', icon: TruckIcon, label: 'Fournisseurs' },
+        has('stocks-read') && { path: '/articles', icon: CubeIcon, label: 'Stock & Articles' }
+      ].filter(Boolean)
     },
 
     // 5. Strategic Reports
     has('rapports-basic') && {
       type: 'submenu',
+      id: 'analyses-rapports',
       icon: DocumentChartBarIcon,
-      label: 'Analyses & Rapports',
-      isOpen: rapportsMenuOpen,
-      onToggle: () => setRapportsMenuOpen(!rapportsMenuOpen),
+      label: 'Analyses',
+      isOpen: openMenus['analyses-rapports'],
+      onToggle: () => toggleMenu('analyses-rapports'),
       subItems: [
-        { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: 'Flux de Trésorerie' },
-        { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: 'Analyse Commerciale' },
+        has('rapports-tresorerie') && { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: 'Flux de Trésorerie' },
+        has('rapports-ventes') && { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: 'Analyse Commerciale' },
         has('rapports-advanced') && { path: '/dashboard/analytics', icon: ChartPieIcon, label: 'Performance (DSO/BFR)' }
       ].filter(Boolean)
     },
@@ -142,10 +154,11 @@ const Sidebar: React.FC = () => {
     // 6. Security & Settings
     has('audit-read') && {
       type: 'submenu',
+      id: 'controle-reglages',
       icon: ShieldCheckIcon,
-      label: 'Contrôle & Réglages',
-      isOpen: false,
-      onToggle: () => { },
+      label: 'Admin & Réglages',
+      isOpen: openMenus['controle-reglages'],
+      onToggle: () => toggleMenu('controle-reglages'),
       subItems: [
         { path: '/audit-explorer', icon: ShieldCheckIcon, label: 'Audit & Traçabilité' },
         { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: 'Utilisateurs' },
@@ -154,206 +167,171 @@ const Sidebar: React.FC = () => {
     }
   ] as Array<SidebarItem | false>).filter(Boolean) as SidebarItem[];
 
+  // Sidebar collapsed state is managed by parent via props, but we also have local toggle for mobile
+  // We use the prop 'isSidebarCollapsed' passed from Layout
+
+  const sidebarWidth = isSidebarCollapsed ? 'w-20' : 'w-72';
+
   return (
-    <div className={`fixed left-0 top-0 h-screen bg-white border-r border-slate-200 text-slate-800 overflow-y-auto z-10 shadow-lg transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'
-      }`}>
-      {/* Logo simple et professionnel */}
-      <div className="p-6 border-b border-slate-200">
-        <div className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : 'space-x-3'}`}>
+    <>
+      {/* Mobile Overlay */}
+      <div
+        className={`fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
+
+      {/* Sidebar Container - WHITE THEME */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 ${sidebarWidth} bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col shadow-sm ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
+      >
+        {/* Header / Logo Area - Clean White */}
+        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-100 bg-white relative">
+
+          <Link to="/" className="flex items-center space-x-3 relative z-10 group/logo">
+            <div className={`transition-all duration-300 ${isSidebarCollapsed ? 'w-10 h-10' : 'w-9 h-9'} rounded-xl bg-slate-50 flex items-center justify-center border border-slate-200 group-hover/logo:border-slate-300`}>
+              <img src={currencyIcon} alt="Logo" className={`${isSidebarCollapsed ? 'w-6 h-6' : 'w-5 h-5'} opacity-90`} />
+            </div>
+
+            {!isSidebarCollapsed && (
+              <div className="flex flex-col">
+                <span className="font-bold text-lg text-slate-800 tracking-tight leading-none group-hover/logo:text-slate-900 transition-colors">
+                  Dinarlytic
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
+                  ERP Financier
+                </span>
+              </div>
+            )}
+          </Link>
+
           {!isSidebarCollapsed && (
-            <>
-              <div>
-                <img src={currencyIcon} alt="Currency" className="w-8 h-8 bg-white rounded p-1" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-800">Dinarlytic</h1>
-                <p className="text-slate-500 text-sm">ERP Financier</p>
-              </div>
-            </>
-          )}
-          {isSidebarCollapsed && (
-            <img src={currencyIcon} alt="Currency" className="w-8 h-8 bg-white rounded p-1" />
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-50 transition-colors"
+            >
+              <ChevronLeftIcon className="w-5 h-5" />
+            </button>
           )}
         </div>
-        {!isSidebarCollapsed && (
-          <div className="mt-4">
-            <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium">
-              {planComptable === 'algerien' ? '🇩🇿 PCA 2010' : '🌍 IFRS/GAAP'}
-            </span>
+
+        {/* User Profile Summary (Mini) - Clean Theme */}
+        {!isSidebarCollapsed && user && (
+          <div className="px-4 py-4 border-b border-slate-100 bg-white">
+            {/* Plan Comptable Badge - Like Screenshot */}
+            <div className="mb-4">
+              <span className={`inline-flex items-center px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${planComptable === 'algerien'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                : 'bg-blue-50 text-blue-700 border border-blue-100'
+                }`}>
+                {planComptable === 'algerien' ? 'DZ PCA 2010' : 'INT IFRS'}
+              </span>
+            </div>
           </div>
         )}
-      </div>
 
-      {/* Bouton de toggle */}
-      <div className="p-2 border-b border-slate-200">
-        <button
-          onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
-          className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
-          title={isSidebarCollapsed ? 'Développer la sidebar' : 'Réduire la sidebar'}
-        >
-          {isSidebarCollapsed ? (
-            <Bars3Icon className="h-5 w-5" />
-          ) : (
-            <>
-              <ChevronLeftIcon className="h-5 w-5 mr-2" />
-              <span className="text-sm">Réduire</span>
-            </>
+        {/* Navigation - Light Theme - No Green Backgrounds */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-3 space-y-1">
+          {/* Reduce Button - Like Screenshot */}
+          {!isSidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="w-full hidden lg:flex items-center justify-center py-2 mb-2 text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <ChevronLeftIcon className="w-3 h-3 mr-1" />
+              Réduire
+            </button>
           )}
-        </button>
-      </div>
 
-      {/* Navigation */}
-      <nav className="space-y-2">
-        {menuItems.map((item, index) => {
-          if ('type' in item && item.type === 'submenu') {
-            const Icon = item.icon;
-            let isActive = false;
+          {menuItems.map((item, index) => {
+            if ('type' in item && item.type === 'submenu') {
+              const Icon = item.icon;
 
-            if (item.label === 'Tableau de Bord') {
-              isActive = location.pathname.startsWith('/dashboard');
-            } else if (item.label === 'Intelligence Décisionnelle') {
-              isActive = location.pathname.startsWith('/lia');
-            } else if (item.label === 'Rapports & Analytics') {
-              isActive = location.pathname.startsWith('/rapports');
-            } else if (item.label === 'Gestion Commerciale') {
-              isActive = location.pathname.startsWith('/clients') ||
-                location.pathname.startsWith('/fournisseurs') ||
-                location.pathname.startsWith('/articles') ||
-                location.pathname.startsWith('/inventaire') ||
-                location.pathname.startsWith('/factures-vente');
-            } else if (item.label === 'Comptabilité') {
-              isActive = location.pathname.startsWith('/comptabilite') ||
-                location.pathname.startsWith('/template-document') ||
-                location.pathname.startsWith('/consolidation') ||
-                location.pathname.startsWith('/gestion-entreprise') ||
-                location.pathname.startsWith('/gestion-utilisateurs-acces');
-            }
+              // Check if any child is active
+              const isChildActive = item.subItems.some((sub: any) => {
+                if (sub.type === 'nested-submenu') return false;
+                return location.pathname.startsWith(sub.path);
+              });
 
-            return (
-              <div key={index}>
-                <button
-                  onClick={item.onToggle}
-                  className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} px-4 py-3 rounded-lg transition-colors ${isActive
-                    ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
-                    }`}
-                  title={isSidebarCollapsed ? item.label : ''}
-                >
-                  <div className="flex items-center">
-                    <Icon className={`h-5 w-5 ${isSidebarCollapsed ? '' : 'mr-3'}`} />
-                    {!isSidebarCollapsed && <span className="flex-1">{item.label}</span>}
-                  </div>
-                  {!isSidebarCollapsed && (
-                    <ChevronDownIcon
-                      className={`h-4 w-4 transition-transform ${item.isOpen ? 'rotate-180' : ''}`}
-                    />
-                  )}
-                </button>
+              const isActiveGroup = item.isOpen || isChildActive;
 
-                {item.isOpen && !isSidebarCollapsed && (
-                  <div className="ml-6 mt-2 space-y-1">
-                    {item.subItems.map((subItem: any, subIndex: number) => {
-                      // Si c'est un sous-sous-menu
-                      if (subItem.type === 'nested-submenu') {
+              return (
+                <div key={index} className="mb-1">
+                  <button
+                    onClick={(item as any).onToggle}
+                    className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'justify-between'} px-3 py-2.5 rounded-lg transition-all duration-150 group ${isActiveGroup
+                      ? 'bg-slate-100 text-slate-800 font-medium'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`}
+                    title={isSidebarCollapsed ? item.label : ''}
+                  >
+                    <div className="flex items-center">
+                      <Icon className={`w-5 h-5 transition-colors ${isActiveGroup ? 'text-slate-700' : 'text-slate-400 group-hover:text-slate-600'
+                        } ${isSidebarCollapsed ? '' : 'mr-3'}`} />
+
+                      {!isSidebarCollapsed && (
+                        <span className="text-sm tracking-wide">{item.label}</span>
+                      )}
+                    </div>
+
+                    {!isSidebarCollapsed && (
+                      <ChevronDownIcon
+                        className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${item.isOpen ? 'rotate-180 text-slate-600' : 'group-hover:text-slate-500'}`}
+                      />
+                    )}
+                  </button>
+
+                  {/* Submenu */}
+                  <div className={`overflow-hidden transition-all duration-200 ease-in-out ${(item.isOpen && !isSidebarCollapsed) ? 'max-h-[500px] opacity-100 mt-1' : 'max-h-0 opacity-0'
+                    }`}>
+                    <div className="ml-3 pl-3 border-l border-slate-200 space-y-0.5 py-1">
+                      {item.subItems.map((subItem: any, subIndex: number) => {
                         const SubIcon = subItem.icon;
-                        const isNestedActive = subItem.subItems?.some((nestedItem: any) =>
-                          location.pathname === nestedItem.path
-                        );
+                        const isSubActive = location.pathname === subItem.path;
 
                         return (
-                          <div key={subIndex}>
-                            <button
-                              onClick={subItem.onToggle}
-                              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors ${isNestedActive || subItem.isOpen
-                                ? 'bg-slate-100 text-slate-800'
-                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-                                }`}
-                            >
-                              <div className="flex items-center">
-                                <SubIcon className="h-4 w-4 mr-3" />
-                                <span className="text-sm font-medium">{subItem.label}</span>
-                              </div>
-                              <ChevronDownIcon
-                                className={`h-3 w-3 transition-transform ${subItem.isOpen ? 'rotate-180' : ''}`}
-                              />
-                            </button>
-
-                            {subItem.isOpen && (
-                              <div className="ml-8 mt-1 space-y-1">
-                                {subItem.subItems.map((nestedItem: any) => {
-                                  const NestedIcon = nestedItem.icon;
-                                  const isNestedItemActive = location.pathname === nestedItem.path;
-
-                                  return (
-                                    <Link
-                                      key={nestedItem.path}
-                                      to={nestedItem.path}
-                                      className={`flex items-center px-4 py-2 rounded-lg transition-colors ${isNestedItemActive
-                                        ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                                        : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700'
-                                        }`}
-                                    >
-                                      <NestedIcon className="h-3 w-3 mr-2 flex-shrink-0" />
-                                      <span className="text-xs font-medium">{nestedItem.label}</span>
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
+                          <Link
+                            key={subIndex}
+                            to={subItem.path}
+                            className={`flex items-center px-3 py-2 rounded-lg text-sm transition-all duration-150 group/link ${isSubActive
+                              ? 'text-slate-900 font-medium bg-slate-50/50'
+                              : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
+                              }`}
+                          >
+                            <span className="truncate">{subItem.label}</span>
+                          </Link>
                         );
-                      }
-
-                      // Si c'est un lien normal
-                      const SubIcon = subItem.icon;
-                      const isSubActive = location.pathname === subItem.path;
-
-                      return (
-                        <Link
-                          key={subItem.path}
-                          to={subItem.path}
-                          className={`flex items-center px-4 py-2.5 rounded-lg transition-colors ${isSubActive
-                            ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-                            }`}
-                        >
-                          <SubIcon className="h-4 w-4 mr-3 flex-shrink-0" />
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">{subItem.label}</div>
-                            {subItem.subLabel && (
-                              <div className="text-xs text-slate-400 mt-0.5">{subItem.subLabel}</div>
-                            )}
-                          </div>
-                        </Link>
-                      );
-                    })}
+                      })}
+                    </div>
                   </div>
-                )}
-              </div>
-            );
-          } else if ('path' in item) {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
 
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center ${isSidebarCollapsed ? 'justify-center' : ''} px-4 py-3 rounded-lg transition-colors ${isActive
-                  ? 'bg-slate-100 text-slate-800 border border-slate-300'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
-                  }`}
-                title={isSidebarCollapsed ? item.label : ''}
-              >
-                <Icon className={`h-5 w-5 ${isSidebarCollapsed ? '' : 'mr-3'}`} />
-                {!isSidebarCollapsed && item.label}
-              </Link>
-            );
-          }
-          return null;
-        })}
-      </nav>
-    </div>
+        {/* Footer / Standard Switcher - Minimalist White */}
+        <div className="p-4 border-t border-slate-100 bg-white z-30">
+
+          {/* Settings Link (matches screenshot position) */}
+          <Link to="/parametres" className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors mb-2">
+            <CogIcon className="w-5 h-5 mr-3 text-slate-400" />
+            {!isSidebarCollapsed && <span className="text-sm font-medium">Paramètres</span>}
+          </Link>
+
+          {isSidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(false)}
+              className="w-full flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <Bars3Icon className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </aside>
+    </>
   );
 };
 

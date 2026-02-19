@@ -54,7 +54,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
@@ -63,9 +63,11 @@ function App() {
               <Suspense fallback={<div className="p-8 text-center">Chargement du module...</div>}>
                 <Routes>
                   {/* Dashboard */}
-                  <Route path="/dashboard" element={<RealisticDashboard isVisible={true} />} />
-                  <Route path="/dashboard/temps-reel" element={<RealisticDashboard isVisible={true} />} />
-                  <Route path="/dashboard/analytics" element={<AnalyticsAvancees />} />
+                  <Route path="/dashboard" element={<ProtectedRoute><RealisticDashboard isVisible={true} /></ProtectedRoute>} />
+                  <Route path="/dashboard/temps-reel" element={<ProtectedRoute><RealisticDashboard isVisible={true} /></ProtectedRoute>} />
+                  <Route path="/dashboard/analytics" element={<ProtectedRoute requiredPermission="rapports-basic"><AnalyticsAvancees /></ProtectedRoute>} />
+                  <Route path="/dashboard/alertes" element={<ProtectedRoute requiredPermission="dashboard-alerts"><Audit /></ProtectedRoute>} />
+                  <Route path="/dashboard/calendrier" element={<ProtectedRoute requiredPermission="dashboard-calendar"><Fiscalite /></ProtectedRoute>} />
 
                   {/* Commercial */}
                   <Route path="/clients" element={<ProtectedRoute requiredPermission="clients-manage"><Clients /></ProtectedRoute>} />

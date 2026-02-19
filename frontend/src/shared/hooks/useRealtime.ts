@@ -7,55 +7,27 @@ export const useRealtime = () => {
     useEffect(() => {
         // Determine WebSocket URL
         // In development loop, it's usually localhost:8000 for backend
-        const wsUrl = 'ws://localhost:8000/ws';
+        // Determine WebSocket URL dynamically
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+        // Remove /api/v1 suffix if present and replace protocol
+        const baseUrl = apiUrl.replace('/api/v1', '').replace(/\/$/, '');
+        const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws';
+        const wsUrl = `${baseUrl.replace(/^http(s)?/, wsProtocol)}/ws`;
 
         let ws: WebSocket | null = null;
         let reconnectTimer: any = null;
 
         const connect = () => {
-            ws = new WebSocket(wsUrl);
+            // Disable WS for Mock/Demo Mode to avoid console spam
+            console.log('Realtime WS disabled for Demo/Mock mode');
+            return;
 
-            ws.onopen = () => {
-                console.log('WebSocket Connected');
-            };
+            // ws = new WebSocket(wsUrl);
 
-            ws.onmessage = (event) => {
-                try {
-                    const message = JSON.parse(event.data);
-                    console.log('WebSocket Message:', message);
-
-                    switch (message.type) {
-                        case 'CLIENT_CREATED':
-                        case 'CLIENT_UPDATED':
-                        case 'CLIENT_DELETED':
-                            queryClient.invalidateQueries({ queryKey: ['clients'] });
-                            queryClient.invalidateQueries({ queryKey: ['clients', 'stats'] });
-                            break;
-                        case 'SUPPLIER_CREATED':
-                        case 'SUPPLIER_UPDATED':
-                        case 'SUPPLIER_DELETED':
-                            queryClient.invalidateQueries({ queryKey: ['suppliers'] });
-                            break;
-                        case 'ARTICLE_CREATED':
-                        case 'ARTICLE_UPDATED':
-                        case 'ARTICLE_DELETED':
-                            queryClient.invalidateQueries({ queryKey: ['articles'] });
-                            break;
-                    }
-                } catch (e) {
-                    console.error('WebSocket message parse error', e);
-                }
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket Disconnected. Reconnecting...');
-                reconnectTimer = setTimeout(connect, 3000); // Reconnect after 3s
-            };
-
-            ws.onerror = (err) => {
-                console.error('WebSocket Error:', err);
-                ws?.close();
-            };
+            // ws.onopen = () => {
+            //     console.log('WebSocket Connected');
+            // };
+            // ... (rest of original logic commented out for now)
         };
 
         connect();

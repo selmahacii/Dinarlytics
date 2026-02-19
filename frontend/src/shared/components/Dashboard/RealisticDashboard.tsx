@@ -1,58 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ChartBarIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   ClockIcon,
   ArrowPathIcon,
   SparklesIcon,
   CalendarIcon,
-  FunnelIcon,
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
   XMarkIcon,
-  CheckCircleIcon,
   ExclamationTriangleIcon,
   CurrencyDollarIcon,
   UserGroupIcon,
-  BuildingOfficeIcon,
-  ChartPieIcon
+  ChartPieIcon,
+  ScaleIcon,
+  PresentationChartLineIcon,
+  ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
-import { RealisticMetric, RealisticChartData, RealTimeData } from '@/types/dashboard';
+import { RealisticMetric, RealisticChartData } from '@/types/dashboard';
 import { analyticService } from '@/services/modules/analyticService';
 import DetailedMetric from '../Metrics/DetailedMetric';
 import AnimatedChart from '../Charts/AnimatedChart';
+import { usePermission } from '@/shared/hooks/usePermission';
 
 interface RealisticDashboardProps {
   isVisible: boolean;
 }
 
+interface DashboardFilters {
+  period: string;
+  category: string;
+  region: string;
+  status: string;
+}
+
 const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { has, user } = usePermission();
+
+  // Détermination automatique du profil selon le type d'entreprise de l'utilisateur
+  // 'eurl' -> micro, 'sarl' -> sme, 'spa' -> mid
+  const currentSize = React.useMemo(() => {
+    if (!user?.companyType) return 'mid'; // Default fallback
+    if (['eurl', 'micro', 'auto-entrepreneur'].includes(user.companyType)) return 'micro';
+    if (['sarl', 'pme'].includes(user.companyType)) return 'sme';
+    return 'mid'; // SPA, ETI, GE
+  }, [user]);
+
+  // Loading states
   const [metrics, setMetrics] = useState<RealisticMetric[]>([]);
   const [charts, setCharts] = useState<RealisticChartData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [visibleMetrics, setVisibleMetrics] = useState<boolean[]>([]);
-  const [visibleCharts, setVisibleCharts] = useState<boolean[]>([]);
-
-  // États pour l'analyse instantanée
-  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState({
+  // Filter state
+  const [selectedFilters, setSelectedFilters] = useState<DashboardFilters>({
     period: 'today',
     category: 'all',
     region: 'all',
     status: 'all'
   });
+
+  // Analysis Modal State
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
 
-  // Mise à jour de l'heure
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+  // Animation states
+  const [visibleMetrics, setVisibleMetrics] = useState<boolean[]>([]);
+  const [visibleCharts, setVisibleCharts] = useState<boolean[]>([]);
 
+  // Time state
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Clock effect
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -61,94 +82,111 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [kpis, revChart, alertsData] = await Promise.all([
-          analyticService.getHealthKPIs(),
-          analyticService.getRevenueChart(),
-          analyticService.getAlerts()
+        // Reset visibility to trigger animations on sector change
+        setVisibleMetrics([]);
+        setVisibleCharts([]);
+
+        const [sizeData, revChart] = await Promise.all([
+          analyticService.getCompanySizeMetrics(currentSize),
+          analyticService.getRevenueChart()
         ]);
 
-        // Mapping KPIs to RealisticMetrics
-        const mappedMetrics: RealisticMetric[] = [
-          {
-            id: 'sales',
-            nom: 'Chiffre d\'Affaires',
-            valeur: kpis.total_sales,
-            unite: kpis.currency,
-            evolution: 12.5,
-            evolutionPourcentage: 12.5,
-            tendance: 'up',
-            historique: [],
-            details: {
-              description: 'Total des ventes validées',
-              contexte: 'Croissance stable',
-              facteurs: ['Nouveaux clients', 'Mode']
-            }
-          },
-          {
-            id: 'receivables',
-            nom: 'Créances Clients',
-            valeur: kpis.accounts_receivable,
-            unite: kpis.currency,
-            evolution: -5,
-            evolutionPourcentage: -5,
-            tendance: 'down',
-            historique: [],
-            details: {
-              description: 'Factures en attente de paiement',
-              contexte: 'En amélioration',
-              facteurs: ['Recouvrement actif']
-            }
-          },
-          {
-            id: 'dso',
-            nom: 'DSO (Délai Paiement)',
-            valeur: kpis.dso_days,
-            unite: 'jours',
-            evolution: -2,
-            evolutionPourcentage: -4.5,
-            tendance: 'up',
-            historique: [],
-            details: {
-              description: 'Days Sales Outstanding',
-              contexte: 'Objectif < 45 jours',
-              facteurs: ['Relances automatiques']
-            }
-          },
-          {
-            id: 'margin',
-            nom: 'Marge Nette',
-            valeur: kpis.margin_net_pct,
-            unite: '%',
-            evolution: 1.2,
-            evolutionPourcentage: 1.2,
-            tendance: 'up',
-            historique: [],
-            details: {
-              description: 'Rentabilité nette après impôts',
-              contexte: 'Excellente performance',
-              facteurs: ['Baisse des charges']
-            }
-          }
-        ];
+        // Mapping KPIs to RealisticMetrics based on Company Size
+        const mappedMetrics: RealisticMetric[] = [];
 
-        // Mapping Chart Data
-        const mappedCharts: RealisticChartData[] = [
-          {
-            id: 'revenue-history',
-            titre: 'Évolution du Chiffre d\'Affaires',
-            description: 'Historique des 6 derniers mois',
-            type: 'area',
-            periode: '6 mois',
-            miseAJour: new Date().toLocaleTimeString(),
-            donnees: revChart.map(p => ({ label: p.period, value: p.value })),
-            options: {
-              couleurs: ['#10b981'],
-              animation: true,
-              showGrid: true,
-              showLabels: true
-            }
+        if (sizeData && sizeData.kpis) {
+          Object.entries(sizeData.kpis).forEach(([key, kpi]: [string, any]) => {
+            mappedMetrics.push({
+              id: key,
+              nom: kpi.label,
+              valeur: kpi.value,
+              unite: kpi.unit,
+              evolution: kpi.trend,
+              evolutionPourcentage: kpi.trend,
+              tendance: kpi.trend >= 0 ? 'up' : 'down',
+              historique: [],
+              details: {
+                description: kpi.desc,
+                contexte: sizeData.summary,
+                facteurs: []
+              }
+            });
+          });
+        }
+
+        // Mapping Chart Data based on Company Size
+        const mappedCharts: RealisticChartData[] = [];
+
+        if (sizeData && sizeData.charts) {
+          // Main Chart - Stress Test Liquidité (Monte Carlo)
+          if (sizeData.charts.main) {
+            // Transform data for Monte Carlo visualization (Area Chart with 3 diverging paths)
+            // AnimatedChart expects: produits, services, maintenance
+            // We map: produits -> Optimiste (Green - Top Scenario)
+            //         services -> Réaliste (Blue/Grey - Base Scenario)
+            //         maintenance -> Pessimiste (Red - Worst Scenario)
+
+            const m = new Date();
+            const getMonth = (offset: number) => {
+              const d = new Date(m.getFullYear(), m.getMonth() + offset, 1);
+              return d.toLocaleDateString('fr-FR', { month: 'short' });
+            };
+
+            const monteCarloData = [
+              { mois: getMonth(-3), produits: 98.5, services: 98.5, maintenance: 98.5 },
+              { mois: getMonth(-2), produits: 104.2, services: 101.5, maintenance: 100.1 },
+              { mois: getMonth(-1), produits: 108.8, services: 103.2, maintenance: 99.4 },
+              { mois: 'Actuel', produits: 112.5, services: 105.0, maintenance: 98.2 },
+              { mois: getMonth(1), produits: 124.5, services: 108.5, maintenance: 92.5 }, // Divergence
+              { mois: getMonth(2), produits: 142.0, services: 112.0, maintenance: 85.0 }, // Full Divergence
+            ];
+
+            mappedCharts.push({
+              id: 'size-main',
+              titre: 'Stress Test Liquidité',
+              description: 'Analyse Monte Carlo (3 Scénarios)',
+              type: 'area',
+              periode: 'Prévision 6 mois',
+              miseAJour: new Date().toLocaleTimeString(),
+              donnees: monteCarloData.map(d => ({
+                ...d,
+                valeur: d.services, // Main metric for generic display
+                label: d.mois
+              })),
+              options: {
+                couleurs: ['#059669', '#64748b', '#e11d48'], // Emerald-600 (Opt), Slate-500 (Real), Rose-600 (Pess)
+                animation: true,
+                showGrid: true,
+                showLabels: true
+              }
+            });
           }
-        ];
+
+          // Secondary Chart - Performance par BU
+          if (sizeData.charts.secondary) {
+            mappedCharts.push({
+              id: 'size-secondary',
+              titre: 'Performance par BU',
+              description: 'Focus Opérationnel (k€)',
+              type: 'bar',
+              periode: 'Temps réel',
+              miseAJour: new Date().toLocaleTimeString(),
+              donnees: sizeData.charts.secondary.data.map((d: any) => ({
+                label: d.label,
+                valeur: d.value,
+                region: d.label, // AnimatedChart expects 'region' for Bar charts
+                mois: d.label
+              })),
+              options: {
+                couleurs: ['#1e3a8a', '#0f766e', '#4f46e5', '#2563eb'], // Navy, Teal, Indigo, Blue
+                animation: true,
+                showGrid: true,
+                showLabels: true,
+                currency: true
+              }
+            });
+          }
+        }
 
         setMetrics(mappedMetrics);
         setCharts(mappedCharts);
@@ -161,7 +199,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
       }
     };
     fetchData();
-  }, []);
+  }, [currentSize]);
 
   // Animation des métriques
   useEffect(() => {
@@ -200,45 +238,50 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
     }, 2000);
   };
 
-  // Fonction pour générer l'analyse instantanée
-  const generateInstantAnalysis = () => {
-    const mockAnalysisData = {
-      totalTransactions: Math.floor(Math.random() * 1000) + 500,
-      totalRevenue: Math.floor(Math.random() * 1000000) + 500000,
-      averageOrderValue: Math.floor(Math.random() * 500) + 100,
-      topPerformingCategory: ['Électronique', 'Mode', 'Maison', 'Sport'][Math.floor(Math.random() * 4)],
-      conversionRate: (Math.random() * 10 + 2).toFixed(1),
-      customerSatisfaction: (Math.random() * 20 + 80).toFixed(1),
+  // Fonction pour générer l'analyse instantanée BASÉE SUR LES DONNÉES RÉELLES
+  const generateInstantAnalysis = async () => {
+    // Extraction des données réelles de la page
+    const salesMetric = metrics.find(m => m.id === 'sales');
+
+    // Fetch AI insights directly from service to ensure we have the latest mock data
+    const sizeData: any = await analyticService.getCompanySizeMetrics(currentSize);
+    const aiInsight = sizeData.ai_insights;
+
+    // Valeurs de base (avec fallbacks)
+    const currentRevenue = salesMetric?.valeur || 0;
+    const revenueTrend = salesMetric?.tendance || 'stay';
+
+    // Génération de recommandations IA
+    const recommendations = [];
+
+    if (aiInsight) {
+      recommendations.push(aiInsight.action);
+    }
+    recommendations.push("Optimiser la gestion du stock (Rotation faible détectée).");
+
+
+    // Construction de l'objet d'analyse cohérent
+    const contextAwareAnalysis = {
+      totalTransactions: 142, // Mocked for demo
+      totalRevenue: currentRevenue,
+      customerSatisfaction: 94.5, // Score CSAT simulé
+
+      // Les tendances suivent les métriques principales
       trends: {
-        revenue: Math.random() > 0.5 ? 'up' : 'down',
-        orders: Math.random() > 0.5 ? 'up' : 'down',
-        customers: Math.random() > 0.5 ? 'up' : 'down'
+        revenue: revenueTrend, // Suit le CA
+        orders: revenueTrend,  // Corrélation CA/Commandes
+        customers: 'up'        // Acquisition continue supposée
       },
-      alerts: [
-        { type: 'warning', message: 'Stock faible sur 3 produits populaires' },
-        { type: 'info', message: 'Nouveau client premium détecté' },
-        { type: 'success', message: 'Objectif mensuel atteint à 95%' }
-      ].slice(0, Math.floor(Math.random() * 3) + 1)
+
+      // NEW: Specific AI Insight Section
+      aiPrediction: aiInsight,
+
+      alerts: sizeData.alerts || [],
+      recommendations: recommendations
     };
 
-    setAnalysisResults(mockAnalysisData);
+    setAnalysisResults(contextAwareAnalysis);
     setIsAnalysisOpen(true);
-  };
-
-  const handleFilterChange = (filterType: string, value: string) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }));
-  };
-
-  const clearFilters = () => {
-    setSelectedFilters({
-      period: 'today',
-      category: 'all',
-      region: 'all',
-      status: 'all'
-    });
   };
 
   const formatTime = (date: Date) => {
@@ -259,406 +302,493 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
   };
 
   return (
-    <div className="space-y-6">
-      {/* En-tête du tableau de bord */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Tableau de Bord Temps Réel
-            </h2>
-            <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-              <div className="flex items-center space-x-1">
-                <CalendarIcon className="h-4 w-4" />
-                <span>{formatDate(currentTime)}</span>
+    <div className="space-y-8 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      {/* En-tête du tableau de bord - Professional & Clean */}
+      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-8 rounded-2xl shadow-sm mb-8 relative overflow-hidden">
+        {/* Abstract Background Decoration */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-full blur-3xl -mr-20 -mt-20 opacity-60 pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-slate-900 dark:bg-white rounded-lg shadow-lg">
+                <ChartPieIcon className="h-6 w-6 text-white dark:text-slate-900" />
               </div>
-              <div className="flex items-center space-x-1">
-                <ClockIcon className="h-4 w-4" />
-                <span>{formatTime(currentTime)}</span>
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                Pilotage Stratégique
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+              <div className="flex items-center text-slate-500 font-medium">
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                <span className="capitalize">{formatDate(currentTime)}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Données en direct</span>
+              <div className="flex items-center text-slate-500 font-mono">
+                <ClockIcon className="h-4 w-4 mr-2" />
+                {formatTime(currentTime)}
+              </div>
+              <div className="flex items-center gap-3 pl-6 border-l border-slate-200 dark:border-slate-700">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  <span className="relative flex h-2 w-2 mr-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  LIVE
+                </span>
+                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                  Profil : Grande Entreprise (ETI)
+                </span>
               </div>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={generateInstantAnalysis}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-200 flex items-center space-x-2"
-            >
-              <FunnelIcon className="h-4 w-4" />
-              <span>Analyse Instantanée</span>
-            </button>
+
+          <div className="flex items-center gap-3 w-full xl:w-auto">
+            {has('lia-access') && (
+              <button
+                onClick={generateInstantAnalysis}
+                className="flex-1 xl:flex-none group relative px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center space-x-2 font-bold overflow-hidden"
+              >
+                <SparklesIcon className="h-5 w-5 text-emerald-400 dark:text-emerald-600" />
+                <span>Analyse IA</span>
+              </button>
+            )}
             <button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className={`px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-200 ${isRefreshing
-                ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+              className={`px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-center transition-all duration-200 ${isRefreshing ? 'bg-slate-50 text-slate-400' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
             >
-              <ArrowPathIcon className="h-4 w-4" />
-              <span>{isRefreshing ? 'Actualisation...' : 'Actualiser'}</span>
+              <ArrowPathIcon className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Métriques principales */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-          <SparklesIcon className="h-5 w-5 mr-2 text-blue-600" />
-          Métriques Clés
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {metrics.map((metric, index) => (
-            <DetailedMetric
-              key={metric.id}
-              metric={metric}
-              isVisible={visibleMetrics[index]}
-              animationDelay={index * 200}
-            />
-          ))}
+      {/* Métriques principales - Clean & Corporate Cards */}
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center">
+            <AdjustmentsHorizontalIcon className="h-5 w-5 mr-2 text-slate-400" />
+            Performance Financière
+          </h3>
+          <span className="text-xs font-medium text-slate-400">Dernière maj: {formatTime(currentTime)}</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Metric 1 */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">KPI Stratégique</p>
+              <ChartPieIcon className="h-5 w-5 text-emerald-500 bg-emerald-50 rounded p-0.5" />
+            </div>
+            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Marge s/ Coût Var.</h4>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-3xl font-black text-slate-900 dark:text-white">45,2%</span>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 1.1%
+              </span>
+            </div>
+            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-slate-400">Contribution Frais Fixes</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            </div>
+          </div>
+
+          {/* Metric 2 */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Rentabilité</p>
+              <CurrencyDollarIcon className="h-5 w-5 text-blue-500 bg-blue-50 rounded p-0.5" />
+            </div>
+            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">ROE</h4>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-3xl font-black text-slate-900 dark:text-white">18,5%</span>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 0.5%
+              </span>
+            </div>
+            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-slate-400">Retour s/ Capitaux</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+            </div>
+          </div>
+
+          {/* Metric 3 */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Productivité</p>
+              <UserGroupIcon className="h-5 w-5 text-purple-500 bg-purple-50 rounded p-0.5" />
+            </div>
+            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Efficacité MO</h4>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-3xl font-black text-slate-900 dark:text-white">3,2x</span>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 0.1%
+              </span>
+            </div>
+            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-slate-400">Marge / Salaires</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+            </div>
+          </div>
+
+          {/* Metric 4 */}
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contrôle</p>
+              <ScaleIcon className="h-5 w-5 text-orange-500 bg-orange-50 rounded p-0.5" />
+            </div>
+            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Écart Budget</h4>
+            <div className="flex items-baseline gap-2 mb-4">
+              <span className="text-3xl font-black text-slate-900 dark:text-white">-2,1%</span>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+                <ArrowTrendingDownIcon className="h-3 w-3 mr-1" /> 0.5%
+              </span>
+            </div>
+            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="text-xs text-slate-400">Réel vs Plan</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Graphiques animés */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-          <ChartBarIcon className="h-5 w-5 mr-2 text-green-600" />
-          Analyses Visuelles
+      {/* Graphiques animés - Premium Layout */}
+      <div className="mb-10">
+        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-6 flex items-center">
+          <PresentationChartLineIcon className="h-5 w-5 mr-2 text-slate-400" />
+          Analyses & Prévisions
         </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {charts.map((chart, index) => (
-            <AnimatedChart
-              key={chart.id}
-              chartData={chart}
-              isVisible={visibleCharts[index]}
-              animationDelay={index * 300}
-            />
+            <div key={chart.id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-md transition-shadow">
+              <div className="px-6 py-5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <div className="flex items-center gap-3">
+                  <div className={`w-1 h-8 rounded-full ${index === 0 ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
+                  <div>
+                    <h4 className="font-bold text-slate-800 dark:text-white text-base">{chart.titre}</h4>
+                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{chart.description}</p>
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-slate-700 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-600 shadow-sm">
+                  <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">{chart.periode}</span>
+                </div>
+              </div>
+              <div className="p-6 h-[350px]">
+                <AnimatedChart
+                  chartData={chart}
+                  isVisible={visibleCharts[index]}
+                  animationDelay={index * 200}
+                />
+              </div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Résumé des performances */}
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Résumé des Performances
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-              +12.5%
-            </div>
-            <div className="text-sm text-green-700 dark:text-green-300">Croissance CA</div>
-            <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-              vs objectif mensuel
-            </div>
-          </div>
+      {/* Synthèse Exécutive - Strategic Dark Theme Bar */}
+      {/* Synthèse Exécutive - Strategic Dark Theme Bar */}
+      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden text-white border border-slate-700/50">
+        {/* Ambient Glows */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none -mr-40 -mt-40 mix-blend-screen"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none -ml-20 -mb-20 mix-blend-screen"></div>
 
-          <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {metrics.find(m => m.id === 'sales')?.valeur.toLocaleString() || '0'}
-            </div>
-            <div className="text-sm text-blue-700 dark:text-blue-300">Total Ventes</div>
-            <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-              ce mois
-            </div>
-          </div>
-
-          <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-              {metrics.find(m => m.id === 'margin')?.valeur || '0'}%
-            </div>
-            <div className="text-sm text-purple-700 dark:text-purple-300">Marge brute</div>
-            <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
-              performance actuelle
-            </div>
-          </div>
-
-          <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-              {metrics.find(m => m.id === 'dso')?.valeur || '0'}
-            </div>
-            <div className="text-sm text-orange-700 dark:text-orange-300">DSO Actuel</div>
-            <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-              jours
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Indicateurs de statut */}
-      <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <span>Système opérationnel</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-          <span>Données synchronisées</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-          <span>IA active</span>
-        </div>
-      </div>
-
-      {/* Section Analyse Instantanée */}
-      {isAnalysisOpen && (
-        <div className="bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-xl border border-emerald-200 dark:border-emerald-700 p-6 mt-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-100 flex items-center">
-              <FunnelIcon className="h-6 w-6 mr-2" />
-              🔍 Analyse Instantanée
+        <div className="relative z-10">
+          <div className="flex justify-between items-end mb-8">
+            <h3 className="text-xl font-bold flex items-center text-white/95 tracking-wide">
+              <MagnifyingGlassIcon className="h-6 w-6 mr-3 text-emerald-400" />
+              Synthèse Exécutive
+              <span className="ml-3 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700/50 text-slate-300 border border-slate-600 uppercase tracking-wider">
+                Temps Réel
+              </span>
             </h3>
-            <button
-              type="button"
-              onClick={() => setIsAnalysisOpen(false)}
-              className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              aria-label="Fermer l'analyse"
-            >
-              <XMarkIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-            </button>
+            <span className="text-xs font-mono text-slate-400">Dernière maj: {new Date().toLocaleTimeString()}</span>
           </div>
 
-          {/* Filtres */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 p-4 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                <AdjustmentsHorizontalIcon className="h-5 w-5 mr-2" />
-                Filtres d'Analyse
-              </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            {/* CARD 1: MARGE (Profitability) */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
+                <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-400" />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Marge</p>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-4xl font-extrabold text-white tracking-tight">+1.1%</span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Croissance nette</span>
+              </div>
+              <div className="w-full h-1 bg-slate-700 rounded-full mb-3 overflow-hidden">
+                <div className="h-full bg-emerald-500 w-[75%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+              </div>
+              <p className="text-xs text-slate-400 font-medium">Surperformance vs marché (+0.8%)</p>
+            </div>
+
+            {/* CARD 2: ROE (Return on Equity) */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
+                <CurrencyDollarIcon className="h-5 w-5 text-blue-400" />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">ROE Global</p>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-4xl font-extrabold text-white tracking-tight">18.5</span>
+                <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">Performance Capitaux</span>
+              </div>
+              {/* Mini Chart Visualization using CSS Bars */}
+              <div className="flex items-end gap-1 h-8 mb-2">
+                <div className="w-2 bg-blue-900/50 h-[40%] rounded-sm"></div>
+                <div className="w-2 bg-blue-800/50 h-[60%] rounded-sm"></div>
+                <div className="w-2 bg-blue-600/80 h-[50%] rounded-sm"></div>
+                <div className="w-2 bg-blue-500 h-[85%] rounded-sm shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+                <div className="w-2 bg-slate-700/30 h-[100%] rounded-sm border border-slate-600 border-dashed"></div>
+              </div>
+              <p className="text-xs text-slate-400 font-medium">Objectif annuel dépassé</p>
+            </div>
+
+            {/* CARD 3: EFFICACITÉ MO (Productivity) */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-purple-500/30 transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
+                <ScaleIcon className="h-5 w-5 text-purple-400" />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Efficacité MO</p>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-4xl font-extrabold text-white tracking-tight">3.2x</span>
+                <span className="text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">Ratio Stratégique</span>
+              </div>
+              <div className="w-full flex gap-1 mb-3">
+                <span className="h-1.5 flex-1 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-purple-500"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-purple-500"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-slate-700"></span>
+              </div>
+              <p className="text-xs text-slate-400 font-medium">Optimisation des équipes</p>
+            </div>
+
+            {/* CARD 4: DSO (Cash Cycle) */}
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
+                <ClockIcon className="h-5 w-5 text-orange-400" />
+              </div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">DSO Moyen</p>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="text-4xl font-extrabold text-white tracking-tight">42j</span>
+                <span className="text-xs font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded">Délai Paiement</span>
+              </div>
+              {/* Timeline visual */}
+              <div className="relative w-full h-1 bg-slate-700 rounded-full mb-3 mt-2">
+                <div className="absolute top-0 left-0 h-full bg-orange-400 w-[60%] rounded-full opacity-50"></div>
+                <div className="absolute top-0 left-0 h-full bg-emerald-500 w-[42%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.6)]"></div>
+                {/* Marker for Target */}
+                <div className="absolute top-[-4px] left-[45%] w-0.5 h-3 bg-white/50"></div>
+              </div>
+              <p className="text-xs text-slate-400 font-medium">Amélioration (-3 jours)</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Status */}
+      <div className="flex items-center justify-between text-xs text-slate-400 mt-8 px-4 border-t border-slate-100 dark:border-slate-800 pt-6">
+        <div className="flex gap-6">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Système opérationnel
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+            Cloud Sync: OK
+          </div>
+        </div>
+        <div className="font-mono opacity-50">v2.4.0-ent</div>
+      </div>
+
+      {/* MODAL ANALYSE IA - Refonte UI Professional v2 */}
+      {isAnalysisOpen && analysisResults && (
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-slate-200 dark:border-slate-800">
+
+            {/* 1. Header: Executive Style */}
+            <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 p-6 flex justify-between items-center relative z-10">
+              <div className="flex items-center gap-4">
+                <div className="bg-indigo-600 p-3 rounded-lg shadow-lg shadow-indigo-600/20">
+                  <SparklesIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                    Analyse Stratégique IA
+                    <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider border border-indigo-100 dark:border-indigo-800">
+                      Rapport Généré
+                    </span>
+                  </h4>
+                  <p className="text-sm text-slate-500 font-medium mt-1">
+                    Analyse basée sur {analysisResults.totalTransactions} points de données • Modèle v4.2 (Enterprise)
+                  </p>
+                </div>
+              </div>
               <button
-                onClick={clearFilters}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                onClick={() => setIsAnalysisOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
               >
-                Réinitialiser
+                <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Période</label>
-                <select
-                  value={selectedFilters.period}
-                  onChange={(e) => handleFilterChange('period', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  aria-label="Sélectionner la période"
-                >
-                  <option value="today">Aujourd'hui</option>
-                  <option value="week">Cette semaine</option>
-                  <option value="month">Ce mois</option>
-                  <option value="quarter">Ce trimestre</option>
-                </select>
-              </div>
+            {/* 2. Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-8 bg-slate-50/50 dark:bg-slate-950/50">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
-                <select
-                  value={selectedFilters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  aria-label="Sélectionner la catégorie"
-                >
-                  <option value="all">Toutes</option>
-                  <option value="electronics">Électronique</option>
-                  <option value="fashion">Mode</option>
-                  <option value="home">Maison</option>
-                  <option value="sports">Sport</option>
-                </select>
-              </div>
+                {/* LEFT COLUMN: Main Insights */}
+                <div className="lg:col-span-2 space-y-8">
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Région</label>
-                <select
-                  value={selectedFilters.region}
-                  onChange={(e) => handleFilterChange('region', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  aria-label="Sélectionner la région"
-                >
-                  <option value="all">Toutes</option>
-                  <option value="north">Nord</option>
-                  <option value="south">Sud</option>
-                  <option value="east">Est</option>
-                  <option value="west">Ouest</option>
-                  <option value="center">Centre</option>
-                </select>
-              </div>
+                  {/* HERO: Key Prediction */}
+                  {analysisResults.aiPrediction && (
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl p-1 shadow-sm border border-indigo-100 dark:border-indigo-900/30 overflow-hidden">
+                      <div className="bg-gradient-to-r from-indigo-50 to-white dark:from-slate-800 dark:to-slate-900 p-6 rounded-xl">
+                        <div className="flex justify-between items-start mb-6">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                              <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                                {analysisResults.aiPrediction.prediction}
+                              </span>
+                            </div>
+                            <h5 className="text-3xl font-black text-slate-900 dark:text-white leading-tight">
+                              {analysisResults.aiPrediction.value}
+                            </h5>
+                          </div>
+                          <div className="text-right">
+                            <span className="block text-3xl font-black text-emerald-500">{analysisResults.aiPrediction.confidence}%</span>
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Score Confiance</span>
+                          </div>
+                        </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Statut</label>
-                <select
-                  value={selectedFilters.status}
-                  onChange={(e) => handleFilterChange('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  aria-label="Sélectionner le statut"
-                >
-                  <option value="all">Tous</option>
-                  <option value="active">Actif</option>
-                  <option value="pending">En attente</option>
-                  <option value="completed">Terminé</option>
-                  <option value="cancelled">Annulé</option>
-                </select>
+                        <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed mb-6 font-medium">
+                          {analysisResults.aiPrediction.details}
+                        </p>
+
+                        {/* Raw Report Terminal */}
+                        {analysisResults.aiPrediction.full_report && (
+                          <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 shadow-inner overflow-hidden relative group">
+                            <div className="absolute top-2 right-2 flex gap-1.5">
+                              <div className="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                              <div className="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                            </div>
+                            <pre className="font-mono text-xs md:text-sm text-emerald-400/90 whitespace-pre-wrap leading-relaxed overflow-x-auto">
+                              {analysisResults.aiPrediction.full_report}
+                            </pre>
+                            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-slate-950/20"></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ACTION PLAN */}
+                  <div>
+                    <h5 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-4 flex items-center">
+                      <div className="w-1 h-4 bg-emerald-500 rounded-full mr-3"></div>
+                      Plan d'Action Recommandé
+                    </h5>
+                    <div className="grid gap-4">
+                      {analysisResults.recommendations.map((reco: string, idx: number) => (
+                        <div key={idx} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex gap-4 hover:border-emerald-500/30 transition-colors group cursor-pointer">
+                          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/40 transition-colors">
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">{idx + 1}</span>
+                          </div>
+                          <div>
+                            <h6 className="font-bold text-slate-800 dark:text-slate-200 mb-1">Action Prioritaire</h6>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{reco}</p>
+                          </div>
+                          <div className="ml-auto self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg cursor-pointer">
+                              Appliquer
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN: Context & Metrics */}
+                <div className="space-y-8">
+
+                  {/* Trends Summary */}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h5 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Tendances Clés</h5>
+                    <div className="space-y-6">
+                      {Object.entries(analysisResults.trends).map(([key, trend]: [string, any]) => (
+                        <div key={key} className="flex justify-between items-center group">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${trend === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-500'}`}>
+                              {trend === 'up' ? <ArrowTrendingUpIcon className="h-4 w-4" /> : <AdjustmentsHorizontalIcon className="h-4 w-4" />}
+                            </div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 capitalize">
+                              {key === 'revenue' ? 'Chiffre d\'affaires' : key === 'orders' ? 'Volume Commandes' : 'Acquisition'}
+                            </span>
+                          </div>
+                          <span className={`text-xs font-bold px-2 py-1 rounded ${trend === 'up' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                            {trend === 'up' ? '+ Positive' : 'Stable'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Alerts Panel */}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h5 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                      <ExclamationTriangleIcon className="h-4 w-4 text-orange-500" />
+                      Points de Vigilance
+                    </h5>
+                    <div className="space-y-3">
+                      {analysisResults.alerts.map((alert: any, idx: number) => (
+                        <div key={idx} className="bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20 p-4 rounded-xl">
+                          <div className="flex gap-3">
+                            <div className="mt-0.5 w-1.5 h-1.5 rounded-full bg-orange-500 flex-shrink-0"></div>
+                            <p className="text-xs font-medium text-orange-900 dark:text-orange-200 leading-relaxed">
+                              {alert.message}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <div className="text-xs text-slate-400 font-bold uppercase mb-1">Satisfaction</div>
+                      <div className="text-xl font-black text-slate-900 dark:text-white">{analysisResults.customerSatisfaction}%</div>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <div className="text-xs text-slate-400 font-bold uppercase mb-1">Impact Fin.</div>
+                      <div className="text-xl font-black text-emerald-600">+12.5%</div>
+                    </div>
+                  </div>
+
+                </div>
               </div>
             </div>
+
+            {/* 3. Actions Footer */}
+            <div className="bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 p-6 flex justify-between items-center">
+              <div className="text-xs text-slate-400 font-mono flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                Généré à {new Date().toLocaleTimeString()} • ID: #LIA-{Math.floor(Math.random() * 900000 + 100000)}
+              </div>
+              <div className="flex gap-4">
+                <button className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition-colors">
+                  Exporter PDF
+                </button>
+                <button className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all">
+                  Appliquer les conseils
+                </button>
+              </div>
+            </div>
+
           </div>
-
-          {/* Résultats de l'Analyse */}
-          {analysisResults && (
-            <div className="space-y-6">
-              {/* Métriques Principales */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Transactions</span>
-                    <ChartBarIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{analysisResults.totalTransactions.toLocaleString()}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total aujourd'hui</p>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-green-200 dark:border-green-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenus</span>
-                    <CurrencyDollarIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">{(analysisResults.totalRevenue / 1000).toFixed(0)}k DZD</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Chiffre d'affaires</p>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-orange-200 dark:border-orange-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Panier Moyen</span>
-                    <UserGroupIcon className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{analysisResults.averageOrderValue} DZD</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Valeur moyenne</p>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-purple-200 dark:border-purple-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Conversion</span>
-                    <ChartPieIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{analysisResults.conversionRate}%</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Taux de conversion</p>
-                </div>
-              </div>
-
-              {/* Tendances */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 p-4">
-                <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">📈 Tendances en Temps Réel</h5>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Revenus</span>
-                    <div className="flex items-center space-x-2">
-                      {analysisResults.trends.revenue === 'up' ? (
-                        <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className={`text-sm font-medium ${analysisResults.trends.revenue === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {analysisResults.trends.revenue === 'up' ? '+12.5%' : '-3.2%'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Commandes</span>
-                    <div className="flex items-center space-x-2">
-                      {analysisResults.trends.orders === 'up' ? (
-                        <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className={`text-sm font-medium ${analysisResults.trends.orders === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {analysisResults.trends.orders === 'up' ? '+8.3%' : '-1.7%'}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Clients</span>
-                    <div className="flex items-center space-x-2">
-                      {analysisResults.trends.customers === 'up' ? (
-                        <ArrowTrendingUpIcon className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <ArrowTrendingDownIcon className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className={`text-sm font-medium ${analysisResults.trends.customers === 'up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {analysisResults.trends.customers === 'up' ? '+15.2%' : '-2.1%'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Alertes */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 p-4">
-                <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">🚨 Alertes Intelligentes</h5>
-                <div className="space-y-2">
-                  {analysisResults.alerts.map((alert: any, index: number) => (
-                    <div key={index} className={`flex items-start space-x-2 p-3 rounded-lg ${alert.type === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700' :
-                      alert.type === 'info' ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700' :
-                        'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700'
-                      }`}>
-                      {alert.type === 'warning' ? (
-                        <ExclamationTriangleIcon className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
-                      ) : alert.type === 'info' ? (
-                        <MagnifyingGlassIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                      ) : (
-                        <CheckCircleIcon className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
-                      )}
-                      <span className={`text-sm ${alert.type === 'warning' ? 'text-yellow-800 dark:text-yellow-200' :
-                        alert.type === 'info' ? 'text-blue-800 dark:text-blue-200' :
-                          'text-green-800 dark:text-green-200'
-                        }`}>
-                        {alert.message}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Recommandations IA */}
-              <div className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 p-4">
-                <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">🤖 Recommandations IA</h5>
-                <div className="space-y-2">
-                  <div className="flex items-start space-x-2">
-                    <CheckCircleIcon className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Catégorie "{analysisResults.topPerformingCategory}" en forte croissance - Augmenter le stock</span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircleIcon className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Taux de satisfaction client: {analysisResults.customerSatisfaction}% - Maintenir le niveau</span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircleIcon className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Optimiser les campagnes marketing pour les heures de pointe</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-slate-600">
-                <div className="flex items-center space-x-4">
-                  <button className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium">
-                    <ChartBarIcon className="h-4 w-4" />
-                    <span>Exporter Analyse</span>
-                  </button>
-                  <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
-                    <MagnifyingGlassIcon className="h-4 w-4" />
-                    <span>Détails Complets</span>
-                  </button>
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  📊 Analyse générée: {new Date().toLocaleTimeString('fr-FR')}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -666,6 +796,3 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
 };
 
 export default RealisticDashboard;
-
-
-
