@@ -380,18 +380,18 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
             <div className="flex justify-between items-start mb-2">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">KPI Stratégique</p>
-              <ChartPieIcon className="h-5 w-5 text-emerald-500 bg-emerald-50 rounded p-0.5" />
+              <ChartPieIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
             </div>
             <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Marge s/ Coût Var.</h4>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-3xl font-black text-slate-900 dark:text-white">45,2%</span>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
                 <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 1.1%
               </span>
             </div>
             <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400">Contribution Frais Fixes</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
             </div>
           </div>
 
@@ -399,18 +399,18 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
             <div className="flex justify-between items-start mb-2">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Rentabilité</p>
-              <CurrencyDollarIcon className="h-5 w-5 text-blue-500 bg-blue-50 rounded p-0.5" />
+              <CurrencyDollarIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
             </div>
             <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">ROE</h4>
             <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-3xl font-black text-slate-900 dark:text-white">18,5%</span>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+              <span className="text-3xl font-black text-slate-900 dark:text-white">38,6%</span>
+              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
                 <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 0.5%
               </span>
             </div>
             <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400">Retour s/ Capitaux</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
             </div>
           </div>
 
@@ -418,18 +418,18 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
             <div className="flex justify-between items-start mb-2">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Productivité</p>
-              <UserGroupIcon className="h-5 w-5 text-purple-500 bg-purple-50 rounded p-0.5" />
+              <UserGroupIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
             </div>
             <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Efficacité MO</h4>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-3xl font-black text-slate-900 dark:text-white">3,2x</span>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
                 <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 0.1%
               </span>
             </div>
             <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400">Marge / Salaires</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
             </div>
           </div>
 
@@ -437,18 +437,18 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
             <div className="flex justify-between items-start mb-2">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contrôle</p>
-              <ScaleIcon className="h-5 w-5 text-orange-500 bg-orange-50 rounded p-0.5" />
+              <ScaleIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
             </div>
             <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Écart Budget</h4>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-3xl font-black text-slate-900 dark:text-white">-2,1%</span>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center">
+              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
                 <ArrowTrendingDownIcon className="h-3 w-3 mr-1" /> 0.5%
               </span>
             </div>
             <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
               <span className="text-xs text-slate-400">Réel vs Plan</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
             </div>
           </div>
         </div>
@@ -465,7 +465,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
             <div key={chart.id} className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden hover:shadow-md transition-shadow">
               <div className="px-6 py-5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                 <div className="flex items-center gap-3">
-                  <div className={`w-1 h-8 rounded-full ${index === 0 ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
+                  <div className={`w-1 h-8 rounded-full ${index === 0 ? 'bg-slate-900' : 'bg-slate-400'}`}></div>
                   <div>
                     <h4 className="font-bold text-slate-800 dark:text-white text-base">{chart.titre}</h4>
                     <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{chart.description}</p>
@@ -489,10 +489,8 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
 
       {/* Synthèse Exécutive - Strategic Dark Theme Bar */}
       {/* Synthèse Exécutive - Strategic Dark Theme Bar */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden text-white border border-slate-700/50">
-        {/* Ambient Glows */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none -mr-40 -mt-40 mix-blend-screen"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none -ml-20 -mb-20 mix-blend-screen"></div>
+      <div className="bg-slate-900 rounded-2xl p-8 shadow-sm relative overflow-hidden text-white border border-slate-800">
+        {/* Ambient Glows Removed for Sober ERP Look */}
 
         <div className="relative z-10">
           <div className="flex justify-between items-end mb-8">
@@ -509,75 +507,75 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
             {/* CARD 1: MARGE (Profitability) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-emerald-500/30 transition-all group relative overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
               <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-400" />
+                <ArrowTrendingUpIcon className="h-5 w-5 text-slate-400" />
               </div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Marge</p>
               <div className="flex items-baseline gap-2 mb-2">
                 <span className="text-4xl font-extrabold text-white tracking-tight">+1.1%</span>
-                <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">Croissance nette</span>
+                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Croissance nette</span>
               </div>
               <div className="w-full h-1 bg-slate-700 rounded-full mb-3 overflow-hidden">
-                <div className="h-full bg-emerald-500 w-[75%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                <div className="h-full bg-slate-400 w-[75%] rounded-full"></div>
               </div>
               <p className="text-xs text-slate-400 font-medium">Surperformance vs marché (+0.8%)</p>
             </div>
 
             {/* CARD 2: ROE (Return on Equity) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-blue-500/30 transition-all group relative overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
               <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <CurrencyDollarIcon className="h-5 w-5 text-blue-400" />
+                <CurrencyDollarIcon className="h-5 w-5 text-slate-400" />
               </div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">ROE Global</p>
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-extrabold text-white tracking-tight">18.5</span>
-                <span className="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">Performance Capitaux</span>
+                <span className="text-4xl font-extrabold text-white tracking-tight">38.6%</span>
+                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Performance Capitaux</span>
               </div>
               {/* Mini Chart Visualization using CSS Bars */}
               <div className="flex items-end gap-1 h-8 mb-2">
-                <div className="w-2 bg-blue-900/50 h-[40%] rounded-sm"></div>
-                <div className="w-2 bg-blue-800/50 h-[60%] rounded-sm"></div>
-                <div className="w-2 bg-blue-600/80 h-[50%] rounded-sm"></div>
-                <div className="w-2 bg-blue-500 h-[85%] rounded-sm shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
-                <div className="w-2 bg-slate-700/30 h-[100%] rounded-sm border border-slate-600 border-dashed"></div>
+                <div className="w-2 bg-slate-800 h-[40%] rounded-sm"></div>
+                <div className="w-2 bg-slate-700 h-[60%] rounded-sm"></div>
+                <div className="w-2 bg-slate-600 h-[50%] rounded-sm"></div>
+                <div className="w-2 bg-slate-400 h-[85%] rounded-sm"></div>
+                <div className="w-2 bg-slate-800/30 h-[100%] rounded-sm border border-slate-600 border-dashed"></div>
               </div>
               <p className="text-xs text-slate-400 font-medium">Objectif annuel dépassé</p>
             </div>
 
             {/* CARD 3: EFFICACITÉ MO (Productivity) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-purple-500/30 transition-all group relative overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
               <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <ScaleIcon className="h-5 w-5 text-purple-400" />
+                <ScaleIcon className="h-5 w-5 text-slate-400" />
               </div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Efficacité MO</p>
               <div className="flex items-baseline gap-2 mb-2">
                 <span className="text-4xl font-extrabold text-white tracking-tight">3.2x</span>
-                <span className="text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">Ratio Stratégique</span>
+                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Ratio Stratégique</span>
               </div>
               <div className="w-full flex gap-1 mb-3">
-                <span className="h-1.5 flex-1 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]"></span>
-                <span className="h-1.5 flex-1 rounded-full bg-purple-500"></span>
-                <span className="h-1.5 flex-1 rounded-full bg-purple-500"></span>
-                <span className="h-1.5 flex-1 rounded-full bg-slate-700"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-slate-500"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-slate-500"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-slate-500"></span>
+                <span className="h-1.5 flex-1 rounded-full bg-slate-800"></span>
               </div>
               <p className="text-xs text-slate-400 font-medium">Optimisation des équipes</p>
             </div>
 
             {/* CARD 4: DSO (Cash Cycle) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all group relative overflow-hidden">
+            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
               <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <ClockIcon className="h-5 w-5 text-orange-400" />
+                <ClockIcon className="h-5 w-5 text-slate-400" />
               </div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">DSO Moyen</p>
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-extrabold text-white tracking-tight">42j</span>
-                <span className="text-xs font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded">Délai Paiement</span>
+                <span className="text-4xl font-extrabold text-white tracking-tight">35j</span>
+                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Délai Paiement</span>
               </div>
               {/* Timeline visual */}
-              <div className="relative w-full h-1 bg-slate-700 rounded-full mb-3 mt-2">
-                <div className="absolute top-0 left-0 h-full bg-orange-400 w-[60%] rounded-full opacity-50"></div>
-                <div className="absolute top-0 left-0 h-full bg-emerald-500 w-[42%] rounded-full shadow-[0_0_10px_rgba(16,185,129,0.6)]"></div>
+              <div className="relative w-full h-1 bg-slate-800 rounded-full mb-3 mt-2">
+                <div className="absolute top-0 left-0 h-full bg-slate-600 w-[60%] rounded-full opacity-50"></div>
+                <div className="absolute top-0 left-0 h-full bg-slate-400 w-[42%] rounded-full"></div>
                 {/* Marker for Target */}
                 <div className="absolute top-[-4px] left-[45%] w-0.5 h-3 bg-white/50"></div>
               </div>

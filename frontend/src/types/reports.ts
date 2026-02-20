@@ -41,6 +41,7 @@ export interface TopClientDetail {
 }
 
 export interface TopClientSummary {
+  id: string; // Added for navigation
   name: string;
   sales: number;
   orders: number;
@@ -56,4 +57,11 @@ export interface ClientMetricsGeneric {
   dsoMoyen: number;
   tauxImpayes: number;
   tauxFidelisation: number;
+}
+export interface SalesForecast {
+  month: string;
+  actual: number;
+  target: number;
+  forecast: number;
+  variance: number;
 }

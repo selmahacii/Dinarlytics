@@ -81,7 +81,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const [currentDevise, setCurrentDevise] = useState<Devise>('DZD');
-  const [currentLang, setLang] = useState<'fr' | 'ar' | 'en'>('fr');
+  const [currentLang, setLang] = useState<'fr' | 'ar' | 'en'>(() => {
+    return (localStorage.getItem('app_lang') as 'fr' | 'ar' | 'en') || 'fr';
+  });
+
+  // Persist language and handle direction
+  useEffect(() => {
+    localStorage.setItem('app_lang', currentLang);
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+  }, [currentLang]);
+
   const [loading, setLoading] = useState(false);
   const [companyMetrics, setCompanyMetrics] = useState<CompanyMetrics | null>(null);
 
@@ -182,7 +192,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const formatCurrency = (amount: number): string => {
     const symbols: Record<Devise, string> = { DZD: 'DA', EUR: '€', USD: '$' };
-    return `${(amount || 0).toLocaleString('fr-FR')} ${symbols[currentDevise]}`;
+    return `${Math.round(amount || 0).toLocaleString('fr-FR')} ${symbols[currentDevise]}`;
   };
 
   const calculateTVAContext = (montantHT: number, taux: 'normal' | 'reduit' | 'intermediaire' = 'normal'): number => {

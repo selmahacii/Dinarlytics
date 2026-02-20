@@ -41,18 +41,16 @@ export const analyticService = {
      */
     getHealthKPIs: async () => {
         // MOCK IMPLEMENTATION
-        // const response = await apiClient.get<FinancialKPIs>('/analytics/financial-health');
-        // return response.data;
         await new Promise(resolve => setTimeout(resolve, 600));
         return {
-            total_sales: 12500000,
-            accounts_receivable: 3500000,
-            collection_rate: 85.5,
-            margin_net_pct: 22.4,
-            dso_days: 45,
-            bfr_value: 1200000,
-            break_even_point: 8000000,
-            solvency_ratio: 1.5,
+            total_sales: 5200000,
+            accounts_receivable: 1250000,
+            collection_rate: 88.5,
+            margin_net_pct: 12.1,
+            dso_days: 35,
+            bfr_value: 1300000,
+            break_even_point: 4200000,
+            solvency_ratio: 2.1,
             currency: 'DZD'
         } as FinancialKPIs;
     },
@@ -200,33 +198,33 @@ export const analyticService = {
         await new Promise(resolve => setTimeout(resolve, 800));
         return {
             metriques: {
-                ventesTotal: 12500000,
-                croissanceCA: 12.5,
-                margeBrute: 32.4,
-                rotationStock: 4.2,
-                nombreClients: 145,
-                nouveauxClients: 12,
-                tauxFidelisation: 92
+                ventesTotal: 5200000,
+                croissanceCA: 7.2,
+                margeBrute: 16.2,
+                rotationStock: 5.4,
+                nombreClients: 85,
+                nouveauxClients: 8,
+                tauxFidelisation: 94
             },
             ecrituresComptables: {
-                total: 1250,
-                validees: 1150,
-                enAttente: 100,
-                evolution: 5.2,
-                parJour: 45
+                total: 850,
+                validees: 820,
+                enAttente: 30,
+                evolution: 4.5,
+                parJour: 12
             },
             tva: {
-                aVerser: 250000,
-                collectee: 450000,
-                deductible: 200000,
+                aVerser: 399000,
+                collectee: 988000,
+                deductible: 589000,
                 taux: 19,
-                evolution: 2.1
+                evolution: 3.2
             },
             bilans: {
-                actif: 45000000,
-                passif: 32000000,
-                capitauxPropres: 13000000,
-                evolution: 8.5,
+                actif: 4943000,
+                passif: 4943000,
+                capitauxPropres: 1629000,
+                evolution: 6.8,
                 dateDernier: '31/12/2025'
             },
             ratios: [
@@ -336,7 +334,7 @@ Profil: TPE/Micro • Modèle: CRW-v2 • Horizon: 30 Jours
                         type: 'line',
                         data: [
                             { label: 'Jan', value: 12 }, { label: 'Fev', value: 15 }, { label: 'Mar', value: 13 },
-                            { label: 'Avr', value: 18 }, { label: 'Mai', value: 22 }, { label: 'Juin (Prévu)', value: 25, color: '#a78bfa', is_prediction: true }
+                            { label: 'Avr', value: 18 }, { label: 'Mai', value: 22 }, { label: 'Juin (Prévu)', value: 25, color: '#475569', is_prediction: true }
                         ]
                     },
                     secondary: {
@@ -396,7 +394,7 @@ Profil: PME • Modèle: EAD-IsolationForest • Analyse: Temps Réel
                 summary: 'Contrôle & Prédictif',
                 kpis: {
                     mcv: { value: 45.2, unit: '%', label: 'Marge s/ Coût Var.', trend: 1.1, desc: 'Contrib. Frais Fixes' },
-                    roe: { value: 18.5, unit: '%', label: 'ROE', trend: 0.5, desc: 'Retour s/ Capitaux' },
+                    roe: { value: 38.6, unit: '%', label: 'ROE', trend: 0.5, desc: 'Retour s/ Capitaux' },
                     labor_efficiency: { value: 3.2, unit: 'x', label: 'Efficacité MO', trend: 0.1, desc: 'Marge / Salaires' },
                     budget_variance: { value: -2.1, unit: '%', label: 'Écart Budget', trend: -0.5, desc: 'Réel vs Plan' }
                 },
@@ -406,9 +404,9 @@ Profil: PME • Modèle: EAD-IsolationForest • Analyse: Temps Réel
                         type: 'area', // Predictive area chart
                         data: [
                             { label: 'M1', value: 100 }, { label: 'M2', value: 110 }, { label: 'M3', value: 105 },
-                            { label: 'M4 (Pessimiste)', value: 90, color: '#f87171' },
-                            { label: 'M4 (Réaliste)', value: 115, color: '#3b82f6' },
-                            { label: 'M4 (Optimiste)', value: 135, color: '#34d399' }
+                            { label: 'M4 (Pessimiste)', value: 90, color: '#94a3b8' },
+                            { label: 'M4 (Réaliste)', value: 115, color: '#64748b' },
+                            { label: 'M4 (Optimiste)', value: 135, color: '#1e293b' }
                         ]
                     },
                     secondary: {

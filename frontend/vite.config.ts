@@ -29,3 +29,4 @@ export default defineConfig({
 // Trigger HMR
 
 // Trigger HMR again
+// Restart server

@@ -56,7 +56,15 @@ class Settings(BaseSettings):
     ]
     CORS_ALLOW_CREDENTIALS: bool = True
     CORS_ALLOW_METHODS: list = ["*"]
-    CORS_ALLOW_HEADERS: list = ["*"]
+    CORS_ALLOW_HEADERS: list = [
+        "Content-Type",
+        "Authorization",
+        "X-Company-ID",
+        "x-company-id",
+        "X-Requested-With",
+        "Accept",
+        "Origin",
+    ]
 
     # Session Configuration
     SESSION_EXPIRE_MINUTES: int = 480  # 8 hours

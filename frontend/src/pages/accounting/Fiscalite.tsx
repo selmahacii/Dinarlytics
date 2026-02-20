@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  CalculatorIcon, 
+import {
+  CalculatorIcon,
   DocumentArrowDownIcon,
   SparklesIcon,
   ArrowTrendingDownIcon,
@@ -26,6 +26,7 @@ import {
   ArrowDownTrayIcon,
   PencilIcon,
   TrashIcon,
+  BanknotesIcon,
   EyeIcon as EyeIconOutline
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
@@ -34,7 +35,7 @@ import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { usePermission } from '@shared/hooks/usePermission';
 import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
-import { FiscalDocument, getDocumentEquivalent, Country } from '@shared/utils/fiscalDocuments';
+import { FiscalDocument, getDocumentEquivalent, Country, FISCAL_DOCUMENTS_DZ } from '@shared/utils/fiscalDocuments';
 import HelpButton from '@shared/components/UI/HelpButton';
 import GlossaryTerm from '@shared/components/UI/GlossaryTerm';
 import Tooltip from '@shared/components/UI/Tooltip';
@@ -102,6 +103,9 @@ const Fiscalite: React.FC = () => {
   };
 
   const [isCalculModalOpen, setIsCalculModalOpen] = useState(false);
+  const [isAiReportModalOpen, setIsAiReportModalOpen] = useState(false);
+  const [isGeneratingAiReport, setIsGeneratingAiReport] = useState(false);
+  const [aiReportContent, setAiReportContent] = useState<string | null>(null);
   const [isDeclarationModalOpen, setIsDeclarationModalOpen] = useState(false);
   const [isGeneratingDeclaration, setIsGeneratingDeclaration] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('');
@@ -119,14 +123,14 @@ const Fiscalite: React.FC = () => {
     irg: [],
     tap: []
   });
-  
+
   // États pour les documents fiscaux
   const [selectedDocument, setSelectedDocument] = useState<FiscalDocument | null>(null);
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
   const [documentFormData, setDocumentFormData] = useState<Record<string, any>>({});
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterFrequency, setFilterFrequency] = useState<string>('all');
-  
+
   // États pour l'historique des documents créés
   const [createdDocuments, setCreatedDocuments] = useState<Array<{
     id: string;
@@ -159,24 +163,24 @@ const Fiscalite: React.FC = () => {
     }
 
     setIsGeneratingDeclaration(true);
-    
+
     // Simulation de génération de déclaration
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     try {
       let nouvelleDeclaration: DeclarationG50 | DeclarationIBS | DeclarationIRG | DeclarationTAP;
-      
+
       switch (declarationType) {
         case 'g50': {
-          // Format période: "2025-01"
-          const periode = selectedPeriod.includes('-') ? selectedPeriod : 
+          // Format période: "2026-01"
+          const periode = selectedPeriod.includes('-') ? selectedPeriod :
             `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
-          
+
           // Récupérer les données réelles depuis les factures/écritures
           const chiffreAffairesHT = baseChiffreAffaires; // En production, calculer depuis les factures
           const tvaCollectee = Math.round(chiffreAffairesHT * fiscalRates.tvaNormal);
           const tvaDeductible = Math.round(baseCharges * fiscalRates.tvaNormal);
-          
+
           nouvelleDeclaration = genererDeclarationG50(periode, {
             chiffreAffairesHT,
             tvaCollectee,
@@ -185,18 +189,18 @@ const Fiscalite: React.FC = () => {
             nombreFactures: 45,
             nombreClients: 12
           });
-          
+
           setDeclarationsGenerees(prev => ({
             ...prev,
             g50: [...prev.g50, nouvelleDeclaration as DeclarationG50]
           }));
           break;
         }
-        
+
         case 'ibs': {
           const [annee, periode] = selectedPeriod.split('-');
-          const trimestre = periode.startsWith('T') ? periode : `T${Math.ceil(parseInt(periode) / 3)}`;
-          
+          const trimestre = periode === 'Annuel' ? 'Annuel' : (periode.startsWith('T') ? periode : `T${Math.ceil(parseInt(periode) / 3)}`);
+
           nouvelleDeclaration = genererDeclarationIBS(annee, trimestre, {
             chiffreAffaires: baseChiffreAffaires,
             chargesDeductibles: baseCharges,
@@ -205,37 +209,37 @@ const Fiscalite: React.FC = () => {
             nombreSalaries: 8,
             masseSalariale: 1200000
           });
-          
+
           setDeclarationsGenerees(prev => ({
             ...prev,
             ibs: [...prev.ibs, nouvelleDeclaration as DeclarationIBS]
           }));
           break;
         }
-        
+
         case 'irg': {
           const exercice = selectedPeriod || new Date().getFullYear().toString();
-          
+
           nouvelleDeclaration = genererDeclarationIRG(exercice, {
             revenusBruts: calculsFiscaux.beneficeImposable + 200000,
             abattements: 50000
           });
-          
+
           setDeclarationsGenerees(prev => ({
             ...prev,
             irg: [...prev.irg, nouvelleDeclaration as DeclarationIRG]
           }));
           break;
         }
-        
+
         case 'tap': {
           const exercice = selectedPeriod || new Date().getFullYear().toString();
-          
+
           nouvelleDeclaration = genererDeclarationTAP(exercice, {
             chiffreAffairesHT: baseChiffreAffaires,
             tauxTAP: 0.02
           });
-          
+
           setDeclarationsGenerees(prev => ({
             ...prev,
             tap: [...prev.tap, nouvelleDeclaration as DeclarationTAP]
@@ -244,9 +248,9 @@ const Fiscalite: React.FC = () => {
         }
       }
 
-    setDeclarationData(nouvelleDeclaration);
-    setIsGeneratingDeclaration(false);
-    setIsDeclarationModalOpen(true);
+      setDeclarationData(nouvelleDeclaration);
+      setIsGeneratingDeclaration(false);
+      setIsDeclarationModalOpen(true);
     } catch (error) {
       console.error('Erreur lors de la génération de la déclaration:', error);
       setIsGeneratingDeclaration(false);
@@ -258,66 +262,106 @@ const Fiscalite: React.FC = () => {
     }
   };
 
+  const handleGenererRapportIA = async () => {
+    setIsAiReportModalOpen(true);
+    setIsGeneratingAiReport(true);
+    setAiReportContent(null);
+
+    // Simulation de l'intelligence artificielle
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    const content = `
+AUDIT FISCAL STRATÉGIQUE - EXERCICE 2026
+Réalisé par Dinarlytics AI • Rapport ID: #DZ-TAX-2026-001
+Status: Conforme au Plan Comptable National (PCN)
+────────────────────────────────────────────────────────────
+
+1. ANALYSE DU RÉSULTAT (YTD 2026)
+• Chiffre d'Affaires HT:     ${formatCurrency(baseChiffreAffaires)}
+• Résultat Brut (EBT):       ${formatCurrency(850000)}
+• Impôt s/ Bénéfices (IBS):  ${formatCurrency(221000)}
+• Résultat Net (Net Profit): ${formatCurrency(629000)}
+
+2. PRESSION FISCALE & FLUX (CASH FLOW)
+• Total Taxes & Impôts:      ${formatCurrency(221000 + 399000 + 104000)}
+  (Dont TVA à verser: ${formatCurrency(399000)} / TAP: ${formatCurrency(104000)})
+• Ratio de Récupération TVA: ${Math.round((589000 / 988000) * 100)}%
+• Taux d'imposition effectif: 26.0%
+
+3. DIAGNOSTIC DE CONFORMITÉ IA
+• Risque de redressement: TRÈS FAIBLE (Incertitude < 2%)
+• Cohérence Bilan/G50:    VÉRIFIÉE (Matches @ 100%)
+
+4. RECOMMANDATIONS STRATÉGIQUES
+[P1] Clôture Provisionnelle: Anticiper l'acompte IBS du Q1 avant le 15/05.
+[P2] Optimisation: Revoir la déductibilité des charges bancaires (C/66).
+[P3] Trésorerie: Maintenir un reliquat net de ${formatCurrency(629000)} pour investissement.
+
+SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
+────────────────────────────────────────────────────────────`;
+
+    setAiReportContent(content);
+    setIsGeneratingAiReport(false);
+  };
+
   // Recalculer les calculs fiscaux selon la devise actuelle
-  const baseChiffreAffaires = 3200000;
-  const baseCharges = 2400000;
+  const baseChiffreAffaires = 5200000;
+  const baseCharges = 3100000;
   const tauxTVA = fiscalRates.tvaNormal;
 
   const calculsFiscaux = {
     chiffreAffaires: baseChiffreAffaires,
     chargesDeductibles: baseCharges,
-    beneficeImposable: 800000,
-    ibs: 208000, // 26% de 800,000
+    beneficeImposable: 850000,
+    ibs: 221000, // 26% de 850,000
     tvaCollectee: Math.round(calculateTVA(baseChiffreAffaires, 'normal')), // TVA selon devise
     tvaDeductible: Math.round(calculateTVA(baseCharges, 'normal')), // TVA selon devise
     tvaAVerser: Math.round(calculateTVA(baseChiffreAffaires, 'normal') - calculateTVA(baseCharges, 'normal')),
-    // IRG calculé selon barème progressif algérien
-    irg: 45000, // Calculé sur revenus de 450,000 DA selon barème
-    // TAP: 2% du CA HT
-    tap: 64000 // 2% de 3,200,000
+    irg: 45000,
+    tap: 104000 // 2% de 5,200,000
   };
 
   const declarationsG50 = [
     {
-      id: 'G50-2025-01',
-      periode: 'Janvier 2025',
-      chiffreAffaires: 520000,
-      tvaCollectee: 98800,
-      tvaDeductible: 72000,
-      tvaAVerser: 26800,
+      id: 'G50-2026-01',
+      periode: 'Janvier 2026',
+      chiffreAffaires: 5200000, // Coherent with annual CA
+      tvaCollectee: 988000,
+      tvaDeductible: 589000,
+      tvaAVerser: 399000,
       statut: 'Télédéclarée',
-      dateDeclaration: '2025-02-05',
-      numeroDeclaration: 'G50-2025-001',
-      montantVerse: 26800,
-      dateVersement: '2025-02-10',
+      dateDeclaration: '2026-02-05',
+      numeroDeclaration: 'G50-2026-001',
+      montantVerse: 399000,
+      dateVersement: '2026-02-10',
       observations: 'Déclaration transmise avec succès'
     },
     {
-      id: 'G50-2025-02',
-      periode: 'Février 2025',
-      chiffreAffaires: 480000,
-      tvaCollectee: 91200,
-      tvaDeductible: 68500,
-      tvaAVerser: 22700,
-      statut: 'En cours',
-      dateDeclaration: null,
-      numeroDeclaration: null,
-      montantVerse: 0,
-      dateVersement: null,
-      observations: 'En attente de validation'
+      id: 'G50-2026-02',
+      periode: 'Février 2026',
+      chiffreAffaires: 1300000, // Matching 1/4 of 5.2M
+      tvaCollectee: 247000,
+      tvaDeductible: 147500,
+      tvaAVerser: 99500,
+      statut: 'Télédéclarée',
+      dateDeclaration: '2026-03-12',
+      numeroDeclaration: 'G50-2026-002',
+      montantVerse: 99500,
+      dateVersement: '2026-03-15',
+      observations: 'Validée'
     },
     {
-      id: 'G50-2024-12',
-      periode: 'Décembre 2024',
+      id: 'G50-2025-12',
+      periode: 'Décembre 2025',
       chiffreAffaires: 650000,
       tvaCollectee: 123500,
       tvaDeductible: 85000,
       tvaAVerser: 38500,
       statut: 'Télédéclarée',
-      dateDeclaration: '2025-01-08',
-      numeroDeclaration: 'G50-2024-012',
+      dateDeclaration: '2026-01-08',
+      numeroDeclaration: 'G50-2025-012',
       montantVerse: 38500,
-      dateVersement: '2025-01-15',
+      dateVersement: '2026-01-15',
       observations: 'Déclaration validée par l\'administration'
     },
     {
@@ -336,7 +380,7 @@ const Fiscalite: React.FC = () => {
     }
   ];
 
-  // Nouvelles métriques fiscales avancées (démo statique)
+  // Nouvelles métriques fiscales avancées 
   const fiscalKPI = (() => {
     const totalTVAAVerser = declarationsG50.reduce((sum, d) => sum + d.tvaAVerser, 0);
     const totalIBS = calculsFiscaux.ibs; // ici uniquement IBS annuel simulé
@@ -346,21 +390,21 @@ const Fiscalite: React.FC = () => {
     return {
       tauxEffectif: Math.round(tauxEffectif * 10) / 10,
       chargeTotale: chargeFiscaleTotale,
-      partIBS: Math.round((totalIBS / Math.max(chargeFiscaleTotale,1)) * 100),
-      partTVA: Math.round((totalTVAAVerser / Math.max(chargeFiscaleTotale,1)) * 100),
+      partIBS: Math.round((totalIBS / Math.max(chargeFiscaleTotale, 1)) * 100),
+      partTVA: Math.round((totalTVAAVerser / Math.max(chargeFiscaleTotale, 1)) * 100),
       retardPotentiel: 2 // démo: nombre d'échéances < J+5 non télédéclarées
     };
   })();
 
   // Utiliser le calendrier fiscal complet généré
-  const calendrierFiscal: CalendrierFiscal[] = calendrierFiscalComplet.length > 0 
+  const calendrierFiscal: CalendrierFiscal[] = calendrierFiscalComplet.length > 0
     ? calendrierFiscalComplet.slice(0, 10) // Afficher les 10 prochaines échéances
     : [
-    { id: '1', type: 'g50', libelle: 'G50 (TVA mensuelle)', frequence: 'mensuel', dateEcheance: '2025-02-15', joursAvantEcheance: 7, statut: 'proche', priorite: 'haute' },
-    { id: '2', type: 'cnas', libelle: 'CNAS Cotisations', frequence: 'mensuel', dateEcheance: '2025-01-31', joursAvantEcheance: 0, statut: 'en_cours', priorite: 'moyenne' },
-    { id: '3', type: 'ibs', libelle: 'IBS (provisoire)', frequence: 'trimestriel', dateEcheance: '2025-03-31', joursAvantEcheance: 52, statut: 'a_venir', priorite: 'basse' },
-    { id: '4', type: 'ibs', libelle: 'DAS Annuelle', frequence: 'annuel', dateEcheance: '2025-02-20', joursAvantEcheance: 12, statut: 'proche', priorite: 'critique' }
-  ];
+      { id: '1', type: 'g50', libelle: 'G50 (TVA mensuelle)', frequence: 'mensuel', dateEcheance: '2026-02-15', joursAvantEcheance: 7, statut: 'proche', priorite: 'haute' },
+      { id: '2', type: 'cnas', libelle: 'CNAS Cotisations', frequence: 'mensuel', dateEcheance: '2026-01-31', joursAvantEcheance: 0, statut: 'en_cours', priorite: 'moyenne' },
+      { id: '3', type: 'ibs', libelle: 'IBS (provisoire)', frequence: 'trimestriel', dateEcheance: '2026-03-31', joursAvantEcheance: 52, statut: 'a_venir', priorite: 'basse' },
+      { id: '4', type: 'ibs', libelle: 'DAS Annuelle', frequence: 'annuel', dateEcheance: '2026-02-20', joursAvantEcheance: 12, statut: 'proche', priorite: 'critique' }
+    ];
 
   // Écarts vs prévisions (démo)
   const ecartsFiscaux = [
@@ -373,111 +417,150 @@ const Fiscalite: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* En-tête avec contenu adaptatif */}
-      {(() => {
-        const pageContent = AdaptiveContentGenerator.generatePageContent('fiscalite', contentContext);
-        return (
-          <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white rounded-lg shadow-2xl border border-slate-200 p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                  <CalculatorIcon className="h-7 w-7 text-white" />
+      {/* En-tête Premium - Fiscalité & Déclarations */}
+      <div className="relative overflow-hidden bg-white border border-slate-200 px-8 py-12 mb-8 rounded-3xl group shadow-sm">
+        {/* Subtle pattern instead of blur */}
+        <div className="absolute inset-0 opacity-[0.01]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
+
+        <div className="relative z-10">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl shadow-sm">
+                  <CalculatorIcon className="h-8 w-8 text-slate-700" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-bold text-white">{pageContent.title}</h1>
-                    <HelpButton pageId="fiscalite" variant="icon" className="text-white/80 hover:text-white" />
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Fiscalité & Déclarations</h1>
+                  <div className="flex items-center gap-2 text-slate-500">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                    <span className="text-sm font-semibold uppercase tracking-wider">Conformité fiscale 2026 • Algérie</span>
                   </div>
-                  <p className="text-slate-200 text-sm mt-1">{pageContent.subtitle}</p>
                 </div>
               </div>
+
+              <p className="text-slate-600 text-lg max-w-2xl leading-relaxed mb-6">
+                Solution professionnelle adaptée aux micro-entreprises. Gérez vos déclarations fiscales en toute conformité avec un accès administrateur complet optimisé pour SPA.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                {[
+                  "Indicateurs clés : CA, Trésorerie, Créances",
+                  "Suivi 80/20 de vos clients stratégiques",
+                  "Conformité G50 automatisée",
+                  "Rentabilité mensuelle par produit",
+                  "Suivi rigoureux du BFR",
+                  "Trésorerie prévisionnelle (13 semaines)"
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center space-x-2 text-slate-700 text-sm bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                    <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            {/* Description adaptative */}
-            <div className="mt-4 p-4 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
-              <p className="text-slate-100 text-sm">{pageContent.description}</p>
+
+            <div className="lg:w-80 space-y-4">
+              <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 shadow-sm">
+                <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3">Solution Enterprise</h4>
+                <ul className="space-y-2 text-xs">
+                  <li className="flex items-center text-slate-600 italic">• Gestion multi-entreprises</li>
+                  <li className="flex items-center text-slate-600 italic">• Consolidation comptable</li>
+                  <li className="flex items-center text-slate-600 italic">• Audit et conformité avancés</li>
+                </ul>
+              </div>
+
+              <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Aide Décisionnelle</div>
+                <p className="text-xs text-slate-600 mt-1 leading-snug italic">
+                  "La trésorerie est le nerf de la guerre : surveillez-la quotidiennement et anticipez les besoins."
+                </p>
+              </div>
             </div>
           </div>
-        );
-      })()}
-
-      {/* Contenu adaptatif - Conseils et Insights */}
-      <AdaptiveContentDisplay 
-        pageId="fiscalite" 
-        context={contentContext}
-        showTips={true}
-        showInsights={true}
-      />
-
-      {/* Disclaimer */}
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-        <p className="text-yellow-800 text-sm font-medium">
-          {t('disclaimer')} - Taux fiscaux 2025 : IBS 26%, TVA 19%
-        </p>
+        </div>
       </div>
 
-      {/* Tax Calculations Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <div className="text-center">
-            <CalculatorIcon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Bénéfice Imposable</p>
-            <p className="text-xl font-bold text-gray-900">
-              {formatCurrency(calculsFiscaux.beneficeImposable)}
-            </p>
-          </div>
-        </Card>
+      {/* Disclaimer Fiscal */}
+      <div className="bg-slate-50 border-l-4 border-slate-900 p-4 rounded-xl mb-8 border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <InformationCircleIcon className="h-5 w-5 text-slate-400" />
+          <p className="text-slate-600 text-sm font-medium tracking-wide">
+            <span className="text-slate-900 font-bold uppercase mr-2">Avertissement</span>
+            Taux fiscaux Algérie 2026 : IBS 26%, TVA 19%, TAP 2%
+          </p>
+        </div>
+        <div className="hidden md:block">
+          <span className="px-3 py-1 bg-slate-200 text-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-300">
+            Mise à jour 2026
+          </span>
+        </div>
+      </div>
 
-        <Card>
-          <div className="text-center">
-            <div className="h-8 w-8 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-red-600 font-bold text-sm">IBS</span>
+      {/* Synthèse des Calculs Fiscaux (Cartes Flash) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-900 transition-colors">
+              <CalculatorIcon className="h-6 w-6 text-slate-700 group-hover:text-white" />
             </div>
-            <p className="text-sm text-gray-500">IBS (26%)</p>
-            <p className="text-xl font-bold text-red-600">
-              {formatCurrency(calculsFiscaux.ibs)}
-            </p>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Base HT</span>
           </div>
-        </Card>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Bénéfice Imposable</p>
+          <div className="flex items-baseline space-x-1">
+            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.beneficeImposable)}</p>
+          </div>
+        </div>
 
-        <Card>
-          <div className="text-center">
-            <div className="h-8 w-8 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-orange-600 font-bold text-sm">TVA</span>
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
+              <BuildingOfficeIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
             </div>
-            <div className="flex items-center justify-center gap-1">
-              <p className="text-sm text-gray-500">
-                <GlossaryTerm term="TVA" /> à Verser
-              </p>
-            </div>
-            <p className="text-xl font-bold text-orange-600">
-              {formatCurrency(calculsFiscaux.tvaAVerser)}
-            </p>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Direct</span>
           </div>
-        </Card>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">IBS (26%)</p>
+          <div className="flex items-baseline space-x-1">
+            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.ibs)}</p>
+          </div>
+        </div>
 
-        <Card>
-          <div className="text-center">
-            <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-purple-600 font-bold text-sm">TOT</span>
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
+              <DocumentTextIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
             </div>
-            <p className="text-sm text-gray-500">Charge Fiscale Totale</p>
-            <p className="text-xl font-bold text-purple-600">
-              {formatCurrency(calculsFiscaux.ibs + calculsFiscaux.tvaAVerser)}
-            </p>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Indirect</span>
           </div>
-        </Card>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">TVA à Verser</p>
+          <div className="flex items-baseline space-x-1">
+            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.tvaAVerser)}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-slate-900 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
+              <BanknotesIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
+            </div>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Global</span>
+          </div>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Charge Fiscale Totale</p>
+          <div className="flex items-baseline space-x-1 relative z-10">
+            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.ibs + calculsFiscaux.tvaAVerser + calculsFiscaux.tap)}</p>
+          </div>
+        </div>
       </div>
 
       {/* Tax Calculation Details - Amélioré */}
-      <Card title="Détail des Calculs Fiscaux Algériens 2025">
+      <Card title="Détail des Calculs Fiscaux Algériens 2026">
         <div className="space-y-6">
           {/* Indicateurs de Performance Fiscale Globale */}
-          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border-2 border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-              <SparklesIcon className="h-5 w-5 mr-2 text-slate-600" />
-              Vue d'Ensemble Fiscale
+          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+              <SparklesIcon className="h-5 w-5 mr-2 text-indigo-600" />
+              Indicateurs de Performance Fiscale
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Charge fiscale totale */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
@@ -505,9 +588,9 @@ const Fiscalite: React.FC = () => {
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-slate-600 uppercase">Part IBS</span>
-                  <span className="text-xs text-red-600 font-bold">IBS</span>
+                  <span className="text-xs text-slate-600 font-bold">IBS</span>
                 </div>
-                <div className="text-2xl font-bold text-red-600">{fiscalKPI.partIBS}%</div>
+                <div className="text-2xl font-bold text-slate-900">{fiscalKPI.partIBS}%</div>
                 <div className="text-xs text-slate-500 mt-1">Part TVA: {fiscalKPI.partTVA}%</div>
               </div>
 
@@ -515,9 +598,9 @@ const Fiscalite: React.FC = () => {
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-semibold text-slate-600 uppercase">Conformité</span>
-                  <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
+                  <CheckCircleIcon className="h-4 w-4 text-slate-400" />
                 </div>
-                <div className="text-2xl font-bold text-emerald-600">92%</div>
+                <div className="text-2xl font-bold text-slate-900">92%</div>
                 <div className="text-xs text-slate-500 mt-1">Score global</div>
               </div>
             </div>
@@ -525,57 +608,57 @@ const Fiscalite: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* IBS Calculation - Amélioré */}
-            <div className="bg-gradient-to-br from-red-50 to-pink-50 p-6 rounded-xl border-2 border-red-200">
+            <div className="bg-white p-6 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-red-800 flex items-center">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">🏢</span>
                   Impôt sur les Bénéfices (IBS)
                 </h3>
-                <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold">Taux: 26%</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Taux: 26%</span>
               </div>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-3 border border-red-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-600">Chiffre d'affaires HT:</span>
                     <span className="font-medium text-slate-900">{formatCurrency(calculsFiscaux.chiffreAffaires)}</span>
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-red-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-600">Charges déductibles:</span>
                     <span className="font-medium text-slate-900">-{formatCurrency(calculsFiscaux.chargesDeductibles)}</span>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-red-100 to-red-200 rounded-lg p-3 border-2 border-red-300">
+                <div className="bg-slate-900 rounded-lg p-3 border border-slate-800">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm font-bold text-red-800">Bénéfice imposable:</span>
-                    <span className="font-bold text-red-900">{formatCurrency(calculsFiscaux.beneficeImposable)}</span>
+                    <span className="text-sm font-bold text-slate-400">Bénéfice imposable:</span>
+                    <span className="font-bold text-white">{formatCurrency(calculsFiscaux.beneficeImposable)}</span>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-lg p-4 border-2 border-red-800">
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-red-100 uppercase mb-1">IBS (26%)</div>
-                      <div className="text-sm text-red-200">Base × 26%</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">IBS ESTIMÉ (26%)</div>
+                      <div className="text-sm text-slate-500">Base × Taux</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.ibs)}</div>
                   </div>
                 </div>
-                
+
                 {/* Acomptes IBS */}
-                <div className="mt-4 bg-white rounded-lg p-3 border border-red-200">
-                  <div className="text-xs font-bold text-red-700 uppercase mb-2">Acomptes IBS</div>
+                <div className="mt-4 bg-slate-50 rounded-lg p-3 border border-slate-200">
+                  <div className="text-xs font-bold text-slate-900 uppercase mb-2">Acomptes IBS</div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-600">Acomptes payés (Q1-Q3):</span>
-                      <span className="font-medium text-slate-900">{formatCurrency(600000)}</span>
+                      <span className="font-medium text-slate-900">{formatCurrency(150000)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-600">Solde à payer:</span>
-                      <span className="font-bold text-red-600">{formatCurrency(calculsFiscaux.ibs - 600000)}</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(calculsFiscaux.ibs - 150000)}</span>
                     </div>
-                    <div className="text-xs text-amber-600 mt-2">
-                      ⚠️ Échéance solde: 31/03/2025
+                    <div className="text-xs text-slate-500 mt-2 italic">
+                      ℹ️ Échéance solde: 31/03/2026
                     </div>
                   </div>
                 </div>
@@ -583,73 +666,69 @@ const Fiscalite: React.FC = () => {
             </div>
 
             {/* VAT Calculation - Amélioré */}
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl border-2 border-orange-200">
+            <div className="bg-white p-6 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-orange-800 flex items-center">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">📋</span>
-                  Taxe sur la Valeur Ajoutée (<GlossaryTerm term="TVA" />)
+                  Taxe sur la Valeur Ajoutée (TVA)
                 </h3>
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold">
+                  <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">
                     Taux: {getTVARate('normal').toFixed(0)}%
-                  </span>
-                  <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs">
-                    {currentDevise}
                   </span>
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-3 border border-orange-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-600">Base taxable ventes (HT):</span>
                     <span className="font-medium text-slate-900">{formatCurrency(Math.round(calculsFiscaux.tvaCollectee / (fiscalRates.tvaNormal)))}</span>
                   </div>
                   <div className="text-xs text-slate-500 mt-1">× {getTVARate('normal').toFixed(0)}% = TVA collectée</div>
                 </div>
-                <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                <div className="bg-slate-100 rounded-lg p-3 border border-slate-200">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-emerald-700 font-medium">TVA collectée ({getTVARate('normal').toFixed(0)}%):</span>
-                    <span className="font-bold text-emerald-700">{formatCurrency(calculsFiscaux.tvaCollectee)}</span>
+                    <span className="text-sm text-slate-700 font-medium">TVA collectée ({getTVARate('normal').toFixed(0)}%):</span>
+                    <span className="font-bold text-slate-900">{formatCurrency(calculsFiscaux.tvaCollectee)}</span>
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-600">Base taxable achats (HT):</span>
                     <span className="font-medium text-slate-900">{formatCurrency(Math.round(calculsFiscaux.tvaDeductible / (fiscalRates.tvaNormal)))}</span>
                   </div>
                   <div className="text-xs text-slate-500 mt-1">× {getTVARate('normal').toFixed(0)}% = TVA déductible</div>
                 </div>
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <div className="bg-slate-100 rounded-lg p-3 border border-slate-200">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-blue-700 font-medium">TVA déductible:</span>
-                    <span className="font-bold text-blue-700">-{formatCurrency(calculsFiscaux.tvaDeductible)}</span>
+                    <span className="text-sm text-slate-700 font-medium">TVA déductible:</span>
+                    <span className="font-bold text-slate-700">-{formatCurrency(calculsFiscaux.tvaDeductible)}</span>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg p-4 border-2 border-orange-800">
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-orange-100 uppercase mb-1">TVA Nette à Verser</div>
-                      <div className="text-sm text-orange-200">Collectée - Déductible</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">TVA Nette à Verser</div>
+                      <div className="text-sm text-slate-500">Collectée - Déductible</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.tvaAVerser)}</div>
                   </div>
                 </div>
-                
+
                 {/* Taux de récupération */}
-                <div className="mt-4 bg-white rounded-lg p-3 border border-orange-200">
-                  <div className="text-xs font-bold text-orange-700 uppercase mb-2">Taux de Récupération</div>
+                <div className="mt-4 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-xs font-bold text-slate-800 uppercase mb-2">Taux de Récupération</div>
                   <div className="flex items-center justify-between">
                     <div className="w-full bg-slate-200 rounded-full h-2 mr-2">
-                      <div 
-                        className="bg-emerald-500 h-2 rounded-full" 
+                      <div
+                        className="bg-slate-900 h-2 rounded-full"
                         style={{ width: `${Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100)}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm font-bold text-emerald-600">
+                    <span className="text-sm font-bold text-slate-900">
                       {Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100)}%
                     </span>
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">Excellent taux de récupération</div>
                 </div>
               </div>
             </div>
@@ -658,57 +737,49 @@ const Fiscalite: React.FC = () => {
           {/* IRG et TAP */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* IRG Calculation - Amélioré */}
-            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-xl border-2 border-purple-200">
+            <div className="bg-white p-6 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-purple-800 flex items-center">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">👥</span>
-                  Impôt sur le Revenu Global (<GlossaryTerm term="IRG" />)
+                  Impôt sur le Revenu Global (IRG)
                 </h3>
-                <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold">Barème progressif</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Barème progressif</span>
               </div>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <div className="text-xs font-bold text-purple-700 uppercase mb-2">Barème IRG 2025</div>
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-xs font-bold text-slate-800 uppercase mb-2">Barème IRG 2026</div>
                   <div className="space-y-1 text-xs">
                     <div className="flex justify-between">
-                      <span className="text-slate-600">0 - 30,000 DA:</span>
+                      <span className="text-slate-600">Exonéré: 0 - 30,000 DA</span>
                       <span className="font-medium text-slate-900">0%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600">30,001 - 120,000 DA:</span>
+                      <span className="text-slate-600">30,001 - 120,000 DA</span>
                       <span className="font-medium text-slate-900">10%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600">120,001 - 360,000 DA:</span>
+                      <span className="text-slate-600">120,001 - 360,000 DA</span>
                       <span className="font-medium text-slate-900">20%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">360,001 - 1,200,000 DA:</span>
-                      <span className="font-medium text-slate-900">30%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">+ 1,200,000 DA:</span>
-                      <span className="font-medium text-slate-900">35%</span>
                     </div>
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-600">Revenus imposables:</span>
                     <span className="font-medium text-slate-900">{formatCurrency(450000)}</span>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-4 border-2 border-purple-800">
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-purple-100 uppercase mb-1">IRG Calculé</div>
-                      <div className="text-sm text-purple-200">Selon barème progressif</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">IRG CALCULÉ</div>
+                      <div className="text-sm text-slate-500">Total barème</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.irg)}</div>
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-purple-200">
-                  <div className="text-xs font-bold text-purple-700 uppercase mb-2">Détail Calcul</div>
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-xs font-bold text-slate-800 uppercase mb-2">Détail Calcul</div>
                   <div className="space-y-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-600">Tranche 1 (0-30k):</span>
@@ -728,910 +799,505 @@ const Fiscalite: React.FC = () => {
             </div>
 
             {/* TAP Calculation - Amélioré */}
-            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 p-6 rounded-xl border-2 border-teal-200">
+            <div className="bg-white p-6 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-teal-800 flex items-center">
+                <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">🏛️</span>
                   Taxe sur l'Activité Professionnelle (TAP)
                 </h3>
-                <span className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-bold">Taux: 2%</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Taux: 2%</span>
               </div>
               <div className="space-y-3">
-                <div className="bg-white rounded-lg p-3 border border-teal-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
                     <span className="text-sm text-slate-600">Chiffre d'affaires HT:</span>
                     <span className="font-medium text-slate-900">{formatCurrency(calculsFiscaux.chiffreAffaires)}</span>
                   </div>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-teal-200">
-                  <div className="text-xs text-slate-600 mb-1">Base imposable TAP</div>
-                  <div className="text-sm font-medium text-slate-900">{formatCurrency(calculsFiscaux.chiffreAffaires)}</div>
-                  <div className="text-xs text-slate-500 mt-1">CA HT (sauf exonérations)</div>
-                </div>
-                <div className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-lg p-4 border-2 border-teal-800">
+                <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-teal-100 uppercase mb-1">TAP (2%)</div>
-                      <div className="text-sm text-teal-200">CA HT × 2%</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">TAP CALCULÉE (2%)</div>
+                      <div className="text-sm text-slate-500">Base × Taux</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.tap)}</div>
                   </div>
                 </div>
-                
+
                 {/* Paiements TAP */}
-                <div className="mt-4 bg-white rounded-lg p-3 border border-teal-200">
-                  <div className="text-xs font-bold text-teal-700 uppercase mb-2">Paiements Mensuels</div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs">
+                <div className="mt-4 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                  <div className="text-xs font-bold text-slate-800 uppercase mb-2">Paiements Mensuels</div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
                       <span className="text-slate-600">TAP mensuel moyen:</span>
                       <span className="font-medium text-slate-900">{formatCurrency(Math.round(calculsFiscaux.tap / 12))}</span>
                     </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-600">Échéance:</span>
-                      <span className="font-medium text-slate-900">30 de chaque mois</span>
-                    </div>
-                    <div className="text-xs text-amber-600 mt-2">
-                      ⚠️ Prochaine échéance: 30/02/2025
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Prochaine échéance:</span>
+                      <span className="font-bold text-amber-700">30/02/2026</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Documents Fiscaux Disponibles - Version Améliorée */}
-          <Card className="p-6 bg-gradient-to-br from-slate-50 to-blue-50 border-2 border-slate-200">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 flex items-center mb-2">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg mr-3 shadow-lg">
-                    <DocumentTextIcon className="h-6 w-6 text-white" />
-                  </div>
-                  Documents Fiscaux Disponibles
-                </h2>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <GlobeAltIcon className="h-4 w-4" />
-                  <span className="font-medium">
-                    {currentCountry === 'DZ' ? '🇩🇿 Algérie' : currentCountry === 'FR' ? '🇫🇷 France' : currentCountry === 'US' ? '🇺🇸 États-Unis' : '🇪🇺 Europe'}
-                  </span>
-                  <span className="text-slate-400">•</span>
-                  <span>{fiscalDocuments.length} documents disponibles</span>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 flex-wrap">
-                <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Rechercher un document..."
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-64 bg-white"
-                  />
-                </div>
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  aria-label="Filtrer par catégorie"
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="all"> Toutes les catégories</option>
-                  <option value="declaration">Déclarations</option>
-                  <option value="attestation">Attestations</option>
-                  <option value="bilan"> Bilans</option>
-                  <option value="certificat"> Certificats</option>
-                </select>
-                <select
-                  value={filterFrequency}
-                  onChange={(e) => setFilterFrequency(e.target.value)}
-                  aria-label="Filtrer par fréquence"
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="all">Toutes fréquences</option>
-                  <option value="mensuel"> Mensuel</option>
-                  <option value="trimestriel"> Trimestriel</option>
-                  <option value="annuel"> Annuel</option>
-                  <option value="ponctuel"> Ponctuel</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {fiscalDocuments
-                .filter(doc => {
-                  const matchCategory = filterCategory === 'all' || doc.category === filterCategory;
-                  const matchFrequency = filterFrequency === 'all' || doc.frequency === filterFrequency;
-                  return matchCategory && matchFrequency;
-                })
-                .map((document) => {
-                  const frequencyColors = {
-                    mensuel: 'from-blue-500 to-blue-600',
-                    trimestriel: 'from-purple-500 to-purple-600',
-                    annuel: 'from-emerald-500 to-emerald-600',
-                    ponctuel: 'from-slate-500 to-slate-600'
-                  };
-                  const categoryIcons = {
-                    declaration: DocumentTextIcon,
-                    attestation: DocumentCheckIcon,
-                    bilan: ChartBarIcon,
-                    certificat: DocumentCheckIcon,
-                    formulaire: DocumentTextIcon
-                  };
-                  const Icon = categoryIcons[document.category as keyof typeof categoryIcons] || DocumentTextIcon;
-                  
-                  return (
-                    <div
-                      key={document.id}
-                      className="bg-white rounded-xl p-6 border-2 border-slate-200 hover:border-blue-400 hover:shadow-xl transition-all cursor-pointer group relative overflow-hidden"
-                      onClick={() => {
-                        setSelectedDocument(document);
-                        setDocumentFormData({});
-                        setIsDocumentModalOpen(true);
-                      }}
-                    >
-                      {/* Badge de fréquence en haut à droite */}
-                      <div className={`absolute top-0 right-0 px-3 py-1 bg-gradient-to-r ${frequencyColors[document.frequency as keyof typeof frequencyColors] || 'from-slate-500 to-slate-600'} text-white text-xs font-bold rounded-bl-lg`}>
-                        {document.frequency === 'mensuel' ? ' Mensuel' : document.frequency === 'trimestriel' ? '📆 Trimestriel' : document.frequency === 'annuel' ? '📆 Annuel' : '📌 Ponctuel'}
-                      </div>
-
-                      {/* Icône de catégorie */}
-                      <div className="mb-4 flex items-start justify-between">
-                        <div className={`p-3 bg-gradient-to-br ${frequencyColors[document.frequency as keyof typeof frequencyColors] || 'from-slate-500 to-slate-600'} rounded-xl shadow-lg group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        {document.required && (
-                          <div className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-semibold">
-                            <ExclamationTriangleIcon className="h-4 w-4" />
-                            Obligatoire
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Code et nom */}
-                      <div className="mb-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-mono font-bold">
-                            {document.code}
-                          </span>
-                          {document.nameLocal && (
-                            <span className="text-xs text-slate-500 italic">{document.nameLocal}</span>
-                          )}
-                          <Tooltip
-                            content={document.description || 'Document fiscal'}
-                            title={document.name}
-                            iconOnly
-                            position="top"
-                          />
-                        </div>
-                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2">
-                          {document.name}
-                        </h3>
-                        <p className="text-sm text-slate-600 line-clamp-2">{document.description}</p>
-                      </div>
-
-                      {/* Informations supplémentaires */}
-                      <div className="mt-4 pt-4 border-t border-slate-200 space-y-2">
-                        {document.deadline && (
-                          <div className="flex items-center gap-2 text-xs text-slate-600">
-                            <ClockIcon className="h-4 w-4 text-slate-400" />
-                            <span className="font-medium">Échéance: {document.deadline}</span>
-                          </div>
-                        )}
-                        {document.forEntity && (
-                          <div className="flex items-center gap-2 text-xs text-slate-600">
-                            <BuildingOfficeIcon className="h-4 w-4 text-slate-400" />
-                            <span>Pour: {document.forEntity === 'entreprise' ? 'Entreprises' : document.forEntity === 'particulier' ? 'Particuliers' : 'Tous'}</span>
-                          </div>
-                        )}
-                        {document.equivalent && Object.keys(document.equivalent).length > 0 && (
-                          <div className="flex items-center gap-2 text-xs text-slate-600">
-                            <GlobeAltIcon className="h-4 w-4 text-slate-400" />
-                            <span>Équivalents: {Object.keys(document.equivalent).length} pays</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Bouton d'action */}
-                      <div className="mt-4 pt-4 border-t border-slate-200">
-                        <button className="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 group-hover:shadow-lg">
-                          <PlusIcon className="h-4 w-4" />
-                          Créer ce document
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-            
-            {fiscalDocuments.filter(doc => {
-              const matchCategory = filterCategory === 'all' || doc.category === filterCategory;
-              const matchFrequency = filterFrequency === 'all' || doc.frequency === filterFrequency;
-              return matchCategory && matchFrequency;
-            }).length === 0 && (
-              <div className="text-center py-8 text-slate-500">
-                <DocumentTextIcon className="h-12 w-12 mx-auto mb-2 text-slate-300" />
-                <p>Aucun document trouvé avec ces filtres</p>
-              </div>
-            )}
-          </Card>
-
-          {/* Autres Obligations Fiscales */}
-          <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl p-6 border-2 border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-              <BuildingOfficeIcon className="h-5 w-5 mr-2 text-slate-600" />
-              Autres Obligations Fiscales {currentCountry === 'DZ' ? 'Algériennes' : currentCountry === 'FR' ? 'Françaises' : currentCountry === 'US' ? 'Américaines' : 'Européennes'}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* CNAS */}
-              <div className="bg-white rounded-lg p-4 border border-blue-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-blue-700 uppercase">CNAS</span>
-                  <UserGroupIcon className="h-4 w-4 text-blue-600" />
-                </div>
-                <div className="text-xl font-bold text-blue-600">{formatCurrency(125000)}</div>
-                <div className="text-xs text-slate-500 mt-1">Cotisations sociales</div>
-                <div className="text-xs text-blue-600 mt-2">Échéance: 31/01/2025</div>
-              </div>
-
-              {/* CASNOS */}
-              <div className="bg-white rounded-lg p-4 border border-green-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-green-700 uppercase">CASNOS</span>
-                  <UserGroupIcon className="h-4 w-4 text-green-600" />
-                </div>
-                <div className="text-xl font-bold text-green-600">{formatCurrency(45000)}</div>
-                <div className="text-xs text-slate-500 mt-1">Assurance retraite</div>
-                <div className="text-xs text-green-600 mt-2">Échéance: 31/01/2025</div>
-              </div>
-
-              {/* Timbre Fiscal */}
-              <div className="bg-white rounded-lg p-4 border border-amber-200">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-amber-700 uppercase">Timbre Fiscal</span>
-                  <DocumentTextIcon className="h-4 w-4 text-amber-600" />
-                </div>
-                <div className="text-xl font-bold text-amber-600">{formatCurrency(5000)}</div>
-                <div className="text-xs text-slate-500 mt-1">Documents officiels</div>
-                <div className="text-xs text-amber-600 mt-2">Par document</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Synthèse Fiscale Globale */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border-2 border-slate-700 text-white">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-              <CalculatorIcon className="h-5 w-5 mr-2" />
-              Synthèse Fiscale Globale 2025
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                <div className="text-xs text-slate-300 uppercase mb-1">IBS</div>
-                <div className="text-2xl font-bold text-white">{formatCurrency(calculsFiscaux.ibs)}</div>
-                <div className="text-xs text-slate-400 mt-1">26% sur bénéfice</div>
-              </div>
-              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                <div className="text-xs text-slate-300 uppercase mb-1">TVA</div>
-                <div className="text-2xl font-bold text-white">{formatCurrency(calculsFiscaux.tvaAVerser)}</div>
-                <div className="text-xs text-slate-400 mt-1">Mensuel (G50)</div>
-              </div>
-              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                <div className="text-xs text-slate-300 uppercase mb-1">IRG</div>
-                <div className="text-2xl font-bold text-white">{formatCurrency(calculsFiscaux.irg)}</div>
-                <div className="text-xs text-slate-400 mt-1">Barème progressif</div>
-              </div>
-              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
-                <div className="text-xs text-slate-300 uppercase mb-1">TAP</div>
-                <div className="text-2xl font-bold text-white">{formatCurrency(calculsFiscaux.tap)}</div>
-                <div className="text-xs text-slate-400 mt-1">2% sur CA HT</div>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="text-sm text-slate-300 uppercase">Charge Fiscale Totale Annuelle</div>
-                  <div className="text-xs text-slate-400">Tous impôts confondus</div>
-                </div>
-                <div className="text-3xl font-black text-emerald-400">
-                  {formatCurrency(calculsFiscaux.ibs + calculsFiscaux.tvaAVerser + calculsFiscaux.irg + calculsFiscaux.tap)}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={() => setIsCalculModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-lg hover:from-slate-800 hover:to-slate-900 transition-all duration-200 shadow-md hover:shadow-lg"
-            >
-              <CalculatorIcon className="h-5 w-5 mr-2" />
-              Simuler Calculs
-            </button>
-            <button className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg">
-              <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
-              Rapport Fiscal
-            </button>
           </div>
         </div>
       </Card>
 
-      {/* G50 Declarations */}
-      <Card title="Déclarations G50 (TVA Mensuelle)">
-        {/* Indicateurs de Performance G50 */}
-        <div className="mb-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border-2 border-emerald-200">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-            <SparklesIcon className="h-5 w-5 mr-2 text-emerald-600" />
-            Indicateurs de Performance G50
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Taux de conformité */}
-            <div className="bg-white rounded-lg p-4 border border-emerald-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-600 uppercase">Taux Conformité</span>
-                <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
-              </div>
-              <div className="text-2xl font-bold text-slate-900">
-                {Math.round((declarationsG50.filter(d => d.statut === 'Télédéclarée').length / declarationsG50.length) * 100)}%
-              </div>
-              <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-emerald-500 h-2 rounded-full" 
-                  style={{ width: `${(declarationsG50.filter(d => d.statut === 'Télédéclarée').length / declarationsG50.length) * 100}%` }}
-                ></div>
-              </div>
-              <div className="text-xs text-slate-500 mt-1">
-                {declarationsG50.filter(d => d.statut === 'Télédéclarée').length}/{declarationsG50.length} déclarations
-              </div>
+      {/* Documents Fiscaux Disponibles - Professional Grid */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-8">
+        <div className="p-8 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 flex items-center">
+                <div className="p-2.5 bg-slate-900 rounded-xl mr-4">
+                  <DocumentTextIcon className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex items-center justify-between w-full">
+                  <span>Documents Fiscaux Disponibles</span>
+                  <span className="text-xl font-bold text-slate-400 font-arabic ml-4 opacity-50">الوثائق الجبائية المتوفرة</span>
+                </div>
+              </h2>
+              <p className="text-slate-500 text-sm mt-1 ml-14">Algérie • 6 documents obligatoires disponibles</p>
             </div>
-
-            {/* Délai moyen de déclaration */}
-            <div className="bg-white rounded-lg p-4 border border-emerald-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-600 uppercase">Délai Moyen</span>
-                <ClockIcon className="h-4 w-4 text-slate-500" />
-              </div>
-              <div className="text-2xl font-bold text-slate-900">2.5j</div>
-              <div className="text-xs text-slate-500 mt-1 flex items-center">
-                <ArrowTrendingDownIcon className="h-3 w-3 mr-1 text-emerald-600" />
-                <span className="text-emerald-600">-0.8j vs mois dernier</span>
-              </div>
-            </div>
-
-            {/* TVA moyenne mensuelle */}
-            <div className="bg-white rounded-lg p-4 border border-emerald-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-600 uppercase">TVA Moyenne</span>
-                <CurrencyDollarIcon className="h-4 w-4 text-slate-500" />
-              </div>
-              <div className="text-2xl font-bold text-slate-900">
-                {formatCurrency(Math.round(declarationsG50.reduce((sum, d) => sum + d.tvaAVerser, 0) / declarationsG50.length))}
-              </div>
-              <div className="text-xs text-slate-500 mt-1 flex items-center">
-                <ArrowTrendingUpIcon className="h-3 w-3 mr-1 text-blue-600" />
-                <span className="text-blue-600">+12% vs année précédente</span>
-              </div>
-            </div>
-
-            {/* Score de performance */}
-            <div className="bg-white rounded-lg p-4 border border-emerald-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-semibold text-slate-600 uppercase">Score Performance</span>
-                <SparklesIcon className="h-4 w-4 text-slate-500" />
-              </div>
-              <div className="text-2xl font-bold text-slate-900">88/100</div>
-              <div className="text-xs text-slate-500 mt-1">Excellent</div>
+            <div className="relative w-full md:w-72">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un document..."
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
+              />
             </div>
           </div>
+        </div>
 
-          {/* Métriques supplémentaires */}
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white rounded-lg p-3 border border-emerald-200">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600">Déclarations en cours</span>
-                <span className="text-sm font-bold text-amber-600">
-                  {declarationsG50.filter(d => d.statut === 'En cours').length}
-                </span>
+        <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {FISCAL_DOCUMENTS_DZ.map((doc) => (
+            <div key={doc.id} className="group p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-300 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl font-black text-slate-900 tracking-tighter">{doc.code}</span>
+                    <span className={`px-2 py-0.5 text-[9px] font-bold rounded uppercase tracking-wide ${doc.required ? 'bg-slate-800 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                      {doc.required ? 'Obligatoire' : 'Optionnel'}
+                    </span>
+                  </div>
+                  {doc.nameLocal && (
+                    <div className="text-right mt-1">
+                      <span className="text-xs font-bold text-slate-700 font-arabic leading-relaxed">{doc.nameLocal}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-right">
+                  <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${doc.frequency === 'mensuel' ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-slate-200 text-slate-600'}`}>
+                    {doc.frequency}
+                  </span>
+                </div>
+              </div>
+
+              <h4 className="text-sm font-bold text-slate-900 mb-2 leading-tight">{doc.name}</h4>
+              <p className="text-xs text-slate-500 mb-6 flex-1 italic leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all duration-500">{doc.description}</p>
+
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+                <div className="text-[10px] text-slate-400">
+                  {doc.deadline ? `Échéance: ${doc.deadline}` : `Pour: ${doc.forEntity}`}
+                </div>
+                <button
+                  onClick={() => {
+                    setSelectedDocument(doc);
+                    setIsDocumentModalOpen(true);
+                  }}
+                  className="p-2 bg-white border border-slate-200 rounded-lg text-slate-900 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </button>
               </div>
             </div>
-            <div className="bg-white rounded-lg p-3 border border-emerald-200">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600">Déclarations en retard</span>
-                <span className="text-sm font-bold text-red-600">
-                  {declarationsG50.filter(d => d.statut === 'En retard').length}
-                </span>
-              </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Section G50 - Déclarations & Performance */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-8">
+        <div className="p-8 bg-slate-50 border-b border-slate-100">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+              <h2 className="text-2xl font-black text-slate-900 flex items-center">
+                <div className="p-2.5 bg-slate-900 rounded-xl mr-4 shadow-sm">
+                  <SparklesIcon className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex items-center justify-between w-full">
+                  <span>Déclarations G50 (TVA Mensuelle)</span>
+                  <span className="text-xl font-bold text-slate-200 font-arabic ml-4">تصريحات G50</span>
+                </div>
+              </h2>
+              <p className="text-slate-500 text-sm mt-1 ml-14">Indicateurs de Performance & Historique G50 • Algérie</p>
             </div>
-            <div className="bg-white rounded-lg p-3 border border-emerald-200">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-600">Taux de ponctualité</span>
-                <span className="text-sm font-bold text-emerald-600">95%</span>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full lg:w-auto">
+              <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Conformité</p>
+                <div className="text-xl font-black text-slate-900">95%</div>
+              </div>
+              <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Délai Moyen</p>
+                <div className="text-xl font-black text-slate-900">1.8j</div>
+              </div>
+              <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">TVA Moyenne</p>
+                <div className="text-sm font-black text-slate-900">{formatCurrency(31500)}</div>
+              </div>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Statut Q1</p>
+                <div className="text-xl font-black text-slate-900">À jour</div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mb-4 flex justify-between items-center">
-          <div className="flex space-x-4">
-            <label className="sr-only" htmlFor="filtre-annee">Filtrer par année</label>
-            <select id="filtre-annee" className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500" aria-label="Filtrer par année" title="Filtrer par année">
-              <option value="2025">2025</option>
-              <option value="2024">2024</option>
-              <option value="2023">2023</option>
-            </select>
-            <label className="sr-only" htmlFor="filtre-statut">Filtrer par statut</label>
-            <select id="filtre-statut" className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500" aria-label="Filtrer par statut" title="Filtrer par statut">
-              <option value="tous">Tous les statuts</option>
-              <option value="teledeclaree">Télédéclarées</option>
-              <option value="en_cours">En cours</option>
-              <option value="en_retard">En retard</option>
-            </select>
+        <div className="p-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+            <div className="flex items-center space-x-3 w-full md:w-auto">
+              <select className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none h-11">
+                <option>Année 2026</option>
+                <option>Année 2024</option>
+              </select>
+              <select className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none h-11">
+                <option>Tous les statuts</option>
+                <option>Télédéclarées</option>
+                <option>En cours</option>
+              </select>
+            </div>
+            <div className="flex items-center space-x-3 w-full md:w-auto">
+              <button onClick={() => setIsDeclarationModalOpen(true)} className="flex-1 md:flex-none flex items-center justify-center px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm shadow-sm hover:bg-black transition-all active:scale-95">
+                <PlusIcon className="h-4 w-4 mr-2" /> Nouvelle Déclaration
+              </button>
+              <button className="p-3 bg-slate-50 text-slate-600 rounded-xl border border-slate-200 hover:bg-white hover:text-slate-900 transition-all">
+                <DocumentArrowDownIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <button 
-              onClick={() => setIsDeclarationModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-            >
-              <CalculatorIcon className="h-4 w-4 mr-2" />
-              Nouvelle Déclaration
-            </button>
-            <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
-              <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-              Exporter
-            </button>
-          </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Période
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  N° Déclaration
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CA HT
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  TVA Collectée
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  TVA Déductible
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  TVA à Verser
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Montant Versé
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date Déclaration
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Délai
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Statut
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Score
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {declarationsG50.map((declaration) => {
-                // Calcul du délai de déclaration
-                const calculerDelai = () => {
-                  if (!declaration.dateDeclaration) return null;
-                  const dateDeclaration = new Date(declaration.dateDeclaration);
-                  const dateEcheance = new Date(dateDeclaration.getFullYear(), dateDeclaration.getMonth(), 20);
-                  const jours = Math.floor((dateDeclaration.getTime() - dateEcheance.getTime()) / (1000 * 60 * 60 * 24));
-                  return jours;
-                };
-                const delai = calculerDelai();
-                
-                // Calcul du score de performance
-                const calculerScore = () => {
-                  let score = 0;
-                  if (declaration.statut === 'Télédéclarée') score += 50;
-                  if (delai !== null && delai <= 0) score += 30;
-                  else if (delai !== null && delai <= 3) score += 20;
-                  else if (delai !== null && delai <= 7) score += 10;
-                  if (declaration.montantVerse === declaration.tvaAVerser) score += 20;
-                  return Math.min(100, score);
-                };
-                const score = calculerScore();
-                
-                return (
-                  <tr key={declaration.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {declaration.periode}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 font-mono">
-                      {declaration.numeroDeclaration || '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {formatCurrency(declaration.chiffreAffaires)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {formatCurrency(declaration.tvaCollectee)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {formatCurrency(declaration.tvaDeductible)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-orange-600">
-                      {formatCurrency(declaration.tvaAVerser)}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {declaration.montantVerse > 0 ? formatCurrency(declaration.montantVerse) : '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {declaration.dateDeclaration ? new Date(declaration.dateDeclaration).toLocaleDateString('fr-FR') : '-'}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">
-                      {delai !== null ? (
-                        <div className="flex items-center">
-                          <ClockIcon className={`h-4 w-4 mr-1 ${delai <= 0 ? 'text-emerald-600' : delai <= 3 ? 'text-amber-600' : 'text-red-600'}`} />
-                          <span className={delai <= 0 ? 'text-emerald-600 font-medium' : delai <= 3 ? 'text-amber-600 font-medium' : 'text-red-600 font-medium'}>
-                            {delai <= 0 ? `${Math.abs(delai)}j avant` : `${delai}j après`}
-                          </span>
-                        </div>
-                      ) : '-'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        declaration.statut === 'Télédéclarée' 
-                          ? 'bg-green-100 text-green-800' 
-                          : declaration.statut === 'En cours'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {declaration.statut}
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-100 shadow-inner">
+            <table className="min-w-full divide-y divide-slate-100">
+              <thead className="bg-slate-50">
+                <tr>
+                  {["Période", "N° Décl.", "CA HT", "TVA Coll.", "TVA Déd.", "IRG", "TAP", "À Verser", "Date", "Statut", ""].map((header, i) => (
+                    <th key={header + i} className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-50">
+                {[
+                  {
+                    period: "Janvier 2026",
+                    num: "G50-2026-001",
+                    ca: 520000,
+                    coll: 98800,
+                    ded: 72000,
+                    vers: 26800,
+                    date: "05/02/2026",
+                    delay: "15j avant",
+                    status: "Télédéclarée",
+                    score: 100,
+                    perf: "Excellent"
+                  },
+                  {
+                    period: "Janvier 2026",
+                    num: "G50-2026-001",
+                    ca: 620000,
+                    coll: 117800,
+                    ded: 82000,
+                    vers: 35800,
+                    irg: 12500,
+                    tap: 12400,
+                    ibs: 0,
+                    date: "15/02/2026",
+                    delay: "5j avant",
+                    status: "Télédéclarée",
+                    score: 98,
+                    perf: "Très bien"
+                  },
+                  {
+                    period: "Décembre 2024",
+                    num: "G50-2024-012",
+                    ca: 650000,
+                    coll: 123500,
+                    ded: 85000,
+                    vers: 38500,
+                    irg: 14200,
+                    tap: 13000,
+                    ibs: 0,
+                    date: "08/01/2026",
+                    delay: "12j avant",
+                    status: "Télédéclarée",
+                    score: 100,
+                    perf: "Excellent"
+                  },
+                  {
+                    period: "Novembre 2024",
+                    num: "G50-2024-011",
+                    ca: 580000,
+                    coll: 110200,
+                    ded: 78000,
+                    vers: 32200,
+                    irg: 11800,
+                    tap: 11600,
+                    ibs: 0,
+                    date: "05/12/2024",
+                    delay: "15j avant",
+                    status: "Télédéclarée",
+                    score: 100,
+                    perf: "Excellent"
+                  }
+                ].map((row, idx) => (
+                  <tr key={idx} className="group hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{row.period}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-slate-500">{row.num}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{formatCurrency(row.ca)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.coll)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.ded)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.irg || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.tap || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-900 border-l border-slate-100">{formatCurrency(row.vers)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-medium">{row.date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded text-[10px] font-bold ${row.delay.includes('avant') ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400'}`}>
+                        {row.delay}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <SparklesIcon className={`h-4 w-4 mr-1 ${
-                          score >= 80 ? 'text-emerald-600' : 
-                          score >= 60 ? 'text-blue-600' : 
-                          score >= 40 ? 'text-amber-600' : 
-                          'text-red-600'
-                        }`} />
-                        <span className={`text-sm font-bold ${
-                          score >= 80 ? 'text-emerald-600' : 
-                          score >= 60 ? 'text-blue-600' : 
-                          score >= 40 ? 'text-amber-600' : 
-                          'text-red-600'
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider border ${row.status === 'Télédéclarée' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                        row.status === 'En cours' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                          'bg-slate-50 text-slate-600 border-slate-200'
                         }`}>
-                          {score}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {score >= 80 ? 'Excellent' : score >= 60 ? 'Bon' : score >= 40 ? 'Moyen' : 'À améliorer'}
-                      </div>
+                        {row.status}
+                      </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
-                        <button 
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Voir détails"
-                        >
-                          <DocumentArrowDownIcon className="h-5 w-5" />
-                        </button>
-                        <button 
-                          className="text-green-600 hover:text-green-900"
-                          title="Télédéclarer"
-                        >
-                          <CalculatorIcon className="h-5 w-5" />
-                        </button>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center space-x-1">
+                        <span className={`text-sm font-black text-slate-900`}>{row.score}</span>
                       </div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{row.perf}</div>
                     </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Résumé des déclarations avec tendances */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border-2 border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-blue-800">Total TVA Collectée</h4>
-              <CurrencyDollarIcon className="h-5 w-5 text-blue-600" />
-            </div>
-            <p className="text-2xl font-bold text-blue-600">
-              {formatCurrency(declarationsG50.reduce((sum, d) => sum + d.tvaCollectee, 0))}
-            </p>
-            <div className="mt-2 flex items-center text-xs">
-              <ArrowTrendingUpIcon className="h-3 w-3 mr-1 text-blue-600" />
-              <span className="text-blue-600">+15% vs année précédente</span>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border-2 border-green-200">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-green-800">Total TVA à Verser</h4>
-              <CalculatorIcon className="h-5 w-5 text-green-600" />
-            </div>
-            <p className="text-2xl font-bold text-green-600">
-              {formatCurrency(declarationsG50.reduce((sum, d) => sum + d.tvaAVerser, 0))}
-            </p>
-            <div className="mt-2 flex items-center text-xs">
-              <ArrowTrendingUpIcon className="h-3 w-3 mr-1 text-green-600" />
-              <span className="text-green-600">+12% vs année précédente</span>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border-2 border-purple-200">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-purple-800">Télédéclarées</h4>
-              <CheckCircleIcon className="h-5 w-5 text-purple-600" />
-            </div>
-            <p className="text-2xl font-bold text-purple-600">
-              {declarationsG50.filter(d => d.statut === 'Télédéclarée').length} / {declarationsG50.length}
-            </p>
-            <div className="mt-2 text-xs text-purple-600">
-              {Math.round((declarationsG50.filter(d => d.statut === 'Télédéclarée').length / declarationsG50.length) * 100)}% de conformité
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg border-2 border-emerald-200">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-emerald-800">Score Moyen</h4>
-              <SparklesIcon className="h-5 w-5 text-emerald-600" />
-            </div>
-            <p className="text-2xl font-bold text-emerald-600">88/100</p>
-            <div className="mt-2 text-xs text-emerald-600">
-              Performance excellente
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Calendrier & Analyse Fiscale Avancée */}
-      <Card title="Calendrier Fiscal & Analyse">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-            <h4 className="font-semibold text-indigo-900 mb-3">Taux Effectif d'Imposition</h4>
-            <p className="text-3xl font-bold text-indigo-700 mb-1">{fiscalKPI.tauxEffectif}%</p>
-            <p className="text-xs text-indigo-800">IBS / Bénéfice imposable</p>
-            <div className="mt-3 text-xs text-indigo-700">
-              Répartition charge: IBS {fiscalKPI.partIBS}% • TVA {fiscalKPI.partTVA}%
-            </div>
-          </div>
-          <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
-            <h4 className="font-semibold text-teal-900 mb-3">Charge Fiscale Totale (YTD)</h4>
-            <p className="text-3xl font-bold text-teal-700 mb-1">{formatCurrency(fiscalKPI.chargeTotale)}</p>
-            <p className="text-xs text-teal-800">Cumul IBS + TVA à verser</p>
-            <div className="mt-3 text-xs text-teal-700">Retards potentiels: {fiscalKPI.retardPotentiel}</div>
-          </div>
-          <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-            <h4 className="font-semibold text-amber-900 mb-3">Alertes & Conformité</h4>
-            <ul className="space-y-1 text-xs text-amber-800">
-              <li>• Prochaine G50 dans {'joursAvantEcheance' in calendrierFiscal[0] ? calendrierFiscal[0].joursAvantEcheance : (calendrierFiscal[0] as any).joursRestants} jours.</li>
-              <li>• DAS annuelle dans {'joursAvantEcheance' in calendrierFiscal[3] ? calendrierFiscal[3].joursAvantEcheance : (calendrierFiscal[3] as any).joursRestants} jours.</li>
-              <li>• IBS provisoire: préparer estimation Q1.</li>
-            </ul>
-            <div className="mt-3 text-xs font-medium text-amber-700">Suivi: prioriser échéances &lt; 15 jours.</div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Calendrier */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h5 className="font-semibold text-gray-900 mb-3">Prochaines Échéances</h5>
-            <table className="min-w-full text-xs">
-              <thead>
-                <tr className="text-left text-gray-600">
-                  <th className="py-2">Type</th>
-                  <th className="py-2">Échéance</th>
-                  <th className="py-2">Statut</th>
-                  <th className="py-2">Jours</th>
-                  <th className="py-2">Priorité</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calendrierFiscal.map((e, idx) => {
-                  const type = e.libelle;
-                  const due = e.dateEcheance;
-                  const statut = e.statut;
-                  const joursRestants = e.joursAvantEcheance;
-                  const priorite = e.priorite;
-                  
-                  const getStatutColor = (s: string) => {
-                    if (s.includes('en_retard') || s.includes('retard')) return 'bg-red-100 text-red-800';
-                    if (s.includes('proche') || s.includes('prépa') || s.includes('prépar')) return 'bg-yellow-100 text-yellow-800';
-                    if (s.includes('acquitte') || s.includes('validée')) return 'bg-green-100 text-green-800';
-                    return 'bg-blue-100 text-blue-800';
-                  };
-                  
-                  const getPrioriteColor = (p: string) => {
-                    if (p === 'critique' || p === 'Élevé') return 'text-red-600 font-bold';
-                    if (p === 'haute' || p === 'Moyen') return 'text-orange-600 font-semibold';
-                    return 'text-gray-600';
-                  };
-                  
-                  return (
-                    <tr key={idx} className={`border-t text-gray-700 ${joursRestants <= 5 ? 'bg-red-50' : joursRestants <= 15 ? 'bg-yellow-50' : ''}`}>
-                      <td className="py-2 pr-2">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs">
-                            {e.type === 'g50' ? '📄' : e.type === 'ibs' ? '💰' : e.type === 'irg' ? '👥' : e.type === 'tap' ? '🏛️' : '📅'}
-                          </span>
-                          <span className="font-medium">{type}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 pr-2">{new Date(due).toLocaleDateString('fr-FR')}</td>
-                      <td className="py-2 pr-2">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatutColor(statut)}`}>
-                          {statut.replace('_', ' ')}
-                        </span>
-                      </td>
-                      <td className={`py-2 pr-2 font-semibold ${joursRestants <= 5 ? 'text-red-600' : joursRestants <= 15 ? 'text-orange-600' : 'text-gray-600'}`}>
-                        {joursRestants > 0 ? `${joursRestants}j` : joursRestants < 0 ? `${Math.abs(joursRestants)}j en retard` : 'Aujourd\'hui'}
-                      </td>
-                      <td className={`py-2 pr-2 ${getPrioriteColor(priorite)}`}>
-                        {priorite}
-                      </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {/* Écarts prévisions */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <h5 className="font-semibold text-gray-900 mb-3">Écarts vs Prévisions</h5>
-            <table className="min-w-full text-xs">
-              <thead>
-                <tr className="text-left text-gray-600">
-                  <th className="py-2">Poste</th>
-                  <th className="py-2">Prévu</th>
-                  <th className="py-2">Réalisé</th>
-                  <th className="py-2">Écart</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ecartsFiscaux.map((l, i) => (
-                  <tr key={i} className="border-t text-gray-700">
-                    <td className="py-1 pr-2">{l.poste}</td>
-                    <td className="py-1 pr-2">{formatCurrency(l.prevu)}</td>
-                    <td className="py-1 pr-2">{formatCurrency(l.realise)}</td>
-                    <td className={`py-1 pr-2 font-medium ${l.ecart >=0 ? 'text-red-600' : 'text-green-600'}`}>{formatCurrency(l.ecart)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <div className="mt-3 text-[11px] text-gray-600">Analyse rapide: Écart positif = surcoût / sous-estimation initiale.</div>
+          </div>
+
+          {/* Synthèse G50 Trend UI - Premium Cards */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="relative overflow-hidden p-5 bg-white rounded-2xl border border-slate-200 group hover:border-indigo-600 transition-all duration-300">
+              <div className="relative z-10">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Collectée (YTD)</p>
+                <div className="text-2xl font-black text-slate-900 mb-1">423 700 DA</div>
+                <div className="flex items-center text-emerald-600 text-[10px] font-black uppercase tracking-tighter">
+                  <span className="flex items-center justify-center p-1 bg-emerald-50 rounded mr-2">
+                    <ArrowTrendingUpIcon className="h-3 w-3" />
+                  </span>
+                  +15.4% vs N-1
+                </div>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden p-5 bg-white rounded-2xl border border-slate-200 group hover:border-slate-900 transition-all duration-300">
+              <div className="relative z-10">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">À Verser (YTD)</p>
+                <div className="text-2xl font-black text-slate-900 mb-1">120 200 DA</div>
+                <div className="flex items-center text-slate-500 text-[10px] font-black uppercase tracking-tighter">
+                  <span className="flex items-center justify-center p-1 bg-slate-50 rounded mr-2">
+                    <ArrowTrendingUpIcon className="h-3 w-3" />
+                  </span>
+                  +12.1% vs N-1
+                </div>
+              </div>
+            </div>
+
+            <div className="relative overflow-hidden p-5 bg-white rounded-2xl border border-slate-200 group hover:border-slate-900 transition-all duration-300">
+              <div className="relative z-10">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Taux d'Exécution</p>
+                <div className="flex items-baseline space-x-2">
+                  <span className="text-2xl font-black text-slate-900 uppercase tracking-tighter">3 / 4</span>
+                  <span className="text-sm font-bold text-slate-400 tracking-tight">Mois déclarés</span>
+                </div>
+                <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-slate-900 rounded-full w-[75%]"></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center">
+              <div className="relative z-10">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Performance Globale</p>
+                <div className="flex items-center justify-between">
+                  <div className="text-3xl font-black text-slate-900 tracking-tighter">88/100</div>
+                  <SparklesIcon className="h-8 w-8 text-slate-300" />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-2 italic font-medium">"Excellence opérationnelle"</p>
+              </div>
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* Tax Calculation Modal */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Calendrier Fiscal - Version Premium */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <h3 className="text-xl font-black text-slate-900 flex items-center">
+              <div className="p-2 bg-slate-900 rounded-lg mr-3">
+                <ClockIcon className="h-5 w-5 text-white" />
+              </div>
+              Prochaines Échéances
+            </h3>
+            <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-widest">
+              Action requise
+            </span>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {calendrierFiscal.map((e, idx) => (
+                <div key={idx} className={`p-4 rounded-xl border transition-all ${e.joursAvantEcheance <= 5 ? 'bg-white border-rose-300 shadow-sm' : 'bg-white border-slate-200'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-3">
+                      <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${e.joursAvantEcheance <= 5 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-700'}`}>
+                        {e.type}
+                      </div>
+                      <span className="text-sm font-bold text-slate-800">{e.libelle}</span>
+                    </div>
+                    <span className={`text-xs font-bold ${e.joursAvantEcheance <= 5 ? 'text-rose-600' : 'text-slate-500'}`}>
+                      {new Date(e.dateEcheance).toLocaleDateString('fr-FR')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${e.joursAvantEcheance <= 5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        {e.joursAvantEcheance > 0 ? `${e.joursAvantEcheance} jours restants` : 'Expiré'}
+                      </span>
+                    </div>
+                    <button className="text-[10px] font-black text-slate-900 uppercase tracking-widest hover:text-indigo-600 transition-colors">Détails</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Écarts vs Prévisions */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <h3 className="text-xl font-black text-slate-900 flex items-center">
+              <div className="p-2 bg-slate-900 rounded-lg mr-3">
+                <ChartBarIcon className="h-5 w-5 text-white" />
+              </div>
+              Écarts vs Prévisions
+            </h3>
+          </div>
+          <div className="p-6">
+            <div className="space-y-6">
+              {ecartsFiscaux.map((l, i) => (
+                <div key={i} className="group">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-bold text-slate-700">{l.poste}</span>
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${l.ecart >= 0 ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                      Ecart: {formatCurrency(Math.abs(l.ecart))}
+                    </span>
+                  </div>
+                  <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`absolute top-0 left-0 h-full rounded-full ${l.ecart >= 0 ? 'bg-rose-500' : 'bg-slate-900'}`}
+                      style={{ width: `${Math.min(100, (l.realise / l.prevu) * 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <span>Prévu: {formatCurrency(l.prevu)}</span>
+                    <span>Réalisé: {formatCurrency(l.realise)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+              <p className="text-xs text-slate-500 italic leading-relaxed">
+                <InformationCircleIcon className="h-4 w-4 inline mr-1 -mt-0.5" />
+                "Les écarts positifs signalent une sous-estimation des charges ou une augmentation imprévue de l'activité taxable."
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6 bg-slate-50 rounded-3xl text-slate-900 border border-slate-200 shadow-sm relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.01]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h3 className="text-xl font-black mb-2 text-slate-900">Besoin d'un audit fiscal complet ?</h3>
+            <p className="text-slate-500 text-sm max-w-md">Générez un rapport détaillé de votre situation fiscale 2024-2026 en un clic pour votre expert-comptable.</p>
+          </div>
+          <button
+            onClick={handleGenererRapportIA}
+            className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-black transition-all shadow-sm active:scale-95 flex items-center gap-2"
+          >
+            <SparklesIcon className="h-5 w-5 text-slate-400" />
+            Générer Rapport IA Expert
+          </button>
+        </div>
+      </div>
+
+      {/* Modals */}
       <Modal
         isOpen={isCalculModalOpen}
         onClose={() => setIsCalculModalOpen(false)}
-        title="Simulateur de Calculs Fiscaux"
+        title="Simulateur de Calculs Fiscaux 2026"
         size="lg"
       >
-        <form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="sim-ca-ht" className="block text-sm font-medium text-gray-700 mb-1">
-                Chiffre d'affaires HT (DZD)
-              </label>
-              <input
-                id="sim-ca-ht"
-                name="sim-ca-ht"
-                type="number"
-                defaultValue="3200000"
-                title="Saisir le chiffre d'affaires hors taxes en dinars"
-                placeholder="Ex: 3 200 000"
-                aria-label="Chiffre d'affaires hors taxes"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                step="1000"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="sim-charges" className="block text-sm font-medium text-gray-700 mb-1">
-                Charges déductibles (DZD)
-              </label>
-              <input
-                id="sim-charges"
-                name="sim-charges"
-                type="number"
-                defaultValue="2400000"
-                title="Saisir le montant des charges déductibles"
-                placeholder="Ex: 2 400 000"
-                aria-label="Charges déductibles"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                step="1000"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="sim-taux-ibs" className="block text-sm font-medium text-gray-700 mb-1">
-                Taux IBS (%)
-              </label>
-              <select
-                id="sim-taux-ibs"
-                name="sim-taux-ibs"
-                defaultValue="26"
-                title="Sélectionner le taux IBS applicable"
-                aria-label="Taux IBS"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="26">26% (Taux normal)</option>
-                <option value="19">19% (Taux réduit)</option>
-                <option value="0">0% (Exonération)</option>
-              </select>
-            </div>
-            
-            <div>
-              <label htmlFor="sim-taux-tva" className="block text-sm font-medium text-gray-700 mb-1">
-                Taux TVA (%)
-              </label>
-              <select
-                id="sim-taux-tva"
-                name="sim-taux-tva"
-                defaultValue="19"
-                title="Sélectionner le taux de TVA applicable"
-                aria-label="Taux de TVA"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="19">19% (Taux normal)</option>
-                <option value="9">9% (Taux réduit)</option>
-                <option value="0">0% (Exonération)</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-3">Résultats de Simulation</h4>
-            <div className="grid grid-cols-2 gap-4">
+        <div className="p-1 leading-relaxed text-slate-600">
+          {/* Simulateur Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-600">Bénéfice imposable:</p>
-                <p className="font-bold text-gray-900">{formatCurrency(800000)}</p>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Chiffre d'Affaires HT</label>
+                <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue="3200000" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">IBS à payer:</p>
-                <p className="font-bold text-red-600">{formatCurrency(208000)}</p>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Charges Déductibles</label>
+                <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue="2400000" />
               </div>
-              <div>
-                <p className="text-sm text-gray-600">TVA collectée:</p>
-                <p className="font-bold text-gray-900">{formatCurrency(608000)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">TVA à verser:</p>
-                <p className="font-bold text-orange-600">{formatCurrency(152000)}</p>
+            </div>
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
+              <div className="text-xs text-slate-500 uppercase font-bold mb-4">Résultat de la Simulation</div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                  <span className="text-sm font-medium text-slate-600">Bénéfice Net Imposable</span>
+                  <span className="text-lg font-black text-slate-900">{formatCurrency(calculsFiscaux.beneficeImposable)}</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                  <span className="text-sm font-medium text-slate-600">IBS (26%)</span>
+                  <span className="text-lg font-black text-slate-900">{formatCurrency(calculsFiscaux.ibs)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2">
+                  <span className="text-sm font-bold text-slate-900">Reliquat de Trésorerie Net</span>
+                  <span className="text-2xl font-black text-indigo-900">{formatCurrency(calculsFiscaux.beneficeImposable - calculsFiscaux.ibs)}</span>
+                </div>
               </div>
             </div>
           </div>
-          
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={() => setIsCalculModalOpen(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              Fermer
-            </button>
-            <button
-              type="button"
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <DocumentArrowDownIcon className="h-5 w-5 mr-2 inline" />
-              Exporter Simulation
-            </button>
+          <div className="mt-8 flex justify-end space-x-3">
+            <button onClick={() => setIsCalculModalOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Fermer</button>
+            <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-slate-900 transition-all shadow-lg shadow-indigo-100">Appliquer les données</button>
           </div>
-        </form>
+        </div>
       </Modal>
 
-      {/* Modal de génération de déclaration fiscale */}
+      {/* Modal de Déclaration G50 / IBS / IRG / TAP */}
       <Modal
         isOpen={isDeclarationModalOpen}
         onClose={() => {
@@ -1644,9 +1310,8 @@ const Fiscalite: React.FC = () => {
         <div className="space-y-6">
           {!declarationData ? (
             <>
-              {/* Sélection du type de déclaration */}
               <div>
-                <label htmlFor="type-declaration" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="type-declaration" className="block text-sm font-medium text-slate-700 mb-2">
                   Type de déclaration
                 </label>
                 <select
@@ -1656,7 +1321,7 @@ const Fiscalite: React.FC = () => {
                     setDeclarationType(e.target.value as 'g50' | 'ibs' | 'irg' | 'tap');
                     setSelectedPeriod('');
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-700"
                 >
                   <option value="g50">📄 G50 - Déclaration TVA (Mensuelle)</option>
                   <option value="ibs">💰 IBS - Impôt sur les Bénéfices (Trimestrielle/Annuelle)</option>
@@ -1665,12 +1330,11 @@ const Fiscalite: React.FC = () => {
                 </select>
               </div>
 
-              {/* Sélection de période selon le type */}
               <div>
-                <label htmlFor="periode-declaration" className="block text-sm font-medium text-gray-700 mb-2">
-                  {declarationType === 'g50' ? 'Période (Format: YYYY-MM)' : 
-                   declarationType === 'ibs' ? 'Période (Format: YYYY-T1/T2/T3/T4 ou YYYY-Annuel)' :
-                   'Exercice (Année)'}
+                <label htmlFor="periode-declaration" className="block text-sm font-medium text-slate-700 mb-2">
+                  {declarationType === 'g50' ? 'Période (Mois)' :
+                    declarationType === 'ibs' ? 'Trimestre ou Année' :
+                      'Exercice (Année)'}
                 </label>
                 {declarationType === 'g50' ? (
                   <input
@@ -1678,52 +1342,66 @@ const Fiscalite: React.FC = () => {
                     id="periode-declaration"
                     value={selectedPeriod}
                     onChange={(e) => setSelectedPeriod(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 outline-none font-bold text-slate-700"
                   />
                 ) : declarationType === 'ibs' ? (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      id="periode-declaration"
-                      placeholder="2025-T1 ou 2025-Annuel"
-                      value={selectedPeriod}
-                      onChange={(e) => setSelectedPeriod(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                    <div className="flex gap-2">
-                      {['T1', 'T2', 'T3', 'T4'].map(t => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => setSelectedPeriod(`${new Date().getFullYear()}-${t}`)}
-                          className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                        >
-                          {t}
-                        </button>
-                      ))}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Année Exercice</label>
+                      <select
+                        value={selectedPeriod ? selectedPeriod.split('-')[0] : new Date().getFullYear().toString()}
+                        onChange={(e) => {
+                          const year = e.target.value;
+                          const currentPeriod = selectedPeriod && selectedPeriod.includes('-') ? selectedPeriod.split('-')[1] : 'T1';
+                          setSelectedPeriod(`${year}-${currentPeriod}`);
+                        }}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 outline-none font-bold text-slate-700 cursor-pointer"
+                      >
+                        {[0, 1, 2].map(i => {
+                          const y = new Date().getFullYear() - i;
+                          return <option key={y} value={y}>{y}</option>;
+                        })}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Période</label>
+                      <select
+                        value={selectedPeriod && selectedPeriod.includes('-') ? selectedPeriod.split('-')[1] : 'T1'}
+                        onChange={(e) => {
+                          const p = e.target.value;
+                          const currentYear = selectedPeriod ? selectedPeriod.split('-')[0] : new Date().getFullYear().toString();
+                          setSelectedPeriod(`${currentYear}-${p}`);
+                        }}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 outline-none font-bold text-slate-700 cursor-pointer"
+                      >
+                        <option value="T1">1er Trimestre (T1)</option>
+                        <option value="T2">2ème Trimestre (T2)</option>
+                        <option value="T3">3ème Trimestre (T3)</option>
+                        <option value="T4">4ème Trimestre (T4)</option>
+                        <option value="Annuel">Déclaration Annuelle</option>
+                      </select>
                     </div>
                   </div>
                 ) : (
                   <input
-                    type="number"
+                    type="text"
                     id="periode-declaration"
-                    placeholder={new Date().getFullYear().toString()}
+                    placeholder="2026"
                     value={selectedPeriod}
                     onChange={(e) => setSelectedPeriod(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 outline-none font-bold text-slate-700"
                   />
                 )}
               </div>
 
-              {/* Bouton de génération */}
-              <div className="flex justify-end space-x-3 pt-4 border-t">
+              <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => {
                     setIsDeclarationModalOpen(false);
                     setSelectedPeriod('');
                   }}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
                 >
                   Annuler
                 </button>
@@ -1731,19 +1409,16 @@ const Fiscalite: React.FC = () => {
                   type="button"
                   onClick={handleGenererDeclaration}
                   disabled={(!selectedPeriod && declarationType !== 'irg' && declarationType !== 'tap') || isGeneratingDeclaration}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all disabled:opacity-50 flex items-center shadow-sm"
                 >
                   {isGeneratingDeclaration ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Génération en cours...
+                      <SparklesIcon className="h-4 w-4 mr-2 animate-spin" />
+                      Génération...
                     </>
                   ) : (
                     <>
-                      <SparklesIcon className="h-5 w-5 mr-2 inline" />
+                      <SparklesIcon className="h-4 w-4 mr-2" />
                       Générer la déclaration
                     </>
                   )}
@@ -1751,397 +1426,175 @@ const Fiscalite: React.FC = () => {
               </div>
             </>
           ) : (
-            <>
-              {/* Affichage de la déclaration générée */}
-              <div className="space-y-4">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center">
-                    <CheckCircleIcon className="h-6 w-6 text-green-600 mr-2" />
-                    <span className="font-semibold text-green-800">
-                      Déclaration {declarationData.numero} générée avec succès !
-                    </span>
-                    </div>
-                    </div>
-
-                {/* Détails selon le type */}
-                {declarationType === 'g50' && declarationData && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">Chiffre d'affaires HT</div>
-                        <div className="text-xl font-bold">{formatCurrency((declarationData as DeclarationG50).chiffreAffairesHT)}</div>
-                  </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">TVA Collectée</div>
-                        <div className="text-xl font-bold text-blue-600">{formatCurrency((declarationData as DeclarationG50).tvaCollectee)}</div>
+            <div className="space-y-6">
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center space-x-3">
+                <CheckCircleIcon className="h-6 w-6 text-slate-700" />
+                <div>
+                  <p className="text-sm font-bold text-slate-800">Déclaration générée avec succès !</p>
+                  <p className="text-xs text-slate-500">Le document est prêt pour validation et transmission.</p>
                 </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">TVA Déductible</div>
-                        <div className="text-xl font-bold text-green-600">{formatCurrency((declarationData as DeclarationG50).tvaDeductible)}</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">TVA à Verser</div>
-                        <div className="text-xl font-bold text-orange-600">{formatCurrency((declarationData as DeclarationG50).tvaAVerser)}</div>
-                      </div>
-                      </div>
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                      <div className="text-sm font-semibold text-blue-800 mb-2">Date d'échéance</div>
-                      <div className="text-lg">{new Date((declarationData as DeclarationG50).dateEcheance).toLocaleDateString('fr-FR')}</div>
-                      </div>
-                      </div>
-                )}
+              </div>
 
-                {declarationType === 'ibs' && declarationData && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">Bénéfice Imposable</div>
-                        <div className="text-xl font-bold">{formatCurrency((declarationData as DeclarationIBS).beneficeImposable)}</div>
-                    </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">Taux IBS</div>
-                        <div className="text-xl font-bold">{((declarationData as DeclarationIBS).tauxIBS)}%</div>
-                  </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">IBS Calculé</div>
-                        <div className="text-xl font-bold text-red-600">{formatCurrency((declarationData as DeclarationIBS).ibsCalcule)}</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">IBS à Verser</div>
-                        <div className="text-xl font-bold text-orange-600">{formatCurrency((declarationData as DeclarationIBS).ibsAVerser)}</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {declarationType === 'irg' && declarationData && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">Revenus Imposables</div>
-                        <div className="text-xl font-bold">{formatCurrency((declarationData as DeclarationIRG).revenusImposables)}</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">IRG Calculé</div>
-                        <div className="text-xl font-bold text-red-600">{formatCurrency((declarationData as DeclarationIRG).irgCalcule)}</div>
-                      </div>
-                      </div>
-                    <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                      <div className="text-sm font-semibold text-purple-800 mb-2">Détail par tranche</div>
-                      {(declarationData as DeclarationIRG).tranches.map((tranche, idx) => (
-                        <div key={idx} className="flex justify-between text-sm py-1">
-                          <span>{tranche.tranche} ({tranche.taux}%)</span>
-                          <span className="font-semibold">{formatCurrency(tranche.montant)}</span>
-                      </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {declarationType === 'tap' && declarationData && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">Chiffre d'affaires HT</div>
-                        <div className="text-xl font-bold">{formatCurrency((declarationData as DeclarationTAP).chiffreAffairesHT)}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Numéro</p>
+                  <p className="text-lg font-black text-slate-900">{declarationData.numero}</p>
                 </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">Taux TAP</div>
-                        <div className="text-xl font-bold">{(declarationData as DeclarationTAP).tauxTAP}%</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">TAP Calculé</div>
-                        <div className="text-xl font-bold text-red-600">{formatCurrency((declarationData as DeclarationTAP).tapCalcule)}</div>
-                      </div>
-                      <div className="bg-white p-4 rounded-lg border">
-                        <div className="text-sm text-gray-600">TAP à Verser</div>
-                        <div className="text-xl font-bold text-orange-600">{formatCurrency((declarationData as DeclarationTAP).tapAVerser)}</div>
-                      </div>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Échéance</p>
+                  <p className="text-lg font-black text-rose-600">{new Date(declarationData.dateEcheance).toLocaleDateString('fr-FR')}</p>
+                </div>
+              </div>
+
+              {declarationType === 'g50' && (
+                <div className="bg-white border text-center border-slate-200 rounded-2xl overflow-hidden mt-6">
+                  <div className="p-3 bg-slate-50 border-b border-slate-200/60 font-bold text-xs text-slate-500 uppercase tracking-widest">Détails de la TVA</div>
+                  <div className="p-6 grid grid-cols-3 gap-6 divide-x divide-slate-100">
+                    <div className="text-center px-2">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">TVA Collectée</p>
+                      <p className="text-lg font-black text-slate-700">{formatCurrency(declarationData.tvaCollectee)}</p>
+                    </div>
+                    <div className="text-center px-2">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">TVA Déductible</p>
+                      <p className="text-lg font-black text-slate-700">{formatCurrency(declarationData.tvaDeductible)}</p>
+                    </div>
+                    <div className="text-center px-2 bg-slate-50/50 rounded-r-xl">
+                      <p className="text-[10px] font-bold text-slate-900 uppercase mb-1">Net à Verser</p>
+                      <p className="text-xl font-black text-slate-900">{formatCurrency(declarationData.tvaAVerser)}</p>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Actions */}
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDeclarationData(null);
-                      setSelectedPeriod('');
-                    }}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-                  >
-                    Nouvelle déclaration
-                  </button>
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
-                  >
-                    <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
+              <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100 mt-6">
+                <button onClick={() => setDeclarationData(null)} className="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-sm">Refaire</button>
+                <div className="flex space-x-2">
+                  <button className="px-6 py-3 bg-slate-100 text-slate-900 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center">
+                    <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
                     Exporter PDF
                   </button>
                   <button
-                    type="button"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                    onClick={() => {
+                      const subject = encodeURIComponent(`Déclaration ${declarationData.numero} - ${new Date().toLocaleDateString('fr-FR')}`);
+                      const body = encodeURIComponent(`Bonjour,\n\nVeuillez trouver ci-joint la déclaration fiscale ${declarationData.numero}.\n\nCordialement,\nService Comptabilité.`);
+                      window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${body}`, '_blank');
+                    }}
+                    className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all flex items-center shadow-lg hover:shadow-xl"
                   >
-                    <GlobeAltIcon className="h-5 w-5 mr-2" />
-                    Transmettre en ligne
+                    <GlobeAltIcon className="h-4 w-4 mr-2" />
+                    Transmettre
                   </button>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </Modal>
 
-      {/* Modal Création de Document Fiscal - Version Améliorée */}
+      {/* Modal Création de Document Fiscal */}
       <Modal
         isOpen={isDocumentModalOpen}
         onClose={() => {
           setIsDocumentModalOpen(false);
           setSelectedDocument(null);
-          setDocumentFormData({});
         }}
-        title={selectedDocument ? `${selectedDocument.code} - ${selectedDocument.name}` : 'Créer un document fiscal'}
+        title={selectedDocument ? `${selectedDocument.code} - ${selectedDocument.name}` : 'Document Fiscal'}
         size="lg"
       >
         {selectedDocument && (
           <div className="space-y-6">
-            {/* En-tête du document avec icône */}
-            <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                <DocumentTextIcon className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-slate-900">{selectedDocument.code}</span>
-                  <span className="text-lg font-bold text-slate-700">-</span>
-                  <span className="text-lg font-bold text-slate-900">{selectedDocument.name}</span>
-                </div>
-                <p className="text-sm text-slate-500 mt-1">Création de document fiscal</p>
-              </div>
-            </div>
-
-            {/* En-tête informatif amélioré */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-200">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <p className="text-sm text-blue-900 font-semibold mb-2">{selectedDocument.description}</p>
-                  <div className="flex flex-wrap items-center gap-3 text-xs">
-                    {selectedDocument.deadline && (
-                      <div className="flex items-center gap-1 px-3 py-1 bg-white rounded-lg border border-blue-200">
-                        <ClockIcon className="h-4 w-4 text-blue-600" />
-                        <span className="font-medium text-blue-800">Échéance: {selectedDocument.deadline}</span>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-1 px-3 py-1 bg-white rounded-lg border border-blue-200">
-                      <CalendarIcon className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium text-blue-800">
-                        {selectedDocument.frequency === 'mensuel' ? '📅 Mensuel' : selectedDocument.frequency === 'trimestriel' ? '📆 Trimestriel' : selectedDocument.frequency === 'annuel' ? '📆 Annuel' : '📌 Ponctuel'}
-                      </span>
-                    </div>
-                    {selectedDocument.required && (
-                      <div className="flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-semibold">
-                        <ExclamationTriangleIcon className="h-4 w-4" />
-                        Obligatoire
-                      </div>
-                    )}
-                    {selectedDocument.forEntity && (
-                      <div className="flex items-center gap-1 px-3 py-1 bg-white rounded-lg border border-blue-200">
-                        <BuildingOfficeIcon className="h-4 w-4 text-blue-600" />
-                        <span className="font-medium text-blue-800">
-                          {selectedDocument.forEntity === 'entreprise' ? 'Entreprises' : selectedDocument.forEntity === 'particulier' ? 'Particuliers' : 'Tous'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {/* Guide rapide */}
-              <div className="mt-4 pt-4 border-t border-blue-200">
-                <div className="flex items-start gap-2">
-                  <InformationCircleIcon className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div className="text-xs text-blue-800">
-                    <p className="font-semibold mb-1">💡 Guide rapide :</p>
-                    <ul className="list-disc list-inside space-y-1 text-blue-700">
-                      <li>Remplissez tous les champs obligatoires (marqués d'un *)</li>
-                      <li>Vérifiez les dates et montants avant de valider</li>
-                      <li>Le document sera généré automatiquement après validation</li>
-                    </ul>
-                  </div>
-                </div>
+            <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200">
+              <p className="text-sm font-bold text-slate-900 mb-2">{selectedDocument.description}</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-600 uppercase">
+                  {selectedDocument.frequency}
+                </span>
+                {selectedDocument.deadline && (
+                  <span className="px-2 py-1 bg-slate-100 border border-slate-300 rounded-lg text-[10px] font-bold text-slate-800 uppercase">
+                    Échéance: {selectedDocument.deadline}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Formulaire amélioré */}
-            <div className="space-y-5">
-              <div className="flex items-center gap-2 mb-4">
-                <DocumentCheckIcon className="h-5 w-5 text-slate-600" />
-                <h3 className="text-lg font-semibold text-slate-900">Informations du document</h3>
-              </div>
-              
-              {selectedDocument.fields?.map((field, index) => (
-                <div key={field.id} className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <label className="block text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                    {field.label} 
-                    {field.required && <span className="text-red-500 font-bold">*</span>}
-                    {field.helpText && (
-                      <Tooltip
-                        content={field.helpText}
-                        title={field.label}
-                        iconOnly
-                        position="top"
-                      />
-                    )}
+            <div className="space-y-4">
+              {selectedDocument.fields?.map((field) => (
+                <div key={field.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                    {field.label} {field.required && <span className="text-rose-500">*</span>}
                   </label>
                   {field.type === 'select' ? (
-                    <select
-                      value={documentFormData[field.id] || ''}
-                      onChange={(e) => setDocumentFormData({ ...documentFormData, [field.id]: e.target.value })}
-                      aria-label={field.label}
-                      className="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                      required={field.required}
-                    >
+                    <select className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none font-bold text-slate-900">
                       <option value="">Sélectionner...</option>
-                      {field.options?.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
+                      {field.options?.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                     </select>
                   ) : field.type === 'textarea' ? (
-                    <textarea
-                      value={documentFormData[field.id] || ''}
-                      onChange={(e) => setDocumentFormData({ ...documentFormData, [field.id]: e.target.value })}
-                      className="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white resize-none"
-                      rows={4}
-                      placeholder={field.placeholder || `Saisissez ${field.label.toLowerCase()}...`}
-                      required={field.required}
-                    />
-                  ) : field.type === 'number' ? (
-                    <div className="relative">
-                      <input
-                        type={field.type}
-                        value={documentFormData[field.id] || ''}
-                        onChange={(e) => setDocumentFormData({ ...documentFormData, [field.id]: e.target.value })}
-                        className="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white font-medium"
-                        placeholder={field.placeholder || `Saisissez ${field.label.toLowerCase()}...`}
-                        required={field.required}
-                        step={field.type === 'number' ? '0.01' : undefined}
-                      />
-                      {field.type === 'number' && (
-                        <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm">
-                          {currentDevise === 'DZD' ? 'DA' : currentDevise === 'EUR' ? '€' : '$'}
-                        </span>
-                      )}
-                    </div>
+                    <textarea className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none font-bold text-slate-900" rows={3} placeholder={field.placeholder} />
                   ) : (
-                    <input
-                      type={field.type}
-                      value={documentFormData[field.id] || ''}
-                      onChange={(e) => setDocumentFormData({ ...documentFormData, [field.id]: e.target.value })}
-                      className="w-full px-4 py-2.5 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                      placeholder={field.placeholder || `Saisissez ${field.label.toLowerCase()}...`}
-                      required={field.required}
-                    />
-                  )}
-                  {field.helpText && (
-                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                      <InformationCircleIcon className="h-3 w-3" />
-                      {field.helpText}
-                    </p>
+                    <input type={field.type} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none font-bold text-slate-900" placeholder={field.placeholder} />
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Équivalents dans d'autres pays - Amélioré */}
-            {selectedDocument.equivalent && Object.keys(selectedDocument.equivalent).length > 0 && (
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-5 rounded-xl border-2 border-slate-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <GlobeAltIcon className="h-5 w-5 text-slate-600" />
-                  <p className="text-sm font-semibold text-slate-900">Équivalents dans d'autres pays</p>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {Object.entries(selectedDocument.equivalent).map(([country, equivalent]) => {
-                    const countryNames: Record<string, string> = {
-                      'DZ': 'Algérie',
-                      'FR': 'France',
-                      'DE': 'Allemagne',
-                      'IT': 'Italie',
-                      'US': 'États-Unis',
-                      'EU': 'Europe'
-                    };
-                    const countryFlags: Record<string, string> = {
-                      'DZ': '🇩🇿',
-                      'FR': '🇫🇷',
-                      'DE': '🇩🇪',
-                      'IT': '🇮🇹',
-                      'US': '🇺🇸',
-                      'EU': '🇪🇺'
-                    };
-                    return (
-                      <div key={country} className="bg-white p-3 rounded-lg border border-slate-300 hover:border-blue-400 hover:shadow-md transition-all">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">{countryFlags[country] || '🌍'}</span>
-                          <span className="text-xs font-semibold text-slate-700">{countryNames[country] || country}</span>
-                        </div>
-                        <p className="text-xs text-slate-600 font-medium">{equivalent}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Actions améliorées */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t-2 border-slate-200">
-              <div className="text-xs text-slate-500 flex items-center gap-2">
-                <InformationCircleIcon className="h-4 w-4" />
-                <span>Tous les champs marqués d'un <span className="text-red-500 font-bold">*</span> sont obligatoires</span>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setIsDocumentModalOpen(false);
-                    setSelectedDocument(null);
-                    setDocumentFormData({});
-                  }}
-                  className="px-6 py-2.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-semibold transition-all flex items-center gap-2"
-                >
-                  <XCircleIcon className="h-4 w-4" />
-                  Annuler
-                </button>
-                <button
-                  onClick={() => {
-                    // Vérifier que tous les champs requis sont remplis
-                    const requiredFields = selectedDocument.fields?.filter(f => f.required) || [];
-                    const missingFields = requiredFields.filter(f => !documentFormData[f.id]);
-                    
-                    if (missingFields.length > 0) {
-                      alert(`Veuillez remplir tous les champs obligatoires :\n${missingFields.map(f => `- ${f.label}`).join('\n')}`);
-                      return;
-                    }
-                    
-                    // Ici on pourrait sauvegarder le document
-                    alert(`✅ Document ${selectedDocument.code} créé avec succès !\n\nLe document a été généré et est disponible dans vos déclarations.`);
-                    setIsDocumentModalOpen(false);
-                    setSelectedDocument(null);
-                    setDocumentFormData({});
-                  }}
-                  className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 font-semibold transition-all flex items-center gap-2 shadow-lg hover:shadow-xl"
-                >
-                  <CheckCircleIcon className="h-5 w-5" />
-                  Créer le document
-                </button>
-              </div>
+            <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100">
+              <button onClick={() => setIsDocumentModalOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Fermer</button>
+              <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-sm">Générer le document</button>
             </div>
           </div>
         )}
-      </Modal>
-    </div>
+      </Modal >
+
+      {/* Modal Rapport IA */}
+      < Modal
+        isOpen={isAiReportModalOpen}
+        onClose={() => setIsAiReportModalOpen(false)}
+        title="Rapport d'Audit Fiscal IA"
+        size="lg"
+      >
+        <div className="space-y-6">
+          {isGeneratingAiReport ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-4">
+              <div className="relative">
+                <div className="h-16 w-16 border-4 border-slate-100 border-t-slate-900 rounded-full animate-spin"></div>
+                <SparklesIcon className="h-6 w-6 text-slate-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              </div>
+              <p className="text-slate-500 font-black animate-pulse uppercase tracking-widest text-xs">Analyse des flux 2024-2026...</p>
+            </div>
+          ) : (
+            <div className="space-y-6 animate-fade-in">
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center space-x-3">
+                <CheckCircleIcon className="h-6 w-6 text-slate-400" />
+                <p className="text-sm font-bold text-slate-800 uppercase tracking-tight">Audit complété avec succès</p>
+              </div>
+
+              <div className="bg-slate-950 rounded-2xl p-6 border border-slate-800 shadow-2xl relative group overflow-hidden">
+                <div className="absolute top-3 right-4 flex gap-1.5 opacity-50">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                </div>
+                <pre className="font-mono text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
+                  {aiReportContent}
+                </pre>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button onClick={() => setIsAiReportModalOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Fermer</button>
+                <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-sm flex items-center">
+                  <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
+                  Exporter le rapport
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal >
+
+      <style>{`
+        .font-arabic { font-family: 'Noto Sans Arabic', sans-serif; }
+      `}</style>
+    </div >
   );
 };
 
 export default Fiscalite;
-
-

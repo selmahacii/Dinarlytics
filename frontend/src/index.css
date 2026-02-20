@@ -443,3 +443,66 @@
 .sidebar-transition {
   transition: all 0.3s ease-in-out;
 }
+/* ========================================
+   OPTIMISATION POUR L'IMPRESSION (PDF)
+   ======================================== */
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Cache les éléments d'interface non pertinents */
+  header, nav, aside, footer, 
+  button, .no-print, [role="tablist"], .sticky {
+    display: none !important;
+  }
+
+  /* Ajustements structurels */
+  main, #sales-print-root {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* Conservation des couleurs d'accentuation */
+  .bg-slate-900 {
+    background-color: #0f172a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .text-white {
+    color: white !important;
+  }
+
+  .text-emerald-500 {
+    color: #10b981 !important;
+  }
+
+  /* Forcer les bordures et les ombres légères */
+  .border {
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  /* Éviter les coupures d'éléments au milieu de la boîte */
+  .bg-white, .rounded-\[3rem\], .rounded-\[3\.5rem\] {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-radius: 1.5rem !important;
+    box-shadow: none !important;
+  }
+
+  /* Typographie pour l'impression */
+  h1 { font-size: 24pt !important; }
+  h2 { font-size: 18pt !important; }
+  h3 { font-size: 14pt !important; }
+  p, span { font-size: 10pt !important; }
+}

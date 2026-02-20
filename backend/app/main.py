@@ -45,15 +45,6 @@ app = FastAPI(
     openapi_url=settings.OPENAPI_URL,
     lifespan=lifespan,
 )
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
-    allow_methods=settings.CORS_ALLOW_METHODS,
-    allow_headers=settings.CORS_ALLOW_HEADERS,
-)
-
 # Security Middleware
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
@@ -74,6 +65,15 @@ def rate_limit_handler(request, exc):
         status_code=429,
         content={"detail": "Too many requests, please try again later."},
     )
+
+# CORS Middleware (Outermost for Preflight)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Sentry Integration
 import sentry_sdk

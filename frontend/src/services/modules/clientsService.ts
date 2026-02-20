@@ -21,58 +21,80 @@ export const clientsService = {
         await new Promise(resolve => setTimeout(resolve, 600));
         return [
             {
-                id: '1',
-                name: 'Groupe Industriel El-Djazair',
-                nom: 'Groupe Industriel El-Djazair', // Alias for dashboards
-                email: 'contact@el-djazair-ind.dz',
-                phone: '0550112233',
-                address: 'Zone Industrielle Rouiba, Alger',
-                tax_number: '0011223344',
+                id: 'c-001',
+                name: 'Sonatrach',
+                nom: 'Sonatrach',
+                email: 'contact@sonatrach.dz',
+                phone: '021 54 80 00',
+                address: 'Djenane El Malik, Hydra, Alger',
+                tax_number: '000016109000101',
                 is_active: true,
-                // Extended Analytics Data
                 ca: 4500000,
+                solde: 1250000,
+                dernierAchat: '2023-10-15',
                 pourcentage: 36,
                 croissance: 12.5,
-                secteur: 'Industrie',
+                secteur: 'Energie',
                 risque: 'faible',
-                raisonsTop: ['Partenaire historique', 'Commandes régulières', 'Paiements < 30j'],
-                metriques: { delaiPaiement: 28, tauxRenouvellement: 100, satisfaction: 4.9, recommandations: 3 }
+                raisonsTop: ['Partenaire stratégique', 'Contrats long terme', 'Paiements rigoureux'],
+                metriques: { delaiPaiement: 15, tauxRenouvellement: 100, satisfaction: 4.8, recommandations: 5 }
             },
             {
-                id: '2',
-                name: 'Sarl Tech Solutions',
-                nom: 'Sarl Tech Solutions',
-                email: 'info@tech-solutions.dz',
-                phone: '0660445566',
-                address: 'Cyber Parc Sidi Abdellah',
-                tax_number: '5566778899',
+                id: 'c-002',
+                name: 'Cévital SPA',
+                nom: 'Cévital SPA',
+                email: 'sales@cevital.com',
+                phone: '034 21 44 44',
+                address: 'Nouveau Port, Bejaia',
+                tax_number: '000216109000202',
                 is_active: true,
-                // Extended Analytics Data
+                ca: 3800000,
+                solde: 450000,
+                dernierAchat: '2023-11-20',
+                pourcentage: 28.5,
+                croissance: 8.2,
+                secteur: 'Agro-industrie',
+                risque: 'faible',
+                raisonsTop: ['Leader industriel', 'Gros volumes', 'Expertise reconnue'],
+                metriques: { delaiPaiement: 30, tauxRenouvellement: 95, satisfaction: 4.6, recommandations: 12 }
+            },
+            {
+                id: 'c-003',
+                name: 'Ooredoo Algérie',
+                nom: 'Ooredoo Algérie',
+                email: 'corporate@ooredoo.dz',
+                phone: '0550 00 00 00',
+                address: 'Ouled Fayet, Alger',
+                tax_number: '000316109000303',
+                is_active: true,
+                ca: 2900000,
+                solde: 0,
+                dernierAchat: '2024-01-05',
+                pourcentage: 22.1,
+                croissance: 15.4,
+                secteur: 'Télécom',
+                risque: 'faible',
+                raisonsTop: ['Innovation tech', 'Paiements automatisés'],
+                metriques: { delaiPaiement: 25, tauxRenouvellement: 98, satisfaction: 4.7, recommandations: 4 }
+            },
+            {
+                id: 'c-004',
+                name: 'Djezzy',
+                nom: 'Djezzy',
+                email: 'info@djezzy.dz',
+                phone: '0770 85 00 00',
+                address: 'Dar El Beida, Alger',
+                tax_number: '000416109000404',
+                is_active: true,
                 ca: 2100000,
-                pourcentage: 16.8,
-                croissance: 45.2,
-                secteur: 'Technologie',
+                solde: 850000,
+                dernierAchat: '2023-09-12',
+                pourcentage: 13.4,
+                croissance: -5.0,
+                secteur: 'Télécom',
                 risque: 'moyen',
-                raisonsTop: ['Forte croissance', 'Innovation conjointe', 'Ticket moyen élevé'],
-                metriques: { delaiPaiement: 45, tauxRenouvellement: 85, satisfaction: 4.5, recommandations: 8 }
-            },
-            {
-                id: '3',
-                name: 'Eurl Distribution Express',
-                nom: 'Eurl Distribution Express',
-                email: 'logistique@distrib-express.dz',
-                phone: '0770889900',
-                address: 'Oran Centre',
-                tax_number: '9988776655',
-                is_active: true,
-                // Extended Analytics Data
-                ca: 1850000,
-                pourcentage: 14.2,
-                croissance: -2.1,
-                secteur: 'Logistique',
-                risque: 'élevé',
-                raisonsTop: ['Volume important', 'Maillage territorial'],
-                metriques: { delaiPaiement: 65, tauxRenouvellement: 60, satisfaction: 3.8, recommandations: 0 }
+                raisonsTop: ['Acteur majeur', 'Large couverture'],
+                metriques: { delaiPaiement: 45, tauxRenouvellement: 88, satisfaction: 4.2, recommandations: 2 }
             }
         ] as any[];
     },
@@ -100,8 +122,24 @@ export const clientsService = {
     },
 
     getStats: async () => {
-        const response = await apiClient.get<any>('/clients/stats');
-        return response.data;
+        // MOCK IMPLEMENTATION if backend fails
+        // try {
+        //     const response = await apiClient.get<any>('/clients/stats');
+        //     return response.data;
+        // } catch (e) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+        return {
+            total_clients: 4,
+            active_clients: 3,
+            new_clients_this_month: 1,
+            total_revenue: 4800000,
+            average_order_value: 1200000,
+            top_clients: [
+                { name: 'Sonatrach', ca: 4500000 },
+                { name: 'Cévital SPA', ca: 3800000 }
+            ]
+        };
+        // }
     },
 
     getGroups: async () => {

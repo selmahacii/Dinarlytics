@@ -21,8 +21,15 @@ apiClient.interceptors.request.use(
         }
         const companyId = localStorage.getItem('company_id');
         if (companyId && config.headers) {
-            config.headers['X-Company-ID'] = companyId;
+            config.headers['x-company-id'] = companyId;
         }
+
+        // Add language header
+        const lang = localStorage.getItem('app_lang') || 'fr';
+        if (config.headers) {
+            config.headers['Accept-Language'] = lang;
+        }
+
         return config;
     },
     (error) => {

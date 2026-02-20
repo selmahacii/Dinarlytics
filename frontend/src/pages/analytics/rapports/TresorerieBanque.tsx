@@ -20,1915 +20,939 @@ import {
   ScaleIcon,
   InformationCircleIcon,
   ArrowPathIcon,
-  SparklesIcon
+  SparklesIcon,
+  CalendarIcon,
+  PrinterIcon
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { useTreasuryReports } from '@shared/hooks/useTreasuryReports';
 
-const formatCurrency = (amount: number) => new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', minimumFractionDigits: 0 }).format(amount);
+const fmt = (n: number) =>
+  new Intl.NumberFormat('fr-DZ', { maximumFractionDigits: 0 }).format(n) + ' DA';
 
+const fmtK = (n: number) => `${Math.round(n / 1000)}k DA`;
+
+// ─────────────────────────────────────────────
+// DONNÉES COHÉRENTES — exercice Jan-Jun 2024
+// ─────────────────────────────────────────────
+const monthlyFlows = [
+  { month: 'Jan', enc: 850_000, dec: 620_000, solde: 230_000 },
+  { month: 'Fév', enc: 920_000, dec: 680_000, solde: 240_000 },
+  { month: 'Mar', enc: 980_000, dec: 720_000, solde: 260_000 },
+  { month: 'Avr', enc: 890_000, dec: 650_000, solde: 240_000 },
+  { month: 'Mai', enc: 1_050_000, dec: 780_000, solde: 270_000 },
+  { month: 'Jun', enc: 1_100_000, dec: 820_000, solde: 280_000 },
+];
+
+const TOTAL_ENC = monthlyFlows.reduce((s, m) => s + m.enc, 0); // 5 790 000
+const TOTAL_DEC = monthlyFlows.reduce((s, m) => s + m.dec, 0); // 4 270 000
+const TOTAL_SOLDE = monthlyFlows.reduce((s, m) => s + m.solde, 0); // 1 520 000
+
+const SOLDE_BANQUE = 1_850_000;
+const SOLDE_CAISSE = 580_000;
+const SOLDE_EPARGNE = 850_000;
+const SOLDE_OPS = 750_000;
+const SOLDE_TOTAL = SOLDE_BANQUE + SOLDE_CAISSE + SOLDE_EPARGNE + SOLDE_OPS; // 4 030 000
+const RATIO_LIQUIDITE = 1.85;
+const DSO = 28; // Days Sales Outstanding
+const DPO = 35; // Days Payable Outstanding
+const COUVERTURE = 45; // jours de charges couvertes
+const CAF = 320_000; // Capacité d'autofinancement
+const BFR = 720_000; // Besoin en Fonds de Roulement
+const FR = 2_100_000; // Fonds de Roulement
+
+const bankAccounts = [
+  { name: 'Compte Principal BNA', no: '****7892', type: 'Courant', solde: SOLDE_BANQUE, variation: +8.5, mvt: 45, icon: BuildingLibraryIcon },
+  { name: 'Compte Opérationnel CPA', no: '****3421', type: 'Courant', solde: SOLDE_OPS, variation: -3.2, mvt: 32, icon: BuildingLibraryIcon },
+  { name: 'Caisse Principale', no: 'CAISSE-01', type: 'Caisse', solde: SOLDE_CAISSE, variation: +15.2, mvt: 68, icon: BanknotesIcon },
+  { name: 'Compte Épargne BEA', no: '****9156', type: 'Épargne', solde: SOLDE_EPARGNE, variation: +2.1, mvt: 8, icon: BuildingLibraryIcon },
+];
+
+const recentMovements = [
+  { date: '15/01/2024', type: 'Encaissement', libelle: 'Paiement Client — Ooredoo Algérie', compte: 'BNA', montant: 150_000 },
+  { date: '15/01/2024', type: 'Décaissement', libelle: 'Fournisseur — Global Logistics Algérie', compte: 'CPA', montant: -85_000 },
+  { date: '15/01/2024', type: 'Encaissement', libelle: 'Virement Client — Sonatrach', compte: 'BNA', montant: 220_000 },
+  { date: '14/01/2024', type: 'Décaissement', libelle: 'Salaires & charges sociales', compte: 'CPA', montant: -350_000 },
+  { date: '14/01/2024', type: 'Transfert', libelle: 'Transfert interne BNA → CPA', compte: 'BNA', montant: -100_000 },
+  { date: '14/01/2024', type: 'Encaissement', libelle: 'Règlement espèces — Djezzy', compte: 'Caisse', montant: 45_000 },
+];
+
+const tensions = [
+  { date: '05/02/2024', type: 'Tension de trésorerie', desc: 'Solde prévu < 100k DA', montant: 85_000, sev: 'warning', action: 'Négocier délais fournisseurs' },
+  { date: '15/02/2024', type: 'Échéance importante', desc: 'Salaires + charges sociales', montant: 420_000, sev: 'critical', action: 'Préparer virement sous 48h' },
+  { date: '20/02/2024', type: 'Pic de dépenses', desc: 'Factures fournisseurs lourdes', montant: 380_000, sev: 'warning', action: 'Surveiller les encaissements' },
+];
+
+const forecasts = [
+  { month: 'Juil', prevu: 290_000, reel: null, risque: 'Faible', confiance: 'Élevée', enc: 1_180_000, dec: 890_000 },
+  { month: 'Août', prevu: 200_000, reel: null, risque: 'Moyen', confiance: 'Moyenne', enc: 1_050_000, dec: 850_000 },
+  { month: 'Sep', prevu: 330_000, reel: null, risque: 'Faible', confiance: 'Élevée', enc: 1_250_000, dec: 920_000 },
+];
+
+// ─────────────────────────────────────────────
+// COMPOSANT PRINCIPAL
+// ─────────────────────────────────────────────
 const TresorerieBanque: React.FC = () => {
   const { user } = useApp();
-  const [selectedView, setSelectedView] = useState('flux-tresorerie');
-  const { data, loading, error } = useTreasuryReports('mois');
+  const [activeTab, setActiveTab] = useState<'flux' | 'comptes' | 'previsions'>('flux');
+  const [showRapport, setShowRapport] = useState(false);
 
-  // Loading and error handling
-  if (loading) {
-    return <div className="p-8 text-center text-slate-500">Chargement des données de trésorerie...</div>;
-  }
-  if (error) {
-    return <div className="p-8 text-center text-red-500">Erreur lors du chargement : {error}</div>;
-  }
-  if (!data) {
-    return <div className="p-8 text-center text-slate-400">Aucune donnée disponible</div>;
-  }
-
-  // Use API data
-  const { soldeBanque, soldeCaisse, soldeTotal, fluxEntrants, fluxSortants, soldeNet, previsionTresorerie, repartitionFlux, repartitionSorties } = data;
-
-  // ========================================
-  // INTERFACE EURL MICRO-ENTREPRISE
-  // ========================================
-  if (user && user.segment === 'micro' && user.companyType === 'eurl') {
-
-    return (
-      <div className="space-y-6 max-w-7xl mx-auto p-6">
-        {/* En-tête */}
-        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
-                <BuildingLibraryIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold">Trésorerie & Banque</h1>
-                <p className="text-slate-300 text-lg mt-1">Suivi des flux financiers et gestion bancaire</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 4 KPIs Principaux */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
-                <CurrencyDollarIcon className="h-7 w-7 text-white" />
-              </div>
-            </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Solde Total</h3>
-            <p className="text-3xl font-extrabold text-slate-900">{formatCurrency(soldeTotal)}</p>
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-emerald-600 font-semibold">✅ Positif</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
-                <BuildingLibraryIcon className="h-7 w-7 text-white" />
-              </div>
-            </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Solde Banque</h3>
-            <p className="text-3xl font-extrabold text-slate-900">{formatCurrency(soldeBanque)}</p>
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-slate-600 font-semibold">🏦 Compte principal</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
-                <BanknotesIcon className="h-7 w-7 text-white" />
-              </div>
-            </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Solde Caisse</h3>
-            <p className="text-3xl font-extrabold text-slate-900">{formatCurrency(soldeCaisse)}</p>
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-slate-600 font-semibold">💵 Espèces</p>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
-                <ArrowTrendingUpIcon className="h-7 w-7 text-white" />
-              </div>
-            </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Solde Net du Mois</h3>
-            <p className="text-3xl font-extrabold text-emerald-600">+{formatCurrency(soldeNet)}</p>
-            <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-emerald-600 font-semibold">📈 Positif</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Flux Entrants vs Sortants */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border-2 border-emerald-300 p-6 shadow-lg">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
-              </div>
-              Flux Entrants
-            </h3>
-            <p className="text-4xl font-extrabold text-emerald-600 mb-4">{formatCurrency(fluxEntrants)}</p>
-            <div className="space-y-2">
-              {repartitionFlux.map((flux, idx) => (
-                <div key={idx} className="bg-white p-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-bold text-slate-700">{flux.type}</p>
-                    <p className="text-sm font-bold text-emerald-600">{flux.part}%</p>
-                  </div>
-                  <p className="text-lg font-bold text-slate-900">{formatCurrency(flux.montant)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-2xl border-2 border-red-300 p-6 shadow-lg">
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-              <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg mr-3">
-                <ArrowTrendingDownIcon className="h-5 w-5 text-white" />
-              </div>
-              Flux Sortants
-            </h3>
-            <p className="text-4xl font-extrabold text-red-600 mb-4">{formatCurrency(fluxSortants)}</p>
-            <div className="space-y-2">
-              {repartitionSorties.map((sortie, idx) => (
-                <div key={idx} className="bg-white p-3 rounded-lg">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-bold text-slate-700">{sortie.type}</p>
-                    <p className="text-sm font-bold text-red-600">{sortie.part}%</p>
-                  </div>
-                  <p className="text-lg font-bold text-slate-900">{formatCurrency(sortie.montant)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Courbe Prévisionnelle Trésorerie (3 mois) */}
-        <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
-            <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
-              <ChartBarIcon className="h-5 w-5 text-white" />
-            </div>
-            Évolution Prévisionnelle de la Trésorerie (3 mois)
-          </h2>
-          <div className="grid grid-cols-4 gap-2">
-            {previsionTresorerie.map((data, idx) => {
-              const maxSolde = Math.max(...previsionTresorerie.map(d => d.solde));
-              const hauteur = (data.solde / maxSolde) * 200;
-              const isPositif = data.solde > soldeTotal;
-              return (
-                <div key={idx} className="flex flex-col items-center">
-                  <div className="w-full bg-slate-100 rounded-t-xl overflow-hidden" style={{ height: '200px', display: 'flex', alignItems: 'flex-end' }}>
-                    <div 
-                      className={`w-full ${isPositif ? 'bg-gradient-to-t from-emerald-500 to-teal-400' : 'bg-gradient-to-t from-blue-500 to-indigo-400'} rounded-t-xl transition-all duration-500 hover:opacity-90`}
-                      style={{ height: `${hauteur}px` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs font-bold text-slate-600 mt-2">{data.mois}</p>
-                  <p className="text-xs text-slate-500">{formatCurrency(data.solde)}</p>
-                  {isPositif && <p className="text-xs text-emerald-600 font-bold">+{Math.round((data.solde - soldeTotal) / soldeTotal * 100)}%</p>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Alertes & Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Alertes */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-300 p-6 shadow-lg">
-            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg mr-3">
-                <BellIcon className="h-5 w-5 text-white" />
-              </div>
-              Alertes Trésorerie
-            </h3>
-            <div className="space-y-3">
-              <div className="bg-white p-3 rounded-lg border border-emerald-300">
-                <p className="text-sm font-bold text-emerald-700">✅ Trésorerie saine</p>
-                <p className="text-xs text-slate-600 mt-1">Solde positif et croissant</p>
-              </div>
-              <div className="bg-white p-3 rounded-lg border border-blue-300">
-                <p className="text-sm font-bold text-blue-700">💡 Optimisation possible</p>
-                <p className="text-xs text-slate-600 mt-1">Envisager placement court terme</p>
-              </div>
-              <div className="bg-white p-3 rounded-lg border border-slate-300">
-                <p className="text-sm font-bold text-slate-700">📊 Suivi recommandé</p>
-                <p className="text-xs text-slate-600 mt-1">Revoir les flux hebdomadairement</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions Rapides */}
-          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-lg">
-            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
-              <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
-                <SparklesIcon className="h-5 w-5 text-white" />
-              </div>
-              Actions Rapides
-            </h3>
-            <div className="space-y-3">
-              <button className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300">
-                💳 Rapprocher les comptes
-              </button>
-              <button className="w-full p-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300">
-                📊 Rapport flux complet
-              </button>
-              <button className="w-full p-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-bold hover:border-emerald-400 hover:shadow-lg transition-all duration-300">
-                🏦 Gérer les banques
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ========================================
-  // INTERFACE STANDARD (autres entreprises)
-  // ========================================
-
-  const views = [
-    {
-      id: 'flux-tresorerie',
-      title: 'Flux de trésorerie',
-      icon: CurrencyDollarIcon,
-      description: 'Analysez vos flux financiers',
-      indicators: ['Encaissements / décaissements', 'Solde bancaire cumulé', 'Prévision de trésorerie']
-    },
-    {
-      id: 'suivi-comptes',
-      title: 'Suivi des comptes bancaires / caisses',
-      icon: CreditCardIcon,
-      description: 'Surveillez vos comptes',
-      indicators: ['Soldes multi-comptes', 'Mouvements journaliers', 'Dépôts / retraits / transferts']
-    },
-    {
-      id: 'previsions-tensions',
-      title: 'Prévisions et tensions',
-      icon: ClockIcon,
-      description: 'Anticipez les besoins',
-      indicators: ['Périodes à risque (solde < 0)', 'Prévision du besoin de trésorerie', 'Ratio liquidité actuelle']
-    }
+  const tabs = [
+    { id: 'flux' as const, label: 'Flux de Trésorerie', icon: CurrencyDollarIcon },
+    { id: 'comptes' as const, label: 'Comptes & Caisses', icon: BuildingLibraryIcon },
+    { id: 'previsions' as const, label: 'Prévisions & Tensions', icon: ClockIcon },
   ];
 
-  const currentView = views.find(v => v.id === selectedView) || views[0];
+  // Cumul mensuel du solde
+  let cumul = 0;
+  const cumulData = monthlyFlows.map(m => { cumul += m.solde; return { ...m, cumul }; });
 
-  // Données enrichies pour flux de trésorerie
-  const cashFlowData = {
-    encaissements: 5200000,
-    decaissements: 3800000,
-    soldeNet: 1400000,
-    liquidite: 1.8,
-    previsions: 1650000,
-    soldeBancaire: 2850000,
-    variationMensuelle: 12.5,
-    ratioLiquidite: 1.85,
-    delaiMoyenEncaissement: 28,
-    delaiMoyenDecaissement: 35
+  // ── Export PDF ───────────────────────────────
+  const handleExportPDF = () => {
+    const style = document.createElement('style');
+    style.id = '__print_override';
+    style.innerHTML = `
+      @media print {
+        body > *:not(#tresorerie-print-root) { display: none !important; }
+        #tresorerie-print-root { display: block !important; }
+      }
+    `;
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => document.getElementById('__print_override')?.remove(), 1000);
   };
 
-  // Flux mensuels
-  const monthlyFlows = [
-    { month: 'Jan', encaissements: 850000, decaissements: 620000, solde: 230000 },
-    { month: 'Fév', encaissements: 920000, decaissements: 680000, solde: 240000 },
-    { month: 'Mar', encaissements: 980000, decaissements: 720000, solde: 260000 },
-    { month: 'Avr', encaissements: 890000, decaissements: 650000, solde: 240000 },
-    { month: 'Mai', encaissements: 1050000, decaissements: 780000, solde: 270000 },
-    { month: 'Jun', encaissements: 1100000, decaissements: 820000, solde: 280000 }
-  ];
+  // ── Export Excel (CSV) ───────────────────────
+  const handleExportExcel = () => {
+    const BOM = '\uFEFF';
+    const sep = ';';
+    const rows: string[][] = [
+      ['RAPPORT TRÉSORERIE & BANQUE — Exercice 2024'],
+      ['Généré le', new Date().toLocaleDateString('fr-DZ')],
+      [],
+      ['=== FLUX MENSUELS ==='],
+      ['Mois', 'Encaissements (DA)', 'Décaissements (DA)', 'Solde Net (DA)', 'Ratio E/D (%)'],
+      ...monthlyFlows.map(m => [
+        m.month,
+        m.enc.toString(),
+        m.dec.toString(),
+        m.solde.toString(),
+        Math.round((m.enc / m.dec) * 100).toString(),
+      ]),
+      ['TOTAL', TOTAL_ENC.toString(), TOTAL_DEC.toString(), TOTAL_SOLDE.toString(), Math.round((TOTAL_ENC / TOTAL_DEC) * 100).toString()],
+      [],
+      ['=== COMPTES BANCAIRES ==='],
+      ['Compte', 'Numéro', 'Type', 'Solde (DA)', 'Variation (%)', 'Mouvements'],
+      ...bankAccounts.map(a => [a.name, a.no, a.type, a.solde.toString(), a.variation.toString(), a.mvt.toString()]),
+      [],
+      ['=== INDICATEURS FINANCIERS ==='],
+      ['Indicateur', 'Valeur'],
+      ['Ratio de liquidité', RATIO_LIQUIDITE.toString()],
+      ['Délai moyen encaissement (j)', DSO.toString()],
+      ['Délai moyen décaissement (j)', DPO.toString()],
+      ['Couverture trésorerie (j)', COUVERTURE.toString()],
+      ['Fonds de Roulement (DA)', FR.toString()],
+      ['Besoin en Fonds de Roulement (DA)', BFR.toString()],
+      ['Capacité d\'autofinancement (DA)', CAF.toString()],
+      [],
+      ['=== PRÉVISIONS 3 MOIS ==='],
+      ['Mois', 'Encaissements prévus (DA)', 'Décaissements prévus (DA)', 'Solde net prévu (DA)', 'Risque', 'Confiance'],
+      ...forecasts.map(f => [f.month, f.enc.toString(), f.dec.toString(), f.prevu.toString(), f.risque, f.confiance]),
+    ];
+    const csv = BOM + rows.map(r => r.join(sep)).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Tresorerie_Banque_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-  // Comptes bancaires et caisses
-  const bankAccounts = [
-    {
-      name: 'Compte Principal BNA',
-      number: '****7892',
-      type: 'Compte courant',
-      solde: 1850000,
-      devise: 'DA',
-      status: 'actif',
-      variation: 8.5,
-      lastMovement: '2024-01-15',
-      movements: 45,
-      icon: BuildingLibraryIcon
-    },
-    {
-      name: 'Compte Opérationnel CPA',
-      number: '****3421',
-      type: 'Compte courant',
-      solde: 750000,
-      devise: 'DA',
-      status: 'actif',
-      variation: -3.2,
-      lastMovement: '2024-01-15',
-      movements: 32,
-      icon: BuildingLibraryIcon
-    },
-    {
-      name: 'Caisse Principale',
-      number: 'CAISSE-01',
-      type: 'Caisse',
-      solde: 180000,
-      devise: 'DA',
-      status: 'actif',
-      variation: 15.2,
-      lastMovement: '2024-01-15',
-      movements: 68,
-      icon: BanknotesIcon
-    },
-    {
-      name: 'Compte Épargne BEA',
-      number: '****9156',
-      type: 'Compte épargne',
-      solde: 850000,
-      devise: 'DA',
-      status: 'actif',
-      variation: 2.1,
-      lastMovement: '2024-01-10',
-      movements: 8,
-      icon: BuildingLibraryIcon
+  // ── Partager ─────────────────────────────────
+  const handleShare = async () => {
+    const text = `Rapport Trésorerie & Banque — ${new Date().toLocaleDateString('fr-DZ')}\n` +
+      `Encaissements S1 : ${fmt(TOTAL_ENC)}\n` +
+      `Décaissements S1 : ${fmt(TOTAL_DEC)}\n` +
+      `Solde net : +${fmt(TOTAL_SOLDE)}\n` +
+      `Solde bancaire total : ${fmt(SOLDE_TOTAL)}\n` +
+      `Ratio liquidité : ${RATIO_LIQUIDITE}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Trésorerie & Banque', text }); } catch { }
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert('Résumé copié dans le presse-papiers !');
     }
-  ];
-
-  // Mouvements récents
-  const recentMovements = [
-    { date: '2024-01-15', type: 'Encaissement', libelle: 'Paiement Client ABC', compte: 'BNA', montant: 150000, statut: 'validé' },
-    { date: '2024-01-15', type: 'Décaissement', libelle: 'Fournisseur Tech Plus', compte: 'CPA', montant: -85000, statut: 'validé' },
-    { date: '2024-01-15', type: 'Encaissement', libelle: 'Virement Client XYZ', compte: 'BNA', montant: 220000, statut: 'validé' },
-    { date: '2024-01-14', type: 'Décaissement', libelle: 'Salaires', compte: 'CPA', montant: -350000, statut: 'validé' },
-    { date: '2024-01-14', type: 'Transfert', libelle: 'Transfert BNA → CPA', compte: 'BNA', montant: -100000, statut: 'validé' },
-    { date: '2024-01-14', type: 'Encaissement', libelle: 'Paiement Client DEF', compte: 'Caisse', montant: 45000, statut: 'validé' }
-  ];
-
-  // Prévisions et tensions
-  const forecasts = [
-    { month: 'Jan', prevu: 230000, reel: 230000, ecart: 0, risque: 'faible' },
-    { month: 'Fév', prevu: 250000, reel: 240000, ecart: -10000, risque: 'faible' },
-    { month: 'Mar', prevu: 270000, reel: 260000, ecart: -10000, risque: 'faible' },
-    { month: 'Avr', prevu: 260000, reel: 240000, ecart: -20000, risque: 'moyen' },
-    { month: 'Mai', prevu: 300000, reel: 270000, ecart: -30000, risque: 'moyen' },
-    { month: 'Jun', prevu: 320000, reel: null, ecart: null, risque: 'faible' }
-  ];
-
-  // Tensions et alertes
-  const tensions = [
-    {
-      date: '2024-02-05',
-      type: 'Tension de trésorerie',
-      description: 'Solde prévu < 100k DA',
-      montant: 85000,
-      severity: 'warning',
-      action: 'Négocier délais fournisseurs'
-    },
-    {
-      date: '2024-02-15',
-      type: 'Échéance importante',
-      description: 'Salaires + charges sociales',
-      montant: 420000,
-      severity: 'critical',
-      action: 'Préparer virement'
-    },
-    {
-      date: '2024-02-20',
-      type: 'Pic de dépenses',
-      description: 'Factures fournisseurs importantes',
-      montant: 380000,
-      severity: 'warning',
-      action: 'Surveiller encaissements'
-    }
-  ];
-
-  // Ratios financiers
-  const financialRatios = [
-    { label: 'Ratio de liquidité', value: 1.85, target: '> 1.5', status: 'excellent', description: 'Capacité à payer les dettes court terme' },
-    { label: 'Délai moyen encaissement', value: 28, target: '< 30j', status: 'bon', description: 'Temps moyen de recouvrement' },
-    { label: 'Délai moyen décaissement', value: 35, target: '30-45j', status: 'optimal', description: 'Temps moyen de paiement fournisseurs' },
-    { label: 'Couverture trésorerie', value: 45, target: '> 30j', status: 'excellent', description: 'Nombre de jours de charges couvertes' }
-  ];
+  };
 
   return (
-    <div className="space-y-6">
-      {/* En-tête */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center justify-between">
+    <div className="space-y-8">
+
+      {/* ══════════════ HERO HEADER ══════════════ */}
+      <div className="bg-slate-900 text-white p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]" />
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center">
-              <BanknotesIcon className="h-8 w-8 mr-3 text-slate-600" />
-              Trésorerie & Banque
-            </h1>
-            <p className="text-slate-600 mt-1">Analysez vos flux financiers et comptes bancaires</p>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Gestion Financière</p>
+            <h1 className="text-4xl font-black uppercase tracking-tighter italic">Trésorerie & Banque</h1>
+            <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">
+              Analyse des Flux · Comptes Bancaires · Prévisions — Exercice 2024
+            </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <button className="px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors flex items-center">
-              <FunnelIcon className="h-4 w-4 mr-2" />
-              Filtres
+          <div className="flex gap-3">
+            <button
+              onClick={handleExportPDF}
+              className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-2xl shadow-white/10"
+            >
+              <ArrowDownTrayIcon className="h-4 w-4" />
+              Export PDF
             </button>
-            <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors flex items-center">
-              <ShareIcon className="h-4 w-4 mr-2" />
+            <button
+              onClick={handleShare}
+              className="px-8 py-4 bg-white/5 hover:bg-white/10 active:bg-white/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
+            >
+              <ShareIcon className="h-4 w-4" />
               Partager
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Navigation des vues */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
-        <div className="flex space-x-1">
-          {views.map((view) => {
-            const Icon = view.icon;
-            return (
-              <button
-                key={view.id}
-                onClick={() => setSelectedView(view.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  selectedView === view.id
-                    ? 'bg-slate-600 text-white'
-                    : 'text-slate-600 hover:text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{view.title}</span>
-              </button>
-            );
-          })}
+        {/* Métriques synthèse */}
+        <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-white/5">
+          {[
+            { label: 'Encaissements', val: fmt(TOTAL_ENC), sub: 'Jan → Jun 2024', icon: ArrowTrendingUpIcon },
+            { label: 'Décaissements', val: fmt(TOTAL_DEC), sub: 'Jan → Jun 2024', icon: ArrowTrendingDownIcon },
+            { label: 'Solde Net', val: '+' + fmt(TOTAL_SOLDE), sub: 'Flux net positif', icon: ScaleIcon },
+            { label: 'Solde Banque', val: fmt(SOLDE_TOTAL), sub: 'Tous comptes', icon: BuildingLibraryIcon },
+          ].map((m, i) => (
+            <div key={i} className="border border-white/5 rounded-2xl p-5">
+              <m.icon className="h-5 w-5 text-slate-500 mb-3" />
+              <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-1">{m.label}</p>
+              <p className="text-xl font-black font-mono text-white">{m.val}</p>
+              <p className="text-[10px] text-slate-500 mt-1">{m.sub}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Contenu de la vue sélectionnée */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          {(() => {
-            const CurrentViewIcon = currentView.icon;
-            return <CurrentViewIcon className="h-6 w-6 text-slate-600" />;
-          })()}
-          <div>
-            <h2 className="text-lg font-semibold text-slate-900">{currentView.title}</h2>
-            <p className="text-sm text-slate-600">{currentView.description}</p>
-          </div>
-        </div>
+      {/* ══════════════ ONGLETS ══════════════ */}
+      <div className="flex gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+        {tabs.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === t.id
+              ? 'bg-slate-900 text-white shadow-lg'
+              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800'
+              }`}
+          >
+            <t.icon className="h-4 w-4" />
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Contenu dynamique selon la vue */}
+      {/* ══════════════════════════════════════
+          VUE 1 — FLUX DE TRÉSORERIE
+      ══════════════════════════════════════ */}
+      {activeTab === 'flux' && (
         <div className="space-y-8">
-          {/* VUE 1: FLUX DE TRÉSORERIE */}
-          {selectedView === 'flux-tresorerie' && (
-            <>
-              {/* KPIs principaux */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-emerald-600 font-semibold"> Encaissements</span>
-                    <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <div className="text-2xl font-black text-emerald-700">
-              +{cashFlowData.encaissements.toLocaleString()} DA
-            </div>
-                  <div className="text-xs text-emerald-600 mt-1">+{cashFlowData.variationMensuelle}% vs mois dernier</div>
-          </div>
 
-                <div className="p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-red-600 font-semibold"> Décaissements</span>
-                    <ArrowTrendingDownIcon className="h-4 w-4 text-red-600" />
-                  </div>
-                  <div className="text-2xl font-black text-red-700">
-              -{cashFlowData.decaissements.toLocaleString()} DA
-            </div>
-                  <div className="text-xs text-red-600 mt-1">Paiements effectués</div>
-          </div>
-
-                <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-slate-600 font-semibold"> Solde net</span>
-                    <CheckCircleIcon className="h-4 w-4 text-slate-600" />
-                  </div>
-                  <div className="text-2xl font-black text-slate-900">
-              +{cashFlowData.soldeNet.toLocaleString()} DA
-            </div>
-                  <div className="text-xs text-slate-600 mt-1">Flux net positif</div>
-          </div>
-
-                <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-slate-600 font-semibold"> Solde bancaire</span>
-                    <BanknotesIcon className="h-4 w-4 text-slate-600" />
-                  </div>
-                  <div className="text-2xl font-black text-slate-900">
-                    {cashFlowData.soldeBancaire.toLocaleString()} DA
-                  </div>
-                  <div className="text-xs text-slate-600 mt-1">Tous comptes</div>
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+            {[
+              { label: 'Encaissements', val: fmt(TOTAL_ENC), sub: '+12.5% vs S1-2023', icon: ArrowTrendingUpIcon },
+              { label: 'Décaissements', val: fmt(TOTAL_DEC), sub: 'Paiements cumulés', icon: ArrowTrendingDownIcon },
+              { label: 'Solde Net', val: '+' + fmt(TOTAL_SOLDE), sub: 'Flux net positif', icon: CheckCircleIcon },
+              { label: 'Solde Bancaire', val: fmt(SOLDE_TOTAL), sub: '4 comptes actifs', icon: BanknotesIcon },
+              { label: 'Liquidité', val: RATIO_LIQUIDITE.toFixed(2), sub: 'Ratio excellent', icon: ScaleIcon },
+            ].map((kpi, idx) => (
+              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit mb-4">
+                  <kpi.icon className="h-5 w-5 text-slate-900 dark:text-white" />
                 </div>
-
-                <div className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-emerald-600 font-semibold"> Liquidité</span>
-                    <ScaleIcon className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <div className="text-2xl font-black text-emerald-700">
-                    {cashFlowData.ratioLiquidite}
-                  </div>
-                  <div className="text-xs text-emerald-600 mt-1">Ratio excellent</div>
-            </div>
-          </div>
-
-              {/* Graphique flux mensuels */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ChartBarIcon className="h-5 w-5 mr-2 text-slate-600" />
-                   Évolution des Flux de Trésorerie (6 mois)
-                </h3>
-
-                <div className="bg-white rounded-lg p-6 border border-slate-200">
-                  {/* Légende */}
-                  <div className="flex items-center justify-center space-x-6 mb-6">
-                    <div className="flex items-center">
-                      <div className="w-8 h-1.5 bg-emerald-600 rounded mr-2"></div>
-                      <span className="text-sm font-semibold text-slate-900">Encaissements</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-8 h-1.5 bg-red-600 rounded mr-2"></div>
-                      <span className="text-sm font-semibold text-slate-900">Décaissements</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-8 h-1.5 bg-slate-700 rounded mr-2"></div>
-                      <span className="text-sm font-semibold text-slate-900">Solde net</span>
-            </div>
-          </div>
-
-                  {/* Graphique SVG */}
-                  <div className="relative h-96 bg-slate-50 rounded-lg p-8">
-                    <svg className="w-full h-full" viewBox="0 0 700 350" preserveAspectRatio="xMidYMid meet">
-                      {/* Grille */}
-                      {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <g key={i}>
-                          <line x1="60" y1={30 + i * 50} x2="660" y2={30 + i * 50} stroke="#e2e8f0" strokeWidth="1.5" />
-                          <text x="45" y={35 + i * 50} fill="#64748b" fontSize="13" fontWeight="700" textAnchor="end">
-                            {(5-i) * 200}k
-                          </text>
-                        </g>
-                      ))}
-
-                      {/* Barres Encaissements */}
-                      {monthlyFlows.map((flow, i) => {
-                        const x = 80 + (i * 100);
-                        const maxVal = 1200000;
-                        const height = (flow.encaissements / maxVal) * 250;
-                        return (
-                          <rect
-                            key={`enc-${i}`}
-                            x={x}
-                            y={280 - height}
-                            width="22"
-                            height="0"
-                            fill="url(#encGradient)"
-                            rx="2"
-                          >
-                            <animate
-                              attributeName="height"
-                              from="0"
-                              to={height}
-                              begin={`${i * 0.1}s`}
-                              dur="0.8s"
-                              fill="freeze"
-                            />
-                            <animate
-                              attributeName="y"
-                              from="280"
-                              to={280 - height}
-                              begin={`${i * 0.1}s`}
-                              dur="0.8s"
-                              fill="freeze"
-                            />
-                          </rect>
-                        );
-                      })}
-
-                      {/* Barres Décaissements */}
-                      {monthlyFlows.map((flow, i) => {
-                        const x = 107 + (i * 100);
-                        const maxVal = 1200000;
-                        const height = (flow.decaissements / maxVal) * 250;
-                        return (
-                          <rect
-                            key={`dec-${i}`}
-                            x={x}
-                            y={280 - height}
-                            width="22"
-                            height="0"
-                            fill="url(#decGradient)"
-                            rx="2"
-                          >
-                            <animate
-                              attributeName="height"
-                              from="0"
-                              to={height}
-                              begin={`${i * 0.1 + 0.2}s`}
-                              dur="0.8s"
-                              fill="freeze"
-                            />
-                            <animate
-                              attributeName="y"
-                              from="280"
-                              to={280 - height}
-                              begin={`${i * 0.1 + 0.2}s`}
-                              dur="0.8s"
-                              fill="freeze"
-                            />
-                          </rect>
-                        );
-                      })}
-
-                      {/* Courbe Solde net */}
-                      <path
-                        d={(() => {
-                          const maxVal = 1200000;
-                          return monthlyFlows.map((flow, i) => {
-                            const x = 118 + (i * 100);
-                            const y = 280 - ((flow.solde / maxVal) * 250);
-                            return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-                          }).join(' ');
-                        })()}
-                        fill="none"
-                        stroke="#334155"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeDasharray="2000"
-                        strokeDashoffset="2000"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="2000"
-                          to="0"
-                          begin="1s"
-                          dur="1.5s"
-                          fill="freeze"
-                        />
-                      </path>
-
-                      {/* Points Solde */}
-                      {monthlyFlows.map((flow, i) => {
-                        const x = 118 + (i * 100);
-                        const maxVal = 1200000;
-                        const y = 280 - ((flow.solde / maxVal) * 250);
-                        return (
-                          <circle
-                            key={`pt-${i}`}
-                            cx={x}
-                            cy={y}
-                            r="6"
-                            fill="#334155"
-                            opacity="0"
-                          >
-                            <animate
-                              attributeName="opacity"
-                              from="0"
-                              to="1"
-                              begin={`${1.5 + i * 0.1}s`}
-                              dur="0.3s"
-                              fill="freeze"
-                            />
-                          </circle>
-                        );
-                      })}
-
-                      {/* Labels mois */}
-                      {monthlyFlows.map((flow, i) => (
-                        <text
-                          key={`lbl-${i}`}
-                          x={105 + (i * 100)}
-                          y="310"
-                          fill="#334155"
-                          fontSize="14"
-                          fontWeight="800"
-                          textAnchor="middle"
-                        >
-                          {flow.month}
-                        </text>
-                      ))}
-
-                      {/* Dégradés */}
-                      <defs>
-                        <linearGradient id="encGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#10b981" />
-                          <stop offset="100%" stopColor="#059669" />
-                        </linearGradient>
-                        <linearGradient id="decGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#ef4444" />
-                          <stop offset="100%" stopColor="#dc2626" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
-
-                  {/* Statistiques */}
-                  <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
-                    <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                      <div className="text-xs font-semibold text-emerald-600 mb-2">Total Encaissements</div>
-                      <div className="text-2xl font-bold text-emerald-700">
-                        {monthlyFlows.reduce((sum, m) => sum + m.encaissements, 0).toLocaleString()} DA
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
-                      <div className="text-xs font-semibold text-red-600 mb-2">Total Décaissements</div>
-                      <div className="text-2xl font-bold text-red-700">
-                        {monthlyFlows.reduce((sum, m) => sum + m.decaissements, 0).toLocaleString()} DA
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
-                      <div className="text-xs font-semibold text-slate-600 mb-2">Solde Net Cumulé</div>
-            <div className="text-2xl font-bold text-slate-900">
-                        +{monthlyFlows.reduce((sum, m) => sum + m.solde, 0).toLocaleString()} DA
-                      </div>
-                    </div>
-            </div>
-            </div>
-          </div>
-
-              {/* Graphique de solde cumulé */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ChartBarIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  Évolution du Solde Cumulé de Trésorerie
-                </h3>
-
-                <div className="bg-white rounded-lg p-6 border border-slate-200">
-                  <div className="relative h-80 bg-slate-50 rounded-lg p-8">
-                    <svg className="w-full h-full" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid meet">
-                      {/* Grille */}
-                      {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <g key={i}>
-                          <line x1="60" y1={30 + i * 45} x2="660" y2={30 + i * 45} stroke="#e2e8f0" strokeWidth="1.5" />
-                          <text x="45" y={35 + i * 45} fill="#64748b" fontSize="12" fontWeight="700" textAnchor="end">
-                            {(5-i) * 50}k
-                          </text>
-                        </g>
-                      ))}
-
-                      {/* Zone remplie sous la courbe */}
-                      <path
-                        d={(() => {
-                          const maxVal = 280000;
-                          let soldeCumule = 0;
-                          let path = 'M 60 255 ';
-                          monthlyFlows.forEach((flow, i) => {
-                            soldeCumule += flow.solde;
-                            const x = 60 + (i * 120);
-                            const y = 255 - ((soldeCumule / maxVal) * 225);
-                            path += `L ${x} ${y} `;
-                          });
-                          path += 'L 660 255 Z';
-                          return path;
-                        })()}
-                        fill="url(#soldeGradient)"
-                      />
-
-                      {/* Courbe du solde cumulé */}
-                      <path
-                        d={(() => {
-                          const maxVal = 280000;
-                          let soldeCumule = 0;
-                          return monthlyFlows.map((flow, i) => {
-                            soldeCumule += flow.solde;
-                            const x = 60 + (i * 120);
-                            const y = 255 - ((soldeCumule / maxVal) * 225);
-                            return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-                          }).join(' ');
-                        })()}
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="6"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeDasharray="2000"
-                        strokeDashoffset="2000"
-                        className="drop-shadow-lg"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="2000"
-                          to="0"
-                          dur="2.5s"
-                          fill="freeze"
-                        />
-                      </path>
-
-                      {/* Points avec labels */}
-                      {(() => {
-                        let soldeCumule = 0;
-                        return monthlyFlows.map((flow, i) => {
-                          soldeCumule += flow.solde;
-                          const x = 60 + (i * 120);
-                          const maxVal = 280000;
-                          const y = 255 - ((soldeCumule / maxVal) * 225);
-                          return (
-                            <g key={i}>
-                              {/* Point */}
-                              <circle cx={x} cy={y} r="10" fill="#10b981" className="drop-shadow-md" opacity="0">
-                                <animate attributeName="opacity" from="0" to="1" begin={`${2.5 + i * 0.15}s`} dur="0.4s" fill="freeze" />
-                              </circle>
-                              <circle cx={x} cy={y} r="5" fill="#ffffff" opacity="0">
-                                <animate attributeName="opacity" from="0" to="1" begin={`${2.5 + i * 0.15}s`} dur="0.4s" fill="freeze" />
-                              </circle>
-
-                              {/* Label valeur */}
-                              <text
-                                x={x}
-                                y={y - 20}
-                                fill="#10b981"
-                                fontSize="12"
-                                fontWeight="900"
-                                textAnchor="middle"
-                                opacity="0"
-                              >
-                                {(soldeCumule / 1000).toFixed(0)}k
-                                <animate attributeName="opacity" from="0" to="1" begin={`${2.5 + i * 0.15 + 0.2}s`} dur="0.3s" fill="freeze" />
-                              </text>
-                            </g>
-                          );
-                        });
-                      })()}
-
-                      {/* Labels mois */}
-                      {monthlyFlows.map((flow, i) => (
-                        <text key={i} x={60 + (i * 120)} y="285" fill="#334155" fontSize="14" fontWeight="800" textAnchor="middle">
-                          {flow.month}
-                        </text>
-                      ))}
-
-                      <defs>
-                        <linearGradient id="soldeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                          <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
-
-                  {/* Statistiques */}
-                  <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
-                    <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                      <div className="text-xs font-semibold text-emerald-600 mb-2">Croissance cumulée</div>
-                      <div className="text-2xl font-bold text-emerald-700">
-                        +{monthlyFlows.reduce((sum, m) => sum + m.solde, 0).toLocaleString()} DA
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
-                      <div className="text-xs font-semibold text-slate-600 mb-2">Croissance moyenne</div>
-            <div className="text-2xl font-bold text-slate-900">
-                        +{(monthlyFlows.reduce((sum, m) => sum + m.solde, 0) / monthlyFlows.length).toLocaleString()} DA
-            </div>
-          </div>
-                    <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
-                      <div className="text-xs font-semibold text-slate-600 mb-2">Meilleur mois</div>
-                      <div className="text-2xl font-bold text-slate-900">
-                        {[...monthlyFlows].sort((a, b) => b.solde - a.solde)[0].month}
-                      </div>
-                      <div className="text-xs text-slate-600">
-                        +{[...monthlyFlows].sort((a, b) => b.solde - a.solde)[0].solde.toLocaleString()} DA
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1">{kpi.label}</p>
+                <p className="text-xl font-black font-mono text-slate-900 dark:text-white leading-none">{kpi.val}</p>
+                <p className="text-xs font-medium text-slate-400 mt-2">{kpi.sub}</p>
               </div>
+            ))}
+          </div>
 
-              {/* Tableau de flux détaillés */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <CurrencyDollarIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  Tableau Détaillé des Flux Mensuels
-                </h3>
+          {/* Graphique barres + courbe */}
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Évolution des Flux de Trésorerie — S1 2024</h2>
+              <div className="flex gap-6">
+                {[['bg-slate-900 dark:bg-white', 'Encaissements'], ['bg-slate-300', 'Décaissements'], ['', 'Solde net ●']].map(([cls, lbl]) => (
+                  <div key={lbl} className="flex items-center gap-2">
+                    {cls && <div className={`w-6 h-1.5 ${cls} rounded`} />}
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{lbl}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-slate-700 text-white">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-bold uppercase">Mois</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold uppercase">Encaissements</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold uppercase">Décaissements</th>
-                        <th className="px-6 py-4 text-right text-xs font-bold uppercase">Solde Net</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold uppercase">Ratio E/D</th>
-                        <th className="px-6 py-4 text-center text-xs font-bold uppercase">Statut</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {monthlyFlows.map((flow, index) => {
-                        const ratio = ((flow.encaissements / flow.decaissements) * 100).toFixed(0);
-                        return (
-                          <tr key={index} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-6 py-4 font-bold text-slate-900">{flow.month}</td>
-                            <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                              +{flow.encaissements.toLocaleString()} DA
-                            </td>
-                            <td className="px-6 py-4 text-right font-bold text-red-600">
-                              -{flow.decaissements.toLocaleString()} DA
-                            </td>
-                            <td className="px-6 py-4 text-right font-black text-slate-900">
-                              +{flow.solde.toLocaleString()} DA
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              <div className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
-                                parseInt(ratio) > 140 ? 'bg-emerald-100 text-emerald-700' :
-                                parseInt(ratio) > 120 ? 'bg-slate-100 text-slate-700' :
-                                'bg-slate-200 text-slate-700'
-                              }`}>
-                                {ratio}%
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {flow.solde > 260000 ? (
-                                <CheckCircleIcon className="h-6 w-6 text-emerald-500 inline" />
-                              ) : flow.solde > 230000 ? (
-                                <InformationCircleIcon className="h-6 w-6 text-slate-500 inline" />
-                              ) : (
-                                <ExclamationTriangleIcon className="h-6 w-6 text-amber-500 inline" />
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                    <tfoot className="bg-slate-50 border-t-2 border-slate-300">
-                      <tr>
-                        <td className="px-6 py-4 font-black text-slate-900">TOTAL</td>
-                        <td className="px-6 py-4 text-right font-black text-emerald-700">
-                          +{monthlyFlows.reduce((sum, m) => sum + m.encaissements, 0).toLocaleString()} DA
-                        </td>
-                        <td className="px-6 py-4 text-right font-black text-red-700">
-                          -{monthlyFlows.reduce((sum, m) => sum + m.decaissements, 0).toLocaleString()} DA
-                        </td>
-                        <td className="px-6 py-4 text-right font-black text-slate-900">
-                          +{monthlyFlows.reduce((sum, m) => sum + m.solde, 0).toLocaleString()} DA
-                        </td>
-                        <td className="px-6 py-4 text-center font-black text-slate-900">
-                          {((monthlyFlows.reduce((sum, m) => sum + m.encaissements, 0) / monthlyFlows.reduce((sum, m) => sum + m.decaissements, 0)) * 100).toFixed(0)}%
+            <div className="relative h-72">
+              <svg className="w-full h-full" viewBox="0 0 700 260" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <linearGradient id="encG" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#0f172a" />
+                    <stop offset="100%" stopColor="#334155" />
+                  </linearGradient>
+                  <linearGradient id="decG" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#94a3b8" />
+                    <stop offset="100%" stopColor="#cbd5e1" />
+                  </linearGradient>
+                </defs>
+                {/* Grille */}
+                {[0, 1, 2, 3, 4, 5].map(i => (
+                  <g key={i}>
+                    <line x1="50" y1={10 + i * 40} x2="680" y2={10 + i * 40} stroke="#f1f5f9" strokeWidth="1" />
+                    <text x="42" y={15 + i * 40} fill="#94a3b8" fontSize="11" fontWeight="700" textAnchor="end">{(5 - i) * 200}k</text>
+                  </g>
+                ))}
+                {/* Barres */}
+                {monthlyFlows.map((m, i) => {
+                  const x = 70 + i * 100;
+                  const maxV = 1_200_000;
+                  const hE = (m.enc / maxV) * 210;
+                  const hD = (m.dec / maxV) * 210;
+                  const hS = (m.solde / maxV) * 210;
+                  return (
+                    <g key={i}>
+                      <rect x={x} y={220 - hE} width="22" height={hE} fill="url(#encG)" rx="3" />
+                      <rect x={x + 25} y={220 - hD} width="22" height={hD} fill="url(#decG)" rx="3" />
+                      <circle cx={x + 11} cy={220 - hS} r="5" fill="#0f172a" />
+                      <text x={x + 22} y="240" fill="#475569" fontSize="12" fontWeight="800" textAnchor="middle">{m.month}</text>
+                    </g>
+                  );
+                })}
+                {/* Courbe solde net */}
+                <polyline
+                  points={monthlyFlows.map((m, i) => `${81 + i * 100},${220 - (m.solde / 1_200_000) * 210}`).join(' ')}
+                  fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="6,4"
+                />
+              </svg>
+            </div>
+
+            {/* Totaux */}
+            <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+              {[
+                { label: 'Total Encaissements', val: fmt(TOTAL_ENC), cls: 'text-slate-900 dark:text-white' },
+                { label: 'Total Décaissements', val: '-' + fmt(TOTAL_DEC), cls: 'text-slate-500' },
+                { label: 'Solde Net Cumulé', val: '+' + fmt(TOTAL_SOLDE), cls: 'text-slate-900 dark:text-white' },
+              ].map((s, i) => (
+                <div key={i} className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">{s.label}</p>
+                  <p className={`text-lg font-black font-mono ${s.cls}`}>{s.val}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tableau détaillé */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Tableau Détaillé des Flux Mensuels</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead className="bg-slate-50 dark:bg-slate-800/50">
+                  <tr>
+                    {['Mois', 'Encaissements', 'Décaissements', 'Solde Net', 'Ratio E/D', 'Statut'].map(h => (
+                      <th key={h} className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left last:text-center">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {monthlyFlows.map((m, i) => {
+                    const ratio = Math.round((m.enc / m.dec) * 100);
+                    return (
+                      <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                        <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{m.month}</td>
+                        <td className="px-6 py-4 text-xs font-bold font-mono text-slate-900">+{m.enc.toLocaleString()} DA</td>
+                        <td className="px-6 py-4 text-xs font-bold font-mono text-slate-400">-{m.dec.toLocaleString()} DA</td>
+                        <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{m.solde.toLocaleString()} DA</td>
+                        <td className="px-6 py-4">
+                          <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{ratio}%</span>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <CheckCircleIcon className="h-6 w-6 text-emerald-600 inline" />
+                          {m.solde >= 260_000
+                            ? <CheckCircleIcon className="h-5 w-5 text-slate-900 dark:text-white inline" />
+                            : <InformationCircleIcon className="h-5 w-5 text-slate-400 inline" />
+                          }
                         </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
+                  <tr>
+                    <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">TOTAL</td>
+                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{TOTAL_ENC.toLocaleString()} DA</td>
+                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-400">-{TOTAL_DEC.toLocaleString()} DA</td>
+                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{TOTAL_SOLDE.toLocaleString()} DA</td>
+                    <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{Math.round((TOTAL_ENC / TOTAL_DEC) * 100)}%</td>
+                    <td className="px-6 py-4 text-center"><CheckCircleIcon className="h-5 w-5 text-slate-900 dark:text-white inline" /></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          {/* Ratios financiers */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { label: 'Ratio de liquidité', val: RATIO_LIQUIDITE, unit: '', target: '> 1.5', status: 'excellent', pct: 100, desc: 'Capacité à payer les dettes court terme' },
+              { label: 'Délai moyen encaissement', val: DSO, unit: ' jours', target: '< 30j', status: 'bon', pct: 85, desc: 'Délai moyen de recouvrement clients' },
+              { label: 'Délai moyen décaissement', val: DPO, unit: ' jours', target: '30–45j', status: 'optimal', pct: 90, desc: 'Délai moyen de paiement fournisseurs' },
+              { label: 'Couverture de trésorerie', val: COUVERTURE, unit: ' jours', target: '> 30j', status: 'excellent', pct: 100, desc: 'Jours de charges courantes couvertes' },
+            ].map((r, i) => (
+              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{r.label}</span>
+                  <span className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800 text-slate-500">{r.status}</span>
+                </div>
+                <div className="flex items-end justify-between mb-4">
+                  <span className="text-3xl font-black font-mono text-slate-900 dark:text-white">{r.val}{r.unit}</span>
+                  <div className="text-right">
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest">Cible</p>
+                    <p className="text-xs font-black text-slate-600 dark:text-slate-300">{r.target}</p>
+                  </div>
+                </div>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 mb-3">
+                  <div
+                    className="h-2 bg-slate-900 dark:bg-white rounded-full transition-all duration-1000"
+                    style={{ width: `${r.pct}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400">{r.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Décomposition flux */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Encaissements */}
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Décomposition Encaissements</h3>
+              <div className="space-y-4">
+                {[
+                  { label: 'Ventes clients', pct: 62, mont: Math.round(TOTAL_ENC * 0.62) },
+                  { label: 'Créances recouvrées', pct: 28, mont: Math.round(TOTAL_ENC * 0.28) },
+                  { label: 'Autres produits', pct: 10, mont: Math.round(TOTAL_ENC * 0.10) },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-300">{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-black font-mono text-slate-900 dark:text-white">{item.pct}%</span>
+                        <span className="text-[10px] text-slate-400">{item.mont.toLocaleString()} DA</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                      <div className="h-2 bg-slate-900 dark:bg-white rounded-full" style={{ width: `${item.pct}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Décaissements */}
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Décomposition Décaissements</h3>
+              <div className="space-y-4">
+                {[
+                  { label: 'Achats fournisseurs', pct: 45, mont: Math.round(TOTAL_DEC * 0.45) },
+                  { label: 'Salaires & charges', pct: 32, mont: Math.round(TOTAL_DEC * 0.32) },
+                  { label: 'Charges fixes', pct: 15, mont: Math.round(TOTAL_DEC * 0.15) },
+                  { label: 'Autres dépenses', pct: 8, mont: Math.round(TOTAL_DEC * 0.08) },
+                ].map((item, i) => (
+                  <div key={i}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-black text-slate-700 dark:text-slate-300">{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-black font-mono text-slate-900 dark:text-white">{item.pct}%</span>
+                        <span className="text-[10px] text-slate-400">{item.mont.toLocaleString()} DA</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                      <div className="h-2 bg-slate-400 dark:bg-slate-500 rounded-full" style={{ width: `${item.pct}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Indicateurs de Santé Financière */}
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Indicateurs de Santé Financière</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Fonds de Roulement', val: fmt(FR), status: 'excellent', icon: BanknotesIcon, desc: 'Ressources stables > Emplois LT' },
+                { label: 'Besoin en Fonds de Roulement', val: fmt(BFR), status: 'bon', icon: ScaleIcon, desc: 'Décalage financement court terme' },
+                { label: 'Capacité Autofinancement', val: fmt(CAF), status: 'bon', icon: CurrencyDollarIcon, desc: 'Résultat net + dotations' },
+                { label: 'Cycle de Trésorerie', val: `${DSO - DPO + 7} j`, status: 'optimal', icon: ClockIcon, desc: `DSO ${DSO}j − DPO ${DPO}j + stock 7j` },
+              ].map((ind, idx) => (
+                <div key={idx} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <ind.icon className="h-4 w-4 text-slate-900 dark:text-white" />
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">{ind.status}</span>
+                  </div>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">{ind.label}</p>
+                  <p className="text-lg font-black font-mono text-slate-900 dark:text-white">{ind.val}</p>
+                  <p className="text-[9px] text-slate-400 mt-2">{ind.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════
+          VUE 2 — COMPTES & CAISSES
+      ══════════════════════════════════════ */}
+      {activeTab === 'comptes' && (
+        <div className="space-y-8">
+
+          {/* Synthèse */}
+          <div className="grid grid-cols-3 gap-6">
+            {[
+              { label: 'Solde Total', val: fmt(SOLDE_TOTAL), sub: 'Tous comptes actifs', icon: BanknotesIcon },
+              { label: 'Comptes', val: bankAccounts.length.toString(), sub: '2 bancaires + 1 caisse + 1 épargne', icon: BuildingLibraryIcon },
+              { label: 'Mouvements', val: bankAccounts.reduce((s, a) => s + a.mvt, 0).toString(), sub: 'Ce mois-ci', icon: ArrowPathIcon },
+            ].map((k, i) => (
+              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                  <k.icon className="h-6 w-6 text-slate-900 dark:text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{k.label}</p>
+                  <p className="text-2xl font-black font-mono text-slate-900 dark:text-white">{k.val}</p>
+                  <p className="text-[10px] text-slate-400">{k.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Détail comptes */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {bankAccounts.map((acc, i) => {
+              const total = bankAccounts.reduce((s, a) => s + a.solde, 0);
+              const pct = ((acc.solde / total) * 100).toFixed(1);
+              const Icon = acc.icon;
+              return (
+                <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all group">
+                  <div className="flex items-start justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="h-11 w-11 bg-slate-900 dark:bg-white rounded-xl flex items-center justify-center">
+                        <Icon className="h-5 w-5 text-white dark:text-slate-900" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{acc.name}</p>
+                        <p className="text-[10px] font-bold text-slate-400">{acc.no} · {acc.type}</p>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-1 rounded-lg uppercase tracking-widest">Actif</span>
+                  </div>
+                  <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 mb-4">
+                    <p className="text-[10px] text-slate-400 mb-1">Solde actuel</p>
+                    <p className="text-2xl font-black font-mono text-slate-900 dark:text-white">{acc.solde.toLocaleString()} DA</p>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mb-3">
+                    <div className="h-1.5 bg-slate-900 dark:bg-white rounded-full" style={{ width: `${pct}%` }} />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="font-black text-slate-500">{pct}% du total</span>
+                    <div className="flex items-center gap-1">
+                      {acc.variation > 0
+                        ? <ArrowTrendingUpIcon className="h-3.5 w-3.5 text-slate-900" />
+                        : <ArrowTrendingDownIcon className="h-3.5 w-3.5 text-slate-300" />
+                      }
+                      <span className={`font-black ${acc.variation > 0 ? 'text-slate-900 dark:text-white' : 'text-slate-300'}`}>
+                        {acc.variation > 0 ? '+' : ''}{acc.variation}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Répartition */}
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Répartition par Compte</h3>
+            <div className="space-y-4">
+              {bankAccounts.map((acc, i) => {
+                const total = bankAccounts.reduce((s, a) => s + a.solde, 0);
+                const pct = ((acc.solde / total) * 100);
+                return (
+                  <div key={i} className="flex items-center gap-4">
+                    <span className="text-[10px] font-black text-slate-500 uppercase w-48 tracking-tight shrink-0">{acc.name}</span>
+                    <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full h-4 overflow-hidden">
+                      <div
+                        className="h-4 bg-slate-900 dark:bg-white rounded-full flex items-center justify-end pr-2 transition-all duration-1000"
+                        style={{ width: `${pct}%` }}
+                      >
+                        <span className="text-[9px] font-black text-white dark:text-slate-900">{pct.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                    <span className="text-xs font-black font-mono text-slate-900 dark:text-white w-32 text-right shrink-0">{acc.solde.toLocaleString()} DA</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Mouvements récents */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Derniers Mouvements</h3>
+            </div>
+            <table className="w-full border-collapse">
+              <thead className="bg-slate-50 dark:bg-slate-800/50">
+                <tr>
+                  {['Date', 'Type', 'Libellé', 'Compte', 'Montant', 'Statut'].map(h => (
+                    <th key={h} className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {recentMovements.map((mv, i) => (
+                  <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                    <td className="px-6 py-4 text-[10px] font-bold font-mono text-slate-500">{mv.date}</td>
+                    <td className="px-6 py-4">
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${mv.type === 'Encaissement' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' :
+                        mv.type === 'Décaissement' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' :
+                          'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                        }`}>{mv.type}</span>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-bold text-slate-900 dark:text-white">{mv.libelle}</td>
+                    <td className="px-6 py-4 text-[10px] text-slate-400">{mv.compte}</td>
+                    <td className="px-6 py-4 text-right">
+                      <span className={`text-xs font-black font-mono ${mv.montant > 0 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                        {mv.montant > 0 ? '+' : ''}{mv.montant.toLocaleString()} DA
+                      </span>
+                    </td>
+                    <td className="px-6 py-4"><CheckCircleIcon className="h-5 w-5 text-slate-900 dark:text-white" /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════
+          VUE 3 — PRÉVISIONS & TENSIONS
+      ══════════════════════════════════════ */}
+      {activeTab === 'previsions' && (
+        <div className="space-y-8">
+
+          {/* Alertes KPI */}
+          <div className="grid grid-cols-3 gap-6">
+            {[
+              { label: 'Alertes Critiques', val: tensions.filter(t => t.sev === 'critical').length.toString(), sub: 'Action immédiate requise', icon: ExclamationTriangleIcon, pulse: true },
+              { label: 'Avertissements', val: tensions.filter(t => t.sev === 'warning').length.toString(), sub: 'Surveillance requise', icon: BellIcon, pulse: false },
+              { label: 'Ratio Liquidité', val: RATIO_LIQUIDITE.toFixed(2), sub: 'Cible : > 1.5 — Excellent', icon: ScaleIcon, pulse: false },
+            ].map((k, i) => (
+              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+                <div className="relative">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                    <k.icon className="h-6 w-6 text-slate-900 dark:text-white" />
+                  </div>
+                  {k.pulse && <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-slate-900 animate-ping dark:bg-white" />}
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{k.label}</p>
+                  <p className="text-2xl font-black font-mono text-slate-900 dark:text-white">{k.val}</p>
+                  <p className="text-[10px] text-slate-400">{k.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tensions identifiées */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Tensions & Alertes Identifiées</h3>
+            </div>
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {tensions.map((t, i) => (
+                <div key={i} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors flex items-start gap-4">
+                  <div className={`p-3 rounded-xl shrink-0 ${t.sev === 'critical' ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-800'}`}>
+                    {t.sev === 'critical'
+                      ? <ExclamationTriangleIcon className="h-5 w-5 text-white dark:text-slate-900" />
+                      : <BellIcon className="h-5 w-5 text-slate-900 dark:text-white" />
+                    }
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">{t.type}</span>
+                      <span className="text-[10px] font-black text-slate-400 font-mono">{t.date}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mb-3">{t.desc}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-black font-mono text-slate-900 dark:text-white">{t.montant.toLocaleString()} DA</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg">{t.action}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Prévisions 3 mois */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {forecasts.map((f, i) => (
+              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">{f.month}</h3>
+                  <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${f.risque === 'Faible' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-slate-900 text-white'
+                    }`}>{f.risque}</span>
+                </div>
+                <div className="space-y-4 mb-5">
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span className="text-slate-500 uppercase tracking-widest font-black">Encaissements</span>
+                      <span className="font-black font-mono text-slate-900 dark:text-white">+{fmtK(f.enc)}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
+                      <div className="h-1.5 bg-slate-900 dark:bg-white rounded-full" style={{ width: `${(f.enc / 1_250_000) * 100}%` }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-[10px] mb-1">
+                      <span className="text-slate-500 uppercase tracking-widest font-black">Décaissements</span>
+                      <span className="font-black font-mono text-slate-400">-{fmtK(f.dec)}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
+                      <div className="h-1.5 bg-slate-400 dark:bg-slate-600 rounded-full" style={{ width: `${(f.dec / 1_250_000) * 100}%` }} />
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Solde net prévu</p>
+                  <p className="text-xl font-black font-mono text-slate-900 dark:text-white">+{f.prevu.toLocaleString()} DA</p>
+                </div>
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Confiance</span>
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${f.confiance === 'Élevée' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
+                    {f.confiance}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Prévisions vs réalisé Jan-Jun */}
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Courbe Prévisions vs Réalisations — S1 2024</h3>
+            </div>
+            <div className="p-8">
+              <div className="relative h-48">
+                <svg className="w-full h-full" viewBox="0 0 700 180" preserveAspectRatio="xMidYMid meet">
+                  {[0, 1, 2, 3].map(i => (
+                    <g key={i}>
+                      <line x1="50" y1={10 + i * 45} x2="680" y2={10 + i * 45} stroke="#f1f5f9" strokeWidth="1" />
+                      <text x="42" y={15 + i * 45} fill="#94a3b8" fontSize="11" fontWeight="700" textAnchor="end">{(3 - i) * 100}k</text>
+                    </g>
+                  ))}
+                  {/* Prévu (dashed) */}
+                  <polyline
+                    points={monthlyFlows.map((m, i) => `${80 + i * 100},${145 - (m.solde / 300_000) * 135}`).join(' ')}
+                    fill="none" stroke="#94a3b8" strokeWidth="2" strokeDasharray="6,4"
+                  />
+                  {/* Réalisé */}
+                  <polyline
+                    points={monthlyFlows.map((m, i) => `${80 + i * 100},${145 - (m.solde / 300_000) * 135}`).join(' ')}
+                    fill="none" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                  />
+                  {monthlyFlows.map((m, i) => (
+                    <g key={i}>
+                      <circle cx={80 + i * 100} cy={145 - (m.solde / 300_000) * 135} r="5" fill="#0f172a" />
+                      <text x={80 + i * 100} y="170" fill="#475569" fontSize="12" fontWeight="800" textAnchor="middle">{m.month}</text>
+                    </g>
+                  ))}
+                </svg>
+              </div>
+              <div className="flex gap-6 mt-4">
+                <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-slate-300" style={{ borderTop: '2px dashed #94a3b8' }} /><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Prévu</span></div>
+                <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-slate-900 dark:bg-white" /><span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Réalisé</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════ ACTIONS BAS DE PAGE ══════════════ */}
+      <div className="flex flex-wrap gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+        <button
+          onClick={() => setShowRapport(true)}
+          className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-800 active:scale-95 flex items-center gap-2"
+        >
+          <EyeIcon className="h-4 w-4" />
+          Rapport Complet
+        </button>
+        <button
+          onClick={handleExportPDF}
+          className="px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2"
+        >
+          <ArrowDownTrayIcon className="h-4 w-4" />
+          Export PDF
+        </button>
+        <button
+          onClick={handleExportExcel}
+          className="px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2"
+        >
+          <DocumentArrowDownIcon className="h-4 w-4" />
+          Export Excel
+        </button>
+      </div>
+
+      {/* ══════════════ MODAL RAPPORT COMPLET ══════════════ */}
+      {showRapport && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowRapport(false)}
+        >
+          <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onClick={() => setShowRapport(false)} />
+          <div className="relative bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            {/* En-tête modale */}
+            <div className="sticky top-0 bg-slate-900 text-white p-8 rounded-t-[2rem] flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Synthèse Complète</p>
+                <h2 className="text-2xl font-black uppercase tracking-tight italic">Trésorerie & Banque</h2>
+                <p className="text-[10px] text-slate-400 mt-1">Exercice 2024 · Généré le {new Date().toLocaleDateString('fr-DZ')}</p>
+              </div>
+              <button
+                onClick={() => setShowRapport(false)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white text-lg font-black"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-8 space-y-8">
+              {/* Résumé exécutif */}
+              <section>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Résumé Exécutif — S1 2024</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: 'Total Encaissements', val: fmt(TOTAL_ENC) },
+                    { label: 'Total Décaissements', val: fmt(TOTAL_DEC) },
+                    { label: 'Solde Net Cumulé', val: '+' + fmt(TOTAL_SOLDE) },
+                    { label: 'Solde Bancaire Total', val: fmt(SOLDE_TOTAL) },
+                  ].map((item, i) => (
+                    <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
+                      <p className="text-lg font-black font-mono text-slate-900 dark:text-white">{item.val}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Flux mensuels */}
+              <section>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Flux Mensuels Détaillés</h3>
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <table className="w-full text-xs border-collapse">
+                    <thead className="bg-slate-900 text-white">
+                      <tr>
+                        {['Mois', 'Encaissements', 'Décaissements', 'Solde Net', 'E/D'].map(h => (
+                          <th key={h} className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {monthlyFlows.map((m, i) => (
+                        <tr key={i} className="odd:bg-slate-50 dark:odd:bg-slate-800/20">
+                          <td className="px-4 py-3 font-black text-slate-900 dark:text-white">{m.month}</td>
+                          <td className="px-4 py-3 font-mono text-slate-900">+{m.enc.toLocaleString()}</td>
+                          <td className="px-4 py-3 font-mono text-slate-400">-{m.dec.toLocaleString()}</td>
+                          <td className="px-4 py-3 font-black font-mono text-slate-900 dark:text-white">+{m.solde.toLocaleString()}</td>
+                          <td className="px-4 py-3 font-mono text-slate-500">{Math.round((m.enc / m.dec) * 100)}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-slate-100 dark:bg-slate-800 border-t-2 border-slate-300 dark:border-slate-600">
+                      <tr>
+                        <td className="px-4 py-3 font-black text-slate-900 dark:text-white">TOTAL</td>
+                        <td className="px-4 py-3 font-black font-mono text-slate-900 dark:text-white">+{TOTAL_ENC.toLocaleString()}</td>
+                        <td className="px-4 py-3 font-black font-mono text-slate-400">-{TOTAL_DEC.toLocaleString()}</td>
+                        <td className="px-4 py-3 font-black font-mono text-slate-900 dark:text-white">+{TOTAL_SOLDE.toLocaleString()}</td>
+                        <td className="px-4 py-3 font-black font-mono text-slate-500">{Math.round((TOTAL_ENC / TOTAL_DEC) * 100)}%</td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
-              </div>
+              </section>
 
-              {/* Ratios financiers avec jauges */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ScaleIcon className="h-5 w-5 mr-2 text-slate-600" />
-            Ratios Financiers Clés avec Visualisations
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {financialRatios.map((ratio, index) => (
-                    <div key={index} className="bg-white rounded-lg p-5 border border-slate-200 hover:shadow-lg transition-shadow">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-bold text-slate-900">{ratio.label}</span>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          ratio.status === 'excellent' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
-                          ratio.status === 'bon' ? 'bg-slate-100 text-slate-700 border border-slate-300' :
-                          'bg-slate-200 text-slate-700 border border-slate-400'
-                        }`}>
-                          {ratio.status}
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-3xl font-black text-slate-900">{ratio.value}{ratio.label.includes('Délai') ? ' jours' : ratio.label.includes('Couverture') ? ' jours' : ''}</div>
-                        <div className="text-right">
-                          <div className="text-xs text-slate-500">Cible</div>
-                          <div className="text-sm font-medium text-slate-700">{ratio.target}</div>
-                        </div>
-                      </div>
-
-                      {/* Jauge de progression */}
-                      <div className="w-full bg-slate-200 rounded-full h-4 mb-3 shadow-inner">
-                        <div 
-                          className={`h-4 rounded-full transition-all duration-1500 ease-out ${
-                            ratio.status === 'excellent' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
-                            'bg-gradient-to-r from-slate-600 to-slate-700'
-                          }`}
-                          style={{ 
-                            width: ratio.status === 'excellent' ? '100%' : '85%',
-                            transitionDelay: `${index * 150}ms`
-                          }}
-                        ></div>
-                      </div>
-
-                      <div className="text-xs text-slate-600">{ratio.description}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Prévisions de trésorerie 3 mois */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ClockIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  🔮 Prévisions de Trésorerie - 3 Prochains Mois
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Indicateurs clés */}
+              <section>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Indicateurs Financiers Clés</h3>
+                <div className="grid grid-cols-2 gap-3">
                   {[
-                    { month: 'Juillet', encPrev: 1180000, decPrev: 890000, soldePrev: 290000, confiance: 'Élevée', risque: 'Faible' },
-                    { month: 'Août', encPrev: 1050000, decPrev: 850000, soldePrev: 200000, confiance: 'Moyenne', risque: 'Moyen' },
-                    { month: 'Septembre', encPrev: 1250000, decPrev: 920000, soldePrev: 330000, confiance: 'Élevée', risque: 'Faible' }
-                  ].map((prev, index) => (
-                    <div key={index} className="bg-white rounded-lg p-5 border border-slate-200">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="font-black text-slate-900 text-lg">{prev.month}</div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          prev.risque === 'Faible' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
-                          'bg-amber-100 text-amber-700 border border-amber-300'
-                        }`}>
-                          {prev.risque}
-                        </div>
+                    { label: 'Ratio de liquidité', val: RATIO_LIQUIDITE.toFixed(2), status: 'Excellent — cible > 1.5' },
+                    { label: 'DSO (Délai encaissement)', val: `${DSO} jours`, status: 'Bon — cible < 30j' },
+                    { label: 'DPO (Délai décaissement)', val: `${DPO} jours`, status: 'Optimal — cible 30–45j' },
+                    { label: 'Couverture trésorerie', val: `${COUVERTURE} jours`, status: 'Excellent — cible > 30j' },
+                    { label: 'Fonds de Roulement', val: fmt(FR), status: 'Positif' },
+                    { label: 'BFR', val: fmt(BFR), status: 'Maîtrisé' },
+                    { label: 'CAF', val: fmt(CAF), status: 'Satisfaisante' },
+                  ].map((ind, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{ind.label}</p>
+                        <p className="text-xs font-black text-slate-900 dark:text-white font-mono">{ind.val}</p>
                       </div>
-
-                      <div className="space-y-3 mb-4">
-                        <div>
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-slate-600">Encaissements prévus</span>
-                            <span className="font-bold text-emerald-700">+{(prev.encPrev / 1000).toFixed(0)}k</span>
-                          </div>
-                          <div className="w-full bg-slate-200 rounded-full h-2">
-                            <div 
-                              className="h-2 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-1000"
-                              style={{ width: `${(prev.encPrev / 1250000) * 100}%` }}
-                            ></div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-slate-600">Décaissements prévus</span>
-                            <span className="font-bold text-red-700">-{(prev.decPrev / 1000).toFixed(0)}k</span>
-                          </div>
-                          <div className="w-full bg-slate-200 rounded-full h-2">
-                            <div 
-                              className="h-2 bg-gradient-to-r from-red-400 to-red-600 rounded-full transition-all duration-1000"
-                              style={{ width: `${(prev.decPrev / 1250000) * 100}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-4">
-                        <div className="text-xs text-slate-600 mb-1">Solde net prévu</div>
-                        <div className="text-2xl font-black text-slate-900">
-                          +{prev.soldePrev.toLocaleString()} DA
-                        </div>
-                      </div>
-
-                      <div className="mt-3 pt-3 border-t border-slate-200">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-600">Confiance:</span>
-                          <span className={`font-bold ${
-                            prev.confiance === 'Élevée' ? 'text-emerald-600' : 'text-slate-700'
-                          }`}>
-                            {prev.confiance}
-                          </span>
-                        </div>
-                      </div>
+                      <span className="text-[9px] font-bold text-slate-400 text-right max-w-[110px]">{ind.status}</span>
                     </div>
                   ))}
                 </div>
-              </div>
+              </section>
 
-              {/* Décomposition des flux par nature */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ChartPieIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  🎯 Décomposition des Flux par Nature d'Opération
-                </h3>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Graphique circulaire Encaissements */}
-                  <div className="bg-white rounded-lg p-6 border border-slate-200">
-                    <h4 className="font-bold text-emerald-700 mb-4 text-center text-lg"> Encaissements</h4>
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="relative w-56 h-56">
-                        <svg className="w-full h-full transform -rotate-90">
-                          {(() => {
-                            const encTypes = [
-                              { type: 'Ventes', percentage: 62, color: '#10b981' },
-                              { type: 'Créances', percentage: 28, color: '#34d399' },
-                              { type: 'Autres', percentage: 10, color: '#6ee7b7' }
-                            ];
-                            let currentOffset = 0;
-                            
-                            return encTypes.map((encType, idx) => {
-                              const circumference = 2 * Math.PI * 90;
-                              const strokeLength = (encType.percentage / 100) * circumference;
-                              const circle = (
-                                <circle
-                                  key={idx}
-                                  cx="112"
-                                  cy="112"
-                                  r="90"
-                                  fill="none"
-                                  stroke={encType.color}
-                                  strokeWidth="35"
-                                  strokeDasharray={`${strokeLength} ${circumference}`}
-                                  strokeDashoffset={-currentOffset}
-                                  strokeLinecap="round"
-                                  opacity="0"
-                                >
-                                  <animate attributeName="opacity" from="0" to="1" begin={`${idx * 0.2}s`} dur="0.4s" fill="freeze" />
-                                  <animate
-                                    attributeName="stroke-dashoffset"
-                                    from={-currentOffset + strokeLength}
-                                    to={-currentOffset}
-                                    begin={`${idx * 0.2}s`}
-                                    dur="1s"
-                                    fill="freeze"
-                                  />
-                                </circle>
-                              );
-                              currentOffset += strokeLength;
-                              return circle;
-                            });
-                          })()}
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <div className="text-3xl font-black text-emerald-700">100%</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      {[
-                        { type: 'Ventes clients', percentage: 62, montant: (cashFlowData.encaissements * 0.62), color: 'bg-emerald-600' },
-                        { type: 'Créances recouvrées', percentage: 28, montant: (cashFlowData.encaissements * 0.28), color: 'bg-emerald-400' },
-                        { type: 'Autres produits', percentage: 10, montant: (cashFlowData.encaissements * 0.10), color: 'bg-emerald-300' }
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2 bg-emerald-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className={`w-3 h-3 ${item.color} rounded-full`}></div>
-                            <span className="text-xs font-bold text-slate-900">{item.type}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs font-black text-slate-900">{item.percentage}%</span>
-                            <span className="text-xs text-slate-600">({item.montant.toLocaleString()} DA)</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Graphique circulaire Décaissements */}
-                  <div className="bg-white rounded-lg p-6 border border-slate-200">
-                    <h4 className="font-bold text-red-700 mb-4 text-center text-lg">💸 Décaissements</h4>
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="relative w-56 h-56">
-                        <svg className="w-full h-full transform -rotate-90">
-                          {(() => {
-                            const decTypes = [
-                              { type: 'Fournisseurs', percentage: 45, color: '#ef4444' },
-                              { type: 'Salaires', percentage: 32, color: '#f87171' },
-                              { type: 'Charges', percentage: 15, color: '#fca5a5' },
-                              { type: 'Autres', percentage: 8, color: '#fecaca' }
-                            ];
-                            let currentOffset = 0;
-                            
-                            return decTypes.map((decType, idx) => {
-                              const circumference = 2 * Math.PI * 90;
-                              const strokeLength = (decType.percentage / 100) * circumference;
-                              const circle = (
-                                <circle
-                                  key={idx}
-                                  cx="112"
-                                  cy="112"
-                                  r="90"
-                                  fill="none"
-                                  stroke={decType.color}
-                                  strokeWidth="35"
-                                  strokeDasharray={`${strokeLength} ${circumference}`}
-                                  strokeDashoffset={-currentOffset}
-                                  strokeLinecap="round"
-                                  opacity="0"
-                                >
-                                  <animate attributeName="opacity" from="0" to="1" begin={`${idx * 0.2}s`} dur="0.4s" fill="freeze" />
-                                  <animate
-                                    attributeName="stroke-dashoffset"
-                                    from={-currentOffset + strokeLength}
-                                    to={-currentOffset}
-                                    begin={`${idx * 0.2}s`}
-                                    dur="1s"
-                                    fill="freeze"
-                                  />
-                                </circle>
-                              );
-                              currentOffset += strokeLength;
-                              return circle;
-                            });
-                          })()}
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <div className="text-3xl font-black text-red-700">100%</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      {[
-                        { type: 'Achats fournisseurs', percentage: 45, montant: (cashFlowData.decaissements * 0.45), color: 'bg-red-600' },
-                        { type: 'Salaires & charges', percentage: 32, montant: (cashFlowData.decaissements * 0.32), color: 'bg-red-400' },
-                        { type: 'Charges fixes', percentage: 15, montant: (cashFlowData.decaissements * 0.15), color: 'bg-red-300' },
-                        { type: 'Autres dépenses', percentage: 8, montant: (cashFlowData.decaissements * 0.08), color: 'bg-red-200' }
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-2 bg-red-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <div className={`w-3 h-3 ${item.color} rounded-full`}></div>
-                            <span className="text-xs font-bold text-slate-900">{item.type}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs font-black text-slate-900">{item.percentage}%</span>
-                            <span className="text-xs text-slate-600">({item.montant.toLocaleString()} DA)</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Indicateurs de santé financière */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <CheckCircleIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  Indicateurs de Santé Financière
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Fonds de roulement', value: cashFlowData.soldeBancaire, unit: 'DA', status: 'excellent', icon: BanknotesIcon },
-                    { label: 'Cycle de trésorerie', value: 0, unit: 'jours', status: 'excellent', icon: ClockIcon },
-                    { label: 'Capacité d\'autofinancement', value: 10000, unit: 'DA', status: 'bon', icon: CurrencyDollarIcon },
-                    { label: 'Besoin en fonds de roulement', value: 1475450000, unit: 'DA', status: 'excellent', icon: ScaleIcon }
-                  ].map((indicator, index) => {
-                    const IndicatorIcon = indicator.icon;
-                    return (
-                      <div key={index} className="bg-white rounded-lg p-5 border border-slate-200 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between mb-3">
-                          <IndicatorIcon className="h-8 w-8 text-slate-600" />
-                          <div className={`px-2 py-1 rounded-full text-xs font-bold ${
-                            indicator.status === 'excellent' ? 'bg-emerald-100 text-emerald-700 border border-emerald-300' :
-                            'bg-slate-100 text-slate-700 border border-slate-300'
-                          }`}>
-                            {indicator.status}
-                          </div>
-                        </div>
-                        
-                        <div className="text-xs text-slate-600 mb-2">{indicator.label}</div>
-                        <div className="text-2xl font-black text-slate-900">
-                          {typeof indicator.value === 'number' && indicator.value < 0 && indicator.unit === 'jours' ? '' : ''}
-                          {typeof indicator.value === 'number' ? indicator.value.toLocaleString() : indicator.value} {indicator.unit}
-                        </div>
-                        
-                        {/* Mini jauge */}
-                        <div className="w-full bg-slate-200 rounded-full h-2 mt-3">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-1000 ${
-                              indicator.status === 'excellent' ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
-                              'bg-gradient-to-r from-slate-500 to-slate-600'
-                            }`}
-                            style={{ 
-                              width: indicator.status === 'excellent' ? '100%' : '85%',
-                              transitionDelay: `${index * 100}ms`
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* VUE 2: SUIVI DES COMPTES */}
-          {selectedView === 'suivi-comptes' && (
-            <>
-              {/* Synthèse comptes */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg p-5 border-l-4 border-emerald-500 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <BuildingLibraryIcon className="h-8 w-8 text-emerald-600" />
-                    <span className="text-xs font-bold text-emerald-600 uppercase">Total</span>
-                  </div>
-                  <div className="text-3xl font-black text-emerald-700 mb-1">
-                    {bankAccounts.reduce((sum, acc) => sum + acc.solde, 0).toLocaleString()} DA
-                  </div>
-                  <div className="text-sm text-emerald-600 font-medium">Tous comptes confondus</div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-5 border-l-4 border-slate-500 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <CreditCardIcon className="h-8 w-8 text-slate-600" />
-                    <span className="text-xs font-bold text-slate-600 uppercase">Comptes</span>
-                  </div>
-                  <div className="text-3xl font-black text-slate-900 mb-1">
-                    {bankAccounts.length}
-                  </div>
-                  <div className="text-sm text-slate-600 font-medium">Comptes actifs</div>
-                </div>
-
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-5 border-l-4 border-slate-500 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <ArrowPathIcon className="h-8 w-8 text-slate-600" />
-                    <span className="text-xs font-bold text-slate-600 uppercase">Mouvements</span>
-                  </div>
-                  <div className="text-3xl font-black text-slate-900 mb-1">
-                    {bankAccounts.reduce((sum, acc) => sum + acc.movements, 0)}
-                  </div>
-                  <div className="text-sm text-slate-600 font-medium">Ce mois</div>
-                </div>
-              </div>
-
-              {/* Graphique circulaire répartition */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ChartPieIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  🎯 Répartition des Soldes par Compte
-                </h3>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Graphique circulaire */}
-                  <div className="bg-white rounded-lg p-6 border border-slate-200">
-                    <div className="flex items-center justify-center mb-6">
-                      <div className="relative w-72 h-72">
-                        <svg className="w-full h-full transform -rotate-90">
-                          {(() => {
-                            let currentOffset = 0;
-                            const totalSolde = bankAccounts.reduce((sum, acc) => sum + acc.solde, 0);
-                            const colors = ['#334155', '#475569', '#64748b', '#94a3b8'];
-                            return bankAccounts.map((acc, idx) => {
-                              const circumference = 2 * Math.PI * 110;
-                              const percentage = (acc.solde / totalSolde) * 100;
-                              const strokeLength = (percentage / 100) * circumference;
-                              const circle = (
-                                <circle
-                                  key={idx}
-                                  cx="144"
-                                  cy="144"
-                                  r="110"
-                                  fill="none"
-                                  stroke={colors[idx % colors.length]}
-                                  strokeWidth="45"
-                                  strokeDasharray={`${strokeLength} ${circumference}`}
-                                  strokeDashoffset={-currentOffset}
-                                  strokeLinecap="round"
-                                  opacity="0"
-                                >
-                                  <animate
-                                    attributeName="opacity"
-                                    from="0"
-                                    to="1"
-                                    begin={`${idx * 0.3}s`}
-                                    dur="0.5s"
-                                    fill="freeze"
-                                  />
-                                  <animate
-                                    attributeName="stroke-dashoffset"
-                                    from={-currentOffset + strokeLength}
-                                    to={-currentOffset}
-                                    begin={`${idx * 0.3}s`}
-                                    dur="1s"
-                                    fill="freeze"
-                                  />
-                                </circle>
-                              );
-                              currentOffset += strokeLength;
-                              return circle;
-                            });
-                          })()}
-                        </svg>
-                        
-                        {/* Texte au centre */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <div className="text-4xl font-black text-slate-900">
-                            {bankAccounts.reduce((sum, acc) => sum + acc.solde, 0).toLocaleString()}
-                          </div>
-                          <div className="text-sm text-slate-600 font-semibold">DA Total</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Légende */}
-                    <div className="space-y-2">
-                      {bankAccounts.map((acc, index) => {
-                        const colors = ['bg-slate-700', 'bg-slate-600', 'bg-slate-500', 'bg-slate-400'];
-                        const totalSolde = bankAccounts.reduce((sum, a) => sum + a.solde, 0);
-                        const percentage = ((acc.solde / totalSolde) * 100).toFixed(1);
-                        return (
-                          <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                            <div className="flex items-center space-x-3">
-                              <div className={`w-4 h-4 ${colors[index % colors.length]} rounded-full shadow`}></div>
-                              <span className="text-sm font-bold text-slate-900">{acc.name}</span>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                              <span className="text-sm font-black text-slate-900">{percentage}%</span>
-                              <span className="text-xs text-slate-600">({acc.solde.toLocaleString()} DA)</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Détails avec barres */}
-                  <div className="bg-white rounded-lg p-6 border border-slate-200">
-                    <h4 className="font-bold text-slate-900 mb-5 text-lg">Analyse par Compte</h4>
-                    <div className="space-y-5">
-                      {bankAccounts.map((acc, index) => {
-                        const totalSolde = bankAccounts.reduce((sum, a) => sum + a.solde, 0);
-                        const percentage = ((acc.solde / totalSolde) * 100).toFixed(1);
-                        return (
-                          <div key={index} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-bold text-slate-900">{acc.name}</span>
-                              <div className="flex items-center space-x-2">
-                                {acc.variation > 0 ? (
-                                  <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-600" />
-                                ) : (
-                                  <ArrowTrendingDownIcon className="h-5 w-5 text-red-600" />
-                                )}
-                                <span className={`text-sm font-black ${acc.variation > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                  {acc.variation > 0 ? '+' : ''}{acc.variation}%
-                                </span>
-                              </div>
-                            </div>
-                            <div className="w-full bg-slate-200 rounded-full h-6 shadow-inner relative overflow-hidden">
-                              <div 
-                                className="h-6 bg-gradient-to-r from-slate-600 to-slate-700 rounded-full flex items-center justify-end pr-3 transition-all duration-1500 ease-out"
-                                style={{ 
-                                  width: `${percentage}%`,
-                                  transitionDelay: `${index * 200}ms`
-                                }}
-                              >
-                                <span className="text-xs font-bold text-white">{percentage}%</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-slate-600">{acc.solde.toLocaleString()} DA</span>
-                              <span className="font-bold text-slate-900">{percentage}% du total</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Liste des comptes */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <BuildingLibraryIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  💳 Détail des Comptes Bancaires & Caisses
-                </h3>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {bankAccounts.map((account, index) => {
-                    const AccountIcon = account.icon;
-                    return (
-                      <div key={index} className="bg-white rounded-lg p-6 border border-slate-200 hover:shadow-lg transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center">
-                              <AccountIcon className="h-6 w-6 text-white" />
-                            </div>
-                            <div>
-                              <div className="font-bold text-slate-900">{account.name}</div>
-                              <div className="text-sm text-slate-600">{account.number}</div>
-                            </div>
-                          </div>
-                          <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            account.status === 'actif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'
-                          }`}>
-                            {account.status}
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-50 rounded-lg p-4 mb-4">
-                          <div className="text-xs text-slate-500 mb-1">Solde actuel</div>
-                          <div className="text-3xl font-black text-slate-900">
-                            {account.solde.toLocaleString()} {account.devise}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-3 mb-4">
-                          <div className="text-center">
-                            <div className="text-xs text-slate-500 mb-1">Type</div>
-                            <div className="text-sm font-semibold text-slate-900">{account.type}</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs text-slate-500 mb-1">Variation</div>
-                            <div className={`text-sm font-semibold ${account.variation > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                              {account.variation > 0 ? '+' : ''}{account.variation}%
-                            </div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs text-slate-500 mb-1">Mouvements</div>
-                            <div className="text-sm font-semibold text-slate-900">{account.movements}</div>
-                          </div>
-                        </div>
-
-                        <div className="pt-3 border-t border-slate-200 text-xs text-slate-600">
-                          Dernier mouvement: {account.lastMovement}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Mouvements récents */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ClockIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  ⏱️ Mouvements Récents
-                </h3>
-
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase">Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase">Libellé</th>
-                        <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase">Compte</th>
-                        <th className="px-6 py-3 text-right text-xs font-bold text-slate-700 uppercase">Montant</th>
-                        <th className="px-6 py-3 text-center text-xs font-bold text-slate-700 uppercase">Statut</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {recentMovements.map((movement, index) => (
-                        <tr key={index} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4 text-sm text-slate-900 font-medium">{movement.date}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              movement.type === 'Encaissement' ? 'bg-emerald-100 text-emerald-700' :
-                              movement.type === 'Décaissement' ? 'bg-red-100 text-red-700' :
-                              'bg-slate-100 text-slate-700'
-                            }`}>
-                              {movement.type}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-900">{movement.libelle}</td>
-                          <td className="px-6 py-4 text-sm text-slate-600">{movement.compte}</td>
-                          <td className="px-6 py-4 text-sm text-right font-bold">
-                            <span className={movement.montant > 0 ? 'text-emerald-600' : 'text-red-600'}>
-                              {movement.montant > 0 ? '+' : ''}{movement.montant.toLocaleString()} DA
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <CheckCircleIcon className="h-5 w-5 text-emerald-500 inline" />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* VUE 3: PRÉVISIONS ET TENSIONS */}
-          {selectedView === 'previsions-tensions' && (
-            <>
-              {/* Alertes de tensions */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-l-4 border-red-500 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <ExclamationTriangleIcon className="h-8 w-8 text-red-600" />
-                    <span className="text-xs font-bold text-red-600 uppercase">Critique</span>
-                  </div>
-                  <div className="text-3xl font-black text-red-700 mb-1">
-                    {tensions.filter(t => t.severity === 'critical').length}
-                  </div>
-                  <div className="text-sm text-red-600 font-medium">Alertes critiques</div>
-                </div>
-
-                <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-5 border-l-4 border-amber-500 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <BellIcon className="h-8 w-8 text-amber-600" />
-                    <span className="text-xs font-bold text-amber-600 uppercase">Attention</span>
-                  </div>
-                  <div className="text-3xl font-black text-amber-700 mb-1">
-                    {tensions.filter(t => t.severity === 'warning').length}
-                  </div>
-                  <div className="text-sm text-amber-600 font-medium">Avertissements</div>
-                </div>
-
-                <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg p-5 border-l-4 border-emerald-500 shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <CheckCircleIcon className="h-8 w-8 text-emerald-600" />
-                    <span className="text-xs font-bold text-emerald-600 uppercase">Sain</span>
-                  </div>
-                  <div className="text-3xl font-black text-emerald-700 mb-1">
-                    {cashFlowData.ratioLiquidite.toFixed(2)}
-                  </div>
-                  <div className="text-sm text-emerald-600 font-medium">Ratio de liquidité</div>
-                </div>
-              </div>
-
-              {/* Liste des tensions */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  ⚠️ Tensions & Alertes Identifiées
-                </h3>
-
-                <div className="space-y-4">
-                  {tensions.map((tension, index) => (
-                    <div key={index} className={`bg-white rounded-lg p-5 border-l-4 ${
-                      tension.severity === 'critical' ? 'border-red-500 bg-red-50' :
-                      'border-amber-500 bg-amber-50'
-                    } border border-slate-200`}>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            tension.severity === 'critical' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
-                          }`}>
-                            {tension.severity === 'critical' ? (
-                              <ExclamationTriangleIcon className="h-5 w-5" />
-                            ) : (
-                              <BellIcon className="h-5 w-5" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900">{tension.type}</div>
-                            <div className="text-sm text-slate-600">{tension.description}</div>
-                          </div>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          tension.severity === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
-                        }`}>
-                          {tension.date}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                          <div className="text-xs text-slate-500 mb-1">Montant concerné</div>
-                          <div className="text-xl font-bold text-slate-900">{tension.montant.toLocaleString()} DA</div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-slate-500 mb-1">Action recommandée</div>
-                          <div className="text-sm font-semibold text-slate-900">{tension.action}</div>
-                        </div>
-                      </div>
+              {/* Prévisions */}
+              <section>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Prévisions Trimestrielles</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {forecasts.map((f, i) => (
+                    <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase mb-1">{f.month}</p>
+                      <p className="text-base font-black font-mono text-slate-900 dark:text-white">+{f.prevu.toLocaleString()} DA</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Risque : {f.risque} · {f.confiance}</p>
                     </div>
                   ))}
                 </div>
+              </section>
+
+              {/* Actions modale */}
+              <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={handleExportPDF}
+                  className="flex-1 px-4 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4" />
+                  Imprimer / PDF
+                </button>
+                <button
+                  onClick={handleExportExcel}
+                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <DocumentArrowDownIcon className="h-4 w-4" />
+                  Export Excel / CSV
+                </button>
               </div>
-
-              {/* Graphique courbe prévisions */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ChartBarIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  📈 Courbe de Prévision de Trésorerie
-                </h3>
-
-                <div className="bg-white rounded-lg p-6 border border-slate-200">
-                  {/* Légende */}
-                  <div className="flex items-center justify-center space-x-6 mb-6">
-                    <div className="flex items-center">
-                      <div className="w-8 h-1.5 bg-slate-700 rounded mr-2"></div>
-                      <span className="text-sm font-semibold text-slate-900">Prévu</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-8 h-1.5 bg-emerald-600 rounded mr-2"></div>
-                      <span className="text-sm font-semibold text-slate-900">Réalisé</span>
-                    </div>
-                  </div>
-
-                  {/* Graphique SVG */}
-                  <div className="relative h-80 bg-slate-50 rounded-lg p-8">
-                    <svg className="w-full h-full" viewBox="0 0 700 300" preserveAspectRatio="xMidYMid meet">
-                      {/* Grille */}
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <g key={i}>
-                          <line x1="60" y1={30 + i * 50} x2="660" y2={30 + i * 50} stroke="#e2e8f0" strokeWidth="1.5" />
-                          <text x="45" y={35 + i * 50} fill="#64748b" fontSize="12" fontWeight="700" textAnchor="end">
-                            {(4-i) * 80}k
-                          </text>
-                        </g>
-                      ))}
-
-                      {/* Courbe Prévu */}
-                      <path
-                        d={(() => {
-                          const maxVal = 320000;
-                          return forecasts.map((f, i) => {
-                            const x = 80 + (i * 100);
-                            const y = 230 - ((f.prevu / maxVal) * 200);
-                            return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-                          }).join(' ');
-                        })()}
-                        fill="none"
-                        stroke="#334155"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        strokeDasharray="8,4"
-                        strokeDashoffset="2000"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="2000"
-                          to="0"
-                          dur="2s"
-                          fill="freeze"
-                        />
-                      </path>
-
-                      {/* Courbe Réalisé */}
-                      <path
-                        d={(() => {
-                          const maxVal = 320000;
-                          return forecasts.filter(f => f.reel !== null).map((f, i) => {
-                            const x = 80 + (i * 100);
-                            const y = 230 - ((f.reel! / maxVal) * 200);
-                            return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-                          }).join(' ');
-                        })()}
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeDasharray="2000"
-                        strokeDashoffset="2000"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="2000"
-                          to="0"
-                          begin="0.5s"
-                          dur="1.5s"
-                          fill="freeze"
-                        />
-                      </path>
-
-                      {/* Points Prévu */}
-                      {forecasts.map((f, i) => {
-                        const x = 80 + (i * 100);
-                        const maxVal = 320000;
-                        const y = 230 - ((f.prevu / maxVal) * 200);
-                        return (
-                          <g key={`prev-${i}`} className="group">
-                            <circle cx={x} cy={y} r="7" fill="#334155" opacity="0">
-                              <animate attributeName="opacity" from="0" to="1" begin={`${0.3 * i}s`} dur="0.4s" fill="freeze" />
-                            </circle>
-                            <circle cx={x} cy={y} r="3" fill="#ffffff" opacity="0">
-                              <animate attributeName="opacity" from="0" to="1" begin={`${0.3 * i}s`} dur="0.4s" fill="freeze" />
-                            </circle>
-                          </g>
-                        );
-                      })}
-
-                      {/* Points Réalisé */}
-                      {forecasts.filter(f => f.reel !== null).map((f, i) => {
-                        const x = 80 + (i * 100);
-                        const maxVal = 320000;
-                        const y = 230 - ((f.reel! / maxVal) * 200);
-                        return (
-                          <g key={`real-${i}`} className="group">
-                            <circle cx={x} cy={y} r="8" fill="#10b981" opacity="0">
-                              <animate attributeName="opacity" from="0" to="1" begin={`${0.5 + 0.3 * i}s`} dur="0.4s" fill="freeze" />
-                            </circle>
-                            <circle cx={x} cy={y} r="4" fill="#ffffff" opacity="0">
-                              <animate attributeName="opacity" from="0" to="1" begin={`${0.5 + 0.3 * i}s`} dur="0.4s" fill="freeze" />
-                            </circle>
-                          </g>
-                        );
-                      })}
-
-                      {/* Labels */}
-                      {forecasts.map((f, i) => (
-                        <text key={`lbl-${i}`} x={80 + (i * 100)} y="270" fill="#334155" fontSize="14" fontWeight="800" textAnchor="middle">
-                          {f.month}
-                        </text>
-                      ))}
-                    </svg>
-                  </div>
-
-                  {/* Statistiques */}
-                  <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
-                    <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
-                      <div className="text-xs font-semibold text-slate-600 mb-2">Prévision Juin</div>
-                      <div className="text-2xl font-bold text-slate-900">
-                        {forecasts[forecasts.length - 1].prevu.toLocaleString()} DA
-                      </div>
-                    </div>
-                    <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                      <div className="text-xs font-semibold text-emerald-600 mb-2">Écart moyen</div>
-                      <div className="text-2xl font-bold text-emerald-700">
-                        {Math.abs(forecasts.filter(f => f.ecart !== null).reduce((sum, f) => sum + (f.ecart || 0), 0) / forecasts.filter(f => f.ecart !== null).length).toLocaleString()} DA
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Détail prévisions */}
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
-                  <ChartPieIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  🔮 Détail Prévisions vs Réalisations
-                </h3>
-
-                <div className="bg-white rounded-lg p-6 border border-slate-200">
-                  <div className="space-y-4">
-                    {forecasts.map((forecast, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900">{forecast.month}</span>
-                          <div className="flex items-center space-x-3">
-                            {forecast.reel !== null && (
-                              <span className="text-sm text-slate-600">
-                                Écart: <span className={`font-bold ${forecast.ecart && forecast.ecart < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                                  {forecast.ecart && forecast.ecart.toLocaleString()} DA
-                                </span>
-                              </span>
-                            )}
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              forecast.risque === 'faible' ? 'bg-emerald-100 text-emerald-700' :
-                              forecast.risque === 'moyen' ? 'bg-amber-100 text-amber-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                              Risque: {forecast.risque}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-slate-600">Prévu</span>
-                              <span className="font-bold text-slate-900">{forecast.prevu.toLocaleString()} DA</span>
-                            </div>
-                            <div className="w-full bg-slate-200 rounded-full h-3">
-                              <div 
-                                className="h-3 bg-gradient-to-r from-slate-500 to-slate-600 rounded-full transition-all duration-1000"
-                                style={{ width: `${(forecast.prevu / 320000) * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {forecast.reel !== null && (
-                            <div>
-                              <div className="flex items-center justify-between text-xs mb-1">
-                                <span className="text-slate-600">Réel</span>
-                                <span className="font-bold text-slate-900">{forecast.reel.toLocaleString()} DA</span>
-                              </div>
-                              <div className="w-full bg-slate-200 rounded-full h-3">
-                                <div 
-                                  className={`h-3 rounded-full transition-all duration-1000 ${
-                                    forecast.reel >= forecast.prevu ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
-                                    'bg-gradient-to-r from-amber-500 to-amber-600'
-                                  }`}
-                                  style={{ width: `${(forecast.reel / 320000) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
-
-        {/* Actions */}
-        <div className="mt-8 pt-6 border-t border-slate-200 flex flex-wrap gap-2">
-          <button className="px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors flex items-center shadow-sm">
-            <EyeIcon className="h-4 w-4 mr-2" />
-            Voir le rapport complet
-          </button>
-          <button className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
-            <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-            Export PDF
-          </button>
-          <button className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
-            <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-            Export Excel
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
 
 export default TresorerieBanque;
-
-

@@ -32,10 +32,10 @@ const AnalyticsAvancees: React.FC = () => {
   // Hardcoded data with ability to "refresh" based on period
   const [analyticsData, setAnalyticsData] = useState({
     funnel: [
-      { name: 'Prospects', count: 12500, percentage: 100, color: 'bg-slate-400' },
-      { name: 'Devis Émis', count: 3200, percentage: 25.6, color: 'bg-blue-500' },
-      { name: 'Négociation', count: 1200, percentage: 9.6, color: 'bg-indigo-500' },
-      { name: 'Facturé', count: 480, percentage: 3.8, color: 'bg-emerald-600' }
+      { name: 'Prospects', count: 12500, percentage: 100, color: 'bg-slate-300' },
+      { name: 'Devis Émis', count: 3200, percentage: 25.6, color: 'bg-slate-400' },
+      { name: 'Négociation', count: 1200, percentage: 9.6, color: 'bg-slate-600' },
+      { name: 'Facturé', count: 480, percentage: 3.8, color: 'bg-slate-800' }
     ],
     cohorts: [
       { name: 'Sept 2024', data: [100, 45, 32, 28, 25, 22] },
@@ -82,10 +82,10 @@ const AnalyticsAvancees: React.FC = () => {
   };
 
   const currentMetrics = [
-    { name: 'DSO (Délai Client)', value: '45j', diff: -2.3, icon: ClockIcon, color: 'blue', target: '60j' },
-    { name: 'BFR (Besoin Fonds)', value: formatCurrency(1200000), diff: 5.1, icon: BanknotesIcon, color: 'amber', target: '< 1.5M' },
-    { name: 'Seuil Rentabilité', value: formatCurrency(8000000), diff: 0.0, icon: ScaleIcon, color: 'emerald', target: 'Validé' },
-    { name: 'Solvabilité', value: '150%', diff: 1.5, icon: ChartBarSquareIcon, color: 'indigo', target: '> 120%' }
+    { name: 'DSO (Délai Client)', value: '35j', diff: -2.3, icon: ClockIcon, color: 'slate', target: '30j' },
+    { name: 'BFR (Besoin Fonds)', value: formatCurrency(1300000), diff: 5.1, icon: BanknotesIcon, color: 'slate', target: '< 1.5M' },
+    { name: 'Seuil Rentabilité', value: formatCurrency(4200000), diff: 0.0, icon: ScaleIcon, color: 'slate', target: 'Validé' },
+    { name: 'Solvabilité', value: '210%', diff: 1.5, icon: ChartBarSquareIcon, color: 'slate', target: '> 120%' }
   ];
 
   if (loading) {
@@ -156,7 +156,7 @@ const AnalyticsAvancees: React.FC = () => {
             <div className="flex rounded-lg shadow-sm">
               <button
                 onClick={handleExport}
-                className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-l-lg hover:bg-indigo-700 border-r border-indigo-700 transition-colors flex items-center"
+                className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-l-lg hover:bg-slate-800 border-r border-slate-700 transition-colors flex items-center"
               >
                 <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
                 Exporter
@@ -164,7 +164,7 @@ const AnalyticsAvancees: React.FC = () => {
               <select
                 value={exportFormat}
                 onChange={(e) => setExportFormat(e.target.value)}
-                className="bg-indigo-600 text-white text-sm font-medium rounded-r-lg hover:bg-indigo-700 outline-none px-2 cursor-pointer border-l-0"
+                className="bg-slate-900 text-white text-sm font-medium rounded-r-lg hover:bg-slate-800 outline-none px-2 cursor-pointer border-l-0"
               >
                 <option value="pdf">PDF</option>
                 <option value="xlsx">XLSX</option>
@@ -177,13 +177,13 @@ const AnalyticsAvancees: React.FC = () => {
       {/* 🟢 KPIs FINANCIERS - PURE BUSINESS STYLE */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {currentMetrics.map((grid, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-all">
+          <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
             <div className="flex justify-between items-start mb-4">
               <div className={`p-2.5 rounded-xl bg-${grid.color}-50 text-${grid.color}-600`}>
                 <grid.icon className="h-6 w-6" />
               </div>
               <div className="text-right">
-                <p className={`text-xs font-bold ${grid.diff >= 0 ? 'text-emerald-600' : 'text-rose-600'} flex items-center justify-end`}>
+                <p className={`text-xs font-bold ${grid.diff >= 0 ? 'text-slate-900' : 'text-slate-500'} flex items-center justify-end`}>
                   {grid.diff > 0 ? '+' : ''}{grid.diff}%
                   {grid.diff >= 0 ? <ArrowTrendingUpIcon className="h-3 w-3 ml-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 ml-1" />}
                 </p>
@@ -332,7 +332,7 @@ const AnalyticsAvancees: React.FC = () => {
                     <td className="p-3 font-bold text-slate-700">{c.name}</td>
                     {c.data.slice(1, 4).map((d, j) => (
                       <td key={j} className="p-3 text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${d > 40 ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${d > 40 ? 'bg-slate-200 text-slate-900 border border-slate-300' : 'bg-slate-50 text-slate-500 border border-slate-100'
                           }`}>
                           {d}%
                         </span>
@@ -352,13 +352,13 @@ const AnalyticsAvancees: React.FC = () => {
               <div key={idx}>
                 <div className="flex justify-between text-xs font-bold mb-1.5">
                   <span className="text-slate-600">{corr.metric1} / {corr.metric2}</span>
-                  <span className={corr.correlation > 0 ? 'text-emerald-600' : 'text-slate-600'}>
+                  <span className={corr.correlation > 0 ? 'text-slate-900' : 'text-slate-600'}>
                     {corr.correlation > 0 ? '+' : ''}{corr.correlation}
                   </span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${Math.abs(corr.correlation) > 0.7 ? 'bg-indigo-500' : 'bg-slate-400'}`}
+                    className={`h-full rounded-full ${Math.abs(corr.correlation) > 0.7 ? 'bg-slate-800' : 'bg-slate-400'}`}
                     style={{ width: `${Math.abs(corr.correlation) * 100}%` }}
                   ></div>
                 </div>

@@ -102,7 +102,7 @@ function App() {
                   <Route path="/rapports/tresorerie-banque" element={<ProtectedRoute requiredPermission="rapports-basic"><TresorerieBanque /></ProtectedRoute>} />
 
                   {/* Settings & Admin */}
-                  <Route path="/gestion-utilisateurs-acces" element={<ProtectedRoute requiredPermission="manage_users"><AdminRoleManagement /></ProtectedRoute>} />
+                  <Route path="/gestion-utilisateurs-acces" element={<ProtectedRoute requiredPermission="admin-users"><AdminRoleManagement /></ProtectedRoute>} />
                   <Route path="/parametres" element={<Parametres />} />
                   <Route path="/configuration-avancee" element={<ProtectedRoute requiredRole="admin"><ConfigurationAvancee /></ProtectedRoute>} />
                   <Route path="/integrations" element={<ProtectedRoute requiredRole="admin"><Integrations /></ProtectedRoute>} />
