@@ -48,41 +48,86 @@ function mapToBackend(data: Partial<Article>): any {
     };
 }
 
+const DEMO_ARTICLES_KEY = 'dinarlytics_demo_articles';
+
+const getInitialArticles = (): Article[] => [
+    { id: '1', nom: 'Article A', codePCA: 'ART001', prixUnitaire: 1500, stock: 100, description: 'Description A', categorie: 'Cat A' },
+    { id: '2', nom: 'Article B', codePCA: 'ART002', prixUnitaire: 2500, stock: 50, description: 'Description B', categorie: 'Cat B' },
+    { id: '3', nom: 'Service C', codePCA: 'SRV001', prixUnitaire: 5000, stock: 0, description: 'Service de consult', categorie: 'Service' }
+];
+
+const getDemoArticles = (): Article[] => {
+    const saved = localStorage.getItem(DEMO_ARTICLES_KEY);
+    if (saved) return JSON.parse(saved);
+    const initial = getInitialArticles();
+    localStorage.setItem(DEMO_ARTICLES_KEY, JSON.stringify(initial));
+    return initial;
+};
+
+const saveDemoArticles = (articles: Article[]) => {
+    localStorage.setItem(DEMO_ARTICLES_KEY, JSON.stringify(articles));
+};
+
 export const articlesService = {
     getAll: async () => {
-        // MOCK IMPLEMENTATION
-        // const response = await apiClient.get<ArticleResponse[]>('/articles');
-        // return response.data.map(mapToFrontend);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return [
-            { id: '1', nom: 'Article A', codePCA: 'ART001', prixUnitaire: 1500, stock: 100, description: 'Description A', categorie: 'Cat A' },
-            { id: '2', nom: 'Article B', codePCA: 'ART002', prixUnitaire: 2500, stock: 50, description: 'Description B', categorie: 'Cat B' },
-            { id: '3', nom: 'Service C', codePCA: 'SRV001', prixUnitaire: 5000, stock: 0, description: 'Service de consult', categorie: 'Service' }
-        ] as Article[];
+        try {
+            const response = await apiClient.get<ArticleResponse[]>('/articles');
+            return response.data.map(mapToFrontend);
+        } catch (e) {
+            console.warn('API Articles failed, using demo data', e);
+            await new Promise(resolve => setTimeout(resolve, 300));
+            return getDemoArticles();
+        }
     },
 
     getById: async (id: string) => {
-        // MOCK IMPLEMENTATION
-        // const response = await apiClient.get<ArticleResponse>(`/articles/${id}`);
-        // return mapToFrontend(response.data);
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return { id: id, nom: 'Article Mock', codePCA: 'MOCK001', prixUnitaire: 1000, stock: 10, description: 'Mock Description', categorie: 'General' } as Article;
+        try {
+            const response = await apiClient.get<ArticleResponse>(`/articles/${id}`);
+            return mapToFrontend(response.data);
+        } catch (e) {
+            const articles = getDemoArticles();
+            return articles.find(a => a.id === id) || { id, nom: 'Article Inconnu', prixUnitaire: 0, stock: 0, categorie: 'N/A' } as Article;
+        }
     },
 
     create: async (data: Partial<Article>) => {
-        const apiData = mapToBackend(data);
-        const response = await apiClient.post<ArticleResponse>('/articles', apiData);
-        return mapToFrontend(response.data);
+        try {
+            const apiData = mapToBackend(data);
+            const response = await apiClient.post<ArticleResponse>('/articles', apiData);
+            return mapToFrontend(response.data);
+        } catch (e) {
+            const articles = getDemoArticles();
+            const newArticle = { ...data, id: `art-${Date.now()}` } as Article;
+            articles.push(newArticle);
+            saveDemoArticles(articles);
+            return newArticle;
+        }
     },
 
     update: async (id: string, data: Partial<Article>) => {
-        const apiData = mapToBackend(data);
-        const response = await apiClient.put<ArticleResponse>(`/articles/${id}`, apiData);
-        return mapToFrontend(response.data);
+        try {
+            const apiData = mapToBackend(data);
+            const response = await apiClient.put<ArticleResponse>(`/articles/${id}`, apiData);
+            return mapToFrontend(response.data);
+        } catch (e) {
+            const articles = getDemoArticles();
+            const idx = articles.findIndex(a => a.id === id);
+            if (idx >= 0) {
+                articles[idx] = { ...articles[idx], ...data };
+                saveDemoArticles(articles);
+                return articles[idx];
+            }
+            throw new Error('Article not found');
+        }
     },
 
     delete: async (id: string) => {
-        await apiClient.delete(`/articles/${id}`);
+        try {
+            await apiClient.delete(`/articles/${id}`);
+        } catch (e) {
+            const articles = getDemoArticles();
+            saveDemoArticles(articles.filter(a => a.id !== id));
+        }
     }
 };
 

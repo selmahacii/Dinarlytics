@@ -101,7 +101,7 @@ const AnalyticsAvancees: React.FC = () => {
 
   // Projecting values for Rolling Forecast
   const projectionValue = 2750000 * scaleFactor;
-  const historicValues = [2.65, 2.82, 2.95].map(v => (v * scaleFactor).toFixed(2));
+  const historicValues = [2650000, 2820000, 2950000].map(v => v * scaleFactor);
 
   if (loading) {
     return (
@@ -279,16 +279,16 @@ const AnalyticsAvancees: React.FC = () => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
                   <p className="text-[10px] font-black text-slate-400 uppercase">M-2</p>
-                  <p className="text-sm font-bold text-slate-700 mt-1">{historicValues[0]} M</p>
+                  <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[0])}</p>
                 </div>
                 <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
                   <p className="text-[10px] font-black text-slate-400 uppercase">M-1</p>
-                  <p className="text-sm font-bold text-slate-700 mt-1">{historicValues[1]} M</p>
+                  <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[1])}</p>
                 </div>
                 <div className="p-4 rounded-xl border-2 border-indigo-100 bg-indigo-50/30 text-center relative">
                   <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full">Actuel</span>
                   <p className="text-[10px] font-black text-indigo-400 uppercase">Projection</p>
-                  <p className="text-sm font-bold text-indigo-700 mt-1">{historicValues[2]} M</p>
+                  <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[2])}</p>
                 </div>
               </div>
             </div>

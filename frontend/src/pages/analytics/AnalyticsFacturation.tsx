@@ -46,6 +46,7 @@ import {
 import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
 import { usePermission } from '@shared/hooks/usePermission';
+import { invoiceService, type Invoice, type InvoiceItem, type ClientDetails, type AuditLog } from '../../services/modules/invoiceService';
 
 ChartJS.register(
   CategoryScale,
@@ -60,44 +61,6 @@ ChartJS.register(
   Filler,
   RadialLinearScale
 );
-
-interface InvoiceItem {
-  desc: string;
-  qty: number;
-  pu: number;
-  type: 'bien' | 'service'; // Pour le mapping comptable (700 vs 706)
-}
-
-interface ClientDetails {
-  adresse: string;
-  nif: string;
-  rc: string;
-  ai: string;
-}
-
-interface AuditLog {
-  action: string;
-  user: string;
-  date: string;
-}
-
-interface Invoice {
-  id: string;
-  client: string;
-  clientDetails: ClientDetails;
-  date: string;
-  echeance: string;
-  paymentMode: string;
-  items: InvoiceItem[];
-  tvaRate: number;
-  statut: string;
-  secteur: string;
-  audit: AuditLog[];
-  totalHT: number;
-  totalTVA: number;
-  droitTimbre: number;
-  totalTTC: number;
-}
 
 const AnalyticsFacturation: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -153,22 +116,39 @@ const AnalyticsFacturation: React.FC = () => {
     email: 'contact@dinarlytics.dz'
   };
 
-  const [newInvoice, setNewInvoice] = useState({
+  const [newInvoice, setNewInvoice] = useState<Partial<Invoice>>({
+    id: '',
+    factureId: '',
     client: '',
     clientDetails: {
       adresse: '',
       nif: '',
+      nis: '',
       rc: '',
-      ai: ''
+      ai: '',
+      rib: ''
     },
     date: new Date().toISOString().split('T')[0],
-    items: [{ desc: '', qty: 1, pu: 0, type: 'bien' }],
+    echeance: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+    items: [{ desc: '', qty: 1, pu: 0, type: 'bien', tva_rate: 19, line_total_ht: 0, line_total_tva: 0, line_total_ttc: 0 }],
     paymentMode: 'virement',
-    notes: ''
+    tvaRate: 19,
+    statut: 'en_cours',
+    secteur: 'services',
+    audit: [],
+    totalHT: 0,
+    totalTVA: 0,
+    totalTAP: 0,
+    droitTimbre: 0,
+    totalTTC: 0
   });
 
+  const [isEditing, setIsEditing] = useState(false);
+
   const addItem = () => {
-    setNewInvoice({ ...newInvoice, items: [...newInvoice.items, { desc: '', qty: 1, pu: 0, type: 'bien' }] });
+    const items = [...(newInvoice.items || [])];
+    items.push({ desc: '', qty: 1, pu: 0, type: 'bien', tva_rate: 19, line_total_ht: 0, line_total_tva: 0, line_total_ttc: 0 });
+    setNewInvoice({ ...newInvoice, items });
   };
 
   // Détermination du facteur d'échelle selon la taille de l'entreprise
@@ -184,89 +164,225 @@ const AnalyticsFacturation: React.FC = () => {
     }
   }, [user]);
 
-  // Données réalistes pour les factures (Contexte Algérie) - DYNAMISÉES par segment
-  const invoices = useMemo(() => [
-    {
-      id: 'F-2024-0001',
-      client: 'SARL El-Mountazah Construction',
-      clientDetails: {
-        adresse: 'Zone Industrielle Oued Smar, Alger',
-        nif: '000516019012345',
-        rc: '16/00-0987654B15',
-        ai: '16001234567'
+  // Initial data generator
+  const getInitialInvoices = useMemo(() => {
+    const rawInvoices = [
+      {
+        id: 'F-2024-0001',
+        factureId: 'FAC-2024-0001',
+        client: 'SARL El-Mountazah Construction',
+        clientDetails: {
+          adresse: 'Zone Industrielle Oued Smar, Alger',
+          nif: '000516019012345',
+          nis: '000516019012345001',
+          rc: '16/00-0987654B15',
+          ai: '16001234567',
+          rib: '001 00016 0123456789 01'
+        },
+        date: '2024-02-15',
+        echeance: '2024-03-15',
+        paymentMode: 'virement',
+        items: [
+          { desc: 'Ciment Portland CPJ 42.5 (Sac 50kg)', qty: 200, pu: 850 * scaleFactor, type: 'bien', tva_rate: 19 },
+          { desc: 'Rond à béton 12mm (Tonne)', qty: 5, pu: 115000 * scaleFactor, type: 'bien', tva_rate: 19 },
+          { desc: 'Briques creuses 8 trous', qty: 5000, pu: 25 * scaleFactor, type: 'bien', tva_rate: 19 }
+        ],
+        tvaRate: 19,
+        statut: 'payee',
+        secteur: 'btp',
+        audit: [
+          { action: 'Création', user: 'Admin', date: '2024-02-15 09:12' },
+          { action: 'Validation Fiscale', user: 'Comptable', date: '2024-02-15 10:45' },
+          { action: 'Envoi par Email', user: 'Système', date: '2024-02-15 10:50' }
+        ]
       },
-      date: '2024-02-15',
-      echeance: '2024-03-15',
-      paymentMode: 'virement',
-      items: [
-        { desc: 'Ciment Portland CPJ 42.5 (Sac 50kg)', qty: 200, pu: 850 * scaleFactor, type: 'bien' },
-        { desc: 'Rond à béton 12mm (Tonne)', qty: 5, pu: 115000 * scaleFactor, type: 'bien' },
-        { desc: 'Briques creuses 8 trous', qty: 5000, pu: 25 * scaleFactor, type: 'bien' }
-      ] as InvoiceItem[],
-      tvaRate: 19,
-      statut: 'payee',
-      secteur: 'btp',
-      audit: [
-        { action: 'Création', user: 'Admin', date: '2024-02-15 09:12' },
-        { action: 'Validation Fiscale', user: 'Comptable', date: '2024-02-15 10:45' },
-        { action: 'Envoi par Email', user: 'Système', date: '2024-02-15 10:50' }
-      ]
-    },
-    {
-      id: 'F-2024-0002',
-      client: 'EURL Kouba Telecom',
-      clientDetails: {
-        adresse: '12 Rue des Glycines, Kouba, Alger',
-        nif: '001216059045678',
-        rc: '16/00-1122334A16',
-        ai: '16056789012'
+      {
+        id: 'F-2024-0002',
+        factureId: 'FAC-2024-0002',
+        client: 'EURL Kouba Telecom',
+        clientDetails: {
+          adresse: '12 Rue des Glycines, Kouba, Alger',
+          nif: '001216059045678',
+          nis: '001216059045678002',
+          rc: '16/00-1122334A16',
+          ai: '16056789012',
+          rib: '003 00014 9876543210 99'
+        },
+        date: '2024-02-10',
+        echeance: '2024-03-10',
+        paymentMode: 'cheque',
+        items: [
+          { desc: 'Installation Fibre Optique (Forfait)', qty: 1, pu: 350000 * scaleFactor, type: 'service', tva_rate: 19 },
+          { desc: 'Configuration Routeurs Cisco', qty: 2, pu: 50000 * scaleFactor, type: 'service', tva_rate: 19 }
+        ],
+        tvaRate: 19,
+        statut: 'payee',
+        secteur: 'services',
+        audit: [
+          { action: 'Création', user: 'Admin', date: '2024-02-10 14:20' }
+        ]
       },
-      date: '2024-02-10',
-      echeance: '2024-03-10',
-      paymentMode: 'cheque',
-      items: [
-        { desc: 'Installation Fibre Optique (Forfait)', qty: 1, pu: 350000 * scaleFactor, type: 'service' },
-        { desc: 'Configuration Routeurs Cisco', qty: 2, pu: 50000 * scaleFactor, type: 'service' }
-      ] as InvoiceItem[],
-      tvaRate: 19,
-      statut: 'payee',
-      secteur: 'services',
-      audit: [
-        { action: 'Création', user: 'Admin', date: '2024-02-10 14:20' }
-      ]
-    },
-    {
-      id: 'F-2024-0003',
-      client: 'Groupement Algerian Petroleum',
-      clientDetails: {
-        adresse: 'Base de Vie, Hassi Messaoud, Ouargla',
-        nif: '000030019000011',
-        rc: '30/00-5566778B22',
-        ai: '30009988776'
-      },
-      date: '2024-02-05',
-      echeance: '2024-03-07',
-      paymentMode: 'virement',
-      items: [
-        { desc: 'Main d\'œuvre technique (Heures)', qty: 120, pu: 4500 * scaleFactor, type: 'service' },
-        { desc: 'Maintenance préventive groupe électrogène', qty: 2, pu: 155000 * scaleFactor, type: 'service' },
-        { desc: 'Kit de rechange filtration Heavy Duty', qty: 10, pu: 225000 * scaleFactor, type: 'bien' }
-      ] as InvoiceItem[],
-      tvaRate: 19,
-      statut: 'en_retard',
-      secteur: 'industrie',
-      audit: [
-        { action: 'Création', user: 'Finance MG', date: '2024-02-05 08:00' }
-      ]
+      {
+        id: 'F-2024-0003',
+        factureId: 'FAC-2024-0003',
+        client: 'Groupement Algerian Petroleum',
+        clientDetails: {
+          adresse: 'Base de Vie, Hassi Messaoud, Ouargla',
+          nif: '000030019000011',
+          nis: '000030019000011003',
+          rc: '30/00-5566778B22',
+          ai: '30009988776',
+          rib: '005 00030 1122334455 11'
+        },
+        date: '2024-02-05',
+        echeance: '2024-03-07',
+        paymentMode: 'virement',
+        items: [
+          { desc: 'Main d\'œuvre technique (Heures)', qty: 120, pu: 4500 * scaleFactor, type: 'service', tva_rate: 19 },
+          { desc: 'Maintenance préventive groupe électrogène', qty: 2, pu: 155000 * scaleFactor, type: 'service', tva_rate: 9 },
+          { desc: 'Kit de rechange filtration Heavy Duty', qty: 10, pu: 225000 * scaleFactor, type: 'bien', tva_rate: 19 }
+        ],
+        tvaRate: 19,
+        statut: 'en_retard',
+        secteur: 'industrie',
+        audit: [
+          { action: 'Création', user: 'Finance MG', date: '2024-02-05 08:00' }
+        ]
+      }
+    ];
+
+    return rawInvoices.map(inv => {
+      const itemsWithTotals = inv.items.map(item => {
+        const line_total_ht = item.qty * item.pu;
+        const line_total_tva = Math.round(line_total_ht * (item.tva_rate / 100));
+        return {
+          ...item,
+          line_total_ht,
+          line_total_tva,
+          line_total_ttc: line_total_ht + line_total_tva
+        };
+      });
+
+      const totalHT = itemsWithTotals.reduce((sum, i) => sum + i.line_total_ht, 0);
+      const totalTVA = itemsWithTotals.reduce((sum, i) => sum + i.line_total_tva, 0);
+      const totalTAP = Math.round(totalHT * 0.01);
+      const rawTotal = totalHT + totalTVA + totalTAP;
+      const droitTimbre = inv.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
+      const totalTTC = rawTotal + droitTimbre;
+
+      return {
+        ...inv,
+        items: itemsWithTotals,
+        totalHT,
+        totalTVA,
+        totalTAP,
+        droitTimbre,
+        totalTTC,
+        montant: totalTTC,
+        montantPaye: inv.statut === 'payee' ? totalTTC : 0,
+        retard: inv.statut === 'en_retard' ? 15 : 0
+      } as Invoice;
+    });
+  }, [scaleFactor]);
+
+  // State for invoices (persistent in localStorage for demo)
+  const [invoices, setInvoices] = useState<Invoice[]>(() => {
+    const saved = localStorage.getItem('demo_invoices');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Error parsing saved invoices", e);
+      }
     }
-  ].map(inv => {
-    const totalHT = inv.items.reduce((sum, item) => sum + (item.qty * item.pu), 0);
-    const totalTVA = Math.round(totalHT * (inv.tvaRate / 100));
-    const rawTotal = totalHT + totalTVA;
-    // Droit de timbre : 1% si espèces, max 10.000 DA
-    const droitTimbre = inv.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
-    return { ...inv, totalHT, totalTVA, droitTimbre, totalTTC: rawTotal + droitTimbre };
-  }), [scaleFactor]);
+    return getInitialInvoices;
+  });
+
+  // Sync with localStorage
+  React.useEffect(() => {
+    localStorage.setItem('demo_invoices', JSON.stringify(invoices));
+  }, [invoices]);
+
+  const handleSaveInvoice = () => {
+    const itemsWithTotals = (newInvoice.items || []).map(item => {
+      const line_total_ht = item.qty * item.pu;
+      const tva_rate = item.tva_rate || 19;
+      const line_total_tva = Math.round(line_total_ht * (tva_rate / 100));
+      return {
+        ...item,
+        tva_rate,
+        line_total_ht,
+        line_total_tva,
+        line_total_ttc: line_total_ht + line_total_tva
+      };
+    });
+
+    const totalHT = itemsWithTotals.reduce((sum, item) => sum + item.line_total_ht, 0);
+    const totalTVA = itemsWithTotals.reduce((sum, item) => sum + item.line_total_tva, 0);
+    const totalTAP = Math.round(totalHT * 0.01); // 1% Taxe sur l'Activité Professionnelle
+    const rawTotal = totalHT + totalTVA + totalTAP;
+    const droitTimbre = newInvoice.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
+    const totalTTC = rawTotal + droitTimbre;
+
+    const invoiceToSave: Invoice = {
+      ...newInvoice as Invoice,
+      id: isEditing ? (newInvoice.id || '') : `F-2024-${(invoices.length + 1).toString().padStart(4, '0')}`,
+      factureId: isEditing ? (newInvoice.factureId || '') : `FAC-2024-${(invoices.length + 1).toString().padStart(4, '0')}`,
+      items: itemsWithTotals as InvoiceItem[],
+      totalHT,
+      totalTVA,
+      totalTAP,
+      droitTimbre,
+      totalTTC,
+      montant: totalTTC,
+      montantPaye: isEditing ? (newInvoice.montantPaye || 0) : 0,
+      retard: isEditing ? (newInvoice.retard || 0) : 0,
+      statut: newInvoice.statut || 'en_cours',
+      audit: [
+        ...(newInvoice.audit || []),
+        { action: isEditing ? 'Modification' : 'Création', user: user?.nom || 'Admin', date: new Date().toLocaleString() }
+      ]
+    };
+
+    if (isEditing) {
+      setInvoices(invoices.map(inv => inv.id === invoiceToSave.id ? invoiceToSave : inv));
+    } else {
+      setInvoices([invoiceToSave, ...invoices]);
+    }
+
+    setIsCreateModalOpen(false);
+    setIsEditing(false);
+    resetNewInvoice();
+  };
+
+  const resetNewInvoice = () => {
+    setNewInvoice({
+      id: '',
+      factureId: '',
+      client: '',
+      clientDetails: { adresse: '', nif: '', nis: '', rc: '', ai: '', rib: '' },
+      date: new Date().toISOString().split('T')[0],
+      echeance: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+      items: [{ desc: '', qty: 1, pu: 0, type: 'bien', tva_rate: 19, line_total_ht: 0, line_total_tva: 0, line_total_ttc: 0 }],
+      paymentMode: 'virement',
+      tvaRate: 19,
+      statut: 'en_cours',
+      secteur: 'services',
+      audit: []
+    });
+  };
+
+  const handleEditInvoice = (inv: Invoice) => {
+    setNewInvoice(inv);
+    setIsEditing(true);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleDeleteInvoice = (id: string) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette facture ?")) {
+      setInvoices(invoices.filter(inv => inv.id !== id));
+    }
+  };
 
 
   // Calcul des métriques basées sur ces données
@@ -354,7 +470,11 @@ const AnalyticsFacturation: React.FC = () => {
           <div className="flex gap-3">
             {has('facturation-create') && (
               <button
-                onClick={() => setIsCreateModalOpen(true)}
+                onClick={() => {
+                  setIsEditing(false);
+                  resetNewInvoice();
+                  setIsCreateModalOpen(true);
+                }}
                 className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center"
               >
                 <PlusIcon className="h-5 w-5 mr-2" /> Nouvelle Facture
@@ -544,6 +664,20 @@ const AnalyticsFacturation: React.FC = () => {
                         <PrinterIcon className="h-4 w-4" />
                       </button>
                       <button
+                        onClick={() => handleEditInvoice(inv)}
+                        className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-indigo-600 hover:border-indigo-600 shadow-sm transition-all"
+                        title="Modifier"
+                      >
+                        <CogIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteInvoice(inv.id)}
+                        className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-rose-600 hover:border-rose-600 shadow-sm transition-all"
+                        title="Supprimer"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => openDetails(inv)}
                         className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-slate-900 hover:border-slate-900 shadow-sm transition-all"
                         title="Détails"
@@ -579,7 +713,11 @@ const AnalyticsFacturation: React.FC = () => {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto border border-white/20 relative">
             <button
-              onClick={() => setIsCreateModalOpen(false)}
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                setIsEditing(false);
+                resetNewInvoice();
+              }}
               className="absolute top-6 right-6 p-2 bg-slate-100 dark:bg-slate-700 rounded-full text-slate-500 hover:bg-rose-100 hover:text-rose-500 transition-all z-10"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -589,7 +727,7 @@ const AnalyticsFacturation: React.FC = () => {
               <div className="mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center">
                   <DocumentTextIcon className="h-8 w-8 text-slate-700 mr-3" />
-                  Nouvel Acte de Facturation
+                  {isEditing ? `Modifier la Facture ${newInvoice.id}` : 'Nouvel Acte de Facturation'}
                 </h2>
                 <p className="text-slate-500 font-bold text-sm mt-1 uppercase tracking-widest">Conformité fiscale DZ - Décret 05-468</p>
               </div>
@@ -606,17 +744,17 @@ const AnalyticsFacturation: React.FC = () => {
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
                       placeholder="Ex: SARL Boissons du Sahel"
-                      value={newInvoice.client}
+                      value={newInvoice.client || ''}
                       onChange={(e) => setNewInvoice({ ...newInvoice, client: e.target.value })}
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Adresse de Siège</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Adresse de Siège / Facturation</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails.adresse}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...newInvoice.clientDetails, adresse: e.target.value } })}
+                      value={newInvoice.clientDetails?.adresse || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), adresse: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -624,8 +762,17 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails.nif}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...newInvoice.clientDetails, nif: e.target.value } })}
+                      value={newInvoice.clientDetails?.nif || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), nif: e.target.value } })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">N.I.S</label>
+                    <input
+                      type="text"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                      value={newInvoice.clientDetails?.nis || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), nis: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -633,8 +780,8 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails.rc}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...newInvoice.clientDetails, rc: e.target.value } })}
+                      value={newInvoice.clientDetails?.rc || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), rc: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -642,17 +789,65 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails.ai}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...newInvoice.clientDetails, ai: e.target.value } })}
+                      value={newInvoice.clientDetails?.ai || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), ai: e.target.value } })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">RIB (Banque/CCP)</label>
+                    <input
+                      type="text"
+                      placeholder="001 00016 0123456789 01"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                      value={newInvoice.clientDetails?.rib || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), rib: e.target.value } })}
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Date d'émission</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Secteur Activité</label>
+                    <select
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
+                      value={newInvoice.secteur || 'services'}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, secteur: e.target.value })}
+                    >
+                      <option value="btp">Construction / BTP</option>
+                      <option value="services">Services IT / Conseil</option>
+                      <option value="industrie">Industrie / Oil & Gas</option>
+                      <option value="commerce">Commerce / Distribution</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Statut Facture</label>
+                    <select
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
+                      value={newInvoice.statut || 'en_cours'}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, statut: e.target.value })}
+                    >
+                      <option value="en_cours">En attente (Pro forma)</option>
+                      <option value="payee">Encaissée (Définitive)</option>
+                      <option value="en_retard">Retard de paiement</option>
+                      <option value="annulee">Annulée</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Date d'Émission</label>
                     <input
                       type="date"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.date}
+                      value={newInvoice.date || ''}
                       onChange={(e) => setNewInvoice({ ...newInvoice, date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Date d'Échéance</label>
+                    <input
+                      type="date"
+                      className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
+                      value={newInvoice.echeance || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, echeance: e.target.value })}
                     />
                   </div>
                 </div>
@@ -663,7 +858,11 @@ const AnalyticsFacturation: React.FC = () => {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Détails des Prestations / Ventes</h3>
                   <button
-                    onClick={addItem}
+                    onClick={() => {
+                      const items = [...(newInvoice.items || [])];
+                      items.push({ desc: '', qty: 1, pu: 0, type: 'bien', tva_rate: 19, line_total_ht: 0, line_total_tva: 0, line_total_ttc: 0 });
+                      setNewInvoice({ ...newInvoice, items });
+                    }}
                     className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-black hover:bg-slate-200 transition-all flex items-center"
                   >
                     <PlusIcon className="h-4 w-4 mr-1" /> Ajouter Ligne
@@ -672,49 +871,49 @@ const AnalyticsFacturation: React.FC = () => {
 
                 <div className="space-y-3">
                   <div className="hidden md:grid grid-cols-12 gap-4 px-4 text-[10px] font-black uppercase text-slate-400 mb-2">
-                    <div className="col-span-4">Désignation</div>
-                    <div className="col-span-3">Type (Compta)</div>
+                    <div className="col-span-3">Désignation</div>
+                    <div className="col-span-2">Type (Compta)</div>
                     <div className="col-span-2 text-center">Qté</div>
                     <div className="col-span-2 text-right">P.U HT</div>
+                    <div className="col-span-2 text-center">TVA (%)</div>
                     <div className="col-span-1"></div>
                   </div>
-                  {newInvoice.items.map((item, idx) => (
+                  {(newInvoice.items || []).map((item, idx) => (
                     <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm group">
-                      <div className="col-span-4">
+                      <div className="col-span-3">
                         <input
                           type="text"
                           placeholder="Désignation..."
                           className="w-full bg-slate-50 dark:bg-slate-900/50 border-none rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-slate-500"
                           value={item.desc}
                           onChange={(e) => {
-                            const items = [...newInvoice.items];
+                            const items = [...(newInvoice.items || [])];
                             items[idx].desc = e.target.value;
                             setNewInvoice({ ...newInvoice, items });
                           }}
                         />
                       </div>
-                      <div className="col-span-3">
+                      <div className="col-span-2">
                         <select
                           className="w-full bg-slate-50 dark:bg-slate-900/50 border-none rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-500 appearance-none"
                           value={item.type}
                           onChange={(e) => {
-                            const items = [...newInvoice.items];
+                            const items = [...(newInvoice.items || [])];
                             items[idx].type = e.target.value as 'bien' | 'service';
                             setNewInvoice({ ...newInvoice, items });
                           }}
                         >
-                          <option value="bien">Bien / Marchandise (700)</option>
-                          <option value="service">Prestation de Service (706)</option>
+                          <option value="bien">Bien (700)</option>
+                          <option value="service">Service (706)</option>
                         </select>
                       </div>
                       <div className="col-span-2">
                         <input
                           type="number"
-                          placeholder="Qté"
                           className="w-full bg-slate-50 dark:bg-slate-900/50 border-none rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-slate-500 text-center"
                           value={item.qty}
                           onChange={(e) => {
-                            const items = [...newInvoice.items];
+                            const items = [...(newInvoice.items || [])];
                             items[idx].qty = parseInt(e.target.value) || 0;
                             setNewInvoice({ ...newInvoice, items });
                           }}
@@ -723,21 +922,35 @@ const AnalyticsFacturation: React.FC = () => {
                       <div className="col-span-2">
                         <input
                           type="number"
-                          placeholder="P.U HT"
                           className="w-full bg-slate-50 dark:bg-slate-900/50 border-none rounded-xl px-4 py-3 text-sm font-black outline-none focus:ring-2 focus:ring-slate-500 text-right font-mono"
                           value={item.pu}
                           onChange={(e) => {
-                            const items = [...newInvoice.items];
+                            const items = [...(newInvoice.items || [])];
                             items[idx].pu = parseFloat(e.target.value) || 0;
                             setNewInvoice({ ...newInvoice, items });
                           }}
                         />
                       </div>
+                      <div className="col-span-2">
+                        <select
+                          className="w-full bg-slate-50 dark:bg-slate-900/50 border-none rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-slate-500 appearance-none text-center"
+                          value={item.tva_rate}
+                          onChange={(e) => {
+                            const items = [...(newInvoice.items || [])];
+                            items[idx].tva_rate = parseInt(e.target.value);
+                            setNewInvoice({ ...newInvoice, items });
+                          }}
+                        >
+                          <option value={19}>19% (Normal)</option>
+                          <option value={9}>9% (Réduit)</option>
+                          <option value={0}>0% (Exonéré)</option>
+                        </select>
+                      </div>
                       <div className="col-span-1 flex justify-center">
                         <button
                           onClick={() => {
-                            if (newInvoice.items.length > 1) {
-                              const items = newInvoice.items.filter((_, i) => i !== idx);
+                            if ((newInvoice.items || []).length > 1) {
+                              const items = (newInvoice.items || []).filter((_, i) => i !== idx);
                               setNewInvoice({ ...newInvoice, items });
                             }
                           }}
@@ -789,18 +1002,26 @@ const AnalyticsFacturation: React.FC = () => {
                         <div className="text-4xl font-black mt-2">
                           {formatCurrency(
                             (() => {
-                              const ht = newInvoice.items.reduce((acc, i) => acc + (i.qty * i.pu), 0);
-                              const tva = Math.round(ht * 0.19);
-                              const dt = newInvoice.paymentMode === 'especes' ? Math.min(Math.round((ht + tva) * 0.01), 10000) : 0;
-                              return ht + tva + dt;
+                              const items = (newInvoice.items || []);
+                              const totalHT = items.reduce((acc, i) => acc + (i.qty * i.pu), 0);
+                              const totalTVA = items.reduce((acc, i) => acc + Math.round((i.qty * i.pu) * ((i.tva_rate || 19) / 100)), 0);
+                              const totalTAP = Math.round(totalHT * 0.01);
+                              const rawTotal = totalHT + totalTVA + totalTAP;
+                              const dt = newInvoice.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
+                              return rawTotal + dt;
                             })()
                           )}
                         </div>
                       </div>
                       <div className="flex gap-4 mt-6 md:mt-0">
                         <div className="text-right">
-                          <span className="block text-[10px] font-bold text-slate-500 uppercase">TVA (19%)</span>
-                          <span className="font-mono font-bold text-lg">{formatCurrency(Math.round(newInvoice.items.reduce((acc, i) => acc + i.qty * i.pu, 0) * 0.19))}</span>
+                          <span className="block text-[10px] font-bold text-slate-500 uppercase">TVA & TAP (1%)</span>
+                          <span className="font-mono font-bold text-lg">
+                            {formatCurrency(
+                              (newInvoice.items || []).reduce((acc, i) => acc + Math.round((i.qty * i.pu) * ((i.tva_rate || 19) / 100)), 0) +
+                              Math.round((newInvoice.items || []).reduce((acc, i) => acc + (i.qty * i.pu), 0) * 0.01)
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -816,30 +1037,37 @@ const AnalyticsFacturation: React.FC = () => {
                             <span className="text-[10px] font-bold text-slate-400">700 - Ventes Marchandises</span>
                             <span className="text-[10px] font-black text-emerald-400">CR</span>
                           </div>
-                          <div className="font-mono font-bold">{formatCurrency(newInvoice.items.filter(i => i.type === 'bien').reduce((acc, i) => acc + i.qty * i.pu, 0))}</div>
+                          <div className="font-mono font-bold">{formatCurrency((newInvoice.items || []).filter(i => i.type === 'bien').reduce((acc, i) => acc + i.qty * i.pu, 0))}</div>
                         </div>
                         <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-[10px] font-bold text-slate-400">706 - Prestations Services</span>
                             <span className="text-[10px] font-black text-emerald-400">CR</span>
                           </div>
-                          <div className="font-mono font-bold">{formatCurrency(newInvoice.items.filter(i => i.type === 'service').reduce((acc, i) => acc + i.qty * i.pu, 0))}</div>
+                          <div className="font-mono font-bold">{formatCurrency((newInvoice.items || []).filter(i => i.type === 'service').reduce((acc, i) => acc + i.qty * i.pu, 0))}</div>
+                        </div>
+                        <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-[10px] font-bold text-slate-400">443 - TAP (Activité Prof.)</span>
+                            <span className="text-[10px] font-black text-emerald-400">CR</span>
+                          </div>
+                          <div className="font-mono font-bold">{formatCurrency(Math.round((newInvoice.items || []).reduce((acc, i) => acc + (i.qty * i.pu), 0) * 0.01))}</div>
                         </div>
                         <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-[10px] font-bold text-slate-400">4457 - TVA Collectée</span>
                             <span className="text-[10px] font-black text-emerald-400">CR</span>
                           </div>
-                          <div className="font-mono font-bold">{formatCurrency(Math.round(newInvoice.items.reduce((acc, i) => acc + i.qty * i.pu, 0) * 0.19))}</div>
+                          <div className="font-mono font-bold">{formatCurrency((newInvoice.items || []).reduce((acc, i) => acc + Math.round((i.qty * i.pu) * ((i.tva_rate || 19) / 100)), 0))}</div>
                         </div>
                       </div>
                     </div>
 
                     <button
-                      onClick={() => setIsCreateModalOpen(false)}
-                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                      onClick={handleSaveInvoice}
+                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl"
                     >
-                      Valider l'Émission
+                      {isEditing ? 'Enregistrer les Modifications' : "Valider l'Émission"}
                     </button>
                   </div>
                 </div>
@@ -1024,7 +1252,7 @@ const AnalyticsFacturation: React.FC = () => {
                     )}
                     <div className="flex justify-between items-center py-6 bg-slate-900 text-white rounded-[1.5rem] px-8 shadow-xl shadow-slate-900/20">
                       <span className="text-xs font-black uppercase tracking-[0.2em] text-white/70">Net à Payer (TTC)</span>
-                      <span className="text-3xl font-black font-mono">{formatCurrency(selectedInvoice.totalTTC)}</span>
+                      <span className="text-3xl font-black font-mono">{formatCurrency(selectedInvoice?.totalTTC || 0)}</span>
                     </div>
                   </div>
                 </div>

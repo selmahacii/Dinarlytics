@@ -196,7 +196,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const formatCurrency = (amount: number): string => {
     const symbols: Record<Devise, string> = { DZD: 'DA', EUR: '€', USD: '$' };
-    return `${Math.round(amount || 0).toLocaleString('fr-FR')} ${symbols[currentDevise]}`;
+
+    // Taux de change démo (Base DZD)
+    const rates: Record<Devise, number> = { DZD: 1, EUR: 148.5, USD: 138.2 };
+
+    const convertedAmount = amount / rates[currentDevise];
+    const formattedValue = Math.round(convertedAmount || 0).toLocaleString('fr-FR');
+
+    return currentDevise === 'DZD'
+      ? `${formattedValue} ${symbols[currentDevise]}`
+      : `${symbols[currentDevise]}${formattedValue}`;
   };
 
   const calculateTVAContext = (montantHT: number, taux: 'normal' | 'reduit' | 'intermediaire' = 'normal'): number => {

@@ -82,7 +82,7 @@ const GestionPaiementsClients: React.FC = () => {
       tauxEncaissement,
       modesPaiement
     };
-  }, []);
+  }, [paiements]);
 
   // Filtrage des paiements
   const filteredPaiements = useMemo(() => {
@@ -104,7 +104,7 @@ const GestionPaiementsClients: React.FC = () => {
 
       return matchesSearch && matchesStatus && matchesMode;
     });
-  }, [searchTerm, filterStatus, filterMode]);
+  }, [paiements, searchTerm, filterStatus, filterMode]);
 
   const getStatusBadge = (statut: string) => {
     const statusMap: { [key: string]: { label: string; className: string } } = {

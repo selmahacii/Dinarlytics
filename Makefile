@@ -47,3 +47,6 @@ migrate-check:
 
 migrate-apply:
 	cd backend && alembic upgrade head
+# --- External Access (Demo) ---
+ngrok:
+	ngrok start --config ngrok.yml --all

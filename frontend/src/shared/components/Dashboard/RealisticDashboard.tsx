@@ -22,6 +22,7 @@ import { analyticService } from '@/services/modules/analyticService';
 import DetailedMetric from '../Metrics/DetailedMetric';
 import AnimatedChart from '../Charts/AnimatedChart';
 import { usePermission } from '@/shared/hooks/usePermission';
+import { useApp } from '@core/context/AppContext';
 
 interface RealisticDashboardProps {
   isVisible: boolean;
@@ -36,6 +37,7 @@ interface DashboardFilters {
 
 const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) => {
   const { has, user } = usePermission();
+  const { currentDevise, formatCurrency } = useApp();
 
   // Détermination automatique du profil selon le segment ou type d'entreprise de l'utilisateur
   const currentSize = React.useMemo(() => {
@@ -402,10 +404,14 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
               <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">{metric.nom}</h4>
               <div className="flex items-baseline gap-2 mb-4">
                 <span className="text-3xl font-black text-slate-900 dark:text-white">
-                  {typeof metric.valeur === 'number' && metric.unite !== '%' && metric.unite !== 'j' && metric.unite !== 'Jours' && metric.unite !== 'x'
-                    ? metric.valeur.toLocaleString()
-                    : metric.valeur}
-                  <span className="text-sm ml-1 opacity-60">{metric.unite}</span>
+                  {typeof metric.valeur === 'number' && (metric.unite === 'DZD' || metric.unite === 'DA')
+                    ? formatCurrency(metric.valeur)
+                    : (typeof metric.valeur === 'number' && metric.unite !== '%' && metric.unite !== 'j' && metric.unite !== 'Jours' && metric.unite !== 'x'
+                      ? metric.valeur.toLocaleString()
+                      : metric.valeur)}
+                  {(metric.unite !== 'DZD' && metric.unite !== 'DA') && (
+                    <span className="text-sm ml-1 opacity-60">{metric.unite}</span>
+                  )}
                 </span>
                 <span className={`text-xs font-bold px-1.5 py-0.5 rounded flex items-center ${metric.tendance === 'up' ? (metric.unite === '%' ? 'text-emerald-800 bg-emerald-100' : 'text-slate-800 bg-slate-200') : 'text-rose-800 bg-rose-100'}`}>
                   {metric.tendance === 'up' ? <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />}
@@ -477,11 +483,15 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{metric.nom}</p>
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-4xl font-extrabold text-white tracking-tight">
-                    {typeof metric.valeur === 'number' && metric.unite !== '%' && metric.unite !== 'j' && metric.unite !== 'Jours' && metric.unite !== 'x'
-                      ? metric.valeur.toLocaleString()
-                      : metric.valeur}
+                    {typeof metric.valeur === 'number' && (metric.unite === 'DZD' || metric.unite === 'DA')
+                      ? formatCurrency(metric.valeur)
+                      : (typeof metric.valeur === 'number' && metric.unite !== '%' && metric.unite !== 'j' && metric.unite !== 'Jours' && metric.unite !== 'x'
+                        ? metric.valeur.toLocaleString()
+                        : metric.valeur)}
                   </span>
-                  <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">{metric.unite}</span>
+                  {(metric.unite !== 'DZD' && metric.unite !== 'DA') && (
+                    <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">{metric.unite}</span>
+                  )}
                 </div>
                 <div className="w-full h-1 bg-slate-700 rounded-full mb-3 overflow-hidden">
                   <div

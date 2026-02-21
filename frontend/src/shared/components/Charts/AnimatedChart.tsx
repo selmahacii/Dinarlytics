@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { RealisticChartData } from '@/types/dashboard';
+import { useApp } from '@core/context/AppContext';
 
 interface AnimatedChartProps {
   chartData: RealisticChartData;
@@ -12,9 +13,14 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   isVisible,
   animationDelay = 0
 }) => {
+  const { currentDevise, formatCurrency } = useApp();
   const [animationProgress, setAnimationProgress] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
+
+  // Taux de change démo (Base DZD)
+  const rates: Record<string, number> = { DZD: 1, EUR: 148.5, USD: 138.2 };
+  const currentRate = rates[currentDevise as keyof typeof rates] || 1;
 
   useEffect(() => {
     if (isVisible && !isAnimating) {
@@ -53,8 +59,8 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
     const validData = donnees.map(d => ({
       ...d,
-      valeur: d.valeur || 0,
-      prevision: d.prevision || 0
+      valeur: (d.valeur || 0) / currentRate,
+      prevision: (d.prevision || 0) / currentRate
     }));
 
     const maxValue = Math.max(...validData.map(d => Math.max(d.valeur, d.prevision))) || 100;
@@ -130,7 +136,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
   const renderBarChart = () => {
     const { donnees, options } = chartData;
-    const maxValue = Math.max(...donnees.map(d => d.valeur)) || 100;
+    const maxValue = Math.max(...donnees.map(d => d.valeur / currentRate)) || 100;
 
     // Grid steps (0, 25%, 50%, 75%, 100%)
     const gridSteps = [0, 0.25, 0.5, 0.75, 1];
@@ -143,7 +149,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             <div key={i} className="w-full h-px bg-slate-100 dark:bg-slate-700 relative">
               <span className="absolute -left-0 -top-2 text-[10px] text-slate-400">
                 {options?.currency ?
-                  `${Math.round(maxValue * step).toLocaleString()}k€` :
+                  formatCurrency(maxValue * step * currentRate) :
                   Math.round(maxValue * step).toLocaleString()}
               </span>
             </div>
@@ -153,7 +159,8 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
         {/* Use items-stretch to ensure columns have full height context */}
         <div className="relative flex items-end justify-between h-full space-x-4 pt-4 z-10 ml-6"> {/* ml-6 for y-axis labels */}
           {donnees.map((bar, index) => {
-            const height = (bar.valeur / maxValue) * 100;
+            const scaledValue = bar.valeur / currentRate;
+            const height = (scaledValue / maxValue) * 100;
             const animatedHeight = height * animationProgress;
             // Dynamic color
             const color = chartData.options?.couleurs?.[index % (chartData.options?.couleurs?.length || 1)] || '#3b82f6';
@@ -184,7 +191,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
                         transitionDelay: `${index * 100 + 300}ms`
                       }}
                     >
-                      {options?.currency ? `${bar.valeur.toLocaleString()} k€` : bar.valeur.toLocaleString()}
+                      {options?.currency ? formatCurrency(bar.valeur) : bar.valeur.toLocaleString()}
                     </div>
                   </div>
                 </div>
@@ -235,7 +242,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
               <path
                 key={index}
                 d={pathData}
-                fill={segment.couleur || chartData.options.couleurs[index]}
+                fill={segment.couleur || (chartData.options?.couleurs && chartData.options.couleurs[index])}
                 className="transition-all duration-1000 ease-out"
                 style={{
                   opacity: animationProgress > index * 0.3 ? 1 : 0,
@@ -264,7 +271,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
                 <div
                   className="w-3 h-3 rounded-full"
                   style={{
-                    backgroundColor: item.couleur || chartData.options.couleurs[index],
+                    backgroundColor: item.couleur || (chartData.options?.couleurs && chartData.options.couleurs[index]),
                     opacity: animationProgress > index * 0.3 ? 1 : 0,
                     transitionDelay: `${index * 200}ms`
                   }}
@@ -285,10 +292,8 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
     if (!donnees || donnees.length === 0) return null;
 
     // Detect numeric keys to use as areas
-    // Default to common enterprise metrics if not specified
     const areaKeys = options?.keys || ['produits', 'services', 'maintenance'];
 
-    // In case of Monte Carlo or other dynamic area charts, we might want to check data
     const firstItem = donnees[0];
     const detectedKeys = Object.keys(firstItem).filter((k: string) =>
       typeof firstItem[k] === 'number' && k !== 'valeur' && k !== 'total' && k !== 'evolution'
@@ -298,7 +303,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
     // Calculate max value across all areas to scale correctly
     const maxValue = Math.max(...donnees.map((d: any) =>
-      Math.max(...finalKeys.map((k: string) => (d[k] as number) || 0))
+      Math.max(...finalKeys.map((k: string) => ((d[k] as number) || 0) / currentRate))
     )) || 1;
 
     const getX = (i: number) => donnees.length > 1 ? (i / (donnees.length - 1)) * 100 : 50;
@@ -310,7 +315,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
             <path
               key={key}
               d={`M 0,100 ${donnees.map((d: any, i: number) =>
-                `L ${getX(i)},${100 - ((d[key] as number || 0) / maxValue) * 100}`
+                `L ${getX(i)},${100 - (((d[key] as number || 0) / currentRate) / maxValue) * 100}`
               ).join(' ')} L 100,100 Z`}
               fill={`url(#gradient-${key})`}
               opacity={animationProgress * (0.8 - kIdx * 0.2)}
@@ -350,7 +355,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
     const { donnees } = chartData;
     if (!donnees || donnees.length === 0) return null;
 
-    const maxPrice = Math.max(...donnees.map(d => d.prix || 0)) || 100;
+    const maxPrice = Math.max(...donnees.map(d => (d.prix || 0) / currentRate)) || 100;
     const maxVolume = Math.max(...donnees.map(d => d.volume || 0)) || 100;
 
     return (
@@ -362,7 +367,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
           {/* Points */}
           {donnees.map((point, index) => {
-            const x = 10 + ((point.prix || 0) / maxPrice) * 80;
+            const x = 10 + (((point.prix || 0) / currentRate) / maxPrice) * 80;
             const y = 90 - ((point.volume || 0) / maxVolume) * 80;
             const size = 2 + ((point.marge || 0) / 50) * 3; // Taille basée sur la marge
 
@@ -372,7 +377,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
                 cx={isNaN(x) ? 10 : x}
                 cy={isNaN(y) ? 90 : y}
                 r={size * animationProgress}
-                fill={chartData.options.couleurs[index % chartData.options.couleurs.length]}
+                fill={chartData.options?.couleurs ? chartData.options.couleurs[index % chartData.options.couleurs.length] : '#3b82f6'}
                 opacity={animationProgress > index * 0.1 ? 0.8 : 0}
                 className="transition-all duration-500 ease-out"
                 style={{ transitionDelay: `${index * 100}ms` }}
@@ -391,7 +396,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
         {/* Labels des axes */}
         <div className="absolute bottom-0 left-0 text-xs text-gray-500 dark:text-gray-400">
-          Prix (DZD)
+          Prix ({currentDevise === 'DZD' ? 'DA' : currentDevise})
         </div>
         <div className="absolute top-0 left-0 transform -rotate-90 text-xs text-gray-500 dark:text-gray-400">
           Volume
@@ -421,8 +426,6 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
   return (
     <div ref={chartRef} className="w-full">
-      {/* En-tête du graphique */}
-      {/* Graphique */}
       {renderChart()}
     </div>
   );
