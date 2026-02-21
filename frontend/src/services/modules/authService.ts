@@ -9,9 +9,11 @@ export interface User {
     nom?: string;
     prenom?: string;
     role: string;
+    role_display?: string;
     company_id: string;
-    companyType: string; // 'eurl' | 'sarl' | 'spa'
-    accessLevel: string; // 'starter' | 'professional' | 'enterprise'
+    companyType: string;
+    segment?: string;
+    accessLevel: string;
 }
 
 export interface LoginResponse {
@@ -23,43 +25,315 @@ export interface LoginResponse {
 /**
  * Authentication Service
  */
+// Comprehensive Demo Users List matching Backend
+const DEMO_USERS = [
+    // 1. MICRO-ENTREPRISE (EURL)
+    {
+        id: "demo-eurl-gerant",
+        email: "karim.b@electromenager-plus.dz",
+        password: "demo123",
+        companyName: "Électroménager Plus (EURL)",
+        companyType: "eurl",
+        segment: "micro",
+        prenom: "Karim",
+        nom: "Benali",
+        role: "gerant",
+        role_display: "Gérant Propriétaire",
+        description: "Accès complet, gestion simplifiée trésorerie & ventes",
+        permissions: ["all"],
+        avatar_color: "bg-blue-100 text-blue-800"
+    },
+
+    // 2. MOYENNE ENTREPRISE (SARL)
+    {
+        id: "demo-sarl-gerant",
+        email: "samia.m@mode-moderne.dz",
+        password: "demo123",
+        companyName: "Mode Moderne SARL",
+        companyType: "sarl",
+        segment: "small",
+        prenom: "Samia",
+        nom: "Meziane",
+        role: "gerant",
+        role_display: "Gérante Associée",
+        description: "Vue d'ensemble, validation dépenses, rapports financiers",
+        permissions: ["all"],
+        avatar_color: "bg-purple-100 text-purple-800"
+    },
+    {
+        id: "demo-sarl-comptable",
+        email: "ahmed.k@mode-moderne.dz",
+        password: "demo123",
+        companyName: "Mode Moderne SARL",
+        companyType: "sarl",
+        segment: "small",
+        prenom: "Ahmed",
+        nom: "Khaled",
+        role: "comptable",
+        role_display: "Comptable Principal",
+        description: "Saisie écritures, états financiers, déclarations",
+        permissions: ["accounting", "reports"],
+        avatar_color: "bg-indigo-100 text-indigo-800"
+    },
+    {
+        id: "demo-sarl-commercial",
+        email: "lylia.z@mode-moderne.dz",
+        password: "demo123",
+        companyName: "Mode Moderne SARL",
+        companyType: "sarl",
+        segment: "small",
+        prenom: "Lylia",
+        nom: "Ziani",
+        role: "commercial",
+        role_display: "Responsable Ventes",
+        description: "Gestion clients, devis, facturation, catalogue",
+        permissions: ["sales", "crm"],
+        avatar_color: "bg-pink-100 text-pink-800"
+    },
+
+    // 3. GRANDE ENTREPRISE (SPA)
+    {
+        id: "demo-spa-dg",
+        email: "mourad.ouali@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Mourad",
+        nom: "Ouali",
+        role: "dg",
+        role_display: "Directeur Général (CEO)",
+        description: "Vue 360°, validation stratégique, budgets globaux, KPIs groupe.",
+        permissions: ["all", "approve_strategic"],
+        avatar_color: "bg-slate-900 text-white border-slate-700"
+    },
+    {
+        id: "demo-spa-daf",
+        email: "safia.haddad@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Safia",
+        nom: "Haddad",
+        role: "daf",
+        role_display: "Directrice Admin & Financière (CFO)",
+        description: "Contrôle financier, trésorerie complexe, consolidation, fiscalité, relation banques.",
+        permissions: ["finance_full", "approve_budget", "treasury_manage"],
+        avatar_color: "bg-emerald-100 text-emerald-800 border-emerald-300"
+    },
+    {
+        id: "demo-spa-dir-co",
+        email: "amine.ziani@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Amine",
+        nom: "Ziani",
+        role: "commercial_director",
+        role_display: "Directeur Commercial",
+        description: "Stratégie vente, objectifs équipes, validation gros contrats, analyse revenus.",
+        permissions: ["sales_manage", "crm_full", "reports_sales"],
+        avatar_color: "bg-blue-600 text-white border-blue-500"
+    },
+    {
+        id: "demo-spa-rh",
+        email: "leila.b@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Leila",
+        nom: "Bouzidi",
+        role: "hr_director",
+        role_display: "Directrice RH",
+        description: "Gestion paie masse, contrats, recrutement, performance, conformité sociale.",
+        permissions: ["hr_full", "payroll_manage"],
+        avatar_color: "bg-pink-100 text-pink-800 border-pink-300"
+    },
+    {
+        id: "demo-spa-logistique",
+        email: "omar.k@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Omar",
+        nom: "Khodja",
+        role: "logistics_director",
+        role_display: "Directeur Logistique / Supply Chain",
+        description: "Gestion stocks multi-dépôts, approvisionnements, livraisons flotte.",
+        permissions: ["stock_full", "logistics_manage"],
+        avatar_color: "bg-orange-100 text-orange-800 border-orange-300"
+    },
+    {
+        id: "demo-spa-prod",
+        email: "rachid.t@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Rachid",
+        nom: "Toumi",
+        role: "production_director",
+        role_display: "Directeur Production",
+        description: "Planification production, coûts industriels, maintenance, qualité.",
+        permissions: ["production_manage", "costing_view"],
+        avatar_color: "bg-zinc-100 text-zinc-800 border-zinc-300"
+    },
+    {
+        id: "demo-spa-comptable-senior",
+        email: "nawel.s@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Nawel",
+        nom: "Saadi",
+        role: "comptable_senior",
+        role_display: "Chef Comptable",
+        description: "Supervision comptable, clôtures mensuelles, déclarations fiscales.",
+        permissions: ["accounting_full", "reports_financial"],
+        avatar_color: "bg-indigo-100 text-indigo-800 border-indigo-300"
+    },
+    {
+        id: "demo-spa-controleur",
+        email: "fared.m@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Fared",
+        nom: "Mansouri",
+        role: "controleur_gestion",
+        role_display: "Contrôleur de Gestion",
+        description: "Analyse écarts budgets, comptabilité analytique, reporting performance.",
+        permissions: ["analytics_full", "budget_view", "accounting_read"],
+        avatar_color: "bg-cyan-100 text-cyan-800 border-cyan-300"
+    },
+    {
+        id: "demo-spa-auditeur",
+        email: "cabinet.expert@audit-externe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Cabinet",
+        nom: "Expert Audit",
+        role: "auditeur",
+        role_display: "Auditeur Externe (CAC)",
+        description: "Accès lecture seule audit, vérification états financiers, conformité légale.",
+        permissions: ["audit_read", "read_only"],
+        avatar_color: "bg-amber-100 text-amber-800 border-amber-300"
+    },
+    {
+        id: "demo-spa-vendeur",
+        email: "karim.v@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Karim",
+        nom: "Vendeur",
+        role: "commercial",
+        role_display: "Commercial Terrain",
+        description: "Saisie commandes, suivi portefeuille clients, consultation stock.",
+        permissions: ["orders_create", "clients_view", "stock_read"],
+        avatar_color: "bg-pink-50 text-pink-700 border-pink-200"
+    },
+    {
+        id: "demo-spa-magasinier",
+        email: "ali.stock@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Ali",
+        nom: "Stock",
+        role: "magasinier",
+        role_display: "Responsable Entrepôt",
+        description: "Réception marchandises, expéditions, inventaire physique.",
+        permissions: ["stock_move", "delivery_manage"],
+        avatar_color: "bg-yellow-100 text-yellow-800 border-yellow-300"
+    },
+    {
+        id: "demo-spa-tresorier",
+        email: "samir.cash@industrie-groupe.dz",
+        password: "demo123",
+        companyName: "Industrie Groupe SPA",
+        companyType: "spa",
+        segment: "enterprise",
+        prenom: "Samir",
+        nom: "Cash",
+        role: "tresorier",
+        role_display: "Trésorier",
+        description: "Gestion liquidités quotidienne, rapprochements bancaires, paiements fournisseurs.",
+        permissions: ["treasury_ops", "payments_manage"],
+        avatar_color: "bg-green-100 text-green-800 border-green-300"
+    }
+];
+
+/**
+ * Authentication Service
+ */
 export const authService = {
     login: async (email: string, password: string): Promise<LoginResponse> => {
-        // MOCK IMPLEMENTATION FOR DEMO/TESTING
+        // Mock API call simulation
         // const response = await apiClient.post<LoginResponse>('/auth/login', { email, password });
 
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        await new Promise(resolve => setTimeout(resolve, 600));
 
-        // Determine role and company profile based on email
+        // 1. Try to find in DEMO_USERS first
+        const demoUser = DEMO_USERS.find(u => u.email === email);
+        if (demoUser) {
+            // Realistic mapping: segment -> accessLevel for PermissionManager compatibility
+            let accessLevel = 'starter';
+            if (demoUser.segment === 'enterprise' || demoUser.segment === 'large') accessLevel = 'enterprise';
+            else if (demoUser.segment === 'medium' || demoUser.segment === 'small') accessLevel = 'professional';
+
+            const mockUser: User = {
+                id: demoUser.id,
+                email: demoUser.email,
+                username: demoUser.email.split('@')[0],
+                first_name: demoUser.prenom,
+                last_name: demoUser.nom,
+                nom: demoUser.nom,
+                prenom: demoUser.prenom,
+                role: demoUser.role,
+                role_display: demoUser.role_display,
+                company_id: 'mock-company-' + demoUser.companyType,
+                companyType: demoUser.companyType,
+                segment: demoUser.segment,
+                accessLevel: accessLevel
+            };
+
+            const mockResponse: LoginResponse = {
+                access_token: `mock-jwt-token-${demoUser.role}-${Date.now()}`,
+                token_type: 'bearer',
+                user: mockUser
+            };
+
+            saveSession(mockResponse);
+            return mockResponse;
+        }
+
+        // 2. Fallback to generic pattern matching (Legacy)
         let role = 'utilisateur';
-        let companyType = 'eurl'; // Default to Micro
+        let companyType = 'eurl';
         let companyId = 'mock-company-micro';
         let accessLevel = 'starter';
 
         if (email.includes('admin') || email.includes('daf')) {
-            role = 'admin'; // or 'daf' if added to types
-            companyType = 'spa'; // Large Enterprise
+            role = 'admin';
+            companyType = 'spa';
             companyId = 'mock-company-spa';
             accessLevel = 'enterprise';
-        }
-        else if (email.includes('manager') || email.includes('dg')) {
+        } else if (email.includes('manager') || email.includes('dg')) {
             role = 'manager';
-            companyType = 'sarl'; // SME
-            companyId = 'mock-company-sme';
-            accessLevel = 'professional';
-        }
-        else if (email.includes('comptable')) {
-            role = 'comptable';
             companyType = 'sarl';
             companyId = 'mock-company-sme';
             accessLevel = 'professional';
-        }
-        else if (email.includes('entrepreneur') || email.includes('vendeur')) {
-            role = 'gerant'; // Owner role
-            companyType = 'eurl'; // Micro
-            companyId = 'mock-company-micro';
-            accessLevel = 'starter';
         }
 
         const mockUser: User = {
@@ -82,10 +356,7 @@ export const authService = {
             user: mockUser
         };
 
-        localStorage.setItem('token', mockResponse.access_token);
-        localStorage.setItem('user', JSON.stringify(mockResponse.user));
-        localStorage.setItem('company_id', mockResponse.user.company_id);
-
+        saveSession(mockResponse);
         return mockResponse;
     },
 
@@ -101,104 +372,15 @@ export const authService = {
     },
 
     getDemoUsers: async (): Promise<{ users: any[], credentials: any[] }> => {
-        // Mock data for demo purposes since backend is optional
         return {
-            users: [], // Not really used directly by frontend logic, focusing on credentials
-            credentials: [
-                // 1. MICRO-ENTREPRISE (EURL)
-                {
-                    id: 'micro-1',
-                    email: 'entrepreneur@demo.com',
-                    password: 'demo123',
-                    companyName: 'Boutique Mode EURL',
-                    segment: 'micro',
-                    prenom: 'Karim',
-                    nom: 'Entrepreneur',
-                    role: 'gerant',
-                    description: 'Vue simplifiée : Trésorerie, Ventes, Caisse'
-                },
-                {
-                    id: 'micro-2',
-                    email: 'vendeur@demo.com',
-                    password: 'demo123',
-                    companyName: 'Boutique Mode EURL',
-                    segment: 'micro',
-                    prenom: 'Sarah',
-                    nom: 'Vendeuse',
-                    role: 'vendeur',
-                    description: 'Accès limité : Caisse, Tickets, Clients'
-                },
-
-                // 2. PME / PMI (SARL)
-                {
-                    id: 'sme-1',
-                    email: 'dg@demo.com',
-                    password: 'demo123',
-                    companyName: 'TechSolutions SARL',
-                    segment: 'small',
-                    prenom: 'Ahmed',
-                    nom: 'Directeur',
-                    role: 'manager',
-                    description: 'Pilotage complet, Validation Achats, RH'
-                },
-                {
-                    id: 'sme-2',
-                    email: 'manager@demo.com',
-                    password: 'demo123',
-                    companyName: 'TechSolutions SARL',
-                    segment: 'small',
-                    prenom: 'Leila',
-                    nom: 'Manager Ops',
-                    role: 'manager',
-                    description: 'Gestion Stocks, Fournisseurs, Planning'
-                },
-                {
-                    id: 'sme-3',
-                    email: 'comptable@demo.com',
-                    password: 'demo123',
-                    companyName: 'TechSolutions SARL',
-                    segment: 'small',
-                    prenom: 'Samir',
-                    nom: 'Comptable',
-                    role: 'comptable',
-                    description: 'Saisie écritures, Facturation, Déclarations'
-                },
-
-                // 3. GRANDE ENTREPRISE (SPA)
-                {
-                    id: 'spa-1',
-                    email: 'admin@demo.com',
-                    password: 'demo123',
-                    companyName: 'Groupe Industriel SPA',
-                    segment: 'enterprise',
-                    prenom: 'System',
-                    nom: 'Admin',
-                    role: 'admin',
-                    description: 'Super Administrateur - Accès Illimité'
-                },
-                {
-                    id: 'spa-2',
-                    email: 'daf@demo.com',
-                    password: 'demo123',
-                    companyName: 'Groupe Industriel SPA',
-                    segment: 'enterprise',
-                    prenom: 'Nadia',
-                    nom: 'DAF',
-                    role: 'daf',
-                    description: 'Reporting Consolidé, Audit, Stratégie'
-                },
-                {
-                    id: 'spa-3',
-                    email: 'auditeur@demo.com',
-                    password: 'demo123',
-                    companyName: 'Groupe Industriel SPA',
-                    segment: 'enterprise',
-                    prenom: 'Farid',
-                    nom: 'Auditeur',
-                    role: 'auditeur',
-                    description: 'Lecture Seule Globale pour Certification'
-                }
-            ]
+            users: [],
+            credentials: DEMO_USERS
         };
     }
 };
+
+function saveSession(response: LoginResponse) {
+    localStorage.setItem('token', response.access_token);
+    localStorage.setItem('user', JSON.stringify(response.user));
+    localStorage.setItem('company_id', response.user.company_id);
+}

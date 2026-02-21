@@ -45,6 +45,7 @@ import {
 } from 'chart.js';
 import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
+import { usePermission } from '@shared/hooks/usePermission';
 
 ChartJS.register(
   CategoryScale,
@@ -100,6 +101,7 @@ interface Invoice {
 
 const AnalyticsFacturation: React.FC = () => {
   const { formatCurrency } = useApp();
+  const { user, has } = usePermission();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('tous');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -169,7 +171,20 @@ const AnalyticsFacturation: React.FC = () => {
     setNewInvoice({ ...newInvoice, items: [...newInvoice.items, { desc: '', qty: 1, pu: 0, type: 'bien' }] });
   };
 
-  // Données réalistes pour les factures (Contexte Algérie)
+  // Détermination du facteur d'échelle selon la taille de l'entreprise
+  const scaleFactor = useMemo(() => {
+    if (!user?.segment) return 1;
+    switch (user.segment) {
+      case 'micro': return 0.15;
+      case 'small': return 0.6;
+      case 'medium': return 1.2;
+      case 'large': return 6.0;
+      case 'enterprise': return 25.0;
+      default: return 1;
+    }
+  }, [user]);
+
+  // Données réalistes pour les factures (Contexte Algérie) - DYNAMISÉES par segment
   const invoices = useMemo(() => [
     {
       id: 'F-2024-0001',
@@ -184,9 +199,9 @@ const AnalyticsFacturation: React.FC = () => {
       echeance: '2024-03-15',
       paymentMode: 'virement',
       items: [
-        { desc: 'Ciment Portland CPJ 42.5 (Sac 50kg)', qty: 200, pu: 850, type: 'bien' },
-        { desc: 'Rond à béton 12mm (Tonne)', qty: 5, pu: 115000, type: 'bien' },
-        { desc: 'Briques creuses 8 trous', qty: 5000, pu: 25, type: 'bien' }
+        { desc: 'Ciment Portland CPJ 42.5 (Sac 50kg)', qty: 200, pu: 850 * scaleFactor, type: 'bien' },
+        { desc: 'Rond à béton 12mm (Tonne)', qty: 5, pu: 115000 * scaleFactor, type: 'bien' },
+        { desc: 'Briques creuses 8 trous', qty: 5000, pu: 25 * scaleFactor, type: 'bien' }
       ] as InvoiceItem[],
       tvaRate: 19,
       statut: 'payee',
@@ -210,8 +225,8 @@ const AnalyticsFacturation: React.FC = () => {
       echeance: '2024-03-10',
       paymentMode: 'cheque',
       items: [
-        { desc: 'Installation Fibre Optique (Forfait)', qty: 1, pu: 350000, type: 'service' },
-        { desc: 'Configuration Routeurs Cisco', qty: 2, pu: 50000, type: 'service' }
+        { desc: 'Installation Fibre Optique (Forfait)', qty: 1, pu: 350000 * scaleFactor, type: 'service' },
+        { desc: 'Configuration Routeurs Cisco', qty: 2, pu: 50000 * scaleFactor, type: 'service' }
       ] as InvoiceItem[],
       tvaRate: 19,
       statut: 'payee',
@@ -233,9 +248,9 @@ const AnalyticsFacturation: React.FC = () => {
       echeance: '2024-03-07',
       paymentMode: 'virement',
       items: [
-        { desc: 'Main d\'œuvre technique (Heures)', qty: 120, pu: 4500, type: 'service' },
-        { desc: 'Maintenance préventive groupe électrogène', qty: 2, pu: 155000, type: 'service' },
-        { desc: 'Kit de rechange filtration Heavy Duty', qty: 10, pu: 225000, type: 'bien' }
+        { desc: 'Main d\'œuvre technique (Heures)', qty: 120, pu: 4500 * scaleFactor, type: 'service' },
+        { desc: 'Maintenance préventive groupe électrogène', qty: 2, pu: 155000 * scaleFactor, type: 'service' },
+        { desc: 'Kit de rechange filtration Heavy Duty', qty: 10, pu: 225000 * scaleFactor, type: 'bien' }
       ] as InvoiceItem[],
       tvaRate: 19,
       statut: 'en_retard',
@@ -251,7 +266,8 @@ const AnalyticsFacturation: React.FC = () => {
     // Droit de timbre : 1% si espèces, max 10.000 DA
     const droitTimbre = inv.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
     return { ...inv, totalHT, totalTVA, droitTimbre, totalTTC: rawTotal + droitTimbre };
-  }), []);
+  }), [scaleFactor]);
+
 
   // Calcul des métriques basées sur ces données
   const stats = useMemo(() => {
@@ -293,12 +309,19 @@ const AnalyticsFacturation: React.FC = () => {
     }
   };
 
-  const revenueData = {
+  const revenueData = useMemo(() => ({
     labels: ['Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Fev'],
     datasets: [
       {
         label: 'CA TTC Mensuel (DZD)',
-        data: [12500000, 14200000, 11800000, 18500000, 15400000, stats.totalCA],
+        data: [
+          12500000 * scaleFactor,
+          14200000 * scaleFactor,
+          11800000 * scaleFactor,
+          18500000 * scaleFactor,
+          15400000 * scaleFactor,
+          stats.totalCA
+        ],
         borderColor: '#0f172a', // slate-900
         backgroundColor: 'rgba(15, 23, 42, 0.05)',
         fill: true,
@@ -309,7 +332,7 @@ const AnalyticsFacturation: React.FC = () => {
         pointBorderWidth: 2
       }
     ]
-  };
+  }), [scaleFactor, stats.totalCA]);
 
   const openDetails = (inv: Invoice) => {
     setSelectedInvoice(inv);
@@ -329,12 +352,14 @@ const AnalyticsFacturation: React.FC = () => {
             <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium ml-11">Gestion et pilotage du poste clients algérien</p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" /> Nouvelle Facture
-            </button>
+            {has('facturation-create') && (
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" /> Nouvelle Facture
+              </button>
+            )}
             <button className="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all">
               <CogIcon className="h-6 w-6" />
             </button>

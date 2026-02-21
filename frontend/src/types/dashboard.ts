@@ -30,6 +30,7 @@ export interface RealisticChartData {
         showGrid: boolean;
         showLabels: boolean;
         currency?: boolean;
+        keys?: string[];
     };
 }
 

@@ -446,9 +446,11 @@ const Clients: React.FC = () => {
   };
 
   // ========================================
-  // INTERFACE EURL MICRO-ENTREPRISE
+  // INTERFACE EURL / MICRO-ENTREPRISE
   // ========================================
-  if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
+  const isMicro = user?.segment === 'micro' || user?.companyType === 'micro' || user?.companyType === 'eurl' || user?.accessLevel === 'starter';
+
+  if (user && isMicro && companyData) {
     const nombreClients = companyData.clientsCount;
     const clientsActifs = companyData.clientsActive;
     const clientsNouveaux = companyData.clientsNew;

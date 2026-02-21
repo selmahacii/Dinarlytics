@@ -26,10 +26,12 @@ interface DemoUserCredentials {
   email: string;
   password: string;
   companyName: string;
+  companyType?: string;
   segment?: string;
   prenom: string;
   nom: string;
   role: string;
+  role_display?: string;
   description: string;
 }
 
@@ -41,7 +43,7 @@ interface LoginFormData {
 
 const Login: React.FC = () => {
   const { setUser } = useApp();
-  const { t } = useTranslation();
+  const { t, currentLang } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -94,7 +96,21 @@ const Login: React.FC = () => {
     try {
       // Appel API pour login via api.ts
       const response = await api.auth.login(demoUser.email, demoUser.password);
-      const user = response.user;
+      const apiUser = response.user as any;
+      const user = {
+        ...apiUser,
+        role: (apiUser.roles && apiUser.roles.length > 0 ? apiUser.roles[0] : apiUser.role || demoUser.role || 'utilisateur') as any,
+        nom: apiUser.last_name || apiUser.nom || demoUser.nom || '',
+        prenom: apiUser.first_name || apiUser.prenom || demoUser.prenom || '',
+        companyId: apiUser.company_id || apiUser.companyId || '',
+        companyType: apiUser.companyType || demoUser.companyType,
+        segment: apiUser.segment || demoUser.segment,
+        role_display: apiUser.role_display || demoUser.role_display,
+        avatar: '',
+        permissions: apiUser.permissions || [],
+        email: demoUser.email,
+        accessLevel: apiUser.accessLevel || (demoUser.segment === 'enterprise' || demoUser.segment === 'large' ? 'enterprise' : demoUser.segment === 'medium' || demoUser.segment === 'small' ? 'professional' : 'starter')
+      } as User;
       setUser(user);
       setShowSuccess(true);
       setTimeout(() => {
@@ -135,12 +151,22 @@ const Login: React.FC = () => {
   const getRoleIcon = (role: string) => {
     const icons: Record<string, string> = {
       'admin': '👑',
-      'comptable-senior': '💼',
+      'gerant': '👔', // Propriétaire
+      'dg': '🏛️', // CEO
+      'daf': '💰', // CFO
+      'commercial_director': '🤝', // Directeur Commercial
+      'hr_director': '👥', // DRH
+      'logistics_director': '🚚', // Directeur Logistique
+      'production_director': '🏭', // Directeur Prod
+      'comptable_senior': '📑', // Chef Comptable
       'comptable': '📊',
-      'comptable-junior': '📝',
-      'manager': '🎯',
+      'controleur_gestion': '📉', // Contrôleur
       'auditeur': '🔍',
-      'vendeur': '💼',
+      'commercial': '💼', // Vendeur itinérant
+      'vendeur': '🛍️', // Vendeur boutique
+      'magasinier': '📦',
+      'tresorier': '💵',
+      'manager': '🎯',
       'utilisateur': '👤'
     };
     return icons[role] || '👤';
@@ -149,12 +175,29 @@ const Login: React.FC = () => {
   const getRoleBadgeColor = (role: string) => {
     const colors: Record<string, string> = {
       'admin': 'bg-purple-100 text-purple-800 border-purple-300',
-      'comptable-senior': 'bg-indigo-100 text-indigo-800 border-indigo-300',
-      'comptable': 'bg-blue-100 text-blue-800 border-blue-300',
-      'comptable-junior': 'bg-cyan-100 text-cyan-800 border-cyan-300',
-      'manager': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      'gerant': 'bg-blue-100 text-blue-800 border-blue-300',
+
+      // C-Level & Directeurs
+      'dg': 'bg-slate-800 text-white border-slate-600',
+      'daf': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+      'commercial_director': 'bg-blue-600 text-white border-blue-500',
+      'hr_director': 'bg-pink-100 text-pink-800 border-pink-300',
+      'logistics_director': 'bg-orange-100 text-orange-800 border-orange-300',
+      'production_director': 'bg-zinc-100 text-zinc-800 border-zinc-300',
+
+      // Finance & Gestion
+      'comptable_senior': 'bg-indigo-100 text-indigo-800 border-indigo-300',
+      'comptable': 'bg-indigo-50 text-indigo-700 border-indigo-200',
+      'controleur_gestion': 'bg-cyan-100 text-cyan-800 border-cyan-300',
       'auditeur': 'bg-amber-100 text-amber-800 border-amber-300',
-      'vendeur': 'bg-pink-100 text-pink-800 border-pink-300',
+      'tresorier': 'bg-green-100 text-green-800 border-green-300',
+
+      // Ops
+      'commercial': 'bg-blue-50 text-blue-700 border-blue-200',
+      'vendeur': 'bg-pink-50 text-pink-700 border-pink-200',
+      'magasinier': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+
+      'manager': 'bg-teal-100 text-teal-800 border-teal-300',
       'utilisateur': 'bg-gray-100 text-gray-800 border-gray-300'
     };
     return colors[role] || 'bg-gray-100 text-gray-800 border-gray-300';
@@ -167,7 +210,20 @@ const Login: React.FC = () => {
     try {
       // Appel API pour login via api.ts
       const response = await api.auth.login(formData.email, formData.password);
-      const user = response.user;
+      const apiUser = response.user as any;
+      const user = {
+        ...apiUser,
+        role: (apiUser.roles && apiUser.roles.length > 0 ? apiUser.roles[0] : apiUser.role || 'utilisateur') as any,
+        nom: apiUser.last_name || apiUser.nom || '',
+        prenom: apiUser.first_name || apiUser.prenom || '',
+        companyId: apiUser.company_id || apiUser.companyId || '',
+        companyType: apiUser.companyType || 'eurl',
+        segment: apiUser.segment || 'micro',
+        role_display: apiUser.role_display,
+        avatar: '',
+        permissions: apiUser.permissions || [],
+        accessLevel: apiUser.accessLevel || (apiUser.segment === 'enterprise' || apiUser.segment === 'large' ? 'enterprise' : apiUser.segment === 'medium' || apiUser.segment === 'small' ? 'professional' : 'starter')
+      } as User;
       setUser(user);
       setShowSuccess(true);
       setTimeout(() => {

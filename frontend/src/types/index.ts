@@ -122,12 +122,23 @@ export interface DocumentWithSignatureQR {
 // Étendu pour couvrir tous les rôles utilisés par le gestionnaire de permissions et l'UI
 export type Role =
   | 'admin'
+  | 'gerant'
+  | 'dg'
+  | 'daf'
+  | 'commercial_director'
+  | 'commercial'
+  | 'hr_director'
+  | 'logistics_director'
+  | 'production_director'
+  | 'comptable_senior'
   | 'comptable'
+  | 'controleur_gestion'
+  | 'magasinier'
+  | 'auditeur'
+  | 'tresorier'
   | 'utilisateur'
   | 'manager'
-  | 'auditeur'
   | 'vendeur'
-  | 'comptable-senior'
   | 'comptable-junior'
   | 'analyste'
   | 'invite';
@@ -137,8 +148,13 @@ export interface User {
   nom: string;
   email: string;
   role: Role;
+  role_display?: string;
   // Données entreprise pour gestion des accès CA
   companyType?: string;
+  companyId?: string;
+  companyName?: string;
+  prenom?: string;
+  avatar?: string;
   accessLevel?: 'starter' | 'professional' | 'enterprise';
   secteur?: string;
   adresse?: string;
@@ -149,7 +165,7 @@ export interface User {
   revenue?: number;
   employees?: number;
   segment?: string;
-  avatar?: string;
+
   lastLogin?: string;
   permissions?: string[];
 }
@@ -361,13 +377,13 @@ export interface BulletinPaie {
   datePaiement: string;
   dateGeneration: string;
   statut: 'brouillon' | 'validé' | 'payé' | 'annulé';
-  
+
   // Période de travail
   joursTravailles: number;
   joursAbsents: number;
   heuresNormales: number;
   heuresSupplementaires: number;
-  
+
   // Gains
   salaireBase: number;
   primes: number;
@@ -375,7 +391,7 @@ export interface BulletinPaie {
   avantagesEnNature: number;
   autresGains: number;
   totalBrut: number;
-  
+
   // Cotisations sociales salariales
   cotisationsSociales: {
     [key: string]: {
@@ -386,7 +402,7 @@ export interface BulletinPaie {
     };
   };
   totalCotisationsSalariales: number;
-  
+
   // Cotisations patronales (pour information)
   cotisationsPatronales: {
     [key: string]: {
@@ -397,21 +413,21 @@ export interface BulletinPaie {
     };
   };
   totalCotisationsPatronales: number;
-  
+
   // Impôts
   irg: number;
   autresImpot: number;
   totalImpot: number;
-  
+
   // Retenues diverses
   retenuesDiverses: number;
-  
+
   // Net à payer
   netAPayer: number;
-  
+
   // Détails
   elementsPaie: ElementPaie[];
-  
+
   // Informations complémentaires
   soldeConge: number;
   soldeCongePris: number;

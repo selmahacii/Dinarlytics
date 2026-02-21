@@ -84,8 +84,8 @@ const Sidebar: React.FC = () => {
       isOpen: openMenus['intelligence-lia'],
       onToggle: () => toggleMenu('intelligence-lia'),
       subItems: [
-        { path: '/lia/chatbot', icon: SparklesIcon, label: 'Assistant Chatbot' },
-        { path: '/lia/analyses', icon: ChartBarIcon, label: 'Analyses Prédictives' },
+        has('lia-chatbot') && { path: '/lia/chatbot', icon: SparklesIcon, label: 'Assistant Chatbot' },
+        has('lia-analyses') && { path: '/lia/analyses', icon: ChartBarIcon, label: 'Analyses Prédictives' },
         has('lia-train') && { path: '/entrainement-modele-ia', icon: CpuChipIcon, label: 'Entrainement Modèles' }
       ].filter(Boolean)
     },
@@ -114,7 +114,7 @@ const Sidebar: React.FC = () => {
       isOpen: openMenus['pilotage-tableaux'],
       onToggle: () => toggleMenu('pilotage-tableaux'),
       subItems: [
-        { path: '/dashboard', icon: HomeIcon, label: "Vue Globale" },
+        has('dashboard-overview') && { path: '/dashboard', icon: HomeIcon, label: "Vue Globale" },
         has('dashboard-alerts') && { path: '/dashboard/alertes', icon: ExclamationTriangleIcon, label: 'Alertes & Risques' },
         has('dashboard-calendar') && { path: '/dashboard/calendrier', icon: CalendarIcon, label: 'Calendrier Fiscal' }
       ].filter(Boolean)
@@ -161,11 +161,12 @@ const Sidebar: React.FC = () => {
       onToggle: () => toggleMenu('controle-reglages'),
       subItems: [
         { path: '/audit-explorer', icon: ShieldCheckIcon, label: 'Audit & Traçabilité' },
-        { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: 'Utilisateurs' },
+        has('admin-users') && { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: 'Utilisateurs' },
         { path: '/parametres', icon: CogIcon, label: 'Paramètres' }
-      ]
+      ].filter(Boolean)
     }
   ] as Array<SidebarItem | false>).filter(Boolean) as SidebarItem[];
+
 
   // Sidebar collapsed state is managed by parent via props, but we also have local toggle for mobile
   // We use the prop 'isSidebarCollapsed' passed from Layout

@@ -93,19 +93,18 @@ export const analyticService = {
     /**
      * AI Rolling Plan Forecast
      */
-    getForecast: async () => {
-        // MOCK IMPLEMENTATION
-        // const response = await apiClient.get<RollingForecast>('/analytics/forecast');
-        // return response.data;
+    getForecast: async (size: 'micro' | 'sme' | 'mid' = 'sme') => {
         await new Promise(resolve => setTimeout(resolve, 700));
+        const factor = size === 'micro' ? 0.2 : size === 'mid' ? 15.0 : 1.0;
+
         return {
-            predicted_revenue_next_month: 2700000,
-            average_monthly: 2000000,
+            predicted_revenue_next_month: 2700000 * factor,
+            average_monthly: 2000000 * factor,
             trend_direction: 'up',
             rolling_forecast: [
-                { month: 'Juil', predicted_value: 2600000 },
-                { month: 'Aout', predicted_value: 2750000 },
-                { month: 'Sept', predicted_value: 2900000 }
+                { month: 'Juil', predicted_value: 2600000 * factor },
+                { month: 'Aout', predicted_value: 2750000 * factor },
+                { month: 'Sept', predicted_value: 2900000 * factor }
             ],
             confidence_score: 0.89
         } as RollingForecast;
@@ -194,36 +193,39 @@ export const analyticService = {
     /**
      * Get Comprehensive Accounting KPIs for Statistiques page
      */
-    getKPIs: async () => {
+    getKPIs: async (size: 'micro' | 'sme' | 'mid' = 'sme') => {
         await new Promise(resolve => setTimeout(resolve, 800));
+
+        const factor = size === 'micro' ? 0.2 : size === 'mid' ? 15.0 : 1.0;
+
         return {
             metriques: {
-                ventesTotal: 5200000,
+                ventesTotal: 5200000 * factor,
                 croissanceCA: 7.2,
                 margeBrute: 16.2,
                 rotationStock: 5.4,
-                nombreClients: 85,
-                nouveauxClients: 8,
+                nombreClients: Math.round(85 * (factor > 1 ? 10 : factor < 1 ? 0.3 : 1)),
+                nouveauxClients: Math.round(8 * (factor > 1 ? 5 : 1)),
                 tauxFidelisation: 94
             },
             ecrituresComptables: {
-                total: 850,
-                validees: 820,
-                enAttente: 30,
+                total: Math.round(850 * factor),
+                validees: Math.round(820 * factor),
+                enAttente: Math.round(30 * factor),
                 evolution: 4.5,
-                parJour: 12
+                parJour: Math.round(12 * factor)
             },
             tva: {
-                aVerser: 399000,
-                collectee: 988000,
-                deductible: 589000,
+                aVerser: 399000 * factor,
+                collectee: 988000 * factor,
+                deductible: 589000 * factor,
                 taux: 19,
                 evolution: 3.2
             },
             bilans: {
-                actif: 4943000,
-                passif: 4943000,
-                capitauxPropres: 1629000,
+                actif: 4943000 * factor,
+                passif: 4943000 * factor,
+                capitauxPropres: 1629000 * factor,
                 evolution: 6.8,
                 dateDernier: '31/12/2025'
             },
@@ -234,10 +236,10 @@ export const analyticService = {
                 { nom: 'Dette / Équité', valeur: '0.8', couleur: 'orange' }
             ],
             journaux: [
-                { nom: 'Journal des Achats', statut: 'Validé', entries: 450, lastUpdate: 'Aujourd\'hui' },
-                { nom: 'Journal des Ventes', statut: 'Validé', entries: 620, lastUpdate: 'Aujourd\'hui' },
-                { nom: 'Journal de Banque', statut: 'En cours', entries: 120, lastUpdate: 'Hier' },
-                { nom: 'Opérations Diverses', statut: 'En cours', entries: 60, lastUpdate: 'Hier' }
+                { nom: 'Journal des Achats', statut: 'Validé', entries: Math.round(450 * factor), lastUpdate: 'Aujourd\'hui' },
+                { nom: 'Journal des Ventes', statut: 'Validé', entries: Math.round(620 * factor), lastUpdate: 'Aujourd\'hui' },
+                { nom: 'Journal de Banque', statut: 'En cours', entries: Math.round(120 * factor), lastUpdate: 'Hier' },
+                { nom: 'Opérations Diverses', statut: 'En cours', entries: Math.round(60 * factor), lastUpdate: 'Hier' }
             ]
         };
     },

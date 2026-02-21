@@ -281,71 +281,62 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
   };
 
   const renderAreaChart = () => {
-    const { donnees } = chartData;
+    const { donnees, options } = chartData;
     if (!donnees || donnees.length === 0) return null;
 
-    const safeData = donnees.map(d => ({
-      produits: d.produits || 0,
-      services: d.services || 0,
-      maintenance: d.maintenance || 0
-    }));
+    // Detect numeric keys to use as areas
+    // Default to common enterprise metrics if not specified
+    const areaKeys = options?.keys || ['produits', 'services', 'maintenance'];
 
-    const maxValue = Math.max(...safeData.map(d => Math.max(d.produits, d.services, d.maintenance))) || 1;
+    // In case of Monte Carlo or other dynamic area charts, we might want to check data
+    const firstItem = donnees[0];
+    const detectedKeys = Object.keys(firstItem).filter((k: string) =>
+      typeof firstItem[k] === 'number' && k !== 'valeur' && k !== 'total' && k !== 'evolution'
+    );
 
-    // Helper to avoid NaN when length is 1
-    const getX = (i: number) => safeData.length > 1 ? (i / (safeData.length - 1)) * 100 : 50;
+    const finalKeys = detectedKeys.length > 0 ? detectedKeys.slice(0, 3) : areaKeys;
+
+    // Calculate max value across all areas to scale correctly
+    const maxValue = Math.max(...donnees.map((d: any) =>
+      Math.max(...finalKeys.map((k: string) => (d[k] as number) || 0))
+    )) || 1;
+
+    const getX = (i: number) => donnees.length > 1 ? (i / (donnees.length - 1)) * 100 : 50;
 
     return (
       <div className="relative w-full h-64 bg-white dark:bg-gray-800 rounded-lg p-4">
         <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          {/* Aire produits */}
-          <path
-            d={`M 0,100 ${safeData.map((d, i) =>
-              `L ${getX(i)},${100 - (d.produits / maxValue) * 100}`
-            ).join(' ')} L 100,100 Z`}
-            fill="url(#gradient-produits)"
-            opacity={animationProgress * 0.7}
-            className="transition-all duration-2000 ease-out"
-          />
+          {finalKeys.map((key: string, kIdx: number) => (
+            <path
+              key={key}
+              d={`M 0,100 ${donnees.map((d: any, i: number) =>
+                `L ${getX(i)},${100 - ((d[key] as number || 0) / maxValue) * 100}`
+              ).join(' ')} L 100,100 Z`}
+              fill={`url(#gradient-${key})`}
+              opacity={animationProgress * (0.8 - kIdx * 0.2)}
+              className="transition-all duration-2000 ease-out"
+              style={{ transitionDelay: `${kIdx * 200}ms` }}
+            />
+          ))}
 
-          {/* Aire services */}
-          <path
-            d={`M 0,100 ${safeData.map((d, i) =>
-              `L ${getX(i)},${100 - (d.services / maxValue) * 100}`
-            ).join(' ')} L 100,100 Z`}
-            fill="url(#gradient-services)"
-            opacity={animationProgress * 0.7}
-            className="transition-all duration-2000 ease-out"
-            style={{ transitionDelay: '200ms' }}
-          />
-
-          {/* Aire maintenance */}
-          <path
-            d={`M 0,100 ${safeData.map((d, i) =>
-              `L ${getX(i)},${100 - (d.maintenance / maxValue) * 100}`
-            ).join(' ')} L 100,100 Z`}
-            fill="url(#gradient-maintenance)"
-            opacity={animationProgress * 0.7}
-            className="transition-all duration-2000 ease-out"
-            style={{ transitionDelay: '400ms' }}
-          />
-
-          {/* Définitions des gradients */}
           <defs>
-            <linearGradient id="gradient-produits" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={chartData.options?.couleurs?.[0] || "#3b82f6"} stopOpacity="0.8" />
-              <stop offset="100%" stopColor={chartData.options?.couleurs?.[0] || "#3b82f6"} stopOpacity="0.2" />
-            </linearGradient>
-            <linearGradient id="gradient-services" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={chartData.options?.couleurs?.[1] || "#10b981"} stopOpacity="0.8" />
-              <stop offset="100%" stopColor={chartData.options?.couleurs?.[1] || "#10b981"} stopOpacity="0.2" />
-            </linearGradient>
-            <linearGradient id="gradient-maintenance" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={chartData.options?.couleurs?.[2] || "#f59e0b"} stopOpacity="0.8" />
-              <stop offset="100%" stopColor={chartData.options?.couleurs?.[2] || "#f59e0b"} stopOpacity="0.2" />
-            </linearGradient>
+            {finalKeys.map((key: string, kIdx: number) => (
+              <linearGradient key={`grad-${key}`} id={`gradient-${key}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={options?.couleurs?.[kIdx] || (kIdx === 0 ? "#3b82f6" : kIdx === 1 ? "#10b981" : "#f59e0b")} stopOpacity="0.8" />
+                <stop offset="100%" stopColor={options?.couleurs?.[kIdx] || (kIdx === 0 ? "#3b82f6" : kIdx === 1 ? "#10b981" : "#f59e0b")} stopOpacity="0.2" />
+              </linearGradient>
+            ))}
           </defs>
         </svg>
+        {/* Légende horizontale */}
+        <div className="absolute top-2 right-4 flex gap-4">
+          {finalKeys.map((key: string, kIdx: number) => (
+            <div key={key} className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: options?.couleurs?.[kIdx] || (kIdx === 0 ? "#3b82f6" : kIdx === 1 ? "#10b981" : "#f59e0b") }}></div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">{key}</span>
+            </div>
+          ))}
+        </div>
         <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-500 dark:text-gray-400 px-2 pointer-events-none">
           {donnees.map((point, index) => (
             <span key={index}>{point.label || point.mois}</span>

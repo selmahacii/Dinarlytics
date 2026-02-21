@@ -18,24 +18,39 @@ import {
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
+import { usePermission } from '@shared/hooks/usePermission';
 import { analyticService, FinancialKPIs, RollingForecast } from '@/services/modules/analyticService';
 
 const AnalyticsAvancees: React.FC = () => {
   const { formatCurrency } = useApp();
   const { t } = useTranslation();
+  const { user } = usePermission();
+
+  // Facteur d'échelle basé sur le segment
+  const scaleFactor = React.useMemo(() => {
+    if (!user?.segment) return 1;
+    switch (user.segment) {
+      case 'micro': return 0.2;
+      case 'small': return 0.6;
+      case 'medium': return 1.2;
+      case 'large': return 8.0;
+      case 'enterprise': return 25.0;
+      default: return 1;
+    }
+  }, [user]);
 
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [loading, setLoading] = useState(true);
   const [comparisonMode, setComparisonMode] = useState(false);
   const [exportFormat, setExportFormat] = useState('pdf');
 
-  // Hardcoded data with ability to "refresh" based on period
-  const [analyticsData, setAnalyticsData] = useState({
+  // Hardcoded data with scaling
+  const analyticsData = React.useMemo(() => ({
     funnel: [
-      { name: 'Prospects', count: 12500, percentage: 100, color: 'bg-slate-300' },
-      { name: 'Devis Émis', count: 3200, percentage: 25.6, color: 'bg-slate-400' },
-      { name: 'Négociation', count: 1200, percentage: 9.6, color: 'bg-slate-600' },
-      { name: 'Facturé', count: 480, percentage: 3.8, color: 'bg-slate-800' }
+      { name: 'Prospects', count: Math.round(12500 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 100, color: 'bg-slate-300' },
+      { name: 'Devis Émis', count: Math.round(3200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 25.6, color: 'bg-slate-400' },
+      { name: 'Négociation', count: Math.round(1200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 9.6, color: 'bg-slate-600' },
+      { name: 'Facturé', count: Math.round(480 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 3.8, color: 'bg-slate-800' }
     ],
     cohorts: [
       { name: 'Sept 2024', data: [100, 45, 32, 28, 25, 22] },
@@ -47,24 +62,20 @@ const AnalyticsAvancees: React.FC = () => {
       { metric1: 'Invest. Pub', metric2: 'Nouv. Clients', correlation: 0.72 },
       { metric1: 'Remises %', metric2: 'Marge Brute', correlation: -0.65 }
     ]
-  });
+  }), [scaleFactor]);
 
   // Mock refresh effect when filters change
   useEffect(() => {
     setLoading(true);
-    // Simulate API call
     const timer = setTimeout(() => {
       setLoading(false);
-      // Here we would normally fetch new data based on selectedPeriod
     }, 600);
     return () => clearTimeout(timer);
   }, [selectedPeriod]);
 
   // Export Functionality
   const handleExport = () => {
-    // Simulating a real export process
     const message = `Export du rapport ${exportFormat.toUpperCase()} pour la période ${selectedPeriod} en cours...`;
-    // In a real app, this would trigger a backend download or generate a PDF
     if (window.confirm(`${message}\nVoulez-vous télécharger le fichier ?`)) {
       setTimeout(() => alert("Le fichier a été téléchargé avec succès."), 500);
     }
@@ -81,12 +92,16 @@ const AnalyticsAvancees: React.FC = () => {
     input.click();
   };
 
-  const currentMetrics = [
+  const currentMetrics = React.useMemo(() => [
     { name: 'DSO (Délai Client)', value: '35j', diff: -2.3, icon: ClockIcon, color: 'slate', target: '30j' },
-    { name: 'BFR (Besoin Fonds)', value: formatCurrency(1300000), diff: 5.1, icon: BanknotesIcon, color: 'slate', target: '< 1.5M' },
-    { name: 'Seuil Rentabilité', value: formatCurrency(4200000), diff: 0.0, icon: ScaleIcon, color: 'slate', target: 'Validé' },
+    { name: 'BFR (Besoin Fonds)', value: formatCurrency(1300000 * scaleFactor), diff: 5.1, icon: BanknotesIcon, color: 'slate', target: `< ${formatCurrency(1500000 * scaleFactor)}` },
+    { name: 'Seuil Rentabilité', value: formatCurrency(4200000 * scaleFactor), diff: 0.0, icon: ScaleIcon, color: 'slate', target: 'Validé' },
     { name: 'Solvabilité', value: '210%', diff: 1.5, icon: ChartBarSquareIcon, color: 'slate', target: '> 120%' }
-  ];
+  ], [scaleFactor, formatCurrency]);
+
+  // Projecting values for Rolling Forecast
+  const projectionValue = 2750000 * scaleFactor;
+  const historicValues = [2.65, 2.82, 2.95].map(v => (v * scaleFactor).toFixed(2));
 
   if (loading) {
     return (
@@ -253,7 +268,7 @@ const AnalyticsAvancees: React.FC = () => {
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Fin du Mois (Projection)</p>
                   <div className="flex items-baseline md:flex-row flex-col">
-                    <h2 className="text-4xl font-black text-slate-800 mr-3">{formatCurrency(2750000)}</h2>
+                    <h2 className="text-4xl font-black text-slate-800 mr-3">{formatCurrency(projectionValue)}</h2>
                     <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center">
                       <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +3.2% vs M-1
                     </span>
@@ -263,17 +278,17 @@ const AnalyticsAvancees: React.FC = () => {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
-                  <p className="text-[10px] font-black text-slate-400 uppercase">Juillet</p>
-                  <p className="text-sm font-bold text-slate-700 mt-1">2.65 M</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">M-2</p>
+                  <p className="text-sm font-bold text-slate-700 mt-1">{historicValues[0]} M</p>
                 </div>
                 <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
-                  <p className="text-[10px] font-black text-slate-400 uppercase">Août</p>
-                  <p className="text-sm font-bold text-slate-700 mt-1">2.82 M</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase">M-1</p>
+                  <p className="text-sm font-bold text-slate-700 mt-1">{historicValues[1]} M</p>
                 </div>
                 <div className="p-4 rounded-xl border-2 border-indigo-100 bg-indigo-50/30 text-center relative">
                   <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full">Actuel</span>
-                  <p className="text-[10px] font-black text-indigo-400 uppercase">Septembre</p>
-                  <p className="text-sm font-bold text-indigo-700 mt-1">2.95 M</p>
+                  <p className="text-[10px] font-black text-indigo-400 uppercase">Projection</p>
+                  <p className="text-sm font-bold text-indigo-700 mt-1">{historicValues[2]} M</p>
                 </div>
               </div>
             </div>

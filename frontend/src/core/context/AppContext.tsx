@@ -80,7 +80,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return null;
   });
 
-  const [currentDevise, setCurrentDevise] = useState<Devise>('DZD');
+  const [currentDevise, setCurrentDeviseState] = useState<Devise>(() => {
+    return (localStorage.getItem('app_devise') as Devise) || 'DZD';
+  });
+
+  const setCurrentDevise = (devise: Devise) => {
+    setCurrentDeviseState(devise);
+    localStorage.setItem('app_devise', devise);
+  };
   const [currentLang, setLang] = useState<'fr' | 'ar' | 'en'>(() => {
     return (localStorage.getItem('app_lang') as 'fr' | 'ar' | 'en') || 'fr';
   });
@@ -177,10 +184,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     fetchMetrics();
   }, [user]);
 
-  useEffect(() => {
-    // For demo consistency, force DZD when a user logs in
-    if (user && currentDevise !== 'DZD') setCurrentDevise('DZD');
-  }, [user]);
+  // Devise persistence logic could go here if needed, but not forcing DZD on every user update.
 
   // Calculer les taux fiscaux selon la devise et le plan comptable actuels
   const fiscalRates = getFiscalRates(currentDevise, planComptable);

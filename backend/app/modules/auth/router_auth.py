@@ -406,4 +406,258 @@ async def change_password(
     
     logger.info(f"Password changed for user: {user.username}")
     
-    return {"message": "Password changed successfully"}
+@router.get("/demo-users", response_model=dict)
+async def get_demo_users():
+    """Get optimized demo users for UI demonstration"""
+    demo_users = [
+        # EURL - Petite Entreprise (Micro)
+        {
+            "id": "demo-eurl-gerant",
+            "email": "karim.b@electromenager-plus.dz",
+            "password": "demo123",
+            "companyName": "Électroménager Plus (EURL)",
+            "companyType": "eurl",
+            "segment": "micro",
+            "prenom": "Karim",
+            "nom": "Benali",
+            "role": "gerant",
+            "role_display": "Gérant Propriétaire",
+            "description": "Accès complet, gestion simplifiée trésorerie & ventes",
+            "permissions": ["all"],
+             "avatar_color": "bg-blue-100 text-blue-800"
+        },
+        
+        # SARL - Moyenne Entreprise (Small/Medium)
+        {
+            "id": "demo-sarl-gerant",
+            "email": "samia.m@mode-moderne.dz",
+            "password": "demo123",
+            "companyName": "Mode Moderne SARL",
+            "companyType": "sarl",
+            "segment": "small",
+            "prenom": "Samia",
+            "nom": "Meziane",
+            "role": "gerant",
+             "role_display": "Gérante Associée",
+            "description": "Vue d'ensemble, validation dépenses, rapports financiers",
+            "permissions": ["all"],
+             "avatar_color": "bg-purple-100 text-purple-800"
+        },
+        {
+            "id": "demo-sarl-comptable",
+            "email": "ahmed.k@mode-moderne.dz",
+            "password": "demo123",
+            "companyName": "Mode Moderne SARL",
+            "companyType": "sarl",
+             "segment": "small",
+            "prenom": "Ahmed",
+            "nom": "Khaled",
+            "role": "comptable",
+             "role_display": "Comptable Principal",
+            "description": "Saisie écritures, états financiers, déclarations",
+            "permissions": ["accounting", "reports"],
+             "avatar_color": "bg-indigo-100 text-indigo-800"
+        },
+        {
+            "id": "demo-sarl-commercial",
+            "email": "lylia.z@mode-moderne.dz",
+            "password": "demo123",
+            "companyName": "Mode Moderne SARL",
+             "companyType": "sarl",
+             "segment": "small",
+            "prenom": "Lylia",
+            "nom": "Ziani",
+            "role": "commercial",
+             "role_display": "Responsable Ventes",
+            "description": "Gestion clients, devis, facturation, catalogue",
+            "permissions": ["sales", "crm"],
+             "avatar_color": "bg-pink-100 text-pink-800"
+        },
+
+        # SPA - Grande Entreprise (Corporate & Industrial)
+        {
+            "id": "demo-spa-dg",
+            "email": "mourad.ouali@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+             "companyType": "spa",
+             "segment": "enterprise",
+            "prenom": "Mourad",
+            "nom": "Ouali",
+            "role": "dg",
+             "role_display": "Directeur Général (CEO)",
+            "description": "Vue 360°, validation stratégique, budgets globaux, KPIs groupe.",
+            "permissions": ["all", "approve_strategic"],
+             "avatar_color": "bg-slate-900 text-white border-slate-700"
+        },
+         {
+            "id": "demo-spa-daf",
+            "email": "safia.haddad@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+             "companyType": "spa",
+             "segment": "enterprise",
+            "prenom": "Safia",
+            "nom": "Haddad",
+            "role": "daf",
+             "role_display": "Directrice Admin & Financière (CFO)",
+            "description": "Contrôle financier, trésorerie complexe, consolidation, fiscalité, relation banques.",
+             "permissions": ["finance_full", "approve_budget", "treasury_manage"],
+             "avatar_color": "bg-emerald-100 text-emerald-800 border-emerald-300"
+        },
+        {
+            "id": "demo-spa-dir-co",
+            "email": "amine.ziani@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Amine",
+            "nom": "Ziani",
+            "role": "commercial_director",
+            "role_display": "Directeur Commercial",
+            "description": "Stratégie vente, objectifs équipes, validation gros contrats, analyse revenus.",
+            "permissions": ["sales_manage", "crm_full", "reports_sales"],
+            "avatar_color": "bg-blue-600 text-white border-blue-500"
+        },
+        {
+            "id": "demo-spa-rh",
+            "email": "leila.b@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Leila",
+            "nom": "Bouzidi",
+            "role": "hr_director",
+            "role_display": "Directrice RH",
+            "description": "Gestion paie masse, contrats, recrutement, performance, conformité sociale.",
+            "permissions": ["hr_full", "payroll_manage"],
+            "avatar_color": "bg-pink-100 text-pink-800 border-pink-300"
+        },
+        {
+            "id": "demo-spa-logistique",
+            "email": "omar.k@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Omar",
+            "nom": "Khodja",
+            "role": "logistics_director",
+            "role_display": "Directeur Logistique / Supply Chain",
+            "description": "Gestion stocks multi-dépôts, approvisionnements, livraisons flotte.",
+            "permissions": ["stock_full", "logistics_manage"],
+            "avatar_color": "bg-orange-100 text-orange-800 border-orange-300"
+        },
+        {
+            "id": "demo-spa-prod",
+            "email": "rachid.t@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Rachid",
+            "nom": "Toumi",
+            "role": "production_director",
+            "role_display": "Directeur Production",
+            "description": "Planification production, coûts industriels, maintenance, qualité.",
+            "permissions": ["production_manage", "costing_view"],
+            "avatar_color": "bg-zinc-100 text-zinc-800 border-zinc-300"
+        },
+        {
+            "id": "demo-spa-comptable-senior",
+            "email": "nawel.s@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+             "companyType": "spa",
+             "segment": "enterprise",
+            "prenom": "Nawel",
+            "nom": "Saadi",
+            "role": "comptable_senior",
+             "role_display": "Chef Comptable",
+            "description": "Supervision comptable, clôtures mensuelles, déclarations fiscales.",
+             "permissions": ["accounting_full", "reports_financial"],
+             "avatar_color": "bg-indigo-100 text-indigo-800 border-indigo-300"
+        },
+        {
+            "id": "demo-spa-controleur",
+            "email": "fared.m@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Fared",
+            "nom": "Mansouri",
+            "role": "controleur_gestion",
+            "role_display": "Contrôleur de Gestion",
+            "description": "Analyse écarts budgets, comptabilité analytique, reporting performance.",
+            "permissions": ["analytics_full", "budget_view", "accounting_read"],
+            "avatar_color": "bg-cyan-100 text-cyan-800 border-cyan-300"
+        },
+        {
+            "id": "demo-spa-auditeur",
+            "email": "cabinet.expert@audit-externe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+             "companyType": "spa",
+             "segment": "enterprise",
+            "prenom": "Cabinet",
+            "nom": "Expert Audit",
+            "role": "auditeur",
+             "role_display": "Auditeur Externe (CAC)",
+            "description": "Accès lecture seule audit, vérification états financiers, conformité légale.",
+             "permissions": ["audit_read", "read_only"],
+             "avatar_color": "bg-amber-100 text-amber-800 border-amber-300"
+        },
+        {
+            "id": "demo-spa-vendeur",
+            "email": "karim.v@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Karim",
+            "nom": "Vendeur",
+            "role": "commercial",
+            "role_display": "Commercial Terrain",
+            "description": "Saisie commandes, suivi portefeuille clients, consultation stock.",
+            "permissions": ["orders_create", "clients_view", "stock_read"],
+            "avatar_color": "bg-pink-50 text-pink-700 border-pink-200"
+        },
+        {
+            "id": "demo-spa-magasinier",
+            "email": "ali.stock@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Ali",
+            "nom": "Stock",
+            "role": "magasinier",
+            "role_display": "Responsable Entrepôt",
+            "description": "Réception marchandises, expéditions, inventaire physique.",
+            "permissions": ["stock_move", "delivery_manage"],
+            "avatar_color": "bg-yellow-100 text-yellow-800 border-yellow-300"
+        },
+         {
+            "id": "demo-spa-tresorier",
+            "email": "samir.cash@industrie-groupe.dz",
+            "password": "demo123",
+            "companyName": "Industrie Groupe SPA",
+            "companyType": "spa",
+            "segment": "enterprise",
+            "prenom": "Samir",
+            "nom": "Cash",
+            "role": "tresorier",
+            "role_display": "Trésorier",
+            "description": "Gestion liquidités quotidienne, rapprochements bancaires, paiements fournisseurs.",
+            "permissions": ["treasury_ops", "payments_manage"],
+            "avatar_color": "bg-green-100 text-green-800 border-green-300"
+        }
+    ]
+    
+    return {
+        "users": [], # For now not returning user objects directly to avoid confusing frontend types
+        "credentials": demo_users
+    }

@@ -27,11 +27,26 @@ import Modal from '@shared/components/UI/Modal';
 
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
+import { usePermission } from '@shared/hooks/usePermission';
 import api from '@/services/api';
 
 const Statistiques: React.FC = () => {
   const { formatCurrency, planComptable } = useApp();
   const { t } = useTranslation();
+  const { user } = usePermission();
+
+  // Détermination automatique de la taille pour l'échelle des données
+  const currentSize = React.useMemo(() => {
+    if (user?.segment) {
+      if (user.segment === 'micro') return 'micro';
+      if (user.segment === 'small' || user.segment === 'medium') return 'sme';
+      if (user.segment === 'large' || user.segment === 'enterprise') return 'mid';
+    }
+    if (!user?.companyType) return 'sme';
+    if (['eurl', 'micro', 'auto-entrepreneur'].includes(user.companyType)) return 'micro';
+    if (['sarl', 'pme'].includes(user.companyType)) return 'sme';
+    return 'mid';
+  }, [user]);
 
   // États pour les modals
   const [selectedClient, setSelectedClient] = useState<any>(null);
@@ -83,7 +98,7 @@ const Statistiques: React.FC = () => {
   // Load KPIs and top clients from backend
   React.useEffect(() => {
     setLoadingKpi(true);
-    api.analytics.getKPIs()
+    api.analytics.getKPIs(currentSize)
       .then((data: any) => {
         setKpiComptables(data);
       })
@@ -91,14 +106,19 @@ const Statistiques: React.FC = () => {
       .finally(() => setLoadingKpi(false));
 
     setLoadingClients(true);
+    // On simule une diversité de clients basée sur la taille
     api.clients.getAll()
       .then(data => {
-        // You may need to filter/sort for top clients
-        setTopClients(data.slice(0, 3));
+        const factor = currentSize === 'micro' ? 0.3 : currentSize === 'mid' ? 10 : 1;
+        const scaledData = data.map(c => ({
+          ...c,
+          ca: (c.ca || 450000) * factor
+        }));
+        setTopClients(scaledData.slice(0, 3));
       })
       .catch(() => setClientsError('Erreur lors du chargement des clients'))
       .finally(() => setLoadingClients(false));
-  }, []);
+  }, [currentSize]);
 
   // Fonctions de gestion des actions
   const handleViewDetails = (client: any) => {

@@ -1,8 +1,8 @@
-import type { AdaptiveDashboardData } from '../data/adaptiveDataGenerator';
+import type { CompanyData } from '@core/context/AppContext';
 import type { Segment } from './benchmarks';
 
 export interface RatioInputs {
-  companyData: AdaptiveDashboardData | null | undefined;
+  companyData: CompanyData | null | undefined;
   segment: Segment;
   companyType?: string;
   sector?: string;
@@ -29,6 +29,11 @@ export interface AdvancedRatios {
   solvencyAssetsToDebt: number | null; // Actifs / Dettes
   supplierRotationX: number; // 365 / DPO
   basketAverage: number;     // Panier moyen
+  // Corporate metrics for Large/Enterprise/SPA
+  gearingPct?: number;       // Dette nette / Capitaux propres
+  waccPct?: number;          // Coût moyen pondéré du capital (estimé)
+  dividendPayoutPct?: number; // Taux de distribution
+  operatingLeverage?: number; // Levier opérationnel
   // Sector-specific (estimates)
   mrr?: number; churnPct?: number; cac?: number; ltv?: number; // SaaS
   oee?: number; // Industrie
@@ -64,15 +69,15 @@ export function computeRatios(input: RatioInputs): RatiosResult {
   const totalRevenueYear = cd?.revenueTotal ?? revM * 12;
   const equityRatio = (
     input.segment === 'micro' ? 0.42 :
-    input.segment === 'small' ? 0.40 :
-    input.segment === 'medium' ? 0.35 :
-    input.segment === 'large' ? 0.32 : 0.30
+      input.segment === 'small' ? 0.40 :
+        input.segment === 'medium' ? 0.35 :
+          input.segment === 'large' ? 0.32 : 0.30
   );
   const assetsToRevenue = (
     input.segment === 'micro' ? 0.55 :
-    input.segment === 'small' ? 0.58 :
-    input.segment === 'medium' ? 0.60 :
-    input.segment === 'large' ? 0.62 : 0.65
+      input.segment === 'small' ? 0.58 :
+        input.segment === 'medium' ? 0.60 :
+          input.segment === 'large' ? 0.62 : 0.65
   );
   const totalAssetsEst = totalRevenueYear * assetsToRevenue;
   const equityEst = totalAssetsEst * equityRatio;
@@ -83,13 +88,13 @@ export function computeRatios(input: RatioInputs): RatiosResult {
   const ebitdaEst = totalRevenueYear * (ebitdaMarginPct / 100);
   const interestRate = (
     input.segment === 'enterprise' ? 0.08 :
-    input.segment === 'large' ? 0.09 : 0.105
+      input.segment === 'large' ? 0.09 : 0.105
   );
   const interestExpenseEst = debtEst * interestRate;
   const interestCoverage = interestExpenseEst <= 0 ? '∞' : Math.max(0.1, +(ebitdaEst / interestExpenseEst).toFixed(1));
   const netDebt = Math.max(0, debtEst - cash);
   const netDebtToEbitda = ebitdaEst > 0 ? +(netDebt / ebitdaEst).toFixed(2) : null;
-  const autonomyPct = totalAssetsEst > 0 ? +( (equityEst / totalAssetsEst) * 100 ).toFixed(1) : 0;
+  const autonomyPct = totalAssetsEst > 0 ? +((equityEst / totalAssetsEst) * 100).toFixed(1) : 0;
   const solvencyAssetsToDebt = debtEst > 0 ? +(totalAssetsEst / debtEst).toFixed(2) : null;
   const supplierRotationX = dpo > 0 ? +(365 / dpo).toFixed(1) : 0;
   const basketAverage = cd?.averageInvoice ?? Math.round(revM / Math.max(cd?.invoicesCount ?? 1, 1));
@@ -105,6 +110,21 @@ export function computeRatios(input: RatioInputs): RatiosResult {
     supplierRotationX,
     basketAverage
   };
+
+  // Corporate heuristics for large structures
+  if (input.segment === 'large' || input.segment === 'enterprise' || input.companyType === 'spa') {
+    advanced.gearingPct = equityEst > 0 ? +((netDebt / equityEst) * 100).toFixed(1) : 0;
+
+    // WACC estimate: Risk free (~3%) + Beta*EquityRiskPremium (~6%) + DebtCost (~9%)
+    const costOfEquity = 0.03 + (input.segment === 'enterprise' ? 1.1 : 1.3) * 0.05;
+    const taxRate = 0.19; // standard DZ CIT
+    const costOfDebt = interestRate * (1 - taxRate);
+    const wacc = ((equityEst / totalAssetsEst) * costOfEquity) + ((debtEst / totalAssetsEst) * costOfDebt);
+    advanced.waccPct = +(wacc * 100).toFixed(1);
+
+    advanced.dividendPayoutPct = input.companyType === 'spa' ? 25 : 0; // SPA usually distribute
+    advanced.operatingLeverage = +(ebitdaEst / Math.max(1, netIncomeEst)).toFixed(2);
+  }
 
   // Sector-specific demo metrics
   const sector = (input.sector || '').toLowerCase();

@@ -37,10 +37,17 @@ interface DashboardFilters {
 const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) => {
   const { has, user } = usePermission();
 
-  // Détermination automatique du profil selon le type d'entreprise de l'utilisateur
-  // 'eurl' -> micro, 'sarl' -> sme, 'spa' -> mid
+  // Détermination automatique du profil selon le segment ou type d'entreprise de l'utilisateur
   const currentSize = React.useMemo(() => {
-    if (!user?.companyType) return 'mid'; // Default fallback
+    // 1. Priorité au segment (plus précis)
+    if (user?.segment) {
+      if (user.segment === 'micro') return 'micro';
+      if (user.segment === 'small' || user.segment === 'medium') return 'sme';
+      if (user.segment === 'large' || user.segment === 'enterprise') return 'mid';
+    }
+
+    // 2. Fallback sur le type d'entreprise
+    if (!user?.companyType) return 'mid';
     if (['eurl', 'micro', 'auto-entrepreneur'].includes(user.companyType)) return 'micro';
     if (['sarl', 'pme'].includes(user.companyType)) return 'sme';
     return 'mid'; // SPA, ETI, GE
@@ -337,7 +344,14 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
                   LIVE
                 </span>
                 <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
-                  Profil : Grande Entreprise (ETI)
+                  Profil : {user?.role === 'dg' ? 'Directeur Général (CEO)' :
+                    user?.role === 'daf' ? 'Directeur Financier (CFO)' :
+                      user?.role === 'gerant' ? 'Gérant Propriétaire' :
+                        user?.role === 'admin' ? 'Administrateur Système' :
+                          user?.role === 'comptable' ? 'Comptable' :
+                            user?.role === 'commercial' ? 'Commercial' :
+                              user?.role === 'auditeur' ? 'Auditeur' :
+                                user?.role_display || user?.role || 'Utilisateur'}
                 </span>
               </div>
             </div>
@@ -370,87 +384,40 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center">
             <AdjustmentsHorizontalIcon className="h-5 w-5 mr-2 text-slate-400" />
-            Performance Financière
+            Performance {currentSize === 'micro' ? 'Trésorerie' : 'Financière'}
           </h3>
           <span className="text-xs font-medium text-slate-400">Dernière maj: {formatTime(currentTime)}</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Metric 1 */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">KPI Stratégique</p>
-              <ChartPieIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
+          {metrics.map((metric, idx) => (
+            <div key={metric.id} className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{idx === 0 ? 'KPI Stratégique' : idx === 1 ? 'Rentabilité' : idx === 2 ? 'Efficacité' : 'Contrôle'}</p>
+                {idx === 0 ? <ChartPieIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" /> :
+                  idx === 1 ? <CurrencyDollarIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" /> :
+                    idx === 2 ? <UserGroupIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" /> :
+                      <ScaleIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />}
+              </div>
+              <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">{metric.nom}</h4>
+              <div className="flex items-baseline gap-2 mb-4">
+                <span className="text-3xl font-black text-slate-900 dark:text-white">
+                  {typeof metric.valeur === 'number' && metric.unite !== '%' && metric.unite !== 'j' && metric.unite !== 'Jours' && metric.unite !== 'x'
+                    ? metric.valeur.toLocaleString()
+                    : metric.valeur}
+                  <span className="text-sm ml-1 opacity-60">{metric.unite}</span>
+                </span>
+                <span className={`text-xs font-bold px-1.5 py-0.5 rounded flex items-center ${metric.tendance === 'up' ? (metric.unite === '%' ? 'text-emerald-800 bg-emerald-100' : 'text-slate-800 bg-slate-200') : 'text-rose-800 bg-rose-100'}`}>
+                  {metric.tendance === 'up' ? <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />}
+                  {Math.abs(metric.evolutionPourcentage)}%
+                </span>
+              </div>
+              <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
+                <span className="text-xs text-slate-400">{metric.details.description}</span>
+                <span className={`w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-slate-900' : idx === 1 ? 'bg-slate-600' : idx === 2 ? 'bg-slate-500' : 'bg-slate-400'}`}></span>
+              </div>
             </div>
-            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Marge s/ Coût Var.</h4>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-3xl font-black text-slate-900 dark:text-white">45,2%</span>
-              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
-                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 1.1%
-              </span>
-            </div>
-            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-slate-400">Contribution Frais Fixes</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-900"></span>
-            </div>
-          </div>
-
-          {/* Metric 2 */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Rentabilité</p>
-              <CurrencyDollarIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
-            </div>
-            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">ROE</h4>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-3xl font-black text-slate-900 dark:text-white">38,6%</span>
-              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
-                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 0.5%
-              </span>
-            </div>
-            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-slate-400">Retour s/ Capitaux</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
-            </div>
-          </div>
-
-          {/* Metric 3 */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Productivité</p>
-              <UserGroupIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
-            </div>
-            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Efficacité MO</h4>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-3xl font-black text-slate-900 dark:text-white">3,2x</span>
-              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
-                <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> 0.1%
-              </span>
-            </div>
-            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-slate-400">Marge / Salaires</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-            </div>
-          </div>
-
-          {/* Metric 4 */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all relative overflow-hidden group">
-            <div className="flex justify-between items-start mb-2">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contrôle</p>
-              <ScaleIcon className="h-5 w-5 text-slate-500 bg-slate-100 rounded p-0.5" />
-            </div>
-            <h4 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1">Écart Budget</h4>
-            <div className="flex items-baseline gap-2 mb-4">
-              <span className="text-3xl font-black text-slate-900 dark:text-white">-2,1%</span>
-              <span className="text-xs font-bold text-slate-800 bg-slate-200 px-1.5 py-0.5 rounded flex items-center">
-                <ArrowTrendingDownIcon className="h-3 w-3 mr-1" /> 0.5%
-              </span>
-            </div>
-            <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center opacity-80 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-slate-400">Réel vs Plan</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -488,100 +455,43 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
       </div>
 
       {/* Synthèse Exécutive - Strategic Dark Theme Bar */}
-      {/* Synthèse Exécutive - Strategic Dark Theme Bar */}
       <div className="bg-slate-900 rounded-2xl p-8 shadow-sm relative overflow-hidden text-white border border-slate-800">
-        {/* Ambient Glows Removed for Sober ERP Look */}
-
         <div className="relative z-10">
           <div className="flex justify-between items-end mb-8">
             <h3 className="text-xl font-bold flex items-center text-white/95 tracking-wide">
               <MagnifyingGlassIcon className="h-6 w-6 mr-3 text-emerald-400" />
               Synthèse Exécutive
               <span className="ml-3 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700/50 text-slate-300 border border-slate-600 uppercase tracking-wider">
-                Temps Réel
+                Basé sur Données {currentSize === 'micro' ? 'DZD' : 'Groupe'}
               </span>
             </h3>
             <span className="text-xs font-mono text-slate-400">Dernière maj: {new Date().toLocaleTimeString()}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            {/* CARD 1: MARGE (Profitability) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-slate-400" />
+            {metrics.map((metric, idx) => (
+              <div key={`summary-${metric.id}`} className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
+                  {metric.tendance === 'up' ? <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-400" /> : <ArrowTrendingDownIcon className="h-5 w-5 text-rose-400" />}
+                </div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">{metric.nom}</p>
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="text-4xl font-extrabold text-white tracking-tight">
+                    {typeof metric.valeur === 'number' && metric.unite !== '%' && metric.unite !== 'j' && metric.unite !== 'Jours' && metric.unite !== 'x'
+                      ? metric.valeur.toLocaleString()
+                      : metric.valeur}
+                  </span>
+                  <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">{metric.unite}</span>
+                </div>
+                <div className="w-full h-1 bg-slate-700 rounded-full mb-3 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${metric.tendance === 'up' ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                    style={{ width: `${Math.min(Math.abs(metric.evolutionPourcentage) * 5, 100)}%` }}
+                  ></div>
+                </div>
+                <p className="text-xs text-slate-400 font-medium">Trends: {metric.evolutionPourcentage > 0 ? '+' : ''}{metric.evolutionPourcentage}% vs M-1</p>
               </div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Marge</p>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-extrabold text-white tracking-tight">+1.1%</span>
-                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Croissance nette</span>
-              </div>
-              <div className="w-full h-1 bg-slate-700 rounded-full mb-3 overflow-hidden">
-                <div className="h-full bg-slate-400 w-[75%] rounded-full"></div>
-              </div>
-              <p className="text-xs text-slate-400 font-medium">Surperformance vs marché (+0.8%)</p>
-            </div>
-
-            {/* CARD 2: ROE (Return on Equity) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <CurrencyDollarIcon className="h-5 w-5 text-slate-400" />
-              </div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">ROE Global</p>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-extrabold text-white tracking-tight">38.6%</span>
-                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Performance Capitaux</span>
-              </div>
-              {/* Mini Chart Visualization using CSS Bars */}
-              <div className="flex items-end gap-1 h-8 mb-2">
-                <div className="w-2 bg-slate-800 h-[40%] rounded-sm"></div>
-                <div className="w-2 bg-slate-700 h-[60%] rounded-sm"></div>
-                <div className="w-2 bg-slate-600 h-[50%] rounded-sm"></div>
-                <div className="w-2 bg-slate-400 h-[85%] rounded-sm"></div>
-                <div className="w-2 bg-slate-800/30 h-[100%] rounded-sm border border-slate-600 border-dashed"></div>
-              </div>
-              <p className="text-xs text-slate-400 font-medium">Objectif annuel dépassé</p>
-            </div>
-
-            {/* CARD 3: EFFICACITÉ MO (Productivity) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <ScaleIcon className="h-5 w-5 text-slate-400" />
-              </div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Efficacité MO</p>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-extrabold text-white tracking-tight">3.2x</span>
-                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Ratio Stratégique</span>
-              </div>
-              <div className="w-full flex gap-1 mb-3">
-                <span className="h-1.5 flex-1 rounded-full bg-slate-500"></span>
-                <span className="h-1.5 flex-1 rounded-full bg-slate-500"></span>
-                <span className="h-1.5 flex-1 rounded-full bg-slate-500"></span>
-                <span className="h-1.5 flex-1 rounded-full bg-slate-800"></span>
-              </div>
-              <p className="text-xs text-slate-400 font-medium">Optimisation des équipes</p>
-            </div>
-
-            {/* CARD 4: DSO (Cash Cycle) */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 hover:border-slate-500/30 transition-all group relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-3 opacity-50 group-hover:opacity-100 transition-opacity">
-                <ClockIcon className="h-5 w-5 text-slate-400" />
-              </div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">DSO Moyen</p>
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-extrabold text-white tracking-tight">35j</span>
-                <span className="text-xs font-bold text-slate-300 bg-slate-700/50 px-2 py-0.5 rounded">Délai Paiement</span>
-              </div>
-              {/* Timeline visual */}
-              <div className="relative w-full h-1 bg-slate-800 rounded-full mb-3 mt-2">
-                <div className="absolute top-0 left-0 h-full bg-slate-600 w-[60%] rounded-full opacity-50"></div>
-                <div className="absolute top-0 left-0 h-full bg-slate-400 w-[42%] rounded-full"></div>
-                {/* Marker for Target */}
-                <div className="absolute top-[-4px] left-[45%] w-0.5 h-3 bg-white/50"></div>
-              </div>
-              <p className="text-xs text-slate-400 font-medium">Amélioration (-3 jours)</p>
-            </div>
-
+            ))}
           </div>
         </div>
       </div>

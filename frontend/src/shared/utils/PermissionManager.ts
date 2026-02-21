@@ -95,7 +95,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Valider les factures',
     description: 'Valider les factures avant envoi',
     category: 'facturation',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'intermediate'
   },
   {
@@ -103,7 +103,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Annuler les factures',
     description: 'Annuler ou corriger les factures',
     category: 'facturation',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'advanced'
   },
 
@@ -417,94 +417,201 @@ export const USER_ROLES: UserRole[] = [
     name: 'Gérant (Propriétaire)',
     description: 'Accès complet trésorerie et facturation pour gestion quotidienne',
     permissions: [
-      'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-calendar',
+      'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-calendar', 'dashboard-alerts',
+      'comptabilite-read',
       'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
       'rapports-tresorerie', 'rapports-basic', 'rapports-ventes', 'rapports-achats',
       'clients-manage', 'fournisseurs-manage',
-      'lia-access', 'lia-chatbot' // IA de base
+      'lia-access', 'lia-chatbot', 'lia-analyses'
     ],
-    companyTypes: ['eurl'],
+    companyTypes: ['eurl', 'sarl'],
     accessLevels: ['starter', 'professional']
   },
 
-  // 2. Commercial (SARL/SPA)
+  // 2. Directeur Général / CEO (SPA)
   {
-    id: 'commercial',
-    name: 'Commercial',
-    description: 'Gestion clients, devis et commandes',
-    permissions: [
-      'dashboard-access', 'dashboard-overview',
-      'clients-manage',
-      'facturation-read', 'facturation-create', // Juste créer des devis/factures
-      'stocks-read', // Voir les stocks dispo
-      'rapports-basic', 'rapports-ventes', // Voir ses perfs
-      'lia-access' // IA pour aide à la vente
-    ],
-    companyTypes: ['sarl', 'spa'],
-    accessLevels: ['professional', 'enterprise']
-  },
-
-  // 3. Comptable (Toutes)
-  {
-    id: 'comptable',
-    name: 'Comptable',
-    description: 'Saisie comptable et fiscalité',
-    permissions: [
-      'dashboard-access', 'dashboard-overview',
-      'comptabilite-read', 'comptabilite-write',
-      'facturation-read', 'facturation-validate',
-      'paie-read', 'paie-create',
-      'rapports-comptabilite', 'rapports-fiscalite', 'rapports-basic',
-      'lia-access', 'lia-analyses' // IA pour anomalies
-    ],
-    companyTypes: ['eurl', 'sarl', 'spa'],
-    accessLevels: ['professional', 'enterprise']
-  },
-
-  // 4. Responsable Stock (SARL/SPA)
-  {
-    id: 'responsable_stock',
-    name: 'Responsable Stock',
-    description: 'Gestion des entrées/sorties et inventaires',
-    permissions: [
-      'dashboard-access',
-      'stocks-read', 'stocks-move', 'stocks-inventory',
-      'fournisseurs-manage',
-      'rapports-stocks', 'rapports-achats'
-    ],
-    companyTypes: ['sarl', 'spa'],
-    accessLevels: ['professional', 'enterprise']
-  },
-
-  // 5. DAF (SPA)
-  {
-    id: 'daf',
-    name: 'D.A.F',
-    description: 'Directeur Admin & Financier - Supervision globale',
+    id: 'dg',
+    name: 'Directeur Général',
+    description: 'Pilotage stratégique, KPIs globaux, validation budgets',
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-alerts',
-      'comptabilite-read', 'comptabilite-validate', 'comptabilite-close',
-      'rapports-tresorerie', 'rapports-advanced', 'rapports-create',
-      'paie-read', 'paie-validate',
-      'audit-read',
-      'lia-access', 'lia-analyses', 'lia-train' // IA avancée
+      'comptabilite-read', 'facturation-read', 'stocks-read', 'paie-read',
+      'rapports-basic', 'rapports-ventes', 'rapports-achats', 'rapports-tresorerie', 'rapports-comptabilite', 'rapports-fiscalite', 'rapports-advanced',
+      'audit-read', 'lia-access', 'lia-analyses'
     ],
     companyTypes: ['spa'],
     accessLevels: ['enterprise']
   },
 
-  // 6. Auditeur (SPA)
+  // 3. DAF (SPA)
+  {
+    id: 'daf',
+    name: 'Directeur Administratif & Financier',
+    description: 'Contrôle financier, trésorerie, consolidation et fiscalité',
+    permissions: [
+      'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-alerts',
+      'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close', 'consolidation',
+      'facturation-read', 'facturation-validate', 'facturation-cancel',
+      'rapports-tresorerie', 'rapports-advanced', 'rapports-create', 'rapports-comptabilite', 'rapports-fiscalite',
+      'paie-read', 'paie-validate',
+      'audit-read',
+      'lia-access', 'lia-analyses', 'lia-train'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 4. Directeur Commercial (SPA)
+  {
+    id: 'commercial_director',
+    name: 'Directeur Commercial',
+    description: 'Stratégie de vente, gestion des équipes et comptes clés',
+    permissions: [
+      'dashboard-access', 'dashboard-overview', 'dashboard-charts',
+      'clients-manage', 'facturation-read', 'facturation-create', 'facturation-validate',
+      'rapports-ventes', 'rapports-basic', 'rapports-advanced',
+      'lia-access', 'lia-analyses'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 5. Commercial / Vendeur (SARL/SPA)
+  {
+    id: 'commercial',
+    name: 'Commercial',
+    description: 'Gestion clients, devis et commandes terrain',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'clients-manage',
+      'facturation-read', 'facturation-create',
+      'stocks-read',
+      'rapports-basic', 'rapports-ventes',
+      'lia-access'
+    ],
+    companyTypes: ['sarl', 'spa'],
+    accessLevels: ['professional', 'enterprise']
+  },
+
+  // 6. DRH (SPA)
+  {
+    id: 'hr_director',
+    name: 'Directeur Ressources Humaines',
+    description: 'Gestion du personnel, paie et conformité sociale',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'paie-read', 'paie-create', 'paie-validate',
+      'admin-users',
+      'rapports-basic', 'rapports-advanced',
+      'lia-access'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 7. Directeur Logistique (SPA)
+  {
+    id: 'logistics_director',
+    name: 'Directeur Logistique',
+    description: 'Gestion de la supply chain et des entrepôts multi-sites',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'stocks-read', 'stocks-move', 'stocks-inventory',
+      'fournisseurs-manage',
+      'rapports-stocks', 'rapports-achats',
+      'lia-access'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 8. Directeur Production (SPA)
+  {
+    id: 'production_director',
+    name: 'Directeur Production',
+    description: 'Pilotage des usines, coûts de revient et qualité',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'stocks-read', 'stocks-move',
+      'rapports-stocks', 'rapports-basic',
+      'lia-access'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 9. Chef Comptable (SPA)
+  {
+    id: 'comptable_senior',
+    name: 'Chef Comptable',
+    description: 'Supervision de la comptabilité générale et tiers',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
+      'facturation-read', 'facturation-validate',
+      'paie-read', 'paie-create',
+      'rapports-comptabilite', 'rapports-fiscalite', 'rapports-basic', 'rapports-advanced',
+      'lia-access', 'lia-analyses'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 10. Comptable (SARL/SPA)
+  {
+    id: 'comptable',
+    name: 'Comptable',
+    description: 'Saisie comptable, pointage et déclarations',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'comptabilite-read', 'comptabilite-write',
+      'facturation-read', 'facturation-validate',
+      'paie-read',
+      'rapports-comptabilite', 'rapports-basic',
+      'lia-access'
+    ],
+    companyTypes: ['eurl', 'sarl', 'spa'],
+    accessLevels: ['professional', 'enterprise']
+  },
+
+  // 11. Contrôleur de Gestion (SPA)
+  {
+    id: 'controleur_gestion',
+    name: 'Contrôleur de Gestion',
+    description: 'Analyse des coûts, budgets et reporting de performance',
+    permissions: [
+      'dashboard-access', 'dashboard-overview', 'dashboard-charts',
+      'comptabilite-read',
+      'rapports-advanced', 'rapports-create', 'rapports-ventes', 'rapports-achats',
+      'lia-access', 'lia-analyses'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 12. Magasinier (SARL/SPA)
+  {
+    id: 'magasinier',
+    name: 'Magasinier',
+    description: 'Réception, expédition et mouvements de stock physiques',
+    permissions: [
+      'dashboard-access',
+      'stocks-read', 'stocks-move',
+      'rapports-stocks'
+    ],
+    companyTypes: ['sarl', 'spa'],
+    accessLevels: ['professional', 'enterprise']
+  },
+
+  // 13. Auditeur (SPA)
   {
     id: 'auditeur',
     name: 'Auditeur Interne',
-    description: 'Contrôle et conformité (Lecture Seule)',
+    description: 'Contrôle et conformité (Lecture Seule globale)',
     permissions: [
       'dashboard-access', 'dashboard-overview',
       'audit-read', 'audit-full',
-      'comptabilite-read',
-      'facturation-read',
-      'stocks-read',
-      'paie-read',
+      'comptabilite-read', 'facturation-read', 'stocks-read', 'paie-read',
       'rapports-advanced', 'rapports-comptabilite',
       'lia-access', 'lia-analyses'
     ],
@@ -512,12 +619,27 @@ export const USER_ROLES: UserRole[] = [
     accessLevels: ['enterprise']
   },
 
-  // 7. Admin IT (Toutes)
+  // 14. Trésorier (SPA)
+  {
+    id: 'tresorier',
+    name: 'Trésorier',
+    description: 'Gestion des flux financiers et relations bancaires',
+    permissions: [
+      'dashboard-access', 'dashboard-overview',
+      'comptabilite-read',
+      'rapports-tresorerie', 'rapports-basic',
+      'lia-access'
+    ],
+    companyTypes: ['spa'],
+    accessLevels: ['enterprise']
+  },
+
+  // 15. Admin IT (Toutes)
   {
     id: 'admin',
     name: 'Administrateur IT',
     description: 'Accès système complet (Configuration)',
-    permissions: AVAILABLE_PERMISSIONS.map(p => p.id), // "God Mode"
+    permissions: AVAILABLE_PERMISSIONS.map(p => p.id),
     companyTypes: ['eurl', 'sarl', 'spa'],
     accessLevels: ['starter', 'professional', 'enterprise']
   }
