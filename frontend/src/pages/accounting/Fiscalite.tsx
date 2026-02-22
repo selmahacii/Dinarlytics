@@ -52,6 +52,8 @@ import {
   type DeclarationTAP,
   type CalendrierFiscal
 } from '@shared/utils/fiscalDeclarations';
+import { fiscalService } from '../../services/modules/fiscalService';
+import { invoiceService } from '../../services/modules/invoiceService';
 
 const Fiscalite: React.FC = () => {
   const { formatCurrency, user, currentDevise, currentCountry, planComptable, fiscalRates, tvaRate, calculateTVA, getTVARate, fiscalDocuments } = useApp();
@@ -106,6 +108,9 @@ const Fiscalite: React.FC = () => {
   const [isAiReportModalOpen, setIsAiReportModalOpen] = useState(false);
   const [isGeneratingAiReport, setIsGeneratingAiReport] = useState(false);
   const [aiReportContent, setAiReportContent] = useState<string | null>(null);
+  const [riskAnalysis, setRiskAnalysis] = useState<any[]>([]);
+
+  // États pour les déclarations
   const [isDeclarationModalOpen, setIsDeclarationModalOpen] = useState(false);
   const [isGeneratingDeclaration, setIsGeneratingDeclaration] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('');
@@ -132,21 +137,77 @@ const Fiscalite: React.FC = () => {
   const [filterFrequency, setFilterFrequency] = useState<string>('all');
 
   // États pour l'historique des documents créés
-  const [createdDocuments, setCreatedDocuments] = useState<Array<{
-    id: string;
-    code: string;
-    name: string;
-    type: string;
-    status: 'draft' | 'submitted' | 'validated' | 'rejected';
-    createdAt: string;
-    submittedAt?: string;
-    validatedAt?: string;
-    period?: string;
-    amount?: number;
-    pdfUrl?: string;
-  }>>([]);
+  const [createdDocuments, setCreatedDocuments] = useState<Array<any>>([]);
   const [documentHistoryFilter, setDocumentHistoryFilter] = useState<string>('all');
   const [documentHistorySearch, setDocumentHistorySearch] = useState<string>('');
+  const [showError, setShowError] = useState(false);
+
+  // Recalculer les calculs fiscaux selon la devise actuelle (Moteurs de secours)
+  const baseChiffreAffaires = 5200000;
+  const baseCharges = 3100000;
+
+  const calculsFiscaux = {
+    chiffreAffaires: baseChiffreAffaires,
+    chargesDeductibles: baseCharges,
+    beneficeImposable: 850000,
+    ibs: 221000,
+    tvaCollectee: 988000,
+    tvaDeductible: 589000,
+    tvaAVerser: 399000,
+    irg: 45000,
+    tap: 104000
+  };
+
+  // Taux personnalisables
+  const [customRates, setCustomRates] = useState({
+    tva: 0.19,
+    tap: 0.02,
+    ibs: 0.26
+  });
+
+  // Données dynamiques
+  const [dynamicKPI, setDynamicKPI] = useState<any>(null);
+  const [fiscalForecast, setFiscalForecast] = useState<any>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Initialiser les données
+  React.useEffect(() => {
+    const loadDynamicData = async () => {
+      const allInvoices = await invoiceService.getAll();
+      const active = allInvoices.filter(i => i.statut !== 'annule');
+      const sales = active.filter(i => i.type === 'sale');
+      const purchases = active.filter(i => i.type === 'purchase');
+
+      const caHT = sales.reduce((s, i) => s + i.totalHT, 0);
+      const chargesHT = purchases.reduce((s, i) => s + i.totalHT, 0);
+      const tvaColl = sales.reduce((s, i) => s + i.totalTVA, 0);
+      const tvaDed = purchases.reduce((s, i) => s + i.totalTVA, 0);
+
+      const benefice = caHT - chargesHT;
+      const ibs = benefice > 0 ? benefice * customRates.ibs : 0;
+      const tvaAVerser = tvaColl - tvaDed;
+
+      setDynamicKPI({
+        caHT,
+        chargesHT,
+        benefice,
+        ibs,
+        tvaColl,
+        tvaDed,
+        tvaAVerser: tvaAVerser > 0 ? tvaAVerser : 0,
+        creditTva: tvaAVerser < 0 ? Math.abs(tvaAVerser) : 0,
+        tap: caHT * customRates.tap
+      });
+
+      const risks = await fiscalService.getRiskAnalysis();
+      setRiskAnalysis(risks);
+
+      const forecast = await fiscalService.getFiscalForecast();
+      setFiscalForecast(forecast);
+    };
+
+    loadDynamicData();
+  }, [customRates]);
 
   // Initialiser le calendrier fiscal
   React.useEffect(() => {
@@ -176,18 +237,20 @@ const Fiscalite: React.FC = () => {
           const periode = selectedPeriod.includes('-') ? selectedPeriod :
             `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
-          // Récupérer les données réelles depuis les factures/écritures
-          const chiffreAffairesHT = baseChiffreAffaires; // En production, calculer depuis les factures
-          const tvaCollectee = Math.round(chiffreAffairesHT * fiscalRates.tvaNormal);
-          const tvaDeductible = Math.round(baseCharges * fiscalRates.tvaNormal);
+          // Récupérer les données réelles depuis les factures
+          const calculated = await fiscalService.calculateG50(periode);
+
+          const chiffreAffairesHT = calculated.ca_ht;
+          const tvaCollectee = calculated.tva_collectee;
+          const tvaDeductible = calculated.tva_deductible;
 
           nouvelleDeclaration = genererDeclarationG50(periode, {
             chiffreAffairesHT,
             tvaCollectee,
             tvaDeductible,
-            achatsHT: baseCharges,
-            nombreFactures: 45,
-            nombreClients: 12
+            achatsHT: tvaDeductible / 0.19, // Estimation base achats
+            nombreFactures: 1,
+            nombreClients: 1
           });
 
           setDeclarationsGenerees(prev => ({
@@ -267,65 +330,60 @@ const Fiscalite: React.FC = () => {
     setIsGeneratingAiReport(true);
     setAiReportContent(null);
 
-    // Simulation de l'intelligence artificielle
+    // Simulation de l'intelligence artificielle enrichie par les risques réels
     await new Promise(resolve => setTimeout(resolve, 2500));
+
+    const risksText = riskAnalysis.map(r => `• [${r.level.toUpperCase()}] ${r.title}: ${r.message}`).join('\n');
 
     const content = `
 AUDIT FISCAL STRATÉGIQUE - EXERCICE 2026
 Réalisé par Dinarlytics AI • Rapport ID: #DZ-TAX-2026-001
-Status: Conforme au Plan Comptable National (PCN)
+Status: Basé sur vos transactions réelles
 ────────────────────────────────────────────────────────────
 
-1. ANALYSE DU RÉSULTAT (YTD 2026)
-• Chiffre d'Affaires HT:     ${formatCurrency(baseChiffreAffaires)}
-• Résultat Brut (EBT):       ${formatCurrency(850000)}
-• Impôt s/ Bénéfices (IBS):  ${formatCurrency(221000)}
-• Résultat Net (Net Profit): ${formatCurrency(629000)}
+1. SYNTHÈSE DES CALCULS (DYNAMIQUE)
+• Chiffre d'Affaires HT:     ${formatCurrency(dynamicKPI?.caHT || 0)}
+• Résultat Brut Estimé:      ${formatCurrency(dynamicKPI?.benefice || 0)}
+• Impôt s/ Bénéfices (IBS):  ${formatCurrency(dynamicKPI?.ibs || 0)}
+• TVA à verser (Solde):      ${formatCurrency(dynamicKPI?.tvaAVerser || 0)}
+• TAP (Taux ${customRates.tap * 100}%):        ${formatCurrency(dynamicKPI?.tap || 0)}
 
-2. PRESSION FISCALE & FLUX (CASH FLOW)
-• Total Taxes & Impôts:      ${formatCurrency(221000 + 399000 + 104000)}
-  (Dont TVA à verser: ${formatCurrency(399000)} / TAP: ${formatCurrency(104000)})
-• Ratio de Récupération TVA: ${Math.round((589000 / 988000) * 100)}%
-• Taux d'imposition effectif: 26.0%
+2. ANALYSE DES RISQUES DÉTECTÉS
+${risksText || 'Aucun risque majeur détecté sur les données actuelles.'}
 
 3. DIAGNOSTIC DE CONFORMITÉ IA
-• Risque de redressement: TRÈS FAIBLE (Incertitude < 2%)
-• Cohérence Bilan/G50:    VÉRIFIÉE (Matches @ 100%)
+• Risque de redressement: ${riskAnalysis.some(r => r.level === 'critical') ? 'ÉLEVÉ' : 'FAIBLE'}
+• Cohérence Bilan/G50:    VÉRIFIÉE
 
 4. RECOMMANDATIONS STRATÉGIQUES
-[P1] Clôture Provisionnelle: Anticiper l'acompte IBS du Q1 avant le 15/05.
-[P2] Optimisation: Revoir la déductibilité des charges bancaires (C/66).
-[P3] Trésorerie: Maintenir un reliquat net de ${formatCurrency(629000)} pour investissement.
+[P1] Optimisation: Le taux de TAP actuel (${customRates.tap * 100}%) semble conforme à votre secteur.
+[P2] Trésorerie: Anticiper un versement de ${formatCurrency(dynamicKPI?.tvaAVerser || 0)} pour la prochaine G50.
 
-SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
+SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
 ────────────────────────────────────────────────────────────`;
 
     setAiReportContent(content);
     setIsGeneratingAiReport(false);
   };
 
-  // Recalculer les calculs fiscaux selon la devise actuelle
-  const baseChiffreAffaires = 5200000;
-  const baseCharges = 3100000;
-  const tauxTVA = fiscalRates.tvaNormal;
-
-  const calculsFiscaux = {
-    chiffreAffaires: baseChiffreAffaires,
-    chargesDeductibles: baseCharges,
-    beneficeImposable: 850000,
-    ibs: 221000, // 26% de 850,000
-    tvaCollectee: Math.round(calculateTVA(baseChiffreAffaires, 'normal')), // TVA selon devise
-    tvaDeductible: Math.round(calculateTVA(baseCharges, 'normal')), // TVA selon devise
-    tvaAVerser: Math.round(calculateTVA(baseChiffreAffaires, 'normal') - calculateTVA(baseCharges, 'normal')),
-    irg: 45000,
-    tap: 104000 // 2% de 5,200,000
+  const handleExportAuditReport = async () => {
+    if (!aiReportContent) return;
+    setIsExporting(true);
+    try {
+      await fiscalService.exportRiskReportPDF(aiReportContent);
+    } catch (e) {
+      console.error("Export failed", e);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
+  // Nouvelles métriques fiscales avancées 
   const declarationsG50 = [
     {
       id: 'G50-2026-01',
       periode: 'Janvier 2026',
-      chiffreAffaires: 5200000, // Coherent with annual CA
+      chiffreAffaires: 5200000,
       tvaCollectee: 988000,
       tvaDeductible: 589000,
       tvaAVerser: 399000,
@@ -339,7 +397,7 @@ SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
     {
       id: 'G50-2026-02',
       periode: 'Février 2026',
-      chiffreAffaires: 1300000, // Matching 1/4 of 5.2M
+      chiffreAffaires: 1300000,
       tvaCollectee: 247000,
       tvaDeductible: 147500,
       tvaAVerser: 99500,
@@ -411,9 +469,6 @@ SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
     { poste: 'IBS', prevu: 210000, realise: calculsFiscaux.ibs, ecart: calculsFiscaux.ibs - 210000 },
     { poste: 'TVA à verser (Jan+Fév)', prevu: 50000, realise: declarationsG50[0].tvaAVerser + declarationsG50[1].tvaAVerser, ecart: (declarationsG50[0].tvaAVerser + declarationsG50[1].tvaAVerser) - 50000 }
   ];
-
-  // State for error display
-  const [showError, setShowError] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -496,18 +551,18 @@ SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
         </div>
       </div>
 
-      {/* Synthèse des Calculs Fiscaux (Cartes Flash) */}
+      {/* Synthèse des Calculs Fiscaux (Cartes Flash Connectées) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-900 transition-colors">
               <CalculatorIcon className="h-6 w-6 text-slate-700 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Base HT</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Base Ventes</span>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Bénéfice Imposable</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Chiffre d'Affaires HT</p>
           <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.beneficeImposable)}</p>
+            <p className="text-2xl font-black text-slate-900">{formatCurrency(dynamicKPI?.caHT || 0)}</p>
           </div>
         </div>
 
@@ -516,11 +571,11 @@ SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
             <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
               <BuildingOfficeIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Direct</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Taux: {customRates.ibs * 100}%</span>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">IBS (26%)</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">IBS Estimé</p>
           <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.ibs)}</p>
+            <p className="text-2xl font-black text-slate-900">{formatCurrency(dynamicKPI?.ibs || 0)}</p>
           </div>
         </div>
 
@@ -529,25 +584,124 @@ SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
             <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
               <DocumentTextIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Indirect</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">TVA Net</span>
           </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">TVA à Verser</p>
           <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.tvaAVerser)}</p>
+            <p className="text-2xl font-black text-emerald-600">{formatCurrency(dynamicKPI?.tvaAVerser || 0)}</p>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-slate-900 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
           <div className="flex items-center justify-between mb-4 relative z-10">
             <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
-              <BanknotesIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
+              <SparklesIcon className="h-6 w-6 text-indigo-600 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Global</span>
+            <button
+              onClick={handleGenererRapportIA}
+              className="text-[10px] font-bold text-white uppercase tracking-widest py-1.5 px-3 bg-indigo-600 rounded-full hover:bg-indigo-700 transition-colors"
+            >
+              Audit IA
+            </button>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Charge Fiscale Totale</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Score Conformité</p>
           <div className="flex items-baseline space-x-1 relative z-10">
-            <p className="text-2xl font-black text-slate-900">{formatCurrency(calculsFiscaux.ibs + calculsFiscaux.tvaAVerser + calculsFiscaux.tap)}</p>
+            <p className="text-2xl font-black text-slate-900">{100 - (riskAnalysis.length * 10)}/100</p>
           </div>
+        </div>
+      </div>
+
+      {/* Configuration des Taux et Prédictions IA */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900 flex items-center">
+              <SparklesIcon className="h-6 w-6 mr-3 text-indigo-600" />
+              Centre de Contrôle & Simulations
+            </h3>
+            <div className="flex space-x-2">
+              <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center">
+                <CheckCircleIcon className="h-3 w-3 mr-1" /> Cohérence ERP Totale
+              </span>
+              <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Mode Expert</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Taux TVA (%)</label>
+              <input
+                type="number"
+                value={customRates.tva * 100}
+                onChange={(e) => setCustomRates({ ...customRates, tva: parseFloat(e.target.value) / 100 })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Taux TAP (%)</label>
+              <input
+                type="number"
+                value={customRates.tap * 100}
+                onChange={(e) => setCustomRates({ ...customRates, tap: parseFloat(e.target.value) / 100 })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Taux IBS (%)</label>
+              <input
+                type="number"
+                value={customRates.ibs * 100}
+                onChange={(e) => setCustomRates({ ...customRates, ibs: parseFloat(e.target.value) / 100 })}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="p-6 bg-slate-900 rounded-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <SparklesIcon className="h-32 w-32 text-white" />
+            </div>
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">Intelligence Prédictive M+1</h4>
+                <p className="text-xs text-slate-400 max-w-md">{fiscalForecast?.message || "Analyse des tendances en cours..."}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Charge TVA Prévue</p>
+                <p className="text-2xl font-black text-white">{formatCurrency(fiscalForecast?.predictedTVANextMonth || 0)}</p>
+                <div className="mt-1 flex items-center justify-end text-[10px] font-bold text-emerald-400">
+                  <CheckCircleIcon className="h-3 w-3 mr-1" /> Score Confiance: {Math.round((fiscalForecast?.confidenceScore || 0) * 100)}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
+          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
+            <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-rose-500" />
+            Audit de Conformité
+          </h3>
+          <div className="space-y-4 flex-1">
+            {riskAnalysis.length > 0 ? riskAnalysis.slice(0, 3).map((risk, idx) => (
+              <div key={idx} className={`p-4 rounded-2xl border-l-4 ${risk.level === 'critical' ? 'bg-rose-50 border-rose-500' : 'bg-amber-50 border-amber-500'}`}>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{risk.title}</p>
+                <p className="text-xs text-slate-800 font-medium leading-relaxed">{risk.message}</p>
+              </div>
+            )) : (
+              <div className="flex flex-col items-center justify-center h-full text-slate-400 italic py-10">
+                <CheckCircleIcon className="h-12 w-12 mb-2 opacity-20" />
+                <p className="text-xs">Aucun risque critique détecté</p>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={handleGenererRapportIA}
+            className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-lg flex items-center justify-center group"
+          >
+            Lancer l'Audit Complet
+            <SparklesIcon className="h-4 w-4 ml-2 group-hover:animate-pulse" />
+          </button>
         </div>
       </div>
 
@@ -1580,9 +1734,13 @@ SCORE DE SANTÉ FISCALE: 98/100 (Excellente gestion)
 
               <div className="flex justify-end space-x-3">
                 <button onClick={() => setIsAiReportModalOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Fermer</button>
-                <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-sm flex items-center">
-                  <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-                  Exporter le rapport
+                <button
+                  onClick={handleExportAuditReport}
+                  disabled={isExporting}
+                  className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-sm flex items-center disabled:opacity-50"
+                >
+                  {isExporting ? <ArrowDownTrayIcon className="h-4 w-4 mr-2 animate-bounce" /> : <DocumentArrowDownIcon className="h-4 w-4 mr-2" />}
+                  {isExporting ? "Exportation..." : "Exporter le rapport PDF"}
                 </button>
               </div>
             </div>

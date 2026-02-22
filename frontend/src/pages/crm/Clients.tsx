@@ -44,7 +44,7 @@ const Clients: React.FC = () => {
     deleteClient
   } = useClients();
   // Map API clients to app Client type - Memoized to prevent infinite loops
-  const apiClients: Client[] = useMemo(() => (rawApiClients || []).map((c: any) => ({
+  const apiClients: Client[] = useMemo(() => (Array.isArray(rawApiClients) ? rawApiClients : []).map((c: any) => ({
     id: c.id,
     nom: c.name ?? c.nom ?? "",
     adresse: c.address ?? c.adresse ?? "",
@@ -311,6 +311,41 @@ const Clients: React.FC = () => {
       }
     }
   }, [clientIdToOpen, apiClients, selectedClient?.id]);
+
+  // Synchroniser formData avec le client en cours d'édition
+  useEffect(() => {
+    if (editingClient) {
+      setFormData({
+        nom: editingClient.nom || '',
+        adresse: editingClient.adresse || '',
+        nif: editingClient.nif || '',
+        telephone: editingClient.telephone || '',
+        email: editingClient.email || '',
+        solde: editingClient.solde || 0,
+        secteur: editingClient.secteur || '',
+        groupeId: editingClient.groupeId || '',
+        niveauAcces: editingClient.niveauAcces || 'standard',
+        permissions: {
+          consultation: !!editingClient.permissions?.consultation,
+          modification: !!editingClient.permissions?.modification,
+          suppression: !!editingClient.permissions?.suppression,
+          export: !!editingClient.permissions?.export,
+          analyse: !!editingClient.permissions?.analyse,
+        },
+        limiteCredit: editingClient.limiteCredit || 0,
+        delaiPaiement: Number(editingClient.delaiPaiement) || 30,
+        tauxEscompte: editingClient.tauxEscompte || 0,
+        categorieRisque: editingClient.categorieRisque || 'faible',
+        notes: editingClient.notes || ''
+      });
+    } else {
+      setFormData({
+        nom: '', adresse: '', nif: '', telephone: '', email: '', solde: 0, secteur: '', groupeId: '', niveauAcces: 'standard',
+        permissions: { consultation: true, modification: false, suppression: false, export: true, analyse: true },
+        limiteCredit: 0, delaiPaiement: 30, tauxEscompte: 0, categorieRisque: 'faible', notes: ''
+      });
+    }
+  }, [editingClient]);
 
   const filteredClients = (apiClients || []).filter((client: any) =>
     (client.nom || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -733,13 +768,22 @@ const Clients: React.FC = () => {
                   />
                 </div>
 
-                <button
-                  onClick={handleAdd}
-                  className="flex items-center px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl"
-                >
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  {t('ajouter')} Client
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => exportToCSV(apiClients, 'clients-dinarlytics')}
+                    className="flex items-center px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:border-slate-400 transition-all font-black text-[10px] uppercase tracking-[0.2em]"
+                  >
+                    <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
+                    Exporter
+                  </button>
+                  <button
+                    onClick={handleAdd}
+                    className="flex items-center px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl"
+                  >
+                    <PlusIcon className="h-4 w-4 mr-2" />
+                    {t('ajouter')} Client
+                  </button>
+                </div>
               </div>
 
               {/* Clients Table avec colonnes ERPNext */}
@@ -3143,6 +3187,128 @@ const Clients: React.FC = () => {
             </button>
           </div>
         </div>
+      </Modal>
+      {/* Modal Ajouter/Modifier Client */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingClient(null);
+        }}
+        title={editingClient ? "Modifier le Client" : "Nouveau Client"}
+        size="lg"
+      >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Dénomination Sociale</label>
+              <input
+                type="text"
+                required
+                value={formData.nom}
+                onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
+                placeholder="Ex: SARL Algérie Tech"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Identifiant Fiscal (NIF)</label>
+              <input
+                type="text"
+                value={formData.nif}
+                onChange={(e) => setFormData({ ...formData, nif: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
+                placeholder="15 ou 20 chiffres"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone Direct</label>
+              <input
+                type="text"
+                value={formData.telephone}
+                onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
+                placeholder="+213..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email Professionnel</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
+                placeholder="contact@entreprise.dz"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Siège Social</label>
+            <input
+              type="text"
+              value={formData.adresse}
+              onChange={(e) => setFormData({ ...formData, adresse: e.target.value })}
+              className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
+              placeholder="Adresse complète..."
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Secteur d'Activité</label>
+              <input
+                type="text"
+                value={formData.secteur}
+                onChange={(e) => setFormData({ ...formData, secteur: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
+                placeholder="Ex: Distribution, BTP..."
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Limite de Crédit (DZD)</label>
+              <input
+                type="number"
+                value={formData.limiteCredit}
+                onChange={(e) => setFormData({ ...formData, limiteCredit: Number(e.target.value) })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Notes & Observations</label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              rows={3}
+              className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-medium text-slate-900 dark:text-white"
+              placeholder="Notes confidentielles..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingClient(null);
+              }}
+              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
+            >
+              {editingClient ? "Mettre à jour" : "Enregistrer Client"}
+            </button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

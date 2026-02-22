@@ -16,8 +16,8 @@ import Articles from '@/pages/inventory/Articles';
 import Inventaire from '@/pages/inventory/Inventaire';
 import GestionPaiementsClients from '@features/operations/pages/GestionPaiementsClients';
 
-// Finance Components
 import AnalyticsFacturation from '@/pages/analytics/AnalyticsFacturation';
+import AnalyticsAchats from '@/pages/analytics/AnalyticsAchats';
 import RapportsComptables from '@/pages/accounting/RapportsComptables';
 import DocumentsFiscaux from '@/pages/accounting/DocumentsFiscaux';
 import Fiscalite from '@/pages/accounting/Fiscalite';
@@ -75,8 +75,9 @@ function App() {
                   <Route path="/articles" element={<ProtectedRoute requiredPermission="articles-manage"><Articles /></ProtectedRoute>} />
                   <Route path="/inventaire" element={<ProtectedRoute requiredPermission="stocks-read"><Inventaire /></ProtectedRoute>} />
 
-                  {/* Sales */}
+                  {/* Sales & Purchases */}
                   <Route path="/factures-vente" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsFacturation /></ProtectedRoute>} />
+                  <Route path="/achats-charges" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsAchats /></ProtectedRoute>} />
                   <Route path="/analytics-facturation" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsFacturation /></ProtectedRoute>} />
                   <Route path="/gestion-paiements-clients" element={<ProtectedRoute requiredPermission="facturation-read"><GestionPaiementsClients /></ProtectedRoute>} />
 

@@ -130,6 +130,7 @@ const Sidebar: React.FC = () => {
       onToggle: () => toggleMenu('operations-commerciales'),
       subItems: [
         { path: '/factures-vente', icon: DocumentTextIcon, label: 'Factures de Vente' },
+        { path: '/achats-charges', icon: BanknotesIcon, label: 'Achats & Charges' },
         has('clients-manage') && { path: '/clients', icon: UsersIcon, label: 'Portefeuille Clients' },
         has('fournisseurs-manage') && { path: '/fournisseurs', icon: TruckIcon, label: 'Fournisseurs' },
         has('stocks-read') && { path: '/articles', icon: CubeIcon, label: 'Stock & Articles' }

@@ -14,6 +14,7 @@ import {
   ArrowPathIcon,
   CalendarIcon,
   PrinterIcon,
+  SparklesIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
@@ -43,6 +44,9 @@ const AnalyticsAvancees: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [comparisonMode, setComparisonMode] = useState(false);
   const [exportFormat, setExportFormat] = useState('pdf');
+  const [kpiData, setKpiData] = useState<any>(null);
+  const [forecastData, setForecastData] = useState<any>(null);
+  const [sizeMetrics, setSizeMetrics] = useState<any>(null);
 
   // Hardcoded data with scaling
   const analyticsData = React.useMemo(() => ({
@@ -64,14 +68,30 @@ const AnalyticsAvancees: React.FC = () => {
     ]
   }), [scaleFactor]);
 
-  // Mock refresh effect when filters change
+  // Fetch dynamic data
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [selectedPeriod]);
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const segment = (user?.segment || 'sme') as 'micro' | 'sme' | 'mid';
+        const [kpis, forecast, sizeData] = await Promise.all([
+          analyticService.getHealthKPIs(),
+          analyticService.getForecast(segment),
+          analyticService.getCompanySizeMetrics(segment)
+        ]);
+
+        setKpiData(kpis);
+        setForecastData(forecast);
+        setSizeMetrics(sizeData);
+      } catch (error) {
+        console.error('Erreur lors du chargement des analyses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [selectedPeriod, user?.segment]);
 
   // Export Functionality
   const handleExport = () => {
@@ -93,15 +113,45 @@ const AnalyticsAvancees: React.FC = () => {
   };
 
   const currentMetrics = React.useMemo(() => [
-    { name: 'DSO (Délai Client)', value: '35j', diff: -2.3, icon: ClockIcon, color: 'slate', target: '30j' },
-    { name: 'BFR (Besoin Fonds)', value: formatCurrency(1300000 * scaleFactor), diff: 5.1, icon: BanknotesIcon, color: 'slate', target: `< ${formatCurrency(1500000 * scaleFactor)}` },
-    { name: 'Seuil Rentabilité', value: formatCurrency(4200000 * scaleFactor), diff: 0.0, icon: ScaleIcon, color: 'slate', target: 'Validé' },
-    { name: 'Solvabilité', value: '210%', diff: 1.5, icon: ChartBarSquareIcon, color: 'slate', target: '> 120%' }
-  ], [scaleFactor, formatCurrency]);
+    {
+      name: 'DSO (Délai Client)',
+      value: kpiData ? `${kpiData.dso_days}j` : '35j',
+      diff: -2.3,
+      icon: ClockIcon,
+      color: 'slate',
+      target: '30j'
+    },
+    {
+      name: 'BFR (Besoin Fonds)',
+      value: formatCurrency((kpiData?.bfr_value || 1300000) * scaleFactor),
+      diff: 5.1,
+      icon: BanknotesIcon,
+      color: 'slate',
+      target: `< ${formatCurrency(1500000 * scaleFactor)}`
+    },
+    {
+      name: 'Seuil Rentabilité',
+      value: formatCurrency((kpiData?.break_even_point || 4200000) * scaleFactor),
+      diff: 0.0,
+      icon: ScaleIcon,
+      color: 'slate',
+      target: 'Validé'
+    },
+    {
+      name: 'Solvabilité',
+      value: kpiData ? `${Math.round(kpiData.solvency_ratio * 100)}%` : '210%',
+      diff: 1.5,
+      icon: ChartBarSquareIcon,
+      color: 'slate',
+      target: '> 120%'
+    }
+  ], [scaleFactor, formatCurrency, kpiData]);
 
   // Projecting values for Rolling Forecast
-  const projectionValue = 2750000 * scaleFactor;
-  const historicValues = [2650000, 2820000, 2950000].map(v => v * scaleFactor);
+  const projectionValue = forecastData?.predicted_revenue_next_month || (2750000 * scaleFactor);
+  const historicValues = forecastData?.rolling_forecast
+    ? forecastData.rolling_forecast.map((f: any) => f.predicted_value)
+    : [2650000, 2820000, 2950000].map(v => v * scaleFactor);
 
   if (loading) {
     return (
@@ -257,8 +307,9 @@ const AnalyticsAvancees: React.FC = () => {
               <ClockIcon className="h-5 w-5 text-slate-500 mr-2" />
               Prévisions de Trésorerie (Rolling Forecast)
             </h3>
-            <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 shadow-sm">
-              Fiabilité Statistique: Haute
+            <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 shadow-sm flex items-center">
+              <SparklesIcon className="h-3 w-3 mr-1 text-indigo-500" />
+              IA Trust Score: {Math.round((forecastData?.confidence_score || 0.89) * 100)}%
             </span>
           </div>
 
@@ -302,17 +353,17 @@ const AnalyticsAvancees: React.FC = () => {
               </h4>
               <ul className="space-y-3">
                 <li className="flex items-start">
-                  <div className="h-2 w-2 rounded-full bg-amber-500 mt-1.5 mr-2.5 flex-shrink-0"></div>
+                  <div className="h-2 w-2 rounded-full bg-indigo-500 mt-1.5 mr-2.5 flex-shrink-0"></div>
                   <div>
-                    <p className="text-xs font-bold text-slate-700">Canal Email Marketing</p>
-                    <p className="text-[10px] text-slate-500 leading-tight">ROAS performant (4.1x). Opportunité d'augmentation budgétaire.</p>
+                    <p className="text-xs font-bold text-slate-700">{sizeMetrics?.ai_insights?.prediction || "Analyse IA"}</p>
+                    <p className="text-[10px] text-slate-500 leading-tight">Valeur: {sizeMetrics?.ai_insights?.value}</p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <div className="h-2 w-2 rounded-full bg-rose-500 mt-1.5 mr-2.5 flex-shrink-0"></div>
                   <div>
-                    <p className="text-xs font-bold text-slate-700">Risque de Churn</p>
-                    <p className="text-[10px] text-slate-500 leading-tight">Segment 26-35 ans montre une baisse de rétention.</p>
+                    <p className="text-xs font-bold text-slate-700">Recommandation</p>
+                    <p className="text-[10px] text-slate-500 leading-tight underline decoration-rose-300">{sizeMetrics?.ai_insights?.action}</p>
                   </div>
                 </li>
               </ul>

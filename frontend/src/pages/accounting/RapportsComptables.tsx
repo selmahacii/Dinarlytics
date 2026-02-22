@@ -15,6 +15,7 @@ import {
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import Modal from "@shared/components/UI/Modal";
+import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
 
 const EtatsRapports: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const EtatsRapports: React.FC = () => {
   const [isAnalyseGraphiqueModalOpen, setIsAnalyseGraphiqueModalOpen] = useState(false);
   const [isImprimerModalOpen, setIsImprimerModalOpen] = useState(false);
   const [etatAImprimer, setEtatAImprimer] = useState('bilan');
+  const { data: dynamicData, loading } = useAccountingStatements('2024');
 
   // Coherence metrics
   const CA_ACTUEL = 5200000;
@@ -77,19 +79,11 @@ const EtatsRapports: React.FC = () => {
     ]
   };
 
-  const totalActif = [
-    ...bilan.actif.immobilise,
-    ...bilan.actif.circulant
-  ].reduce((sum, item) => sum + item.montant, 0);
-
-  const totalPassif = [
-    ...bilan.passif.capitaux,
-    ...bilan.passif.dettes
-  ].reduce((sum, item) => sum + item.montant, 0);
-
-  const totalProduits = compteResultat.produits.reduce((sum, item) => sum + item.montant, 0);
-  const totalCharges = compteResultat.charges.reduce((sum, item) => sum + item.montant, 0);
-  const resultat = totalProduits - totalCharges;
+  const totalActif = dynamicData?.actifTotal || 4943000;
+  const totalPassif = dynamicData?.passifTotal || 4943000;
+  const totalProduits = dynamicData?.produits || 5245000;
+  const totalCharges = dynamicData?.charges || 4616000;
+  const resultat = dynamicData?.resultatNet || 629000;
 
   // Données de la Balance Générale (tous les comptes avec soldes débiteurs et créditeurs)
 

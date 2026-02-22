@@ -51,9 +51,12 @@ function mapToBackend(data: Partial<Article>): any {
 const DEMO_ARTICLES_KEY = 'dinarlytics_demo_articles';
 
 const getInitialArticles = (): Article[] => [
-    { id: '1', nom: 'Article A', codePCA: 'ART001', prixUnitaire: 1500, stock: 100, description: 'Description A', categorie: 'Cat A' },
-    { id: '2', nom: 'Article B', codePCA: 'ART002', prixUnitaire: 2500, stock: 50, description: 'Description B', categorie: 'Cat B' },
-    { id: '3', nom: 'Service C', codePCA: 'SRV001', prixUnitaire: 5000, stock: 0, description: 'Service de consult', categorie: 'Service' }
+    { id: '1', nom: 'Laptop Dell XPS 15 (i9, 32GB)', codePCA: '371000', prixUnitaire: 325000, stock: 12, description: 'Station de travail haute performance pour ingénierie.', categorie: 'Matériel Info' },
+    { id: '2', nom: 'Sac Ciment CPJ 42.5 (50kg)', codePCA: '371000', prixUnitaire: 850, stock: 1500, description: 'Ciment bâtiment conforme aux normes algériennes.', categorie: 'Construction' },
+    { id: '3', nom: 'Groupe Électrogène 100kVA', codePCA: '371000', prixUnitaire: 2450000, stock: 3, description: 'Générateur de secours pour sites industriels.', categorie: 'Industrie' },
+    { id: '4', nom: 'Lubrifiant Moteur 5L 10W40', codePCA: '371000', prixUnitaire: 4200, stock: 200, description: 'Huile premium pour moteurs essence et diesel.', categorie: 'Automobile' },
+    { id: '5', nom: 'Main d\'œuvre Technique (Heure)', codePCA: '706000', prixUnitaire: 5500, stock: 0, description: 'Prestation de maintenance sur site.', categorie: 'Services' },
+    { id: '6', nom: 'Climatiseur split 12000 BTU', codePCA: '371000', prixUnitaire: 68000, stock: 45, description: 'Appareil de climatisation réversible.', categorie: 'Électroménager' }
 ];
 
 const getDemoArticles = (): Article[] => {
@@ -72,7 +75,10 @@ export const articlesService = {
     getAll: async () => {
         try {
             const response = await apiClient.get<ArticleResponse[]>('/articles');
-            return response.data.map(mapToFrontend);
+            if (Array.isArray(response.data)) {
+                return response.data.map(mapToFrontend);
+            }
+            throw new Error('Invalid API response format (expected array)');
         } catch (e) {
             console.warn('API Articles failed, using demo data', e);
             await new Promise(resolve => setTimeout(resolve, 300));

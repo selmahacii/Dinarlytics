@@ -2,11 +2,11 @@ import apiClient from '../apiClient';
 
 export interface Client {
     id?: string;
-    name: string;
+    nom: string;
     email?: string;
-    phone?: string;
-    address?: string;
-    tax_number?: string;
+    telephone?: string;
+    adresse?: string;
+    nif?: string;
     is_active: boolean;
 }
 
@@ -15,12 +15,11 @@ const DEMO_CLIENTS_KEY = 'dinarlytics_demo_clients';
 const getInitialClients = () => [
     {
         id: 'c-001',
-        name: 'Sonatrach',
         nom: 'Sonatrach',
         email: 'contact@sonatrach.dz',
-        phone: '021 54 80 00',
-        address: 'Djenane El Malik, Hydra, Alger',
-        tax_number: '000016109000101',
+        telephone: '021 54 80 00',
+        adresse: 'Djenane El Malik, Hydra, Alger',
+        nif: '000016109000101',
         is_active: true,
         ca: 4500000,
         solde: 1250000,
@@ -34,12 +33,11 @@ const getInitialClients = () => [
     },
     {
         id: 'c-002',
-        name: 'Cévital SPA',
         nom: 'Cévital SPA',
         email: 'sales@cevital.com',
-        phone: '034 21 44 44',
-        address: 'Nouveau Port, Bejaia',
-        tax_number: '000216109000202',
+        telephone: '034 21 44 44',
+        adresse: 'Nouveau Port, Bejaia',
+        nif: '000216109000202',
         is_active: true,
         ca: 3800000,
         solde: 450000,
@@ -53,12 +51,11 @@ const getInitialClients = () => [
     },
     {
         id: 'c-003',
-        name: 'Ooredoo Algérie',
         nom: 'Ooredoo Algérie',
         email: 'corporate@ooredoo.dz',
-        phone: '0550 00 00 00',
-        address: 'Ouled Fayet, Alger',
-        tax_number: '000316109000303',
+        telephone: '0550 00 00 00',
+        adresse: 'Ouled Fayet, Alger',
+        nif: '000316109000303',
         is_active: true,
         ca: 2900000,
         solde: 0,
@@ -69,6 +66,57 @@ const getInitialClients = () => [
         risque: 'faible',
         raisonsTop: ['Innovation tech', 'Paiements automatisés'],
         metriques: { delaiPaiement: 25, tauxRenouvellement: 98, satisfaction: 4.7, recommandations: 4 }
+    },
+    {
+        id: 'c-004',
+        nom: 'Djezzy SPA',
+        email: 'business@djezzy.dz',
+        telephone: '0770 85 00 00',
+        adresse: 'Dar El Beida, Alger',
+        nif: '000116001234567',
+        is_active: true,
+        ca: 2100000,
+        solde: 150000,
+        dernierAchat: '2024-02-10',
+        pourcentage: 15.2,
+        croissance: 5.4,
+        secteur: 'Télécom',
+        risque: 'faible',
+        metriques: { delaiPaiement: 20, tauxRenouvellement: 99, satisfaction: 4.9, recommandations: 8 }
+    },
+    {
+        id: 'c-005',
+        nom: 'Condor Electronics',
+        email: 'sales@condor.dz',
+        telephone: '035 66 77 88',
+        adresse: 'Zone Industrielle, BBA',
+        nif: '000534019012345',
+        is_active: true,
+        ca: 5600000,
+        solde: 2800000,
+        dernierAchat: '2024-01-25',
+        pourcentage: 42.5,
+        croissance: 20.1,
+        secteur: 'Electronique',
+        risque: 'moyen',
+        metriques: { delaiPaiement: 45, tauxRenouvellement: 92, satisfaction: 4.2, recommandations: 15 }
+    },
+    {
+        id: 'c-006',
+        nom: 'Naftal SPA',
+        email: 'contact@naftal.dz',
+        telephone: '021 38 13 13',
+        adresse: 'Cheraga, Alger',
+        nif: '000016109000404',
+        is_active: true,
+        ca: 8900000,
+        solde: 0,
+        dernierAchat: '2024-02-15',
+        pourcentage: 65,
+        croissance: 11.2,
+        secteur: 'Energie',
+        risque: 'faible',
+        metriques: { delaiPaiement: 10, tauxRenouvellement: 100, satisfaction: 4.5, recommandations: 2 }
     }
 ];
 
@@ -91,7 +139,10 @@ export const clientsService = {
     getAll: async () => {
         try {
             const response = await apiClient.get<Client[]>('/clients');
-            return response.data;
+            if (Array.isArray(response.data)) {
+                return response.data;
+            }
+            throw new Error('Invalid API response format (expected array)');
         } catch (e) {
             console.warn('API Clients failed, using demo data', e);
             await new Promise(resolve => setTimeout(resolve, 300));
@@ -159,7 +210,7 @@ export const clientsService = {
                 new_clients_this_month: 1,
                 total_revenue: 4800000,
                 average_order_value: 1200000,
-                top_clients: clients.slice(0, 2).map(c => ({ name: c.name, ca: c.ca || 0 }))
+                top_clients: clients.slice(0, 2).map(c => ({ name: c.nom, ca: c.ca || 0 }))
             };
         }
     },

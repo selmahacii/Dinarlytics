@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon, 
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
   BuildingOfficeIcon,
   TagIcon,
   CurrencyDollarIcon,
@@ -35,7 +35,7 @@ import GestionFournisseursWidget from '@shared/components/Charts/GestionFourniss
 import SuccessMessage from '@shared/components/UI/SuccessMessage';
 import HelpButton from '@shared/components/UI/HelpButton';
 import Tooltip from '@shared/components/UI/Tooltip';
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
 import { useArticles } from '@shared/hooks/useArticles';
 
 // Données de codes-barres initiales
@@ -68,7 +68,7 @@ const Articles: React.FC = () => {
     details?: string[];
     nextSteps?: string[];
   } | null>(null);
-  
+
   // Dynamic data states
   const [articlesStats, setArticlesStats] = useState<{
     total: number;
@@ -91,7 +91,7 @@ const Articles: React.FC = () => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const response = await axios.get('/api/v1/documents/articles/stats');
+        const response = await apiClient.get('/documents/articles/stats');
         setArticlesStats(response.data as { total: number; active: number; rotation: number; topSellers?: any[] });
         setErrorStats(null);
       } catch (err) {
@@ -123,16 +123,16 @@ const Articles: React.FC = () => {
       <div className="space-y-6 max-w-7xl mx-auto p-6">
         <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
           <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
-              <TagIcon className="h-8 w-8 text-white" />
-            </div>
-            <div>
+            <div className="flex items-center space-x-4">
+              <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
+                <TagIcon className="h-8 w-8 text-white" />
+              </div>
+              <div>
                 <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">Gestion des Articles</h1>
+                  <h1 className="text-3xl font-bold">Gestion des Articles</h1>
                   <HelpButton pageId="articles" variant="icon" className="text-white/80 hover:text-white" />
                 </div>
-              <p className="text-slate-300 text-lg mt-1">Catalogue produits et tarification</p>
+                <p className="text-slate-300 text-lg mt-1">Catalogue produits et tarification</p>
               </div>
             </div>
           </div>
@@ -175,7 +175,7 @@ const Articles: React.FC = () => {
 
           <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-lg">
             <h3 className="text-lg font-bold text-slate-900 mb-3">Actions Rapides</h3>
-            <button 
+            <button
               onClick={() => {
                 setSelectedArticle(null);
                 setIsModalOpen(true);
@@ -198,7 +198,7 @@ const Articles: React.FC = () => {
           title={selectedArticle ? 'Modifier Article' : 'Nouvel Article'}
           size="lg"
         >
-          <form 
+          <form
             onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
@@ -263,13 +263,13 @@ const Articles: React.FC = () => {
                   ]
                 });
               }
-              
+
               setIsModalOpen(false);
               setSelectedArticle(null);
               setShowSuccessMessage(true);
               // Réinitialiser le formulaire
               e.currentTarget.reset();
-              
+
               // Masquer le message après 5 secondes
               setTimeout(() => {
                 setShowSuccessMessage(false);
@@ -292,7 +292,7 @@ const Articles: React.FC = () => {
                   placeholder="Ex: Produit A"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Code PCA
@@ -312,7 +312,7 @@ const Articles: React.FC = () => {
                   <option value="371000">371000 - Marchandises</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Prix unitaire (DZD) <span className="text-red-500">*</span>
@@ -426,7 +426,7 @@ const Articles: React.FC = () => {
                       faible: 'bg-amber-100 text-amber-800',
                       critique: 'bg-red-100 text-red-800'
                     };
-                    
+
                     return (
                       <tr key={article.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3">
@@ -594,7 +594,7 @@ const Articles: React.FC = () => {
     if (!("id" in barcode)) {
       return; // Exemple/démo sans ID: ignorer l'action destructive
     }
-    if(confirm(`Êtes-vous sûr de vouloir supprimer le code "${barcode.code}" ?\n\nArticle: ${barcode.article}\n\nCette action est irréversible.`)) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le code "${barcode.code}" ?\n\nArticle: ${barcode.article}\n\nCette action est irréversible.`)) {
       setBarcodes(barcodes.filter(b => b.id !== barcode.id));
       setDeletedBarcodeName(barcode.code);
       setShowDeleteSuccess(true);
@@ -607,7 +607,7 @@ const Articles: React.FC = () => {
       return; // Exemple/démo sans ID: ignorer l'action de statut
     }
     const newStatus = barcode.status === 'Actif' ? 'Inactif' : 'Actif';
-    setBarcodes(barcodes.map(b => 
+    setBarcodes(barcodes.map(b =>
       b.id === barcode.id ? { ...b, status: newStatus } : b
     ));
     setShowUpdateSuccess(true);
@@ -615,7 +615,7 @@ const Articles: React.FC = () => {
   };
 
   const handleExportExcel = () => {
-    const csvContent = "Article,Type,Code,Catégorie,Date,Statut\n" + 
+    const csvContent = "Article,Type,Code,Catégorie,Date,Statut\n" +
       barcodes.map(b => `${b.article},${b.type},${b.code},${b.categorie},${b.dateCreation},${b.status}`).join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -670,7 +670,7 @@ const Articles: React.FC = () => {
     setShowAddSuccess(true);
     setTimeout(() => setShowAddSuccess(false), 3000);
     setIsAddManualBarcodeModalOpen(false);
-    
+
     // Réinitialiser le formulaire
     setNewBarcode({
       article: '',
@@ -733,11 +733,10 @@ const Articles: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === tab.id
+              className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
                   ? 'border-cyan-500 text-cyan-600 bg-cyan-50'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
-              }`}
+                }`}
             >
               <tab.icon className="h-5 w-5 mr-2" />
               {tab.name}
@@ -759,7 +758,7 @@ const Articles: React.FC = () => {
                     className="w-full sm:w-64 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   />
                 </div>
-                
+
                 <button
                   onClick={handleAdd}
                   className="flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium"
@@ -796,7 +795,7 @@ const Articles: React.FC = () => {
                   </thead>
                   <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                     {filteredArticles.map((article) => (
-                        <tr key={article.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                      <tr key={article.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                         <td className="px-6 py-4">
                           <div>
                             <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{article.nom}</div>
@@ -849,9 +848,9 @@ const Articles: React.FC = () => {
                             >
                               <TruckIcon className="h-5 w-5" />
                             </button>
-                            <button 
+                            <button
                               onClick={() => {
-                                if(confirm(`Êtes-vous sûr de vouloir supprimer "${article.nom}" ?`)) {
+                                if (confirm(`Êtes-vous sûr de vouloir supprimer "${article.nom}" ?`)) {
                                   alert(`Article "${article.nom}" supprimé avec succès !`);
                                 }
                               }}
@@ -874,184 +873,184 @@ const Articles: React.FC = () => {
           {activeTab === 'reports' && (
             <div className="space-y-6">
               <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-              <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded">
-                <TagIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-              </div>
-              <span>Gestion des Catégories</span>
-            </h3>
-            <button 
-              onClick={() => setActiveTab('categories')}
-              className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-            >
-              Gérer
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Total Catégories</p>
-                  <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">5</p>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded">
+                      <TagIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span>Gestion des Catégories</span>
+                  </h3>
+                  <button
+                    onClick={() => setActiveTab('categories')}
+                    className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Gérer
+                  </button>
                 </div>
-                <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                  <TagIcon className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            </div>
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Catégories Actives</p>
-                  <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">4</p>
-                </div>
-                <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                  <CheckCircleIcon className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            </div>
-            <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Articles Total</p>
-                  <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">960</p>
-                </div>
-                <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                  <CubeIcon className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Top Catégories par Performance</h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Informatique</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Total Catégories</p>
+                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">5</p>
+                      </div>
+                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
+                        <TagIcon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Catégories Actives</p>
+                        <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">4</p>
+                      </div>
+                      <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
+                        <CheckCircleIcon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Articles Total</p>
+                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">960</p>
+                      </div>
+                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
+                        <CubeIcon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+12.5%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Téléphonie</span>
-                </div>
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+15.8%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Mobilier</span>
-                </div>
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+8.2%</span>
-              </div>
-            </div>
-          </div>
-            </Card>
 
-        <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-              <div className="bg-amber-100 dark:bg-amber-900/30 p-1.5 rounded">
-                <CurrencyDollarIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <span>Gestion des Tarifs</span>
-            </h3>
-            <button 
-              onClick={() => setActiveTab('pricing')}
-              className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-            >
-              Gérer
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Modifications</p>
-                  <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">5</p>
-                  <p className="text-xs text-cyan-600 dark:text-cyan-400">Ce mois</p>
+                <div className="mt-6">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Top Catégories par Performance</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Informatique</span>
+                      </div>
+                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+12.5%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Téléphonie</span>
+                      </div>
+                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+15.8%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Mobilier</span>
+                      </div>
+                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+8.2%</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                  <CurrencyDollarIcon className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            </div>
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Appliquées</p>
-                  <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">4</p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400">Prix mis à jour</p>
-                </div>
-                <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                  <CheckCircleIcon className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            </div>
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">En Attente</p>
-                  <p className="text-3xl font-bold text-amber-900 dark:text-amber-100">1</p>
-                  <p className="text-xs text-amber-600 dark:text-amber-400">Validation requise</p>
-                </div>
-                <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
-                  <ClockIcon className="h-6 w-6 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
+              </Card>
 
-          <div className="mt-6">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Modifications Récentes</h4>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                <div className="flex items-center space-x-3">
-                  <ArrowTrendingUpIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Ordinateur Dell</span>
+              <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                    <div className="bg-amber-100 dark:bg-amber-900/30 p-1.5 rounded">
+                      <CurrencyDollarIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <span>Gestion des Tarifs</span>
+                  </h3>
+                  <button
+                    onClick={() => setActiveTab('pricing')}
+                    className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Gérer
+                  </button>
                 </div>
-                <span className="text-sm text-red-600 dark:text-red-400 font-bold">+3.7%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                <div className="flex items-center space-x-3">
-                  <ArrowTrendingDownIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Chaise Ergonomique</span>
-                </div>
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">-6.3%</span>
-              </div>
-              <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                <div className="flex items-center space-x-3">
-                  <ArrowTrendingDownIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Samsung Galaxy</span>
-                </div>
-                <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">-3.8%</span>
-              </div>
-            </div>
-          </div>
-        </Card>
 
-        <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-              <div className="bg-slate-100 dark:bg-slate-700 p-1.5 rounded">
-                <DocumentTextIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-              </div>
-              <span>Rapports Articles</span>
-            </h3>
-            <button 
-              onClick={() => setActiveTab('reports')}
-              className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-            >
-              Voir Détails
-            </button>
-          </div>
-                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Modifications</p>
+                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">5</p>
+                        <p className="text-xs text-cyan-600 dark:text-cyan-400">Ce mois</p>
+                      </div>
+                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
+                        <CurrencyDollarIcon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Appliquées</p>
+                        <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">4</p>
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400">Prix mis à jour</p>
+                      </div>
+                      <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
+                        <CheckCircleIcon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">En Attente</p>
+                        <p className="text-3xl font-bold text-amber-900 dark:text-amber-100">1</p>
+                        <p className="text-xs text-amber-600 dark:text-amber-400">Validation requise</p>
+                      </div>
+                      <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
+                        <ClockIcon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Modifications Récentes</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                      <div className="flex items-center space-x-3">
+                        <ArrowTrendingUpIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Ordinateur Dell</span>
+                      </div>
+                      <span className="text-sm text-red-600 dark:text-red-400 font-bold">+3.7%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                      <div className="flex items-center space-x-3">
+                        <ArrowTrendingDownIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Chaise Ergonomique</span>
+                      </div>
+                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">-6.3%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+                      <div className="flex items-center space-x-3">
+                        <ArrowTrendingDownIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Samsung Galaxy</span>
+                      </div>
+                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">-3.8%</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                    <div className="bg-slate-100 dark:bg-slate-700 p-1.5 rounded">
+                      <DocumentTextIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                    </div>
+                    <span>Rapports Articles</span>
+                  </h3>
+                  <button
+                    onClick={() => setActiveTab('reports')}
+                    className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
+                  >
+                    Voir Détails
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
                     <div className="flex items-center justify-between">
@@ -1061,8 +1060,8 @@ const Articles: React.FC = () => {
                       </div>
                       <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
                         <CubeIcon className="h-6 w-6 text-white" />
+                      </div>
                     </div>
-                  </div>
                   </div>
                   <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
                     <div className="flex items-center justify-between">
@@ -1072,8 +1071,8 @@ const Articles: React.FC = () => {
                       </div>
                       <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
                         <CurrencyDollarIcon className="h-6 w-6 text-white" />
+                      </div>
                     </div>
-                  </div>
                   </div>
                   <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
                     <div className="flex items-center justify-between">
@@ -1083,8 +1082,8 @@ const Articles: React.FC = () => {
                       </div>
                       <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
                         <ChartBarIcon className="h-6 w-6 text-white" />
+                      </div>
                     </div>
-                  </div>
                   </div>
                   <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
                     <div className="flex items-center justify-between">
@@ -1163,7 +1162,7 @@ const Articles: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               {showUpdateSuccess && (
                 <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg flex items-center space-x-3 animate-slide-in-down">
                   <CheckCircleIcon className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
@@ -1190,14 +1189,14 @@ const Articles: React.FC = () => {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Génération et gestion centralisée des codes-barres</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <button 
+                  <button
                     onClick={() => setIsAddManualBarcodeModalOpen(true)}
                     className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 border border-emerald-500 dark:border-emerald-400"
                   >
                     <PlusIcon className="h-5 w-5" />
                     <span>Ajouter Manuellement</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsGenerateAllModalOpen(true)}
                     className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 border border-slate-600 dark:border-slate-500"
                   >
@@ -1257,7 +1256,7 @@ const Articles: React.FC = () => {
                   </div>
                 </Card>
               </div>
-              
+
               <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -1294,23 +1293,21 @@ const Articles: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center space-x-2">
-                              <div className={`p-1.5 rounded ${
-                                barcode.type === 'EAN-13' ? 'bg-cyan-100 dark:bg-cyan-900/30' : 
-                                barcode.type === 'QR Code' ? 'bg-cyan-100 dark:bg-cyan-900/30' :
-                                'bg-emerald-100 dark:bg-emerald-900/30'
-                              }`}>
-                                <QrCodeIcon className={`h-4 w-4 ${
-                                  barcode.type === 'EAN-13' ? 'text-cyan-600 dark:text-cyan-400' : 
-                                  barcode.type === 'QR Code' ? 'text-cyan-600 dark:text-cyan-400' :
-                                  'text-emerald-600 dark:text-emerald-400'
-                                }`} />
+                              <div className={`p-1.5 rounded ${barcode.type === 'EAN-13' ? 'bg-cyan-100 dark:bg-cyan-900/30' :
+                                  barcode.type === 'QR Code' ? 'bg-cyan-100 dark:bg-cyan-900/30' :
+                                    'bg-emerald-100 dark:bg-emerald-900/30'
+                                }`}>
+                                <QrCodeIcon className={`h-4 w-4 ${barcode.type === 'EAN-13' ? 'text-cyan-600 dark:text-cyan-400' :
+                                    barcode.type === 'QR Code' ? 'text-cyan-600 dark:text-cyan-400' :
+                                      'text-emerald-600 dark:text-emerald-400'
+                                  }`} />
                               </div>
                               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{barcode.type}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-sm font-mono font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded border border-slate-200 dark:border-slate-600">
-                            {barcode.code}
+                              {barcode.code}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -1320,18 +1317,17 @@ const Articles: React.FC = () => {
                             <span className="text-sm text-slate-600 dark:text-slate-400">{'dateCreation' in barcode ? barcode.dateCreation : '—'}</span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${
-                              barcode.status === 'Actif' 
-                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700' 
+                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${barcode.status === 'Actif'
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700'
                                 : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700'
-                            }`}>
+                              }`}>
                               {barcode.status === 'Actif' ? <CheckCircleIcon className="h-3 w-3 mr-1" /> : <XCircleIcon className="h-3 w-3 mr-1" />}
                               {barcode.status}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-1">
-                              <button 
+                              <button
                                 onClick={() => {
                                   setSelectedBarcodeForView(barcode);
                                   setIsBarcodeViewModalOpen(true);
@@ -1341,14 +1337,14 @@ const Articles: React.FC = () => {
                               >
                                 <EyeIcon className="h-5 w-5" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleUpdateBarcodeStatus(barcode)}
                                 className="p-2 text-cyan-600 hover:text-cyan-900 dark:text-cyan-400 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-lg transition-colors"
                                 title="Changer le statut"
                               >
                                 <PencilIcon className="h-5 w-5" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => {
                                   setSelectedBarcodeForDownload(barcode);
                                   setIsDownloadModalOpen(true);
@@ -1358,7 +1354,7 @@ const Articles: React.FC = () => {
                               >
                                 <DocumentTextIcon className="h-5 w-5" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleDeleteBarcode(barcode)}
                                 className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                 title="Supprimer"
@@ -1384,21 +1380,21 @@ const Articles: React.FC = () => {
                     Génération Rapide
                   </h4>
                   <div className="space-y-3">
-                    <button 
+                    <button
                       onClick={() => setIsGenerateAllModalOpen(true)}
                       className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
                     >
                       <QrCodeIcon className="h-5 w-5 mr-2" />
                       Générer pour Tous les Articles
                     </button>
-                    <button 
+                    <button
                       onClick={() => setIsGenerateByCategoryModalOpen(true)}
                       className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
                     >
                       <TagIcon className="h-5 w-5 mr-2" />
                       Générer par Catégorie
                     </button>
-                    <button 
+                    <button
                       onClick={() => setIsCustomizeDesignModalOpen(true)}
                       className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
                     >
@@ -1416,21 +1412,21 @@ const Articles: React.FC = () => {
                     Exportation & Impression
                   </h4>
                   <div className="space-y-3">
-                    <button 
+                    <button
                       onClick={handleExportExcel}
                       className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
                     >
                       <DocumentTextIcon className="h-5 w-5 mr-2" />
                       Exporter en Excel
                     </button>
-                    <button 
+                    <button
                       onClick={handlePrintLabels}
                       className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
                     >
                       <DocumentTextIcon className="h-5 w-5 mr-2" />
                       Imprimer les Étiquettes
                     </button>
-                    <button 
+                    <button
                       onClick={handleDownloadPDF}
                       className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
                     >
@@ -1514,7 +1510,7 @@ const Articles: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Métriques principales */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
@@ -1644,12 +1640,11 @@ const Articles: React.FC = () => {
                     {articleAnalytics.topSelling.map((article, index) => (
                       <div key={article.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-cyan-400 transition-colors">
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
-                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                            index === 0 ? 'bg-amber-500 text-white' :
-                            index === 1 ? 'bg-slate-400 text-white' :
-                            index === 2 ? 'bg-amber-700 text-white' :
-                            'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'
-                          }`}>
+                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-amber-500 text-white' :
+                              index === 1 ? 'bg-slate-400 text-white' :
+                                index === 2 ? 'bg-amber-700 text-white' :
+                                  'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'
+                            }`}>
                             {index + 1}
                           </div>
                           <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{article.nom}</span>
@@ -1685,7 +1680,7 @@ const Articles: React.FC = () => {
                       const color = colors[index % colors.length];
                       const percentageValue = (category.count / articleAnalytics.totalArticles * 100);
                       const percentage = percentageValue.toFixed(1);
-                      
+
                       return (
                         <div key={category.id} className={`p-3 ${color.bg} rounded-lg border ${color.border}`}>
                           <div className="flex justify-between items-center mb-2">
@@ -1760,8 +1755,8 @@ const Articles: React.FC = () => {
 
       {/* Add/Edit Article Modal */}
       <Modal
-      isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         title={selectedArticle ? 'Modifier Article' : 'Ajouter Article'}
         size="lg"
       >
@@ -1778,7 +1773,7 @@ const Articles: React.FC = () => {
                 placeholder="Ex: Matière première A"
               />
             </div>
-            
+
             <div>
               <label htmlFor="codePCA" className="block text-sm font-medium text-gray-700 mb-1">
                 Code PCA
@@ -1796,7 +1791,7 @@ const Articles: React.FC = () => {
                 <option value="371000">371000 - Marchandises</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Prix unitaire (DZD)
@@ -1809,7 +1804,7 @@ const Articles: React.FC = () => {
                 step="0.01"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Stock initial
@@ -1821,7 +1816,7 @@ const Articles: React.FC = () => {
                 placeholder="0"
               />
             </div>
-            
+
             <div className="md:col-span-2">
               <label htmlFor="categorie" className="block text-sm font-medium text-gray-700 mb-1">
                 Catégorie
@@ -1839,7 +1834,7 @@ const Articles: React.FC = () => {
               </select>
             </div>
           </div>
-          
+
           <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
@@ -1943,8 +1938,8 @@ const Articles: React.FC = () => {
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{selectedArticle.nom}</p>
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{selectedArticle.categorie}</p>
                   </div>
-                  <button 
-                    onClick={() => setBarcodeGenerated(true)} 
+                  <button
+                    onClick={() => setBarcodeGenerated(true)}
                     className="px-8 py-3 bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg flex items-center space-x-2 mx-auto"
                   >
                     <QrCodeIcon className="h-5 w-5" />
@@ -1969,7 +1964,7 @@ const Articles: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex-shrink-0">
-                        <button 
+                        <button
                           onClick={() => handleDeleteBarcode({ id: selectedArticle.id, code: selectedArticle.codePCA, article: selectedArticle.nom })}
                           className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Supprimer le code-barres"
@@ -1983,7 +1978,7 @@ const Articles: React.FC = () => {
                         <div className="flex-shrink-0 w-24 h-24">
                           {/* Simulation de code-barres avec des barres verticales (classes statiques pour la démo) */}
                           <div className="flex items-end justify-center space-x-px mx-auto h-full max-w-full">
-                            {[3,1,2,1,4,1,2,3,1,2,1,4,2,1,3,1,2,4,1,2,3,1,4,2,1,3,1,2,1,4,3,1,2,1,4,2,3,1,2,4,1,2,3,1,2,1,4,3,2,1].map((height, idx) => (
+                            {[3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 1, 4, 3, 1, 2, 1, 4, 2, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 3, 2, 1].map((height, idx) => (
                               <div
                                 key={idx}
                                 className={`bg-black w-[2px] ${height === 1 ? 'h-[15px]' : height === 2 ? 'h-[30px]' : height === 3 ? 'h-[45px]' : 'h-[60px]'}`}
@@ -2002,13 +1997,13 @@ const Articles: React.FC = () => {
                       <div className="bg-white p-4 rounded inline-block">
                         {/* Simulation de QR code */}
                         <div className="grid grid-cols-8 gap-1">
-                          {Array.from({length: 64}, (_, i) => (
+                          {Array.from({ length: 64 }, (_, i) => (
                             <div key={i} className={`w-3 h-3 ${Math.random() > 0.5 ? 'bg-black' : 'bg-white border border-gray-200'}`}></div>
                           ))}
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="bg-cyan-50 dark:bg-cyan-900/20 p-6 rounded-lg border border-cyan-200 dark:border-cyan-700">
                       <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Informations du Code</h4>
                       <div className="space-y-2 text-sm">
@@ -2034,21 +2029,21 @@ const Articles: React.FC = () => {
 
                   {/* Boutons d'action */}
                   <div className="flex justify-center space-x-3">
-                    <button 
+                    <button
                       onClick={() => alert('📥 Téléchargé !')}
                       className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-medium flex items-center space-x-2"
                     >
                       <DocumentTextIcon className="h-5 w-5" />
                       <span>Télécharger</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => alert('🖨️ Impression du code-barres pour ${selectedArticle.nom}')}
                       className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium flex items-center space-x-2"
                     >
                       <DocumentTextIcon className="h-5 w-5" />
                       <span>Imprimer</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => setBarcodeGenerated(false)}
                       className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors font-medium"
                     >
@@ -2131,7 +2126,7 @@ const Articles: React.FC = () => {
             <div className="p-6 text-center">
               <div className="bg-white p-8 rounded-lg border-2 border-slate-200 dark:border-slate-600 mb-4">
                 <div className="flex items-end justify-center space-x-px mx-auto h-[100px] max-w-full">
-                  {[3,1,2,1,4,1,2,3,1,2,1,4,2,1,3,1,2,4,1,2,3,1,4,2,1,3,1,2,1,4,3,1,2,1,4,2,3,1,2,4,1,2,3,1,2,1,4,3,2,1].map((height, idx) => (
+                  {[3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 1, 4, 3, 1, 2, 1, 4, 2, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 3, 2, 1].map((height, idx) => (
                     <div
                       key={idx}
                       className={`bg-black w-[2px] ${height === 1 ? 'h-[15px]' : height === 2 ? 'h-[30px]' : height === 3 ? 'h-[45px]' : 'h-[60px]'}`}
@@ -2290,214 +2285,214 @@ const Articles: React.FC = () => {
       {/* Modal Ajout Manuel Code-Barres - Palette Slate Professionnelle */}
       {isAddManualBarcodeModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] overflow-y-auto">
-        <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-4xl w-full border border-slate-200 dark:border-slate-700 my-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
-            {/* En-tête - Palette Slate Professionnelle */}
-            <div className="bg-slate-700 dark:bg-slate-600 p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
-              <div className="flex justify-between items-start sm:items-center gap-3">
-                <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                  <div className="bg-slate-800 dark:bg-slate-700 p-2 rounded-lg flex-shrink-0">
-                    <QrCodeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+          <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6">
+            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-4xl w-full border border-slate-200 dark:border-slate-700 my-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
+              {/* En-tête - Palette Slate Professionnelle */}
+              <div className="bg-slate-700 dark:bg-slate-600 p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+                <div className="flex justify-between items-start sm:items-center gap-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    <div className="bg-slate-800 dark:bg-slate-700 p-2 rounded-lg flex-shrink-0">
+                      <QrCodeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Ajouter un Code-Barres Manuellement</h3>
+                      <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-400 mt-1">Saisissez les informations ou choisissez un exemple de démo</p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Ajouter un Code-Barres Manuellement</h3>
-                    <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-400 mt-1">Saisissez les informations ou choisissez un exemple de démo</p>
+                  <button
+                    onClick={() => setIsAddManualBarcodeModalOpen(false)}
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-1.5 sm:p-2 transition-all flex-shrink-0"
+                  >
+                    <span className="text-xl sm:text-2xl">&times;</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Corps du Modal */}
+              <div className="p-4 sm:p-6">
+                {/* Exemples de Démo - Palette Slate */}
+                <div className="mb-6 bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl border border-slate-200 dark:border-slate-600">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                    <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
+                      <StarIcon className="h-4 w-4 text-white" />
+                    </div>
+                    Exemples de Démo - Cliquez pour charger
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {demoExamples.map((example, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleLoadDemoExample(index)}
+                        className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-md transition-all text-left group"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{example.article}</p>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                              {example.type} • {example.code}
+                            </p>
+                            <span className="inline-block mt-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded font-medium border border-slate-200 dark:border-slate-600">
+                              {example.categorie}
+                            </span>
+                          </div>
+                          <PlusIcon className="h-5 w-5 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 flex-shrink-0 ml-2" />
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <button 
+
+                {/* Formulaire */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Colonne Gauche */}
+                  <div className="space-y-4">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
+                        <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
+                          <TagIcon className="h-4 w-4 text-white" />
+                        </div>
+                        Informations de l'Article
+                      </h4>
+
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Nom de l'Article <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={newBarcode.article}
+                            onChange={(e) => setNewBarcode({ ...newBarcode, article: e.target.value })}
+                            placeholder="Ex: Laptop Dell XPS 15"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Catégorie <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={newBarcode.categorie}
+                            onChange={(e) => setNewBarcode({ ...newBarcode, categorie: e.target.value })}
+                            placeholder="Ex: Électronique"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Statut
+                          </label>
+                          <select aria-label="Statut"
+                            value={newBarcode.status}
+                            onChange={(e) => setNewBarcode({ ...newBarcode, status: e.target.value })}
+                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
+                          >
+                            <option value="Actif">✅ Actif</option>
+                            <option value="Inactif">❌ Inactif</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Colonne Droite */}
+                  <div className="space-y-4">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
+                        <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
+                          <QrCodeIcon className="h-4 w-4 text-white" />
+                        </div>
+                        Informations du Code
+                      </h4>
+
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Type de Code <span className="text-red-500">*</span>
+                          </label>
+                          <select aria-label="Type de Code"
+                            value={newBarcode.type}
+                            onChange={(e) => setNewBarcode({ ...newBarcode, type: e.target.value })}
+                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
+                          >
+                            <option value="EAN-13">📊 EAN-13 (13 chiffres)</option>
+                            <option value="Code-128">📦 Code-128 (Alphanumérique)</option>
+                            <option value="QR Code">📱 QR Code (2D)</option>
+                            <option value="UPC-A">🏷️ UPC-A (12 chiffres)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Code <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={newBarcode.code}
+                            onChange={(e) => setNewBarcode({ ...newBarcode, code: e.target.value })}
+                            placeholder={
+                              newBarcode.type === 'EAN-13' ? 'Ex: 9876543210987' :
+                                newBarcode.type === 'Code-128' ? 'Ex: CB-PROD-2025' :
+                                  'Ex: QR-PROD-001'
+                            }
+                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm font-mono"
+                          />
+                        </div>
+
+                        {/* Aperçu du code */}
+                        {newBarcode.code && (
+                          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Aperçu :</p>
+                            <div className="bg-white p-3 rounded text-center">
+                              <div className="flex items-end justify-center space-x-px mx-auto h-10 max-w-full">
+                                {[2, 1, 3, 1, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 1, 4, 3, 1, 2, 1, 4, 2, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 3, 2, 1].map((h, i) => (
+                                  <div key={i} className={`bg-black w-[2px] ${h === 1 ? 'h-[8px]' : h === 2 ? 'h-[16px]' : 'h-[24px]'}`}></div>
+                                ))}
+                              </div>
+                              <p className="text-xs font-mono text-gray-900 mt-2 sm:mt-3 font-bold tracking-wider break-all">{newBarcode.code}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Info - Palette Slate */}
+                <div className="mt-4 p-3 sm:p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg border border-slate-300 dark:border-slate-600">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <CheckCircleIcon className="h-5 w-5 text-slate-600 dark:text-slate-400 flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">💡 Conseil</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        Assurez-vous que le code est unique et respecte le format du type sélectionné. Les codes-barres EAN-13 doivent contenir exactement 13 chiffres.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pied du Modal */}
+              <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 z-10">
+                <button
                   onClick={() => setIsAddManualBarcodeModalOpen(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-1.5 sm:p-2 transition-all flex-shrink-0"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm sm:text-base order-2 sm:order-1"
                 >
-                  <span className="text-xl sm:text-2xl">&times;</span>
+                  Annuler
+                </button>
+                <button
+                  onClick={handleAddManualBarcode}
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 text-sm sm:text-base order-1 sm:order-2"
+                >
+                  <PlusIcon className="h-5 w-5 flex-shrink-0" />
+                  <span>Ajouter le Code-Barres</span>
                 </button>
               </div>
             </div>
-
-            {/* Corps du Modal */}
-            <div className="p-4 sm:p-6">
-              {/* Exemples de Démo - Palette Slate */}
-              <div className="mb-6 bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl border border-slate-200 dark:border-slate-600">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                  <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
-                    <StarIcon className="h-4 w-4 text-white" />
-                  </div>
-                  Exemples de Démo - Cliquez pour charger
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {demoExamples.map((example, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleLoadDemoExample(index)}
-                      className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-md transition-all text-left group"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{example.article}</p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                            {example.type} • {example.code}
-                          </p>
-                          <span className="inline-block mt-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded font-medium border border-slate-200 dark:border-slate-600">
-                            {example.categorie}
-                          </span>
-                        </div>
-                        <PlusIcon className="h-5 w-5 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 flex-shrink-0 ml-2" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Formulaire */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Colonne Gauche */}
-                <div className="space-y-4">
-                  <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                      <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
-                        <TagIcon className="h-4 w-4 text-white" />
-                      </div>
-                      Informations de l'Article
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Nom de l'Article <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={newBarcode.article}
-                          onChange={(e) => setNewBarcode({...newBarcode, article: e.target.value})}
-                          placeholder="Ex: Laptop Dell XPS 15"
-                          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Catégorie <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={newBarcode.categorie}
-                          onChange={(e) => setNewBarcode({...newBarcode, categorie: e.target.value})}
-                          placeholder="Ex: Électronique"
-                          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Statut
-                        </label>
-                        <select aria-label="Statut"
-                          value={newBarcode.status}
-                          onChange={(e) => setNewBarcode({...newBarcode, status: e.target.value})}
-                          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                        >
-                          <option value="Actif">✅ Actif</option>
-                          <option value="Inactif">❌ Inactif</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Colonne Droite */}
-                <div className="space-y-4">
-                  <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                      <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
-                        <QrCodeIcon className="h-4 w-4 text-white" />
-                      </div>
-                      Informations du Code
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Type de Code <span className="text-red-500">*</span>
-                        </label>
-                        <select aria-label="Type de Code"
-                          value={newBarcode.type}
-                          onChange={(e) => setNewBarcode({...newBarcode, type: e.target.value})}
-                          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                        >
-                          <option value="EAN-13">📊 EAN-13 (13 chiffres)</option>
-                          <option value="Code-128">📦 Code-128 (Alphanumérique)</option>
-                          <option value="QR Code">📱 QR Code (2D)</option>
-                          <option value="UPC-A">🏷️ UPC-A (12 chiffres)</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          Code <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          value={newBarcode.code}
-                          onChange={(e) => setNewBarcode({...newBarcode, code: e.target.value})}
-                          placeholder={
-                            newBarcode.type === 'EAN-13' ? 'Ex: 9876543210987' :
-                            newBarcode.type === 'Code-128' ? 'Ex: CB-PROD-2025' :
-                            'Ex: QR-PROD-001'
-                          }
-                          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm font-mono"
-                        />
-                      </div>
-
-                      {/* Aperçu du code */}
-                      {newBarcode.code && (
-                        <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-                          <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Aperçu :</p>
-                          <div className="bg-white p-3 rounded text-center">
-                            <div className="flex items-end justify-center space-x-px mx-auto h-10 max-w-full">
-                              {[2,1,3,1,4,1,2,3,1,2,1,4,2,1,3,1,2,4,1,2,3,1,4,2,1,3,1,2,1,4,3,1,2,1,4,2,3,1,2,4,1,2,3,1,2,1,4,3,2,1].map((h, i) => (
-                                <div key={i} className={`bg-black w-[2px] ${h === 1 ? 'h-[8px]' : h === 2 ? 'h-[16px]' : 'h-[24px]'}`}></div>
-                              ))}
-                            </div>
-                            <p className="text-xs font-mono text-gray-900 mt-2 sm:mt-3 font-bold tracking-wider break-all">{newBarcode.code}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Info - Palette Slate */}
-              <div className="mt-4 p-3 sm:p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg border border-slate-300 dark:border-slate-600">
-                <div className="flex items-start space-x-2 sm:space-x-3">
-                  <CheckCircleIcon className="h-5 w-5 text-slate-600 dark:text-slate-400 flex-shrink-0 mt-0.5" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">💡 Conseil</p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                      Assurez-vous que le code est unique et respecte le format du type sélectionné. Les codes-barres EAN-13 doivent contenir exactement 13 chiffres.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Pied du Modal */}
-            <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 z-10">
-              <button 
-                onClick={() => setIsAddManualBarcodeModalOpen(false)}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm sm:text-base order-2 sm:order-1"
-              >
-                Annuler
-              </button>
-              <button 
-                onClick={handleAddManualBarcode}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 text-sm sm:text-base order-1 sm:order-2"
-              >
-                <PlusIcon className="h-5 w-5 flex-shrink-0" />
-                <span>Ajouter le Code-Barres</span>
-              </button>
-            </div>
           </div>
-        </div>
         </div>
       )}
     </div>
