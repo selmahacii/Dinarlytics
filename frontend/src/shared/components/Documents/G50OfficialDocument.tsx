@@ -66,8 +66,8 @@ const G50OfficialDocument: React.FC<G50DocumentProps> = ({
                     <tr>
                         <td className="border border-slate-800 p-2 font-bold">T.A.P (Taxe Activité Pro.)</td>
                         <td className="border border-slate-800 p-2 text-right">{financialCalc.formatDZD(salesHT)}</td>
-                        <td className="border border-slate-800 p-2 text-right">2%</td>
-                        <td className="border border-slate-800 p-2 text-right font-medium">{financialCalc.formatDZD(tap)}</td>
+                        <td className="border border-slate-800 p-2 text-right">1%</td>
+                        <td className="border border-slate-800 p-2 text-right font-medium">{financialCalc.formatDZD(salesHT * 0.01)}</td>
                     </tr>
                     <tr>
                         <td className="border border-slate-800 p-2 font-bold">T.V.A (Taxe Valeur Ajoutée)</td>
@@ -79,10 +79,16 @@ const G50OfficialDocument: React.FC<G50DocumentProps> = ({
                         <td className="border border-slate-800 p-2" colSpan={3}>Moins TVA Déductible sur Achats</td>
                         <td className="border border-slate-800 p-2 text-right">({financialCalc.formatDZD(tvaDeductible)})</td>
                     </tr>
+                    <tr>
+                        <td className="border border-slate-800 p-2 font-bold">I.R.G / Salaires</td>
+                        <td className="border border-slate-800 p-2 text-right">Retenues du mois</td>
+                        <td className="border border-slate-800 p-2 text-right">Barème</td>
+                        <td className="border border-slate-800 p-2 text-right font-medium">{financialCalc.formatDZD(salesHT * 0.05)}</td>
+                    </tr>
                     {/* Summary Row */}
                     <tr className="bg-slate-900 text-white font-bold">
                         <td className="border border-slate-800 p-3" colSpan={3}>TOTAL À VERSER AU TRÉSOR</td>
-                        <td className="border border-slate-800 p-3 text-right text-lg">{financialCalc.formatDZD(totalDue)}</td>
+                        <td className="border border-slate-800 p-3 text-right text-lg">{financialCalc.formatDZD(tvaToPay + (salesHT * 0.01) + (salesHT * 0.05))}</td>
                     </tr>
                 </tbody>
             </table>

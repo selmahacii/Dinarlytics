@@ -48,9 +48,13 @@ export interface Invoice {
     audit: AuditLog[];
     totalHT: number;
     totalTVA: number;
-    totalTAP: number;
+    totalTAP: number; // For sales
     droitTimbre: number;
+    retenueSource?: number; // Withholding tax
     totalTTC: number;
+    supplierId?: string; // For purchases
+    customerId?: string; // For sales
+    fileUrl?: string; // Scan of the invoice
 }
 
 const DEMO_INVOICES_KEY = 'demo_invoices';

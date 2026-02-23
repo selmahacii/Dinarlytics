@@ -275,6 +275,11 @@ const Clients: React.FC = () => {
     delaiPaiement: 30,
     tauxEscompte: 0,
     categorieRisque: 'faible',
+    nis: '',
+    rc: '',
+    ai: '',
+    isExonereTVA: false,
+    numAttestationExo: '',
     notes: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
@@ -285,6 +290,8 @@ const Clients: React.FC = () => {
   const [isNewCommunicationModalOpen, setIsNewCommunicationModalOpen] = useState(false);
   const [isRelanceModalOpen, setIsRelanceModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('liste');
+  const [selectedComm, setSelectedComm] = useState<any>(null);
+  const [isCommDetailModalOpen, setIsCommDetailModalOpen] = useState(false);
   const [livraisonView, setLivraisonView] = useState<'overview' | 'en-cours' | 'statistiques' | 'geographie'>('overview');
   const [livraisonStatus, setLivraisonStatus] = useState<'tous' | 'en-transit' | 'livrees' | 'en-retard'>('tous');
   const [communicationFilter, setCommunicationFilter] = useState('tous');
@@ -1781,7 +1788,16 @@ const Clients: React.FC = () => {
                               </div>
                             </div>
                           </div>
-                          <button className="opacity-0 group-hover:opacity-100 p-2 text-blue-500 transition-all font-black text-[9px] uppercase tracking-widest bg-blue-50 rounded-lg">Voir</button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedComm(comm);
+                              setIsCommDetailModalOpen(true);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 p-2 text-blue-500 transition-all font-black text-[9px] uppercase tracking-widest bg-blue-50 rounded-lg"
+                          >
+                            Voir
+                          </button>
                         </div>
                       </div>
                     ))
@@ -2278,6 +2294,136 @@ const Clients: React.FC = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Modal Détail Communication Récente */}
+      <Modal
+        isOpen={isCommDetailModalOpen}
+        onClose={() => setIsCommDetailModalOpen(false)}
+        title={`Détail : ${selectedComm?.sujet}`}
+        size="lg"
+      >
+        {selectedComm && (
+          <div className="space-y-6">
+            <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                    {selectedComm.type === 'email' ? <EnvelopeIcon className="h-6 w-6" /> :
+                      selectedComm.type === 'appel' ? <PhoneIcon className="h-6 w-6" /> :
+                        <ChatBubbleLeftRightIcon className="h-6 w-6" />}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black uppercase tracking-tight">{selectedComm.sujet}</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{selectedComm.clientNom}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                  <div>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Responsable</p>
+                    <p className="text-sm font-bold">{selectedComm.responsable}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Date d'échange</p>
+                    <p className="text-sm font-bold">{new Date(selectedComm.date).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Compte-rendu de l'échange</h4>
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                {selectedComm.description}
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={() => setIsCommDetailModalOpen(false)}
+                className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal Nouvelle Communication Générale */}
+      <Modal
+        isOpen={isNewCommunicationModalOpen}
+        onClose={() => setIsNewCommunicationModalOpen(false)}
+        title="Nouvelle Interaction CRM"
+        size="lg"
+      >
+        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsNewCommunicationModalOpen(false); }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Choix du Partenaire</label>
+              <select
+                required
+                aria-label="Sélectionner un client"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest"
+              >
+                <option value="">Sélectionner un partenaire</option>
+                {apiClients.map((client: any) => (
+                  <option key={client.id} value={client.id}>{client.name || client.nom}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Canal de Communication</label>
+              <select
+                required
+                aria-label="Canal"
+                className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest"
+              >
+                <option value="email">Email</option>
+                <option value="call">Appel Téléphonique</option>
+                <option value="meeting">Réunion Physique</option>
+                <option value="reclamation">Réclamation</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Objet de l'échange</label>
+            <input
+              type="text"
+              required
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
+              placeholder="Ex: Suivi commande #45..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Détails et Actions à suivre</label>
+            <textarea
+              rows={4}
+              required
+              className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-900 dark:text-white"
+              placeholder="Résumé de la discussion et prochaines étapes..."
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsNewCommunicationModalOpen(false)}
+              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
+            >
+              Enregistrer Interaction
+            </button>
+          </div>
+        </form>
       </Modal>
 
       {/* Modal Nouvelle Relance */}
@@ -3221,6 +3367,70 @@ const Clients: React.FC = () => {
                 placeholder="15 ou 20 chiffres"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Art. Imposition (AI)</label>
+              <input
+                type="text"
+                value={formData.ai}
+                onChange={(e) => setFormData({ ...formData, ai: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
+                placeholder="11 chiffres"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Registre Commerce (RC)</label>
+              <input
+                type="text"
+                value={formData.rc}
+                onChange={(e) => setFormData({ ...formData, rc: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
+                placeholder="Format: 00B1234567"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Identifiant Stat. (NIS)</label>
+              <input
+                type="text"
+                value={formData.nis}
+                onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
+                className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
+                placeholder="15 chiffres"
+              />
+            </div>
+          </div>
+
+          <div className="p-6 bg-blue-50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-800 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Exonération TVA</h4>
+                <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">Le client bénéficie-t-il d'une franchise de TVA ?</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={formData.isExonereTVA}
+                  onChange={(e) => setFormData({ ...formData, isExonereTVA: e.target.checked })}
+                />
+                <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+
+            {formData.isExonereTVA && (
+              <div className="pt-4 border-t border-blue-100 dark:border-blue-800">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">N° Attestation / Date de validité</label>
+                <input
+                  type="text"
+                  value={formData.numAttestationExo}
+                  onChange={(e) => setFormData({ ...formData, numAttestationExo: e.target.value })}
+                  className="w-full mt-2 p-4 bg-white dark:bg-slate-900 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white shadow-sm"
+                  placeholder="Ex: 1234/2024 du 01/01/2024"
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

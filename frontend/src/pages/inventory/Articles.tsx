@@ -6,7 +6,6 @@ import {
   BuildingOfficeIcon,
   TagIcon,
   CurrencyDollarIcon,
-  TruckIcon,
   QrCodeIcon,
   ChartBarIcon,
   DocumentTextIcon,
@@ -19,8 +18,19 @@ import {
   ClockIcon,
   StarIcon,
   XCircleIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  SparklesIcon,
+  CpuChipIcon,
+  InformationCircleIcon,
+  ShieldCheckIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
+import {
+  SparklesIcon as SparklesIconSolid,
+  CpuChipIcon as CpuChipIconSolid,
+  ChartBarIcon as ChartBarIconSolid,
+  ShieldCheckIcon as ShieldCheckIconSolid
+} from '@heroicons/react/24/solid';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
@@ -31,7 +41,6 @@ import { Article } from '@/types';
 import RapportsArticlesWidget from '@shared/components/Charts/RapportsArticlesWidget';
 import GestionCategoriesWidget from '@shared/components/Charts/GestionCategoriesWidget';
 import GestionTarifsWidget from '@shared/components/Charts/GestionTarifsWidget';
-import GestionFournisseursWidget from '@shared/components/Charts/GestionFournisseursWidget';
 import SuccessMessage from '@shared/components/UI/SuccessMessage';
 import HelpButton from '@shared/components/UI/HelpButton';
 import Tooltip from '@shared/components/UI/Tooltip';
@@ -68,6 +77,11 @@ const Articles: React.FC = () => {
     details?: string[];
     nextSteps?: string[];
   } | null>(null);
+  const [isAiAuditModalOpen, setIsAiAuditModalOpen] = useState(false);
+  const [isGeneratingAiAudit, setIsGeneratingAiAudit] = useState(false);
+  const [aiAuditReport, setAiAuditReport] = useState<any>(null);
+  const [isStockOptimizerModalOpen, setIsStockOptimizerModalOpen] = useState(false);
+  const [isProcurementForecastModalOpen, setIsProcurementForecastModalOpen] = useState(false);
 
   // Dynamic data states
   const [articlesStats, setArticlesStats] = useState<{
@@ -523,7 +537,6 @@ const Articles: React.FC = () => {
   const [activeTab, setActiveTab] = useState('catalogue');
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
   const [isBarcodeModalOpen, setIsBarcodeModalOpen] = useState(false);
-  const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   const [barcodeGenerated, setBarcodeGenerated] = useState(false);
   const [isGenerateAllModalOpen, setIsGenerateAllModalOpen] = useState(false);
   const [isGenerateByCategoryModalOpen, setIsGenerateByCategoryModalOpen] = useState(false);
@@ -570,10 +583,6 @@ const Articles: React.FC = () => {
     setIsBarcodeModalOpen(true);
   };
 
-  const handleSupplierManagement = (article: Article) => {
-    setSelectedArticle(article);
-    setIsSupplierModalOpen(true);
-  };
 
   // Données ERPNext pour les articles
   const articleCategories = [
@@ -582,12 +591,6 @@ const Articles: React.FC = () => {
     { id: 3, name: 'Marchandises', code: 'M', count: 28, value: 95000 },
     { id: 4, name: 'Fournitures', code: 'F', count: 15, value: 35000 }
   ];
-
-  const supplierData = selectedArticle ? [
-    { name: 'Fournisseur A', price: 120, delivery: 5, quality: 'Excellent', lastOrder: '2024-01-10' },
-    { name: 'Fournisseur B', price: 125, delivery: 3, quality: 'Bon', lastOrder: '2024-01-08' },
-    { name: 'Fournisseur C', price: 118, delivery: 7, quality: 'Moyen', lastOrder: '2024-01-05' }
-  ] : [];
 
   // Fonctions de gestion des codes-barres
   const handleDeleteBarcode = (barcode: any) => {
@@ -681,11 +684,28 @@ const Articles: React.FC = () => {
     });
   };
 
-  const barcodeData = selectedArticle ? [
-    { type: 'EAN-13', code: '1234567890123', status: 'Actif' },
-    { type: 'Code-128', code: 'ABC123456', status: 'Actif' },
-    { type: 'QR Code', code: 'QR-ABC-123', status: 'Inactif' }
-  ] : barcodes;
+
+  // Handlers pour les Analyses Avancées
+  const handleGenererAuditIA = async () => {
+    setIsAiAuditModalOpen(true);
+    setIsGeneratingAiAudit(true);
+    // Simulation d'IA
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    setAiAuditReport({
+      score: 88,
+      status: 'Optimisation Requise',
+      summary: "L'analyse croisée des flux de vente et des niveaux de stock révèle un potentiel de gain de trésorerie de 420K DA par l'ajustement des stocks de sécurité sur les produits finis.",
+      risks: [
+        { title: 'Surstock Critique', message: '4 articles (Cat. Informatique) immobilisent 1.2M DA depuis plus de 90 jours.', level: 'high' },
+        { title: 'Risque de Rupture', message: 'Le stock de "Papier Standard A4" sera épuisé sous 48h selon le rythme actuel.', level: 'medium' }
+      ],
+      opportunities: [
+        { title: 'Optimisation Achats', message: 'Regrouper les commandes de fournitures permettrait une remise de volume de 5.2%.' },
+        { title: 'Rotation Accélérée', message: 'Une mise en avant flash sur le stock dormant libérerait 300K DA de liquidités.' }
+      ]
+    });
+    setIsGeneratingAiAudit(false);
+  };
 
   const articleAnalytics = {
     totalArticles: products.length,
@@ -696,25 +716,43 @@ const Articles: React.FC = () => {
     categories: articleCategories
   };
 
+  // Derive barcode data for display
+  const barcodeData = selectedArticle ? barcodes.filter(b => b.article === selectedArticle.nom) : [
+    { article: 'Article A', categorie: 'Cat A', type: 'EAN-13', code: '1234567890123', status: 'Actif' },
+    { article: 'Article A', categorie: 'Cat A', type: 'Code-128', code: 'ABC123456', status: 'Actif' },
+    { article: 'Article A', categorie: 'Cat A', type: 'QR Code', code: 'QR-ABC-123', status: 'Inactif' }
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Header de la page */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-cyan-100 rounded-lg">
-                <CubeIcon className="h-6 w-6 text-cyan-600" />
+      <div className="bg-slate-900 text-white rounded-[2rem] shadow-2xl border border-white/5 p-10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="p-5 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-xl">
+              <CubeIcon className="h-10 w-10 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-4">
+                <h1 className="text-4xl font-black uppercase tracking-tighter italic">Intelligence Inventaire</h1>
+                <span className="px-3 py-1 bg-cyan-500 text-[9px] font-black uppercase tracking-widest rounded-lg animate-pulse">Live</span>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900">Articles & Inventaire</h1>
+              <p className="text-slate-400 text-xs font-bold mt-2 uppercase tracking-[0.3em] opacity-80 italic">Optimisation des flux & Pilotage du catalogue</p>
             </div>
-            <p className="text-slate-600">Gestion du catalogue produits, stock et inventaires</p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-8">
             <div className="text-right">
-              <div className="text-sm text-slate-500">Total articles</div>
-              <div className="text-2xl font-bold text-cyan-600">{products.length}</div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Valorisation Totale</p>
+              <p className="text-3xl font-black font-mono tracking-tighter">{formatCurrency(articleAnalytics.totalValue)}</p>
             </div>
+            <div className="h-12 w-[1px] bg-white/10 hidden md:block"></div>
+            <button
+              onClick={handleGenererAuditIA}
+              className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-white/5 flex items-center gap-3"
+            >
+              <ChartBarIcon className="h-4 w-4" />
+              Générer Audit IA
+            </button>
           </div>
         </div>
       </div>
@@ -722,24 +760,26 @@ const Articles: React.FC = () => {
       <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
         <nav className="flex flex-wrap border-b border-slate-200 dark:border-slate-700">
           {[
-            { id: 'catalogue', name: 'Catalogue', icon: BuildingOfficeIcon },
-            { id: 'categories', name: 'Catégories', icon: TagIcon },
-            { id: 'pricing', name: 'Tarification', icon: CurrencyDollarIcon },
-            { id: 'suppliers', name: 'Fournisseurs', icon: TruckIcon },
-            { id: 'barcode', name: 'Codes-barres', icon: QrCodeIcon },
-            { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
-            { id: 'reports', name: 'Rapports', icon: DocumentTextIcon }
+            { id: 'catalogue', name: 'Catalogue Stock', icon: BuildingOfficeIcon },
+            { id: 'categories', name: 'Segmentation', icon: TagIcon },
+            { id: 'pricing', name: 'Gestion Tarifs', icon: CurrencyDollarIcon },
+            { id: 'barcode', name: 'Traçabilité', icon: QrCodeIcon },
+            { id: 'analytics', name: 'Performance', icon: ChartBarIcon },
+            { id: 'reports', name: 'Reporting', icon: DocumentTextIcon }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                  ? 'border-cyan-500 text-cyan-600 bg-cyan-50'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+              className={`flex items-center whitespace-nowrap py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab.id
+                ? 'text-slate-900 dark:text-white'
+                : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
             >
-              <tab.icon className="h-5 w-5 mr-2" />
+              <tab.icon className={`h-4 w-4 mr-3 ${activeTab === tab.id ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`} />
               {tab.name}
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-900 dark:bg-white rounded-t-full"></div>
+              )}
             </button>
           ))}
         </nav>
@@ -748,117 +788,115 @@ const Articles: React.FC = () => {
           {activeTab === 'catalogue' && (
             <div className="space-y-6">
               {/* Search and Actions */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
-                <div className="w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+                <div className="relative w-full sm:w-96">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <MagnifyingGlassIcon className="h-4 w-4 text-slate-400" />
+                  </div>
                   <input
                     type="text"
-                    placeholder="Rechercher par nom ou code PCA..."
+                    placeholder="Filtrer le catalogue (Nom, Code PCA, Catégorie)..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full sm:w-64 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                    className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-bold uppercase tracking-wider focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
                   />
                 </div>
 
-                <button
-                  onClick={handleAdd}
-                  className="flex items-center px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors font-medium"
-                >
-                  <PlusIcon className="h-5 w-5 mr-2" />
-                  {t('ajouter')} Article
-                </button>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button className="p-4 bg-slate-50 text-slate-600 rounded-2xl border border-slate-200 hover:bg-slate-100 transition-all">
+                    <ArrowPathIcon className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={handleAdd}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-[10px] font-black uppercase tracking-widest"
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                    Nouvel Article
+                  </button>
+                </div>
               </div>
 
               {/* Articles Table */}
-              <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-                <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                  <thead className="bg-slate-50 dark:bg-slate-900">
+              <div className="overflow-hidden bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm">
+                <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700">
+                  <thead className="bg-slate-50/50 dark:bg-slate-900">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                        Article
+                      <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Désignation Article
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
                         Code PCA
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                        Prix Unitaire
+                      <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        P.U (DZD)
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                        Stock
+                      <th className="px-8 py-5 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Stock Reel
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                        Valeur Stock
+                      <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Valorisation
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-                        Actions ERPNext
+                      <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        Actions ERP
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                  <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700">
                     {filteredArticles.map((article) => (
-                      <tr key={article.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div>
-                            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{article.nom}</div>
-                            <div className="text-sm text-slate-500 dark:text-slate-400">{article.categorie}</div>
+                      <tr key={article.id} className="group hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-all">
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-4">
+                            <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-white transition-colors">
+                              <CubeIcon className="h-4 w-4 text-slate-400 group-hover:text-slate-900 transition-colors" />
+                            </div>
+                            <div>
+                              <div className="text-[11px] font-black uppercase text-slate-900 dark:text-gray-100 tracking-tight">{article.nom}</div>
+                              <div className="text-[9px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-widest mt-0.5">{article.categorie}</div>
+                            </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                        <td className="px-8 py-6">
+                          <span className="text-[10px] font-black font-mono text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                             {article.codePCA}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <td className="px-8 py-6 text-right text-[11px] font-black font-mono text-slate-900 dark:text-gray-100 italic">
                           {formatCurrency(article.prixUnitaire)}
                         </td>
-                        <td className="px-6 py-4">
-                          <span className={`text-sm font-medium ${article.stock > 50 ? 'text-emerald-600 dark:text-emerald-400' : article.stock > 20 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
-                            {article.stock} unités
+                        <td className="px-8 py-6 text-center">
+                          <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl ${article.stock > 50 ? 'bg-emerald-50 text-emerald-600' :
+                            article.stock > 20 ? 'bg-amber-50 text-amber-600' :
+                              'bg-red-50 text-red-600'
+                            }`}>
+                            {article.stock} UNITS
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
+                        <td className="px-8 py-6 text-right text-[11px] font-black font-mono text-slate-900 italic">
                           {formatCurrency(article.prixUnitaire * article.stock)}
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium">
-                          <div className="flex space-x-1">
-                            <button
-                              onClick={() => handleEdit(article)}
-                              className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                              title="Modifier l'article"
-                            >
-                              <PencilIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => handlePricingManagement(article)}
-                              className="p-2 text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                              title="Gestion des tarifs"
-                            >
-                              <CurrencyDollarIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => handleBarcodeManagement(article)}
-                              className="p-2 text-cyan-600 hover:text-cyan-900 dark:text-cyan-400 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-lg transition-colors"
-                              title="Codes-barres"
-                            >
-                              <QrCodeIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => handleSupplierManagement(article)}
-                              className="p-2 text-cyan-600 hover:text-cyan-900 dark:text-cyan-400 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-lg transition-colors"
-                              title="Fournisseurs"
-                            >
-                              <TruckIcon className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm(`Êtes-vous sûr de vouloir supprimer "${article.nom}" ?`)) {
-                                  alert(`Article "${article.nom}" supprimé avec succès !`);
-                                }
-                              }}
-                              className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                              title="Supprimer l'article"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex justify-end gap-1">
+                            {[
+                              { icon: PencilIcon, color: 'text-slate-400 hover:text-slate-900 hover:bg-slate-100', onClick: () => handleEdit(article), title: "Modifier" },
+                              { icon: CurrencyDollarIcon, color: 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50', onClick: () => handlePricingManagement(article), title: "Tarifs" },
+                              { icon: QrCodeIcon, color: 'text-cyan-400 hover:text-cyan-600 hover:bg-cyan-50', onClick: () => handleBarcodeManagement(article), title: "Traçabilité" },
+                              {
+                                icon: TrashIcon, color: 'text-red-300 hover:text-red-600 hover:bg-red-50', onClick: () => {
+                                  if (confirm(`Supprimer l'article ${article.nom} ?`)) {
+                                    alert(`Article "${article.nom}" supprimé.`);
+                                  }
+                                }, title: "Supprimer"
+                              }
+                            ].map((action, i) => (
+                              <button
+                                key={i}
+                                onClick={action.onClick}
+                                className={`p-2 rounded-xl transition-all ${action.color}`}
+                                title={action.title}
+                              >
+                                <action.icon className="h-4 w-4" />
+                              </button>
+                            ))}
                           </div>
                         </td>
                       </tr>
@@ -1128,239 +1166,137 @@ const Articles: React.FC = () => {
             </div>
           )}
 
-          {/* Onglet Catégories */}
           {activeTab === 'categories' && (
-            <div className="space-y-6">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h4 className="text-xl font-black uppercase tracking-tighter italic">Segmentation Catalogue</h4>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Organisation par familles de produits</p>
+                </div>
+              </div>
               <GestionCategoriesWidget />
             </div>
           )}
 
-          {/* Onglet Tarification */}
           {activeTab === 'pricing' && (
-            <div className="space-y-6">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h4 className="text-xl font-black uppercase tracking-tighter italic">Gestion Tarification</h4>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des marges et prix de vente</p>
+                </div>
+              </div>
               <GestionTarifsWidget />
             </div>
           )}
 
-          {/* Onglet Fournisseurs */}
-          {activeTab === 'suppliers' && (
-            <div className="space-y-6">
-              <GestionFournisseursWidget />
-            </div>
-          )}
 
-          {/* Onglet Codes-barres */}
           {activeTab === 'barcode' && (
-            <div className="space-y-6">
-              {/* Messages de succès */}
-              {showDeleteSuccess && (
-                <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg flex items-center space-x-3 animate-slide-in-down">
-                  <CheckCircleIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Code-barres supprimé !</p>
-                    <p className="text-xs text-emerald-700 dark:text-emerald-300">Le code "{deletedBarcodeName}" a été supprimé avec succès.</p>
-                  </div>
-                </div>
-              )}
-
-              {showUpdateSuccess && (
-                <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg flex items-center space-x-3 animate-slide-in-down">
-                  <CheckCircleIcon className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
-                  <div>
-                    <p className="text-sm font-semibold text-cyan-900 dark:text-cyan-100">Statut mis à jour !</p>
-                    <p className="text-xs text-cyan-700 dark:text-cyan-300">Le statut du code-barres a été modifié.</p>
-                  </div>
-                </div>
-              )}
-
-              {showAddSuccess && (
-                <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700 rounded-lg flex items-center space-x-3 animate-slide-in-down">
-                  <CheckCircleIcon className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
-                  <div>
-                    <p className="text-sm font-semibold text-cyan-900 dark:text-cyan-100">Code-barres ajouté !</p>
-                    <p className="text-xs text-cyan-700 dark:text-cyan-300">Le nouveau code-barres a été ajouté avec succès.</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-12 animate-in fade-in duration-700">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Gestion des Codes-barres</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Génération et gestion centralisée des codes-barres</p>
+                  <h3 className="text-3xl font-black uppercase tracking-tighter italic">Traçabilité & Flux</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">Pilotage des identifiants SKU & QR Codes dynamiques</p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex gap-4">
                   <button
                     onClick={() => setIsAddManualBarcodeModalOpen(true)}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 border border-emerald-500 dark:border-emerald-400"
+                    className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-200"
                   >
-                    <PlusIcon className="h-5 w-5" />
-                    <span>Ajouter Manuellement</span>
+                    Ajout Manuel
                   </button>
                   <button
                     onClick={() => setIsGenerateAllModalOpen(true)}
-                    className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 border border-slate-600 dark:border-slate-500"
+                    className="px-10 py-5 bg-slate-900 text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 shadow-2xl shadow-slate-900/20 flex items-center gap-3"
                   >
-                    <QrCodeIcon className="h-5 w-5" />
-                    <span>Générer Auto</span>
+                    <QrCodeIcon className="h-4 w-4" />
+                    Génération Auto
                   </button>
                 </div>
               </div>
 
-              {/* Statistiques des Codes-barres - Mises à jour en temps réel */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card className="p-4 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700">
-                  <div className="flex items-center justify-between">
+              {/* Statistiques des Codes - Slate Premium */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                  { label: "Total Codes", value: barcodes.length, icon: QrCodeIcon, color: "text-slate-900", bg: "bg-slate-50" },
+                  { label: "Codes Actifs", value: barcodes.filter(b => b.status === 'Actif').length, icon: CheckCircleIcon, color: "text-emerald-500", bg: "bg-emerald-50" },
+                  { label: "EAN-13", value: barcodes.filter(b => b.type === 'EAN-13').length, icon: TagIcon, color: "text-cyan-500", bg: "bg-cyan-50" },
+                  { label: "QR Codes", value: barcodes.filter(b => b.type === 'QR Code').length, icon: QrCodeIcon, color: "text-amber-500", bg: "bg-amber-50" }
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
                     <div>
-                      <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Total Codes</p>
-                      <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">{barcodes.length}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
+                      <p className="text-3xl font-black font-mono tracking-tighter">{stat.value}</p>
                     </div>
-                    <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                      <QrCodeIcon className="h-6 w-6 text-white" />
+                    <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
+                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
                     </div>
                   </div>
-                </Card>
-
-                <Card className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Codes Actifs</p>
-                      <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">{barcodes.filter(b => b.status === 'Actif').length}</p>
-                    </div>
-                    <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                      <CheckCircleIcon className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">EAN-13</p>
-                      <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">{barcodes.filter(b => b.type === 'EAN-13').length}</p>
-                    </div>
-                    <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                      <TagIcon className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">QR Codes</p>
-                      <p className="text-3xl font-bold text-amber-900 dark:text-amber-100">{barcodes.filter(b => b.type === 'QR Code').length}</p>
-                    </div>
-                    <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
-                      <QrCodeIcon className="h-6 w-6 text-white" />
-                    </div>
-                  </div>
-                </Card>
+                ))}
               </div>
 
-              <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded mr-2">
-                      <QrCodeIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Codes-barres par Article</h4>
+              <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xl font-black uppercase tracking-tighter italic">Codes-barres par Article</h4>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Corrélation entre nomenclature et protocoles d'identification</p>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{barcodeData.length} codes au total</span>
+                  <div className="px-4 py-2 bg-slate-50 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    {barcodeData.length} Identifiants actifs
+                  </div>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                    <thead className="bg-slate-50 dark:bg-slate-900">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Article</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Code</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Catégorie</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Date Création</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Statut</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="bg-slate-50/30">
+                        <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Article & Flux</th>
+                        <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
+                        <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Code Identifiant</th>
+                        <th className="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
+                        <th className="px-10 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                    <tbody className="divide-y divide-slate-50">
                       {barcodeData.map((barcode, index) => (
-                        <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        <tr key={index} className="group hover:bg-slate-50/50 transition-all">
+                          <td className="px-10 py-6">
+                            <div className="text-xs font-black uppercase tracking-tight text-slate-900 group-hover:translate-x-1 transition-transform">
                               {'article' in barcode ? barcode.article : (selectedArticle?.nom ?? '—')}
                             </div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                               {'categorie' in barcode ? barcode.categorie : (selectedArticle?.categorie ?? '—')}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center space-x-2">
-                              <div className={`p-1.5 rounded ${barcode.type === 'EAN-13' ? 'bg-cyan-100 dark:bg-cyan-900/30' :
-                                  barcode.type === 'QR Code' ? 'bg-cyan-100 dark:bg-cyan-900/30' :
-                                    'bg-emerald-100 dark:bg-emerald-900/30'
-                                }`}>
-                                <QrCodeIcon className={`h-4 w-4 ${barcode.type === 'EAN-13' ? 'text-cyan-600 dark:text-cyan-400' :
-                                    barcode.type === 'QR Code' ? 'text-cyan-600 dark:text-cyan-400' :
-                                      'text-emerald-600 dark:text-emerald-400'
-                                  }`} />
-                              </div>
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{barcode.type}</span>
-                            </div>
+                          <td className="px-10 py-6">
+                            <span className="px-3 py-1 bg-slate-100 text-slate-900 text-[9px] font-black uppercase tracking-widest rounded-lg">
+                              {barcode.type}
+                            </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm font-mono font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded border border-slate-200 dark:border-slate-600">
+                          <td className="px-10 py-6">
+                            <span className="text-xs font-black font-mono tracking-tighter text-slate-700 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
                               {barcode.code}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900 dark:text-gray-100">{'categorie' in barcode ? barcode.categorie : (selectedArticle?.categorie ?? '—')}</span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-slate-600 dark:text-slate-400">{'dateCreation' in barcode ? barcode.dateCreation : '—'}</span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${barcode.status === 'Actif'
-                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700'
-                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700'
+                          <td className="px-10 py-6">
+                            <span className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl ${barcode.status === 'Actif'
+                              ? 'bg-emerald-50 text-emerald-600'
+                              : 'bg-red-50 text-red-600'
                               }`}>
-                              {barcode.status === 'Actif' ? <CheckCircleIcon className="h-3 w-3 mr-1" /> : <XCircleIcon className="h-3 w-3 mr-1" />}
                               {barcode.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-1">
-                              <button
-                                onClick={() => {
-                                  setSelectedBarcodeForView(barcode);
-                                  setIsBarcodeViewModalOpen(true);
-                                }}
-                                className="p-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                                title="Voir le code"
-                              >
-                                <EyeIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() => handleUpdateBarcodeStatus(barcode)}
-                                className="p-2 text-cyan-600 hover:text-cyan-900 dark:text-cyan-400 dark:hover:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 rounded-lg transition-colors"
-                                title="Changer le statut"
-                              >
-                                <PencilIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedBarcodeForDownload(barcode);
-                                  setIsDownloadModalOpen(true);
-                                }}
-                                className="p-2 text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                                title="Télécharger"
-                              >
-                                <DocumentTextIcon className="h-5 w-5" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteBarcode(barcode)}
-                                className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                title="Supprimer"
-                              >
-                                <TrashIcon className="h-5 w-5" />
-                              </button>
+                          <td className="px-10 py-6 text-right">
+                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                              {[
+                                { icon: EyeIcon, onClick: () => { setSelectedBarcodeForView(barcode); setIsBarcodeViewModalOpen(true); }, color: "hover:text-slate-900" },
+                                { icon: PencilIcon, onClick: () => handleUpdateBarcodeStatus(barcode), color: "hover:text-cyan-600" },
+                                { icon: DocumentTextIcon, onClick: () => { setSelectedBarcodeForDownload(barcode); setIsDownloadModalOpen(true); }, color: "hover:text-emerald-600" },
+                                { icon: TrashIcon, onClick: () => handleDeleteBarcode(barcode), color: "hover:text-red-600" }
+                              ].map((btn, i) => (
+                                <button key={i} onClick={btn.onClick} className={`p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-slate-300 ${btn.color}`}>
+                                  <btn.icon className="h-4 w-4" />
+                                </button>
+                              ))}
                             </div>
                           </td>
                         </tr>
@@ -1370,365 +1306,211 @@ const Articles: React.FC = () => {
                 </div>
               </div>
 
-              {/* Section Génération Rapide */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded mr-2">
-                      <QrCodeIcon className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Génération Rapide</h4>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Tous les Articles", icon: QrCodeIcon, action: () => setIsGenerateAllModalOpen(true) },
+                        { label: "Par Catégorie", icon: TagIcon, action: () => setIsGenerateByCategoryModalOpen(true) },
+                        { label: "Design Étiquette", icon: PencilIcon, action: () => setIsCustomizeDesignModalOpen(true) }
+                      ].map((btn, i) => (
+                        <button
+                          key={i}
+                          onClick={btn.action}
+                          className="w-full flex items-center justify-between p-5 bg-slate-50 hover:bg-slate-900 hover:text-white rounded-[1.5rem] transition-all group"
+                        >
+                          <div className="flex items-center gap-5">
+                            <div className="p-3 bg-white/50 group-hover:bg-white/10 rounded-xl transition-colors">
+                              <btn.icon className="h-5 w-5 text-slate-900 group-hover:text-white" />
+                            </div>
+                            <span className="text-[11px] font-black uppercase tracking-widest">{btn.label}</span>
+                          </div>
+                          <PlusIcon className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
                     </div>
-                    Génération Rapide
-                  </h4>
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => setIsGenerateAllModalOpen(true)}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <QrCodeIcon className="h-5 w-5 mr-2" />
-                      Générer pour Tous les Articles
-                    </button>
-                    <button
-                      onClick={() => setIsGenerateByCategoryModalOpen(true)}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <TagIcon className="h-5 w-5 mr-2" />
-                      Générer par Catégorie
-                    </button>
-                    <button
-                      onClick={() => setIsCustomizeDesignModalOpen(true)}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <PencilIcon className="h-5 w-5 mr-2" />
-                      Personnaliser le Design
-                    </button>
                   </div>
-                </Card>
 
-                <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded mr-2">
-                      <DocumentTextIcon className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Exportation & Impression</h4>
+                    <div className="space-y-3">
+                      {[
+                        { label: "Exporter Excel", icon: DocumentTextIcon, action: handleExportExcel },
+                        { label: "Imprimer Étiquettes", icon: DocumentTextIcon, action: handlePrintLabels },
+                        { label: "Télécharger PDF", icon: DocumentTextIcon, action: handleDownloadPDF }
+                      ].map((btn, i) => (
+                        <button
+                          key={i}
+                          onClick={btn.action}
+                          className="w-full flex items-center justify-between p-5 border border-slate-100 hover:border-slate-900 rounded-[1.5rem] transition-all group"
+                        >
+                          <div className="flex items-center gap-5">
+                            <div className="p-3 bg-slate-50 group-hover:bg-slate-900 rounded-xl transition-colors">
+                              <btn.icon className="h-5 w-5 text-slate-400 group-hover:text-white" />
+                            </div>
+                            <span className="text-[11px] font-black uppercase tracking-widest">{btn.label}</span>
+                          </div>
+                          <ArrowPathIcon className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
                     </div>
-                    Exportation & Impression
-                  </h4>
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleExportExcel}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <DocumentTextIcon className="h-5 w-5 mr-2" />
-                      Exporter en Excel
-                    </button>
-                    <button
-                      onClick={handlePrintLabels}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <DocumentTextIcon className="h-5 w-5 mr-2" />
-                      Imprimer les Étiquettes
-                    </button>
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="w-full flex items-center justify-center px-4 py-3 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                    >
-                      <DocumentTextIcon className="h-5 w-5 mr-2" />
-                      Télécharger PDF
-                    </button>
                   </div>
-                </Card>
+                </div>
+
+                <div className="bg-slate-900 text-white p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <DocumentTextIcon className="h-32 w-32" />
+                  </div>
+                  <div className="relative z-10">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-8">Paramètres d'Impression</h4>
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Format d'Étiquette</label>
+                        <select className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-white/20 transition-all">
+                          <option className="bg-slate-900">A4 - 21 étiquettes</option>
+                          <option className="bg-slate-900">A4 - 65 étiquettes</option>
+                          <option className="bg-slate-900">Rouleau 50x25mm</option>
+                        </select>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Orientation</label>
+                          <select className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-[10px] font-black uppercase tracking-widest transition-all">
+                            <option className="bg-slate-900">Portrait</option>
+                            <option className="bg-slate-900">Paysage</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Résolution</label>
+                          <select className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-[10px] font-black uppercase tracking-widest transition-all">
+                            <option className="bg-slate-900">300 DPI (Standard)</option>
+                            <option className="bg-slate-900">600 DPI</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="pt-6 space-y-4">
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input type="checkbox" defaultChecked className="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-white focus:ring-white/20" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white transition-colors">Inclure le prix</span>
+                        </label>
+                        <label className="flex items-center gap-3 cursor-pointer group">
+                          <input type="checkbox" defaultChecked className="w-5 h-5 rounded-lg border-white/10 bg-white/5 text-white focus:ring-white/20" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-300 group-hover:text-white transition-colors">Inclure le nom</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-
-              {/* Section Paramètres d'Impression */}
-              <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                  <div className="bg-slate-100 dark:bg-slate-700 p-1.5 rounded mr-2">
-                    <DocumentTextIcon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                  </div>
-                  Paramètres d'Impression
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Format d'Étiquette</label>
-                    <select aria-label="Format d'Étiquette" className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white">
-                      <option>A4 - 21 étiquettes</option>
-                      <option>A4 - 65 étiquettes</option>
-                      <option>Rouleau 50x25mm</option>
-                      <option>Rouleau 100x50mm</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Orientation</label>
-                    <select aria-label="Orientation" className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white">
-                      <option>Portrait</option>
-                      <option>Paysage</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Résolution</label>
-                    <select aria-label="Résolution" className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white">
-                      <option>300 DPI (Standard)</option>
-                      <option>600 DPI (Haute qualité)</option>
-                      <option>1200 DPI (Très haute qualité)</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                    <input type="checkbox" id="include-price" defaultChecked className="w-4 h-4 text-cyan-600 rounded focus:ring-blue-500" />
-                    <label htmlFor="include-price" className="text-sm font-medium text-gray-900 dark:text-gray-100">Inclure le prix</label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                    <input type="checkbox" id="include-name" defaultChecked className="w-4 h-4 text-cyan-600 rounded focus:ring-blue-500" />
-                    <label htmlFor="include-name" className="text-sm font-medium text-gray-900 dark:text-gray-100">Inclure le nom</label>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                    <input type="checkbox" id="include-logo" className="w-4 h-4 text-cyan-600 rounded focus:ring-blue-500" />
-                    <label htmlFor="include-logo" className="text-sm font-medium text-gray-900 dark:text-gray-100">Inclure le logo entreprise</label>
-                  </div>
-                </div>
-              </Card>
             </div>
           )}
 
-          {/* Onglet Analytics - Palette Slate Professionnelle Enrichie */}
           {activeTab === 'analytics' && (
-            <div className="space-y-6">
-              {/* En-tête avec actions */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                    <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-lg mr-3">
-                      <ChartBarIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+            <div className="space-y-10">
+              {/* KPIs de Pilotage */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { label: "Total Références", value: "1,250", sub: "+12.4% vs N-1", icon: CubeIcon, color: "text-slate-900", bg: "bg-slate-50" },
+                  { label: "Valeur Inventaire", value: "2.45M DA", sub: "Bilan Actif", icon: CurrencyDollarIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
+                  { label: "Alertes Rupture", value: "45", sub: "Action Critique", icon: XCircleIcon, color: "text-red-600", bg: "bg-red-50" },
+                  { label: "Taux Disponibilité", value: "87.4%", sub: "Objectif 95%", icon: CheckCircleIcon, color: "text-cyan-600", bg: "bg-cyan-50" }
+                ].map((kpi, i) => (
+                  <div key={i} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className={`p-4 ${kpi.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
+                        <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{kpi.label}</span>
                     </div>
-                    Analytics des Articles
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 ml-14">Vue d'ensemble complète de votre inventaire</p>
-                </div>
-                <div className="flex gap-2">
-                  <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors text-sm font-medium flex items-center space-x-2">
-                    <DocumentTextIcon className="h-4 w-4" />
-                    <span>Exporter</span>
-                  </button>
-                </div>
+                    <p className={`text-3xl font-black font-mono tracking-tighter ${kpi.color}`}>{kpi.value}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 opacity-60">{kpi.sub}</p>
+                  </div>
+                ))}
               </div>
 
-              {/* Métriques principales */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-slate-600 font-medium">Total Articles</p>
-                      <p className="text-2xl font-bold text-slate-900 mt-1">{articleAnalytics.totalArticles}</p>
-                      <div className="mt-2 flex items-center text-xs text-emerald-600">
-                        <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
-                        <span className="font-semibold">+8.2%</span>
-                        <span className="ml-1 text-slate-500">vs mois dernier</span>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Dashboard de Performance */}
+                <div className="lg:col-span-2 space-y-8">
+                  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-8">
+                      <div>
+                        <h4 className="text-xl font-black uppercase tracking-tighter italic">Répartition du Capital</h4>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Valorisation par classe de stock</p>
                       </div>
+                      <ChartBarIcon className="h-5 w-5 text-slate-300" />
                     </div>
-                    <div className="p-3 bg-cyan-100 rounded-lg">
-                      <CubeIcon className="h-6 w-6 text-cyan-600" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-slate-600 font-medium">Valeur Totale</p>
-                      <p className="text-2xl font-bold text-emerald-600 mt-1">{formatCurrency(articleAnalytics.totalValue)}</p>
-                      <div className="mt-2 flex items-center text-xs text-emerald-600">
-                        <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
-                        <span className="font-semibold">+12.4%</span>
-                        <span className="ml-1 text-slate-500">croissance</span>
-                      </div>
-                    </div>
-                    <div className="p-3 bg-emerald-100 rounded-lg">
-                      <CurrencyDollarIcon className="h-6 w-6 text-emerald-600" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-slate-600 font-medium">Stock Faible</p>
-                      <p className="text-2xl font-bold text-amber-600 mt-1">{articleAnalytics.lowStock}</p>
-                      <div className="mt-2 text-xs text-amber-600">
-                        <span className="font-semibold">Attention requise</span>
-                      </div>
-                    </div>
-                    <div className="p-3 bg-amber-100 rounded-lg">
-                      <ExclamationTriangleIcon className="h-6 w-6 text-amber-600" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-slate-600 font-medium">Rupture de Stock</p>
-                      <p className="text-2xl font-bold text-red-600 mt-1">{articleAnalytics.outOfStock}</p>
-                      <div className="mt-2 text-xs text-red-600">
-                        <span className="font-semibold">Action immédiate</span>
-                      </div>
-                    </div>
-                    <div className="p-3 bg-red-100 rounded-lg">
-                      <XCircleIcon className="h-6 w-6 text-red-600" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Métriques supplémentaires */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-2 rounded-lg">
-                      <ChartBarIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    </div>
-                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">+15%</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">4.2×</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Taux de Rotation</div>
-                  <div className="mt-3 bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                    <div className="bg-cyan-600 h-full w-[84%]"></div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-2 rounded-lg">
-                      <CubeIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    </div>
-                    <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-900/20 px-2 py-1 rounded">Normal</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">87%</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Taux de Disponibilité</div>
-                  <div className="mt-3 bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                    <div className="bg-cyan-600 h-full w-[87%]"></div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
-                      <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded">+22%</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">156K دج</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Valeur Moyenne/Article</div>
-                  <div className="mt-3 bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                    <div className="bg-emerald-600 h-full w-[72%]"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Graphiques et listes enrichis */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Top 5 des Articles */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between mb-5">
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                      <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded mr-2">
-                        <StarIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                      </div>
-                      Top 5 des Articles
-                    </h4>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">Par stock</span>
-                  </div>
-                  <div className="space-y-3">
-                    {articleAnalytics.topSelling.map((article, index) => (
-                      <div key={article.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-cyan-500 dark:hover:border-cyan-400 transition-colors">
-                        <div className="flex items-center space-x-3 flex-1 min-w-0">
-                          <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-amber-500 text-white' :
-                              index === 1 ? 'bg-slate-400 text-white' :
-                                index === 2 ? 'bg-amber-700 text-white' :
-                                  'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'
-                            }`}>
-                            {index + 1}
+                    <div className="space-y-6">
+                      {[
+                        { name: 'Informatique', val: '+12.5%', color: 'bg-slate-900', w: '75%' },
+                        { name: 'Téléphonie', val: '+15.8%', color: 'bg-slate-400', w: '65%' },
+                        { name: 'Mobilier', val: '+8.2%', color: 'bg-slate-200', w: '45%' },
+                        { name: 'Autres', val: '+3.1%', color: 'bg-slate-100', w: '25%' }
+                      ].map((cat, i) => (
+                        <div key={i} className="space-y-2">
+                          <div className="flex justify-between items-end">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{cat.name}</span>
+                            <span className={`text-xs font-black font-mono ${cat.val.startsWith('+') ? 'text-emerald-500' : 'text-slate-900'}`}>{cat.val}</span>
                           </div>
-                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{article.nom}</span>
+                          <div className="h-3 bg-slate-50 rounded-full overflow-hidden">
+                            <div className={`h-full ${cat.color} transition-all duration-1000`} style={{ width: cat.w }}></div>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold text-cyan-600 dark:text-cyan-400">{article.stock}</span>
-                          <span className="text-xs text-slate-500 dark:text-slate-400">unités</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                      <SparklesIconSolid className="h-32 w-32" />
+                    </div>
+                    <div className="relative z-10">
+                      <h4 className="text-xl font-black uppercase tracking-tighter italic mb-6">Recommendations IA</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                          <div className="flex items-center gap-3 mb-2">
+                            <ArrowTrendingDownIcon className="h-4 w-4 text-cyan-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Optimisation Flux</span>
+                          </div>
+                          <p className="text-xs font-medium text-slate-300 leading-relaxed">Le stock de "Matières Premières" excède les besoins de production de 15%. Envisager un décalage des prochaines commandes fournisseurs.</p>
+                        </div>
+                        <div className="p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                          <div className="flex items-center gap-3 mb-2">
+                            <ExclamationTriangleIcon className="h-4 w-4 text-amber-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">Alerte BFR</span>
+                          </div>
+                          <p className="text-xs font-medium text-slate-300 leading-relaxed">420K DA immobilisés dans des articles à rotation nulle (&gt; 90 j). Action de déstockage recommandée sous 15 jours.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top Articles List */}
+                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                  <h4 className="text-xl font-black uppercase tracking-tighter italic mb-8">Top Valeur Stock</h4>
+                  <div className="space-y-4">
+                    {articleAnalytics.topSelling.map((article, i) => (
+                      <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition-colors border border-transparent hover:border-slate-100 group">
+                        <div className="flex-shrink-0 h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-[10px] font-black group-hover:bg-white transition-colors">
+                          0{i + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-black uppercase tracking-tight text-slate-900 truncate">{article.nom}</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{article.categorie}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[11px] font-black font-mono text-slate-900 italic">{formatCurrency(article.prixUnitaire * article.stock)}</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{article.stock} units</p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-
-                {/* Répartition par Catégorie */}
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between mb-5">
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                      <div className="bg-emerald-100 dark:bg-emerald-900/30 p-1.5 rounded mr-2">
-                        <TagIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                      </div>
-                      Répartition par Catégorie
-                    </h4>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">4 catégories</span>
-                  </div>
-                  <div className="space-y-3">
-                    {articleAnalytics.categories.map((category, index) => {
-                      const colors = [
-                        { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-700 dark:text-cyan-300', bar: 'bg-cyan-600', border: 'border-cyan-300 dark:border-cyan-600' },
-                        { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', bar: 'bg-emerald-600', border: 'border-emerald-300 dark:border-emerald-600' },
-                        { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-700 dark:text-cyan-300', bar: 'bg-cyan-600', border: 'border-cyan-300 dark:border-cyan-600' },
-                        { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', bar: 'bg-amber-600', border: 'border-amber-300 dark:border-amber-600' }
-                      ];
-                      const color = colors[index % colors.length];
-                      const percentageValue = (category.count / articleAnalytics.totalArticles * 100);
-                      const percentage = percentageValue.toFixed(1);
-
-                      return (
-                        <div key={category.id} className={`p-3 ${color.bg} rounded-lg border ${color.border}`}>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className={`text-sm font-semibold ${color.text}`}>{category.name}</span>
-                            <div className="flex items-center space-x-2">
-                              <span className={`text-sm font-bold ${color.text}`}>{category.count}</span>
-                              <span className={`text-xs ${color.text}`}>articles</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <div className="flex-1 bg-white/50 dark:bg-slate-700/50 rounded-full h-2 overflow-hidden">
-                              <div className={`${color.bar} h-full transition-all duration-500 ${percentageValue >= 90 ? 'w-[95%]' : percentageValue >= 75 ? 'w-[80%]' : percentageValue >= 50 ? 'w-[60%]' : percentageValue >= 25 ? 'w-[40%]' : 'w-[20%]'}`}></div>
-                            </div>
-                            <span className={`text-xs font-medium ${color.text}`}>{percentage}%</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Alertes et insights */}
-              <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-600">
-                <div className="flex items-start space-x-3">
-                  <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg flex-shrink-0">
-                    <ChartBarIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Insights Clés</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <p className="text-xs text-slate-600 dark:text-slate-400">Meilleure catégorie</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">Matières Premières</p>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">+18% ce mois</p>
-                      </div>
-                      <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <p className="text-xs text-slate-600 dark:text-slate-400">Croissance moyenne</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">+12.8%</p>
-                        <p className="text-xs text-cyan-600 dark:text-cyan-400 mt-1">Très bon</p>
-                      </div>
-                      <div className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
-                        <p className="text-xs text-slate-600 dark:text-slate-400">Prochaine commande</p>
-                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">Dans 5 jours</p>
-                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Planifiée</p>
-                      </div>
-                    </div>
-                  </div>
+                  <button className="w-full mt-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 border border-dashed border-slate-200 rounded-2xl hover:border-slate-400 hover:text-slate-600 transition-all">
+                    Voir le rapport complet
+                  </button>
                 </div>
               </div>
             </div>
@@ -1757,31 +1539,30 @@ const Articles: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedArticle ? 'Modifier Article' : 'Ajouter Article'}
+        title={selectedArticle ? 'Modifier Article' : 'Nouveau Produit'}
         size="lg"
       >
-        <form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom de l'article
+        <form className="space-y-8 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Désignation Article
               </label>
               <input
                 type="text"
                 defaultValue={selectedArticle?.nom || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold uppercase transition-all"
                 placeholder="Ex: Matière première A"
               />
             </div>
 
-            <div>
-              <label htmlFor="codePCA" className="block text-sm font-medium text-gray-700 mb-1">
-                Code PCA
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Code PCA / Comptable
               </label>
               <select
-                id="codePCA"
                 defaultValue={selectedArticle?.codePCA || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold uppercase transition-all"
               >
                 <option value="">Sélectionner un code</option>
                 <option value="601100">601100 - Matières premières</option>
@@ -1792,39 +1573,38 @@ const Articles: React.FC = () => {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Prix unitaire (DZD)
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Prix Unitaire (DA)
               </label>
               <input
                 type="number"
                 defaultValue={selectedArticle?.prixUnitaire || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-black font-mono transition-all"
                 placeholder="0.00"
                 step="0.01"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Stock initial
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Stock Initial
               </label>
               <input
                 type="number"
                 defaultValue={selectedArticle?.stock || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-black font-mono transition-all"
                 placeholder="0"
               />
             </div>
 
-            <div className="md:col-span-2">
-              <label htmlFor="categorie" className="block text-sm font-medium text-gray-700 mb-1">
-                Catégorie
+            <div className="md:col-span-2 space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Catégorie Analytique
               </label>
               <select
-                id="categorie"
                 defaultValue={selectedArticle?.categorie || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold uppercase transition-all"
               >
                 <option value="">Sélectionner une catégorie</option>
                 <option value="Matières premières">Matières premières</option>
@@ -1835,19 +1615,19 @@ const Articles: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-4 pt-8 border-t border-slate-50">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
             >
               Annuler
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-lg hover:from-slate-800 hover:to-black transition-colors font-medium"
+              className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
             >
-              {selectedArticle ? 'Modifier' : 'Ajouter'}
+              {selectedArticle ? 'Enregistrer les modifications' : 'Créer l\'article'}
             </button>
           </div>
         </form>
@@ -1855,646 +1635,486 @@ const Articles: React.FC = () => {
 
       {/* Modal Gestion des Tarifs */}
       {isPricingModalOpen && selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                    <CurrencyDollarIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Gestion des Tarifs</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{selectedArticle.nom}</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsPricingModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-2">
-                  <span className="text-2xl">&times;</span>
-                </button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Gestion Tarification</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des marges : {selectedArticle.nom}</p>
               </div>
+              <button onClick={() => setIsPricingModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-              <Card className="p-4 mb-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                      Prix Actuel
-                    </p>
-                    <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">
-                      {formatCurrency(selectedArticle.prixUnitaire)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Dernière modification</p>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">15 Sep 2025</p>
-                  </div>
-                </div>
-              </Card>
-              <div className="space-y-4">
+
+            <div className="p-10 space-y-8">
+              <div className="p-8 bg-slate-50 rounded-[2rem] flex justify-between items-center">
                 <div>
-                  <label htmlFor="nouveau-prix" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nouveau Prix</label>
-                  <input id="nouveau-prix" type="number" defaultValue={selectedArticle.prixUnitaire} className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white" placeholder="0" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Prix Actuel de Référence</p>
+                  <p className="text-4xl font-black font-mono tracking-tighter text-slate-900">{formatCurrency(selectedArticle.prixUnitaire)}</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Raison du changement</label>
-                  <textarea rows={3} placeholder="Expliquez la raison..." className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:bg-slate-700 dark:text-white"></textarea>
+                <div className="text-right">
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Stable</span>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Dernier mouvement : 15 Sep</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Nouveau Tarif (DA)</label>
+                  <input type="number" defaultValue={selectedArticle.prixUnitaire} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-lg font-black font-mono transition-all" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Justification Stratégique</label>
+                  <textarea rows={3} placeholder="Note d'ajustement..." className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold transition-all"></textarea>
                 </div>
               </div>
             </div>
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
-              <button onClick={() => setIsPricingModalOpen(false)} className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium">Annuler</button>
-              <button onClick={() => { alert(`Prix mis à jour pour ${selectedArticle.nom}`); setIsPricingModalOpen(false); }} className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium flex items-center space-x-2"><CheckCircleIcon className="h-5 w-5" /><span>Appliquer</span></button>
+
+            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+              <button onClick={() => setIsPricingModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+              <button onClick={() => setIsPricingModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Appliquer le tarif</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Code-Barres */}
       {isBarcodeModalOpen && selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                    <QrCodeIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Code-Barres & QR Code</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{selectedArticle.nom}</p>
-                  </div>
-                </div>
-                <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="text-slate-400 hover:text-slate-600 rounded-lg p-2">
-                  <span className="text-2xl">&times;</span>
-                </button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traçabilité Article</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Identifiants SKU & QR : {selectedArticle.nom}</p>
               </div>
+              <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
             </div>
-            <div className="p-6">
+
+            <div className="p-10">
               {!barcodeGenerated ? (
-                <div className="text-center">
-                  <div className="bg-slate-50 dark:bg-slate-700/50 p-12 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 mb-6">
-                    <QrCodeIcon className="h-32 w-32 mx-auto text-slate-400 mb-4" />
-                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{selectedArticle.codePCA}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">{selectedArticle.nom}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{selectedArticle.categorie}</p>
+                <div className="text-center py-10">
+                  <div className="h-48 w-48 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 mx-auto flex items-center justify-center mb-10 group hover:border-slate-900 transition-all">
+                    <QrCodeIcon className="h-16 w-16 text-slate-200 group-hover:text-slate-900 transition-colors" />
                   </div>
                   <button
                     onClick={() => setBarcodeGenerated(true)}
-                    className="px-8 py-3 bg-cyan-600 hover:bg-cyan-700 dark:bg-cyan-500 dark:hover:bg-cyan-600 text-white rounded-lg transition-colors font-medium shadow-md hover:shadow-lg flex items-center space-x-2 mx-auto"
+                    className="px-10 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-3 mx-auto"
                   >
-                    <QrCodeIcon className="h-5 w-5" />
-                    <span>Générer Code-Barres</span>
+                    <PlusIcon className="h-4 w-4" />
+                    Générer les identifiants
                   </button>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {/* Code-Barres Généré */}
-                  <div className="bg-white dark:bg-slate-700 p-8 rounded-lg border border-slate-200 dark:border-slate-600 mb-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                          Code-Barres EAN-13
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                          {selectedArticle.codePCA}
-                        </p>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{selectedArticle.nom}</span>
-                          <span className="text-xs text-emerald-600 dark:text-emerald-400">Actif</span>
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0">
-                        <button
-                          onClick={() => handleDeleteBarcode({ id: selectedArticle.id, code: selectedArticle.codePCA, article: selectedArticle.nom })}
-                          className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          title="Supprimer le code-barres"
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </button>
+                <div className="space-y-8">
+                  <div className="p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm">
+                    <div className="flex justify-between items-start mb-6">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Standard EAN-13</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded">Actif</span>
+                    </div>
+                    <div className="flex items-end justify-center space-x-0.5 h-16 mb-6">
+                      {Array.from({ length: 40 }).map((_, i) => (
+                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-12' : 'h-16'}`}></div>
+                      ))}
+                    </div>
+                    <p className="text-center text-lg font-black font-mono tracking-[0.3em] text-slate-900">{selectedArticle.codePCA}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="p-8 bg-slate-50 rounded-[2rem] flex flex-col items-center">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">QR Code Interne</p>
+                      <div className="grid grid-cols-5 gap-1 bg-white p-4 rounded-2xl">
+                        {Array.from({ length: 25 }).map((_, i) => (
+                          <div key={i} className={`w-2 h-2 rounded-sm ${Math.random() > 0.5 ? 'bg-slate-900' : 'bg-slate-100'}`}></div>
+                        ))}
                       </div>
                     </div>
-                    <div className="mt-4">
-                      <div className="flex items-center justify-center">
-                        <div className="flex-shrink-0 w-24 h-24">
-                          {/* Simulation de code-barres avec des barres verticales (classes statiques pour la démo) */}
-                          <div className="flex items-end justify-center space-x-px mx-auto h-full max-w-full">
-                            {[3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 1, 4, 3, 1, 2, 1, 4, 2, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 3, 2, 1].map((height, idx) => (
-                              <div
-                                key={idx}
-                                className={`bg-black w-[2px] ${height === 1 ? 'h-[15px]' : height === 2 ? 'h-[30px]' : height === 3 ? 'h-[45px]' : 'h-[60px]'}`}
-                              ></div>
-                            ))}
-                          </div>
-                        </div>
+                    <div className="p-8 bg-slate-900 rounded-[2rem] text-white flex flex-col justify-center">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-white/50 mb-4">Informations Système</p>
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black flex justify-between uppercase"><span>Type:</span> <span className="text-white/70">EAN-13 / QR</span></p>
+                        <p className="text-[10px] font-black flex justify-between uppercase"><span>Format:</span> <span className="text-white/70">Vectoriel</span></p>
+                        <p className="text-[10px] font-black flex justify-between uppercase"><span>Status:</span> <span className="text-cyan-400">Validé</span></p>
                       </div>
                     </div>
                   </div>
 
-                  {/* QR Code */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-50 dark:bg-slate-700/50 p-6 rounded-lg border border-slate-200 dark:border-slate-600 text-center">
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">QR Code</p>
-                      <div className="bg-white p-4 rounded inline-block">
-                        {/* Simulation de QR code */}
-                        <div className="grid grid-cols-8 gap-1">
-                          {Array.from({ length: 64 }, (_, i) => (
-                            <div key={i} className={`w-3 h-3 ${Math.random() > 0.5 ? 'bg-black' : 'bg-white border border-gray-200'}`}></div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-cyan-50 dark:bg-cyan-900/20 p-6 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Informations du Code</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-slate-600 dark:text-slate-400">Type</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">EAN-13</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-600 dark:text-slate-400">Code</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{selectedArticle.codePCA}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-600 dark:text-slate-400">Généré le</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">{new Date().toLocaleDateString('fr-FR')}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-600 dark:text-slate-400">Format</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">PNG / SVG</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Boutons d'action */}
-                  <div className="flex justify-center space-x-3">
-                    <button
-                      onClick={() => alert('📥 Téléchargé !')}
-                      className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-medium flex items-center space-x-2"
-                    >
-                      <DocumentTextIcon className="h-5 w-5" />
-                      <span>Télécharger</span>
-                    </button>
-                    <button
-                      onClick={() => alert('🖨️ Impression du code-barres pour ${selectedArticle.nom}')}
-                      className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium flex items-center space-x-2"
-                    >
-                      <DocumentTextIcon className="h-5 w-5" />
-                      <span>Imprimer</span>
-                    </button>
-                    <button
-                      onClick={() => setBarcodeGenerated(false)}
-                      className="px-6 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors font-medium"
-                    >
-                      Réinitialiser
-                    </button>
+                  <div className="flex justify-center gap-4 pt-4">
+                    <button className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest">Imprimer</button>
+                    <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Télécharger</button>
                   </div>
                 </div>
               )}
             </div>
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-              <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-medium">Fermer</button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Modal Gestion Fournisseurs */}
-      {isSupplierModalOpen && selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                    <TruckIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Fournisseurs de l'Article</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{selectedArticle.nom}</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsSupplierModalOpen(false)} className="text-slate-400 hover:text-slate-600 rounded-lg p-2">
-                  <span className="text-2xl">&times;</span>
-                </button>
-              </div>
-            </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
-              <div className="space-y-3">
-                {supplierData.map((supplier, idx) => (
-                  <Card key={idx} className="p-4 border border-slate-200 dark:border-slate-700 hover:shadow-md transition-all">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-cyan-100 dark:bg-cyan-900/30 p-2 rounded">
-                          <BuildingOfficeIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">{supplier.name}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">Dernière commande: {supplier.lastOrder}</p>
-                        </div>
-                      </div>
-                      <div className="text-right space-y-1">
-                        <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(supplier.price)}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{supplier.delivery}j • {supplier.quality}</p>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-              <button onClick={() => setIsSupplierModalOpen(false)} className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-medium">Fermer</button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Modal Voir Code-Barres */}
       {isBarcodeViewModalOpen && selectedBarcodeForView && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{selectedBarcodeForView.article}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">{selectedBarcodeForView.type} • {selectedBarcodeForView.code}</p>
-                </div>
-                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="text-slate-400 hover:text-slate-600 rounded-lg p-2"><span className="text-2xl">&times;</span></button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Inspection Identifiant</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedBarcodeForView.article} — {selectedBarcodeForView.type}</p>
               </div>
+              <button onClick={() => setIsBarcodeViewModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
             </div>
-            <div className="p-6 text-center">
-              <div className="bg-white p-8 rounded-lg border-2 border-slate-200 dark:border-slate-600 mb-4">
-                <div className="flex items-end justify-center space-x-px mx-auto h-[100px] max-w-full">
-                  {[3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 1, 4, 3, 1, 2, 1, 4, 2, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 3, 2, 1].map((height, idx) => (
-                    <div
-                      key={idx}
-                      className={`bg-black w-[2px] ${height === 1 ? 'h-[15px]' : height === 2 ? 'h-[30px]' : height === 3 ? 'h-[45px]' : 'h-[60px]'}`}
-                    />
+
+            <div className="p-10 flex flex-col items-center">
+              <div className="bg-white p-12 rounded-[2rem] border border-slate-100 shadow-sm mb-10 w-full flex flex-col items-center">
+                <div className="flex items-end justify-center space-x-0.5 h-24 mb-6">
+                  {Array.from({ length: 45 }).map((_, i) => (
+                    <div key={i} className={`bg-slate-900 w-1.5 rounded-full ${Math.random() > 0.3 ? 'h-16' : 'h-24'}`}></div>
                   ))}
                 </div>
-                <p className="text-sm sm:text-lg font-bold text-gray-900 mt-2 sm:mt-3 font-mono tracking-wider break-all">{selectedBarcodeForView.code}</p>
+                <p className="text-2xl font-black font-mono tracking-[0.4em] text-slate-900">{selectedBarcodeForView.code}</p>
               </div>
-              <div className="flex justify-center space-x-3">
-                <button onClick={() => alert('📥 Téléchargé !')} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors font-medium flex items-center space-x-2">
-                  <DocumentTextIcon className="h-5 w-5" />
-                  <span>Télécharger</span>
-                </button>
-                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="px-4 py-2 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Fermer</button>
+
+              <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Date d'émission</p>
+                  <p className="text-xs font-bold text-slate-900">{selectedBarcodeForView.dateCreation}</p>
+                </div>
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Catégorie</p>
+                  <p className="text-xs font-bold text-slate-900 uppercase">{selectedBarcodeForView.categorie}</p>
+                </div>
               </div>
+            </div>
+
+            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+              <button onClick={() => setIsBarcodeViewModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Fermer</button>
+              <button onClick={() => alert('📥 Téléchargé !')} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Télécharger PDF</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Générer Tous les Codes */}
       {isGenerateAllModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-cyan-600 p-2 rounded-lg"><QrCodeIcon className="h-6 w-6 text-white" /></div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Génération en Masse</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Générer des codes pour tous les articles</p>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traitement de Masse</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération globale des identifiants</p>
+              </div>
+              <button onClick={() => setIsGenerateAllModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <div className="p-10 space-y-8">
+              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
+                <p className="text-xs font-bold text-slate-600 leading-relaxed mb-6 italic">Vous allez générer de nouveaux identifiants (EAN-13/QR) pour l'intégralité du catalogue ({products.length} articles).</p>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <span>Volume à traiter</span>
+                    <span className="text-slate-900">{products.length} Units</span>
+                  </div>
+                  <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-slate-900 w-1/3"></div>
                   </div>
                 </div>
-                <button onClick={() => setIsGenerateAllModalOpen(false)} className="text-slate-400 hover:text-slate-600 rounded-lg p-2"><span className="text-2xl">&times;</span></button>
               </div>
-            </div>
-            <div className="p-6">
+
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Code</label>
-                  <select aria-label="Type de Code" className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white">
-                    <option>EAN-13</option>
-                    <option>Code-128</option>
-                    <option>QR Code</option>
-                  </select>
-                </div>
-                <div className="bg-cyan-50 dark:bg-cyan-900/20 p-4 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                  <p className="text-sm text-cyan-900 dark:text-cyan-100 font-medium">📊 {products.length} articles seront traités</p>
-                  <p className="text-xs text-cyan-700 dark:text-cyan-300 mt-1">Durée estimée: ~30 secondes</p>
-                </div>
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">Format de sortie obligatoire</label>
+                <select className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-[10px] font-black uppercase tracking-widest transition-all">
+                  <option>Format EAN-13 (Standard)</option>
+                  <option>Format QR Code (Digital)</option>
+                  <option>Format Code-128 (Logistique)</option>
+                </select>
               </div>
             </div>
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
-              <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-6 py-2.5 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50">Annuler</button>
-              <button onClick={() => { alert('✅ Génération lancée pour tous les articles !'); setIsGenerateAllModalOpen(false); }} className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Générer</button>
+
+            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+              <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+              <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Lancer l'exécution</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Générer par Catégorie */}
       {isGenerateByCategoryModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-emerald-600 p-2 rounded-lg"><TagIcon className="h-6 w-6 text-white" /></div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Génération par Catégorie</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Sélectionnez les catégories à traiter</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="text-slate-400 hover:text-slate-600 rounded-lg p-2"><span className="text-2xl">&times;</span></button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Sélecteur Analytique</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération d'identifiants par segment</p>
               </div>
+              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
             </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {['Matières premières', 'Produits finis', 'Fournitures', 'Accessoires', 'Marchandises'].map((cat, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-                    <div className="flex items-center space-x-3">
-                      <input aria-label={`Inclure catégorie ${cat}`} type="checkbox" defaultChecked className="w-4 h-4 text-cyan-600 rounded focus:ring-blue-500" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{cat}</span>
-                    </div>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">{Math.floor(Math.random() * 50) + 10} articles</span>
+
+            <div className="p-10 space-y-4">
+              {['Matières premières', 'Produits finis', 'Fournitures', 'Accessoires', 'Marchandises'].map((cat, idx) => (
+                <label key={idx} className="flex items-center justify-between p-5 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition-all cursor-pointer group">
+                  <div className="flex items-center gap-4">
+                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900 transition-colors">{cat}</span>
                   </div>
-                ))}
-              </div>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{Math.floor(Math.random() * 50) + 10} Articles</span>
+                </label>
+              ))}
             </div>
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
-              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-6 py-2.5 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50">Annuler</button>
-              <button onClick={() => { alert('✅ Codes générés pour les catégories sélectionnées !'); setIsGenerateByCategoryModalOpen(false); }} className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Générer</button>
+
+            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Générer les codes</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Personnaliser Design */}
       {isCustomizeDesignModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-3xl w-full border border-slate-200 dark:border-slate-700">
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-b border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-cyan-600 p-2 rounded-lg"><PencilIcon className="h-6 w-6 text-white" /></div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Personnaliser le Design</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Configuration de l'apparence des étiquettes</p>
-                  </div>
-                </div>
-                <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="text-slate-400 hover:text-slate-600 rounded-lg p-2"><span className="text-2xl">&times;</span></button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Studio Label Design</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Personnalisation des étiquettes & tags</p>
               </div>
+              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
             </div>
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Taille de l'Étiquette</label>
-                  <select aria-label="Taille de l'Étiquette" className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white">
-                    <option>50 x 25 mm</option>
-                    <option>100 x 50 mm</option>
-                    <option>70 x 35 mm</option>
+
+            <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Dimensions (mm)</label>
+                  <select className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest">
+                    <option>Standard 50 x 25</option>
+                    <option>Medium 70 x 35</option>
+                    <option>Large 100 x 50</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Police de Caractère</label>
-                  <select aria-label="Police de Caractère" className="w-full px-4 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white">
-                    <option>Arial</option>
-                    <option>Helvetica</option>
-                    <option>Courier</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                  <input id="show-name" type="checkbox" defaultChecked className="w-4 h-4 text-cyan-600 rounded" />
-                  <label htmlFor="show-name" className="text-sm font-medium text-gray-900 dark:text-gray-100">Afficher le nom de l'article</label>
-                </div>
-                <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                  <input id="show-price" type="checkbox" defaultChecked className="w-4 h-4 text-cyan-600 rounded" />
-                  <label htmlFor="show-price" className="text-sm font-medium text-gray-900 dark:text-gray-100">Afficher le prix</label>
-                </div>
-                <div className="flex items-center space-x-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                  <input id="show-logo" type="checkbox" className="w-4 h-4 text-cyan-600 rounded" />
-                  <label htmlFor="show-logo" className="text-sm font-medium text-gray-900 dark:text-gray-100">Afficher le logo entreprise</label>
-                </div>
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-slate-900 p-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-3">
-              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-6 py-2.5 border border-slate-300 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50">Annuler</button>
-              <button onClick={() => { alert('✅ Configuration sauvegardée !'); setIsCustomizeDesignModalOpen(false); }} className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Sauvegarder</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Ajout Manuel Code-Barres - Palette Slate Professionnelle */}
-      {isAddManualBarcodeModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] overflow-y-auto">
-          <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 md:p-6">
-            <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-4xl w-full border border-slate-200 dark:border-slate-700 my-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
-              {/* En-tête - Palette Slate Professionnelle */}
-              <div className="bg-slate-700 dark:bg-slate-600 p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
-                <div className="flex justify-between items-start sm:items-center gap-3">
-                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-                    <div className="bg-slate-800 dark:bg-slate-700 p-2 rounded-lg flex-shrink-0">
-                      <QrCodeIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Ajouter un Code-Barres Manuellement</h3>
-                      <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-400 mt-1">Saisissez les informations ou choisissez un exemple de démo</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsAddManualBarcodeModalOpen(false)}
-                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg p-1.5 sm:p-2 transition-all flex-shrink-0"
-                  >
-                    <span className="text-xl sm:text-2xl">&times;</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Corps du Modal */}
-              <div className="p-4 sm:p-6">
-                {/* Exemples de Démo - Palette Slate */}
-                <div className="mb-6 bg-slate-50 dark:bg-slate-700/30 p-4 rounded-xl border border-slate-200 dark:border-slate-600">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                    <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
-                      <StarIcon className="h-4 w-4 text-white" />
-                    </div>
-                    Exemples de Démo - Cliquez pour charger
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {demoExamples.map((example, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleLoadDemoExample(index)}
-                        className="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:shadow-md transition-all text-left group"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{example.article}</p>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                              {example.type} • {example.code}
-                            </p>
-                            <span className="inline-block mt-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded font-medium border border-slate-200 dark:border-slate-600">
-                              {example.categorie}
-                            </span>
-                          </div>
-                          <PlusIcon className="h-5 w-5 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 flex-shrink-0 ml-2" />
-                        </div>
-                      </button>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Options d'Affichage</label>
+                  <div className="space-y-3">
+                    {['Désignation Article', 'Prix de vente', 'Logo Entreprise', 'Date de production'].map((opt, i) => (
+                      <label key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer">
+                        <input type="checkbox" defaultChecked={i < 2} className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{opt}</span>
+                      </label>
                     ))}
                   </div>
                 </div>
+              </div>
 
-                {/* Formulaire */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Colonne Gauche */}
-                  <div className="space-y-4">
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                        <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
-                          <TagIcon className="h-4 w-4 text-white" />
-                        </div>
-                        Informations de l'Article
-                      </h4>
-
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Nom de l'Article <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={newBarcode.article}
-                            onChange={(e) => setNewBarcode({ ...newBarcode, article: e.target.value })}
-                            placeholder="Ex: Laptop Dell XPS 15"
-                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Catégorie <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={newBarcode.categorie}
-                            onChange={(e) => setNewBarcode({ ...newBarcode, categorie: e.target.value })}
-                            placeholder="Ex: Électronique"
-                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Statut
-                          </label>
-                          <select aria-label="Statut"
-                            value={newBarcode.status}
-                            onChange={(e) => setNewBarcode({ ...newBarcode, status: e.target.value })}
-                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                          >
-                            <option value="Actif">✅ Actif</option>
-                            <option value="Inactif">❌ Inactif</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
+              <div className="bg-slate-950 p-8 rounded-[2.5rem] flex flex-col items-center justify-center relative shadow-inner">
+                <div className="absolute top-4 left-4 text-[8px] font-black uppercase tracking-widest text-white/20 italic">Aperçu Temps Réel</div>
+                <div className="bg-white p-6 rounded-xl w-full max-w-[220px] shadow-2xl">
+                  <div className="text-[9px] font-black uppercase tracking-tight text-slate-900 mb-1 border-b border-slate-100 pb-1">Nom du Produit</div>
+                  <div className="flex items-end justify-center space-x-0.5 h-10 my-4">
+                    {Array.from({ length: 25 }).map((_, i) => (
+                      <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-6' : 'h-10'}`}></div>
+                    ))}
                   </div>
+                  <div className="text-right text-[10px] font-black font-mono">1.250,00 DA</div>
+                </div>
+              </div>
+            </div>
 
-                  {/* Colonne Droite */}
-                  <div className="space-y-4">
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex items-center">
-                        <div className="bg-slate-800 dark:bg-slate-700 p-1.5 rounded mr-2">
-                          <QrCodeIcon className="h-4 w-4 text-white" />
-                        </div>
-                        Informations du Code
-                      </h4>
+            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Sauvegarder</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Type de Code <span className="text-red-500">*</span>
-                          </label>
-                          <select aria-label="Type de Code"
-                            value={newBarcode.type}
-                            onChange={(e) => setNewBarcode({ ...newBarcode, type: e.target.value })}
-                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm"
-                          >
-                            <option value="EAN-13">📊 EAN-13 (13 chiffres)</option>
-                            <option value="Code-128">📦 Code-128 (Alphanumérique)</option>
-                            <option value="QR Code">📱 QR Code (2D)</option>
-                            <option value="UPC-A">🏷️ UPC-A (12 chiffres)</option>
-                          </select>
-                        </div>
+      {isAddManualBarcodeModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-5xl w-full overflow-hidden border border-white/20">
+            <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-slate-900 text-white">
+              <div className="flex items-center gap-6">
+                <div className="p-4 bg-white/10 rounded-2xl border border-white/20">
+                  <QrCodeIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Entrée Manuelle Flux</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Enregistrement d'identifiants externes</p>
+                </div>
+              </div>
+              <button onClick={() => setIsAddManualBarcodeModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-white/10 rounded-full text-white hover:bg-white/20 transition-all">
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
 
-                        <div>
-                          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Code <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            value={newBarcode.code}
-                            onChange={(e) => setNewBarcode({ ...newBarcode, code: e.target.value })}
-                            placeholder={
-                              newBarcode.type === 'EAN-13' ? 'Ex: 9876543210987' :
-                                newBarcode.type === 'Code-128' ? 'Ex: CB-PROD-2025' :
-                                  'Ex: QR-PROD-001'
-                            }
-                            className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-slate-500 dark:bg-slate-700 dark:text-white text-sm font-mono"
-                          />
-                        </div>
-
-                        {/* Aperçu du code */}
-                        {newBarcode.code && (
-                          <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
-                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">Aperçu :</p>
-                            <div className="bg-white p-3 rounded text-center">
-                              <div className="flex items-end justify-center space-x-px mx-auto h-10 max-w-full">
-                                {[2, 1, 3, 1, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 4, 2, 1, 3, 1, 2, 1, 4, 3, 1, 2, 1, 4, 2, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 3, 2, 1].map((h, i) => (
-                                  <div key={i} className={`bg-black w-[2px] ${h === 1 ? 'h-[8px]' : h === 2 ? 'h-[16px]' : 'h-[24px]'}`}></div>
-                                ))}
-                              </div>
-                              <p className="text-xs font-mono text-gray-900 mt-2 sm:mt-3 font-bold tracking-wider break-all">{newBarcode.code}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+            <div className="p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+              <div className="lg:col-span-2 space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Désignation Article</label>
+                    <input type="text" value={newBarcode.article} onChange={(e) => setNewBarcode({ ...newBarcode, article: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-bold uppercase transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Catégorie Analytique</label>
+                    <input type="text" value={newBarcode.categorie} onChange={(e) => setNewBarcode({ ...newBarcode, categorie: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-bold uppercase transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Type de Protocole</label>
+                    <select value={newBarcode.type} onChange={(e) => setNewBarcode({ ...newBarcode, type: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-black uppercase transition-all">
+                      <option value="EAN-13">Standard EAN-13</option>
+                      <option value="Code-128">Code-128 (Logistique)</option>
+                      <option value="QR Code">QR Code Dynamique</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Code Identifiant</label>
+                    <input type="text" value={newBarcode.code} onChange={(e) => setNewBarcode({ ...newBarcode, code: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-black font-mono tracking-widest transition-all" />
                   </div>
                 </div>
 
-                {/* Info - Palette Slate */}
-                <div className="mt-4 p-3 sm:p-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg border border-slate-300 dark:border-slate-600">
-                  <div className="flex items-start space-x-2 sm:space-x-3">
-                    <CheckCircleIcon className="h-5 w-5 text-slate-600 dark:text-slate-400 flex-shrink-0 mt-0.5" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">💡 Conseil</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                        Assurez-vous que le code est unique et respecte le format du type sélectionné. Les codes-barres EAN-13 doivent contenir exactement 13 chiffres.
-                      </p>
-                    </div>
+                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2"><StarIcon className="h-4 w-4" /> Exemples de Préréglages</p>
+                  <div className="flex flex-wrap gap-2">
+                    {demoExamples.slice(0, 3).map((ex, i) => (
+                      <button key={i} onClick={() => handleLoadDemoExample(i)} className="px-4 py-2 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:border-slate-900 transition-all">{ex.article}</button>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Pied du Modal */}
-              <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 z-10">
-                <button
-                  onClick={() => setIsAddManualBarcodeModalOpen(false)}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors font-medium text-sm sm:text-base order-2 sm:order-1"
-                >
-                  Annuler
-                </button>
-                <button
-                  onClick={handleAddManualBarcode}
-                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium flex items-center justify-center space-x-2 text-sm sm:text-base order-1 sm:order-2"
-                >
-                  <PlusIcon className="h-5 w-5 flex-shrink-0" />
-                  <span>Ajouter le Code-Barres</span>
-                </button>
+              <div className="bg-slate-50 p-8 rounded-[2.5rem] flex flex-col justify-between border border-slate-100">
+                <div className="space-y-6 text-center">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Visualisation</p>
+                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+                    <div className="flex items-end justify-center space-x-0.5 h-16 mb-4">
+                      {Array.from({ length: 30 }).map((_, i) => (
+                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-10' : 'h-16'}`}></div>
+                      ))}
+                    </div>
+                    <p className="text-xs font-black font-mono tracking-widest text-slate-900">{newBarcode.code || 'NO-VAL-SPECIFIED'}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <button onClick={handleAddManualBarcode} className="w-full py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/20">Enregistrer l'identifiant</button>
+                  <button onClick={() => setIsAddManualBarcodeModalOpen(false)} className="w-full py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* 🤖 MODAL AUDIT INTELLIGENT IA */}
+      <Modal
+        isOpen={isAiAuditModalOpen}
+        onClose={() => setIsAiAuditModalOpen(false)}
+        title="Audit Intelligent : Inventaire & Flux"
+        size="xl"
+      >
+        <div className="space-y-8 p-2">
+          {isGeneratingAiAudit ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-6">
+              <div className="relative">
+                <div className="h-24 w-24 rounded-full border-4 border-slate-100 border-t-slate-900 animate-spin"></div>
+                <CpuChipIconSolid className="h-10 w-10 text-slate-900 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+              </div>
+              <div className="text-center">
+                <h4 className="text-xl font-black uppercase tracking-tighter">Analyse Cognitive de l'Inventaire</h4>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Calcul des ratios de rotation & optimisation des stocks de sécurité</p>
+              </div>
+              <div className="w-64 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full bg-slate-900 animate-loading-bar"></div>
+              </div>
+            </div>
+          ) : aiAuditReport && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <div className="bg-slate-900 text-white p-8 rounded-3xl border border-white/5 shadow-2xl mb-8 relative overflow-hidden">
+                <SparklesIconSolid className="h-24 w-24 text-white/5 absolute -right-6 -top-6 rotate-12" />
+                <div className="relative z-10 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-3xl font-black uppercase tracking-tighter italic">Inventory Intelligence</h4>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Audit du 22 Février 2026 — 22:50</p>
+                  </div>
+                  <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
+                    <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 text-center mb-1">Score Santé Stock</p>
+                    <p className="text-2xl font-black font-mono">{aiAuditReport.score}%</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-2xl border border-slate-100">
+                  <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <ShieldCheckIconSolid className="h-4 w-4 text-emerald-500" /> Points de Robustesse
+                  </h5>
+                  <ul className="space-y-4">
+                    <li className="flex gap-4">
+                      <CheckCircleIcon className="h-5 w-5 text-emerald-500 shrink-0" />
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-tight">Rotation Optimale</p>
+                        <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-0.5">La catégorie "Produits Finis" affiche une rotation de 12x, supérieure à la moyenne du secteur.</p>
+                      </div>
+                    </li>
+                    <li className="flex gap-4">
+                      <CheckCircleIcon className="h-5 w-5 text-emerald-500 shrink-0" />
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-tight">Valorisation Précise</p>
+                        <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-0.5">Écart d'inventaire théorique vs réel réduit à 0.4% sur le dernier trimestre.</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-6 rounded-2xl border border-slate-100">
+                  <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <ExclamationTriangleIcon className="h-4 w-4 text-amber-500" /> Alertes & Risques IA
+                  </h5>
+                  <ul className="space-y-4">
+                    {aiAuditReport.risks.map((risk: any, i: number) => (
+                      <li key={i} className={`p-4 rounded-2xl border ${risk.level === 'high' ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100'}`}>
+                        <p className={`text-xs font-black flex items-center gap-2 ${risk.level === 'high' ? 'text-red-900' : 'text-amber-900'}`}>
+                          {risk.level === 'high' ? <XCircleIcon className="h-4 w-4" /> : <ClockIcon className="h-4 w-4" />}
+                          {risk.title}
+                        </p>
+                        <p className={`text-[10px] font-medium mt-1 ${risk.level === 'high' ? 'text-red-700' : 'text-amber-700'}`}>{risk.message}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Opportunités de Cash Flow</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {aiAuditReport.opportunities.map((opp: any, i: number) => (
+                    <div key={i} className="flex gap-3 items-start">
+                      <div className="bg-white p-2 rounded-lg shadow-sm border border-slate-100 flex-shrink-0">
+                        <ArrowTrendingUpIcon className="h-4 w-4 text-cyan-500" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{opp.title}</p>
+                        <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-0.5">{opp.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-end gap-3">
+                <button className="px-6 py-3 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">Exporter Audit complet</button>
+                <button
+                  onClick={() => setIsAiAuditModalOpen(false)}
+                  className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all"
+                >
+                  Fermer l'Audit
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

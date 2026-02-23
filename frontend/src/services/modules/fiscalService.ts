@@ -9,6 +9,15 @@ export interface G50Data {
     tva_deductible: number; // TVA on Purchases
     tva_a_verser: number;
     credit_tva_reporte: number;
+    irg_salaires: number;
+    iap_amount?: number;
+}
+
+export interface G29Data {
+    exercice: string;
+    total_honoraires: number;
+    total_retenues: number;
+    beneficiaires_count: number;
 }
 
 export const fiscalService = {
@@ -39,6 +48,9 @@ export const fiscalService = {
         const tva_a_verser = net_tva > 0 ? net_tva : 0;
         const credit_tva_reporte = net_tva < 0 ? Math.abs(net_tva) : 0;
 
+        // IRG Salaires (Mocked as % of CA for demo if no payroll module)
+        const irg_salaires = Math.round(ca_ht * 0.05);
+
         return {
             period: monthYear,
             ca_ht,
@@ -47,7 +59,32 @@ export const fiscalService = {
             tva_collectee,
             tva_deductible,
             tva_a_verser,
-            credit_tva_reporte
+            credit_tva_reporte,
+            irg_salaires
+        };
+    },
+
+    /**
+     * Calculate G29 (Annual Fees)
+     */
+    calculateG29: async (year: string): Promise<G29Data> => {
+        // En Algérie, on déclare les honoraires payés aux tiers
+        const allInvoices = await invoiceService.getAll();
+        const yearInvoices = allInvoices.filter(inv => inv.date.startsWith(year) && inv.type === 'purchase');
+
+        // Filter invoices for services/consulting/honoraires
+        const honorairesInvoices = yearInvoices.filter(inv =>
+            inv.items.some(item => item.desc.toLowerCase().includes('honoraire') || item.type === 'service')
+        );
+
+        const total_honoraires = honorairesInvoices.reduce((sum, inv) => sum + inv.totalHT, 0);
+        const total_retenues = total_honoraires * 0.15; // Retenue standard 15%
+
+        return {
+            exercice: year,
+            total_honoraires,
+            total_retenues,
+            beneficiaires_count: new Set(honorairesInvoices.map(i => i.supplierId)).size
         };
     },
 

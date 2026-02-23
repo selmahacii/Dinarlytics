@@ -150,144 +150,107 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
   };
 
   const renderOverview = () => (
-    <div className="space-y-6">
-      {/* Métriques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
+    <div className="space-y-10">
+      {/* Métriques principales - Design Professional ERP */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Modifications", value: statsGenerales.totalModifications, sub: "Ce mois", icon: CurrencyDollarIcon, color: "text-slate-900", bg: "bg-slate-50" },
+          { label: "Appliquées", value: statsGenerales.modificationsAppliqees, sub: "Prix mis à jour", icon: CheckCircleIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
+          { label: "En Attente", value: statsGenerales.modificationsEnAttente, sub: "Validation requise", icon: ClockIcon, color: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Impact Total", value: formatCurrency(statsGenerales.impactTotal), sub: "دج", icon: ArrowTrendingUpIcon, color: "text-cyan-600", bg: "bg-cyan-50" }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
             <div>
-              <p className="text-sm text-blue-600 font-medium">Total Modifications</p>
-              <p className="text-2xl font-bold text-blue-800">{statsGenerales.totalModifications}</p>
-              <p className="text-xs text-gray-500">Ce mois</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
+              <p className="text-2xl font-black font-mono tracking-tighter">{stat.value}</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{stat.sub}</p>
             </div>
-            <CurrencyDollarIcon className="h-8 w-8 text-blue-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-green-600 font-medium">Appliquées</p>
-              <p className="text-2xl font-bold text-green-800">{statsGenerales.modificationsAppliqees}</p>
-              <p className="text-xs text-gray-500">Prix mis à jour</p>
+            <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
+              <stat.icon className={`h-6 w-6 ${stat.color}`} />
             </div>
-            <CheckCircleIcon className="h-8 w-8 text-green-600" />
           </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-yellow-600 font-medium">En Attente</p>
-              <p className="text-2xl font-bold text-yellow-800">{statsGenerales.modificationsEnAttente}</p>
-              <p className="text-xs text-gray-500">Validation requise</p>
-            </div>
-            <ClockIcon className="h-8 w-8 text-yellow-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-purple-600 font-medium">Impact Total</p>
-              <p className="text-2xl font-bold text-purple-800">{formatCurrency(statsGenerales.impactTotal)}</p>
-              <p className="text-xs text-gray-500">دج</p>
-            </div>
-            <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600" />
-          </div>
-        </Card>
+        ))}
       </div>
 
       {/* Historique récent */}
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="text-lg font-semibold text-gray-900">Modifications Récentes</h4>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center px-4">
+          <div>
+            <h4 className="text-xl font-black uppercase tracking-tighter italic">Modifications Récentes</h4>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Traçabilité des ajustements tarifaires</p>
+          </div>
           <button
             onClick={handleAddPricing}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+            className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 shadow-xl shadow-slate-900/10 flex items-center gap-2"
           >
             <PlusIcon className="h-4 w-4" />
-            <span>Nouvelle Modification</span>
+            Nouvelle Modification
           </button>
         </div>
 
-        <div className="space-y-3">
-          {pricingHistory.slice(0, 5).map((pricing) => {
-            const StatutIcon = getStatutIcon(pricing.statut);
+        <div className="space-y-4">
+          {pricingHistory.map((pricing) => {
+            const isIncrease = pricing.variation.startsWith('+');
             return (
-              <div key={pricing.id} className="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex-shrink-0">
-                      <StatutIcon className="h-5 w-5 text-gray-400" />
+              <div key={pricing.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="flex items-center space-x-4 flex-1 min-w-0">
+                    <div className={`p-4 rounded-2xl ${pricing.statut === 'appliqué' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                      <CurrencyDollarIcon className="h-6 w-6" />
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className="text-sm font-black uppercase tracking-tight text-slate-900 truncate">{pricing.article}</h5>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                        {pricing.code} <span className="mx-2 opacity-30">•</span> {pricing.date}
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg ml-4 ${pricing.statut === 'appliqué' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
+                      {pricing.statut.replace('_', ' ')}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:border-l lg:border-slate-50 lg:pl-8">
+                    <div>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Nouveau Prix</p>
+                      <p className="text-lg font-black font-mono text-slate-900 italic">{formatCurrency(pricing.prix)} DA</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{pricing.article}</p>
-                      <p className="text-xs text-gray-500">{pricing.code} • {pricing.date}</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ancien Prix</p>
+                      <p className="text-lg font-black font-mono text-slate-300 line-through italic">{formatCurrency(pricing.ancienPrix)} DA</p>
+                    </div>
+                    <div className="lg:pr-8">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Variation</p>
+                      <p className={`text-lg font-black font-mono ${isIncrease ? 'text-red-500' : 'text-emerald-500'}`}>
+                        {pricing.variation}
+                      </p>
                     </div>
                   </div>
-                  <span className={`px-2 py-1 text-xs rounded-full border ${getStatutColor(pricing.statut)}`}>
-                    {pricing.statut.replace('_', ' ')}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-3">
-                  <div>
-                    <p className="text-xs text-gray-500">Nouveau Prix</p>
-                    <p className="text-sm font-semibold text-gray-900">{formatCurrency(pricing.prix)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Ancien Prix</p>
-                    <p className="text-sm text-gray-600">{formatCurrency(pricing.ancienPrix)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Variation</p>
-                    <p className={`text-sm font-medium ${pricing.variation.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                      {pricing.variation}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                  <div className="text-xs text-gray-500">
-                    Raison: {pricing.raison} • Par: {pricing.responsable}
-                  </div>
-                  <div className="flex space-x-1">
-                    <button 
-                      onClick={() => handleViewDetails(pricing)}
-                      className="p-1 text-blue-600 hover:bg-blue-100 rounded"
-                      title="Voir les détails"
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleEditPricing(pricing)}
-                      className="p-1 text-green-600 hover:bg-green-100 rounded"
-                      title="Modifier"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeletePricing(pricing.id)}
-                      className="p-1 text-red-600 hover:bg-red-100 rounded"
-                      title="Supprimer"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+                  <div className="border-t lg:border-t-0 lg:border-l border-slate-50 pt-4 lg:pt-0 lg:pl-8 flex justify-between items-center lg:w-72">
+                    <div className="min-w-0 pr-4">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest line-clamp-1">Raison: {pricing.raison}</p>
+                      <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest mt-1">Par: {pricing.responsable}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleViewDetails(pricing)} className="p-2 hover:bg-slate-900 hover:text-white rounded-xl transition-all text-slate-300">
+                        <EyeIcon className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
   const renderHistorique = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900">Historique Complet des Prix</h4>
-      
+
       <Card className="p-6">
         <div className="flex justify-between items-center mb-4">
           <h5 className="text-md font-semibold text-gray-900">Toutes les Modifications</h5>
@@ -298,7 +261,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
               <option value="en_attente">En attente</option>
               <option value="annulé">Annulées</option>
             </select>
-            <button 
+            <button
               onClick={handleExportPricing}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
             >
@@ -343,9 +306,8 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                       {formatCurrency(pricing.prix)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        pricing.variation.startsWith('+') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pricing.variation.startsWith('+') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
                         {pricing.variation.startsWith('+') ? <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />}
                         {pricing.variation}
                       </span>
@@ -361,13 +323,13 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button 
+                        <button
                           onClick={() => handleViewDetails(pricing)}
                           className="text-blue-600 hover:text-blue-900"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleEditPricing(pricing)}
                           className="text-green-600 hover:text-green-900"
                         >
@@ -388,7 +350,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
   const renderAnalytics = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900">Analyses des Prix</h4>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h5 className="text-md font-semibold text-gray-900 mb-4">Évolution des Prix (6 derniers mois)</h5>
@@ -428,7 +390,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   y: {
                     beginAtZero: true,
                     ticks: {
-                      callback: function(value) {
+                      callback: function (value) {
                         return formatCurrency(value as number);
                       }
                     }
@@ -513,7 +475,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   y: {
                     beginAtZero: true,
                     ticks: {
-                      callback: function(value) {
+                      callback: function (value) {
                         return formatCurrency(value as number);
                       }
                     }
@@ -566,26 +528,26 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
   const renderGestion = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900">Gestion Avancée des Tarifs</h4>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h5 className="text-md font-semibold text-gray-900 mb-4">Actions Rapides</h5>
           <div className="space-y-3">
-            <button 
+            <button
               onClick={handleAddPricing}
               className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
               Nouvelle Modification de Prix
             </button>
-            <button 
+            <button
               onClick={handleExportPricing}
               className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
             >
               <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
               Exporter l'Historique
             </button>
-            <button 
+            <button
               onClick={() => console.log('Impression de l\'historique...')}
               className="w-full flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
             >
@@ -637,14 +599,14 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <p className="text-sm text-gray-600">Historique et gestion complète des modifications de prix</p>
         </div>
         <div className="flex space-x-2">
-          <button 
+          <button
             onClick={handleExportPricing}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
           >
             <DocumentArrowDownIcon className="h-4 w-4" />
             <span>Exporter</span>
           </button>
-          <button 
+          <button
             onClick={() => console.log('Impression du rapport...')}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
           >
@@ -668,11 +630,10 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
               <button
                 key={tab.id}
                 onClick={() => setActiveView(tab.id as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                  activeView === tab.id
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeView === tab.id
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 <span>{tab.name}</span>
@@ -696,14 +657,14 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Détails de la Modification</h3>
-              <button 
+              <button
                 onClick={() => setIsDetailModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <span className="text-2xl">&times;</span>
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -715,7 +676,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   <p className="text-sm text-gray-900">{selectedPricing.code}</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Ancien Prix</label>
@@ -726,7 +687,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedPricing.prix)} دج</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Variation</label>
@@ -739,12 +700,12 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   <p className="text-sm text-gray-900">{selectedPricing.date}</p>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Raison</label>
                 <p className="text-sm text-gray-900">{selectedPricing.raison}</p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Responsable</label>
@@ -758,15 +719,15 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                 </div>
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 onClick={() => setIsDetailModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
                 Fermer
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setIsDetailModalOpen(false);
                   handleEditPricing(selectedPricing);
@@ -786,27 +747,27 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Modifier le Prix</h3>
-              <button 
+              <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <span className="text-2xl">&times;</span>
               </button>
             </div>
-            
+
             <form className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nouveau Prix (DA)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     defaultValue={selectedPricing.prix}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Statut</label>
-                  <select 
+                  <select
                     defaultValue={selectedPricing.statut}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
@@ -816,25 +777,25 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   </select>
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Raison</label>
-                <textarea 
+                <textarea
                   defaultValue={selectedPricing.raison}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </form>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
                 Annuler
               </button>
-              <button 
+              <button
                 onClick={() => {
                   console.log('Sauvegarde des modifications pour:', selectedPricing.id);
                   setIsEditModalOpen(false);
@@ -854,14 +815,14 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Nouvelle Modification de Prix</h3>
-              <button 
+              <button
                 onClick={() => setIsAddModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600"
               >
                 <span className="text-2xl">&times;</span>
               </button>
             </div>
-            
+
             <form className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -875,32 +836,32 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nouveau Prix (DA)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     placeholder="Ex: 85000"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Raison</label>
-                <textarea 
+                <textarea
                   placeholder="Ex: Augmentation des coûts matières premières"
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </form>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 onClick={() => setIsAddModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
               >
                 Annuler
               </button>
-              <button 
+              <button
                 onClick={() => {
                   console.log('Création d\'une nouvelle modification de prix...');
                   setIsAddModalOpen(false);

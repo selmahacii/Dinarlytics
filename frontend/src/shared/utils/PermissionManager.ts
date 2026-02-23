@@ -432,15 +432,10 @@ export const USER_ROLES: UserRole[] = [
   {
     id: 'dg',
     name: 'Directeur Général',
-    description: 'Pilotage stratégique, KPIs globaux, validation budgets',
-    permissions: [
-      'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-alerts',
-      'comptabilite-read', 'facturation-read', 'stocks-read', 'paie-read',
-      'rapports-basic', 'rapports-ventes', 'rapports-achats', 'rapports-tresorerie', 'rapports-comptabilite', 'rapports-fiscalite', 'rapports-advanced',
-      'audit-read', 'lia-access', 'lia-analyses'
-    ],
-    companyTypes: ['spa'],
-    accessLevels: ['enterprise']
+    description: 'Pilotage stratégique, KPIs globaux, validation budgets (Accès Complet en Démo)',
+    permissions: AVAILABLE_PERMISSIONS.map(p => p.id),
+    companyTypes: ['spa', 'sarl', 'eurl'],
+    accessLevels: ['starter', 'professional', 'enterprise']
   },
 
   // 3. DAF (SPA)

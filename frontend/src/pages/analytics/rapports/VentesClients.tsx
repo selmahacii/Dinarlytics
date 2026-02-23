@@ -16,11 +16,14 @@ import {
   CalendarIcon,
   InformationCircleIcon,
   ArrowPathIcon,
-  SparklesIcon
+  SparklesIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@core/context/AppContext';
 import { useSalesReports } from '@shared/hooks/useSalesReports';
+import Modal from '@shared/components/UI/Modal';
+import { usePermission } from '@shared/hooks/usePermission';
 
 const VentesClients: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +32,9 @@ const VentesClients: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
   const [activeTab, setActiveTab] = useState<'rapports' | 'analyse' | 'previsions'>('rapports');
   const [showExportModal, setShowExportModal] = useState(false);
+  const [isAiAuditModalOpen, setIsAiAuditModalOpen] = useState(false);
+  const [isGeneratingAiAudit, setIsGeneratingAiAudit] = useState(false);
+  const [aiAuditReport, setAiAuditReport] = useState<any>(null);
 
   // API Data Hook
   const { data, loading, error } = useSalesReports(selectedPeriod);
@@ -58,7 +64,7 @@ const VentesClients: React.FC = () => {
       [],
       ['=== RÉSUMÉ DES INDICATEURS CLÉS (KPI) ==='],
       ['Indicateur', 'Valeur', 'Tendance/Information'],
-      ['Chiffre d\'Affaires (DA)', salesData.ca.value.toString(), `${salesData.ca.change}% vs période précédente`],
+      ['Chiffre d\'Affaires (DA)', salesData.ca.value.toString(), `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% vs période précédente`],
       ['Marge Brute (%)', salesData.margeBrute.toString(), 'Objectif : 45%'],
       ['Panier Moyen (DA)', salesData.panierMoyen.toString(), ''],
       ['Nombre de Factures', salesData.facturesEmises.toString(), 'Validées'],
@@ -93,7 +99,6 @@ const VentesClients: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  // ── Partager ─────────────────────────────────
   const handleShare = async () => {
     if (!data) return;
     const text = `Rapport Ventes — ${new Date().toLocaleDateString('fr-DZ')}\n` +
@@ -106,6 +111,51 @@ const VentesClients: React.FC = () => {
       await navigator.clipboard.writeText(text);
       alert('Résumé copié !');
     }
+  };
+
+  const handleGenererAuditIA = async () => {
+    setIsAiAuditModalOpen(true);
+    setIsGeneratingAiAudit(true);
+    setAiAuditReport(null);
+
+    // Simulation IA
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    if (data) {
+      const dsoValue = data.clientMetrics.dsoMoyen;
+      const caValue = data.salesData.ca.value;
+      const topClientCa = data.topClients[0]?.sales || 0;
+      const concentration = Math.round((topClientCa / caValue) * 100);
+
+      setAiAuditReport({
+        score: dsoValue < 30 ? 94 : 88,
+        status: dsoValue < 30 ? 'Excellence Opérationnelle' : 'Optimisation Requise',
+        summary: `Analyse croisée des cycles de vente et du comportement client. L'entreprise affiche une résilience ${caValue > 1000000 ? 'forte' : 'modérée'} avec un CA de ${caValue.toLocaleString()} DA. Le DSO moyen est de ${dsoValue} jours.`,
+        risks: [
+          {
+            level: concentration > 30 ? 'medium' : 'low',
+            title: 'Concentration Client',
+            message: `Le premier client (${data.topClients[0]?.name}) représente ${concentration}% du CA. ${concentration > 30 ? 'Risque de dépendance élevé.' : 'Dépendance maîtrisée.'}`
+          },
+          {
+            level: data.clientMetrics.tauxImpayes > 2 ? 'high' : 'medium',
+            title: 'Qualité du Poste Client',
+            message: `Le taux d'impayés est de ${data.clientMetrics.tauxImpayes}%. ${data.clientMetrics.tauxImpayes > 2 ? 'Action corrective immédiate requise.' : 'Sous surveillance.'}`
+          }
+        ],
+        opportunities: [
+          {
+            title: 'Optimisation Trésorerie',
+            message: `Une réduction du DSO de 5 jours dégagerait environ ${Math.round(caValue / 30 * 5).toLocaleString()} DA de liquidités immédiates.`
+          },
+          {
+            title: 'Développement B2B',
+            message: `Le client ${data.topClients[1]?.name} est en croissance de ${data.topClients[1]?.trend}%. Potentiel d'up-selling détecté.`
+          }
+        ]
+      });
+    }
+    setIsGeneratingAiAudit(false);
   };
 
   if (loading) {
@@ -130,355 +180,424 @@ const VentesClients: React.FC = () => {
   const { salesData, topProducts, salesByCategory, topClients, clientMetrics, forecasts } = data;
 
   return (
-    <div className="space-y-8 pb-12" id="sales-print-root">
+    <>
+      <div className="space-y-8 pb-12" id="sales-print-root">
 
-      {/* ══════════════ HERO HEADER ══════════════ */}
-      <div className="bg-slate-900 text-white p-10 rounded-[2.5rem] border border-slate-800 shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.02),transparent)]" />
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <div className="flex items-center gap-3 mb-2 opacity-60">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Performance Commerciale</p>
-              <div className="h-px w-6 bg-slate-700" />
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Audité</p>
-            </div>
-            <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-white">Ventes & Clients</h1>
-            <div className="flex items-center gap-4 mt-4">
-              <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                <button
-                  onClick={() => setSelectedPeriod('jour')}
-                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedPeriod === 'jour' ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400'}`}
-                >
-                  Jour
-                </button>
-                <button
-                  onClick={() => setSelectedPeriod('mois')}
-                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedPeriod === 'mois' ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400'}`}
-                >
-                  Mois
-                </button>
+        {/* ══════════════ HERO HEADER ══════════════ */}
+        <div className="bg-slate-900 text-white p-10 rounded-[2.5rem] border border-slate-800 shadow-xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.02),transparent)]" />
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2 opacity-60">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Performance Commerciale</p>
+                <div className="h-px w-6 bg-slate-700" />
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Audité</p>
               </div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">
-                Vue {selectedPeriod === 'jour' ? 'quotidienne' : 'mensuelle'} · {new Date().toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleExportPDF}
-              className="px-6 py-3 bg-white text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all hover:bg-slate-100 flex items-center gap-2"
-            >
-              <PrinterIcon className="h-3.5 w-3.5" />
-              Imprimer
-            </button>
-            <button
-              onClick={handleShare}
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
-            >
-              <ShareIcon className="h-3.5 w-3.5" />
-              Partager
-            </button>
-          </div>
-        </div>
-
-        {/* Métriques HERO */}
-        <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-12 border-t border-white/5">
-          {[
-            { label: "Chiffre d'Affaires", val: formatCurrency(salesData.ca.value), sub: `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% vs période précédente`, icon: CurrencyDollarIcon, color: 'text-white' },
-            { label: "Factures Émises", val: salesData.facturesEmises, sub: 'Opérations validées', icon: DocumentArrowDownIcon, color: 'text-slate-400' },
-            { label: "Panier Moyen", val: formatCurrency(salesData.panierMoyen), sub: 'Valeur unitaire moyenne', icon: ShoppingCartIcon, color: 'text-slate-400' },
-            { label: "Taux Marge", val: salesData.margeBrute + '%', sub: 'Rentabilité brute globale', icon: ChartPieIcon, color: 'text-slate-400' },
-          ].map((m, i) => (
-            <div key={i} className="group cursor-default border border-white/5 hover:border-white/20 transition-all rounded-[2rem] p-6 bg-white/[0.02]">
-              <m.icon className={`h-5 w-5 ${m.color} mb-4 opacity-50`} />
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{m.label}</p>
-              <p className={`text-2xl font-black font-mono ${m.color} tracking-tighter`}>{m.val}</p>
-              <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase opacity-80">{m.sub}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ══════════════ NAVIGATION ONGLETS ══════════════ */}
-      <div className="flex gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm sticky top-4 z-20">
-        {tabs.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === t.id
-              ? 'bg-slate-950 text-white shadow-2xl'
-              : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
-              }`}
-          >
-            <t.icon className="h-4 w-4" />
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ══════════════ CONTENU RAPPORT ══════════════ */}
-      {activeTab === 'rapports' && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Top Produits */}
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-              <div className="flex items-center justify-between mb-10">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-slate-950 rounded-2xl">
-                    <StarIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Top 5 Produits</h3>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Performance par article</p>
-                  </div>
+              <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-white">Ventes & Clients</h1>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                  <button
+                    onClick={() => setSelectedPeriod('jour')}
+                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedPeriod === 'jour' ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400'}`}
+                  >
+                    Jour
+                  </button>
+                  <button
+                    onClick={() => setSelectedPeriod('mois')}
+                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedPeriod === 'mois' ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400'}`}
+                  >
+                    Mois
+                  </button>
                 </div>
-                <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
-                  <ArrowDownTrayIcon className="h-5 w-5 text-slate-400" />
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {topProducts.map((p, i) => (
-                  <div key={i} className="group relative bg-slate-50/50 hover:bg-slate-900 transition-all duration-300 p-6 rounded-[2rem] border border-slate-100 overflow-hidden">
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <span className="text-4xl font-black text-slate-200 group-hover:text-white/20 transition-colors italic">0{i + 1}</span>
-                        <div>
-                          <p className="text-[10px] font-black text-slate-400 group-hover:text-slate-500 uppercase tracking-widest mb-1">{p.quantity} unités soldées</p>
-                          <h4 className="text-sm font-black text-slate-900 group-hover:text-white uppercase tracking-tight">{p.name}</h4>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-black font-mono text-slate-900 group-hover:text-white leading-none tracking-tighter">{formatCurrency(p.sales)}</p>
-                        <div className="flex items-center justify-end gap-1 mt-2">
-                          {p.evolution > 0 ? <ArrowTrendingUpIcon className="h-3 w-3 text-slate-400" /> : <ArrowTrendingDownIcon className="h-3 w-3 text-slate-400" />}
-                          <span className="text-[10px] font-black uppercase text-slate-500 group-hover:text-slate-300">{Math.abs(p.evolution)}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    {/* Progress indicator */}
-                    <div className="absolute bottom-0 left-0 h-1 bg-slate-900 group-hover:bg-white/30 transition-all" style={{ width: `${p.percentage}%` }} />
-                  </div>
-                ))}
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">
+                  Vue {selectedPeriod === 'jour' ? 'quotidienne' : 'mensuelle'} · {new Date().toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
+                </p>
               </div>
             </div>
-
-            {/* Ventes par Catégorie */}
-            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col">
-              <div className="flex items-center gap-3 mb-10">
-                <div className="p-3 bg-slate-950 rounded-2xl">
-                  <ChartPieIcon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Répartition Catégories</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Poids sur le CA total</p>
-                </div>
-              </div>
-
-              <div className="flex-1 flex flex-col justify-center space-y-10">
-                {salesByCategory.map((cat, idx) => (
-                  <div key={idx} className="relative">
-                    <div className="flex justify-between items-end mb-3">
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{cat.category}</p>
-                        <p className="text-sm font-black text-slate-900 uppercase">{formatCurrency(cat.amount)}</p>
-                      </div>
-                      <p className="text-3xl font-black italic text-slate-100">{cat.percentage}%</p>
-                    </div>
-                    <div className="h-3 w-full bg-slate-50 rounded-full overflow-hidden">
-                      <div className="h-full bg-slate-950 rounded-full transition-all duration-1000" style={{ width: `${cat.percentage}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleExportPDF}
+                className="px-6 py-3 bg-white text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all hover:bg-slate-100 flex items-center gap-2"
+              >
+                <PrinterIcon className="h-3.5 w-3.5" />
+                Imprimer
+              </button>
+              <button
+                onClick={handleShare}
+                className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
+              >
+                <ShareIcon className="h-3.5 w-3.5" />
+                Partager
+              </button>
             </div>
           </div>
 
-          {/* Metrics Clients */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Métriques HERO */}
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-12 border-t border-white/5">
             {[
-              { label: 'Clients Actifs', val: clientMetrics.clientsActifs, sub: `sur ${clientMetrics.totalClients}`, icon: UserGroupIcon },
-              { label: 'Nouveaux', val: clientMetrics.nouveauxClients, sub: 'Ce mois-ci', icon: StarIcon },
-              { label: 'Fidélisation', val: clientMetrics.tauxFidelisation.toFixed(1) + '%', sub: 'Clients récurrents', icon: CheckCircleIcon },
-              { label: 'DSO Moyen', val: clientMetrics.dsoMoyen + 'j', sub: 'Délai encaissement', icon: CalendarIcon },
+              { label: "Chiffre d'Affaires", val: formatCurrency(salesData.ca.value), sub: `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% vs période précédente`, icon: CurrencyDollarIcon, color: 'text-white' },
+              { label: "Factures Émises", val: salesData.facturesEmises, sub: 'Opérations validées', icon: DocumentArrowDownIcon, color: 'text-slate-400' },
+              { label: "Panier Moyen", val: formatCurrency(salesData.panierMoyen), sub: 'Valeur unitaire moyenne', icon: ShoppingCartIcon, color: 'text-slate-400' },
+              { label: "Taux Marge", val: salesData.margeBrute + '%', sub: 'Rentabilité brute globale', icon: ChartPieIcon, color: 'text-slate-400' },
             ].map((m, i) => (
-              <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 text-center flex flex-col items-center">
-                <div className="p-3 bg-slate-50 rounded-2xl mb-4 group hover:bg-slate-950 transition-all cursor-pointer">
-                  <m.icon className="h-5 w-5 text-slate-900 group-hover:text-white transition-colors" />
-                </div>
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{m.label}</p>
-                <p className="text-3xl font-black font-mono text-slate-950 leading-none">{m.val}</p>
-                <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase opacity-60">{m.sub}</p>
+              <div key={i} className="group cursor-default border border-white/5 hover:border-white/20 transition-all rounded-[2rem] p-6 bg-white/[0.02]">
+                <m.icon className={`h-5 w-5 ${m.color} mb-4 opacity-50`} />
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{m.label}</p>
+                <p className={`text-2xl font-black font-mono ${m.color} tracking-tighter`}>{m.val}</p>
+                <p className="text-[10px] font-bold text-slate-600 mt-2 uppercase opacity-80">{m.sub}</p>
               </div>
             ))}
           </div>
-
         </div>
-      )}
 
-      {/* ══════════════ ANALYSE CLIENT ══════════════ */}
-      {activeTab === 'analyse' && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-slate-950 rounded-2xl shadow-xl shadow-slate-900/10">
-                  <UserGroupIcon className="h-6 w-6 text-white" />
+        {/* ══════════════ NAVIGATION ONGLETS ══════════════ */}
+        <div className="flex gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm sticky top-4 z-20">
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === t.id
+                ? 'bg-slate-950 text-white shadow-2xl'
+                : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+            >
+              <t.icon className="h-4 w-4" />
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ══════════════ CONTENU RAPPORT ══════════════ */}
+        {activeTab === 'rapports' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Top Produits */}
+              <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
+                <div className="flex items-center justify-between mb-10">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-slate-950 rounded-2xl">
+                      <StarIcon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Top 5 Produits</h3>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Performance par article</p>
+                    </div>
+                  </div>
+                  <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                    <ArrowDownTrayIcon className="h-5 w-5 text-slate-400" />
+                  </button>
                 </div>
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Classement Excellence Client</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Analyse qualitative et volume d'affaires</p>
+
+                <div className="space-y-4">
+                  {topProducts.map((p, i) => (
+                    <div key={i} className="group relative bg-slate-50/50 hover:bg-slate-900 transition-all duration-300 p-6 rounded-[2rem] border border-slate-100 overflow-hidden">
+                      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <span className="text-4xl font-black text-slate-200 group-hover:text-white/20 transition-colors italic">0{i + 1}</span>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-400 group-hover:text-slate-500 uppercase tracking-widest mb-1">{p.quantity} unités soldées</p>
+                            <h4 className="text-sm font-black text-slate-900 group-hover:text-white uppercase tracking-tight">{p.name}</h4>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-black font-mono text-slate-900 group-hover:text-white leading-none tracking-tighter">{formatCurrency(p.sales)}</p>
+                          <div className="flex items-center justify-end gap-1 mt-2">
+                            {p.evolution > 0 ? <ArrowTrendingUpIcon className="h-3 w-3 text-slate-400" /> : <ArrowTrendingDownIcon className="h-3 w-3 text-slate-400" />}
+                            <span className="text-[10px] font-black uppercase text-slate-500 group-hover:text-slate-300">{Math.abs(p.evolution)}%</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Progress indicator */}
+                      <div className="absolute bottom-0 left-0 h-1 bg-slate-900 group-hover:bg-white/30 transition-all" style={{ width: `${p.percentage}%` }} />
+                    </div>
+                  ))}
                 </div>
               </div>
-              <button
-                onClick={handleExportExcel}
-                className="px-6 py-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2"
-              >
-                <DocumentArrowDownIcon className="h-4 w-4" />
-                Exporter CSV
-              </button>
+
+              {/* Ventes par Catégorie */}
+              <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col">
+                <div className="flex items-center gap-3 mb-10">
+                  <div className="p-3 bg-slate-950 rounded-2xl">
+                    <ChartPieIcon className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Répartition Catégories</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Poids sur le CA total</p>
+                  </div>
+                </div>
+
+                <div className="flex-1 flex flex-col justify-center space-y-10">
+                  {salesByCategory.map((cat, idx) => (
+                    <div key={idx} className="relative">
+                      <div className="flex justify-between items-end mb-3">
+                        <div>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{cat.category}</p>
+                          <p className="text-sm font-black text-slate-900 uppercase">{formatCurrency(cat.amount)}</p>
+                        </div>
+                        <p className="text-3xl font-black italic text-slate-100">{cat.percentage}%</p>
+                      </div>
+                      <div className="h-3 w-full bg-slate-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-950 rounded-full transition-all duration-1000" style={{ width: `${cat.percentage}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {topClients.map((client, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => navigate(`/clients?id=${client.id}`)}
-                  className="group relative bg-white hover:bg-slate-50 border border-slate-100 hover:border-slate-900 transition-all duration-500 rounded-[2.5rem] p-8 overflow-hidden cursor-pointer"
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-slate-950/5 group-hover:bg-slate-950/10 -mr-8 -mt-8 rounded-full transition-all" />
-
-                  <div className="flex items-start justify-between relative z-10 mb-8">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{client.orders} commandes validées</p>
-                      <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">{client.name}</h4>
-                    </div>
-                    <div className={`p-2 rounded-xl border ${client.trend > 0 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : client.trend < 0 ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-slate-50 border-slate-100 text-slate-600'}`}>
-                      {client.trend > 0 ? <ArrowTrendingUpIcon className="h-5 w-5" /> : client.trend < 0 ? <ArrowTrendingDownIcon className="h-5 w-5" /> : <InformationCircleIcon className="h-5 w-5" />}
-                    </div>
+            {/* Metrics Clients */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Clients Actifs', val: clientMetrics.clientsActifs, sub: `sur ${clientMetrics.totalClients}`, icon: UserGroupIcon },
+                { label: 'Nouveaux', val: clientMetrics.nouveauxClients, sub: 'Ce mois-ci', icon: StarIcon },
+                { label: 'Fidélisation', val: (clientMetrics.tauxFidelisation || 0).toFixed(1) + '%', sub: 'Clients récurrents', icon: CheckCircleIcon },
+                { label: 'DSO Moyen', val: clientMetrics.dsoMoyen + 'j', sub: 'Délai encaissement', icon: CalendarIcon },
+              ].map((m, i) => (
+                <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 text-center flex flex-col items-center">
+                  <div className="p-3 bg-slate-50 rounded-2xl mb-4 group hover:bg-slate-950 transition-all cursor-pointer">
+                    <m.icon className="h-5 w-5 text-slate-900 group-hover:text-white transition-colors" />
                   </div>
-
-                  <div className="grid grid-cols-2 gap-8 relative z-10">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Ventes</p>
-                      <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(client.sales)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Panier Moyen</p>
-                      <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(client.avgBasket)}</p>
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-tighter underline underline-offset-4 hover:text-slate-600 transition-colors">
-                      Voir fiche complète →
-                    </span>
-                  </div>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{m.label}</p>
+                  <p className="text-3xl font-black font-mono text-slate-950 leading-none">{m.val}</p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase opacity-60">{m.sub}</p>
                 </div>
               ))}
             </div>
+
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ══════════════ COMPARATIF & PRÉVISIONS ══════════════ */}
-      {activeTab === 'previsions' && (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="p-3 bg-slate-950 rounded-2xl shadow-xl shadow-slate-900/10">
-                <SparklesIcon className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Analyse Prédictive LIA</h3>
-                <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Prévisions basées sur l'historique et les tendances du marché</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {forecasts.map((f, i) => (
-                <div key={i} className={`p-8 rounded-[2.5rem] border transition-all duration-500 ${f.actual > 0 ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 hover:border-slate-950 shadow-sm hover:shadow-2xl'}`}>
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{f.month} 2024</span>
-                    {f.actual > 0 ? (
-                      <div className="px-3 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">Réalisé</div>
-                    ) : (
-                      <div className="px-3 py-1 bg-emerald-500 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">Projection</div>
-                    )}
+        {/* ══════════════ ANALYSE CLIENT ══════════════ */}
+        {activeTab === 'analyse' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-slate-950 rounded-2xl shadow-xl shadow-slate-900/10">
+                    <UserGroupIcon className="h-6 w-6 text-white" />
                   </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Objectif Target</p>
-                      <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(f.target)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{f.actual > 0 ? 'Chiffre Réalisé' : 'Prévision Attendu'}</p>
-                      <p className="text-2xl font-black font-mono text-slate-950 tracking-tighter">{formatCurrency(f.actual > 0 ? f.actual : f.forecast)}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 pt-6 border-t border-slate-100">
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Écart vs Target</p>
-                      <span className="text-xs font-black font-mono text-slate-600">
-                        {f.variance > 0 ? '+' : ''}{f.variance}%
-                      </span>
-                    </div>
-                    <div className="h-1 w-full bg-slate-100 rounded-full mt-3 overflow-hidden">
-                      <div
-                        className="h-full transition-all duration-1000 bg-slate-300"
-                        style={{ width: `${Math.min(100, Math.max(10, 50 + f.variance))}%` }}
-                      />
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Classement Excellence Client</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Analyse qualitative et volume d'affaires</p>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-12 p-8 bg-slate-950 rounded-[2.5rem] relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 -mr-32 -mt-32 rounded-full blur-3xl text-white" />
-              <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
-                <div>
-                  <h4 className="text-white text-xl font-black uppercase tracking-tight italic mb-2">Recommandation Stratégique LIA</h4>
-                  <p className="text-slate-400 text-sm max-w-xl">
-                    La tendance actuelle indique une croissance de <span className="text-emerald-400 font-bold">16.3%</span> pour le prochain trimestre.
-                    Il est conseillé d'augmenter le stock sur la catégorie <span className="text-white underline underline-offset-4">Services Conseil</span> pour répondre à la demande projetée de Mai/Juin.
-                  </p>
-                </div>
-                <button className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
-                  Générer Audit AI Complet
+                <button
+                  onClick={handleExportExcel}
+                  className="px-6 py-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2"
+                >
+                  <DocumentArrowDownIcon className="h-4 w-4" />
+                  Exporter CSV
                 </button>
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {topClients.map((client, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => navigate(`/clients?id=${client.id}`)}
+                    className="group relative bg-white hover:bg-slate-50 border border-slate-100 hover:border-slate-900 transition-all duration-500 rounded-[2.5rem] p-8 overflow-hidden cursor-pointer"
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-slate-950/5 group-hover:bg-slate-950/10 -mr-8 -mt-8 rounded-full transition-all" />
+
+                    <div className="flex items-start justify-between relative z-10 mb-8">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{client.orders} commandes validées</p>
+                        <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">{client.name}</h4>
+                      </div>
+                      <div className={`p-2 rounded-xl border ${client.trend > 0 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : client.trend < 0 ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-slate-50 border-slate-100 text-slate-600'}`}>
+                        {client.trend > 0 ? <ArrowTrendingUpIcon className="h-5 w-5" /> : client.trend < 0 ? <ArrowTrendingDownIcon className="h-5 w-5" /> : <InformationCircleIcon className="h-5 w-5" />}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-8 relative z-10">
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Ventes</p>
+                        <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(client.sales)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Panier Moyen</p>
+                        <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(client.avgBasket)}</p>
+                      </div>
+                    </div>
+
+                    <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                      <span className="text-[10px] font-black text-slate-900 uppercase tracking-tighter underline underline-offset-4 hover:text-slate-600 transition-colors">
+                        Voir fiche complète →
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ══════════════ ACTIONS PIED DE PAGE ══════════════ */}
-      <div className="flex flex-wrap gap-4 pt-8 border-t border-slate-100">
-        <button
-          onClick={handleExportPDF}
-          className="px-10 py-5 bg-slate-950 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
-        >
-          <PrinterIcon className="h-5 w-5" />
-          Rapport Exportable
-        </button>
-        <button
-          onClick={handleExportExcel}
-          className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all flex items-center gap-3"
-        >
-          <DocumentArrowDownIcon className="h-5 w-5" />
-          Fichier Analyse XL
-        </button>
+        {/* ══════════════ COMPARATIF & PRÉVISIONS ══════════════ */}
+        {activeTab === 'previsions' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="p-3 bg-slate-950 rounded-2xl shadow-xl shadow-slate-900/10">
+                  <SparklesIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Analyse Prédictive LIA</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Prévisions basées sur l'historique et les tendances du marché</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {forecasts.map((f, i) => (
+                  <div key={i} className={`p-8 rounded-[2.5rem] border transition-all duration-500 ${f.actual > 0 ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 hover:border-slate-950 shadow-sm hover:shadow-2xl'}`}>
+                    <div className="flex justify-between items-start mb-6">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{f.month} 2024</span>
+                      {f.actual > 0 ? (
+                        <div className="px-3 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">Réalisé</div>
+                      ) : (
+                        <div className="px-3 py-1 bg-emerald-500 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">Projection</div>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Objectif Target</p>
+                        <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(f.target)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{f.actual > 0 ? 'Chiffre Réalisé' : 'Prévision Attendu'}</p>
+                        <p className="text-2xl font-black font-mono text-slate-950 tracking-tighter">{formatCurrency(f.actual > 0 ? f.actual : f.forecast)}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-slate-100">
+                      <div className="flex justify-between items-center">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Écart vs Target</p>
+                        <span className="text-xs font-black font-mono text-slate-600">
+                          {f.variance > 0 ? '+' : ''}{f.variance}%
+                        </span>
+                      </div>
+                      <div className="h-1 w-full bg-slate-100 rounded-full mt-3 overflow-hidden">
+                        <div
+                          className="h-full transition-all duration-1000 bg-slate-300"
+                          style={{ width: `${Math.min(100, Math.max(10, 50 + f.variance))}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-12 p-8 bg-slate-950 rounded-[2.5rem] relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 -mr-32 -mt-32 rounded-full blur-3xl text-white" />
+                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                  <div>
+                    <h4 className="text-white text-xl font-black uppercase tracking-tight italic mb-2">Recommandation Stratégique LIA</h4>
+                    <p className="text-slate-400 text-sm max-w-xl">
+                      La tendance actuelle indique une croissance de <span className="text-emerald-400 font-bold">16.3%</span> pour le prochain trimestre.
+                      Il est conseillé d'augmenter le stock sur la catégorie <span className="text-white underline underline-offset-4">Services Conseil</span> pour répondre à la demande projetée de Mai/Juin.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleGenererAuditIA}
+                    className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+                  >
+                    Générer Audit AI Complet
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════ ACTIONS PIED DE PAGE ══════════════ */}
+        <div className="flex flex-wrap gap-4 pt-8 border-t border-slate-100">
+          <button
+            onClick={handleExportPDF}
+            className="px-10 py-5 bg-slate-950 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+          >
+            <PrinterIcon className="h-5 w-5" />
+            Rapport Exportable
+          </button>
+          <button
+            onClick={handleExportExcel}
+            className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all flex items-center gap-3"
+          >
+            <DocumentArrowDownIcon className="h-5 w-5" />
+            Fichier Analyse XL
+          </button>
+        </div>
       </div>
 
-    </div>
+      {/* 🟢 MODAL AUDIT IA */}
+      <Modal
+        isOpen={isAiAuditModalOpen}
+        onClose={() => setIsAiAuditModalOpen(false)}
+        title="Audit Stratégique Commercial (LIA)"
+        size="xl"
+      >
+        <div className="bg-slate-50 -m-6 p-10 min-h-[500px]">
+          {isGeneratingAiAudit ? (
+            <div className="flex flex-col items-center justify-center py-20 space-y-6">
+              <div className="relative">
+                <div className="h-20 w-20 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+                <SparklesIcon className="h-8 w-8 text-indigo-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 animate-pulse">LIA analyse vos données commerciales...</p>
+            </div>
+          ) : aiAuditReport && (
+            <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+              <div className="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8">
+                  <div className="text-right">
+                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Score Efficacité</p>
+                    <p className="text-5xl font-black text-indigo-600">{aiAuditReport.score}%</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="px-4 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-widest border border-indigo-100">Audit Temps Réel</div>
+                </div>
+                <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tight max-w-md">{aiAuditReport.status}</h3>
+                <p className="text-sm text-slate-500 font-medium mt-4 max-w-xl leading-relaxed">{aiAuditReport.summary}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 flex items-center gap-2">
+                    <ExclamationTriangleIcon className="h-4 w-4 text-orange-400" />
+                    Points de Vigilance
+                  </h4>
+                  {aiAuditReport.risks.map((r: any, i: number) => (
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                      <p className="text-xs font-black text-slate-900 uppercase mb-1">{r.title}</p>
+                      <p className="text-xs text-slate-500">{r.message}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 flex items-center gap-2">
+                    <ArrowTrendingUpIcon className="h-4 w-4 text-indigo-500" />
+                    Opportunités de Croissance
+                  </h4>
+                  {aiAuditReport.opportunities.map((o: any, i: number) => (
+                    <div key={i} className="bg-indigo-900 p-6 rounded-2xl shadow-xl shadow-indigo-950/20">
+                      <p className="text-xs font-black text-white uppercase mb-1">{o.title}</p>
+                      <p className="text-xs text-indigo-200">{o.message}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-slate-900 p-8 rounded-[2rem] flex items-center justify-between">
+                <p className="text-slate-400 text-xs font-medium">Recommandation : <span className="text-white font-bold">Planifiez une revue de stock pour la catégorie "Services Conseil" sous 72h.</span></p>
+                <button onClick={() => window.print()} className="px-6 py-3 bg-white text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all">Télécharger l'Audit</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Modal>
+    </>
   );
 };
 
 export default VentesClients;
-
-
-

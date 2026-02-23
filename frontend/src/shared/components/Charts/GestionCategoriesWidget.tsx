@@ -56,7 +56,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
       nom: 'Informatique',
       code: 'INF',
       description: 'Équipements informatiques et accessoires',
-      couleur: '#3B82F6',
+      couleur: '#0f172a',
       articles: 245,
       valeurStock: 1850000,
       chiffreAffaires: 2250000,
@@ -71,7 +71,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
       nom: 'Mobilier',
       code: 'MOB',
       description: 'Mobilier de bureau et équipements',
-      couleur: '#10B981',
+      couleur: '#334155',
       articles: 180,
       valeurStock: 1200000,
       chiffreAffaires: 980000,
@@ -86,7 +86,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
       nom: 'Téléphonie',
       code: 'TEL',
       description: 'Téléphones et accessoires mobiles',
-      couleur: '#F59E0B',
+      couleur: '#475569',
       articles: 95,
       valeurStock: 750000,
       chiffreAffaires: 1100000,
@@ -101,7 +101,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
       nom: 'Électronique',
       code: 'ELE',
       description: 'Appareils électroniques grand public',
-      couleur: '#EF4444',
+      couleur: '#64748b',
       articles: 120,
       valeurStock: 950000,
       chiffreAffaires: 780000,
@@ -116,7 +116,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
       nom: 'Accessoires',
       code: 'ACC',
       description: 'Accessoires et consommables',
-      couleur: '#8B5CF6',
+      couleur: '#94a3b8',
       articles: 320,
       valeurStock: 450000,
       chiffreAffaires: 650000,
@@ -183,29 +183,29 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   // Validation du formulaire
   const validateForm = () => {
     const errors: any = {};
-    
+
     if (!newCategory.nom.trim()) {
       errors.nom = 'Le nom est obligatoire';
     }
-    
+
     if (!newCategory.code.trim()) {
       errors.code = 'Le code est obligatoire';
     } else if (newCategory.code.length > 5) {
       errors.code = 'Le code ne doit pas dépasser 5 caractères';
     }
-    
+
     if (!newCategory.responsable.trim()) {
       errors.responsable = 'Le responsable est obligatoire';
     }
-    
+
     if (newCategory.objectifVente && isNaN(Number(newCategory.objectifVente))) {
       errors.objectifVente = 'Veuillez entrer un nombre valide';
     }
-    
+
     if (newCategory.budget && isNaN(Number(newCategory.budget))) {
       errors.budget = 'Veuillez entrer un nombre valide';
     }
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -213,11 +213,11 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   // Gestion de la soumission du formulaire
   const handleSubmitNewCategory = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       // Logique de création (à connecter à une API)
       console.log('Nouvelle catégorie créée:', newCategory);
-      
+
       // Afficher message de succès
       setShowSuccessMessage(true);
       setTimeout(() => {
@@ -250,151 +250,127 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   };
 
   const renderOverview = () => (
-    <div className="space-y-6">
-      {/* Métriques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
+    <div className="space-y-10">
+      {/* Métriques principales - Design Premium Slate */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Catégories", value: statsGenerales.totalCategories, sub: "Catégories actives", icon: TagIcon, color: "text-slate-900", bg: "bg-slate-50" },
+          { label: "Articles Total", value: statsGenerales.totalArticles, sub: "Dans toutes catégories", icon: CubeIcon, color: "text-slate-900", bg: "bg-slate-50" },
+          { label: "Valeur Stock", value: formatCurrency(statsGenerales.valeurStockTotal), sub: "دج", icon: CurrencyDollarIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
+          { label: "Chiffre d'Affaires", value: formatCurrency(statsGenerales.chiffreAffairesTotal), sub: "دج ce mois", icon: ChartBarIcon, color: "text-cyan-600", bg: "bg-cyan-50" }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
             <div>
-              <p className="text-sm text-blue-600 font-medium">Total Catégories</p>
-              <p className="text-2xl font-bold text-blue-800">{statsGenerales.totalCategories}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Catégories actives</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
+              <p className="text-2xl font-black font-mono tracking-tighter">{stat.value}</p>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{stat.sub}</p>
             </div>
-            <TagIcon className="h-8 w-8 text-blue-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Articles Total</p>
-              <p className="text-2xl font-bold text-green-800">{statsGenerales.totalArticles}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Dans toutes catégories</p>
+            <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
+              <stat.icon className={`h-6 w-6 ${stat.color}`} />
             </div>
-            <CubeIcon className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
           </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-purple-600 font-medium">Valeur Stock</p>
-              <p className="text-2xl font-bold text-purple-800">{formatCurrency(statsGenerales.valeurStockTotal)}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">دج</p>
-            </div>
-            <CurrencyDollarIcon className="h-8 w-8 text-purple-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-orange-600 font-medium">Chiffre d'Affaires</p>
-              <p className="text-2xl font-bold text-orange-800">{formatCurrency(statsGenerales.chiffreAffairesTotal)}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">دج ce mois</p>
-            </div>
-            <ChartBarIcon className="h-8 w-8 text-orange-600" />
-          </div>
-        </Card>
+        ))}
       </div>
 
       {/* Liste des catégories */}
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="text-lg font-semibold text-gray-900">Catégories d'Articles</h4>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center px-4">
+          <div>
+            <h4 className="text-xl font-black uppercase tracking-tighter italic">Catégories d'Articles</h4>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des segments stratégiques</p>
+          </div>
           <button
             onClick={handleAddCategory}
-            className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 flex items-center space-x-2"
+            className="px-8 py-4 bg-slate-900 text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 shadow-xl shadow-slate-900/10 flex items-center gap-2"
           >
             <PlusIcon className="h-4 w-4" />
-            <span>Nouvelle Catégorie</span>
+            Nouvelle Catégorie
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categoriesData.map((category) => {
             const StatutIcon = getStatutIcon(category.statut);
+            const isNegative = category.croissance < 0;
             return (
-              <div key={category.id} className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <div 
-                      className="w-4 h-4 rounded-full" 
-                      style={{ backgroundColor: category.couleur }}
-                    ></div>
-                    <span className="text-sm font-medium text-gray-900">{category.nom}</span>
-                  </div>
-                  <span className={`px-2 py-1 text-xs rounded-full border ${getStatutColor(category.statut)}`}>
-                    <StatutIcon className="h-3 w-3 inline mr-1" />
-                    {category.statut}
-                  </span>
-                </div>
+              <div key={category.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full -mr-16 -mt-16 group-hover:bg-slate-100 transition-colors"></div>
 
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Code:</span>
-                    <span className="font-medium">{category.code}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Articles:</span>
-                    <span className="font-medium">{category.articles}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Valeur Stock:</span>
-                    <span className="font-medium">{formatCurrency(category.valeurStock)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">CA ce mois:</span>
-                    <span className="font-medium">{formatCurrency(category.chiffreAffaires)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Croissance:</span>
-                    <span className={`font-medium ${category.croissance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      {category.croissance >= 0 ? '+' : ''}{category.croissance}%
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-3 bg-slate-900 text-white rounded-2xl">
+                        <TagIcon className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h5 className="text-sm font-black uppercase tracking-tight text-slate-900">{category.nom}</h5>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">{category.code}</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg ${category.statut === 'actif' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                      }`}>
+                      {category.statut}
                     </span>
                   </div>
-                </div>
 
-                <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-700">
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Responsable: {category.responsable}
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="p-4 bg-slate-50 rounded-2xl">
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Articles</p>
+                      <p className="text-lg font-black font-mono">{category.articles}</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-2xl">
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Croissance</p>
+                      <div className="flex items-center gap-1">
+                        {isNegative ? <ArrowTrendingDownIcon className="h-3 w-3 text-red-500" /> : <ArrowTrendingUpIcon className="h-3 w-3 text-emerald-500" />}
+                        <p className={`text-lg font-black font-mono ${isNegative ? 'text-red-500' : 'text-emerald-500'}`}>
+                          {isNegative ? '' : '+'}{category.croissance}%
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex space-x-1">
-                    <button 
-                      onClick={() => handleViewDetails(category)}
-                      className="p-1 text-blue-600 hover:bg-blue-100 rounded"
-                      title="Voir les détails"
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleEditCategory(category)}
-                      className="p-1 text-emerald-600 dark:text-emerald-400 hover:bg-green-100 rounded"
-                      title="Modifier"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="p-1 text-red-600 dark:text-red-400 hover:bg-red-100 rounded"
-                      title="Supprimer"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+
+                  <div className="space-y-4 mb-8">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                      <span className="text-slate-400">Valeur Stock</span>
+                      <span className="text-slate-900 font-mono italic">{formatCurrency(category.valeurStock)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                      <span className="text-slate-400">CA ce mois</span>
+                      <span className="text-slate-900 font-mono italic">{formatCurrency(category.chiffreAffaires)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-6 border-t border-slate-50">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 bg-slate-100 rounded-full flex items-center justify-center">
+                        <UserIcon className="h-3 w-3 text-slate-400" />
+                      </div>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 italic">
+                        {category.responsable}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleViewDetails(category)} className="p-2 hover:bg-slate-900 hover:text-white rounded-xl transition-all text-slate-300">
+                        <EyeIcon className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleEditCategory(category)} className="p-2 hover:bg-slate-900 hover:text-white rounded-xl transition-all text-slate-300">
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-      </Card>
+      </div>
     </div>
   );
 
   const renderAnalytics = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900">Analyses des Catégories</h4>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h5 className="text-md font-semibold text-gray-900 mb-4">Répartition des Articles par Catégorie</h5>
@@ -448,7 +424,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                   y: {
                     beginAtZero: true,
                     ticks: {
-                      callback: function(value) {
+                      callback: function (value) {
                         return formatCurrency(value as number);
                       }
                     }
@@ -487,7 +463,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                   y: {
                     beginAtZero: true,
                     ticks: {
-                      callback: function(value) {
+                      callback: function (value) {
                         return formatCurrency(value as number);
                       }
                     }
@@ -543,7 +519,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   const renderPerformance = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900">Performance des Catégories</h4>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="p-4">
           <div className="flex items-center justify-between">
@@ -599,57 +575,56 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               {categoriesData
                 .sort((a, b) => b.chiffreAffaires - a.chiffreAffaires)
                 .map((category, index) => (
-                <tr key={category.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div 
-                        className="w-4 h-4 rounded-full mr-3" 
-                        style={{ backgroundColor: category.couleur }}
-                      ></div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{category.nom}</div>
-                        <div className="text-sm text-slate-500 dark:text-slate-400">{category.code}</div>
+                  <tr key={category.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div
+                          className="w-4 h-4 rounded-full mr-3"
+                          style={{ backgroundColor: category.couleur }}
+                        ></div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{category.nom}</div>
+                          <div className="text-sm text-slate-500 dark:text-slate-400">{category.code}</div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{category.articles}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{formatCurrency(category.chiffreAffaires)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{formatCurrency(category.marge)}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      category.croissance >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {category.croissance >= 0 ? <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />}
-                      {category.croissance >= 0 ? '+' : ''}{category.croissance}%
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button 
-                        onClick={() => handleViewDetails(category)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleEditCategory(category)}
-                        className="text-emerald-600 dark:text-emerald-400 hover:text-green-900"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{category.articles}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{formatCurrency(category.chiffreAffaires)}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{formatCurrency(category.marge)}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${category.croissance >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                        {category.croissance >= 0 ? <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />}
+                        {category.croissance >= 0 ? '+' : ''}{category.croissance}%
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleViewDetails(category)}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          <EyeIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleEditCategory(category)}
+                          className="text-emerald-600 dark:text-emerald-400 hover:text-green-900"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -660,7 +635,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   const renderGestion = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Gestion Avancée des Catégories</h4>
-      
+
       {/* Statistiques Principales Enrichies */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200 dark:border-blue-700 hover:shadow-lg transition-all duration-300">
@@ -673,7 +648,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <div className="flex items-center mt-2">
                 <ArrowTrendingUpIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-1" />
                 <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold">80% actif</span>
-          </div>
+              </div>
             </div>
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 p-3 rounded-lg shadow-md">
               <TagIcon className="h-8 w-8 text-white" />
@@ -682,19 +657,19 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
         </Card>
 
         <Card className="p-4 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/30 border-emerald-200 dark:border-emerald-700 hover:shadow-lg transition-all duration-300">
-      <div className="flex items-center justify-between">
-        <div>
+          <div className="flex items-center justify-between">
+            <div>
               <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Total Articles</p>
               <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">{statsGenerales.totalArticles}</p>
               <div className="flex items-center mt-2">
                 <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mr-1" />
                 <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">+12% ce mois</span>
-        </div>
-        </div>
+              </div>
+            </div>
             <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-500 dark:to-emerald-600 p-3 rounded-lg shadow-md">
               <CubeIcon className="h-8 w-8 text-white" />
-      </div>
-      </div>
+            </div>
+          </div>
         </Card>
 
         <Card className="p-4 bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/30 dark:to-violet-800/30 border-violet-200 dark:border-violet-700 hover:shadow-lg transition-all duration-300">
@@ -703,41 +678,41 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <p className="text-sm text-violet-700 dark:text-violet-300 font-medium">Valeur Stock Total</p>
               <p className="text-2xl font-bold text-violet-900 dark:text-violet-100">{formatCurrency(statsGenerales.valeurStockTotal)}</p>
               <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">دج</p>
-      </div>
+            </div>
             <div className="bg-gradient-to-br from-violet-600 to-violet-700 dark:from-violet-500 dark:to-violet-600 p-3 rounded-lg shadow-md">
               <BuildingOfficeIcon className="h-8 w-8 text-white" />
             </div>
           </div>
         </Card>
-            
+
         <Card className="p-4 bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/30 dark:to-amber-800/30 border-amber-200 dark:border-amber-700 hover:shadow-lg transition-all duration-300">
           <div className="flex items-center justify-between">
-                <div>
+            <div>
               <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">CA Total</p>
               <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">{formatCurrency(statsGenerales.chiffreAffairesTotal)}</p>
               <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">دج ce mois</p>
-                </div>
+            </div>
             <div className="bg-gradient-to-br from-amber-600 to-amber-700 dark:from-amber-500 dark:to-amber-600 p-3 rounded-lg shadow-md">
               <ChartBarIcon className="h-8 w-8 text-white" />
-                </div>
-              </div>
+            </div>
+          </div>
         </Card>
-              </div>
-              
+      </div>
+
       {/* Indicateurs de Performance Supplémentaires */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="p-4 border-l-4 border-l-emerald-500">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Marge Totale</p>
             <CheckCircleIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
+          </div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(statsGenerales.margeTotal)}</p>
           <div className="flex items-center mt-2">
             <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
               <div className="bg-emerald-600 dark:bg-emerald-500 h-2 rounded-full" style={{ width: '68%' }}></div>
-                </div>
+            </div>
             <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">68%</span>
-              </div>
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Taux de marge moyen</p>
         </Card>
 
@@ -745,14 +720,14 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Rotation Stock</p>
             <ArrowPathIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
+          </div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">4.2×</p>
           <div className="flex items-center mt-2">
             <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
               <div className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full" style={{ width: '84%' }}></div>
-                </div>
+            </div>
             <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">+18%</span>
-              </div>
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Par rapport au trimestre dernier</p>
         </Card>
 
@@ -760,18 +735,18 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Taux de Croissance</p>
             <ArrowTrendingUpIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                </div>
+          </div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">+8.9%</p>
           <div className="flex items-center mt-2">
             <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
               <div className="bg-violet-600 dark:bg-violet-500 h-2 rounded-full" style={{ width: '89%' }}></div>
-                </div>
+            </div>
             <span className="text-xs text-violet-600 dark:text-violet-400 font-medium">89%</span>
-              </div>
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Objectif mensuel atteint</p>
         </Card>
-            </div>
-            
+      </div>
+
       {/* Actions Rapides et Statistiques Détaillées */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
@@ -780,35 +755,35 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             Actions Rapides
           </h5>
           <div className="space-y-3">
-              <button 
+            <button
               onClick={handleAddCategory}
               className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
+            >
               <PlusIcon className="h-5 w-5 mr-2" />
               Créer une Nouvelle Catégorie
-              </button>
-              <button 
+            </button>
+            <button
               onClick={handleExportCategories}
               className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
               Exporter les Catégories
-              </button>
-              <button 
+            </button>
+            <button
               onClick={() => console.log('Impression des catégories...')}
               className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-violet-600 to-violet-700 text-white rounded-lg hover:from-violet-700 hover:to-violet-800 transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <PrinterIcon className="h-5 w-5 mr-2" />
               Imprimer le Rapport
             </button>
-            <button 
+            <button
               onClick={() => console.log('Import des catégories...')}
               className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg hover:from-amber-700 hover:to-amber-800 transition-all duration-200 shadow-md hover:shadow-lg"
             >
               <DocumentTextIcon className="h-5 w-5 mr-2" />
-              Importer 
-              </button>
-            </div>
+              Importer
+            </button>
+          </div>
         </Card>
 
         <Card className="p-6">
@@ -823,52 +798,52 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                   <TagIcon className="h-4 w-4 text-white" />
                 </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Catégories Actives</span>
-                </div>
-              <span className="text-sm font-bold text-blue-700 dark:text-blue-300">{statsGenerales.categoriesActives}/{statsGenerales.totalCategories}</span>
               </div>
-              
+              <span className="text-sm font-bold text-blue-700 dark:text-blue-300">{statsGenerales.categoriesActives}/{statsGenerales.totalCategories}</span>
+            </div>
+
             <div className="flex justify-between items-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-500 dark:to-emerald-600 p-2 rounded-lg mr-3 shadow-sm">
                   <CubeIcon className="h-4 w-4 text-white" />
-              </div>
+                </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Total Articles</span>
-                </div>
+              </div>
               <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">{statsGenerales.totalArticles}</span>
-                </div>
-            
+            </div>
+
             <div className="flex justify-between items-center p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-700 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="bg-gradient-to-br from-violet-600 to-violet-700 dark:from-violet-500 dark:to-violet-600 p-2 rounded-lg mr-3 shadow-sm">
                   <CurrencyDollarIcon className="h-4 w-4 text-white" />
-            </div>
+                </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Valeur Stock</span>
-          </div>
+              </div>
               <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{formatCurrency(statsGenerales.valeurStockTotal)} دج</span>
-        </div>
-            
+            </div>
+
             <div className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="bg-gradient-to-br from-amber-600 to-amber-700 dark:from-amber-500 dark:to-amber-600 p-2 rounded-lg mr-3 shadow-sm">
                   <ChartBarIcon className="h-4 w-4 text-white" />
-            </div>
-                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">CA Total</span>
                 </div>
-              <span className="text-sm font-bold text-amber-700 dark:text-amber-300">{formatCurrency(statsGenerales.chiffreAffairesTotal)} دج</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">CA Total</span>
               </div>
-              
+              <span className="text-sm font-bold text-amber-700 dark:text-amber-300">{formatCurrency(statsGenerales.chiffreAffairesTotal)} دج</span>
+            </div>
+
             <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <div className="bg-gradient-to-br from-slate-600 to-slate-700 dark:from-slate-500 dark:to-slate-600 p-2 rounded-lg mr-3 shadow-sm">
                   <CurrencyDollarIcon className="h-4 w-4 text-white" />
-              </div>
+                </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Marge Totale</span>
-                </div>
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{formatCurrency(statsGenerales.margeTotal)} دج</span>
-                </div>
               </div>
-        </Card>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{formatCurrency(statsGenerales.margeTotal)} دج</span>
             </div>
+          </div>
+        </Card>
+      </div>
 
       {/* Alertes et Notifications */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -880,7 +855,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                 La catégorie "Électronique" présente une croissance négative de -2.1%. Analyse recommandée.
               </p>
-          </div>
+            </div>
           </div>
         </Card>
 
@@ -907,19 +882,19 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           {categoriesData.slice(0, 3).map((category) => (
             <div key={category.id} className="p-4 bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 rounded-lg border border-gray-200 dark:border-slate-700">
               <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center">
-                      <div 
-                    className="w-3 h-3 rounded-full mr-2" 
-                        style={{ backgroundColor: category.couleur }}
-                      ></div>
+                <div className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: category.couleur }}
+                  ></div>
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{category.nom}</p>
-                      </div>
+                </div>
                 {category.croissance >= 0 ? (
                   <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 ) : (
                   <ArrowTrendingDownIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
                 )}
-                    </div>
+              </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-600 dark:text-slate-400">Articles</span>
@@ -932,21 +907,21 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-600 dark:text-slate-400">Croissance</span>
                   <span className={`font-medium ${category.croissance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      {category.croissance >= 0 ? '+' : ''}{category.croissance}%
-                    </span>
-                    </div>
+                    {category.croissance >= 0 ? '+' : ''}{category.croissance}%
+                  </span>
+                </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mt-2">
-                  <div 
+                  <div
                     className={`h-1.5 rounded-full ${category.croissance >= 0 ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-red-600 dark:bg-red-500'}`}
                     style={{ width: `${Math.min(100, Math.abs(category.croissance) * 6)}%` }}
                   ></div>
-        </div>
-    </div>
-          </div>
-          ))}
+                </div>
+              </div>
             </div>
-        </Card>
-      </div>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 
   return (
@@ -958,14 +933,14 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           <p className="text-sm text-slate-600 dark:text-slate-400">Gestion complète des catégories d'articles et analyses de performance</p>
         </div>
         <div className="flex space-x-2">
-          <button 
+          <button
             onClick={handleExportCategories}
             className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-600 flex items-center space-x-2"
           >
             <DocumentArrowDownIcon className="h-4 w-4" />
             <span>Exporter</span>
           </button>
-          <button 
+          <button
             onClick={() => console.log('Impression du rapport...')}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
           >
@@ -989,11 +964,10 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <button
                 key={tab.id}
                 onClick={() => setActiveView(tab.id as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                  activeView === tab.id
+                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeView === tab.id
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <Icon className="h-4 w-4" />
                 <span>{tab.name}</span>
@@ -1017,7 +991,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Détails de la Catégorie</h3>
-              <button 
+              <button
                 onClick={() => setIsDetailModalOpen(false)}
                 className="text-gray-400 hover:text-slate-600 dark:text-slate-400"
               >
@@ -1079,13 +1053,13 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 onClick={() => setIsDetailModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-slate-50 dark:bg-slate-900"
               >
                 Fermer
               </button>
-              <button 
+              <button
                 onClick={() => {
                   setIsDetailModalOpen(false);
                   handleEditCategory(selectedCategory);
@@ -1105,7 +1079,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">Modifier la Catégorie</h3>
-              <button 
+              <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="text-gray-400 hover:text-slate-600 dark:text-slate-400"
               >
@@ -1117,16 +1091,16 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nom de la Catégorie</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     defaultValue={selectedCategory.nom}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Code</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     defaultValue={selectedCategory.code}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
@@ -1135,7 +1109,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea 
+                <textarea
                   defaultValue={selectedCategory.description}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1145,16 +1119,16 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Couleur</label>
-                  <input 
-                    type="color" 
+                  <input
+                    type="color"
                     defaultValue={selectedCategory.couleur}
                     className="w-full h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Responsable</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     defaultValue={selectedCategory.responsable}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
@@ -1163,13 +1137,13 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             </form>
 
             <div className="flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-slate-50 dark:bg-slate-900"
               >
                 Annuler
               </button>
-              <button 
+              <button
                 onClick={() => {
                   console.log('Sauvegarde des modifications pour:', selectedCategory.id);
                   setIsEditModalOpen(false);
@@ -1199,7 +1173,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                     <p className="text-sm text-gray-500 dark:text-gray-400">Créez une nouvelle catégorie d'articles</p>
                   </div>
                 </div>
-              <button 
+                <button
                   onClick={() => {
                     setIsAddModalOpen(false);
                     setFormErrors({});
@@ -1217,8 +1191,8 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                   }}
                   className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg p-2 transition-all"
                 >
-                <span className="text-2xl">&times;</span>
-              </button>
+                  <span className="text-2xl">&times;</span>
+                </button>
               </div>
             </div>
 
@@ -1250,46 +1224,46 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                         Nom de la Catégorie <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
-                  <input 
-                    type="text" 
+                        <input
+                          type="text"
                           value={newCategory.nom}
                           onChange={(e) => handleInputChange('nom', e.target.value)}
-                    placeholder="Ex: Électronique"
+                          placeholder="Ex: Électronique"
                           className={`w-full px-4 py-2.5 pl-10 border ${formErrors.nom ? 'border-red-500' : 'border-gray-300 dark:border-slate-600'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-all`}
-                  />
+                        />
                         <TagIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
-                </div>
+                      </div>
                       {formErrors.nom && <p className="text-xs text-red-500 mt-1">{formErrors.nom}</p>}
                     </div>
-                <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Code <span className="text-red-500">*</span>
                       </label>
-                  <input 
-                    type="text" 
+                      <input
+                        type="text"
                         value={newCategory.code}
                         onChange={(e) => handleInputChange('code', e.target.value.toUpperCase())}
-                    placeholder="Ex: ELE"
+                        placeholder="Ex: ELE"
                         maxLength={5}
                         className={`w-full px-4 py-2.5 border ${formErrors.code ? 'border-red-500' : 'border-gray-300 dark:border-slate-600'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white uppercase transition-all`}
-                  />
+                      />
                       {formErrors.code && <p className="text-xs text-red-500 mt-1">{formErrors.code}</p>}
-                </div>
-              </div>
+                    </div>
+                  </div>
 
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Description
                     </label>
-                <textarea 
+                    <textarea
                       value={newCategory.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
                       placeholder="Description détaillée de la catégorie..."
-                  rows={3}
+                      rows={3}
                       className="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-all"
-                />
+                    />
                   </div>
-              </div>
+                </div>
 
                 {/* Apparence et Responsable */}
                 <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-gray-200 dark:border-slate-700">
@@ -1300,38 +1274,38 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                     Apparence et Responsabilité
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Couleur de la Catégorie
                       </label>
                       <div className="flex items-center space-x-3">
-                  <input 
-                    type="color" 
+                        <input
+                          type="color"
                           value={newCategory.couleur}
                           onChange={(e) => handleInputChange('couleur', e.target.value)}
                           className="w-16 h-10 border-2 border-gray-300 dark:border-slate-600 rounded-lg cursor-pointer"
                         />
                         <div className="flex-1">
-                          <div 
+                          <div
                             className="w-full h-10 rounded-lg border-2 border-gray-300 dark:border-slate-600 flex items-center justify-center text-white font-semibold shadow-md"
                             style={{ backgroundColor: newCategory.couleur }}
                           >
                             Aperçu
-                </div>
+                          </div>
                         </div>
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Code: {newCategory.couleur}</p>
                     </div>
-                <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Responsable <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
-                  <input 
-                    type="text" 
+                        <input
+                          type="text"
                           value={newCategory.responsable}
                           onChange={(e) => handleInputChange('responsable', e.target.value)}
-                    placeholder="Nom du responsable"
+                          placeholder="Nom du responsable"
                           className={`w-full px-4 py-2.5 pl-10 border ${formErrors.responsable ? 'border-red-500' : 'border-gray-300 dark:border-slate-600'} rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 dark:bg-slate-700 dark:text-white transition-all`}
                         />
                         <UserIcon className="h-5 w-5 text-gray-400 absolute left-3 top-3" />
@@ -1354,8 +1328,8 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Objectif de Vente Mensuel (دج)
                       </label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={newCategory.objectifVente}
                         onChange={(e) => handleInputChange('objectifVente', e.target.value)}
                         placeholder="Ex: 1000000"
@@ -1367,8 +1341,8 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Budget Alloué (دج)
                       </label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={newCategory.budget}
                         onChange={(e) => handleInputChange('budget', e.target.value)}
                         placeholder="Ex: 500000"
@@ -1377,7 +1351,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                       {formErrors.budget && <p className="text-xs text-red-500 mt-1">{formErrors.budget}</p>}
                     </div>
                   </div>
-              </div>
+                </div>
 
                 {/* Paramètres Avancés */}
                 <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-gray-200 dark:border-slate-700">
@@ -1421,10 +1395,10 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
 
                 {/* Boutons d'action */}
                 <div className="flex justify-end space-x-3 pt-6 mt-6 border-t border-gray-200 dark:border-slate-700">
-              <button 
+                  <button
                     type="button"
-                onClick={() => {
-                  setIsAddModalOpen(false);
+                    onClick={() => {
+                      setIsAddModalOpen(false);
                       setFormErrors({});
                       setNewCategory({
                         nom: '',
@@ -1441,18 +1415,18 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                     className="px-6 py-2.5 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors font-medium"
                   >
                     Annuler
-              </button>
-                  <button 
+                  </button>
+                  <button
                     type="submit"
                     className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center space-x-2"
                   >
                     <CheckCircleIcon className="h-5 w-5" />
                     <span>Créer la Catégorie</span>
                   </button>
-            </div>
+                </div>
               </form>
+            </div>
           </div>
-        </div>
         </div>
       )}
     </div>

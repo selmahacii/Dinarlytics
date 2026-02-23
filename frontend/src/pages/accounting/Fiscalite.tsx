@@ -47,11 +47,14 @@ import {
   genererCalendrierFiscal,
   getDateEcheance,
   type DeclarationG50,
+  type DeclarationG29,
   type DeclarationIBS,
   type DeclarationIRG,
   type DeclarationTAP,
   type CalendrierFiscal
 } from '@shared/utils/fiscalDeclarations';
+import G50OfficialDocument from '@shared/components/Documents/G50OfficialDocument';
+import G29OfficialDocument from '@shared/components/Documents/G29OfficialDocument';
 import { fiscalService } from '../../services/modules/fiscalService';
 import { invoiceService } from '../../services/modules/invoiceService';
 
@@ -115,15 +118,17 @@ const Fiscalite: React.FC = () => {
   const [isGeneratingDeclaration, setIsGeneratingDeclaration] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [declarationData, setDeclarationData] = useState<any>(null);
-  const [declarationType, setDeclarationType] = useState<'g50' | 'ibs' | 'irg' | 'tap'>('g50');
+  const [declarationType, setDeclarationType] = useState<'g50' | 'g29' | 'ibs' | 'irg' | 'tap'>('g50');
   const [calendrierFiscalComplet, setCalendrierFiscalComplet] = useState<CalendrierFiscal[]>([]);
   const [declarationsGenerees, setDeclarationsGenerees] = useState<{
     g50: DeclarationG50[];
+    g29: DeclarationG29[];
     ibs: DeclarationIBS[];
     irg: DeclarationIRG[];
     tap: DeclarationTAP[];
   }>({
     g50: [],
+    g29: [],
     ibs: [],
     irg: [],
     tap: []
@@ -141,6 +146,7 @@ const Fiscalite: React.FC = () => {
   const [documentHistoryFilter, setDocumentHistoryFilter] = useState<string>('all');
   const [documentHistorySearch, setDocumentHistorySearch] = useState<string>('');
   const [showError, setShowError] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   // Recalculer les calculs fiscaux selon la devise actuelle (Moteurs de secours)
   const baseChiffreAffaires = 5200000;
@@ -216,9 +222,8 @@ const Fiscalite: React.FC = () => {
     setCalendrierFiscalComplet(calendrier);
   }, []);
 
-  // Fonction pour générer une nouvelle déclaration (G50, IBS, IRG, TAP)
   const handleGenererDeclaration = async () => {
-    if (!selectedPeriod && declarationType !== 'irg' && declarationType !== 'tap') {
+    if (!selectedPeriod && declarationType !== 'irg' && declarationType !== 'tap' && declarationType !== 'g29') {
       alert('Veuillez sélectionner une période');
       return;
     }
@@ -229,26 +234,20 @@ const Fiscalite: React.FC = () => {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
-      let nouvelleDeclaration: DeclarationG50 | DeclarationIBS | DeclarationIRG | DeclarationTAP;
+      let nouvelleDeclaration: any = null;
 
       switch (declarationType) {
         case 'g50': {
-          // Format période: "2026-01"
           const periode = selectedPeriod.includes('-') ? selectedPeriod :
             `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
-          // Récupérer les données réelles depuis les factures
           const calculated = await fiscalService.calculateG50(periode);
 
-          const chiffreAffairesHT = calculated.ca_ht;
-          const tvaCollectee = calculated.tva_collectee;
-          const tvaDeductible = calculated.tva_deductible;
-
           nouvelleDeclaration = genererDeclarationG50(periode, {
-            chiffreAffairesHT,
-            tvaCollectee,
-            tvaDeductible,
-            achatsHT: tvaDeductible / 0.19, // Estimation base achats
+            chiffreAffairesHT: calculated.ca_ht,
+            tvaCollectee: calculated.tva_collectee,
+            tvaDeductible: calculated.tva_deductible,
+            achatsHT: calculated.tva_deductible / 0.19,
             nombreFactures: 1,
             nombreClients: 1
           });
@@ -256,6 +255,35 @@ const Fiscalite: React.FC = () => {
           setDeclarationsGenerees(prev => ({
             ...prev,
             g50: [...prev.g50, nouvelleDeclaration as DeclarationG50]
+          }));
+          break;
+        }
+
+        case 'g29': {
+          const exercice = selectedPeriod || new Date().getFullYear().toString();
+          const calculated = await fiscalService.calculateG29(exercice);
+
+          const beneficiaries = [
+            { nom: 'Consultant IT (SARD)', nif: '1234567890', adresse: 'Alger', nature: 'Honoraires IT', montantBrut: calculated.total_honoraires * 0.4, retenue: calculated.total_honoraires * 0.4 * 0.15, montantNet: calculated.total_honoraires * 0.4 * 0.85 },
+            { nom: 'Cabinet Juridique EL AMEL', nif: '9876543210', adresse: 'Oran', nature: 'Honoraires Conseil', montantBrut: calculated.total_honoraires * 0.6, retenue: calculated.total_honoraires * 0.6 * 0.15, montantNet: calculated.total_honoraires * 0.6 * 0.85 }
+          ];
+
+          nouvelleDeclaration = {
+            id: `g29-${exercice}`,
+            numero: `G29-${exercice}`,
+            exercice,
+            dateGeneration: new Date().toISOString().split('T')[0],
+            dateEcheance: `${parseInt(exercice) + 1}-04-30`,
+            statut: 'generee',
+            totalHonoraires: calculated.total_honoraires,
+            totalRetenues: calculated.total_retenues,
+            nombreBeneficiaires: beneficiaries.length,
+            beneficiaires: beneficiaries
+          };
+
+          setDeclarationsGenerees(prev => ({
+            ...prev,
+            g29: [...prev.g29, nouvelleDeclaration]
           }));
           break;
         }
@@ -282,7 +310,6 @@ const Fiscalite: React.FC = () => {
 
         case 'irg': {
           const exercice = selectedPeriod || new Date().getFullYear().toString();
-
           nouvelleDeclaration = genererDeclarationIRG(exercice, {
             revenusBruts: calculsFiscaux.beneficeImposable + 200000,
             abattements: 50000
@@ -297,7 +324,6 @@ const Fiscalite: React.FC = () => {
 
         case 'tap': {
           const exercice = selectedPeriod || new Date().getFullYear().toString();
-
           nouvelleDeclaration = genererDeclarationTAP(exercice, {
             chiffreAffairesHT: baseChiffreAffaires,
             tauxTAP: 0.02
@@ -1472,12 +1498,13 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   id="type-declaration"
                   value={declarationType}
                   onChange={(e) => {
-                    setDeclarationType(e.target.value as 'g50' | 'ibs' | 'irg' | 'tap');
+                    setDeclarationType(e.target.value as 'g50' | 'g29' | 'ibs' | 'irg' | 'tap');
                     setSelectedPeriod('');
                   }}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-slate-700"
                 >
-                  <option value="g50">📄 G50 - Déclaration TVA (Mensuelle)</option>
+                  <option value="g50">📄 G50 - Déclaration Mensuelle (TVA, TAP, IRG)</option>
+                  <option value="g29">📊 G29 - État des Honoraires & Commissions (Annuelle)</option>
                   <option value="ibs">💰 IBS - Impôt sur les Bénéfices (Trimestrielle/Annuelle)</option>
                   <option value="irg">👥 IRG - Impôt sur le Revenu Global (Annuelle)</option>
                   <option value="tap">🏛️ TAP - Taxe sur l'Activité Professionnelle (Annuelle)</option>
@@ -1487,8 +1514,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div>
                 <label htmlFor="periode-declaration" className="block text-sm font-medium text-slate-700 mb-2">
                   {declarationType === 'g50' ? 'Période (Mois)' :
-                    declarationType === 'ibs' ? 'Trimestre ou Année' :
-                      'Exercice (Année)'}
+                    (declarationType === 'ibs' && selectedPeriod.includes('Annuel')) ? 'Exercice (Année)' :
+                      (declarationType === 'g29' || declarationType === 'irg' || declarationType === 'tap') ? 'Exercice (Année)' :
+                        'Période (Trimestre ou Année)'}
                 </label>
                 {declarationType === 'g50' ? (
                   <input
@@ -1620,9 +1648,36 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 </div>
               )}
 
+              {declarationType === 'g29' && (
+                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden mt-6">
+                  <div className="p-3 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-500 uppercase tracking-widest text-center">État des Honoraires (G29)</div>
+                  <div className="p-6 grid grid-cols-2 gap-6 divide-x divide-slate-100">
+                    <div className="text-center">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Honoraires</p>
+                      <p className="text-lg font-black text-slate-900">{formatCurrency(declarationData.totalHonoraires)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Retenues (RAS)</p>
+                      <p className="text-lg font-black text-rose-600">{formatCurrency(declarationData.totalRetenues)}</p>
+                    </div>
+                  </div>
+                  <div className="px-6 pb-6 text-center">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Nombre de Bénéficiaires</p>
+                    <p className="text-sm font-bold text-slate-700">{declarationData.nombreBeneficiaires}</p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100 mt-6">
                 <button onClick={() => setDeclarationData(null)} className="px-6 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-sm">Refaire</button>
                 <div className="flex space-x-2">
+                  <button
+                    onClick={() => setIsPreviewModalOpen(true)}
+                    className="px-6 py-3 bg-indigo-50 text-indigo-700 rounded-xl font-bold text-sm hover:bg-indigo-100 transition-all flex items-center"
+                  >
+                    <EyeIcon className="h-4 w-4 mr-2" />
+                    Prévisualiser le Cerfa
+                  </button>
                   <button className="px-6 py-3 bg-slate-100 text-slate-900 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center">
                     <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
                     Exporter PDF
@@ -1748,8 +1803,61 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
         </div>
       </Modal >
 
+      <Modal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setIsPreviewModalOpen(false)}
+        title={`Prévisualisation Officielle - ${declarationData?.numero}`}
+        size="xl"
+      >
+        <div className="bg-slate-100 p-8 rounded-2xl overflow-y-auto max-h-[80vh]">
+          {declarationType === 'g50' && declarationData && (
+            <G50OfficialDocument
+              month={parseInt(declarationData.periode?.split('-')[1] || '1')}
+              year={parseInt(declarationData.periode?.split('-')[0] || '2026')}
+              salesHT={declarationData.chiffreAffairesHT}
+              purchasesHT={declarationData.achatsHT}
+              companyInfo={{
+                name: user?.companyName || 'MA SOCIÉTÉ DZ',
+                address: user?.address || 'Alger, Algérie',
+                taxId: user?.nif || '000123456789',
+                rc: user?.rc || '16/00-1234567',
+                ai: user?.ai || '16123456789'
+              }}
+            />
+          )}
+          {declarationType === 'g29' && declarationData && (
+            <G29OfficialDocument
+              exercice={declarationData.exercice}
+              beneficiaires={declarationData.beneficiaires}
+              companyInfo={{
+                name: user?.companyName || 'MA SOCIÉTÉ DZ',
+                address: user?.address || 'Alger, Algérie',
+                taxId: user?.nif || '000123456789',
+                rc: user?.rc || '16/00-1234567',
+                ai: user?.ai || '16123456789'
+              }}
+            />
+          )}
+          <div className="mt-8 flex justify-center space-x-4 no-print">
+            <button
+              onClick={() => window.print()}
+              className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl flex items-center gap-2 hover:scale-105 transition-all"
+            >
+              <CalculatorIcon className="h-5 w-5" />
+              Imprimer le document officiel
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <style>{`
         .font-arabic { font-family: 'Noto Sans Arabic', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body * { visibility: hidden; }
+            .printable-g29, .printable-g29 * { visibility: visible; }
+            .printable-g29 { position: absolute; left: 0; top: 0; width: 100%; }
+        }
       `}</style>
     </div >
   );

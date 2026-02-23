@@ -44,6 +44,8 @@ const AnalyticsAchats: React.FC = () => {
         statut: 'en_cours',
         totalHT: 0,
         totalTVA: 0,
+        droitTimbre: 0,
+        retenueSource: 0,
         totalTTC: 0
     });
 
@@ -91,13 +93,21 @@ const AnalyticsAchats: React.FC = () => {
         const totalHT = newPurchase.items?.reduce((sum, item) => sum + (item.line_total_ht || 0), 0) || 0;
         const totalTVA = newPurchase.items?.reduce((sum, item) => sum + (item.line_total_tva || 0), 0) || 0;
 
+        // Calcul automatique du timbre si paiement en espèces
+        let timbre = 0;
+        if (newPurchase.paymentMode === 'caisse') {
+            const rawTimbre = (totalHT + totalTVA) * 0.01;
+            timbre = Math.min(Math.max(Math.ceil(rawTimbre), 5), 2500);
+        }
+
         setNewPurchase(prev => ({
             ...prev,
             totalHT,
             totalTVA,
-            totalTTC: totalHT + totalTVA
+            droitTimbre: timbre,
+            totalTTC: totalHT + totalTVA + timbre - (prev.retenueSource || 0)
         }));
-    }, [newPurchase.items]);
+    }, [newPurchase.items, newPurchase.paymentMode, newPurchase.retenueSource]);
 
     const filteredPurchases = useMemo(() => {
         return purchases.filter(p => {
@@ -310,13 +320,17 @@ const AnalyticsAchats: React.FC = () => {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Échéance</label>
-                            <input
-                                type="date"
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Mode de Règlement</label>
+                            <select
                                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold"
-                                value={newPurchase.echeance}
-                                onChange={(e) => setNewPurchase({ ...newPurchase, echeance: e.target.value })}
-                            />
+                                value={newPurchase.paymentMode}
+                                onChange={(e) => setNewPurchase({ ...newPurchase, paymentMode: e.target.value })}
+                            >
+                                <option value="virement">Virement Bancaire</option>
+                                <option value="cheque">Chèque</option>
+                                <option value="caisse">Espèces (Caisse)</option>
+                                <option value="traite">Traite / Effet</option>
+                            </select>
                         </div>
                     </div>
 
@@ -352,7 +366,18 @@ const AnalyticsAchats: React.FC = () => {
                                             onChange={(e) => handleUpdateItem(idx, 'qty', Number(e.target.value))}
                                         />
                                     </div>
-                                    <div className="col-span-3">
+                                    <div className="col-span-2">
+                                        <select
+                                            className="w-full p-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold font-mono"
+                                            value={item.tva_rate}
+                                            onChange={(e) => handleUpdateItem(idx, 'tva_rate', Number(e.target.value))}
+                                        >
+                                            <option value="19">19%</option>
+                                            <option value="9">9%</option>
+                                            <option value="0">0%</option>
+                                        </select>
+                                    </div>
+                                    <div className="col-span-2">
                                         <input
                                             type="number"
                                             placeholder="Prix U."
@@ -379,14 +404,30 @@ const AnalyticsAchats: React.FC = () => {
                     </div>
 
                     {/* Totals Summary */}
-                    <div className="p-6 bg-slate-900 text-white rounded-[2rem] flex justify-between items-center">
-                        <div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total à Régler (TTC)</p>
-                            <p className="text-2xl font-black font-mono">{formatCurrency(newPurchase.totalTTC || 0)}</p>
+                    <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 space-y-4">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <span>Total HT</span>
+                            <span className="font-mono text-slate-900 dark:text-white">{formatCurrency(newPurchase.totalHT || 0)}</span>
                         </div>
-                        <div className="text-right">
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Dont TVA (19%)</p>
-                            <p className="text-sm font-bold font-mono">{formatCurrency(newPurchase.totalTVA || 0)}</p>
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <span>Cumul TVA</span>
+                            <span className="font-mono text-slate-900 dark:text-white">{formatCurrency(newPurchase.totalTVA || 0)}</span>
+                        </div>
+                        {newPurchase.paymentMode === 'caisse' && (
+                            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-3">
+                                <span className="text-amber-600">Droit de Timbre (1%)</span>
+                                <span className="font-mono text-amber-600">{formatCurrency(newPurchase.droitTimbre || 0)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center p-6 bg-slate-900 text-white rounded-3xl mt-4">
+                            <div>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 font-mono">Total à Payer (TTC)</p>
+                                <p className="text-2xl font-black font-mono">{formatCurrency(newPurchase.totalTTC || 0)}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">Disponibilité</p>
+                                <p className="text-xs font-bold uppercase tracking-tight text-emerald-400">Fonds suffisants</p>
+                            </div>
                         </div>
                     </div>
 

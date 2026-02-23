@@ -18,7 +18,8 @@ import {
   PrinterIcon,
   ScaleIcon,
   ShieldCheckIcon,
-  UserIcon
+  UserIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
@@ -1387,7 +1388,105 @@ const Audit: React.FC = () => {
         )}
       </Modal>
 
-    </div>
+      {/* 📅 MODAL PLANIFICATION D'AUDIT */}
+      <Modal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        title="Planifier une Automatisation d'Audit"
+        size="lg"
+      >
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase">Nom de l'automatisation</label>
+              <input type="text" placeholder="ex: Audit Fiscal Hebdomadaire" className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase">Type de Rapport</label>
+              <select className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option>Conformité Réglementaire</option>
+                <option>Sécurité des Données</option>
+                <option>Traces d'Audit (Logs)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase">Fréquence</label>
+              <select className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
+                <option>Quotidien (00:00)</option>
+                <option>Hebdomadaire (Lundi)</option>
+                <option>Mensuel (1er du mois)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-500 uppercase">Destinataire (Email)</label>
+              <input type="email" placeholder="admin@entreprise.dz" className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+            </div>
+          </div>
+
+          <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex gap-3">
+            <InformationCircleIcon className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-indigo-700 leading-relaxed">
+              Les rapports seront automatiquement générés, chiffrés et archivés dans votre espace de stockage sécurisé. Un lien de téléchargement temporaire sera envoyé au destinataire.
+            </p>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button onClick={() => setIsScheduleModalOpen(false)} className="px-6 py-3 text-[10px] font-black uppercase text-slate-500">Annuler</button>
+            <button
+              onClick={() => {
+                alert("Planification enregistrée avec succès !");
+                setIsScheduleModalOpen(false);
+              }}
+              className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl"
+            >
+              Enregistrer l'automatisation
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 🛡️ MODAL CONFORMITÉ DÉTAILLÉE */}
+      <Modal
+        isOpen={isComplianceModalOpen}
+        onClose={() => setIsComplianceModalOpen(false)}
+        title="Rapport de Conformité Réglementaire"
+        size="xl"
+      >
+        <div className="space-y-8 p-2">
+          <div className="flex items-center justify-between bg-slate-50 p-6 rounded-2xl border border-slate-100">
+            <div>
+              <h4 className="text-2xl font-black text-slate-900">Score de Conformité : 98.4%</h4>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Dernière vérification : il y a 2 minutes</p>
+            </div>
+            <div className="h-16 w-16 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin-slow"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Points de Contrôle Validés</h5>
+              <ul className="space-y-3">
+                {['Intégrité des écritures comptables', 'Chiffrement PII (Données Personnelles)', 'Traçabilité des exports de données', 'Archivage légal (10 ans)'].map((p, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-slate-700">
+                    <CheckCircleIcon className="h-5 w-5 text-emerald-500" /> {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Actions de Remédiation</h5>
+              <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-xs text-orange-800 leading-relaxed">
+                <strong>Attention :</strong> 2 mot de passe utilisateurs expirent dans moins de 48h. Une notification automatique a été envoyée.
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <button onClick={() => setIsComplianceModalOpen(false)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Fermer le Rapport</button>
+          </div>
+        </div>
+      </Modal>
+
+    </div >
   );
 };
 

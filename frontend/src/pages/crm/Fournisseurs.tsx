@@ -89,7 +89,9 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
     dateEcheance: '',
     totalHT: 0,
     totalTVA: 0,
+    droitTimbre: 0,
     totalTTC: 0,
+    paymentMode: 'virement',
     notes: ''
   });
   const [signatureData, setSignatureData] = useState<string | null>(null);
@@ -300,14 +302,39 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mode de Paiement</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={formData.paymentMode}
+              onChange={e => {
+                const mode = e.target.value;
+                let timbre = 0;
+                if (mode === 'especes') {
+                  const rawTimbre = (formData.totalHT + formData.totalTVA) * 0.01;
+                  timbre = Math.min(Math.max(Math.ceil(rawTimbre), 5), 2500);
+                }
+                setFormData({ ...formData, paymentMode: mode, droitTimbre: timbre, totalTTC: formData.totalHT + formData.totalTVA + timbre });
+              }}
+            >
+              <option value="virement">Virement Bancaire</option>
+              <option value="cheque">Chèque</option>
+              <option value="especes">Espèces (Droit de timbre)</option>
+            </select>
+          </div>
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Total TTC</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-bold"
-              placeholder="0"
-              value={formData.totalTTC}
-              onChange={e => setFormData({ ...formData, totalTTC: Number(e.target.value) })}
-            />
+            <div className="relative">
+              <input
+                type="number"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-bold bg-slate-50"
+                placeholder="0"
+                value={formData.totalTTC}
+                readOnly
+              />
+              {formData.paymentMode === 'especes' && (
+                <span className="absolute right-3 top-2 text-[10px] font-black text-amber-600 uppercase">Incl. Timbre: {formData.droitTimbre} DZD</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -469,6 +496,10 @@ const Fournisseurs: React.FC = () => {
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const [isPaiementModalOpen, setIsPaiementModalOpen] = useState(false);
+  const [isEcheancierModalOpen, setIsEcheancierModalOpen] = useState(false);
+  const [isRapportExecutifModalOpen, setIsRapportExecutifModalOpen] = useState(false);
+  const [isGeneratingRapport, setIsGeneratingRapport] = useState(false);
+  const [selectedReglement, setSelectedReglement] = useState<any>(null);
   const [selectedFacture, setSelectedFacture] = useState<any>(null);
   const [nifError, setNifError] = useState<string | null>(null);
 
@@ -518,13 +549,6 @@ const Fournisseurs: React.FC = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const fournisseurName = formData.get('fournisseur_name') as string;
-    // Map select value to name if needed, or just use value for now. 
-    // The select options are "abc", "tech"... I should probably map them to real names or just use the text content if I could.
-    // For simplicity let's assume the value is the name or close to it.
-
-    // Actually, looking at the options: <option value="abc">ABC Corp SPA</option>
-    // I will use a helper to get the label? Or just update the option values to be the names.
-    // Let's update option values to be names in the next step.
 
     const newCmd = {
       name: fournisseurName || 'Nouveau',
@@ -575,6 +599,29 @@ const Fournisseurs: React.FC = () => {
 
     return Array.from(analyses.values());
   }, [mockFournisseurs]);
+
+  // Handlers pour la Trésorerie
+  const handleNouveauReglement = () => {
+    setSelectedReglement(null);
+    setIsPaiementModalOpen(true);
+  };
+
+  const handleGenererEcheancier = () => {
+    setIsEcheancierModalOpen(true);
+  };
+
+  const handleVoirReglement = (pay: any) => {
+    setSelectedReglement(pay);
+    setIsPaiementModalOpen(true);
+  };
+
+  const handleGenererRapportExecutif = async () => {
+    setIsGeneratingRapport(true);
+    setIsRapportExecutifModalOpen(true);
+    // Simulation d'analyse IA
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    setIsGeneratingRapport(false);
+  };
 
   // Optimiser les coûts
   const optimisationsCouts = useMemo(() => {
@@ -999,6 +1046,38 @@ const Fournisseurs: React.FC = () => {
                   defaultValue={selectedFournisseur?.email || ''}
                   className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black focus:ring-1 ring-slate-400"
                   placeholder="contact@fournisseur.dz"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Art. Imposition (AI)</label>
+                <input
+                  type="text"
+                  name="ai"
+                  defaultValue={selectedFournisseur?.ai || ''}
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black font-mono focus:ring-1 ring-slate-400"
+                  placeholder="11 chiffres"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Registre Commerce (RC)</label>
+                <input
+                  type="text"
+                  name="rc"
+                  defaultValue={selectedFournisseur?.rc || ''}
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black font-mono focus:ring-1 ring-slate-400"
+                  placeholder="00B1234567"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Identifiant Stat. (NIS)</label>
+                <input
+                  type="text"
+                  name="nis"
+                  defaultValue={selectedFournisseur?.nis || ''}
+                  className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-[11px] font-black font-mono focus:ring-1 ring-slate-400"
+                  placeholder="15 chiffres"
                 />
               </div>
             </div>
@@ -1683,11 +1762,17 @@ const Fournisseurs: React.FC = () => {
                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">Gestion des Flux de Décaissement</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 flex items-center gap-2">
+                  <button
+                    onClick={handleNouveauReglement}
+                    className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 flex items-center gap-2"
+                  >
                     <BanknotesIcon className="h-4 w-4" />
                     Nouveau Règlement
                   </button>
-                  <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10">
+                  <button
+                    onClick={handleGenererEcheancier}
+                    className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10"
+                  >
                     Générer Échéancier
                   </button>
                 </div>
@@ -1786,8 +1871,20 @@ const Fournisseurs: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex justify-center gap-2 opacity-10 group-hover:opacity-100 transition-opacity">
-                            <button className="p-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800" title="Voir"><EyeIcon className="h-4 w-4" /></button>
-                            <button className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-900 rounded-lg" title="Imprimer"><PrinterIcon className="h-4 w-4" /></button>
+                            <button
+                              onClick={() => handleVoirReglement(pay)}
+                              className="p-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800"
+                              title="Voir"
+                            >
+                              <EyeIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => alert(`Impression de la pièce ${pay.id}`)}
+                              className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-900 rounded-lg"
+                              title="Imprimer"
+                            >
+                              <PrinterIcon className="h-4 w-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1818,7 +1915,10 @@ const Fournisseurs: React.FC = () => {
                   <h2 className="text-4xl font-black uppercase tracking-tighter italic">Analytique Consolidée</h2>
                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80">Exercice 2024 — 4 fournisseurs actifs</p>
                 </div>
-                <button onClick={() => alert('Génération du rapport exécutif...')} className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2">
+                <button
+                  onClick={handleGenererRapportExecutif}
+                  className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
+                >
                   <DocumentCheckIcon className="h-4 w-4" />
                   Générer Rapport Exécutif
                 </button>
@@ -3369,6 +3469,247 @@ const Fournisseurs: React.FC = () => {
             </div>
           </div>
         </Modal>
+
+        {/* 💳 MODAL PAIEMENT FOURNISSEUR */}
+        <Modal
+          isOpen={isPaiementModalOpen}
+          onClose={() => setIsPaiementModalOpen(false)}
+          title={selectedReglement ? `Règlement ${selectedReglement.id}` : "Nouveau Règlement Fournisseur"}
+          size="lg"
+        >
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fournisseur</label>
+                <input
+                  type="text"
+                  disabled={!!selectedReglement}
+                  value={selectedReglement?.name || "Global Logistics Algerie"}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold bg-slate-50"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Référence Facture</label>
+                <input
+                  type="text"
+                  disabled={!!selectedReglement}
+                  value={selectedReglement?.facture || "FAC-2024-887"}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold bg-slate-50"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mode de Règlement</label>
+                <select
+                  disabled={!!selectedReglement}
+                  value={selectedReglement?.mode?.toLowerCase() || "virement"}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none"
+                >
+                  <option value="virement">Virement Bancaire</option>
+                  <option value="cheque">Chèque</option>
+                  <option value="traite">Traite</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Montant (DZD)</label>
+                <input
+                  type="text"
+                  disabled={!!selectedReglement}
+                  value={selectedReglement?.mount?.toLocaleString() || "100,000"}
+                  className="w-full border border-slate-200 rounded-xl p-3 text-sm font-black font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex gap-3">
+              <InformationCircleIcon className="h-5 w-5 text-slate-400 mt-0.5" />
+              <p className="text-[11px] text-slate-500 leading-relaxed font-bold">
+                {selectedReglement?.status === 'EFFECTUÉ'
+                  ? "Ce règlement a été validé et le flux est clos. Toute modification nécessite une annulation comptable."
+                  : "Le règlement sera marqué comme 'INSTANCE' jusqu'à confirmation du débit bancaire."}
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+              <button
+                onClick={() => setIsPaiementModalOpen(false)}
+                className="px-6 py-3 text-[10px] font-black uppercase text-slate-400 hover:text-slate-900 transition-colors"
+              >
+                Fermer
+              </button>
+              {!selectedReglement && (
+                <button
+                  onClick={() => {
+                    alert('Règlement enregistré avec succès !');
+                    setIsPaiementModalOpen(false);
+                  }}
+                  className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10"
+                >
+                  Valider le Règlement
+                </button>
+              )}
+            </div>
+          </div>
+        </Modal>
+
+        {/* 📅 MODAL ÉCHÉANCIER FISCAL/PAIEMENT */}
+        <Modal
+          isOpen={isEcheancierModalOpen}
+          onClose={() => setIsEcheancierModalOpen(false)}
+          title="Échéancier de Paiement Consolidé"
+          size="xl"
+        >
+          <div className="space-y-8 p-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-6 bg-slate-900 text-white rounded-2xl">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Total à 30 jours</p>
+                <p className="text-2xl font-black font-mono">1 250 000 DA</p>
+              </div>
+              <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Retards Critiques</p>
+                <p className="text-2xl font-black font-mono text-red-600">85 000 DA</p>
+              </div>
+              <div className="p-6 bg-slate-100 rounded-2xl">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Trésorerie Disponible</p>
+                <p className="text-2xl font-black font-mono text-slate-900">4 820 000 DA</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Prochaines Échéances</h4>
+              <div className="space-y-2">
+                {[
+                  { date: '28/02/2024', provider: 'Industrie Plastique Nord', mount: 120000, status: 'INSTANCE' },
+                  { date: '05/03/2024', provider: 'Papeterie Centrale SPA', mount: 300000, status: 'INSTANCE' },
+                  { date: '12/03/2024', provider: 'Industrie Plastique Nord', mount: 200000, status: 'TRÉSORERIE PRÉVUE' },
+                  { date: '20/03/2024', provider: 'Global Logistics Algerie', mount: 630000, status: 'PROGRAMMÉ' }
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-2xl hover:border-slate-300 transition-all group">
+                    <div className="flex items-center gap-6">
+                      <div className="text-center">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Mars</p>
+                        <p className="text-lg font-black font-mono text-slate-900">{item.date.split('/')[0]}</p>
+                      </div>
+                      <div className="h-10 w-[1px] bg-slate-100"></div>
+                      <div>
+                        <p className="text-xs font-black text-slate-900 uppercase tracking-tight">{item.provider}</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{item.status}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-black font-mono text-slate-900">{formatCurrency(item.mount)}</p>
+                      <button className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-all hover:text-slate-900">Programmer</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-slate-100">
+              <button
+                onClick={() => setIsEcheancierModalOpen(false)}
+                className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+              >
+                Fermer l'Échéancier
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* 🤖 MODAL RAPPORT EXÉCUTIF IA */}
+        <Modal
+          isOpen={isRapportExecutifModalOpen}
+          onClose={() => setIsRapportExecutifModalOpen(false)}
+          title="Audit IA : Performance & Flux Fournisseurs"
+          size="xl"
+        >
+          <div className="space-y-8 p-2">
+            {isGeneratingRapport ? (
+              <div className="flex flex-col items-center justify-center py-20 space-y-6">
+                <div className="relative">
+                  <div className="h-24 w-24 rounded-full border-4 border-slate-100 border-t-slate-900 animate-spin"></div>
+                  <CpuChipIconSolid className="h-10 w-10 text-slate-900 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                </div>
+                <div className="text-center">
+                  <h4 className="text-xl font-black uppercase tracking-tighter">Analyse Cognitive en cours</h4>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-2">Croisement des cycles de décaissement & performance logistique</p>
+                </div>
+                <div className="w-64 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-slate-900 animate-loading-bar"></div>
+                </div>
+              </div>
+            ) : (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                <div className="bg-slate-900 text-white p-8 rounded-3xl border border-white/5 shadow-2xl mb-8 relative overflow-hidden">
+                  <SparklesIconSolid className="h-24 w-24 text-white/5 absolute -right-6 -top-6 rotate-12" />
+                  <div className="relative z-10 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-3xl font-black uppercase tracking-tighter italic">Supplier Intelligence</h4>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Génération du 22 Février 2026 — 22:45</p>
+                    </div>
+                    <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 text-center mb-1">Score Efficacité</p>
+                      <p className="text-2xl font-black font-mono">84.2%</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-100">
+                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                      <ShieldCheckIcon className="h-4 w-4 text-emerald-500" /> Points de Robustesse
+                    </h5>
+                    <ul className="space-y-4">
+                      {[
+                        { t: "Concentration Maîtrisée", d: "Le top 1 représente 48% du volume, seuil de sécurité respecté (<50%)." },
+                        { t: "Cycle de Paiement", d: "DPO moyen à 42 jours, offrant un levier de trésorerie de 1.2M DA." },
+                        { t: "Qualité Stable", d: "92% de conformité sur les livraisons de Global Logistics." }
+                      ].map((item, i) => (
+                        <li key={i} className="flex gap-4">
+                          <CheckCircleIcon className="h-5 w-5 text-emerald-500 shrink-0" />
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-tight">{item.t}</p>
+                            <p className="text-[10px] text-slate-500 font-medium leading-relaxed mt-0.5">{item.d}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-2xl border border-slate-100">
+                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                      <ExclamationTriangleIcon className="h-4 w-4 text-amber-500" /> Alertes & Optimisations
+                    </h5>
+                    <ul className="space-y-4">
+                      <li className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                        <p className="text-xs font-black text-amber-900 flex items-center gap-2">
+                          <ClockIcon className="h-4 w-4" /> Risque Tech Solutions
+                        </p>
+                        <p className="text-[10px] text-amber-700 font-medium mt-1">Délai de livraison en hausse (+4j). Impact potentiel sur le stock tampon.</p>
+                      </li>
+                      <li className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
+                        <p className="text-xs font-black text-indigo-900 flex items-center gap-2">
+                          <BanknotesIcon className="h-4 w-4" /> Opportunité Escompte
+                        </p>
+                        <p className="text-[10px] text-indigo-700 font-medium mt-1">Industrie Plastique propose -2% pour paiement à 10j. Gain estimé: 38k DA.</p>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end gap-3">
+                  <button className="px-6 py-3 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest">Exporter PDF</button>
+                  <button
+                    onClick={() => setIsRapportExecutifModalOpen(false)}
+                    className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                  >
+                    Fermer le Rapport
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+
       </div>
     </div>
   );
