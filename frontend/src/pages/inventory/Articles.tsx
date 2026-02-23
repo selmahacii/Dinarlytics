@@ -764,8 +764,7 @@ const Articles: React.FC = () => {
             { id: 'categories', name: 'Segmentation', icon: TagIcon },
             { id: 'pricing', name: 'Gestion Tarifs', icon: CurrencyDollarIcon },
             { id: 'barcode', name: 'Traçabilité', icon: QrCodeIcon },
-            { id: 'analytics', name: 'Performance', icon: ChartBarIcon },
-            { id: 'reports', name: 'Reporting', icon: DocumentTextIcon }
+            { id: 'reports', name: 'Analyses & Rapports', icon: DocumentTextIcon }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -907,287 +906,12 @@ const Articles: React.FC = () => {
             </div>
           )}
 
-          {/* Section Rapports Rapides */}
-          {activeTab === 'reports' && (
-            <div className="space-y-6">
-              <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-                    <div className="bg-cyan-100 dark:bg-cyan-900/30 p-1.5 rounded">
-                      <TagIcon className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                    </div>
-                    <span>Gestion des Catégories</span>
-                  </h3>
-                  <button
-                    onClick={() => setActiveTab('categories')}
-                    className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Gérer
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Total Catégories</p>
-                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">5</p>
-                      </div>
-                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                        <TagIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Catégories Actives</p>
-                        <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">4</p>
-                      </div>
-                      <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                        <CheckCircleIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Articles Total</p>
-                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">960</p>
-                      </div>
-                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                        <CubeIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Top Catégories par Performance</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Informatique</span>
-                      </div>
-                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+12.5%</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Téléphonie</span>
-                      </div>
-                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+15.8%</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Mobilier</span>
-                      </div>
-                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">+8.2%</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-                    <div className="bg-amber-100 dark:bg-amber-900/30 p-1.5 rounded">
-                      <CurrencyDollarIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <span>Gestion des Tarifs</span>
-                  </h3>
-                  <button
-                    onClick={() => setActiveTab('pricing')}
-                    className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Gérer
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Modifications</p>
-                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">5</p>
-                        <p className="text-xs text-cyan-600 dark:text-cyan-400">Ce mois</p>
-                      </div>
-                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                        <CurrencyDollarIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Appliquées</p>
-                        <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">4</p>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400">Prix mis à jour</p>
-                      </div>
-                      <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                        <CheckCircleIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">En Attente</p>
-                        <p className="text-3xl font-bold text-amber-900 dark:text-amber-100">1</p>
-                        <p className="text-xs text-amber-600 dark:text-amber-400">Validation requise</p>
-                      </div>
-                      <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
-                        <ClockIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Modifications Récentes</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <ArrowTrendingUpIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Ordinateur Dell</span>
-                      </div>
-                      <span className="text-sm text-red-600 dark:text-red-400 font-bold">+3.7%</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <ArrowTrendingDownIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Chaise Ergonomique</span>
-                      </div>
-                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">-6.3%</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <ArrowTrendingDownIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Samsung Galaxy</span>
-                      </div>
-                      <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">-3.8%</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-                    <div className="bg-slate-100 dark:bg-slate-700 p-1.5 rounded">
-                      <DocumentTextIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                    </div>
-                    <span>Rapports Articles</span>
-                  </h3>
-                  <button
-                    onClick={() => setActiveTab('reports')}
-                    className="px-4 py-2 text-sm bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Voir Détails
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Total Articles</p>
-                        <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">1,250</p>
-                      </div>
-                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                        <CubeIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Valeur Stock</p>
-                        <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">2.45M DA</p>
-                      </div>
-                      <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                        <CurrencyDollarIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg border border-cyan-200 dark:border-cyan-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-cyan-700 dark:text-cyan-300 font-medium">Chiffre d'Affaires</p>
-                        <p className="text-2xl font-bold text-cyan-900 dark:text-cyan-100">1.85M DA</p>
-                      </div>
-                      <div className="bg-cyan-600 dark:bg-cyan-500 p-2 rounded-lg">
-                        <ChartBarIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">Marge Brute</p>
-                        <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">425K DA</p>
-                      </div>
-                      <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
-                        <ArrowTrendingUpIcon className="h-6 w-6 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 pb-2 border-b border-slate-200 dark:border-slate-700">Alertes Stock</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <ExclamationTriangleIcon className="h-5 w-5 text-red-600 dark:text-red-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">45 articles en rupture</span>
-                      </div>
-                      <span className="text-sm text-red-700 dark:text-red-300 font-bold px-2 py-1 bg-red-100 dark:bg-red-900/40 rounded">Urgent</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <ClockIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">125 articles stock faible</span>
-                      </div>
-                      <span className="text-sm text-amber-700 dark:text-amber-300 font-bold px-2 py-1 bg-amber-100 dark:bg-amber-900/40 rounded">Attention</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all">
-                      <div className="flex items-center space-x-3">
-                        <CheckCircleIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">980 articles en stock normal</span>
-                      </div>
-                      <span className="text-sm text-emerald-700 dark:text-emerald-300 font-bold px-2 py-1 bg-emerald-100 dark:bg-emerald-900/40 rounded">OK</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
-
           {activeTab === 'categories' && (
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h4 className="text-xl font-black uppercase tracking-tighter italic">Segmentation Catalogue</h4>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Organisation par familles de produits</p>
-                </div>
-              </div>
-              <GestionCategoriesWidget />
-            </div>
+            <GestionCategoriesWidget />
           )}
 
           {activeTab === 'pricing' && (
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h4 className="text-xl font-black uppercase tracking-tighter italic">Gestion Tarification</h4>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des marges et prix de vente</p>
-                </div>
-              </div>
-              <GestionTarifsWidget />
-            </div>
+            <GestionTarifsWidget />
           )}
 
 
@@ -1213,26 +937,6 @@ const Articles: React.FC = () => {
                     Génération Auto
                   </button>
                 </div>
-              </div>
-
-              {/* Statistiques des Codes - Slate Premium */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[
-                  { label: "Total Codes", value: barcodes.length, icon: QrCodeIcon, color: "text-slate-900", bg: "bg-slate-50" },
-                  { label: "Codes Actifs", value: barcodes.filter(b => b.status === 'Actif').length, icon: CheckCircleIcon, color: "text-emerald-500", bg: "bg-emerald-50" },
-                  { label: "EAN-13", value: barcodes.filter(b => b.type === 'EAN-13').length, icon: TagIcon, color: "text-cyan-500", bg: "bg-cyan-50" },
-                  { label: "QR Codes", value: barcodes.filter(b => b.type === 'QR Code').length, icon: QrCodeIcon, color: "text-amber-500", bg: "bg-amber-50" }
-                ].map((stat, i) => (
-                  <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-                      <p className="text-3xl font-black font-mono tracking-tighter">{stat.value}</p>
-                    </div>
-                    <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
-                      <stat.icon className={`h-6 w-6 ${stat.color}`} />
-                    </div>
-                  </div>
-                ))}
               </div>
 
               <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
@@ -1408,132 +1112,24 @@ const Articles: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'analytics' && (
-            <div className="space-y-10">
-              {/* KPIs de Pilotage */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                  { label: "Total Références", value: "1,250", sub: "+12.4% vs N-1", icon: CubeIcon, color: "text-slate-900", bg: "bg-slate-50" },
-                  { label: "Valeur Inventaire", value: "2.45M DA", sub: "Bilan Actif", icon: CurrencyDollarIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
-                  { label: "Alertes Rupture", value: "45", sub: "Action Critique", icon: XCircleIcon, color: "text-red-600", bg: "bg-red-50" },
-                  { label: "Taux Disponibilité", value: "87.4%", sub: "Objectif 95%", icon: CheckCircleIcon, color: "text-cyan-600", bg: "bg-cyan-50" }
-                ].map((kpi, i) => (
-                  <div key={i} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className={`p-4 ${kpi.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
-                        <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
-                      </div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">{kpi.label}</span>
-                    </div>
-                    <p className={`text-3xl font-black font-mono tracking-tighter ${kpi.color}`}>{kpi.value}</p>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 opacity-60">{kpi.sub}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Dashboard de Performance */}
-                <div className="lg:col-span-2 space-y-8">
-                  <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-8">
-                      <div>
-                        <h4 className="text-xl font-black uppercase tracking-tighter italic">Répartition du Capital</h4>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Valorisation par classe de stock</p>
-                      </div>
-                      <ChartBarIcon className="h-5 w-5 text-slate-300" />
-                    </div>
-                    <div className="space-y-6">
-                      {[
-                        { name: 'Informatique', val: '+12.5%', color: 'bg-slate-900', w: '75%' },
-                        { name: 'Téléphonie', val: '+15.8%', color: 'bg-slate-400', w: '65%' },
-                        { name: 'Mobilier', val: '+8.2%', color: 'bg-slate-200', w: '45%' },
-                        { name: 'Autres', val: '+3.1%', color: 'bg-slate-100', w: '25%' }
-                      ].map((cat, i) => (
-                        <div key={i} className="space-y-2">
-                          <div className="flex justify-between items-end">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{cat.name}</span>
-                            <span className={`text-xs font-black font-mono ${cat.val.startsWith('+') ? 'text-emerald-500' : 'text-slate-900'}`}>{cat.val}</span>
-                          </div>
-                          <div className="h-3 bg-slate-50 rounded-full overflow-hidden">
-                            <div className={`h-full ${cat.color} transition-all duration-1000`} style={{ width: cat.w }}></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-10">
-                      <SparklesIconSolid className="h-32 w-32" />
-                    </div>
-                    <div className="relative z-10">
-                      <h4 className="text-xl font-black uppercase tracking-tighter italic mb-6">Recommendations IA</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
-                          <div className="flex items-center gap-3 mb-2">
-                            <ArrowTrendingDownIcon className="h-4 w-4 text-cyan-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Optimisation Flux</span>
-                          </div>
-                          <p className="text-xs font-medium text-slate-300 leading-relaxed">Le stock de "Matières Premières" excède les besoins de production de 15%. Envisager un décalage des prochaines commandes fournisseurs.</p>
-                        </div>
-                        <div className="p-5 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
-                          <div className="flex items-center gap-3 mb-2">
-                            <ExclamationTriangleIcon className="h-4 w-4 text-amber-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-amber-400">Alerte BFR</span>
-                          </div>
-                          <p className="text-xs font-medium text-slate-300 leading-relaxed">420K DA immobilisés dans des articles à rotation nulle (&gt; 90 j). Action de déstockage recommandée sous 15 jours.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Top Articles List */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                  <h4 className="text-xl font-black uppercase tracking-tighter italic mb-8">Top Valeur Stock</h4>
-                  <div className="space-y-4">
-                    {articleAnalytics.topSelling.map((article, i) => (
-                      <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition-colors border border-transparent hover:border-slate-100 group">
-                        <div className="flex-shrink-0 h-10 w-10 bg-slate-100 rounded-xl flex items-center justify-center text-[10px] font-black group-hover:bg-white transition-colors">
-                          0{i + 1}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-black uppercase tracking-tight text-slate-900 truncate">{article.nom}</p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{article.categorie}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-[11px] font-black font-mono text-slate-900 italic">{formatCurrency(article.prixUnitaire * article.stock)}</p>
-                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{article.stock} units</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <button className="w-full mt-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 border border-dashed border-slate-200 rounded-2xl hover:border-slate-400 hover:text-slate-600 transition-all">
-                    Voir le rapport complet
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Onglet Rapports */}
           {activeTab === 'reports' && (
-            <div className="space-y-6">
-              <RapportsArticlesWidget />
-            </div>
+            <RapportsArticlesWidget articles={products} stats={articleAnalytics} />
           )}
         </div>
       </Card>
 
       {/* Success Message */}
-      {showSuccessMessage && successData && (
-        <SuccessMessage
-          title={successData.title}
-          message={successData.message}
-          details={successData.details}
-          nextSteps={successData.nextSteps}
-        />
-      )}
+      {
+        showSuccessMessage && successData && (
+          <SuccessMessage
+            title={successData.title}
+            message={successData.message}
+            details={successData.details}
+            nextSteps={successData.nextSteps}
+          />
+        )
+      }
 
       {/* Add/Edit Article Modal */}
       <Modal
@@ -1634,377 +1230,391 @@ const Articles: React.FC = () => {
       </Modal>
 
       {/* Modal Gestion des Tarifs */}
-      {isPricingModalOpen && selectedArticle && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Gestion Tarification</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des marges : {selectedArticle.nom}</p>
-              </div>
-              <button onClick={() => setIsPricingModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
-
-            <div className="p-10 space-y-8">
-              <div className="p-8 bg-slate-50 rounded-[2rem] flex justify-between items-center">
+      {
+        isPricingModalOpen && selectedArticle && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Prix Actuel de Référence</p>
-                  <p className="text-4xl font-black font-mono tracking-tighter text-slate-900">{formatCurrency(selectedArticle.prixUnitaire)}</p>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Gestion Tarification</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des marges : {selectedArticle.nom}</p>
                 </div>
-                <div className="text-right">
-                  <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Stable</span>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Dernier mouvement : 15 Sep</p>
+                <button onClick={() => setIsPricingModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+
+              <div className="p-10 space-y-8">
+                <div className="p-8 bg-slate-50 rounded-[2rem] flex justify-between items-center">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Prix Actuel de Référence</p>
+                    <p className="text-4xl font-black font-mono tracking-tighter text-slate-900">{formatCurrency(selectedArticle.prixUnitaire)}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Stable</span>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Dernier mouvement : 15 Sep</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Nouveau Tarif (DA)</label>
+                    <input type="number" defaultValue={selectedArticle.prixUnitaire} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-lg font-black font-mono transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Justification Stratégique</label>
+                    <textarea rows={3} placeholder="Note d'ajustement..." className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold transition-all"></textarea>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Nouveau Tarif (DA)</label>
-                  <input type="number" defaultValue={selectedArticle.prixUnitaire} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-lg font-black font-mono transition-all" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Justification Stratégique</label>
-                  <textarea rows={3} placeholder="Note d'ajustement..." className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold transition-all"></textarea>
-                </div>
+              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+                <button onClick={() => setIsPricingModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                <button onClick={() => setIsPricingModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Appliquer le tarif</button>
               </div>
-            </div>
-
-            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-              <button onClick={() => setIsPricingModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-              <button onClick={() => setIsPricingModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Appliquer le tarif</button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {isBarcodeModalOpen && selectedArticle && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traçabilité Article</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Identifiants SKU & QR : {selectedArticle.nom}</p>
-              </div>
-              <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
-
-            <div className="p-10">
-              {!barcodeGenerated ? (
-                <div className="text-center py-10">
-                  <div className="h-48 w-48 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 mx-auto flex items-center justify-center mb-10 group hover:border-slate-900 transition-all">
-                    <QrCodeIcon className="h-16 w-16 text-slate-200 group-hover:text-slate-900 transition-colors" />
-                  </div>
-                  <button
-                    onClick={() => setBarcodeGenerated(true)}
-                    className="px-10 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-3 mx-auto"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    Générer les identifiants
-                  </button>
+      {
+        isBarcodeModalOpen && selectedArticle && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traçabilité Article</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Identifiants SKU & QR : {selectedArticle.nom}</p>
                 </div>
-              ) : (
-                <div className="space-y-8">
-                  <div className="p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm">
-                    <div className="flex justify-between items-start mb-6">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Standard EAN-13</span>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded">Actif</span>
-                    </div>
-                    <div className="flex items-end justify-center space-x-0.5 h-16 mb-6">
-                      {Array.from({ length: 40 }).map((_, i) => (
-                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-12' : 'h-16'}`}></div>
-                      ))}
-                    </div>
-                    <p className="text-center text-lg font-black font-mono tracking-[0.3em] text-slate-900">{selectedArticle.codePCA}</p>
-                  </div>
+                <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="p-8 bg-slate-50 rounded-[2rem] flex flex-col items-center">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">QR Code Interne</p>
-                      <div className="grid grid-cols-5 gap-1 bg-white p-4 rounded-2xl">
-                        {Array.from({ length: 25 }).map((_, i) => (
-                          <div key={i} className={`w-2 h-2 rounded-sm ${Math.random() > 0.5 ? 'bg-slate-900' : 'bg-slate-100'}`}></div>
+              <div className="p-10">
+                {!barcodeGenerated ? (
+                  <div className="text-center py-10">
+                    <div className="h-48 w-48 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 mx-auto flex items-center justify-center mb-10 group hover:border-slate-900 transition-all">
+                      <QrCodeIcon className="h-16 w-16 text-slate-200 group-hover:text-slate-900 transition-colors" />
+                    </div>
+                    <button
+                      onClick={() => setBarcodeGenerated(true)}
+                      className="px-10 py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 flex items-center gap-3 mx-auto"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                      Générer les identifiants
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    <div className="p-8 bg-white border border-slate-100 rounded-[2rem] shadow-sm">
+                      <div className="flex justify-between items-start mb-6">
+                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Standard EAN-13</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded">Actif</span>
+                      </div>
+                      <div className="flex items-end justify-center space-x-0.5 h-16 mb-6">
+                        {Array.from({ length: 40 }).map((_, i) => (
+                          <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-12' : 'h-16'}`}></div>
                         ))}
                       </div>
+                      <p className="text-center text-lg font-black font-mono tracking-[0.3em] text-slate-900">{selectedArticle.codePCA}</p>
                     </div>
-                    <div className="p-8 bg-slate-900 rounded-[2rem] text-white flex flex-col justify-center">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-white/50 mb-4">Informations Système</p>
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-black flex justify-between uppercase"><span>Type:</span> <span className="text-white/70">EAN-13 / QR</span></p>
-                        <p className="text-[10px] font-black flex justify-between uppercase"><span>Format:</span> <span className="text-white/70">Vectoriel</span></p>
-                        <p className="text-[10px] font-black flex justify-between uppercase"><span>Status:</span> <span className="text-cyan-400">Validé</span></p>
+
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="p-8 bg-slate-50 rounded-[2rem] flex flex-col items-center">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">QR Code Interne</p>
+                        <div className="grid grid-cols-5 gap-1 bg-white p-4 rounded-2xl">
+                          {Array.from({ length: 25 }).map((_, i) => (
+                            <div key={i} className={`w-2 h-2 rounded-sm ${Math.random() > 0.5 ? 'bg-slate-900' : 'bg-slate-100'}`}></div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="p-8 bg-slate-900 rounded-[2rem] text-white flex flex-col justify-center">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-white/50 mb-4">Informations Système</p>
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-black flex justify-between uppercase"><span>Type:</span> <span className="text-white/70">EAN-13 / QR</span></p>
+                          <p className="text-[10px] font-black flex justify-between uppercase"><span>Format:</span> <span className="text-white/70">Vectoriel</span></p>
+                          <p className="text-[10px] font-black flex justify-between uppercase"><span>Status:</span> <span className="text-cyan-400">Validé</span></p>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex justify-center gap-4 pt-4">
-                    <button className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest">Imprimer</button>
-                    <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Télécharger</button>
+                    <div className="flex justify-center gap-4 pt-4">
+                      <button className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest">Imprimer</button>
+                      <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Télécharger</button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
 
-      {isBarcodeViewModalOpen && selectedBarcodeForView && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Inspection Identifiant</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedBarcodeForView.article} — {selectedBarcodeForView.type}</p>
-              </div>
-              <button onClick={() => setIsBarcodeViewModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
-
-            <div className="p-10 flex flex-col items-center">
-              <div className="bg-white p-12 rounded-[2rem] border border-slate-100 shadow-sm mb-10 w-full flex flex-col items-center">
-                <div className="flex items-end justify-center space-x-0.5 h-24 mb-6">
-                  {Array.from({ length: 45 }).map((_, i) => (
-                    <div key={i} className={`bg-slate-900 w-1.5 rounded-full ${Math.random() > 0.3 ? 'h-16' : 'h-24'}`}></div>
-                  ))}
+      {
+        isBarcodeViewModalOpen && selectedBarcodeForView && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Inspection Identifiant</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedBarcodeForView.article} — {selectedBarcodeForView.type}</p>
                 </div>
-                <p className="text-2xl font-black font-mono tracking-[0.4em] text-slate-900">{selectedBarcodeForView.code}</p>
+                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 w-full">
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Date d'émission</p>
-                  <p className="text-xs font-bold text-slate-900">{selectedBarcodeForView.dateCreation}</p>
+              <div className="p-10 flex flex-col items-center">
+                <div className="bg-white p-12 rounded-[2rem] border border-slate-100 shadow-sm mb-10 w-full flex flex-col items-center">
+                  <div className="flex items-end justify-center space-x-0.5 h-24 mb-6">
+                    {Array.from({ length: 45 }).map((_, i) => (
+                      <div key={i} className={`bg-slate-900 w-1.5 rounded-full ${Math.random() > 0.3 ? 'h-16' : 'h-24'}`}></div>
+                    ))}
+                  </div>
+                  <p className="text-2xl font-black font-mono tracking-[0.4em] text-slate-900">{selectedBarcodeForView.code}</p>
                 </div>
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Catégorie</p>
-                  <p className="text-xs font-bold text-slate-900 uppercase">{selectedBarcodeForView.categorie}</p>
+
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Date d'émission</p>
+                    <p className="text-xs font-bold text-slate-900">{selectedBarcodeForView.dateCreation}</p>
+                  </div>
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Catégorie</p>
+                    <p className="text-xs font-bold text-slate-900 uppercase">{selectedBarcodeForView.categorie}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-              <button onClick={() => setIsBarcodeViewModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Fermer</button>
-              <button onClick={() => alert('📥 Téléchargé !')} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Télécharger PDF</button>
+              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Fermer</button>
+                <button onClick={() => alert('📥 Téléchargé !')} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Télécharger PDF</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {isGenerateAllModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traitement de Masse</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération globale des identifiants</p>
+      {
+        isGenerateAllModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traitement de Masse</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération globale des identifiants</p>
+                </div>
+                <button onClick={() => setIsGenerateAllModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
               </div>
-              <button onClick={() => setIsGenerateAllModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
 
-            <div className="p-10 space-y-8">
-              <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
-                <p className="text-xs font-bold text-slate-600 leading-relaxed mb-6 italic">Vous allez générer de nouveaux identifiants (EAN-13/QR) pour l'intégralité du catalogue ({products.length} articles).</p>
+              <div className="p-10 space-y-8">
+                <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
+                  <p className="text-xs font-bold text-slate-600 leading-relaxed mb-6 italic">Vous allez générer de nouveaux identifiants (EAN-13/QR) pour l'intégralité du catalogue ({products.length} articles).</p>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      <span>Volume à traiter</span>
+                      <span className="text-slate-900">{products.length} Units</span>
+                    </div>
+                    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-slate-900 w-1/3"></div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-                    <span>Volume à traiter</span>
-                    <span className="text-slate-900">{products.length} Units</span>
-                  </div>
-                  <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-slate-900 w-1/3"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">Format de sortie obligatoire</label>
-                <select className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-[10px] font-black uppercase tracking-widest transition-all">
-                  <option>Format EAN-13 (Standard)</option>
-                  <option>Format QR Code (Digital)</option>
-                  <option>Format Code-128 (Logistique)</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-              <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-              <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Lancer l'exécution</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isGenerateByCategoryModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Sélecteur Analytique</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération d'identifiants par segment</p>
-              </div>
-              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
-
-            <div className="p-10 space-y-4">
-              {['Matières premières', 'Produits finis', 'Fournitures', 'Accessoires', 'Marchandises'].map((cat, idx) => (
-                <label key={idx} className="flex items-center justify-between p-5 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition-all cursor-pointer group">
-                  <div className="flex items-center gap-4">
-                    <input type="checkbox" defaultChecked className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900 transition-colors">{cat}</span>
-                  </div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{Math.floor(Math.random() * 50) + 10} Articles</span>
-                </label>
-              ))}
-            </div>
-
-            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-              <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Générer les codes</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isCustomizeDesignModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center">
-              <div>
-                <h3 className="text-2xl font-black uppercase tracking-tighter italic">Studio Label Design</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Personnalisation des étiquettes & tags</p>
-              </div>
-              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
-
-            <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Dimensions (mm)</label>
-                  <select className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest">
-                    <option>Standard 50 x 25</option>
-                    <option>Medium 70 x 35</option>
-                    <option>Large 100 x 50</option>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">Format de sortie obligatoire</label>
+                  <select className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-[10px] font-black uppercase tracking-widest transition-all">
+                    <option>Format EAN-13 (Standard)</option>
+                    <option>Format QR Code (Digital)</option>
+                    <option>Format Code-128 (Logistique)</option>
                   </select>
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Options d'Affichage</label>
-                  <div className="space-y-3">
-                    {['Désignation Article', 'Prix de vente', 'Logo Entreprise', 'Date de production'].map((opt, i) => (
-                      <label key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer">
-                        <input type="checkbox" defaultChecked={i < 2} className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
               </div>
 
-              <div className="bg-slate-950 p-8 rounded-[2.5rem] flex flex-col items-center justify-center relative shadow-inner">
-                <div className="absolute top-4 left-4 text-[8px] font-black uppercase tracking-widest text-white/20 italic">Aperçu Temps Réel</div>
-                <div className="bg-white p-6 rounded-xl w-full max-w-[220px] shadow-2xl">
-                  <div className="text-[9px] font-black uppercase tracking-tight text-slate-900 mb-1 border-b border-slate-100 pb-1">Nom du Produit</div>
-                  <div className="flex items-end justify-center space-x-0.5 h-10 my-4">
-                    {Array.from({ length: 25 }).map((_, i) => (
-                      <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-6' : 'h-10'}`}></div>
-                    ))}
-                  </div>
-                  <div className="text-right text-[10px] font-black font-mono">1.250,00 DA</div>
-                </div>
+              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+                <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Lancer l'exécution</button>
               </div>
-            </div>
-
-            <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-              <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Sauvegarder</button>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {isAddManualBarcodeModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-5xl w-full overflow-hidden border border-white/20">
-            <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-slate-900 text-white">
-              <div className="flex items-center gap-6">
-                <div className="p-4 bg-white/10 rounded-2xl border border-white/20">
-                  <QrCodeIcon className="h-6 w-6 text-white" />
-                </div>
+      {
+        isGenerateByCategoryModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
                 <div>
-                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Entrée Manuelle Flux</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Enregistrement d'identifiants externes</p>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Sélecteur Analytique</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération d'identifiants par segment</p>
                 </div>
+                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
               </div>
-              <button onClick={() => setIsAddManualBarcodeModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-white/10 rounded-full text-white hover:bg-white/20 transition-all">
-                <span className="text-2xl">&times;</span>
-              </button>
-            </div>
 
-            <div className="p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
-              <div className="lg:col-span-2 space-y-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Désignation Article</label>
-                    <input type="text" value={newBarcode.article} onChange={(e) => setNewBarcode({ ...newBarcode, article: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-bold uppercase transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Catégorie Analytique</label>
-                    <input type="text" value={newBarcode.categorie} onChange={(e) => setNewBarcode({ ...newBarcode, categorie: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-bold uppercase transition-all" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Type de Protocole</label>
-                    <select value={newBarcode.type} onChange={(e) => setNewBarcode({ ...newBarcode, type: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-black uppercase transition-all">
-                      <option value="EAN-13">Standard EAN-13</option>
-                      <option value="Code-128">Code-128 (Logistique)</option>
-                      <option value="QR Code">QR Code Dynamique</option>
+              <div className="p-10 space-y-4">
+                {['Matières premières', 'Produits finis', 'Fournitures', 'Accessoires', 'Marchandises'].map((cat, idx) => (
+                  <label key={idx} className="flex items-center justify-between p-5 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition-all cursor-pointer group">
+                    <div className="flex items-center gap-4">
+                      <input type="checkbox" defaultChecked className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900 transition-colors">{cat}</span>
+                    </div>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{Math.floor(Math.random() * 50) + 10} Articles</span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Générer les codes</button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {
+        isCustomizeDesignModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter italic">Studio Label Design</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Personnalisation des étiquettes & tags</p>
+                </div>
+                <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+
+              <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-8">
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Dimensions (mm)</label>
+                    <select className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest">
+                      <option>Standard 50 x 25</option>
+                      <option>Medium 70 x 35</option>
+                      <option>Large 100 x 50</option>
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Code Identifiant</label>
-                    <input type="text" value={newBarcode.code} onChange={(e) => setNewBarcode({ ...newBarcode, code: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-black font-mono tracking-widest transition-all" />
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Options d'Affichage</label>
+                    <div className="space-y-3">
+                      {['Désignation Article', 'Prix de vente', 'Logo Entreprise', 'Date de production'].map((opt, i) => (
+                        <label key={i} className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer">
+                          <input type="checkbox" defaultChecked={i < 2} className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2"><StarIcon className="h-4 w-4" /> Exemples de Préréglages</p>
-                  <div className="flex flex-wrap gap-2">
-                    {demoExamples.slice(0, 3).map((ex, i) => (
-                      <button key={i} onClick={() => handleLoadDemoExample(i)} className="px-4 py-2 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:border-slate-900 transition-all">{ex.article}</button>
-                    ))}
+                <div className="bg-slate-950 p-8 rounded-[2.5rem] flex flex-col items-center justify-center relative shadow-inner">
+                  <div className="absolute top-4 left-4 text-[8px] font-black uppercase tracking-widest text-white/20 italic">Aperçu Temps Réel</div>
+                  <div className="bg-white p-6 rounded-xl w-full max-w-[220px] shadow-2xl">
+                    <div className="text-[9px] font-black uppercase tracking-tight text-slate-900 mb-1 border-b border-slate-100 pb-1">Nom du Produit</div>
+                    <div className="flex items-end justify-center space-x-0.5 h-10 my-4">
+                      {Array.from({ length: 25 }).map((_, i) => (
+                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-6' : 'h-10'}`}></div>
+                      ))}
+                    </div>
+                    <div className="text-right text-[10px] font-black font-mono">1.250,00 DA</div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-8 rounded-[2.5rem] flex flex-col justify-between border border-slate-100">
-                <div className="space-y-6 text-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Visualisation</p>
-                  <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
-                    <div className="flex items-end justify-center space-x-0.5 h-16 mb-4">
-                      {Array.from({ length: 30 }).map((_, i) => (
-                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-10' : 'h-16'}`}></div>
-                      ))}
-                    </div>
-                    <p className="text-xs font-black font-mono tracking-widest text-slate-900">{newBarcode.code || 'NO-VAL-SPECIFIED'}</p>
+              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
+                <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                <button onClick={() => setIsCustomizeDesignModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Sauvegarder</button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {
+        isAddManualBarcodeModalOpen && (
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-5xl w-full overflow-hidden border border-white/20">
+              <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-slate-900 text-white">
+                <div className="flex items-center gap-6">
+                  <div className="p-4 bg-white/10 rounded-2xl border border-white/20">
+                    <QrCodeIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black uppercase tracking-tighter italic">Entrée Manuelle Flux</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Enregistrement d'identifiants externes</p>
                   </div>
                 </div>
-                <div className="space-y-4">
-                  <button onClick={handleAddManualBarcode} className="w-full py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/20">Enregistrer l'identifiant</button>
-                  <button onClick={() => setIsAddManualBarcodeModalOpen(false)} className="w-full py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                <button onClick={() => setIsAddManualBarcodeModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-white/10 rounded-full text-white hover:bg-white/20 transition-all">
+                  <span className="text-2xl">&times;</span>
+                </button>
+              </div>
+
+              <div className="p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="lg:col-span-2 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Désignation Article</label>
+                      <input type="text" value={newBarcode.article} onChange={(e) => setNewBarcode({ ...newBarcode, article: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-bold uppercase transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Catégorie Analytique</label>
+                      <input type="text" value={newBarcode.categorie} onChange={(e) => setNewBarcode({ ...newBarcode, categorie: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-bold uppercase transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Type de Protocole</label>
+                      <select value={newBarcode.type} onChange={(e) => setNewBarcode({ ...newBarcode, type: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-black uppercase transition-all">
+                        <option value="EAN-13">Standard EAN-13</option>
+                        <option value="Code-128">Code-128 (Logistique)</option>
+                        <option value="QR Code">QR Code Dynamique</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Code Identifiant</label>
+                      <input type="text" value={newBarcode.code} onChange={(e) => setNewBarcode({ ...newBarcode, code: e.target.value })} className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 text-xs font-black font-mono tracking-widest transition-all" />
+                    </div>
+                  </div>
+
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2"><StarIcon className="h-4 w-4" /> Exemples de Préréglages</p>
+                    <div className="flex flex-wrap gap-2">
+                      {demoExamples.slice(0, 3).map((ex, i) => (
+                        <button key={i} onClick={() => handleLoadDemoExample(i)} className="px-4 py-2 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:border-slate-900 transition-all">{ex.article}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-50 p-8 rounded-[2.5rem] flex flex-col justify-between border border-slate-100">
+                  <div className="space-y-6 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Visualisation</p>
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+                      <div className="flex items-end justify-center space-x-0.5 h-16 mb-4">
+                        {Array.from({ length: 30 }).map((_, i) => (
+                          <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-10' : 'h-16'}`}></div>
+                        ))}
+                      </div>
+                      <p className="text-xs font-black font-mono tracking-widest text-slate-900">{newBarcode.code || 'NO-VAL-SPECIFIED'}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <button onClick={handleAddManualBarcode} className="w-full py-5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/20">Enregistrer l'identifiant</button>
+                    <button onClick={() => setIsAddManualBarcodeModalOpen(false)} className="w-full py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* 🤖 MODAL AUDIT INTELLIGENT IA */}
       <Modal
@@ -2115,7 +1725,7 @@ const Articles: React.FC = () => {
           )}
         </div>
       </Modal>
-    </div>
+    </div >
   );
 };
 

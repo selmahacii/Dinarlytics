@@ -151,26 +151,6 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
 
   const renderOverview = () => (
     <div className="space-y-10">
-      {/* Métriques principales - Design Professional ERP */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { label: "Total Modifications", value: statsGenerales.totalModifications, sub: "Ce mois", icon: CurrencyDollarIcon, color: "text-slate-900", bg: "bg-slate-50" },
-          { label: "Appliquées", value: statsGenerales.modificationsAppliqees, sub: "Prix mis à jour", icon: CheckCircleIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "En Attente", value: statsGenerales.modificationsEnAttente, sub: "Validation requise", icon: ClockIcon, color: "text-amber-600", bg: "bg-amber-50" },
-          { label: "Impact Total", value: formatCurrency(statsGenerales.impactTotal), sub: "دج", icon: ArrowTrendingUpIcon, color: "text-cyan-600", bg: "bg-cyan-50" }
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-              <p className="text-2xl font-black font-mono tracking-tighter">{stat.value}</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{stat.sub}</p>
-            </div>
-            <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
-              <stat.icon className={`h-6 w-6 ${stat.color}`} />
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* Historique récent */}
       <div className="space-y-6">
@@ -616,39 +596,9 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
         </div>
       </div>
 
-      {/* Navigation par onglets */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-8">
-          {[
-            { id: 'overview', name: 'Vue d\'ensemble', icon: CurrencyDollarIcon },
-            { id: 'historique', name: 'Historique', icon: ClockIcon },
-            { id: 'analytics', name: 'Analyses', icon: ChartBarIcon },
-            { id: 'gestion', name: 'Gestion', icon: PencilIcon }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveView(tab.id as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeView === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{tab.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Contenu des onglets */}
+      {/* Contenu */}
       <div className="mt-6">
-        {activeView === 'overview' && renderOverview()}
-        {activeView === 'historique' && renderHistorique()}
-        {activeView === 'analytics' && renderAnalytics()}
-        {activeView === 'gestion' && renderGestion()}
+        {renderOverview()}
       </div>
 
       {/* Modales */}

@@ -35,9 +35,11 @@ import Card from '../UI/Card';
 
 interface RapportsArticlesWidgetProps {
   period?: string;
+  articles?: any[];
+  stats?: any;
 }
 
-const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period = 'mois' }) => {
+const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period = 'mois', articles = [], stats }) => {
   const { formatCurrency } = useApp();
   const { currentTheme } = useTheme();
   const [activeView, setActiveView] = useState<'overview' | 'ventes' | 'stock' | 'performance' | 'analytique'>('overview');
@@ -164,42 +166,55 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
     }]
   };
 
+  // Données de démonstration ou basées sur les props pour les rapports articles
+  const displayedStats = stats || statsGenerales;
+  const displayedArticles = articles.length > 0 ? articles : articlesPerformance;
+
+  // Calcul de la répartition du stock basée sur les articles réels si disponibles
+  const stockDistributionData = articles.length > 0 ? [
+    articles.filter(a => a.stock > 20).length,
+    articles.filter(a => a.stock <= 20 && a.stock > 0).length,
+    articles.filter(a => a.stock === 0).length,
+    articles.filter(a => a.stock > 100).length // Surstock arbitraire > 100
+  ] : [980, 125, 45, 100];
+
   const evolutionVentes = {
     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
     datasets: [{
       label: 'Ventes (DA)',
-      data: [1650000, 1720000, 1580000, 1850000, 1920000, 1850000],
-      borderColor: '#3B82F6',
-      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+      // On base les ventes sur la valeur totale pour la cohérence
+      data: [
+        displayedStats.totalValue * 0.7,
+        displayedStats.totalValue * 0.8,
+        displayedStats.totalValue * 0.75,
+        displayedStats.totalValue * 0.9,
+        displayedStats.totalValue * 0.95,
+        displayedStats.totalValue
+      ],
+      borderColor: '#0F172A',
+      backgroundColor: 'rgba(15, 23, 42, 0.05)',
       tension: 0.4,
-      fill: true
-    }, {
-      label: 'Objectif (DA)',
-      data: [1500000, 1600000, 1700000, 1800000, 1900000, 2000000],
-      borderColor: '#10B981',
-      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      tension: 0.4,
-      borderDash: [5, 5]
+      fill: true,
+      borderWidth: 4,
+      pointRadius: 6,
+      pointBackgroundColor: '#fff',
+      pointBorderColor: '#0F172A',
+      pointBorderWidth: 2
     }]
   };
 
   const repartitionStock = {
     labels: ['Stock Normal', 'Stock Faible', 'En Rupture', 'Surstock'],
     datasets: [{
-      data: [980, 125, 45, 100],
+      data: stockDistributionData,
       backgroundColor: [
-        '#10B981',
-        '#F59E0B',
-        '#EF4444',
-        '#8B5CF6'
+        '#0F172A', // Slate 900
+        '#64748B', // Slate 500
+        '#EF4444', // Red 500
+        '#334155'  // Slate 700
       ],
-      borderColor: [
-        '#059669',
-        '#D97706',
-        '#DC2626',
-        '#7C3AED'
-      ],
-      borderWidth: 2
+      hoverOffset: 20,
+      borderWidth: 0
     }]
   };
 
@@ -312,74 +327,102 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
 
   const renderOverview = () => (
     <div className="space-y-10">
-      {/* KPI Grid - High Impact design */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Barre de résumé analytique */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { label: "Total Articles", value: statsGenerales.totalArticles, sub: `${statsGenerales.articlesActifs} actifs`, icon: TagIcon, color: "text-slate-900", bg: "bg-slate-50" },
-          { label: "Valeur Stock", value: formatCurrency(statsGenerales.valeurStock), sub: "دج Stock disponible", icon: CurrencyDollarIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Chiffre d'Affaires", value: formatCurrency(statsGenerales.chiffreAffaires), sub: "دج Ce mois", icon: ChartBarIcon, color: "text-cyan-600", bg: "bg-cyan-50" },
-          { label: "Marge Brute", value: formatCurrency(statsGenerales.margeBrute), sub: `Taux: ${((statsGenerales.margeBrute / statsGenerales.chiffreAffaires) * 100).toFixed(1)}%`, icon: ArrowTrendingUpIcon, color: "text-amber-600", bg: "bg-amber-50" }
-        ].map((kpi, i) => (
-          <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
+          { label: 'Valeur Totale Stock', value: formatCurrency(displayedStats.totalValue), icon: CurrencyDollarIcon, color: 'text-slate-900' },
+          { label: 'Articles en Catalogue', value: displayedArticles.length, icon: CubeIcon, color: 'text-slate-900' },
+          { label: 'Besoin Réappro.', value: displayedStats.lowStock || 0, icon: ExclamationTriangleIcon, color: 'text-amber-600' },
+          { label: 'Taux de Rotation', value: '8.5x', icon: ArrowPathIcon, color: 'text-blue-600' }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-900 transition-all">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{kpi.label}</p>
-              <p className="text-2xl font-black font-mono tracking-tighter">{kpi.value}</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{kpi.sub}</p>
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">{stat.label}</p>
+              <p className={`text-xl font-black font-mono tracking-tighter ${stat.color}`}>{stat.value}</p>
             </div>
-            <div className={`p-4 ${kpi.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
-              <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
+            <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all text-slate-400">
+              <stat.icon className="h-5 w-5" />
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {[
-          { label: "Articles en Rupture", value: statsGenerales.articlesEnRupture, sub: "Action immédiate requise", icon: ExclamationTriangleIcon, progress: (statsGenerales.articlesEnRupture / statsGenerales.totalArticles) * 100, color: "text-red-500", bar: "bg-red-500", percent: ((statsGenerales.articlesEnRupture / statsGenerales.totalArticles) * 100).toFixed(1) + "%" },
-          { label: "Stock Faible", value: statsGenerales.articlesStockFaible, sub: "Commande recommandée", icon: ClockIcon, progress: (statsGenerales.articlesStockFaible / statsGenerales.totalArticles) * 100, color: "text-amber-500", bar: "bg-amber-500", percent: ((statsGenerales.articlesStockFaible / statsGenerales.totalArticles) * 100).toFixed(1) + "%" },
-          { label: "Taux de Rotation", value: statsGenerales.tauxRotation + "×", sub: "vs mois précédent", icon: ArrowPathIcon, progress: 46, color: "text-blue-500", bar: "bg-blue-500", percent: "+15%" }
-        ].map((box, i) => (
-          <div key={i} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{box.label}</p>
-              <box.icon className={`h-5 w-5 ${box.color}`} />
-            </div>
-            <p className="text-3xl font-black font-mono mb-2">{box.value}</p>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-1.5 bg-slate-50 rounded-full overflow-hidden">
-                <div className={`${box.bar} h-full transition-all`} style={{ width: `${box.progress}%` }}></div>
-              </div>
-              <span className={`text-[10px] font-black ${box.color}`}>{box.percent}</span>
-            </div>
-            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-3 italic">{box.sub}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-          <h4 className="text-xl font-black uppercase tracking-tighter italic mb-8">Évolution des Ventes</h4>
+        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
+            <ArrowTrendingUpIcon className="h-32 w-32 text-slate-900" />
+          </div>
+          <h4 className="text-xl font-black uppercase tracking-tighter italic mb-8 flex items-center gap-3">
+            <div className="h-2 w-2 bg-slate-900 rounded-full animate-pulse"></div>
+            Évolution des Ventes
+          </h4>
           <div className="h-64">
             <Line
               data={evolutionVentes}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    backgroundColor: '#0F172A',
+                    titleFont: { size: 10, weight: 'bold' },
+                    bodyFont: { size: 12, weight: 'bold' },
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                      label: (context) => formatCurrency(context.parsed.y || 0)
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.03)', drawTicks: false },
+                    border: { display: false },
+                    ticks: {
+                      font: { size: 9, weight: 'bold' },
+                      color: '#94a3b8',
+                      callback: (value) => formatCurrency(Number(value))
+                    }
+                  },
+                  x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { font: { size: 9, weight: 'bold' }, color: '#94a3b8' }
+                  }
+                }
               }}
             />
           </div>
         </div>
-        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-          <h4 className="text-xl font-black uppercase tracking-tighter italic mb-8">Répartition du Stock</h4>
+        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
+            <CubeIcon className="h-32 w-32 text-slate-900" />
+          </div>
+          <h4 className="text-xl font-black uppercase tracking-tighter italic mb-8 flex items-center gap-3">
+            <div className="h-2 w-2 bg-slate-400 rounded-full"></div>
+            Répartition du Stock
+          </h4>
           <div className="h-64">
             <Doughnut
               data={repartitionStock}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
+                cutout: '75%',
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      usePointStyle: true,
+                      pointStyle: 'circle',
+                      padding: 20,
+                      font: { size: 10, weight: 'bold' },
+                      color: '#64748b'
+                    }
+                  }
+                }
               }}
             />
           </div>
@@ -389,12 +432,12 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
       {/* Top Articles List */}
       <div className="space-y-6">
         <div className="px-4">
-          <h4 className="text-xl font-black uppercase tracking-tighter italic">Top 5 Articles les Plus Performants</h4>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Analyse du mix-produit par rentabilité</p>
+          <h4 className="text-xl font-black uppercase tracking-tighter italic">Top Articles les Plus Performants</h4>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Analyse basée sur le stock et la valorisation actuelle</p>
         </div>
         <div className="space-y-3">
-          {articlesPerformance.slice(0, 5).map((article, index) => (
-            <div key={article.id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
+          {displayedArticles.slice(0, 5).map((article: any, index: number) => (
+            <div key={article.id || index} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div className={`h-12 w-12 rounded-2xl flex items-center justify-center font-black text-sm italic ${index === 0 ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400'
                   }`}>
@@ -403,22 +446,22 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 <div>
                   <h5 className="text-sm font-black uppercase tracking-tight text-slate-900">{article.nom}</h5>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                    {article.code} <span className="mx-2 opacity-30">•</span> {article.categorie}
+                    {article.codePCA || article.code} <span className="mx-2 opacity-30">•</span> {article.categorie}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-12 border-l border-slate-50 pl-12">
                 <div className="text-center">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Ventes</p>
-                  <p className="text-lg font-black font-mono text-slate-900">{article.ventesMois}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Stock</p>
+                  <p className="text-lg font-black font-mono text-slate-900">{article.stock}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">CA</p>
-                  <p className="text-lg font-black font-mono text-blue-600">{formatCurrency(article.chiffreAffaires)}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Prix Unit.</p>
+                  <p className="text-lg font-black font-mono text-blue-600">{formatCurrency(article.prixUnitaire || article.prixVente)}</p>
                 </div>
                 <div className="text-center min-w-[120px]">
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Marge</p>
-                  <p className="text-lg font-black font-mono text-emerald-600">{formatCurrency(article.marge)}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Valeur</p>
+                  <p className="text-lg font-black font-mono text-emerald-600">{formatCurrency((article.prixUnitaire || article.prixVente) * article.stock)}</p>
                 </div>
               </div>
             </div>
@@ -476,19 +519,13 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
     };
 
     return (
-      <div className="space-y-6">
-        {/* En-tête avec actions - Palette Slate */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center">
-              <div className="bg-slate-700 dark:bg-slate-600 p-2 rounded-lg mr-3">
-                <ChartBarIcon className="h-6 w-6 text-white" />
-              </div>
-              Analyse des Ventes
-            </h4>
-            <p className="text-sm text-slate-600 dark:text-slate-400 ml-14 mt-1">Performance commerciale et indicateurs clés</p>
+            <h4 className="text-xl font-black uppercase tracking-tighter italic">Analyse des Ventes & Rentabilité</h4>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage de la performance commerciale</p>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-3">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -508,66 +545,6 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
               <DocumentArrowDownIcon className="h-4 w-4" />
               <span>Exporter</span>
             </button>
-          </div>
-        </div>
-
-        {/* Indicateurs Financiers Clés */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-5 rounded-xl border border-blue-200 dark:border-blue-700">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-blue-600 dark:bg-blue-500 p-2 rounded-lg">
-                <CurrencyDollarIcon className="h-5 w-5 text-white" />
-              </div>
-              <ArrowTrendingUpIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{indicateursFinanciers.margeGlobale}%</div>
-            <div className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">Marge Globale</div>
-            <div className="mt-2 flex items-center text-xs text-blue-600 dark:text-blue-400">
-              <span className="font-semibold">+2.3%</span>
-              <span className="ml-1">vs mois dernier</span>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-emerald-600 dark:bg-emerald-500 p-2 rounded-lg">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
-              </div>
-              <ChartBarIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">+{indicateursFinanciers.tauxCroissance}%</div>
-            <div className="text-sm text-emerald-700 dark:text-emerald-300 font-medium mt-1">Croissance</div>
-            <div className="mt-2 flex items-center text-xs text-emerald-600 dark:text-emerald-400">
-              <span className="font-semibold">Excellent</span>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-violet-50 to-violet-100 dark:from-violet-900/20 dark:to-violet-800/20 p-5 rounded-xl border border-violet-200 dark:border-violet-700">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-violet-600 dark:bg-violet-500 p-2 rounded-lg">
-                <ShoppingCartIcon className="h-5 w-5 text-white" />
-              </div>
-              <CubeIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-            </div>
-            <div className="text-2xl font-bold text-violet-900 dark:text-violet-100">{formatCurrency(indicateursFinanciers.panierMoyen)}</div>
-            <div className="text-sm text-violet-700 dark:text-violet-300 font-medium mt-1">Panier Moyen</div>
-            <div className="mt-2 flex items-center text-xs text-violet-600 dark:text-violet-400">
-              <span className="font-semibold">+15.7%</span>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
-            <div className="flex items-center justify-between mb-3">
-              <div className="bg-amber-600 dark:bg-amber-500 p-2 rounded-lg">
-                <CheckCircleIcon className="h-5 w-5 text-white" />
-              </div>
-              <StarIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            </div>
-            <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">{indicateursFinanciers.tauxConversion}%</div>
-            <div className="text-sm text-amber-700 dark:text-amber-300 font-medium mt-1">Taux Conversion</div>
-            <div className="mt-2 flex items-center text-xs text-amber-600 dark:text-amber-400">
-              <span className="font-semibold">Très bon</span>
-            </div>
           </div>
         </div>
 
@@ -624,9 +601,9 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 <div key={article.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 transition-colors">
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' :
-                        index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-white' :
-                          index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-900 text-white' :
-                            'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'
+                      index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-white' :
+                        index === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-900 text-white' :
+                          'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'
                       }`}>
                       #{index + 1}
                     </div>
@@ -1181,8 +1158,8 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-3 py-1 text-xs font-medium rounded-lg ${fournisseur.statut === 'excellent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700' :
-                        fournisseur.statut === 'bon' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700' :
-                          'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700'
+                      fournisseur.statut === 'bon' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700' :
+                        'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700'
                       }`}>
                       {fournisseur.statut}
                     </span>
@@ -1304,22 +1281,23 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
   return (
     <div className="space-y-6">
       {/* En-tête */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Rapports Articles</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Analyse complète des articles et de leur performance</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+        <div className="relative z-10">
+          <h2 className="text-2xl font-black uppercase tracking-tighter italic text-slate-900">Rapports Articles</h2>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">Analyse complète des articles et de leur performance</p>
         </div>
-        <div className="flex space-x-2">
+        <div className="relative z-10 flex space-x-3">
           <button
             onClick={handleExportArticles}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors flex items-center space-x-2 border border-slate-600 dark:border-slate-500"
+            className="px-6 py-4 bg-slate-50 text-slate-900 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 flex items-center gap-3 border border-slate-100 shadow-sm"
           >
             <DocumentArrowDownIcon className="h-4 w-4" />
             <span>Exporter Rapport</span>
           </button>
           <button
             onClick={() => console.log('Impression du rapport...')}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors flex items-center space-x-2 border border-slate-600 dark:border-slate-500"
+            className="px-8 py-4 bg-slate-900 text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 shadow-xl shadow-slate-900/10 flex items-center gap-3"
           >
             <PrinterIcon className="h-4 w-4" />
             <span>Imprimer</span>
@@ -1327,41 +1305,9 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
         </div>
       </div>
 
-      {/* Navigation par onglets */}
-      <div className="border-b border-slate-200 dark:border-slate-700">
-        <nav className="flex space-x-8">
-          {[
-            { id: 'overview', label: 'VUE D\'ENSEMBLE', icon: ChartBarIcon },
-            { id: 'ventes', label: 'VENTES', icon: ArrowTrendingUpIcon },
-            { id: 'stock', label: 'STOCK', icon: CubeIcon },
-            { id: 'performance', label: 'PERFORMANCE', icon: ChartPieIcon },
-            { id: 'analytique', label: 'ANALYTIQUE', icon: DocumentTextIcon }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveView(tab.id as any)}
-                className={`flex items-center py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeView === tab.id
-                    ? 'border-slate-700 dark:border-slate-400 text-slate-900 dark:text-slate-100'
-                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
-                  }`}
-              >
-                <Icon className="h-5 w-5 mr-2" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Contenu des onglets */}
+      {/* Contenu */}
       <div className="mt-6">
-        {activeView === 'overview' && renderOverview()}
-        {activeView === 'ventes' && renderVentes()}
-        {activeView === 'stock' && renderStock()}
-        {activeView === 'performance' && renderPerformance()}
-        {activeView === 'analytique' && renderAnalytique()}
+        {renderOverview()}
       </div>
 
       {/* Modal de détails de l'article */}
@@ -1725,8 +1671,8 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                     <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                       <span className="text-sm text-slate-600 dark:text-slate-400">Statut Global</span>
                       <span className={`px-3 py-1 text-xs font-semibold rounded-lg ${selectedFournisseur.statut === 'excellent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
-                          selectedFournisseur.statut === 'bon' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
-                            'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                        selectedFournisseur.statut === 'bon' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
+                          'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
                         }`}>
                         {selectedFournisseur.statut.toUpperCase()}
                       </span>
@@ -1774,7 +1720,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                       <div className="flex items-center space-x-3">
                         <span className="text-xs text-slate-600 dark:text-slate-400">{commande.delai} jours</span>
                         <span className={`px-2 py-1 text-xs font-medium rounded ${commande.statut === 'Livrée' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
-                            'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                          'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
                           }`}>
                           {commande.statut}
                         </span>

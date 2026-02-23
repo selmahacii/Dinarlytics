@@ -251,26 +251,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
 
   const renderOverview = () => (
     <div className="space-y-10">
-      {/* Métriques principales - Design Premium Slate */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { label: "Total Catégories", value: statsGenerales.totalCategories, sub: "Catégories actives", icon: TagIcon, color: "text-slate-900", bg: "bg-slate-50" },
-          { label: "Articles Total", value: statsGenerales.totalArticles, sub: "Dans toutes catégories", icon: CubeIcon, color: "text-slate-900", bg: "bg-slate-50" },
-          { label: "Valeur Stock", value: formatCurrency(statsGenerales.valeurStockTotal), sub: "دج", icon: CurrencyDollarIcon, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Chiffre d'Affaires", value: formatCurrency(statsGenerales.chiffreAffairesTotal), sub: "دج ce mois", icon: ChartBarIcon, color: "text-cyan-600", bg: "bg-cyan-50" }
-        ].map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-all">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
-              <p className="text-2xl font-black font-mono tracking-tighter">{stat.value}</p>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{stat.sub}</p>
-            </div>
-            <div className={`p-4 ${stat.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
-              <stat.icon className={`h-6 w-6 ${stat.color}`} />
-            </div>
-          </div>
-        ))}
-      </div>
 
       {/* Liste des catégories */}
       <div className="space-y-6">
@@ -519,41 +499,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   const renderPerformance = () => (
     <div className="space-y-6">
       <h4 className="text-lg font-semibold text-gray-900">Performance des Catégories</h4>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">Meilleure Catégorie</p>
-              <p className="text-lg font-bold text-green-800">Informatique</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">+12.5% croissance</p>
-            </div>
-            <ArrowTrendingUpIcon className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-blue-600 font-medium">Plus de Ventes</p>
-              <p className="text-lg font-bold text-blue-800">Téléphonie</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">1.1M DA ce mois</p>
-            </div>
-            <ChartBarIcon className="h-8 w-8 text-blue-600" />
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-purple-600 font-medium">Meilleure Marge</p>
-              <p className="text-lg font-bold text-purple-800">Informatique</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">450K DA marge</p>
-            </div>
-            <CurrencyDollarIcon className="h-8 w-8 text-purple-600" />
-          </div>
-        </Card>
-      </div>
 
       {/* Tableau de performance */}
       <Card className="p-6">
@@ -950,39 +895,9 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
         </div>
       </div>
 
-      {/* Navigation par onglets */}
-      <div className="border-b border-slate-200 dark:border-slate-700">
-        <nav className="flex space-x-8">
-          {[
-            { id: 'overview', name: 'Vue d\'ensemble', icon: TagIcon },
-            { id: 'analytics', name: 'Analyses', icon: ChartBarIcon },
-            { id: 'performance', name: 'Performance', icon: ArrowTrendingUpIcon },
-            { id: 'gestion', name: 'Gestion', icon: PencilIcon }
-          ].map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveView(tab.id as any)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeView === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{tab.name}</span>
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Contenu des onglets */}
+      {/* Contenu */}
       <div className="mt-6">
-        {activeView === 'overview' && renderOverview()}
-        {activeView === 'analytics' && renderAnalytics()}
-        {activeView === 'performance' && renderPerformance()}
-        {activeView === 'gestion' && renderGestion()}
+        {renderOverview()}
       </div>
 
       {/* Modal de détails de la catégorie */}
