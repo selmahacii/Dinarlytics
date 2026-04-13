@@ -62,7 +62,11 @@ ChartJS.register(
   RadialLinearScale
 );
 
+import { CalculatorIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
+
 const AnalyticsFacturation: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const { formatCurrency } = useApp();
   const { user, has } = usePermission();
   const [searchQuery, setSearchQuery] = useState('');
@@ -379,7 +383,7 @@ const AnalyticsFacturation: React.FC = () => {
   };
 
   const handleDeleteInvoice = (id: string) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cette facture ?")) {
+    if (window.confirm(t('common.confirm_delete', "Êtes-vous sûr de vouloir supprimer cette facture ?"))) {
       setInvoices(invoices.filter(inv => inv.id !== id));
     }
   };
@@ -463,9 +467,9 @@ const AnalyticsFacturation: React.FC = () => {
           <div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center">
               <DocumentTextIcon className="h-8 w-8 text-slate-700 mr-3" />
-              Facturation Client
+              {t('invoices.title')}
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium ml-11">Gestion et pilotage du poste clients algérien</p>
+            <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium ml-11">{t('invoices.subtitle')}</p>
           </div>
           <div className="flex gap-3">
             {has('facturation-create') && (
@@ -477,7 +481,7 @@ const AnalyticsFacturation: React.FC = () => {
                 }}
                 className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 flex items-center"
               >
-                <PlusIcon className="h-5 w-5 mr-2" /> Nouvelle Facture
+                <PlusIcon className="h-5 w-5 mr-2" /> {t('invoices.new_invoice')}
               </button>
             )}
             <button className="p-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all">
@@ -494,34 +498,34 @@ const AnalyticsFacturation: React.FC = () => {
             <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-slate-600"><CurrencyDollarIcon className="h-6 w-6" /></div>
             <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+12.4%</span>
           </div>
-          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">CA Global TTC</div>
+          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('invoices.global_ca')}</div>
           <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{formatCurrency(stats.totalCA)}</div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl text-emerald-600"><CheckCircleIcon className="h-6 w-6" /></div>
-            <span className="text-xs font-bold text-slate-400">Total Encaissé</span>
+            <span className="text-xs font-bold text-slate-400">{t('invoices.total_collected')}</span>
           </div>
-          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Recouvrement</div>
+          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('invoices.recovery')}</div>
           <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{formatCurrency(stats.totalPaye)}</div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-2xl text-amber-600"><ClockIcon className="h-6 w-6" /></div>
-            <span className="text-xs font-bold text-amber-600">En attente</span>
+            <span className="text-xs font-bold text-amber-600">{t('invoices.pending')}</span>
           </div>
-          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Créances en cours</div>
+          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('invoices.active_receivables')}</div>
           <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{formatCurrency(stats.totalEnCours)}</div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-2xl text-rose-600"><ExclamationTriangleIcon className="h-6 w-6" /></div>
-            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">Critique</span>
+            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">{t('invoices.critical')}</span>
           </div>
-          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Retards de paiement</div>
+          <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('invoices.payment_delays')}</div>
           <div className="text-2xl font-black text-rose-600 mt-1">{formatCurrency(stats.totalRetard)}</div>
         </div>
       </div>
@@ -530,7 +534,7 @@ const AnalyticsFacturation: React.FC = () => {
         {/* Graphique d'évolution */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-black text-slate-800 dark:text-white">Évolution de la Facturation</h3>
+            <h3 className="text-xl font-black text-slate-800 dark:text-white">{t('invoices.evolution_chart')}</h3>
             <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-xl">
               <button className="px-4 py-1.5 text-xs font-bold bg-white dark:bg-slate-600 rounded-lg shadow-sm">Mensuel</button>
               <button className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700">Hebdo</button>
@@ -543,7 +547,7 @@ const AnalyticsFacturation: React.FC = () => {
 
         {/* Répartition par secteur */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
-          <h3 className="text-xl font-black text-slate-800 dark:text-white mb-6">Secteurs Porteurs</h3>
+          <h3 className="text-xl font-black text-slate-800 dark:text-white mb-6">{t('invoices.growing_sectors')}</h3>
           <div className="space-y-6">
             {[
               { label: 'Industrie & Gaz', value: 45, color: 'bg-blue-500' },
@@ -564,7 +568,7 @@ const AnalyticsFacturation: React.FC = () => {
           </div>
           <div className="mt-8 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800">
             <div className="flex items-center text-slate-900 dark:text-white text-sm font-bold">
-              <SparklesIcon className="h-5 w-5 mr-2" /> Conseil IA
+              <SparklesIcon className="h-5 w-5 mr-2" /> {t('invoices.ia_tip')}
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
               Le secteur <span className="underline italic">Industrie</span> porte 65% de vos revenus ce mois. Pensez à diversifier pour réduire le risque.
@@ -578,15 +582,15 @@ const AnalyticsFacturation: React.FC = () => {
         <div className="p-8 border-b border-slate-100 dark:border-slate-700">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-              <h3 className="text-xl font-black text-slate-800 dark:text-white">Registre des Factures de Vente</h3>
-              <p className="text-sm text-slate-500 font-medium tracking-tight">Poste clients mis à jour en temps réel</p>
+              <h3 className="text-xl font-black text-slate-800 dark:text-white">{t('invoices.register_title')}</h3>
+              <p className="text-sm text-slate-500 font-medium tracking-tight">{t('invoices.register_subtitle')}</p>
             </div>
             <div className="flex items-center gap-4 w-full md:w-auto">
               <div className="relative flex-1 md:w-64">
                 <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Client ou N° de facture..."
+                  placeholder={t('invoices.search_placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all text-sm"
@@ -597,11 +601,11 @@ const AnalyticsFacturation: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
               >
-                <option value="tous">Tous les statuts</option>
-                <option value="payee">Encaissées</option>
-                <option value="en_cours">En attente</option>
-                <option value="en_retard">En retard</option>
-                <option value="annulee">Annulées</option>
+                <option value="tous">{t('invoices.all_statuses')}</option>
+                <option value="payee">{t('invoices.status.paid')}</option>
+                <option value="en_cours">{t('invoices.pending')}</option>
+                <option value="en_retard">{t('invoices.status.overdue')}</option>
+                <option value="annulee">{t('invoices.status.cancelled')}</option>
               </select>
             </div>
           </div>
@@ -611,12 +615,12 @@ const AnalyticsFacturation: React.FC = () => {
           <table className="w-full">
             <thead className="bg-slate-50/50 dark:bg-slate-900/50 text-slate-500 text-[10px] font-black uppercase tracking-[0.1em] border-b border-slate-100 dark:border-slate-700">
               <tr>
-                <th className="px-8 py-5 text-left">N° Facture</th>
-                <th className="px-8 py-5 text-left">Client (Algérie)</th>
-                <th className="px-8 py-5 text-left">Dates</th>
-                <th className="px-8 py-5 text-right">Montant TTC</th>
-                <th className="px-8 py-5 text-center">Statut</th>
-                <th className="px-8 py-5 text-center">Actions</th>
+                <th className="px-8 py-5 text-left">{t('invoices.table.invoice_no')}</th>
+                <th className="px-8 py-5 text-left">{t('invoices.table.client_dz')}</th>
+                <th className="px-8 py-5 text-left">{t('invoices.table.dates')}</th>
+                <th className="px-8 py-5 text-right">{t('invoices.table.amount_ttc')}</th>
+                <th className="px-8 py-5 text-center">{t('invoices.table.status')}</th>
+                <th className="px-8 py-5 text-center">{t('invoices.table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -652,35 +656,35 @@ const AnalyticsFacturation: React.FC = () => {
                           inv.statut === 'annulee' ? 'bg-slate-200 text-slate-700' :
                             'bg-amber-100 text-amber-700'
                         }`}>
-                        {inv.statut === 'payee' ? 'Encaissée' :
-                          inv.statut === 'en_retard' ? 'Retard critique' :
-                            inv.statut === 'annulee' ? 'Annulée' : 'Partiel / Attente'}
+                        {inv.statut === 'payee' ? t('invoices.status.collected') :
+                          inv.statut === 'en_retard' ? t('invoices.status.critical_delay') :
+                            inv.statut === 'annulee' ? t('invoices.status.cancelled') : t('invoices.status.pending_attente')}
                       </span>
                     </div>
                   </td>
                   <td className="px-8 py-5">
                     <div className="flex justify-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-slate-900 hover:border-slate-900 shadow-sm transition-all" title="Voir PDF">
+                      <button className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-slate-900 hover:border-slate-900 shadow-sm transition-all" title={t('invoices.actions.view_pdf')}>
                         <PrinterIcon className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleEditInvoice(inv)}
                         className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-indigo-600 hover:border-indigo-600 shadow-sm transition-all"
-                        title="Modifier"
+                        title={t('invoices.actions.edit')}
                       >
                         <CogIcon className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteInvoice(inv.id)}
                         className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-rose-600 hover:border-rose-600 shadow-sm transition-all"
-                        title="Supprimer"
+                        title={t('invoices.actions.delete')}
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => openDetails(inv)}
                         className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-slate-900 hover:border-slate-900 shadow-sm transition-all"
-                        title="Détails"
+                        title={t('invoices.actions.details')}
                       >
                         <EyeIcon className="h-4 w-4" />
                       </button>
@@ -702,8 +706,8 @@ const AnalyticsFacturation: React.FC = () => {
         <div className="p-6 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
           <span className="text-xs font-bold text-slate-500">Affichage de {filteredInvoices.length} sur {invoices.length} factures</span>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold disabled:opacity-50">Précédent</button>
-            <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold">Suivant</button>
+            <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold disabled:opacity-50">{t('common.previous', "Précédent")}</button>
+            <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold">{t('common.next', "Suivant")}</button>
           </div>
         </div>
       </div>
@@ -727,19 +731,19 @@ const AnalyticsFacturation: React.FC = () => {
               <div className="mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center">
                   <DocumentTextIcon className="h-8 w-8 text-slate-700 mr-3" />
-                  {isEditing ? `Modifier la Facture ${newInvoice.id}` : 'Nouvel Acte de Facturation'}
+                  {isEditing ? t('invoices.modal.edit_title', { id: newInvoice.id }) : t('invoices.modal.create_title')}
                 </h2>
-                <p className="text-slate-500 font-bold text-sm mt-1 uppercase tracking-widest">Conformité fiscale DZ - Décret 05-468</p>
+                <p className="text-slate-500 font-bold text-sm mt-1 uppercase tracking-widest">{t('invoices.modal.legal_info')}</p>
               </div>
 
               {/* Section Client & Fisc */}
               <div className="bg-slate-50 dark:bg-slate-900/40 p-6 rounded-3xl mb-8 border border-slate-100 dark:border-slate-800">
                 <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center">
-                  <UserGroupIcon className="h-4 w-4 mr-2" /> Identification du Client & Fiscalité
+                  <UserGroupIcon className="h-4 w-4 mr-2" /> {t('invoices.modal.client_id_section')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="md:col-span-2">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Raison Sociale</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.raison_sociale')}</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -749,7 +753,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Adresse de Siège / Facturation</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.address_billing')}</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -758,7 +762,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">N.I.F</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.nif')}</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -767,7 +771,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">N.I.S</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.nis')}</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -776,7 +780,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">R.C</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.rc')}</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -785,7 +789,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">A.I</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.ai')}</label>
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -794,7 +798,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">RIB (Banque/CCP)</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.rib')}</label>
                     <input
                       type="text"
                       placeholder="001 00016 0123456789 01"
@@ -804,7 +808,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Secteur Activité</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.sector')}</label>
                     <select
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
                       value={newInvoice.secteur || 'services'}
@@ -817,7 +821,7 @@ const AnalyticsFacturation: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Statut Facture</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.table.status')}</label>
                     <select
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
                       value={newInvoice.statut || 'en_cours'}
@@ -833,7 +837,7 @@ const AnalyticsFacturation: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Date d'Émission</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.date_emission')}</label>
                     <input
                       type="date"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -842,7 +846,7 @@ const AnalyticsFacturation: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Date d'Échéance</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.date_echeance')}</label>
                     <input
                       type="date"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
@@ -856,7 +860,7 @@ const AnalyticsFacturation: React.FC = () => {
               {/* Section Articles */}
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Détails des Prestations / Ventes</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('invoices.modal.items_title')}</h3>
                   <button
                     onClick={() => {
                       const items = [...(newInvoice.items || [])];
@@ -865,17 +869,17 @@ const AnalyticsFacturation: React.FC = () => {
                     }}
                     className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-black hover:bg-slate-200 transition-all flex items-center"
                   >
-                    <PlusIcon className="h-4 w-4 mr-1" /> Ajouter Ligne
+                    <PlusIcon className="h-4 w-4 mr-1" /> {t('invoices.modal.add_item')}
                   </button>
                 </div>
 
                 <div className="space-y-3">
                   <div className="hidden md:grid grid-cols-12 gap-4 px-4 text-[10px] font-black uppercase text-slate-400 mb-2">
-                    <div className="col-span-3">Désignation</div>
+                    <div className="col-span-3">{t('invoices.modal.item_desc')}</div>
                     <div className="col-span-2">Type (Compta)</div>
-                    <div className="col-span-2 text-center">Qté</div>
-                    <div className="col-span-2 text-right">P.U HT</div>
-                    <div className="col-span-2 text-center">TVA (%)</div>
+                    <div className="col-span-2 text-center">{t('invoices.modal.item_qty')}</div>
+                    <div className="col-span-2 text-right">{t('invoices.modal.item_pu')}</div>
+                    <div className="col-span-2 text-center">{t('invoices.modal.item_tva')}</div>
                     <div className="col-span-1"></div>
                   </div>
                   {(newInvoice.items || []).map((item, idx) => (
@@ -967,7 +971,7 @@ const AnalyticsFacturation: React.FC = () => {
               {/* Section Mode de Paiement & Timbre */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                 <div className="md:col-span-2 bg-slate-50 dark:bg-slate-900/40 p-6 rounded-3xl border border-slate-100 dark:border-slate-800">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Modalités de Règlement</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">{t('invoices.modal.payment_config')}</label>
                   <div className="flex flex-wrap gap-4">
                     {['virement', 'cheque', 'especes', 'carte'].map((mode) => (
                       <button
@@ -998,7 +1002,7 @@ const AnalyticsFacturation: React.FC = () => {
                   <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-2xl shadow-slate-900/30">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-slate-700 pb-8">
                       <div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Global TTC</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('invoices.modal.ttc_total')}</span>
                         <div className="text-4xl font-black mt-2">
                           {formatCurrency(
                             (() => {
@@ -1067,7 +1071,7 @@ const AnalyticsFacturation: React.FC = () => {
                       onClick={handleSaveInvoice}
                       className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl"
                     >
-                      {isEditing ? 'Enregistrer les Modifications' : "Valider l'Émission"}
+                      {isEditing ? t('invoices.modal.save') : t('invoices.modal.save')}
                     </button>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import {
   UserGroupIcon,
   ShieldCheckIcon,
@@ -43,6 +44,7 @@ interface UserFormData {
 
 export const AdminRoleManagement: React.FC = () => {
   const { user } = usePermission();
+  const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +86,7 @@ export const AdminRoleManagement: React.FC = () => {
         setUsers(mockUsers);
       }
     } catch (err) {
-      setError('Erreur lors du chargement des utilisateurs');
+      setError(t('admin.form.errors.load_failed'));
     } finally {
       setLoading(false);
     }
@@ -169,7 +171,7 @@ export const AdminRoleManagement: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase tracking-widest text-xs">Chargement du personnel...</div>;
+    return <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-400 font-bold uppercase tracking-widest text-xs">{t('admin.users.loading')}</div>;
   }
 
   return (
@@ -182,10 +184,10 @@ export const AdminRoleManagement: React.FC = () => {
               <div className="p-2 bg-slate-900 dark:bg-white rounded-lg">
                 <ShieldCheckIcon className="h-6 w-6 text-white dark:text-slate-900" />
               </div>
-              <h1 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Administration Système</h1>
+              <h1 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">{t('admin.title')}</h1>
             </div>
             <h2 className="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
-              Contrôle d'Accès
+              {t('admin.subtitle')}
             </h2>
           </div>
 
@@ -193,7 +195,7 @@ export const AdminRoleManagement: React.FC = () => {
             onClick={() => { resetForm(); setShowUserForm(true); }}
             className="group flex items-center gap-3 px-6 py-4 bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 transition-all border border-transparent hover:border-slate-900 dark:hover:border-white"
           >
-            <span className="text-[10px] font-black uppercase tracking-widest">Nouvel Utilisateur</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">{t('admin.actions.new_user')}</span>
             <PlusIcon className="h-4 w-4" />
           </button>
         </div>
@@ -202,7 +204,7 @@ export const AdminRoleManagement: React.FC = () => {
           <div className="bg-rose-50 border-l-4 border-rose-500 text-rose-900 p-4 rounded-r-xl flex items-start gap-3">
             <ExclamationTriangleIcon className="h-5 w-5 shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs font-black uppercase tracking-wide mb-1">Erreur Système</p>
+              <p className="text-xs font-black uppercase tracking-wide mb-1">{t('admin.form.errors.system_error')}</p>
               <p className="text-sm">{error}</p>
             </div>
           </div>
@@ -214,12 +216,12 @@ export const AdminRoleManagement: React.FC = () => {
             <div className="bg-slate-50 dark:bg-slate-900/40 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm h-full">
               <div className="p-8 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
                 <div>
-                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Annuaire Personnel</h3>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-1">Gérez les accès et les privilèges</p>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('admin.users.anniversary')}</h3>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-1">{t('admin.users.manage_access')}</p>
                 </div>
                 <div className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                   <span className="text-xs font-black text-slate-900 dark:text-white">{users.length}</span>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase ml-2">Utilisateurs</span>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase ml-2">{t('admin.users.user_count')}</span>
                 </div>
               </div>
 
@@ -239,7 +241,7 @@ export const AdminRoleManagement: React.FC = () => {
                           <h3 className={`text-sm font-bold uppercase tracking-tight ${u.is_active ? 'text-slate-900 dark:text-white' : 'text-slate-400 line-through'}`}>
                             {u.first_name} <span className="font-black">{u.last_name}</span>
                           </h3>
-                          {!u.is_active && <span className="text-[9px] font-black bg-slate-100 text-slate-400 px-2 py-0.5 rounded uppercase tracking-widest">Inactif</span>}
+                          {!u.is_active && <span className="text-[9px] font-black bg-slate-100 text-slate-400 px-2 py-0.5 rounded uppercase tracking-widest">{t('admin.users.inactif')}</span>}
                         </div>
 
                         <p className="text-xs text-slate-500 font-mono mt-0.5 mb-2">{u.email}</p>
@@ -250,7 +252,7 @@ export const AdminRoleManagement: React.FC = () => {
                           </span>
                           {u.permissions?.length > 0 && (
                             <span className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-1 rounded uppercase tracking-tight border border-transparent">
-                              +{u.permissions.length} Perms
+                              {t('admin.users.perms_count', { count: u.permissions.length })}
                             </span>
                           )}
                         </div>
@@ -261,14 +263,14 @@ export const AdminRoleManagement: React.FC = () => {
                       <button
                         onClick={() => handleEditUser(u)}
                         className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 transition-colors shadow-sm"
-                        title="Modifier"
+                        title={t('admin.actions.edit')}
                       >
                         <PencilIcon className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => setShowDeleteConfirm(u.id)}
                         className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-400 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 transition-all shadow-sm"
-                        title={u.is_active ? "Désactiver" : "Activer"}
+                        title={u.is_active ? t('admin.actions.delete') : t('admin.actions.confirm')}
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>
@@ -285,46 +287,46 @@ export const AdminRoleManagement: React.FC = () => {
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-2xl flex flex-col h-full overflow-hidden relative">
                 <div className="p-8 bg-slate-900 dark:bg-slate-950 text-white flex justify-between items-start">
                   <div>
-                    <h2 className="font-black text-xl uppercase tracking-tighter">{editingUser ? 'Modifier Profil' : 'Nouveau Membre'}</h2>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Configuration Compte</p>
+                    <h2 className="font-black text-xl uppercase tracking-tighter">{editingUser ? t('admin.form.edit_profile') : t('admin.form.new_member')}</h2>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">{t('admin.form.config_account')}</p>
                   </div>
                   <button onClick={() => setShowUserForm(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"><XMarkIcon className="h-5 w-5" /></button>
                 </div>
 
                 <div className="p-8 space-y-8 overflow-y-auto custom-scrollbar flex-1 bg-slate-50 dark:bg-slate-900/50">
                   <div className="space-y-4">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">Identité & Connexion</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 dark:border-slate-700 pb-2">{t('admin.form.identity')}</p>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase">Prénom</label>
+                        <label className="text-[9px] font-bold text-slate-500 uppercase">{t('admin.form.first_name')}</label>
                         <input value={formData.first_name} onChange={e => setFormData({ ...formData, first_name: e.target.value })} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none text-xs font-bold" />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase">Nom</label>
+                        <label className="text-[9px] font-bold text-slate-500 uppercase">{t('admin.form.last_name')}</label>
                         <input value={formData.last_name} onChange={e => setFormData({ ...formData, last_name: e.target.value })} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none text-xs font-bold" />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-500 uppercase">Email Professionnel</label>
+                      <label className="text-[9px] font-bold text-slate-500 uppercase">{t('admin.form.email')}</label>
                       <input value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none text-xs font-bold font-mono" />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[9px] font-bold text-slate-500 uppercase">Username</label>
+                      <label className="text-[9px] font-bold text-slate-500 uppercase">{t('admin.form.username')}</label>
                       <input value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none text-xs font-bold font-mono" />
                     </div>
 
                     {!editingUser && (
                       <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase">Mot de passe temporaire</label>
+                        <label className="text-[9px] font-bold text-slate-500 uppercase">{t('admin.form.password')}</label>
                         <input type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-slate-900 dark:focus:ring-white outline-none text-xs font-bold" />
                       </div>
                     )}
 
                     <div className="space-y-1 pt-2">
-                      <label className="text-[9px] font-bold text-slate-500 uppercase block mb-2">Rôle Principal</label>
+                      <label className="text-[9px] font-bold text-slate-500 uppercase block mb-2">{t('admin.form.main_role')}</label>
                       <div className="grid grid-cols-2 gap-2">
                         {['admin', 'manager', 'comptable', 'utilisateur'].map(r => (
                           <button
@@ -365,9 +367,9 @@ export const AdminRoleManagement: React.FC = () => {
                 </div>
 
                 <div className="p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex gap-4">
-                  <button onClick={() => setShowUserForm(false)} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">Annuler</button>
+                  <button onClick={() => setShowUserForm(false)} className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">{t('admin.actions.cancel')}</button>
                   <button onClick={handleSaveUser} className="flex-1 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:shadow-xl hover:-translate-y-1 transition-all">
-                    {editingUser ? 'Sauvegarder les modifications' : 'Créer le compte'}
+                    {editingUser ? t('admin.actions.save_changes') : t('admin.actions.create_account')}
                   </button>
                 </div>
               </div>
@@ -382,14 +384,14 @@ export const AdminRoleManagement: React.FC = () => {
                 <TrashIcon className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Désactiver l'accès ?</h3>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{t('admin.users.delete_confirm_title')}</h3>
                 <p className="text-slate-500 text-sm mt-3 font-medium leading-relaxed">
-                  Cette action révoquera immédiatement tous les accès de l'utilisateur au système Dinarlytic.
+                  {t('admin.users.delete_confirm_desc')}
                 </p>
               </div>
               <div className="flex gap-4 pt-4">
-                <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">Annuler</button>
-                <button onClick={() => handleDeleteUser(showDeleteConfirm)} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl">Confirmer</button>
+                <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">{t('admin.actions.cancel')}</button>
+                <button onClick={() => handleDeleteUser(showDeleteConfirm)} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl">{t('admin.actions.confirm')}</button>
               </div>
             </div>
           </div>
@@ -400,7 +402,3 @@ export const AdminRoleManagement: React.FC = () => {
 };
 
 export default AdminRoleManagement;
-
-
-
-

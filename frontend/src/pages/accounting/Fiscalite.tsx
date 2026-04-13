@@ -76,19 +76,19 @@ const Fiscalite: React.FC = () => {
               </svg>
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Accès refusé</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">{t('common.access_denied', { defaultValue: 'Accès refusé' })}</h2>
           <p className="text-slate-600 mb-4">
-            Vous n'avez pas la permission d'accéder à cette section.
+            {t('common.no_permission_msg', { defaultValue: "Vous n'avez pas la permission d'accéder à cette section." })}
           </p>
           <div className="bg-slate-50 rounded-lg p-4 mb-6">
-            <p className="text-sm text-slate-700 font-medium mb-1">Permission requise:</p>
-            <p className="text-sm text-slate-600">fiscalite-declarations ou rôle administrateur</p>
+            <p className="text-sm text-slate-700 font-medium mb-1">{t('common.permission_required', { defaultValue: 'Permission requise:' })}</p>
+            <p className="text-sm text-slate-600">fiscalite-declarations {t('common.or', { defaultValue: 'ou' })} {t('common.role_admin', { defaultValue: 'rôle administrateur' })}</p>
           </div>
           <button
             onClick={() => window.history.back()}
             className="w-full px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
           >
-            Retour
+            {t('common.back')}
           </button>
         </div>
       </div>
@@ -224,7 +224,7 @@ const Fiscalite: React.FC = () => {
 
   const handleGenererDeclaration = async () => {
     if (!selectedPeriod && declarationType !== 'irg' && declarationType !== 'tap' && declarationType !== 'g29') {
-      alert('Veuillez sélectionner une période');
+      alert(t('accounting.fiscal.alerts.select_period'));
       return;
     }
 
@@ -362,8 +362,8 @@ const Fiscalite: React.FC = () => {
     const risksText = riskAnalysis.map(r => `• [${r.level.toUpperCase()}] ${r.title}: ${r.message}`).join('\n');
 
     const content = `
-AUDIT FISCAL STRATÉGIQUE - EXERCICE 2026
-Réalisé par Dinarlytics AI • Rapport ID: #DZ-TAX-2026-001
+${t('accounting.fiscal.reports.audit_title')} - EXERCICE 2026
+${t('accounting.fiscal.reports.generated_by')} • Rapport ID: #DZ-TAX-2026-001
 Status: Basé sur vos transactions réelles
 ────────────────────────────────────────────────────────────
 
@@ -511,26 +511,26 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <CalculatorIcon className="h-8 w-8 text-slate-700" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Fiscalité & Déclarations</h1>
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">{t('fiscal.title')}</h1>
                   <div className="flex items-center gap-2 text-slate-500">
                     <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                    <span className="text-sm font-semibold uppercase tracking-wider">Conformité fiscale 2026 • Algérie</span>
+                    <span className="text-sm font-semibold uppercase tracking-wider">{t('fiscal.subtitle')}</span>
                   </div>
                 </div>
               </div>
 
               <p className="text-slate-600 text-lg max-w-2xl leading-relaxed mb-6">
-                Solution professionnelle adaptée aux micro-entreprises. Gérez vos déclarations fiscales en toute conformité avec un accès administrateur complet optimisé pour SPA.
+                {t('accounting.fiscal.description', { defaultValue: 'Solution professionnelle adaptée aux micro-entreprises. Gérez vos déclarations fiscales en toute conformité avec un accès administrateur complet optimisé pour SPA.' })}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {[
-                  "Indicateurs clés : CA, Trésorerie, Créances",
-                  "Suivi 80/20 de vos clients stratégiques",
-                  "Conformité G50 automatisée",
-                  "Rentabilité mensuelle par produit",
-                  "Suivi rigoureux du BFR",
-                  "Trésorerie prévisionnelle (13 semaines)"
+                  t('fiscal.benefits.kpi'),
+                  t('fiscal.benefits.clients'),
+                  t('fiscal.benefits.g50'),
+                  t('fiscal.benefits.profit'),
+                  t('fiscal.benefits.bfr'),
+                  t('fiscal.benefits.cashflow')
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center space-x-2 text-slate-700 text-sm bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
                     <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
@@ -542,18 +542,18 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
 
             <div className="lg:w-80 space-y-4">
               <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3">Solution Enterprise</h4>
+                <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3">{t('fiscal.solution_enterprise')}</h4>
                 <ul className="space-y-2 text-xs">
-                  <li className="flex items-center text-slate-600 italic">• Gestion multi-entreprises</li>
-                  <li className="flex items-center text-slate-600 italic">• Consolidation comptable</li>
-                  <li className="flex items-center text-slate-600 italic">• Audit et conformité avancés</li>
+                  <li className="flex items-center text-slate-600 italic">• {t('nav.steering')}</li>
+                  <li className="flex items-center text-slate-600 italic">• {t('common.financial_analysis')}</li>
+                  <li className="flex items-center text-slate-600 italic">• {t('nav.audit_traceability')}</li>
                 </ul>
               </div>
 
               <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
-                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Aide Décisionnelle</div>
+                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">{t('accounting.fiscal.decision_aid')}</div>
                 <p className="text-xs text-slate-600 mt-1 leading-snug italic">
-                  "La trésorerie est le nerf de la guerre : surveillez-la quotidiennement et anticipez les besoins."
+                  "{t('accounting.fiscal.motto', { defaultValue: 'La trésorerie est le nerf de la guerre : surveillez-la quotidiennement et anticipez les besoins.' })}"
                 </p>
               </div>
             </div>
@@ -566,8 +566,8 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
         <div className="flex items-center space-x-3">
           <InformationCircleIcon className="h-5 w-5 text-slate-400" />
           <p className="text-slate-600 text-sm font-medium tracking-wide">
-            <span className="text-slate-900 font-bold uppercase mr-2">Avertissement</span>
-            Taux fiscaux Algérie 2026 : IBS 26%, TVA 19%, TAP 2%
+            <span className="text-slate-900 font-bold uppercase mr-2">{t('fiscal.warning_title')}</span>
+            {t('fiscal.warning_text')}
           </p>
         </div>
         <div className="hidden md:block">
@@ -584,9 +584,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-900 transition-colors">
               <CalculatorIcon className="h-6 w-6 text-slate-700 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Base Ventes</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">{t('nav.commercial_analysis')}</span>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Chiffre d'Affaires HT</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.ca_ht')}</p>
           <div className="flex items-baseline space-x-1">
             <p className="text-2xl font-black text-slate-900">{formatCurrency(dynamicKPI?.caHT || 0)}</p>
           </div>
@@ -599,7 +599,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             </div>
             <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Taux: {customRates.ibs * 100}%</span>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">IBS Estimé</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.ibs_estimated')}</p>
           <div className="flex items-baseline space-x-1">
             <p className="text-2xl font-black text-slate-900">{formatCurrency(dynamicKPI?.ibs || 0)}</p>
           </div>
@@ -612,7 +612,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             </div>
             <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">TVA Net</span>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">TVA à Verser</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.tva_to_pay')}</p>
           <div className="flex items-baseline space-x-1">
             <p className="text-2xl font-black text-emerald-600">{formatCurrency(dynamicKPI?.tvaAVerser || 0)}</p>
           </div>
@@ -630,7 +630,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               Audit IA
             </button>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Score Conformité</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.conformity_score')}</p>
           <div className="flex items-baseline space-x-1 relative z-10">
             <p className="text-2xl font-black text-slate-900">{100 - (riskAnalysis.length * 10)}/100</p>
           </div>
@@ -643,19 +643,19 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-slate-900 flex items-center">
               <SparklesIcon className="h-6 w-6 mr-3 text-indigo-600" />
-              Centre de Contrôle & Simulations
+              {t('fiscal.control_center')}
             </h3>
             <div className="flex space-x-2">
               <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center">
-                <CheckCircleIcon className="h-3 w-3 mr-1" /> Cohérence ERP Totale
+                <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('accounting.fiscal.alerts.erp_coherence', { defaultValue: 'Cohérence ERP Totale' })}
               </span>
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">Mode Expert</span>
+              <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">{t('common.expert_mode', { defaultValue: 'Mode Expert' })}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Taux TVA (%)</label>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t('fiscal.rates.tva')}</label>
               <input
                 type="number"
                 value={customRates.tva * 100}
@@ -664,7 +664,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Taux TAP (%)</label>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t('fiscal.rates.tap')}</label>
               <input
                 type="number"
                 value={customRates.tap * 100}
@@ -673,7 +673,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Taux IBS (%)</label>
+              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t('fiscal.rates.ibs')}</label>
               <input
                 type="number"
                 value={customRates.ibs * 100}
@@ -689,14 +689,14 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             </div>
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">Intelligence Prédictive M+1</h4>
+                <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('fiscal.ia_predictive')}</h4>
                 <p className="text-xs text-slate-400 max-w-md">{fiscalForecast?.message || "Analyse des tendances en cours..."}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">Charge TVA Prévue</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">{t('accounting.fiscal.ia.predicted_tva')}</p>
                 <p className="text-2xl font-black text-white">{formatCurrency(fiscalForecast?.predictedTVANextMonth || 0)}</p>
                 <div className="mt-1 flex items-center justify-end text-[10px] font-bold text-emerald-400">
-                  <CheckCircleIcon className="h-3 w-3 mr-1" /> Score Confiance: {Math.round((fiscalForecast?.confidenceScore || 0) * 100)}%
+                  <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('accounting.fiscal.ia.confidence_score')}: {Math.round((fiscalForecast?.confidenceScore || 0) * 100)}%
                 </div>
               </div>
             </div>
@@ -706,7 +706,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
         <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
           <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
             <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-rose-500" />
-            Audit de Conformité
+            {t('fiscal.audit_conformity')}
           </h3>
           <div className="space-y-4 flex-1">
             {riskAnalysis.length > 0 ? riskAnalysis.slice(0, 3).map((risk, idx) => (
@@ -717,7 +717,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             )) : (
               <div className="flex flex-col items-center justify-center h-full text-slate-400 italic py-10">
                 <CheckCircleIcon className="h-12 w-12 mb-2 opacity-20" />
-                <p className="text-xs">Aucun risque critique détecté</p>
+                <p className="text-xs">{t('accounting.fiscal.alerts.no_risk_detected', { defaultValue: 'Aucun risque critique détecté' })}</p>
               </div>
             )}
           </div>
@@ -725,39 +725,39 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             onClick={handleGenererRapportIA}
             className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-lg flex items-center justify-center group"
           >
-            Lancer l'Audit Complet
+            {t('fiscal.launch_audit')}
             <SparklesIcon className="h-4 w-4 ml-2 group-hover:animate-pulse" />
           </button>
         </div>
       </div>
 
       {/* Tax Calculation Details - Amélioré */}
-      <Card title="Détail des Calculs Fiscaux Algériens 2026">
+      <Card title={t('fiscal.calcul_details')}>
         <div className="space-y-6">
           {/* Indicateurs de Performance Fiscale Globale */}
           <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
             <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
               <SparklesIcon className="h-5 w-5 mr-2 text-indigo-600" />
-              Indicateurs de Performance Fiscale
+              {t('fiscal.performance_indicators')}
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Charge fiscale totale */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">Charge Totale</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.charge_totale', { defaultValue: 'Charge Totale' })}</span>
                   <CurrencyDollarIcon className="h-4 w-4 text-slate-500" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900">
                   {formatCurrency(calculsFiscaux.ibs + calculsFiscaux.tvaAVerser)}
                 </div>
-                <div className="text-xs text-slate-500 mt-1">IBS + TVA + IRG + TAP</div>
+                <div className="text-xs text-slate-500 mt-1">{t('accounting.fiscal.stats.taxes_sum', { defaultValue: 'IBS + TVA + IRG + TAP' })}</div>
               </div>
 
               {/* Taux effectif d'imposition */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">Taux Effectif</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.taux_effectif', { defaultValue: 'Taux Effectif' })}</span>
                   <ChartBarIcon className="h-4 w-4 text-slate-500" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900">{fiscalKPI.tauxEffectif}%</div>
@@ -767,17 +767,17 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               {/* Répartition IBS/TVA */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">Part IBS</span>
-                  <span className="text-xs text-slate-600 font-bold">IBS</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('accounting.fiscal.stats.ibs_share')}</span>
+                  <span className="text-xs text-slate-600 font-bold">{t('accounting.fiscal.rates.ibs_short', { defaultValue: 'IBS' })}</span>
                 </div>
                 <div className="text-2xl font-bold text-slate-900">{fiscalKPI.partIBS}%</div>
-                <div className="text-xs text-slate-500 mt-1">Part TVA: {fiscalKPI.partTVA}%</div>
+                <div className="text-xs text-slate-500 mt-1">{t('accounting.fiscal.stats.tva_share', { defaultValue: 'Part TVA' })}: {fiscalKPI.partTVA}%</div>
               </div>
 
               {/* Score de conformité fiscale */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">Conformité</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.conformity', { defaultValue: 'Conformité' })}</span>
                   <CheckCircleIcon className="h-4 w-4 text-slate-400" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900">92%</div>
@@ -792,9 +792,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">🏢</span>
-                  Impôt sur les Bénéfices (IBS)
+                  {t('fiscal.rates.ibs_full', { defaultValue: 'Impôt sur les Bénéfices (IBS)' })}
                 </h3>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Taux: 26%</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{t('common.rate', { defaultValue: 'Taux' })}: 26%</span>
               </div>
               <div className="space-y-3">
                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
@@ -818,8 +818,8 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-slate-400 uppercase mb-1">IBS ESTIMÉ (26%)</div>
-                      <div className="text-sm text-slate-500">Base × Taux</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">{t('accounting.fiscal.stats.ibs_estimated_label', { defaultValue: 'IBS ESTIMÉ (26%)' })}</div>
+                      <div className="text-sm text-slate-500">{t('accounting.fiscal.ia.base_rate_calc', { defaultValue: 'Base × Taux' })}</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.ibs)}</div>
                   </div>
@@ -1044,7 +1044,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Rechercher un document..."
+                placeholder={t('common.search_placeholder', { defaultValue: 'Rechercher un document...' })}
                 className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
               />
             </div>
@@ -1150,7 +1150,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             </div>
             <div className="flex items-center space-x-3 w-full md:w-auto">
               <button onClick={() => setIsDeclarationModalOpen(true)} className="flex-1 md:flex-none flex items-center justify-center px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm shadow-sm hover:bg-black transition-all active:scale-95">
-                <PlusIcon className="h-4 w-4 mr-2" /> Nouvelle Déclaration
+                <PlusIcon className="h-4 w-4 mr-2" /> {t('common.new_declaration', { defaultValue: 'Nouvelle Déclaration' })}
               </button>
               <button className="p-3 bg-slate-50 text-slate-600 rounded-xl border border-slate-200 hover:bg-white hover:text-slate-900 transition-all">
                 <DocumentArrowDownIcon className="h-5 w-5" />

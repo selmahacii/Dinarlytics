@@ -28,6 +28,7 @@ import {
   MinusIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
@@ -44,6 +45,7 @@ import {
 
 const Consolidation: React.FC = () => {
   const { formatCurrency } = useApp();
+  const { t } = useTranslation();
   const [consolidationData, setConsolidationData] = useState<any>(null);
   const [isConsolidating, setIsConsolidating] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -203,57 +205,57 @@ const Consolidation: React.FC = () => {
   const reportTypes = [
     {
       id: 'bilan-consolide',
-      name: 'Bilan Consolidé',
+      name: t('consolidation.reports_list.bilan'),
       description: 'Situation patrimoniale consolidée du groupe',
       icon: BuildingOfficeIcon,
       category: 'États Financiers',
       lastGenerated: '2024-01-20',
-      status: 'Disponible'
+      status: t('consolidation.reports_list.available')
     },
     {
       id: 'compte-resultat-consolide',
-      name: 'Compte de Résultat Consolidé',
+      name: t('consolidation.reports_list.compte_resultat'),
       description: 'Résultat consolidé du groupe',
       icon: ChartBarIcon,
       category: 'États Financiers',
       lastGenerated: '2024-01-20',
-      status: 'Disponible'
+      status: t('consolidation.reports_list.available')
     },
     {
       id: 'flux-tresorerie-consolide',
-      name: 'Flux de Trésorerie Consolidé',
+      name: t('consolidation.reports_list.flux_tresorerie'),
       description: 'Mouvements de liquidités consolidés',
       icon: BanknotesIcon,
       category: 'États Financiers',
       lastGenerated: '2024-01-20',
-      status: 'Disponible'
+      status: t('consolidation.reports_list.available')
     },
     {
       id: 'analyse-performance',
-      name: 'Analyse de Performance',
+      name: t('consolidation.reports_list.performance'),
       description: 'Comparaison des performances par entreprise',
       icon: ChartPieIcon,
       category: 'Analyse',
       lastGenerated: '2024-01-19',
-      status: 'Disponible'
+      status: t('consolidation.reports_list.available')
     },
     {
       id: 'elimination-inter',
-      name: 'Éliminations Inter-Entreprises',
+      name: t('consolidation.reports_list.elimination'),
       description: 'Transactions inter-entreprises éliminées',
       icon: MinusIcon,
       category: 'Consolidation',
       lastGenerated: '2024-01-20',
-      status: 'Disponible'
+      status: t('consolidation.reports_list.available')
     },
     {
       id: 'conversion-devises',
-      name: 'Conversion des Devises',
+      name: t('consolidation.reports_list.conversion'),
       description: 'Détail des conversions de devises',
       icon: CurrencyDollarIcon,
       category: 'Consolidation',
       lastGenerated: '2024-01-20',
-      status: 'Disponible'
+      status: t('consolidation.reports_list.available')
     }
   ];
 
@@ -469,15 +471,15 @@ const Consolidation: React.FC = () => {
       {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Consolidation Comptable</h1>
-          <p className="text-gray-600 mt-2">Consolidation automatique des comptes de toutes les entreprises</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('consolidation.title')}</h1>
+          <p className="text-gray-600 mt-2">{t('consolidation.subtitle')}</p>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-500">
             {currentTime.toLocaleString('fr-FR')}
           </div>
           <div className="text-sm text-gray-400">
-            Période: {selectedPeriod} | Devise: {deviseReference}
+            {t('consolidation.period')}: {selectedPeriod} | {t('consolidation.currency')}: {deviseReference}
           </div>
         </div>
       </div>
@@ -486,7 +488,7 @@ const Consolidation: React.FC = () => {
       {isGenerating && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-blue-900">Consolidation en cours...</span>
+            <span className="text-sm font-medium text-blue-900">{t('consolidation.progress')}</span>
             <span className="text-sm text-blue-700">{consolidationProgress}%</span>
           </div>
           <div className="w-full bg-blue-200 rounded-full h-2">
@@ -506,7 +508,7 @@ const Consolidation: React.FC = () => {
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Rechercher une entreprise..."
+                placeholder={t('consolidation.placeholders.search')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -519,11 +521,11 @@ const Consolidation: React.FC = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="all">Toutes</option>
-              <option value="active">Actives</option>
-              <option value="inactive">Inactives</option>
-              <option value="consolidated">Consolidées</option>
-              <option value="pending">En attente</option>
+              <option value="all">{t('consolidation.filters.all')}</option>
+              <option value="active">{t('consolidation.filters.active')}</option>
+              <option value="inactive">{t('consolidation.filters.inactive')}</option>
+              <option value="consolidated">{t('consolidation.filters.consolidated')}</option>
+              <option value="pending">{t('consolidation.filters.pending')}</option>
             </select>
             <select
               value={selectedPeriod}
@@ -539,14 +541,14 @@ const Consolidation: React.FC = () => {
               className="flex items-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
               <PlusIcon className="h-4 w-4 mr-2" />
-              Ajouter
+              {t('consolidation.actions.add')}
             </button>
             <button
               onClick={handleCurrencyManagement}
               className="flex items-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
             >
               <CurrencyDollarIcon className="h-4 w-4 mr-2" />
-              Devises
+              {t('consolidation.actions.currencies')}
             </button>
           </div>
         </div>
@@ -558,7 +560,7 @@ const Consolidation: React.FC = () => {
           <div className="flex items-center">
             <BuildingOfficeIcon className="h-8 w-8 text-blue-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Entreprises</p>
+              <p className="text-sm font-medium text-gray-600">{t('consolidation.stats.companies')}</p>
               <p className="text-2xl font-bold text-gray-900">{consolidatedData.nombreEntreprises}</p>
             </div>
           </div>
@@ -568,7 +570,7 @@ const Consolidation: React.FC = () => {
           <div className="flex items-center">
             <ChartBarIcon className="h-8 w-8 text-green-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">CA Consolidé</p>
+              <p className="text-sm font-medium text-gray-600">{t('consolidation.stats.total_ca')}</p>
               <p className="text-2xl font-bold text-gray-900">
                 {formatCurrency(consolidatedData.totalChiffreAffaires)}
               </p>
@@ -580,7 +582,7 @@ const Consolidation: React.FC = () => {
           <div className="flex items-center">
             <ArrowTrendingUpIcon className="h-8 w-8 text-green-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Bénéfice</p>
+              <p className="text-sm font-medium text-gray-600">{t('consolidation.stats.total_profit')}</p>
               <p className="text-2xl font-bold text-gray-900">
                 {formatCurrency(consolidatedData.totalBenefice)}
               </p>
@@ -592,7 +594,7 @@ const Consolidation: React.FC = () => {
           <div className="flex items-center">
             <BanknotesIcon className="h-8 w-8 text-purple-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Actif Total</p>
+              <p className="text-sm font-medium text-gray-600">{t('consolidation.stats.total_active')}</p>
               <p className="text-2xl font-bold text-gray-900">
                 {formatCurrency(consolidatedData.totalActif)}
               </p>
@@ -604,7 +606,7 @@ const Consolidation: React.FC = () => {
           <div className="flex items-center">
             <CurrencyDollarIcon className="h-8 w-8 text-yellow-600" />
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Trésorerie</p>
+              <p className="text-sm font-medium text-gray-600">{t('consolidation.stats.total_treasury')}</p>
               <p className="text-2xl font-bold text-gray-900">
                 {formatCurrency(consolidatedData.totalTresorerie)}
               </p>
@@ -626,7 +628,7 @@ const Consolidation: React.FC = () => {
             ) : (
               <CalculatorIcon className="h-5 w-5 mr-2" />
             )}
-            {isConsolidating ? 'Consolidation en cours...' : 'Lancer la Consolidation'}
+            {isConsolidating ? t('consolidation.actions.consolidating') : t('consolidation.actions.start')}
           </button>
 
           <button
@@ -634,7 +636,7 @@ const Consolidation: React.FC = () => {
             className="flex items-center px-4 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700"
           >
             <CogIcon className="h-5 w-5 mr-2" />
-            Configuration
+            {t('consolidation.actions.config')}
           </button>
 
           <button
@@ -642,7 +644,7 @@ const Consolidation: React.FC = () => {
             className="flex items-center px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
             <ChartPieIcon className="h-5 w-5 mr-2" />
-            Analyses
+            {t('consolidation.actions.analysis')}
           </button>
         </div>
       </Card>
@@ -650,9 +652,9 @@ const Consolidation: React.FC = () => {
       {/* Liste des entreprises */}
       <Card className="p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">Entreprises du Groupe</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('consolidation.companies_list.title')}</h3>
           <div className="text-sm text-gray-500">
-            {filteredEntreprises.length} entreprise(s) trouvée(s)
+            {t('consolidation.companies_list.found_count', { count: filteredEntreprises.length })}
           </div>
         </div>
         
@@ -671,33 +673,33 @@ const Consolidation: React.FC = () => {
                         <h4 className="text-lg font-medium text-gray-900">{entreprise.nom}</h4>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCompanyStatusColor(entreprise.status)}`}>
                           <StatusIcon className="h-3 w-3 inline mr-1" />
-                          {entreprise.status === 'consolidated' ? 'Consolidée' : 
-                           entreprise.status === 'pending' ? 'En attente' : 'Erreur'}
+                          {entreprise.status === 'consolidated' ? t('consolidation.companies_list.status.consolidated') : 
+                           entreprise.status === 'pending' ? t('consolidation.companies_list.status.pending') : t('consolidation.companies_list.status.error')}
                         </span>
                       </div>
                       <div className="flex items-center space-x-4 mt-1">
                         <span className="text-sm text-gray-500">{entreprise.pays}</span>
                         <span className="text-sm text-gray-500">{entreprise.devise}</span>
-                        <span className="text-sm text-gray-500">Dernière MAJ: {entreprise.lastUpdate}</span>
+                        <span className="text-sm text-gray-500">{t('consolidation.companies_list.last_update')}: {entreprise.lastUpdate}</span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-6">
                     <div className="text-right">
-                      <div className="text-sm text-gray-500">Chiffre d'affaires</div>
+                      <div className="text-sm text-gray-500">{t('consolidation.table.revenue')}</div>
                       <div className="font-semibold text-gray-900">
                         {formatCurrency(entreprise.chiffreAffaires * entreprise.tauxChange)}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-500">Bénéfice</div>
+                      <div className="text-sm text-gray-500">{t('consolidation.table.profit')}</div>
                       <div className="font-semibold text-green-600">
                         {formatCurrency(entreprise.benefice * entreprise.tauxChange)}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-500">Actif total</div>
+                      <div className="text-sm text-gray-500">{t('consolidation.table.active')}</div>
                       <div className="font-semibold text-gray-900">
                         {formatCurrency(entreprise.actif * entreprise.tauxChange)}
                       </div>
@@ -730,10 +732,10 @@ const Consolidation: React.FC = () => {
       <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8">
           {[
-            { id: 'overview', name: 'Vue d\'ensemble', icon: ChartBarIcon },
-            { id: 'reports', name: 'Rapports', icon: DocumentTextIcon },
-            { id: 'eliminations', name: 'Éliminations', icon: MinusIcon },
-            { id: 'conversions', name: 'Conversions', icon: CurrencyDollarIcon }
+            { id: 'overview', name: t('consolidation.tabs.overview'), icon: ChartBarIcon },
+            { id: 'reports', name: t('consolidation.tabs.reports'), icon: DocumentTextIcon },
+            { id: 'eliminations', name: t('consolidation.tabs.eliminations'), icon: MinusIcon },
+            { id: 'conversions', name: t('consolidation.tabs.conversions'), icon: CurrencyDollarIcon }
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -759,28 +761,28 @@ const Consolidation: React.FC = () => {
         <div className="space-y-6">
           {/* Détail par entreprise */}
           <Card className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Détail par Entreprise</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('consolidation.tabs.overview')}</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Entreprise
+                      {t('consolidation.table.company')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Devise
+                      {t('consolidation.table.currency')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Chiffre d'Affaires
+                      {t('consolidation.table.revenue')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Bénéfice
+                      {t('consolidation.table.profit')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actif
+                      {t('consolidation.table.active')}
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Trésorerie
+                      {t('consolidation.table.treasury')}
                     </th>
                   </tr>
                 </thead>

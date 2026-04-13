@@ -56,7 +56,8 @@ interface ActionItem {
 }
 
 const ChatbotLIA: React.FC = () => {
-  const { user, companyData, formatCurrency, currentDevise, currentCountry, planComptable } = useApp();
+  const { user, companyData, formatCurrency, currentDevise, currentCountry, planComptable, currentLang } = useApp();
+  const { t } = useTranslation();
   // Contexte entreprise pour adapter les contenus (EURL/SARL/SPA et micro/small/...)
   const companyType = (user?.companyType as string) || 'eurl';
   const segment = ((user?.segment as string) || 'micro') as 'micro' | 'small' | 'medium' | 'large' | 'enterprise';
@@ -70,45 +71,22 @@ const ChatbotLIA: React.FC = () => {
   const { has } = usePermission();
   // Fonctions utilitaires pour remplacer les emojis par du texte
   const getConfidenceLabel = (confidence: 'high' | 'medium' | 'low'): string => {
-    switch (confidence) {
-      case 'high': return '[CONFIANCE ELEVEE]';
-      case 'medium': return '[CONFIANCE MOYENNE]';
-      case 'low': return '[CONFIANCE FAIBLE]';
-    }
+    return `[${t(`chatbot.confidence_${confidence}`)}]`;
   };
 
   const getTrendLabel = (trend: 'up' | 'down' | 'stable'): string => {
-    switch (trend) {
-      case 'up': return '[HAUSSE]';
-      case 'down': return '[BAISSE]';
-      case 'stable': return '[STABLE]';
-    }
+    return `[${t(`chatbot.trend_${trend}`)}]`;
   };
 
   const getRiskLabel = (risk: 'low' | 'medium' | 'high' | 'critical'): string => {
-    switch (risk) {
-      case 'critical': return '[RISQUE CRITIQUE]';
-      case 'high': return '[RISQUE ELEVE]';
-      case 'medium': return '[RISQUE MODERE]';
-      case 'low': return '[RISQUE FAIBLE]';
-    }
+    return `[${t(`chatbot.risk_${risk}`).toUpperCase()}]`;
   };
 
   const getStatusLabel = (status: 'good' | 'warning' | 'critical' | 'excellent' | 'average' | 'below' | 'poor'): string => {
-    switch (status) {
-      case 'excellent': return 'EXCELLENT';
-      case 'good': return 'BON';
-      case 'average': return 'MOYEN';
-      case 'below': return 'EN DESSOUS DE LA MOYENNE';
-      case 'poor': return 'FAIBLE';
-      case 'warning': return 'ATTENTION';
-      case 'critical': return 'CRITIQUE';
-    }
+    return t(`chatbot.status_${status}`).toUpperCase();
   };
 
   const [messages, setMessages] = useState<Message[]>([]);
-
-  const { currentLang } = useApp();
 
   // Personalized dynamic greeting
   useEffect(() => {
@@ -1644,19 +1622,19 @@ const ChatbotLIA: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">LIA Intelligence</h1>
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">{t('chatbot.title')}</h1>
                 <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded-md">AI v2.0</span>
               </div>
-              <p className="text-xs font-semibold text-slate-500 tracking-wide uppercase">Système de Pilotage Stratégique</p>
+              <p className="text-xs font-semibold text-slate-500 tracking-wide uppercase">{t('chatbot.subtitle')}</p>
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-3">
             <button
               onClick={() => {
                 const lines = messages.map(m => {
-                  const who = m.type === 'user' ? 'Vous' : 'LIA';
-                  const t = m.timestamp.toLocaleString('fr-FR');
-                  return `[${t}] ${who}: ${m.content}`;
+                  const who = m.type === 'user' ? t('chatbot.user_label') : t('chatbot.title');
+                  const tStr = m.timestamp.toLocaleString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR');
+                  return `[${tStr}] ${who}: ${m.content}`;
                 }).join('\n\n');
                 const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
@@ -1672,19 +1650,19 @@ const ChatbotLIA: React.FC = () => {
               }}
               disabled={!canExport}
               className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${canExport ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 active:scale-95' : 'text-slate-300 cursor-not-allowed'}`}
-              aria-label="Exporter la conversation"
-              title={canExport ? 'Exporter la conversation' : 'Permission requise: export-data'}
+              aria-label={t('chatbot.export')}
+              title={canExport ? t('chatbot.export') : 'Permission requise: export-data'}
             >
               <ArrowDownTrayIcon className="h-5 w-5" />
-              <span>Exporter</span>
+              <span>{t('chatbot.export')}</span>
             </button>
             <button
               onClick={() => setShowPlan(v => !v)}
               className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-black transition-all active:scale-95 shadow-md shadow-slate-200"
-              title="Ouvrir le plan d’actions"
+              title={t('chatbot.dashboard_btn')}
             >
               <ClipboardDocumentCheckIcon className="h-5 w-5 text-indigo-300" />
-              <span>Tableau de Bord</span>
+              <span>{t('chatbot.dashboard_btn')}</span>
             </button>
           </div>
         </div>
@@ -1710,9 +1688,9 @@ const ChatbotLIA: React.FC = () => {
                       <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center shadow-md">
                         <SparklesIcon className="h-4 w-4 text-indigo-300" />
                       </div>
-                      <span className="text-xs font-bold text-slate-800 tracking-widest uppercase">LIA Intelligence</span>
+                      <span className="text-xs font-bold text-slate-800 tracking-widest uppercase">{t('chatbot.title')}</span>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-400">SESSION AUDITÉE</span>
+                    <span className="text-[10px] font-bold text-slate-400">{t('chatbot.active_session')}</span>
                   </div>
                 )}
 
@@ -1723,7 +1701,7 @@ const ChatbotLIA: React.FC = () => {
                 <div className={`flex items-center gap-2 text-[10px] font-bold mt-4 tracking-wider uppercase ${message.type === 'user' ? 'text-slate-400' : 'text-slate-400'
                   }`}>
                   <ClockIcon className="h-3 w-3" />
-                  {message.timestamp.toLocaleTimeString('fr-FR', {
+                  {message.timestamp.toLocaleTimeString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', {
                     hour: '2-digit',
                     minute: '2-digit'
                   })}
@@ -1739,7 +1717,7 @@ const ChatbotLIA: React.FC = () => {
                         className="group flex items-center justify-between px-4 py-3 text-left text-xs bg-slate-50/80 hover:bg-slate-900 hover:text-white text-slate-700 rounded-xl transition-all border border-slate-100 font-bold active:scale-95"
                       >
                         <span>{suggestion}</span>
-                        <ChevronRightIcon className="h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+                        <ChevronRightIcon className={`h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity ${currentLang === 'ar' ? 'rotate-180' : ''}`} />
                       </button>
                     ))}
                   </div>
@@ -1756,7 +1734,7 @@ const ChatbotLIA: React.FC = () => {
                   <div className="w-6 h-6 bg-slate-900 rounded flex items-center justify-center">
                     <SparklesIcon className="h-3 w-3 text-indigo-300" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase italic">Analyse en cours...</span>
+                  <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase italic">{t('chatbot.typing')}</span>
                 </div>
                 <div className="flex space-x-1.5 ml-1">
                   <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce duration-700"></div>
@@ -1777,7 +1755,7 @@ const ChatbotLIA: React.FC = () => {
           <div className="flex items-center justify-between mb-6 max-w-5xl mx-auto w-full">
             <div className="flex items-center gap-3">
               <ClipboardDocumentCheckIcon className="h-6 w-6 text-slate-900" />
-              <h2 className="text-lg font-bold text-slate-900">Plan d’actions Stratégiques</h2>
+              <h2 className="text-lg font-bold text-slate-900">{t('chatbot.plan_title')}</h2>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -1786,23 +1764,23 @@ const ChatbotLIA: React.FC = () => {
                 }}
                 disabled={!canEditPlan}
                 className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${canEditPlan ? 'border-slate-200 text-slate-700 hover:bg-slate-50' : 'border-slate-100 text-slate-300 cursor-not-allowed'}`}
-                title={canEditPlan ? 'Générer depuis l’analyse (actions suggérées)' : 'Permission requise: rapports-create'}
+                title={canEditPlan ? t('chatbot.auto_generate') : 'Permission requise: rapports-create'}
               >
-                Auto-Générer
+                {t('chatbot.auto_generate')}
               </button>
               <button
                 onClick={seedDemoPlan}
                 disabled={!canEditPlan}
                 className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${canEditPlan ? 'border-slate-200 text-slate-700 hover:bg-slate-50' : 'border-slate-100 text-slate-300 cursor-not-allowed'}`}
-                title={canEditPlan ? 'Importer le plan de démo' : 'Permission requise: rapports-create'}
+                title={canEditPlan ? t('chatbot.demo_plan') : 'Permission requise: rapports-create'}
               >
-                Plan Démo
+                {t('chatbot.demo_plan')}
               </button>
               <button
                 onClick={() => setShowPlan(false)}
                 className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition-all"
               >
-                Fermer
+                {t('chatbot.close')}
               </button>
             </div>
           </div>
@@ -1811,7 +1789,7 @@ const ChatbotLIA: React.FC = () => {
             {/* Formulaire d'ajout rapide */}
             <div className="bg-slate-50/50 p-4 rounded-2xl mb-6 grid grid-cols-1 md:grid-cols-12 gap-3 items-end border border-slate-100">
               <div className="col-span-12 md:col-span-4">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Action</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">{t('chatbot.action')}</label>
                 <input
                   value={draftTitle}
                   onChange={(e) => setDraftTitle(e.target.value)}
@@ -1821,7 +1799,7 @@ const ChatbotLIA: React.FC = () => {
                 />
               </div>
               <div className="col-span-12 md:col-span-3">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Responsable</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">{t('chatbot.owner')}</label>
                 <input
                   value={draftOwner}
                   onChange={(e) => setDraftOwner(e.target.value)}
@@ -1831,7 +1809,7 @@ const ChatbotLIA: React.FC = () => {
                 />
               </div>
               <div className="col-span-12 md:col-span-3">
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Échéance</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">{t('chatbot.due_date')}</label>
                 <input
                   type="date"
                   value={draftDue}
@@ -1846,7 +1824,7 @@ const ChatbotLIA: React.FC = () => {
                   disabled={!canEditPlan || !draftTitle.trim()}
                   className="w-full py-3 text-xs font-bold bg-slate-900 text-white rounded-xl hover:bg-black transition-all disabled:bg-slate-200"
                 >
-                  Ajouter
+                  {t('chatbot.add_btn')}
                 </button>
               </div>
             </div>
@@ -1855,7 +1833,7 @@ const ChatbotLIA: React.FC = () => {
             <div className="space-y-3">
               {plan.length === 0 ? (
                 <div className="text-center py-10 text-slate-400 font-medium italic">
-                  Aucun plan d'action configuré. LIA peut en générer un pour vous.
+                  {t('chatbot.no_tasks')}
                 </div>
               ) : (
                 plan.map(item => (
@@ -1887,9 +1865,9 @@ const ChatbotLIA: React.FC = () => {
                           item.status === 'in-progress' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-50 text-slate-600'
                           }`}
                       >
-                        <option value="todo">À faire</option>
-                        <option value="in-progress">En cours</option>
-                        <option value="done">Terminé</option>
+                        <option value="todo">{t('chatbot.todo')}</option>
+                        <option value="in-progress">{t('chatbot.in_progress')}</option>
+                        <option value="done">{t('chatbot.done')}</option>
                       </select>
                     </div>
                     <button
@@ -1936,7 +1914,7 @@ const ChatbotLIA: React.FC = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Pilotez votre performance : posez une question..."
+                placeholder={t('chatbot.placeholder')}
                 className="w-full pl-6 pr-14 py-4 md:py-5 bg-slate-50 border border-slate-100 rounded-[2rem] focus:ring-4 focus:ring-slate-100 focus:border-slate-300 outline-none text-md font-medium text-slate-800 transition-all placeholder:text-slate-400"
               />
               <button
@@ -1956,7 +1934,7 @@ const ChatbotLIA: React.FC = () => {
           </div>
 
           <p className="mt-4 text-[10px] font-bold text-center text-slate-400 tracking-widest uppercase">
-            LIA peut commettre des erreurs. Vérifiez les données clés.
+            {t('chatbot.disclaimer')}
           </p>
         </div>
       </div>

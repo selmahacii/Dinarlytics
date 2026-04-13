@@ -167,8 +167,8 @@ const GroupesClients: React.FC = () => {
           {/* Header avec onglets */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Gestion des Groupes de Clients</h1>
-              <p className="text-gray-600 mt-1">Organisez vos clients par catégories pour une meilleure analyse financière</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t('crm.groups.title')}</h1>
+              <p className="text-gray-600 mt-1">{t('crm.groups.subtitle')}</p>
             </div>
 
             <div className="flex space-x-2 mt-4 sm:mt-0">
@@ -179,7 +179,7 @@ const GroupesClients: React.FC = () => {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
-                📊 Analytics
+                📊 {t('crm.groups.tabs.analytics')}
               </button>
               <button
                 onClick={() => setActiveTab('groupes')}
@@ -188,7 +188,7 @@ const GroupesClients: React.FC = () => {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
-                🏷️ Groupes
+                🏷️ {t('crm.groups.tabs.groupes')}
               </button>
               <button
                 onClick={() => setActiveTab('clients')}
@@ -197,7 +197,7 @@ const GroupesClients: React.FC = () => {
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
               >
-                👥 Clients par Groupe
+                👥 {t('crm.groups.tabs.clients')}
               </button>
             </div>
           </div>
@@ -217,7 +217,7 @@ const GroupesClients: React.FC = () => {
                 <Card>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">{groupesClients.length}</div>
-                    <div className="text-gray-600">Groupes actifs</div>
+                    <div className="text-gray-600">{t('crm.groups.stats.active_groups')}</div>
                   </div>
                 </Card>
                 <Card>
@@ -225,7 +225,7 @@ const GroupesClients: React.FC = () => {
                     <div className="text-2xl font-bold text-green-600">
                       {groupesClients.reduce((total: number, groupe: GroupeClient) => total + groupe.nombreClients, 0)}
                     </div>
-                    <div className="text-gray-600">Total clients</div>
+                    <div className="text-gray-600">{t('crm.groups.stats.total_clients')}</div>
                   </div>
                 </Card>
                 <Card>
@@ -233,7 +233,7 @@ const GroupesClients: React.FC = () => {
                     <div className="text-2xl font-bold text-purple-600">
                       {formatCurrency(groupesClients.reduce((total: number, groupe: GroupeClient) => total + groupe.chiffreAffaires, 0))}
                     </div>
-                    <div className="text-gray-600">Chiffre d'affaires total</div>
+                    <div className="text-gray-600">{t('crm.groups.stats.total_revenue')}</div>
                   </div>
                 </Card>
                 <Card>
@@ -241,13 +241,13 @@ const GroupesClients: React.FC = () => {
                     <div className="text-2xl font-bold text-indigo-600">
                       {formatCurrency(groupesClients.reduce((total: number, groupe: GroupeClient) => total + groupe.soldeMoyen, 0) / groupesClients.length)}
                     </div>
-                    <div className="text-gray-600">Solde moyen</div>
+                    <div className="text-gray-600">{t('crm.groups.stats.average_balance')}</div>
                   </div>
                 </Card>
               </div>
 
               {/* Liste des groupes */}
-              <Card title="Groupes de Clients">
+              <Card title={t('crm.groups.tabs.groupes')}>
                 {/* Barre de recherche et filtres */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
                   <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
@@ -256,7 +256,7 @@ const GroupesClients: React.FC = () => {
                       <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                       <input
                         type="text"
-                        placeholder="Rechercher un groupe..."
+                        placeholder={t('crm.groups.placeholders.search')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
@@ -271,11 +271,11 @@ const GroupesClients: React.FC = () => {
                         onChange={(e) => setSelectedType(e.target.value)}
                         className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                       >
-                        <option value="all">Tous les types</option>
-                        <option value="secteur">Secteur d'activité</option>
-                        <option value="taille">Taille d'entreprise</option>
-                        <option value="risque">Niveau de risque</option>
-                        <option value="geographique">Zone géographique</option>
+                        <option value="all">{t('crm.groups.placeholders.filter_type')}</option>
+                        <option value="secteur">{t('crm.groups.placeholders.type_sector')}</option>
+                        <option value="taille">{t('crm.groups.placeholders.type_size')}</option>
+                        <option value="risque">{t('crm.groups.placeholders.type_risk')}</option>
+                        <option value="geographique">{t('crm.groups.placeholders.type_geo')}</option>
                       </select>
                     </div>
                   </div>
@@ -285,7 +285,7 @@ const GroupesClients: React.FC = () => {
                     className="flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-lg hover:from-slate-800 hover:to-slate-900 transition-all duration-200 shadow-md hover:shadow-lg"
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
-                    Nouveau Groupe
+                    {t('crm.groups.actions.new_group')}
                   </button>
                 </div>
 
@@ -338,7 +338,7 @@ const GroupesClients: React.FC = () => {
                             onClick={() => setActiveTab('clients')}
                             className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
                           >
-                            Voir les clients →
+                            {t('crm.groups.actions.see_clients')} →
                           </button>
                         </div>
                       </div>
@@ -349,7 +349,7 @@ const GroupesClients: React.FC = () => {
                     <div className="text-gray-400 mb-4">
                       <FunnelIcon className="h-16 w-16 mx-auto" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun groupe trouvé</h3>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('crm.placeholders.no_clients')}</h3>
                     <p className="text-gray-500">
                       Aucun groupe ne correspond à vos critères de recherche.
                       <br />
@@ -362,7 +362,7 @@ const GroupesClients: React.FC = () => {
           ) : (
             <>
               {/* Filtres par groupe */}
-              <Card title="Clients par Groupe">
+              <Card title={t('crm.groups.tabs.clients')}>
                 <div className="flex flex-wrap gap-2 mb-6">
                   {groupesClients.map((groupe: GroupeClient) => (
                     <button
@@ -381,22 +381,22 @@ const GroupesClients: React.FC = () => {
                     <thead className="bg-slate-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Client
+                          {t('crm.groups.table.client')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Groupe
+                          {t('crm.groups.table.group')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Secteur
+                          {t('crm.groups.table.sector')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Chiffre d'affaires
+                          {t('crm.groups.table.revenue')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Solde
+                          {t('crm.groups.table.balance')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                          Niveau de risque
+                          {t('crm.groups.table.risk')}
                         </th>
                       </tr>
                     </thead>
@@ -443,14 +443,14 @@ const GroupesClients: React.FC = () => {
           <Modal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            title={selectedGroupe ? 'Modifier Groupe' : 'Nouveau Groupe'}
+            title={selectedGroupe ? t('crm.groups.modals.edit_title') : t('crm.groups.modals.create_title')}
             size="lg"
           >
             <form className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nom du groupe
+                    {t('crm.groups.modals.name')}
                   </label>
                   <input
                     type="text"
@@ -462,22 +462,22 @@ const GroupesClients: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type de groupe
+                    {t('crm.groups.modals.type')}
                   </label>
                   <select
                     defaultValue={selectedGroupe?.type || 'secteur'}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="secteur">Secteur d'activité</option>
-                    <option value="taille">Taille d'entreprise</option>
-                    <option value="risque">Niveau de risque</option>
-                    <option value="geographique">Zone géographique</option>
+                    <option value="secteur">{t('crm.groups.placeholders.type_sector')}</option>
+                    <option value="taille">{t('crm.groups.placeholders.type_size')}</option>
+                    <option value="risque">{t('crm.groups.placeholders.type_risk')}</option>
+                    <option value="geographique">{t('crm.groups.placeholders.type_geo')}</option>
                   </select>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description
+                    {t('crm.groups.modals.description')}
                   </label>
                   <textarea
                     defaultValue={selectedGroupe?.description || ''}
@@ -489,17 +489,17 @@ const GroupesClients: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Couleur
+                    {t('crm.groups.modals.color')}
                   </label>
                   <select
                     defaultValue={selectedGroupe?.couleur || 'blue'}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="blue">Bleu</option>
-                    <option value="purple">Violet</option>
-                    <option value="green">Vert</option>
-                    <option value="red">Rouge</option>
-                    <option value="indigo">Indigo</option>
+                    <option value="blue">{t('crm.groups.colors.blue')}</option>
+                    <option value="purple">{t('crm.groups.colors.purple')}</option>
+                    <option value="green">{t('crm.groups.colors.green')}</option>
+                    <option value="red">{t('crm.groups.colors.red')}</option>
+                    <option value="indigo">{t('crm.groups.colors.indigo')}</option>
                   </select>
                 </div>
               </div>
@@ -510,13 +510,13 @@ const GroupesClients: React.FC = () => {
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
                 >
-                  Annuler
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  {selectedGroupe ? 'Modifier' : 'Créer'}
+                  {selectedGroupe ? t('common.save') : t('common.create')}
                 </button>
               </div>
             </form>

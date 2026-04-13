@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -25,6 +26,7 @@ import {
 } from '@shared/utils/analysePredictive';
 
 const AnalyseFinanciere: React.FC = () => {
+  const { t } = useTranslation();
   const { user, companyData, formatCurrency } = useApp();
   const segment = ((user?.segment as string) || 'micro') as 'micro' | 'small' | 'medium' | 'large' | 'enterprise';
   const companyType = (user?.companyType as string) || 'eurl';
@@ -111,39 +113,39 @@ const AnalyseFinanciere: React.FC = () => {
     <div className="p-6 bg-slate-50 min-h-screen">
       {/* En-tête */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Analyse Financière</h1>
-        <p className="text-slate-600">Analyse approfondie de la rentabilité et des performances financières</p>
-        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-1">{t('analytics.financial.title')}</h1>
+        <p className="text-slate-600 text-sm">{t('analytics.financial.subtitle')}</p>
+      </div>
 
 
       {/* Contenu principal */}
       <div className="space-y-6">
           {/* Ratios financiers clés */}
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Ratios financiers clés</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t('analytics.financial.ratios.key_title')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">DSO</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.dso} j</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.dso')}</div>
+                <div className="text-2xl font-bold text-slate-900">{ratios.dso} {t('analytics.financial.ratios.days')}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">DIO</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.dio} j</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.dio')}</div>
+                <div className="text-2xl font-bold text-slate-900">{ratios.dio} {t('analytics.financial.ratios.days')}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">DPO</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.dpo} j</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.dpo')}</div>
+                <div className="text-2xl font-bold text-slate-900">{ratios.dpo} {t('analytics.financial.ratios.days')}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">CCC</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.ccc} j</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.ccc')}</div>
+                <div className="text-2xl font-bold text-slate-900">{ratios.ccc} {t('analytics.financial.ratios.days')}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Liquidité générale</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.liquidity')}</div>
                 <div className="text-2xl font-bold text-slate-900">{ratios.liqGen.toFixed(2)}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Marge</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.margin')}</div>
                 <div className="text-2xl font-bold text-slate-900">{ratios.marginPct.toFixed(1)}%</div>
               </div>
             </div>
@@ -151,38 +153,38 @@ const AnalyseFinanciere: React.FC = () => {
 
           {/* Ratios avancés */}
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Ratios avancés</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t('analytics.financial.ratios.advanced_title')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">ROE</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.roe')}</div>
                 <div className="text-2xl font-bold text-slate-900">{advanced.roePct}%</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">ROA</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.roa')}</div>
                 <div className="text-2xl font-bold text-slate-900">{advanced.roaPct}%</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">EBITDA %</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.ebitda')}</div>
                 <div className="text-2xl font-bold text-slate-900">{advanced.ebitdaMarginPct}%</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Net Debt/EBITDA</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.net_debt')}</div>
                 <div className="text-2xl font-bold text-slate-900">{advanced.netDebtToEbitda ?? '—'}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Couverture intérêts</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.interestCoverage ?? '—'}x</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.interest_coverage')}</div>
+                <div className="text-2xl font-bold text-slate-900">{advanced.interestCoverage ?? '—'}{t('analytics.financial.ratios.multiplier')}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Autonomie financière</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.autonomy')}</div>
                 <div className="text-2xl font-bold text-slate-900">{advanced.autonomyPct}%</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Solvabilité (Actifs/Dettes)</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.solvency')}</div>
                 <div className="text-2xl font-bold text-slate-900">{advanced.solvencyAssetsToDebt ?? '—'}</div>
               </div>
               <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">Liquidité immédiate</div>
+                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.quick_liquidity')}</div>
                 <div className="text-2xl font-bold text-slate-900">{ratios.liqQuick.toFixed(2)}</div>
               </div>
               {/* Sector specifics */}
@@ -221,7 +223,7 @@ const AnalyseFinanciere: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                 <SparklesIcon className="h-5 w-5 text-blue-600" />
-                Alertes Financières Intelligentes
+                {t('analytics.financial.alerts.title')}
               </h2>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                 comparaisonBenchmarks.classement === 'excellent' ? 'bg-green-100 text-green-800' :
@@ -229,14 +231,14 @@ const AnalyseFinanciere: React.FC = () => {
                 comparaisonBenchmarks.classement === 'moyen' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
               }`}>
-                Score: {comparaisonBenchmarks.score.toFixed(0)}/100 - {comparaisonBenchmarks.classement}
+                {t('analytics.financial.alerts.score', { score: comparaisonBenchmarks.score.toFixed(0), status: comparaisonBenchmarks.classement })}
               </span>
             </div>
             
             {alertesFinancieres.length === 0 ? (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-800">
                 <CheckCircleIcon className="h-5 w-5 inline mr-2" />
-                Aucune alerte majeure. Tous les indicateurs sont dans les normes.
+                {t('analytics.financial.alerts.none')}
               </div>
             ) : (
               <div className="space-y-3">
@@ -260,15 +262,15 @@ const AnalyseFinanciere: React.FC = () => {
                           alerte.categorie === 'rentabilite' ? 'bg-green-100 text-green-800' :
                           'bg-purple-100 text-purple-800'
                         }`}>
-                          {alerte.categorie}
+                          {t(`analytics.financial.alerts.categories.${alerte.categorie}`)}
                         </span>
                       </div>
-                      <span className="text-xs text-slate-500">Priorité: {alerte.priorite}/10</span>
+                      <span className="text-xs text-slate-500">{t('analytics.financial.alerts.priority')} {alerte.priorite}/10</span>
                     </div>
                     <p className="text-sm text-slate-700 mb-3">{alerte.message}</p>
                     {alerte.recommandations.length > 0 && (
                       <div className="mt-3">
-                        <p className="text-xs font-semibold text-slate-600 mb-1">Recommandations:</p>
+                        <p className="text-xs font-semibold text-slate-600 mb-1">{t('analytics.financial.alerts.recommendations')}</p>
                         <ul className="list-disc list-inside text-xs text-slate-600 space-y-1">
                           {alerte.recommandations.slice(0, 3).map((rec: string, idx: number) => (
                             <li key={idx}>{rec}</li>

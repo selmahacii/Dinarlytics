@@ -131,31 +131,31 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
             ...prev,
             totalTTC: extracted.total_amount || prev.totalTTC,
             dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
-            notes: `[OCR] NIF détecté: ${extracted.merchant_nif || 'Non'}. \n` + prev.notes
+            notes: t('crm.suppliers.ocr.nif_detected', { nif: extracted.merchant_nif || t('common.none') }) + "\n" + prev.notes
           }));
 
           // Tentative de mapping fournisseur
-          if (extracted.merchant_nif) {
-            const matched = topFournisseurs.find(f => f.nif === extracted.merchant_nif);
-            if (matched) {
-              setFormData(prev => ({
-                ...prev,
-                fournisseur: matched.nom,
-                totalTTC: extracted.total_amount || prev.totalTTC,
-                dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
-              }));
-              alert(`OCR Terminé ! Fournisseur détecté: ${matched.nom}. Montant: ${extracted.total_amount}`);
-            } else {
-              alert(`OCR Terminé ! Montant: ${extracted.total_amount}, NIF: ${extracted.merchant_nif}`);
-            }
-          } else {
-            alert(`OCR Terminé ! Montant: ${extracted.total_amount}`);
-          }
+              if (extracted.merchant_nif) {
+                const matched = topFournisseurs.find(f => f.nif === extracted.merchant_nif);
+                if (matched) {
+                  setFormData(prev => ({
+                    ...prev,
+                    fournisseur: matched.nom,
+                    totalTTC: extracted.total_amount || prev.totalTTC,
+                    dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
+                  }));
+                  alert(t('crm.suppliers.ocr.completed_alert', { name: matched.nom, amount: extracted.total_amount }));
+                } else {
+                  alert(t('crm.suppliers.ocr.completed_amount_alert', { amount: extracted.total_amount, nif: extracted.merchant_nif }));
+                }
+              } else {
+                alert(t('crm.suppliers.ocr.completed_simple_alert', { amount: extracted.total_amount }));
+              }
         }
       }
     } catch (error) {
       console.error("OCR Error", error);
-      alert("Erreur lors de l'analyse OCR.");
+      alert(t('crm.suppliers.ocr.error_alert'));
     } finally {
       setOcrLoading(false);
     }
@@ -187,16 +187,16 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
         {ocrLoading ? (
           <div className="flex flex-col items-center">
             <ArrowPathIcon className="h-10 w-10 text-indigo-600 animate-spin" />
-            <p className="mt-2 text-sm font-medium text-indigo-800">Analyse intelligente en cours...</p>
+            <p className="mt-2 text-sm font-medium text-indigo-800">{t('crm.suppliers.ocr.analyzing')}</p>
           </div>
         ) : (
           <div className="flex flex-col items-center">
             <DocumentTextIcon className="h-10 w-10 text-indigo-500 mb-2" />
             <p className="text-sm font-medium text-indigo-900">
-              {scannedFile ? `Fichier prêt: ${scannedFile.name}` : "Scanner / Importer une facture"}
+              {scannedFile ? t('crm.suppliers.ocr.file_ready', { name: scannedFile.name }) : t('crm.suppliers.ocr.scan_title')}
             </p>
             <p className="text-xs text-indigo-600 mt-1">
-              {scannedFile ? "Cliquez pour changer" : "Glissez un fichier ou cliquez pour utiliser la caméra"}
+              {scannedFile ? t('crm.suppliers.ocr.change_file') : t('crm.suppliers.ocr.scan_desc')}
             </p>
           </div>
         )}
@@ -206,12 +206,12 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
       <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <DocumentTextIcon className="h-5 w-5 mr-2 text-blue-600" />
-          Informations Générales
+          {t('crm.suppliers.sections.general_info')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Fournisseur *
+              {t('crm.suppliers.table.supplier')} *
             </label>
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -219,7 +219,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
               value={formData.fournisseur}
               onChange={e => setFormData({ ...formData, fournisseur: e.target.value })}
             >
-              <option value="">Sélectionner un fournisseur</option>
+              <option value="">{t('crm.suppliers.placeholders.select_supplier')}</option>
               {topFournisseurs.map((f, idx) => (
                 <option key={idx} value={f.nom}>{f.nom}</option>
               ))}
@@ -227,7 +227,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Numéro de Facture *
+              {t('crm.suppliers.table.invoice_no')} *
             </label>
             <input
               type="text"
@@ -240,7 +240,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date d'émission *
+              {t('crm.suppliers.table.issue_date')} *
             </label>
             <input
               type="date"
@@ -252,7 +252,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date d'échéance *
+              {t('crm.suppliers.table.due_date')} *
             </label>
             <input
               type="date"
@@ -269,20 +269,20 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
       <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />
-          Articles (Saisie manuelle pour l'instant)
+          {t('crm.suppliers.sections.articles')}
         </h3>
-        <p className="text-sm text-gray-500 mb-4">L'extraction automatique des lignes d'articles est prévue pour la version 2.0.</p>
+        <p className="text-sm text-gray-500 mb-4">{t('crm.suppliers.sections.articles_desc')}</p>
       </div>
 
       {/* Totaux */}
       <div className="bg-blue-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <CurrencyDollarIcon className="h-5 w-5 mr-2 text-blue-600" />
-          Totaux (Détectés par OCR)
+          {t('crm.suppliers.sections.totals')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total HT</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('crm.suppliers.table.total_ht')}</label>
             <input
               type="number"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -292,7 +292,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total TVA</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('crm.suppliers.table.total_tva')}</label>
             <input
               type="number"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -302,7 +302,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mode de Paiement</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('crm.suppliers.table.payment_mode')}</label>
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={formData.paymentMode}
@@ -316,13 +316,13 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
                 setFormData({ ...formData, paymentMode: mode, droitTimbre: timbre, totalTTC: formData.totalHT + formData.totalTVA + timbre });
               }}
             >
-              <option value="virement">Virement Bancaire</option>
-              <option value="cheque">Chèque</option>
-              <option value="especes">Espèces (Droit de timbre)</option>
+              <option value="virement">{t('crm.suppliers.payment_modes.virement')}</option>
+              <option value="cheque">{t('crm.suppliers.payment_modes.cheque')}</option>
+              <option value="especes">{t('crm.suppliers.payment_modes.especes')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total TTC</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('crm.suppliers.table.total_ttc')}</label>
             <div className="relative">
               <input
                 type="number"
@@ -332,18 +332,19 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
                 readOnly
               />
               {formData.paymentMode === 'especes' && (
-                <span className="absolute right-3 top-2 text-[10px] font-black text-amber-600 uppercase">Incl. Timbre: {formData.droitTimbre} DZD</span>
+                <span className="absolute right-3 top-2 text-[10px] font-black text-amber-600 uppercase">
+                  {t('crm.suppliers.table.inc_stamp', { amount: formData.droitTimbre })}
+                </span>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Signature Électronique */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border-2 border-blue-200">
+      <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-          <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
-          Signature Électronique
+          <DocumentTextIcon className="h-5 w-5 mr-2 text-blue-600" />
+          {t('crm.suppliers.sections.signature')}
         </h3>
 
         {!signatureData && !showSignaturePad && (
@@ -354,7 +355,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
               className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 font-medium"
             >
               <DocumentCheckIcon className="h-5 w-5" />
-              Ajouter une signature
+              {t('crm.suppliers.actions.add_signature')}
             </button>
           </div>
         )}
@@ -378,36 +379,36 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
           <div className="space-y-3">
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 flex items-center gap-2">
               <CheckCircleIcon className="h-5 w-5" />
-              Signature ajoutée avec succès
+              {t('crm.suppliers.sections.signature_success')}
             </div>
             <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
               <img src={signatureData} alt="Signature" className="h-16 object-contain" />
-              <button onClick={() => setSignatureData(null)} className="text-xs text-red-600 mt-2">Supprimer</button>
+              <button onClick={() => setSignatureData(null)} className="text-xs text-red-600 mt-2">{t('crm.suppliers.actions.delete_signature')}</button>
             </div>
           </div>
         )}
       </div>
 
       <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-        >
-          Annuler
-        </button>
-        <button
-          type="submit"
-          onClick={(e) => {
-            e.preventDefault();
-            alert('Facture OCR créée avec succès !');
-            onClose();
-          }}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-        >
-          <CheckCircleIcon className="h-5 w-5 mr-2" />
-          Créer Facture
-        </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            {t('common.cancel')}
+          </button>
+          <button
+            type="submit"
+            onClick={(e) => {
+              e.preventDefault();
+              alert(t('crm.suppliers.ocr.success_msg'));
+              onClose();
+            }}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          >
+            <CheckCircleIcon className="h-5 w-5 mr-2" />
+            {t('crm.suppliers.actions.save_invoice')}
+          </button>
       </div>
     </form>
   );
@@ -420,7 +421,7 @@ const Fournisseurs: React.FC = () => {
   const location = useLocation();
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+    if (window.confirm(t('crm.suppliers.messages.confirm_delete'))) {
       try {
         await deleteSupplier(id);
       } catch (err) {
@@ -475,16 +476,16 @@ const Fournisseurs: React.FC = () => {
 
     if (selectedFournisseur) {
       setFournisseursList(fournisseursList.map(f => f.id === selectedFournisseur.id ? { ...f, ...newFournisseur } : f));
-      alert('Fournisseur modifié avec succès !');
+      alert(t('crm.suppliers.messages.supplier_success_updated'));
     } else {
       setFournisseursList([...fournisseursList, newFournisseur]);
-      alert('Nouveau fournisseur ajouté avec succès !');
+      alert(t('crm.suppliers.messages.supplier_success_created'));
     }
     setIsModalOpen(false);
   };
 
   const handleLocalDelete = (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?')) {
+    if (confirm(t('crm.suppliers.messages.confirm_delete'))) {
       setFournisseursList(fournisseursList.filter(f => f.id !== id));
     }
   };
@@ -536,11 +537,11 @@ const Fournisseurs: React.FC = () => {
   const handleCreateCommande = (newCommande: any) => {
     setCommandes([...commandes, { ...newCommande, id: `CMD-2024-${Math.floor(Math.random() * 1000)}` }]);
     setIsNouvelleCommandeModalOpen(false);
-    alert('Commande créée avec succès !');
+    alert(t('crm.suppliers.messages.order_success_created'));
   };
 
   const handleDeleteCommandeList = (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+    if (confirm(t('crm.suppliers.messages.confirm_delete_order'))) {
       setCommandes(commandes.filter(c => c.id !== id));
     }
   };
@@ -560,7 +561,7 @@ const Fournisseurs: React.FC = () => {
     if (selectedCommande) {
       // Update existing
       setCommandes(commandes.map(c => c.id === selectedCommande.id ? { ...c, ...newCmd, id: c.id } : c));
-      alert('Commande modifiée avec succès !');
+      alert(t('crm.suppliers.messages.order_success_updated'));
     } else {
       // Create new
       handleCreateCommande(newCmd);
@@ -752,18 +753,18 @@ const Fournisseurs: React.FC = () => {
         }
 
         setSuccessData({
-          title: `✅ Fournisseur ${selectedFournisseur ? 'modifié' : 'créé'} avec succès !`,
-          message: `Le fournisseur "${nom}" a été ${selectedFournisseur ? 'mis à jour' : 'ajouté'} à votre liste.`,
+          title: `✅ ${selectedFournisseur ? t('crm.suppliers.messages.supplier_success_updated') : t('crm.suppliers.messages.supplier_success_created')}`,
+          message: t('crm.suppliers.messages.supplier_success_desc', { name: nom, action: selectedFournisseur ? t('common.updated') : t('common.added') }),
           details: [
-            `Nom : ${nom}`,
+            `${t('common.name')} : ${nom}`,
             contact ? `Contact : ${contact}` : null,
             email ? `Email : ${email}` : null,
             adresse ? `Adresse : ${adresse}` : null
           ].filter(Boolean) as string[],
           nextSteps: [
-            'Créer une première commande pour ce fournisseur',
-            'Configurer les conditions de paiement',
-            'Ajouter des notes sur les délais de livraison'
+            t('crm.suppliers.messages.next_step_order'),
+            t('crm.suppliers.messages.next_step_payment'),
+            t('crm.suppliers.messages.next_step_notes')
           ]
         });
         setIsModalOpen(false);
@@ -791,10 +792,10 @@ const Fournisseurs: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-4">
-                  <h1 className="text-4xl font-black uppercase tracking-tighter">Flux Fournisseurs</h1>
+                  <h1 className="text-4xl font-black uppercase tracking-tighter">{t('crm.suppliers.flux_title')}</h1>
                   <span className="px-3 py-1 bg-white/10 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border border-white/20 text-slate-300">Procurement Module v4.0</span>
                 </div>
-                <p className="text-slate-400 text-sm font-bold mt-2 uppercase tracking-[0.1em] opacity-80">Contrôle des Engagements & Logistique d'Appuis</p>
+                <p className="text-slate-400 text-sm font-bold mt-2 uppercase tracking-[0.1em] opacity-80">{t('crm.suppliers.subtitle')}</p>
               </div>
             </div>
             <div className="flex gap-4">
@@ -802,7 +803,7 @@ const Fournisseurs: React.FC = () => {
                 onClick={() => setIsNouvelleFactureModalOpen(true)}
                 className="px-6 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl shadow-white/5 ring-1 ring-white/20"
               >
-                Intégration Facture
+                {t('crm.suppliers.actions.new_invoice')}
               </button>
             </div>
           </div>
@@ -811,10 +812,10 @@ const Fournisseurs: React.FC = () => {
         {/* 4 KPIs Sober - Grayscale Structural */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            { label: "Dette Exigible", val: formatCurrency(mockFournisseurs.reduce((acc: number, f: any) => acc + (f.balance || f.soldeDu || 0), 0)), icon: BanknotesIcon, sub: "Passif Circulant" },
-            { label: "Volume Appro.", val: formatCurrency(mockFournisseurs.reduce((acc: number, f: any) => acc + (f.total_purchases || 0), 0)), icon: CurrencyDollarIcon, sub: "Cumul Exercice" },
-            { label: "Partenaires", val: mockFournisseurs.length, icon: BuildingOfficeIcon, sub: "Entités Référencées" },
-            { label: "DPO Standard", val: "32.5j", icon: ClockIcon, sub: "Rotation Dettes" }
+            { label: t('crm.suppliers.stats.debts'), val: formatCurrency(mockFournisseurs.reduce((acc: number, f: any) => acc + (f.balance || f.soldeDu || 0), 0)), icon: BanknotesIcon, sub: "Passif Circulant" },
+            { label: t('crm.suppliers.stats.total_purchases'), val: formatCurrency(mockFournisseurs.reduce((acc: number, f: any) => acc + (f.total_purchases || 0), 0)), icon: CurrencyDollarIcon, sub: "Cumul Exercice" },
+            { label: t('crm.suppliers.stats.total_suppliers'), val: mockFournisseurs.length, icon: BuildingOfficeIcon, sub: t('common.entities_referenced') },
+            { label: t('crm.suppliers.stats.avg_dpo'), val: "32.5j", icon: ClockIcon, sub: t('crm.suppliers.stats.debt_rotation') }
           ].map((kpi, idx) => (
             <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-400 transition-all group">
               <div className="flex items-center gap-4 mb-4">
@@ -840,7 +841,7 @@ const Fournisseurs: React.FC = () => {
                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
             >
-              {tab}
+              {t(`suppliers.tabs.${tab}`, { defaultValue: tab })}
             </button>
           ))}
         </div>
@@ -892,22 +893,22 @@ const Fournisseurs: React.FC = () => {
             <Card className="p-0 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden shadow-sm bg-white dark:bg-slate-900">
               <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-white">Partenaires Commerciaux</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{mockFournisseurs.length} entités actives</p>
+                  <h3 className="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-white">{t('crm.suppliers.table.supplier')}s</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{mockFournisseurs.length} {t('crm.suppliers.stats.active')}</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="relative">
                     <FunnelIcon className="h-4 w-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
-                      placeholder="FILTRER PAR NOM OU NIF..."
+                      placeholder={t('inventory.placeholders.filter')}
                       className="pl-10 pr-6 py-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase tracking-widest w-64 focus:ring-1 ring-slate-400 transition-all"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                   <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">
-                    Ajouter Partenaire
+                    {t('crm.suppliers.actions.new_supplier')}
                   </button>
                 </div>
               </div>
@@ -915,11 +916,11 @@ const Fournisseurs: React.FC = () => {
                 <table className="w-full">
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr>
-                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Partenaire</th>
-                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Identifiant (NIF)</th>
+                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('crm.suppliers.table.supplier')}</th>
+                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('crm.suppliers.table.nif')}</th>
                       <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Contact</th>
-                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Volume d'Affaires</th>
-                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Solde Dû</th>
+                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('crm.suppliers.table.purchases')}</th>
+                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t('crm.suppliers.table.balance')}</th>
                       <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Niveau Risque</th>
                       <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>
                     </tr>
@@ -992,7 +993,7 @@ const Fournisseurs: React.FC = () => {
             setSelectedFournisseur(null);
             setNifError(null);
           }}
-          title={selectedFournisseur ? 'Modifier Partenaire' : 'Nouveau Partenaire Commercial'}
+          title={selectedFournisseur ? t('crm.suppliers.modals.edit_title') : t('crm.suppliers.modals.create_title')}
           size="lg"
         >
           <form onSubmit={handleSubmitFournisseur} className="space-y-6">
@@ -1009,7 +1010,7 @@ const Fournisseurs: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Identifiant Fiscal (NIF)</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.suppliers.modals.tax_id')}</label>
                 <input
                   type="text"
                   name="tax_id"
@@ -1029,7 +1030,7 @@ const Fournisseurs: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone Intel</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.suppliers.modals.phone')}</label>
                 <input
                   type="text"
                   name="contact"
@@ -1082,7 +1083,7 @@ const Fournisseurs: React.FC = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Siège Social</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.suppliers.modals.address')}</label>
               <input
                 type="text"
                 name="adresse"
@@ -1357,12 +1358,12 @@ const Fournisseurs: React.FC = () => {
               <TruckIcon className="h-8 w-8 text-slate-100" />
             </div>
             <div>
-              <h1 className="text-3xl font-black uppercase tracking-tighter">Registre des Flux Fournisseurs</h1>
-              <p className="text-slate-400 text-xs font-bold mt-1 uppercase tracking-widest opacity-80 underline decoration-slate-600 underline-offset-4">Module de Gestion des Passifs & Approvisionnements</p>
+              <h1 className="text-3xl font-black uppercase tracking-tighter">{t('crm.suppliers.title')}</h1>
+              <p className="text-slate-400 text-xs font-bold mt-1 uppercase tracking-widest opacity-80 underline decoration-slate-600 underline-offset-4">{t('crm.suppliers.subtitle')}</p>
             </div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Entités Référencées</div>
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{t('crm.suppliers.stats.total_suppliers')}</div>
             <div className="text-4xl font-mono font-black text-white">{totalFournisseurs}</div>
           </div>
         </div>
@@ -1371,8 +1372,8 @@ const Fournisseurs: React.FC = () => {
       {/* Statistiques Consolideés - Grayscale Structural */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: "Répertoire Partenaires", val: totalFournisseurs, sub: "Entités actives", icon: UserGroupIcon },
-          { label: "Engagement Global Brut", val: formatCurrency(totalSoldeDu), sub: "Encours exigible", icon: CurrencyDollarIcon },
+          { label: t('crm.suppliers.tabs.list'), val: totalFournisseurs, sub: "Entités actives", icon: UserGroupIcon },
+          { label: t('crm.suppliers.stats.debts'), val: formatCurrency(totalSoldeDu), sub: "Encours exigible", icon: CurrencyDollarIcon },
           { label: "Indice de Solvabilité", val: `${((fournisseursActifs / (totalFournisseurs || 1)) * 100).toFixed(1)}%`, sub: "Activité consolidée", icon: CheckCircleIcon }
         ].map((stat, idx) => (
           <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-400 transition-all group">
@@ -1407,8 +1408,8 @@ const Fournisseurs: React.FC = () => {
               : 'text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
           >
-            <tab.icon className="h-4 w-4 mr-2" />
-            {tab.name}
+            {tab.icon className="h-4 w-4 mr-2" />
+            {t(`suppliers.tabs.${tab.id}`, { defaultValue: tab.name })}
           </button>
         ))}
       </div>
@@ -1450,7 +1451,7 @@ const Fournisseurs: React.FC = () => {
                 </div>
                 <button onClick={handleAdd} className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
                   <PlusIcon className="h-4 w-4 mr-2 inline-block" />
-                  Nouveau Portefeuille
+                  {t('crm.suppliers.actions.new_supplier')}
                 </button>
               </div>
 
@@ -1459,11 +1460,11 @@ const Fournisseurs: React.FC = () => {
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr>
-                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Partenaire Logistique</th>
-                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Identité Fiscale</th>
+                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.supplier')} Logistique</th>
+                      <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.nif')}</th>
                       <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Canaux de Contact</th>
-                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Engagement</th>
-                      <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                      <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.balance')}</th>
+                      <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1515,10 +1516,10 @@ const Fournisseurs: React.FC = () => {
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                { label: "Total BC Émis", val: "156", icon: ClipboardDocumentListIcon },
-                { label: "En Approbation", val: "12", icon: ClockIcon },
-                { label: "En Transit", val: "08", icon: GlobeAltIcon },
-                { label: "Anomalies", val: "03", icon: ExclamationTriangleIcon }
+                { label: t('crm.suppliers.messages.total_bc_emitted'), val: "156", icon: ClipboardDocumentListIcon },
+                { label: t('crm.suppliers.messages.in_approval'), val: "12", icon: ClockIcon },
+                { label: t('crm.suppliers.messages.in_transit'), val: "08", icon: GlobeAltIcon },
+                { label: t('crm.suppliers.messages.anomalies'), val: "03", icon: ExclamationTriangleIcon }
               ].map((stat, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
@@ -1533,20 +1534,20 @@ const Fournisseurs: React.FC = () => {
             <Card className="p-0 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden bg-white dark:bg-slate-900">
               <div className="p-8 space-y-8">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Registre des Engagements</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{t('crm.suppliers.messages.commitments_registry')}</h3>
                   <button onClick={handleNouvelleCommande} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
-                    Nouveau Bon de Commande
+                    {t('crm.suppliers.actions.new_order')}
                   </button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead className="bg-slate-50 dark:bg-slate-800/50">
                       <tr>
-                        <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Référence BC</th>
-                        <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Partenaire</th>
-                        <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Volume HT</th>
-                        <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Flux</th>
-                        <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                        <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.bc_ref')}</th>
+                        <th className="px-8 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.issuer')}</th>
+                        <th className="px-8 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.total_ht')}</th>
+                        <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.status')}</th>
+                        <th className="px-8 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1594,14 +1595,14 @@ const Fournisseurs: React.FC = () => {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Passif Fournisseurs</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">Gestion des Passifs</h2>
-                  <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">Audit & Certification des Pièces Comptables</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('crm.suppliers.messages.supplier_passive')}</p>
+                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.messages.passive_management')}</h2>
+                  <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">{t('crm.suppliers.status.audit_certification')}</p>
                 </div>
                 <div className="flex gap-3">
                   <button onClick={handleNouvelleFacture} className="px-10 py-5 bg-white text-slate-900 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-white/5 flex items-center gap-2">
                     <DocumentTextIcon className="h-4 w-4" />
-                    Intégrer Facture (OCR)
+                    {t('crm.suppliers.actions.new_invoice')}
                   </button>
                 </div>
               </div>
@@ -1610,10 +1611,10 @@ const Fournisseurs: React.FC = () => {
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: "Total Factures", val: "12", sub: "Exercice 2024", icon: DocumentTextIcon, trend: "+3 ce mois" },
-                { label: "Montant TTC", val: "2 458 900", unit: "DA", sub: "Toutes pièces", icon: CurrencyDollarIcon, trend: "HT: 2 057 059 DA" },
-                { label: "En Instance", val: "4", sub: "En attente de validation", icon: ClockIcon, trend: "Délai moy: 3j" },
-                { label: "Compliance", val: "67%", sub: "Pièces certifiées (8/12)", icon: DocumentCheckIcon, trend: "8/12 vérifiées" },
+                { label: t('crm.suppliers.messages.total_invoices'), val: "12", sub: "Exercice 2024", icon: DocumentTextIcon, trend: "+3 ce mois" },
+                { label: t('crm.suppliers.table.total_ttc'), val: "2 458 900", unit: "DA", sub: "Toutes pièces", icon: CurrencyDollarIcon, trend: "HT: 2 057 059 DA" },
+                { label: t('crm.suppliers.messages.in_instance'), val: "4", sub: "En attente de validation", icon: ClockIcon, trend: "Délai moy: 3j" },
+                { label: t('crm.suppliers.messages.compliance'), val: "67%", sub: "Pièces certifiées (8/12)", icon: DocumentCheckIcon, trend: "8/12 vérifiées" },
               ].map((kpi, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -1648,15 +1649,15 @@ const Fournisseurs: React.FC = () => {
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr>
-                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Référence PIÈCE</th>
-                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Émetteur</th>
-                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</th>
-                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Réf. BC</th>
-                      <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Montant HT</th>
-                      <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Montant TTC</th>
-                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Échéance</th>
-                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Compliance</th>
-                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.item_ref')}</th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.issuer')}</th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.type')}</th>
+                      <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.bc_ref')}</th>
+                      <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.total_ht')}</th>
+                      <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.total_ttc')}</th>
+                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.due_date')}</th>
+                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.messages.compliance')}</th>
+                      <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1757,9 +1758,9 @@ const Fournisseurs: React.FC = () => {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Trésorerie Fournisseurs</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">Règlements & Échéancier</h2>
-                  <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">Gestion des Flux de Décaissement</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('crm.suppliers.messages.treasury_header')}</p>
+                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.messages.payments_schedule')}</h2>
+                  <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">{t('crm.suppliers.sections.cash_flow_mgmt')}</p>
                 </div>
                 <div className="flex gap-3">
                   <button
@@ -1767,13 +1768,13 @@ const Fournisseurs: React.FC = () => {
                     className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 flex items-center gap-2"
                   >
                     <BanknotesIcon className="h-4 w-4" />
-                    Nouveau Règlement
+                    {t('crm.suppliers.actions.payment')}
                   </button>
                   <button
                     onClick={handleGenererEcheancier}
                     className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10"
                   >
-                    Générer Échéancier
+                    {t('crm.suppliers.actions.schedule')}
                   </button>
                 </div>
               </div>
@@ -1782,10 +1783,10 @@ const Fournisseurs: React.FC = () => {
             {/* KPI Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: "Total Décaissé", val: formatCurrency(575000), sub: "Exercice 2024", icon: BanknotesIcon, trend: "3 virements" },
-                { label: "En Instance", val: formatCurrency(825000), sub: "Règlements à émettre", icon: ClockIcon, trend: "2 éch. proches" },
-                { label: "En Retard", val: formatCurrency(125000), sub: "Pénalités potentielles", icon: ExclamationTriangleIcon, trend: "1 fournisseur" },
-                { label: "DPO Moyen", val: "42 jours", sub: "Days Payable Outstanding", icon: ChartBarIcon, trend: "Cible: 45j" },
+                { label: t('crm.suppliers.messages.total_disbursed'), val: formatCurrency(575000), sub: "Exercice 2024", icon: BanknotesIcon, trend: "3 virements" },
+                { label: t('crm.suppliers.messages.in_instance'), val: formatCurrency(825000), sub: "Règlements à émettre", icon: ClockIcon, trend: "2 éch. proches" },
+                { label: t('crm.suppliers.messages.overdue'), val: formatCurrency(125000), sub: "Pénalités potentielles", icon: ExclamationTriangleIcon, trend: "1 fournisseur" },
+                { label: t('crm.suppliers.stats.avg_dpo'), val: "42 jours", sub: "Days Payable Outstanding", icon: ChartBarIcon, trend: "Cible: 45j" },
               ].map((kpi, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -1804,7 +1805,7 @@ const Fournisseurs: React.FC = () => {
             {/* Payments Table */}
             <Card className="p-0 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden bg-white dark:bg-slate-900">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Historique des Règlements</h3>
+                <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('crm.suppliers.sections.payment_history')}</h3>
                 <div className="flex gap-2">
                   {['Tous', 'EFFECTUÉ', 'INSTANCE', 'RETARD'].map((f, i) => (
                     <button key={f} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${i === 0 ? 'bg-slate-900 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900'}`}>{f}</button>
@@ -1815,14 +1816,14 @@ const Fournisseurs: React.FC = () => {
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Référence</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Fournisseur</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Réf. Facture</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Mode</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                      <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Montant</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.reference')}</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.supplier')}</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.invoice_ref')}</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.mode')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.date')}</th>
+                      <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.amount')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.status')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1911,16 +1912,16 @@ const Fournisseurs: React.FC = () => {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Performance & Volume</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">Analytique Consolidée</h2>
-                  <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80">Exercice 2024 — 4 fournisseurs actifs</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('crm.suppliers.messages.performance_volume')}</p>
+                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.sections.consolidated_analytics')}</h2>
+                  <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">{t('crm.suppliers.messages.performance_volume_subtitle', { count: 4 })}</p>
                 </div>
                 <button
                   onClick={handleGenererRapportExecutif}
                   className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
                 >
                   <DocumentCheckIcon className="h-4 w-4" />
-                  Générer Rapport Exécutif
+                  {t('crm.suppliers.actions.report')}
                 </button>
               </div>
             </div>
@@ -1928,10 +1929,10 @@ const Fournisseurs: React.FC = () => {
             {/* KPI Cards — Enriched */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { label: "Engagements Totaux", val: formatCurrency(5940000), sub: "Total achats 2024", trend: "+18.3% vs 2023", icon: ChartPieIcon },
-                { label: "Lead Time Moyen", val: "12.4j", sub: "Cmd → livraison", trend: "-2.1j vs 2023", icon: ClockIcon },
-                { label: "Score Qualité", val: "87/100", sub: "Avg. 4 fournisseurs", trend: "STABLE", icon: StarIcon },
-                { label: "Bons de Commande", val: "156", sub: "Émis sur l'exercice", trend: "+8% vs 2023", icon: ChartBarIcon },
+                { label: t('crm.suppliers.messages.total_commitments'), val: formatCurrency(5940000), sub: "Total achats 2024", trend: "+18.3% vs 2023", icon: ChartPieIcon },
+                { label: t('crm.suppliers.messages.avg_lead_time'), val: "12.4j", sub: "Cmd → livraison", trend: "-2.1j vs 2023", icon: ClockIcon },
+                { label: t('crm.suppliers.messages.quality_score'), val: "87/100", sub: "Avg. 4 fournisseurs", trend: "STABLE", icon: StarIcon },
+                { label: t('crm.suppliers.messages.purchase_orders'), val: "156", sub: "Émis sur l'exercice", trend: "+8% vs 2023", icon: ChartBarIcon },
               ].map((kpi, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -1949,10 +1950,10 @@ const Fournisseurs: React.FC = () => {
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card title="Évolution des Engagements HT (k DA)" className="p-8 border-slate-200 dark:border-slate-800 rounded-[2rem]">
+              <Card title={t('crm.suppliers.analytics.commitment_evolution')} className="p-8 border-slate-200 dark:border-slate-800 rounded-[2rem]">
                 <div className="h-64 mt-6">
                   <LineChart
-                    title="Évolution des Engagements HT"
+                    title={t('crm.suppliers.analytics.commitment_title')}
                     data={[285, 320, 410, 375, 495, 480, 540, 510, 620, 665, 710, 730]}
                     labels={['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']}
                     borderColor="#0f172a"
@@ -1961,10 +1962,10 @@ const Fournisseurs: React.FC = () => {
                 </div>
               </Card>
 
-              <Card title="Répartition par Fournisseur" className="p-8 border-slate-200 dark:border-slate-800 rounded-[2rem]">
+              <Card title={t('crm.suppliers.analytics.distribution_supplier')} className="p-8 border-slate-200 dark:border-slate-800 rounded-[2rem]">
                 <div className="h-64 mt-6">
                   <DoughnutChart
-                    title="Répartition par Fournisseur"
+                    title={t('crm.suppliers.analytics.distribution_supplier')}
                     data={[48, 32, 14, 6]}
                     labels={['Global Logistics Algerie', 'Industrie Plastique Nord', 'Tech Solutions Import', 'Papeterie Centrale SPA']}
                     colors={['#0f172a', '#334155', '#475569', '#94a3b8']}
@@ -1976,20 +1977,20 @@ const Fournisseurs: React.FC = () => {
             {/* Top Fournisseurs Performance Table */}
             <Card className="p-0 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden bg-white dark:bg-slate-900">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-                <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Performance par Fournisseur — Exercice 2024</h3>
+                <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('crm.suppliers.analytics.performance_title')}</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead className="bg-slate-50 dark:bg-slate-800/50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Fournisseur</th>
-                      <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Achats HT</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Nb BC</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead Time</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Qualité</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">DPO</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Part (%)</th>
-                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Tendance</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.supplier')}</th>
+                      <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.purchases_ht')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.nb_bc')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.lead_time')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.quality')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.dpo')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.share_percent')}</th>
+                      <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.analytics.trend')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -2055,7 +2056,7 @@ const Fournisseurs: React.FC = () => {
                   <div className="p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                     <BuildingOfficeIcon className="h-4 w-4 text-slate-900 dark:text-white" />
                   </div>
-                  Informations Générales
+                  {t('crm.suppliers.sections.general_info')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -2311,7 +2312,7 @@ const Fournisseurs: React.FC = () => {
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                   <DocumentTextIcon className="h-5 w-5 mr-2 text-gray-600" />
-                  Notes et Observations
+                  {t('crm.suppliers.messages.notes_obs')}
                 </h3>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -2338,7 +2339,7 @@ const Fournisseurs: React.FC = () => {
                   className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
                 >
                   <CheckCircleIcon className="h-5 w-5 mr-2" />
-                  {selectedFournisseur ? 'Modifier Fournisseur' : 'Ajouter Fournisseur'}
+                  {selectedFournisseur ? t('crm.suppliers.actions.edit') : t('crm.suppliers.actions.add')}
                 </button>
               </div>
             </form>
@@ -2393,17 +2394,17 @@ const Fournisseurs: React.FC = () => {
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />
-                    Articles Commandés
+                    {t('crm.suppliers.messages.ordered_items')}
                   </h3>
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Article</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Quantité</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Prix Unitaire HT</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">TVA (19%)</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total TTC</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('crm.suppliers.table.article')}</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('crm.suppliers.messages.qty')}</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('crm.suppliers.table.unit_price_ht')}</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('crm.suppliers.table.tva')} (19%)</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">{t('crm.suppliers.table.total_ttc')}</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
@@ -2430,7 +2431,7 @@ const Fournisseurs: React.FC = () => {
                 <div className="bg-blue-50 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <DocumentCheckIcon className="h-5 w-5 mr-2 text-blue-600" />
-                    Conformité Fiscale Algérienne & SCF
+                    {t('crm.suppliers.messages.fiscal_compliance')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Informations fiscales */}
@@ -2463,7 +2464,7 @@ const Fournisseurs: React.FC = () => {
                     <div className="space-y-4">
                       <h4 className="text-md font-semibold text-blue-800 flex items-center">
                         <ClipboardDocumentCheckIcon className="h-4 w-4 mr-2" />
-                        Système SCF
+                        {t('crm.suppliers.messages.scf_system')}
                       </h4>
                       <div className="space-y-3">
                         <div className="flex justify-between">
@@ -2493,7 +2494,7 @@ const Fournisseurs: React.FC = () => {
                 <div className="bg-green-50 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <DocumentIcon className="h-5 w-5 mr-2 text-green-600" />
-                    Documents & Pièces Justificatives
+                    {t('crm.suppliers.messages.supporting_docs')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
@@ -2555,7 +2556,7 @@ const Fournisseurs: React.FC = () => {
                 <div className="bg-yellow-50 rounded-lg p-4">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                     <ClockIcon className="h-5 w-5 mr-2 text-yellow-600" />
-                    Historique des Modifications
+                    {t('crm.suppliers.messages.mod_history')}
                   </h3>
                   <div className="space-y-3">
                     <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border">
@@ -2596,21 +2597,21 @@ const Fournisseurs: React.FC = () => {
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center text-sm"
                     >
                       <DocumentTextIcon className="h-4 w-4 mr-2" />
-                      Rapport Fiscal
+                      {t('crm.suppliers.messages.fiscal_report')}
                     </button>
                     <button
                       onClick={() => alert('Export SCF en cours...')}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center text-sm"
                     >
                       <DocumentCheckIcon className="h-4 w-4 mr-2" />
-                      Export SCF
+                      {t('crm.suppliers.messages.scf_export')}
                     </button>
                     <button
                       onClick={() => alert('Génération de la déclaration TVA...')}
                       className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm"
                     >
                       <CurrencyDollarIcon className="h-4 w-4 mr-2" />
-                      Déclaration TVA
+                      {t('crm.suppliers.messages.tva_decl')}
                     </button>
                   </div>
                   <div className="flex space-x-3">
@@ -2650,7 +2651,7 @@ const Fournisseurs: React.FC = () => {
                   <div className="p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                     <ClipboardDocumentListIcon className="h-4 w-4 text-slate-900 dark:text-white" />
                   </div>
-                  Identification du Bon de Commande
+                  {t('crm.suppliers.messages.po_id')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
@@ -2697,7 +2698,7 @@ const Fournisseurs: React.FC = () => {
                   <div className="p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                     <ClockIcon className="h-4 w-4 text-slate-900 dark:text-white" />
                   </div>
-                  Dates & Conditions
+                  {t('crm.suppliers.messages.dates_cond')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
@@ -2737,7 +2738,7 @@ const Fournisseurs: React.FC = () => {
                   <div className="p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                     <MapPinIcon className="h-4 w-4 text-slate-900 dark:text-white" />
                   </div>
-                  Adresse de Livraison
+                  {t('crm.suppliers.messages.delivery_addr')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
@@ -2761,16 +2762,16 @@ const Fournisseurs: React.FC = () => {
                   <div className="p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                     <DocumentTextIcon className="h-4 w-4 text-slate-900 dark:text-white" />
                   </div>
-                  Lignes d'Articles
+                  {t('crm.suppliers.messages.item_lines')}
                 </h3>
 
                 {/* Table header */}
                 <div className="hidden md:grid grid-cols-12 gap-2 mb-3 px-2">
-                  <div className="col-span-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Désignation</div>
-                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Qté</div>
-                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Unité</div>
-                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">PU HT (DA)</div>
-                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Total HT</div>
+                  <div className="col-span-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.messages.designation')}</div>
+                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.messages.qty')}</div>
+                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.messages.unit')}</div>
+                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.suppliers.table.unit_price_ht')}</div>
+                  <div className="col-span-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">{t('crm.suppliers.table.total_ht')}</div>
                 </div>
 
                 <div className="space-y-3">

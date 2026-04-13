@@ -1,21 +1,30 @@
-import { useApp } from '@core/context/AppContext';
-import { translations } from '@shared/utils/translations';
+import { useTranslation as useI18n } from 'react-i18next';
 import { Langue } from '@/types';
+import { useEffect } from 'react';
+import { useApp } from '@core/context/AppContext';
 
-export const useTranslation = () => {
+export const useTranslation = (ns = 'translation') => {
+  const { t, i18n } = useI18n(ns);
   const { currentLang, setLang } = useApp();
 
-  const t = (key: string) => {
-    // @ts-ignore
-    return translations[currentLang]?.[key] || key;
-  };
+  // Sync i18next with AppContext if they ever diverge
+  useEffect(() => {
+    if (i18n.language !== currentLang) {
+      i18n.changeLanguage(currentLang);
+    }
+  }, [currentLang, i18n]);
 
   const changeLang = (lang: Langue) => {
-    // @ts-ignore
+    i18n.changeLanguage(lang);
     setLang(lang);
   };
 
-  return { t, currentLang, changeLang };
+  return { 
+    t, 
+    currentLang: i18n.language as Langue, 
+    changeLang,
+    i18n 
+  };
 };
 
 

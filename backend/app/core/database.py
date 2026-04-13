@@ -2,7 +2,7 @@
 Database connection and SQLAlchemy configuration
 """
 
-from sqlalchemy import create_engine, event, Engine
+from sqlalchemy import create_engine, event, Engine, text
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.pool import QueuePool
 import logging
@@ -71,9 +71,16 @@ def set_db_user_context(db: Session, user_id: str):
     """
     Sets the current user ID in the Postgres session context.
     REQUIRED for the audit_generic_trigger to work.
+
+    Uses parameterized query to prevent SQL injection vulnerabilities.
     """
     try:
-        db.execute(f"SET LOCAL app.current_user_id = '{user_id}'")
+        # ✅ FIXED: Use parameterized query instead of f-string
+        # Prevents SQL injection by properly escaping user_id
+        db.execute(
+            text("SET LOCAL app.current_user_id = :user_id"),
+            {"user_id": user_id}
+        )
     except Exception as e:
         logger.error(f"Failed to set DB user context: {e}")
 

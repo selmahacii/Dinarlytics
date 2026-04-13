@@ -403,9 +403,9 @@ const IndicateursPerformance: React.FC = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
         <div>
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">
-            📊 Analyse Financière Avancée
+            {t('analytics.kpis.title')}
           </h1>
-          <p className="text-gray-600">KPIs, ratios financiers et indicateurs de performance</p>
+          <p className="text-gray-600">{t('analytics.kpis.subtitle')}</p>
       </div>
 
         <div className="flex items-center space-x-4">
@@ -426,14 +426,14 @@ const IndicateursPerformance: React.FC = () => {
             value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            aria-label="Sélectionner la métrique"
-            title="Sélectionner la métrique"
+            aria-label={t('analytics.kpis.tabs.all')}
+            title={t('analytics.kpis.tabs.all')}
           >
-            <option value="all">Tous les KPIs</option>
-            <option value="rentability">Rentabilité</option>
-            <option value="liquidity">Liquidité</option>
-            <option value="leverage">Endettement</option>
-            <option value="efficiency">Efficacité</option>
+            <option value="all">{t('analytics.kpis.tabs.all')}</option>
+            <option value="rentability">{t('analytics.kpis.tabs.rentability')}</option>
+            <option value="liquidity">{t('analytics.kpis.tabs.liquidity')}</option>
+            <option value="leverage">{t('analytics.kpis.tabs.leverage')}</option>
+            <option value="efficiency">{t('analytics.kpis.tabs.efficiency')}</option>
           </select>
           
           <button
@@ -443,27 +443,27 @@ const IndicateursPerformance: React.FC = () => {
                 ? 'bg-green-600 text-white hover:bg-green-700' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
-            title="Activer/Désactiver l'auto-refresh"
-            aria-label="Activer/Désactiver l'auto-refresh"
+            title={t('analytics.kpis.actions.refresh')}
+            aria-label={t('analytics.kpis.actions.refresh')}
           >
             <ClockIcon className="h-4 w-4 inline mr-2" />
-            Auto-refresh
+            {t('analytics.kpis.actions.refresh')}
           </button>
           
           <button
             onClick={handleGenerateReport}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            title="Générer un rapport"
-            aria-label="Générer un rapport"
+            title={t('analytics.kpis.actions.report')}
+            aria-label={t('analytics.kpis.actions.report')}
           >
             <DocumentChartBarIcon className="h-4 w-4 inline mr-2" />
-            Générer Rapport
+            {t('analytics.kpis.actions.report')}
           </button>
         </div>
       </div>
 
       {/* Dashboard des KPIs Principaux */}
-      <Card title="🎯 KPIs Financiers Principaux">
+      <Card title={t('analytics.kpis.sections.main')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {financialData.mainKPIs.map((kpi) => {
             const TrendIcon = getTrendIcon(kpi.trend);
@@ -506,7 +506,7 @@ const IndicateursPerformance: React.FC = () => {
       {/* Graphiques de Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Graphique des Revenus */}
-        <Card title="📈 Évolution des Revenus">
+        <Card title={t('analytics.kpis.sections.revenue')}>
           <div className="space-y-4">
             {financialData.chartData.revenue.map((item, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
@@ -530,7 +530,7 @@ const IndicateursPerformance: React.FC = () => {
         </Card>
 
         {/* Graphique de Rentabilité */}
-        <Card title="💰 Analyse de Rentabilité">
+        <Card title={t('analytics.kpis.sections.profitability')}>
           <div className="space-y-4">
             {financialData.chartData.profitability.map((item, index) => (
               <div key={index} className="p-4 bg-white rounded border border-gray-100">
@@ -552,7 +552,7 @@ const IndicateursPerformance: React.FC = () => {
         </div>
 
       {/* Indicateurs Comptables SCF/IFRS */}
-      <Card title="📚 Indicateurs Comptables">
+      <Card title={t('analytics.kpis.sections.accounting')}>
         <div className="space-y-6">
           {/* En-tête avec norme comptable */}
           <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
@@ -743,7 +743,7 @@ const IndicateursPerformance: React.FC = () => {
       </Card>
 
       {/* Ratios Financiers Avancés */}
-      <Card title="🔍 Ratios Financiers Avancés">
+      <Card title={t('analytics.kpis.sections.advanced')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {financialData.advancedRatios.map((ratio) => {
             const TrendIcon = getTrendIcon(ratio.trend);
@@ -784,7 +784,7 @@ const IndicateursPerformance: React.FC = () => {
       </Card>
 
       {/* Alertes et Recommandations */}
-      <Card title="⚠️ Alertes et Recommandations">
+      <Card title={t('analytics.kpis.sections.alerts')}>
         <div className="space-y-4">
           {financialData.alerts.map((alert) => {
             const AlertIcon = getAlertIcon(alert.type);

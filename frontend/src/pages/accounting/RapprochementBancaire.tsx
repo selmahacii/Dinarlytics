@@ -481,12 +481,12 @@ const RapprochementBancaire: React.FC = () => {
               <ArrowPathIcon className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Rapprochement Bancaire</h1>
-              <p className="text-green-100">Import de relevés et rapprochement automatique</p>
+              <h1 className="text-2xl font-bold">{t('accounting.treasury.reconciliation.title')}</h1>
+              <p className="text-green-100">{t('accounting.treasury.reconciliation.subtitle')}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-green-100 text-sm">Taux de rapprochement</p>
+            <p className="text-green-100 text-sm">{t('accounting.treasury.reconciliation.kpis.reconciliation_rate')}</p>
             <p className="text-3xl font-bold">{kpis.tauxRapprochement}%</p>
           </div>
         </div>
@@ -494,38 +494,38 @@ const RapprochementBancaire: React.FC = () => {
       
       {/* KPIs Principaux */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card title="Total Lignes">
+        <Card title={t('accounting.treasury.reconciliation.kpis.total_lines')}>
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">{kpis.totalLignes}</div>
-            <div className="text-sm text-gray-600">Lignes importées</div>
+            <div className="text-2xl font-bold text-blue-600 mb-2">{kpis.totalLignes || 0}</div>
+            <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.kpis.lines_imported')}</div>
           </div>
         </Card>
         
-        <Card title="Rapprochées">
+        <Card title={t('accounting.treasury.reconciliation.kpis.matched')}>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600 mb-2">{kpis.rapprochees}</div>
-            <div className="text-sm text-gray-600">Correspondances</div>
+            <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.kpis.matches')}</div>
           </div>
         </Card>
         
-        <Card title="Non Rapprochées">
+        <Card title={t('accounting.treasury.reconciliation.kpis.unmatched')}>
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-600 mb-2">{kpis.nonRapprochees}</div>
-            <div className="text-sm text-gray-600">À traiter</div>
+            <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.kpis.to_process')}</div>
           </div>
         </Card>
         
-        <Card title="Taux Rapprochement">
+        <Card title={t('accounting.treasury.reconciliation.kpis.reconciliation_rate')}>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600 mb-2">{kpis.tauxRapprochement}%</div>
-            <div className="text-sm text-gray-600">Progression</div>
+            <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.kpis.progression')}</div>
           </div>
         </Card>
         
-        <Card title="Écarts">
+        <Card title={t('accounting.treasury.reconciliation.kpis.discrepancies')}>
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600 mb-2">{kpis.ecarts}</div>
-            <div className="text-sm text-gray-600">Disputes</div>
+            <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.kpis.disputes')}</div>
           </div>
         </Card>
       </div>
@@ -535,10 +535,10 @@ const RapprochementBancaire: React.FC = () => {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8 px-6" aria-label="Tabs">
             {[
-              { id: 'import', name: 'Import Relevé', icon: ArrowUpTrayIcon },
-              { id: 'rapprochement', name: 'Rapprochement', icon: ArrowPathIcon },
-              { id: 'ecarts', name: 'Écarts', icon: ExclamationTriangleIcon },
-              { id: 'historique', name: 'Historique', icon: ClockIcon }
+              { id: 'import', name: t('accounting.treasury.reconciliation.tabs.import'), icon: ArrowUpTrayIcon },
+              { id: 'rapprochement', name: t('accounting.treasury.reconciliation.tabs.reconciliation'), icon: ArrowPathIcon },
+              { id: 'ecarts', name: t('accounting.treasury.reconciliation.tabs.discrepancies'), icon: ExclamationTriangleIcon },
+              { id: 'historique', name: t('accounting.treasury.reconciliation.tabs.history'), icon: ClockIcon }
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -564,13 +564,13 @@ const RapprochementBancaire: React.FC = () => {
           {activeTab === 'import' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Import de Relevés Bancaires</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('accounting.treasury.reconciliation.import.title')}</h3>
                 <button
                   onClick={() => setIsImportModalOpen(true)}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
                 >
                   <PlusIcon className="h-5 w-5" />
-                  <span>Importer Relevé</span>
+                  <span>{t('accounting.treasury.reconciliation.import.action')}</span>
                 </button>
               </div>
               
@@ -586,30 +586,30 @@ const RapprochementBancaire: React.FC = () => {
                           releve.statut === 'importe' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
-                          {releve.statut}
+                          {t(`accounting.treasury.reconciliation.status.${releve.statut}`)}
                         </span>
                       </div>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Compte:</span>
+                          <span className="text-gray-600">{t('accounting.treasury.reconciliation.details.account')}:</span>
                           <span className="font-medium">{releve.compteBancaire.nom}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Période:</span>
+                          <span className="text-gray-600">{t('accounting.treasury.reconciliation.details.period')}:</span>
                           <span className="font-medium">
                             {new Date(releve.dateDebut).toLocaleDateString('fr-FR')} - {new Date(releve.dateFin).toLocaleDateString('fr-FR')}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Lignes:</span>
+                          <span className="text-gray-600">{t('accounting.treasury.reconciliation.details.lines')}:</span>
                           <span className="font-medium">{releve.nombreLignes}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Rapprochement:</span>
+                          <span className="text-gray-600">{t('accounting.treasury.reconciliation.details.reconciliation')}:</span>
                           <span className="font-medium text-green-600">{releve.tauxRapprochement}%</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Format:</span>
+                          <span className="text-gray-600">{t('accounting.treasury.reconciliation.details.format')}:</span>
                           <span className="font-medium uppercase">{releve.formatFichier}</span>
                         </div>
                       </div>
@@ -621,7 +621,7 @@ const RapprochementBancaire: React.FC = () => {
                           }}
                           className="flex-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm font-medium"
                         >
-                          Voir détails
+                          {t('accounting.treasury.reconciliation.details.view_details')}
                         </button>
                         <button type="button" className="px-3 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100" aria-label="Télécharger le relevé">
                           <ArrowDownTrayIcon className="h-5 w-5" />
@@ -638,7 +638,7 @@ const RapprochementBancaire: React.FC = () => {
           {activeTab === 'rapprochement' && releveActif && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Rapprochement - {releveActif.numeroReleve}</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('accounting.treasury.reconciliation.tabs.reconciliation')} - {releveActif.numeroReleve}</h3>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => {
@@ -648,7 +648,7 @@ const RapprochementBancaire: React.FC = () => {
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center space-x-2"
                   >
                     <FunnelIcon className="h-5 w-5" />
-                    <span>Filtres</span>
+                    <span>{t('accounting.treasury.reconciliation.reconciliation.filters')}</span>
                   </button>
                   <button
                     onClick={handleRapprochementAutomatique}
@@ -658,12 +658,12 @@ const RapprochementBancaire: React.FC = () => {
                     {isRapprochant ? (
                       <>
                         <ArrowPathIcon className="h-5 w-5 animate-spin" />
-                        <span>Rapprochement...</span>
+                        <span>{t('accounting.treasury.reconciliation.reconciliation.auto_running')}</span>
                       </>
                     ) : (
                       <>
                         <SparklesIcon className="h-5 w-5" />
-                        <span>Rapprochement Auto</span>
+                        <span>{t('accounting.treasury.reconciliation.reconciliation.automate')}</span>
                       </>
                     )}
                   </button>
@@ -671,7 +671,7 @@ const RapprochementBancaire: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <Card title="Lignes Relevé Non Rapprochées">
+                <Card title={t('accounting.treasury.reconciliation.reconciliation.unmatched_lines')}>
                   <div className="space-y-2 max-h-96 overflow-y-auto">
                     {releveActif.lignes.filter(l => l.statutRapprochement === 'non_rapproche').map((ligne) => (
                       <div key={ligne.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -690,14 +690,14 @@ const RapprochementBancaire: React.FC = () => {
                           onClick={() => setIsMatchingModalOpen(true)}
                           className="mt-2 text-xs text-blue-600 hover:text-blue-900"
                         >
-                          Chercher correspondance
+                          {t('accounting.treasury.reconciliation.reconciliation.search_match')}
                         </button>
                       </div>
                     ))}
                   </div>
                 </Card>
                 
-                <Card title="Écritures Comptables Non Rapprochées">
+                <Card title={t('accounting.treasury.reconciliation.reconciliation.unmatched_entries')}>
                   <div className="space-y-2 max-h-96 overflow-y-auto">
                     {ecritures.filter(e => e.statutRapprochement === 'non_rapproche' && e.compte === '512').map((ecriture) => (
                       <div key={ecriture.id} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -716,7 +716,7 @@ const RapprochementBancaire: React.FC = () => {
                           onClick={() => setIsMatchingModalOpen(true)}
                           className="mt-2 text-xs text-blue-600 hover:text-blue-900"
                         >
-                          Chercher correspondance
+                          {t('accounting.treasury.reconciliation.reconciliation.search_match')}
                         </button>
                       </div>
                     ))}
@@ -724,17 +724,17 @@ const RapprochementBancaire: React.FC = () => {
                 </Card>
               </div>
               
-              <Card title="Correspondances Trouvées">
+              <Card title={t('accounting.treasury.reconciliation.reconciliation.found_matches')}>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ligne Relevé</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Écriture</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Méthode</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Confiance</th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.bank_line')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.accounting_entry')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.amount')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.method')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.confidence')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -999,7 +999,7 @@ const RapprochementBancaire: React.FC = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tolérance Montant (DZD)
+              {t('accounting.treasury.reconciliation.modals.tolerance_montant')}
             </label>
             <input
               type="number"
@@ -1008,16 +1008,16 @@ const RapprochementBancaire: React.FC = () => {
               step="0.01"
               min="0"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              aria-label="Tolérance Montant"
+              aria-label={t('accounting.treasury.reconciliation.modals.tolerance_montant')}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Montant maximum d'écart accepté pour le matching (ex: 0.01 pour 1 centime)
+              {t('accounting.treasury.reconciliation.modals.tolerance_montant_desc')}
             </p>
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tolérance Date (jours)
+              {t('accounting.treasury.reconciliation.modals.tolerance_date')}
             </label>
             <input
               type="number"
@@ -1026,20 +1026,20 @@ const RapprochementBancaire: React.FC = () => {
               min="0"
               max="30"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              aria-label="Tolérance Date en jours"
+              aria-label={t('accounting.treasury.reconciliation.modals.tolerance_date')}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Nombre de jours d'écart maximum accepté entre la date bancaire et comptable
+              {t('accounting.treasury.reconciliation.modals.tolerance_date_desc')}
             </p>
           </div>
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-900 mb-2">Méthodes de Matching</h4>
+            <h4 className="font-semibold text-blue-900 mb-2">{t('accounting.treasury.reconciliation.modals.matching_methods')}</h4>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>✓ Matching par montant exact (±tolérance)</li>
-              <li>✓ Matching par date (proximité)</li>
-              <li>✓ Matching par référence</li>
-              <li>✓ Matching par libellé (mots-clés)</li>
+              <li>✓ {t('accounting.treasury.reconciliation.modals.method_exact')}</li>
+              <li>✓ {t('accounting.treasury.reconciliation.modals.method_date')}</li>
+              <li>✓ {t('accounting.treasury.reconciliation.modals.method_ref')}</li>
+              <li>✓ {t('accounting.treasury.reconciliation.modals.method_label')}</li>
             </ul>
           </div>
           
@@ -1048,7 +1048,7 @@ const RapprochementBancaire: React.FC = () => {
               onClick={() => setIsRapprochementModalOpen(false)}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
             >
-              Fermer
+              {t('accounting.treasury.reconciliation.modals.close')}
             </button>
             <button
               onClick={() => {
@@ -1067,44 +1067,44 @@ const RapprochementBancaire: React.FC = () => {
       <Modal
         isOpen={isViewReleveModalOpen}
         onClose={() => setIsViewReleveModalOpen(false)}
-        title={selectedReleve ? `Relevé ${selectedReleve.numeroReleve}` : 'Détails Relevé'}
+        title={selectedReleve ? t('accounting.treasury.reconciliation.modals.statement_title', { numero: selectedReleve.numeroReleve }) : t('accounting.treasury.reconciliation.modals.statement_details')}
         size="xl"
       >
         {selectedReleve && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-sm text-gray-600">Compte</div>
+                <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.details.account')}</div>
                 <div className="font-semibold">{selectedReleve.compteBancaire.nom}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Période</div>
+                <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.details.period')}</div>
                 <div className="font-semibold">
                   {new Date(selectedReleve.dateDebut).toLocaleDateString('fr-FR')} - {new Date(selectedReleve.dateFin).toLocaleDateString('fr-FR')}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Solde Début</div>
+                <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.modals.solde_debut')}</div>
                 <div className="font-semibold">{formatCurrency(selectedReleve.soldeDebut)}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-600">Solde Fin</div>
+                <div className="text-sm text-gray-600">{t('accounting.treasury.reconciliation.modals.solde_fin')}</div>
                 <div className="font-semibold">{formatCurrency(selectedReleve.soldeFin)}</div>
               </div>
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900 mb-3">Lignes du Relevé</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">{t('accounting.treasury.reconciliation.modals.statement_lines')}</h4>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Libellé</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Référence</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Montant</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Solde</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.date')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.bank_line')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.reference')}</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.amount')}</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('common.balance')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.treasury.reconciliation.table.actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -1130,7 +1130,7 @@ const RapprochementBancaire: React.FC = () => {
                             ligne.statutRapprochement === 'dispute' ? 'bg-red-100 text-red-800' :
                             'bg-gray-100 text-gray-800'
                           }`}>
-                            {ligne.statutRapprochement}
+                            {t(`accounting.treasury.reconciliation.status.${ligne.statutRapprochement}`)}
                           </span>
                         </td>
                       </tr>
@@ -1145,11 +1145,11 @@ const RapprochementBancaire: React.FC = () => {
                 onClick={() => setIsViewReleveModalOpen(false)}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
               >
-                Fermer
+                {t('accounting.treasury.reconciliation.modals.close')}
               </button>
               <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2">
                 <ArrowDownTrayIcon className="h-5 w-5" />
-                <span>Exporter</span>
+                <span>{t('accounting.treasury.reconciliation.modals.export')}</span>
               </button>
             </div>
           </div>

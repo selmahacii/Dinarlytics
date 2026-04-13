@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useContext } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import {
   BanknotesIcon,
   ArrowTrendingUpIcon,
@@ -58,6 +59,8 @@ interface BankAccount {
 
 // --- Composant Gestion des Chèques ---
 const ChecksManagement: React.FC = () => {
+  const { t } = useTranslation();
+  const { formatCurrency } = useContext(AppContext) as AppContextType;
   const [checks, setChecks] = useState<any[]>([]);
   const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
   const [depositDate, setDepositDate] = useState(new Date().toISOString().split('T')[0]);
@@ -104,7 +107,7 @@ const ChecksManagement: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        setSuccessMessage(`Bordereau ${result.slip_number} créé avec succès! Montant: ${result.total_amount} DZD`);
+        setSuccessMessage(t('treasury.checks.success_deposit', { no: result.slip_number, amount: result.total_amount }));
         setSelectedChecks([]);
         fetchChecks(); // Refresh list
       }
@@ -127,14 +130,14 @@ const ChecksManagement: React.FC = () => {
         <div>
           <h3 className="text-lg font-bold text-amber-900 flex items-center">
             <BanknotesIcon className="h-6 w-6 mr-2" />
-            Coffre-fort: Chèques en attente
+            {t('treasury.checks.safe_title')}
           </h3>
-          <p className="text-sm text-amber-800">Sélectionnez les chèques à remettre en banque.</p>
+          <p className="text-sm text-amber-800">{t('treasury.checks.safe_subtitle')}</p>
         </div>
         <div className="text-right">
-          <p className="text-sm font-semibold text-amber-900">Total au Coffre</p>
+          <p className="text-sm font-semibold text-amber-900">{t('treasury.checks.total_in_safe')}</p>
           <p className="text-2xl font-bold text-amber-700">
-            {new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(checks.reduce((s, c) => s + Number(c.amount), 0))}
+            {formatCurrency(checks.reduce((s, c) => s + Number(c.amount), 0))}
           </p>
         </div>
       </div>
@@ -150,11 +153,11 @@ const ChecksManagement: React.FC = () => {
         <div className="flex justify-between items-end mb-4">
           <div className="flex space-x-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700">Date de remise</label>
+              <label className="block text-sm font-medium text-slate-700">{t('treasury.checks.deposit_date')}</label>
               <input type="date" value={depositDate} onChange={e => setDepositDate(e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Compte Bancaire</label>
+              <label className="block text-sm font-medium text-slate-700">{t('treasury.checks.bank_account')}</label>
               <select value={bankAccount} onChange={e => setBankAccount(e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                 <option value="512001">BNA - Compte Principal</option>
                 <option value="512002">BADR - Compte Secondaire</option>
@@ -167,7 +170,7 @@ const ChecksManagement: React.FC = () => {
               disabled={selectedChecks.length === 0 || loading}
               className={`px-4 py-2 rounded-lg font-medium text-white transition-colors ${selectedChecks.length === 0 ? 'bg-slate-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
-              {loading ? 'Traitement...' : `Générer Bordereau (${new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(totalSelected)})`}
+              {loading ? t('treasury.checks.processing') : `${t('treasury.checks.generate_deposit')} (${formatCurrency(totalSelected)})`}
             </button>
           </div>
         </div>
@@ -182,15 +185,15 @@ const ChecksManagement: React.FC = () => {
                     checked={selectedChecks.length === checks.length && checks.length > 0}
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date Réception</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">N° Chèque</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Ref Paiement</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Montant</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('treasury.checks.table.reception_date')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('treasury.checks.table.check_no')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('treasury.checks.table.payment_ref')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{t('treasury.checks.table.amount')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
               {checks.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-4 text-center text-slate-500">Aucun chèque au coffre.</td></tr>
+                <tr><td colSpan={5} className="px-6 py-4 text-center text-slate-500">{t('treasury.checks.no_checks')}</td></tr>
               ) : (
                 checks.map((check) => (
                   <tr key={check.id} className={selectedChecks.includes(check.id) ? 'bg-blue-50' : ''}>
@@ -217,6 +220,7 @@ const ChecksManagement: React.FC = () => {
 import treasuryService from '@/services/modules/treasuryService';
 
 const Tresorerie: React.FC = () => {
+  const { t } = useTranslation();
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -247,7 +251,7 @@ const Tresorerie: React.FC = () => {
           type: tx.type === 'credit' ? 'inflow' : 'outflow',
           amount: Number(tx.amount),
           status: 'cleared', // Default to cleared for approved journal entries
-          bank: 'Compte ' + tx.account_code,
+          bank: t('accounting.treasury.accounts.prefix') + ' ' + tx.account_code,
           reference: tx.reference
         })));
       } catch (error) {
@@ -260,7 +264,7 @@ const Tresorerie: React.FC = () => {
     fetchData();
   }, []);
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'forecast' | 'reconciliation' | 'liquidity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'forecast' | 'reconciliation' | 'liquidity' | 'checks'>('overview');
   const [isScenarioModalOpen, setIsScenarioModalOpen] = useState(false);
   const [isEcheancesModalOpen, setIsEcheancesModalOpen] = useState(false);
 
@@ -367,12 +371,12 @@ const Tresorerie: React.FC = () => {
               <BanknotesIcon className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Gestion de Trésorerie</h1>
-              <p className="text-blue-100">Prévisions cash, rapprochements et liquidités</p>
+              <h1 className="text-2xl font-bold">{t('accounting.treasury.title')}</h1>
+              <p className="text-blue-100">{t('accounting.treasury.subtitle')}</p>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-blue-100 text-sm">Solde Global</p>
+            <p className="text-blue-100 text-sm">{t('accounting.treasury.global_balance')}</p>
             <p className="text-3xl font-bold">{formatCurrency(totalBalance)}</p>
           </div>
         </div>
@@ -384,9 +388,9 @@ const Tresorerie: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Solde Total</p>
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">{t('accounting.treasury.stats.total_balance')}</p>
               <p className="text-2xl font-bold text-blue-600 mt-2">{formatCurrency(totalBalance)}</p>
-              <p className="text-xs text-slate-500 mt-1">3 comptes actifs</p>
+              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.active_accounts', { count: 3 })}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <BanknotesIcon className="h-6 w-6 text-blue-600" />
@@ -398,11 +402,11 @@ const Tresorerie: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Cash-flow Net</p>
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">{t('accounting.treasury.stats.net_cashflow')}</p>
               <p className={`text-2xl font-bold mt-2 ${netCashFlow >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {formatCurrency(netCashFlow)}
               </p>
-              <p className="text-xs text-slate-500 mt-1">Ce mois</p>
+              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.this_month')}</p>
             </div>
             <div className={`p-3 rounded-lg ${netCashFlow >= 0 ? 'bg-emerald-100' : 'bg-red-100'}`}>
               {netCashFlow >= 0 ? (
@@ -418,9 +422,9 @@ const Tresorerie: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Entrées</p>
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">{t('accounting.treasury.stats.inflows')}</p>
               <p className="text-2xl font-bold text-emerald-600 mt-2">{formatCurrency(totalInflow)}</p>
-              <p className="text-xs text-slate-500 mt-1">Recettes</p>
+              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.receipts')}</p>
             </div>
             <div className="p-3 bg-emerald-100 rounded-lg">
               <ArrowTrendingUpIcon className="h-6 w-6 text-emerald-600" />
@@ -432,9 +436,9 @@ const Tresorerie: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">Sorties</p>
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">{t('accounting.treasury.stats.outflows')}</p>
               <p className="text-2xl font-bold text-red-600 mt-2">{formatCurrency(totalOutflow)}</p>
-              <p className="text-xs text-slate-500 mt-1">Dépenses</p>
+              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.expenses')}</p>
             </div>
             <div className="p-3 bg-red-100 rounded-lg">
               <ArrowTrendingDownIcon className="h-6 w-6 text-red-600" />
@@ -446,9 +450,9 @@ const Tresorerie: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">En Attente</p>
+              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">{t('accounting.treasury.stats.pending')}</p>
               <p className="text-2xl font-bold text-amber-600 mt-2">{formatCurrency(Math.abs(pendingAmount))}</p>
-              <p className="text-xs text-slate-500 mt-1">{transactions.filter(t => t.status === 'pending').length} transactions</p>
+              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.transactions_count', { count: transactions.filter(t => t.status === 'pending').length })}</p>
             </div>
             <div className="p-3 bg-amber-100 rounded-lg">
               <ClockIcon className="h-6 w-6 text-amber-600" />
@@ -468,7 +472,7 @@ const Tresorerie: React.FC = () => {
               }`}
           >
             <BanknotesIcon className="h-5 w-5 inline mr-2" />
-            Aperçu
+            {t('accounting.treasury.tabs.overview')}
           </button>
           <button
             onClick={() => setActiveTab('forecast')}
@@ -478,13 +482,11 @@ const Tresorerie: React.FC = () => {
               }`}
           >
             <ChartBarIcon className="h-5 w-5 inline mr-2" />
-            Prévisions
+            {t('accounting.treasury.tabs.forecast')}
           </button>
           <button
             onClick={() => {
               setActiveTab('reconciliation');
-              // Optionnel: rediriger vers la page dédiée
-              // window.location.href = '/rapprochement-bancaire';
             }}
             className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'reconciliation'
               ? 'border-b-2 border-blue-600 text-blue-600'
@@ -492,7 +494,7 @@ const Tresorerie: React.FC = () => {
               }`}
           >
             <ArrowPathIcon className="h-5 w-5 inline mr-2" />
-            Rapprochement
+            {t('accounting.treasury.tabs.reconciliation')}
           </button>
           <button
             onClick={() => setActiveTab('liquidity')}
@@ -502,7 +504,7 @@ const Tresorerie: React.FC = () => {
               }`}
           >
             <DocumentTextIcon className="h-5 w-5 inline mr-2" />
-            Liquidités
+            {t('accounting.treasury.tabs.liquidity')}
           </button>
           <button
             onClick={() => setActiveTab('checks')}
@@ -512,7 +514,7 @@ const Tresorerie: React.FC = () => {
               }`}
           >
             <CheckIcon className="h-5 w-5 inline mr-2" />
-            Gestion Chèques
+            {t('accounting.treasury.tabs.checks')}
           </button>
         </div>
 
@@ -527,7 +529,7 @@ const Tresorerie: React.FC = () => {
             <div className="space-y-6">
               {/* Comptes Bancaires */}
               <div>
-                <h2 className="text-lg font-bold text-slate-900 mb-4">Comptes Bancaires</h2>
+                <h2 className="text-lg font-bold text-slate-900 mb-4">{t('accounting.treasury.accounts.title')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {visibleAccounts.map((account) => (
                     <div key={account.id} className="border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -544,21 +546,21 @@ const Tresorerie: React.FC = () => {
                       </div>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-slate-600">IBAN:</span>
+                          <span className="text-slate-600">{t('accounting.treasury.accounts.iban')}:</span>
                           <span className="font-mono text-xs text-slate-900">{account.iban.slice(0, 10)}...</span>
                         </div>
                         <div className="flex justify-between pt-2 border-t border-slate-200">
-                          <span className="text-slate-600">Solde:</span>
+                          <span className="text-slate-600">{t('accounting.treasury.accounts.balance')}:</span>
                           <span className="font-bold text-slate-900">{formatCurrency(account.balance)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-500 text-xs">Mis à jour:</span>
+                          <span className="text-slate-500 text-xs">{t('accounting.treasury.accounts.last_updated')}:</span>
                           <span className="text-slate-500 text-xs">{account.lastUpdated}</span>
                         </div>
                       </div>
                       <button className="w-full mt-3 px-3 py-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 text-sm font-medium transition-colors">
                         <EyeIcon className="h-4 w-4 inline mr-1" />
-                        Détails
+                        {t('accounting.treasury.accounts.details')}
                       </button>
                     </div>
                   ))}
@@ -567,16 +569,16 @@ const Tresorerie: React.FC = () => {
 
               {/* Transactions Récentes */}
               <div>
-                <h2 className="text-lg font-bold text-slate-900 mb-4">Transactions Récentes</h2>
+                <h2 className="text-lg font-bold text-slate-900 mb-4">{t('accounting.treasury.transactions.title')}</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 border-b border-slate-200">
                       <tr>
-                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">Date</th>
-                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">Description</th>
-                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">Montant</th>
-                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">Statut</th>
-                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">Réf.</th>
+                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">{t('accounting.treasury.transactions.date')}</th>
+                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">{t('accounting.treasury.transactions.description')}</th>
+                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">{t('accounting.treasury.transactions.amount')}</th>
+                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">{t('accounting.treasury.transactions.status')}</th>
+                        <th className="px-4 py-3 text-left text-slate-600 font-semibold">{t('accounting.treasury.transactions.ref')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
@@ -603,19 +605,19 @@ const Tresorerie: React.FC = () => {
                               {txn.status === 'cleared' && (
                                 <span className="inline-flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
                                   <CheckIcon className="h-3 w-3 mr-1" />
-                                  Compensée
+                                  {t('accounting.treasury.transactions.cleared')}
                                 </span>
                               )}
                               {txn.status === 'pending' && (
                                 <span className="inline-flex items-center px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
                                   <ClockIcon className="h-3 w-3 mr-1" />
-                                  En attente
+                                  {t('accounting.treasury.transactions.pending')}
                                 </span>
                               )}
                               {txn.status === 'reconciled' && (
                                 <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                                   <CheckIcon className="h-3 w-3 mr-1" />
-                                  Rapprochée
+                                  {t('accounting.treasury.transactions.reconciled')}
                                 </span>
                               )}
                             </div>
@@ -641,10 +643,10 @@ const Tresorerie: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                       <BellIcon className="h-5 w-5 text-red-600" />
-                      Alertes de Liquidité
+                      {t('accounting.treasury.alerts.title')}
                     </h3>
                     <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
-                      {alertesLiquidite.length} alerte(s)
+                      {t('accounting.treasury.alerts.active_alerts', { count: alertesLiquidite.length })}
                     </span>
                   </div>
 
@@ -663,24 +665,24 @@ const Tresorerie: React.FC = () => {
                             <h4 className="font-semibold text-slate-900">{alerte.message}</h4>
                           </div>
                           <span className="text-xs text-slate-500">
-                            {alerte.joursAvant > 0 ? `Dans ${alerte.joursAvant} jours` : 'Aujourd\'hui'}
+                            {alerte.joursAvant > 0 ? t('accounting.treasury.alerts.in_days', { count: alerte.joursAvant }) : t('accounting.treasury.alerts.today')}
                           </span>
                         </div>
                         <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
                           <div>
-                            <span className="text-slate-600">Solde projeté:</span>
+                            <span className="text-slate-600">{t('accounting.treasury.alerts.projected_balance')}:</span>
                             <span className={`font-bold ml-2 ${alerte.soldeProjete < 0 ? 'text-red-600' : 'text-slate-900'}`}>
                               {formatCurrency(alerte.soldeProjete)}
                             </span>
                           </div>
                           <div>
-                            <span className="text-slate-600">Seuil minimum:</span>
+                            <span className="text-slate-600">{t('accounting.treasury.alerts.min_threshold')}:</span>
                             <span className="font-medium ml-2">{formatCurrency(alerte.seuilMinimum)}</span>
                           </div>
                         </div>
                         {alerte.recommandations.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-slate-200">
-                            <p className="text-xs font-semibold text-slate-600 mb-1">Recommandations:</p>
+                            <p className="text-xs font-semibold text-slate-600 mb-1">{t('accounting.treasury.alerts.recommendations')}:</p>
                             <ul className="list-disc list-inside text-xs text-slate-600 space-y-1">
                               {alerte.recommandations.slice(0, 3).map((rec, idx) => (
                                 <li key={idx}>{rec}</li>
@@ -696,31 +698,34 @@ const Tresorerie: React.FC = () => {
 
               {/* Métriques de Trésorerie */}
               <Card className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Métriques de Trésorerie</h3>
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('accounting.treasury.metrics.title')}</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <p className="text-xs text-blue-600 font-medium mb-1">Solde Minimum</p>
+                    <p className="text-xs text-blue-600 font-medium mb-1">{t('accounting.treasury.metrics.min_balance')}</p>
                     <p className="text-xl font-bold text-blue-900">{formatCurrency(metriquesTresorerie.soldeMinimum)}</p>
                   </div>
                   <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <p className="text-xs text-green-600 font-medium mb-1">Solde Maximum</p>
+                    <p className="text-xs text-green-600 font-medium mb-1">{t('accounting.treasury.metrics.max_balance')}</p>
                     <p className="text-xl font-bold text-green-900">{formatCurrency(metriquesTresorerie.soldeMaximum)}</p>
                   </div>
                   <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <p className="text-xs text-purple-600 font-medium mb-1">Solde Moyen</p>
+                    <p className="text-xs text-purple-600 font-medium mb-1">{t('accounting.treasury.metrics.avg_balance')}</p>
                     <p className="text-xl font-bold text-purple-900">{formatCurrency(metriquesTresorerie.soldeMoyen)}</p>
                   </div>
                   <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                    <p className="text-xs text-red-600 font-medium mb-1">Jours sous Seuil</p>
-                    <p className="text-xl font-bold text-red-900">{metriquesTresorerie.joursSousSeuil} jours</p>
+                    <p className="text-xs text-red-600 font-medium mb-1">{t('accounting.treasury.metrics.days_under_threshold')}</p>
+                    <p className="text-xl font-bold text-red-900">{t('accounting.treasury.funding.days_count', { count: metriquesTresorerie.joursSousSeuil })}</p>
                   </div>
                 </div>
 
                 {metriquesTresorerie.pointBas && (
                   <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <p className="text-sm font-semibold text-amber-900 mb-1">Point Bas de Trésorerie</p>
+                    <p className="text-sm font-semibold text-amber-900 mb-1">{t('accounting.treasury.metrics.low_point')}</p>
                     <p className="text-sm text-amber-800">
-                      {formatCurrency(metriquesTresorerie.pointBas.solde)} le {new Date(metriquesTresorerie.pointBas.date).toLocaleDateString('fr-FR')}
+                      {t('accounting.treasury.metrics.on_date', { 
+                        amount: formatCurrency(metriquesTresorerie.pointBas.solde), 
+                        date: new Date(metriquesTresorerie.pointBas.date).toLocaleDateString('fr-FR')
+                      })}
                     </p>
                   </div>
                 )}
@@ -729,7 +734,7 @@ const Tresorerie: React.FC = () => {
               {/* Planification de Financement */}
               {planFinancement.besoins.length > 0 && (
                 <Card className="p-6">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">Besoins de Financement Identifiés</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('accounting.treasury.funding.title')}</h3>
                   <div className="space-y-3">
                     {planFinancement.besoins.map((besoin, idx) => (
                       <div
@@ -741,7 +746,7 @@ const Tresorerie: React.FC = () => {
                       >
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-semibold text-slate-900">
-                            Besoin de financement - {new Date(besoin.date).toLocaleDateString('fr-FR')}
+                            {t('accounting.treasury.funding.need_at', { date: new Date(besoin.date).toLocaleDateString('fr-FR') })}
                           </h4>
                           <span className={`px-2 py-1 rounded text-xs font-medium ${besoin.priorite === 'critique' ? 'bg-red-200 text-red-800' :
                             besoin.priorite === 'haute' ? 'bg-orange-200 text-orange-800' :
@@ -752,15 +757,15 @@ const Tresorerie: React.FC = () => {
                         </div>
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div>
-                            <span className="text-slate-600">Montant:</span>
+                            <span className="text-slate-600">{t('accounting.treasury.funding.amount')}:</span>
                             <span className="font-bold ml-2 text-slate-900">{formatCurrency(besoin.montant)}</span>
                           </div>
                           <div>
-                            <span className="text-slate-600">Durée:</span>
-                            <span className="font-medium ml-2">{besoin.duree} jours</span>
+                            <span className="text-slate-600">{t('accounting.treasury.funding.duration')}:</span>
+                            <span className="font-medium ml-2">{t('accounting.treasury.funding.days_count', { count: besoin.duree })}</span>
                           </div>
                           <div>
-                            <span className="text-slate-600">Total besoins:</span>
+                            <span className="text-slate-600">{t('accounting.treasury.funding.total_needs')}:</span>
                             <span className="font-bold ml-2 text-slate-900">{formatCurrency(planFinancement.totalBesoins)}</span>
                           </div>
                         </div>
@@ -777,14 +782,14 @@ const Tresorerie: React.FC = () => {
                   className="flex items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
                 >
                   <CalculatorIcon className="h-5 w-5 mr-2" />
-                  <span className="font-semibold">Simuler un Scénario</span>
+                  <span className="font-semibold">{t('accounting.treasury.actions.simulate_scenario')}</span>
                 </button>
                 <button
                   onClick={() => setIsEcheancesModalOpen(true)}
                   className="flex items-center justify-center p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
                 >
                   <ClockIcon className="h-5 w-5 mr-2" />
-                  <span className="font-semibold">Gérer les Échéances</span>
+                  <span className="font-semibold">{t('accounting.treasury.actions.manage_deadlines')}</span>
                 </button>
               </div>
             </div>

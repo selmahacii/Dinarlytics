@@ -3,6 +3,7 @@ import { UserCircleIcon, GlobeAltIcon, CurrencyDollarIcon, ArrowRightOnRectangle
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { UserRoleBadge } from '@shared/components/UserRoleBadge';
+import { LanguageSwitcher } from '@shared/components/UI/LanguageSwitcher';
 
 
 const Header: React.FC = () => {
@@ -40,20 +41,9 @@ const Header: React.FC = () => {
 
         <div className="flex items-center space-x-4">
           {/* Language Selector */}
-          <div className="flex items-center space-x-2 bg-slate-100 rounded-lg px-3 py-1.5 border border-transparent hover:border-slate-300 transition-all">
-            <GlobeAltIcon className="h-4 w-4 text-slate-500" />
-            <select
-              title="Sélectionner la langue"
-              value={currentLang}
-              onChange={(e) => changeLang(e.target.value as any)}
-              className="bg-transparent border-none text-xs font-medium focus:outline-none text-slate-700 cursor-pointer appearance-none pr-6"
-              style={{ backgroundImage: 'none' }}
-            >
-              <option value="fr">Français</option>
-              <option value="en">English</option>
-              <option value="ar">العربية</option>
-            </select>
-          </div>
+          <LanguageSwitcher />
+
+          {/* Currency Selector */}
 
           {/* Currency Selector */}
           <div className="flex items-center space-x-2">
@@ -84,7 +74,7 @@ const Header: React.FC = () => {
               title="Se déconnecter"
             >
               <ArrowRightOnRectangleIcon className="h-4 w-4" />
-              <span>Déconnexion</span>
+              <span>{t('common.logout')}</span>
             </button>
           </div>
         </div>

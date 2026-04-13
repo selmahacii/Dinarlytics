@@ -1,16 +1,26 @@
 import axios from 'axios';
+import { setupCSRFInterceptor } from '@security/csrfToken';
 
 /**
  * Clean & Unified Axios Client
- * Handles base URL, auth tokens, and centralized error handling.
+ * Handles:
+ * - CSRF token injection (via setupCSRFInterceptor)
+ * - JWT Bearer token injection
+ * - Multi-tenant company ID header
+ * - Centralized error handling
+ * - Credentials (cookies) inclusion
  */
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+    withCredentials: true, // ✅ CRITICAL: Include cookies for CSRF token
     headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
     },
 });
+
+// ✅ Setup CSRF token interceptor (must be before auth interceptors)
+setupCSRFInterceptor(apiClient);
 
 // Interceptor to add Bearer token to every request
 apiClient.interceptors.request.use(
@@ -56,7 +66,24 @@ apiClient.interceptors.response.use(
         if (error.response?.status === 401) {
             // Handle unauthorized access (logout or refresh token)
             console.error('Unauthorized! Redirecting to login...');
-            // window.location.href = '/login'; 
+            // window.location.href = '/login';
+        }
+
+        if (error.response?.status === 403) {
+            // Handle forbidden access - may be CSRF token issue
+            console.error('❌ Forbidden - Possible CSRF token invalid/expired');
+            // Attempt to reinitialize CSRF token
+            import('@security/csrfToken').then(({ CSRFTokenService }) => {
+                CSRFTokenService.initialize().catch(e => {
+                    console.error('Failed to reinitialize CSRF token:', e);
+                });
+            });
+        }
+
+        if (error.response?.status === 429) {
+            // Handle rate limiting
+            const retryAfter = error.response.headers['retry-after'] || '60';
+            console.warn(`⏱️ Rate limited. Retry after ${retryAfter} seconds`);
         }
 
         // Log error for developers but pass it along

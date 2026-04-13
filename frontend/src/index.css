@@ -27,6 +27,11 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     background-color: #f8fafc;
   }
+
+  /* Support RTL */
+  [dir='rtl'] {
+    font-family: 'Inter', 'Amiri', 'Tajawal', sans-serif;
+  }
 }
 
 /* Utilitaires projet (largeurs spécifiques et délais d'animation) */

@@ -64,9 +64,9 @@ const Inventaire: React.FC = () => {
 
     // Répartition par famille
     const stockParFamille = [
-      { famille: 'Famille A', valeur: Math.round(valeurStock * 0.45), articles: Math.round(nombreArticles * 0.40), couleur: 'from-emerald-500 to-teal-500' },
-      { famille: 'Famille B', valeur: Math.round(valeurStock * 0.30), articles: Math.round(nombreArticles * 0.35), couleur: 'from-blue-500 to-indigo-500' },
-      { famille: 'Famille C', valeur: Math.round(valeurStock * 0.25), articles: Math.round(nombreArticles * 0.25), couleur: 'from-slate-600 to-slate-800' }
+      { famille: t('inventory.sections.category_distribution') + ' A', valeur: Math.round(valeurStock * 0.45), articles: Math.round(nombreArticles * 0.40), couleur: 'from-emerald-500 to-teal-500' },
+      { famille: t('inventory.sections.category_distribution') + ' B', valeur: Math.round(valeurStock * 0.30), articles: Math.round(nombreArticles * 0.35), couleur: 'from-blue-500 to-indigo-500' },
+      { famille: t('inventory.sections.category_distribution') + ' C', valeur: Math.round(valeurStock * 0.25), articles: Math.round(nombreArticles * 0.25), couleur: 'from-slate-600 to-slate-800' }
     ];
 
     return (
@@ -79,8 +79,8 @@ const Inventaire: React.FC = () => {
                 <CubeIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Inventaire</h1>
-                <p className="text-slate-300 text-lg mt-1">Gestion des stocks et mouvements</p>
+                <h1 className="text-3xl font-bold">{t('inventory.title')}</h1>
+                <p className="text-slate-300 text-lg mt-1">{t('inventory.subtitle')}</p>
               </div>
             </div>
           </div>
@@ -94,10 +94,10 @@ const Inventaire: React.FC = () => {
                 <CubeIcon className="h-7 w-7 text-white" />
               </div>
             </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Articles en Stock</h3>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">{t('inventory.stats.refs')}</h3>
             <p className="text-3xl font-extrabold text-slate-900">{articlesEnStock}</p>
             <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-emerald-600 font-semibold">✅ Disponibles</p>
+              <p className="text-xs text-emerald-600 font-semibold">✅ {t('inventory.status.available')}</p>
             </div>
           </div>
 
@@ -107,10 +107,10 @@ const Inventaire: React.FC = () => {
                 <ExclamationTriangleIcon className="h-7 w-7 text-white" />
               </div>
             </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Ruptures Stock</h3>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">{t('inventory.tabs.alerts')}</h3>
             <p className="text-3xl font-extrabold text-slate-900">{articlesRupture}</p>
             <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-red-600 font-semibold">🚨 À réapprovisionner</p>
+              <p className="text-xs text-red-600 font-semibold">🚨 {t('inventory.status.to_reorder')}</p>
             </div>
           </div>
 
@@ -120,10 +120,10 @@ const Inventaire: React.FC = () => {
                 <CurrencyDollarIcon className="h-7 w-7 text-white" />
               </div>
             </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Valeur Totale</h3>
-            <p className="text-3xl font-extrabold text-slate-900">{valeurStock?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">{t('inventory.stats.total_value')}</h3>
+            <p className="text-3xl font-extrabold text-slate-900">{valeurStock?.toLocaleString(currentLang === 'ar' ? 'ar-DZ' : 'fr-FR', { style: 'currency', currency: 'DZD' })}</p>
             <div className="mt-3 pt-3 border-t border-slate-200">
-              <p className="text-xs text-blue-600 font-semibold">📦 Stock actuel</p>
+              <p className="text-xs text-blue-600 font-semibold">📦 {t('inventory.tabs.stock')}</p>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@ const Inventaire: React.FC = () => {
             <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
               <ChartPieIcon className="h-5 w-5 text-white" />
             </div>
-            Stock par Famille de Produits
+            {t('inventory.sections.category_distribution')}
           </h2>
           <div className="space-y-4">
             {stockParFamille.map((famille, idx) => (
@@ -142,9 +142,9 @@ const Inventaire: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <p className="font-bold text-slate-900">{famille.famille}</p>
-                    <p className="text-xs text-slate-600">{famille.articles} articles</p>
+                    <p className="text-xs text-slate-600">{famille.articles} {t('inventory.stats.units')}</p>
                   </div>
-                  <p className="text-xl font-extrabold text-slate-900">{famille.valeur?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</p>
+                  <p className="text-xl font-extrabold text-slate-900">{formatCurrency(famille.valeur)}</p>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
                   <div 
@@ -163,12 +163,12 @@ const Inventaire: React.FC = () => {
               <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg mr-3">
                 <ExclamationTriangleIcon className="h-5 w-5 text-white" />
               </div>
-              Alertes Stock
+              {t('inventory.sections.alerts_title')}
             </h3>
             <div className="space-y-3">
               <div className="bg-white p-3 rounded-lg border border-red-300">
-                <p className="text-sm font-bold text-red-700">🚨 {articlesRupture} articles en rupture</p>
-                <p className="text-xs text-slate-600 mt-1">Commander immédiatement</p>
+                <p className="text-sm font-bold text-red-700">🚨 {t('inventory.alerts_msg.out_of_stock_msg', { count: articlesRupture })}</p>
+                <p className="text-xs text-slate-600 mt-1">{t('inventory.reordering.optimize_desc')}</p>
               </div>
             </div>
           </div>
@@ -178,14 +178,14 @@ const Inventaire: React.FC = () => {
               <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-lg mr-3">
                 <CubeIcon className="h-5 w-5 text-white" />
               </div>
-              Actions Rapides
+              {t('inventory.sections.quick_actions')}
             </h3>
             <div className="space-y-3">
               <button className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300">
-                📝 Lancer inventaire
+                📝 {t('inventory.actions.start_inventory')}
               </button>
               <button className="w-full p-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-teal-600 shadow-md hover:shadow-lg transition-all duration-300">
-                📊 Rapport complet
+                📊 {t('inventory.actions.full_report')}
               </button>
             </div>
           </div>
@@ -275,11 +275,11 @@ const Inventaire: React.FC = () => {
   };
 
   const handleExportStock = () => {
-    alert('📊 Export des stocks en cours... Fichier Excel généré avec succès !');
+    alert('📊 ' + t('inventory.actions.export') + '...');
   };
 
   const handlePrintStock = () => {
-    alert('🖨️ Impression du rapport de stock en cours...');
+    alert('🖨️ ' + t('inventory.actions.print') + '...');
   };
 
   const clearFilters = () => {
@@ -295,10 +295,10 @@ const Inventaire: React.FC = () => {
   const outOfStockCount = products.filter(p => p.stock === 0).length;
   const overstockCount = products.filter(p => p.stock >= 100).length;
   const inventoryAlerts = [
-    { id: 1, type: 'low_stock', message: `${lowStockCount} articles en stock faible`, count: lowStockCount, severity: 'warning' as const },
-    { id: 2, type: 'out_of_stock', message: `${outOfStockCount} articles en rupture`, count: outOfStockCount, severity: 'critical' as const },
-    { id: 3, type: 'expiring', message: `0 articles proches de péremption`, count: 0, severity: 'info' as const },
-    { id: 4, type: 'overstock', message: `${overstockCount} articles en surstock`, count: overstockCount, severity: 'info' as const }
+    { id: 1, type: 'low_stock', message: t('inventory.alerts_msg.low_stock_msg', { count: lowStockCount }), count: lowStockCount, severity: 'warning' as const },
+    { id: 2, type: 'out_of_stock', message: t('inventory.alerts_msg.out_of_stock_msg', { count: outOfStockCount }), count: outOfStockCount, severity: 'critical' as const },
+    { id: 3, type: 'expiring', message: t('inventory.alerts_msg.expiring_msg', { count: 0 }), count: 0, severity: 'info' as const },
+    { id: 4, type: 'overstock', message: t('inventory.alerts_msg.overstock_msg', { count: overstockCount }), count: overstockCount, severity: 'info' as const }
   ];
 
   const stockMovements = [
@@ -310,7 +310,7 @@ const Inventaire: React.FC = () => {
       quantity: 100, 
       date: '2024-01-15',
       heure: '14:30',
-      reason: 'Réception commande', 
+      reason: t('inventory.movements.reasons.receipt'), 
       reference: 'BC-2024-001',
       fournisseur: 'Tech Solutions SARL',
       valeurUnitaire: 85000,
@@ -324,7 +324,7 @@ const Inventaire: React.FC = () => {
       quantity: 50, 
       date: '2024-01-14',
       heure: '10:15',
-      reason: 'Vente client',
+      reason: t('inventory.movements.reasons.sale'),
       reference: 'VT-2024-123',
       client: 'Entreprise ABC',
       valeurUnitaire: 12000,
@@ -338,7 +338,7 @@ const Inventaire: React.FC = () => {
       quantity: -10, 
       date: '2024-01-13',
       heure: '16:45',
-      reason: 'Inventaire physique - Écart détecté',
+      reason: t('inventory.movements.reasons.inventory_gap'),
       reference: 'INV-2024-001',
       valeurUnitaire: 45000,
       responsable: 'Mohamed Kadri'
@@ -351,7 +351,7 @@ const Inventaire: React.FC = () => {
       quantity: 200, 
       date: '2024-01-12',
       heure: '09:00',
-      reason: 'Retour client - Produit non conforme',
+      reason: t('inventory.movements.reasons.return'),
       reference: 'RET-2024-008',
       client: 'SARL Distribution Plus',
       valeurUnitaire: 3500,
@@ -365,7 +365,7 @@ const Inventaire: React.FC = () => {
       quantity: 75, 
       date: '2024-01-11',
       heure: '11:20',
-      reason: 'Commande en ligne',
+      reason: t('inventory.movements.reasons.online_order'),
       reference: 'VT-2024-115',
       client: 'Particulier',
       valeurUnitaire: 1200,
@@ -379,7 +379,7 @@ const Inventaire: React.FC = () => {
       quantity: 35, 
       date: '2024-01-10',
       heure: '13:50',
-      reason: 'Réception commande urgente',
+      reason: t('inventory.movements.reasons.urgent_receipt'),
       reference: 'BC-2024-002',
       fournisseur: 'Office Supplies Co',
       valeurUnitaire: 52000,
@@ -393,7 +393,7 @@ const Inventaire: React.FC = () => {
       quantity: 15, 
       date: '2024-01-09',
       heure: '15:30',
-      reason: 'Correction erreur de saisie',
+      reason: t('inventory.movements.reasons.correction'),
       reference: 'ADJ-2024-003',
       valeurUnitaire: 8500,
       responsable: 'Mohamed Kadri'
@@ -406,7 +406,7 @@ const Inventaire: React.FC = () => {
       quantity: 120, 
       date: '2024-01-08',
       heure: '14:00',
-      reason: 'Vente groupée entreprise',
+      reason: t('inventory.movements.reasons.bulk_sale'),
       reference: 'VT-2024-098',
       client: 'Ministère de la Santé',
       valeurUnitaire: 9800,
@@ -433,9 +433,9 @@ const Inventaire: React.FC = () => {
       {/* Header simple et professionnel */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-          Gestion d'Inventaire
+          {t('inventory.title')}
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 text-sm">Surveillez et gérez votre stock</p>
+        <p className="text-slate-600 dark:text-slate-400 text-sm">{t('inventory.subtitle')}</p>
       </div>
 
       {/* Disclaimer sobre */}
@@ -453,12 +453,12 @@ const Inventaire: React.FC = () => {
         <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
           <nav className="flex space-x-4 px-6" aria-label="Tabs">
             {[
-              { id: 'stock', name: 'Gestion Stock', icon: CubeIcon },
-              { id: 'movements', name: 'Mouvements', icon: ArrowPathIcon },
-              { id: 'alerts', name: 'Alertes', icon: ExclamationTriangleIcon },
-              { id: 'reordering', name: 'Réapprovisionnement', icon: MagnifyingGlassIcon },
-              { id: 'barcode', name: 'Codes-barres', icon: FunnelIcon },
-              { id: 'reports', name: 'Rapports', icon: ChartBarIcon }
+              { id: 'stock', name: t('inventory.tabs.stock'), icon: CubeIcon },
+              { id: 'movements', name: t('inventory.tabs.movements'), icon: ArrowPathIcon },
+              { id: 'alerts', name: t('inventory.tabs.alerts'), icon: ExclamationTriangleIcon },
+              { id: 'reordering', name: t('inventory.tabs.reordering'), icon: MagnifyingGlassIcon },
+              { id: 'barcode', name: t('inventory.tabs.barcode'), icon: FunnelIcon },
+              { id: 'reports', name: t('inventory.tabs.reports'), icon: ChartBarIcon }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -486,7 +486,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{products.length}</p>
-                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">Références en stock</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">{t('inventory.stats.refs')}</p>
                     </div>
                     <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded">
                       <CubeIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
@@ -500,7 +500,7 @@ const Inventaire: React.FC = () => {
                       <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                       {products.reduce((total, article) => total + article.stock, 0)}
                     </p>
-                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">Unités totales</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">{t('inventory.stats.total_units')}</p>
                     </div>
                     <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded">
                       <ChartBarIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -512,7 +512,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(totalStock)}</p>
-                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">Valeur totale</p>
+                      <p className="text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wide mt-1">{t('inventory.stats.total_value')}</p>
                     </div>
                     <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded">
                       <CurrencyDollarIcon className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -528,33 +528,33 @@ const Inventaire: React.FC = () => {
                   className="flex items-center px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
                 >
                   <MagnifyingGlassIcon className="h-4 w-4 mr-2" />
-                  Inventaire Physique
+                  {t('inventory.actions.physical_inventory')}
                 </button>
                 <button
                   onClick={handleReordering}
                   className="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
                 >
                   <ArrowPathIcon className="h-4 w-4 mr-2" />
-                  Réapprovisionnement
+                  {t('inventory.actions.reordering')}
                 </button>
                 <button
                   onClick={handleExportStock}
                   className="flex items-center px-4 py-2.5 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 dark:from-slate-500 dark:to-slate-600 text-white rounded-lg text-sm font-medium transition-all shadow-sm"
                 >
                   <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                  Exporter
+                  {t('inventory.actions.export')}
                 </button>
                 <button
                   onClick={handlePrintStock}
                   className="flex items-center px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-all shadow-sm"
                 >
                   <PrinterIcon className="h-4 w-4 mr-2" />
-                  Imprimer
+                  {t('inventory.actions.print')}
                 </button>
               </div>
 
               {/* Répartition par Catégorie simple */}
-              <Card title="Répartition par Catégorie">
+              <Card title={t('inventory.sections.category_distribution')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(categoriesStock)
             .sort(([,a], [,b]) => b - a)
@@ -580,7 +580,7 @@ const Inventaire: React.FC = () => {
                   </div>
                   <p className={`text-xl font-bold ${colorScheme.text} mb-1`}>{formatCurrency(valeur)}</p>
                   <p className={`text-sm ${colorScheme.text} opacity-70`}>
-                    {products.filter(a => a.categorie === categorie).length} articles
+                    {products.filter(a => a.categorie === categorie).length} items
                   </p>
                 </div>
               );
@@ -594,8 +594,8 @@ const Inventaire: React.FC = () => {
           {/* En-tête avec actions */}
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Détail des Stocks</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{filteredAndSortedArticles.length} article(s) trouvé(s)</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{t('inventory.sections.stock_detail')}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.sections.stock_detail_subtitle', { count: filteredAndSortedArticles.length })}</p>
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -620,7 +620,7 @@ const Inventaire: React.FC = () => {
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
-              placeholder="Rechercher par nom d'article ou code PCA..."
+              placeholder={t('inventory.filters.search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-10 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 dark:focus:ring-slate-400 focus:border-slate-500 transition-colors"
@@ -649,7 +649,7 @@ const Inventaire: React.FC = () => {
                 aria-label="Filtrer par catégorie"
                 title="Filtrer par catégorie"
               >
-                <option value="">Toutes les catégories</option>
+                <option value="">{t('inventory.filters.all_categories')}</option>
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
                 ))}
@@ -664,32 +664,32 @@ const Inventaire: React.FC = () => {
               aria-label="Filtrer par statut de stock"
               title="Filtrer par statut de stock"
             >
-              <option value="tous">Tous les statuts</option>
-              <option value="normal">✅ Stock Normal</option>
-              <option value="faible">⚠️ Stock Faible</option>
-              <option value="critique">🔴 Stock Critique</option>
+              <option value="tous">{t('inventory.filters.all_statuses')}</option>
+              <option value="normal">✅ {t('inventory.filters.status_normal')}</option>
+              <option value="faible">⚠️ {t('inventory.filters.status_low')}</option>
+              <option value="critique">🔴 {t('inventory.filters.status_critical')}</option>
             </select>
 
             {/* Tri */}
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">Trier par:</span>
+              <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">{t('inventory.filters.sort_nom')}:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'nom' | 'stock' | 'valeur')}
                 className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm font-medium"
-                aria-label="Trier par"
-                title="Trier par"
+                aria-label={t('inventory.filters.sort_nom')}
+                title={t('inventory.filters.sort_nom')}
               >
-                <option value="nom">Nom</option>
-                <option value="stock">Stock</option>
-                <option value="valeur">Valeur</option>
+                <option value="nom">{t('inventory.filters.sort_nom')}</option>
+                <option value="stock">{t('inventory.filters.sort_stock')}</option>
+                <option value="valeur">{t('inventory.filters.sort_valeur')}</option>
               </select>
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors text-sm font-semibold"
-                title={sortOrder === 'asc' ? 'Tri croissant' : 'Tri décroissant'}
+                title={sortOrder === 'asc' ? t('common.asc') : t('common.desc')}
               >
-                {sortOrder === 'asc' ? '↑ Croissant' : '↓ Décroissant'}
+                {sortOrder === 'asc' ? '↑ ' + t('common.asc') : '↓ ' + t('common.desc')}
               </button>
             </div>
 
@@ -700,7 +700,7 @@ const Inventaire: React.FC = () => {
                 className="ml-auto flex items-center px-3 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm font-medium"
               >
                 <XMarkIcon className="h-4 w-4 mr-1" />
-                Réinitialiser
+                {t('inventory.actions.reset')}
               </button>
             )}
           </div>
@@ -713,25 +713,25 @@ const Inventaire: React.FC = () => {
               <thead className="bg-slate-50 dark:bg-slate-800">
               <tr>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Article
+                  {t('inventory.table.article')}
                 </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Code PCA
+                  {t('inventory.table.pca_code')}
                 </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Quantité
+                  {t('inventory.table.quantity')}
                 </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Prix Unitaire
+                  {t('inventory.table.pu')}
                 </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Valeur Totale
+                  {t('inventory.table.total_value')}
                 </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                  Statut
+                  {t('inventory.table.status')}
                 </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Actions
+                    {t('inventory.table.actions')}
                 </th>
               </tr>
             </thead>
@@ -740,9 +740,9 @@ const Inventaire: React.FC = () => {
                 const valeurTotale = article.prixUnitaire * article.stock;
                   const statusType = getStockStatus(article.stock);
                   const statusConfig = {
-                    normal: { text: 'Stock normal', class: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700' },
-                    faible: { text: 'Stock faible', class: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-700' },
-                    critique: { text: 'Stock critique', class: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700' }
+                    normal: { text: t('inventory.status.normal'), class: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700' },
+                    faible: { text: t('inventory.status.low'), class: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-700' },
+                    critique: { text: t('inventory.status.critical'), class: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700' }
                   };
                   const status = statusConfig[statusType];
 
@@ -760,7 +760,7 @@ const Inventaire: React.FC = () => {
                       </span>
                     </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900 dark:text-slate-100">
-                      {article.stock} unités
+                      {article.stock} {t('inventory.stats.units')}
                     </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">
                       {formatCurrency(article.prixUnitaire)}
@@ -778,14 +778,14 @@ const Inventaire: React.FC = () => {
                           <button 
                             onClick={() => alert(`Détails de: ${article.nom}`)}
                             className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                            title="Voir détails"
+                            title={t('inventory.actions.view_details')}
                           >
                             <EyeIcon className="h-4 w-4" />
                           </button>
                           <button 
                             onClick={() => alert(`Modifier: ${article.nom}`)}
                             className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
-                            title="Modifier"
+                            title={t('inventory.actions.edit')}
                           >
                             <PencilIcon className="h-4 w-4" />
                           </button>
@@ -811,21 +811,21 @@ const Inventaire: React.FC = () => {
                   border: 'border-emerald-200 dark:border-emerald-700',
                   text: 'text-emerald-700 dark:text-emerald-300',
                   icon: 'text-emerald-600 dark:text-emerald-400',
-                  label: '✅ Stock Normal'
+                  label: '✅ ' + t('inventory.filters.status_normal')
                 },
                 faible: { 
                   bg: 'bg-amber-50 dark:bg-amber-900/20', 
                   border: 'border-amber-200 dark:border-amber-700',
                   text: 'text-amber-700 dark:text-amber-300',
                   icon: 'text-amber-600 dark:text-amber-400',
-                  label: '⚠️ Stock Faible'
+                  label: '⚠️ ' + t('inventory.filters.status_low')
                 },
                 critique: { 
                   bg: 'bg-red-50 dark:bg-red-900/20', 
                   border: 'border-red-200 dark:border-red-700',
                   text: 'text-red-700 dark:text-red-300',
                   icon: 'text-red-600 dark:text-red-400',
-                  label: '🔴 Stock Critique'
+                  label: '🔴 ' + t('inventory.filters.status_critical')
                 }
               };
               const config = statusConfig[statusType];
@@ -850,8 +850,8 @@ const Inventaire: React.FC = () => {
                       <span className="font-semibold text-slate-900 dark:text-slate-100">{article.codePCA}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Quantité:</span>
-                      <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} unités</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('inventory.table.quantity')}:</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} {t('inventory.stats.units')}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600 dark:text-slate-400">Prix unitaire:</span>
@@ -869,14 +869,14 @@ const Inventaire: React.FC = () => {
                       className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
                       <EyeIcon className="h-4 w-4 mr-1" />
-                      Détails
+                      {t('inventory.actions.view_details')}
                     </button>
                     <button 
                       onClick={() => alert(`Modifier: ${article.nom}`)}
                       className="flex-1 flex items-center justify-center px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
                     >
                       <PencilIcon className="h-4 w-4 mr-1" />
-                      Modifier
+                      {t('inventory.actions.edit')}
                     </button>
                   </div>
                 </div>
@@ -888,13 +888,13 @@ const Inventaire: React.FC = () => {
         {filteredAndSortedArticles.length === 0 && (
           <div className="text-center py-12">
             <CubeIcon className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Aucun article trouvé</h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">Essayez de modifier vos critères de recherche</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{t('inventory.messages.no_article_found')}</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">{t('inventory.messages.search_crit_desc')}</p>
             <button
               onClick={clearFilters}
               className="px-4 py-2 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
             >
-              Réinitialiser les filtres
+              {t('inventory.actions.reset')}
             </button>
           </div>
         )}
@@ -908,12 +908,12 @@ const Inventaire: React.FC = () => {
               {/* En-tête avec statistiques */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Mouvements de Stock</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Suivi détaillé des entrées, sorties et ajustements</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.movements.title')}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.movements.subtitle')}</p>
                 </div>
                 <button className="flex items-center px-4 py-2.5 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2">
                   <DocumentTextIcon className="h-4 w-4" />
-                  <span>Exporter</span>
+                  <span>{t('inventory.actions.export')}</span>
                 </button>
               </div>
 
@@ -922,9 +922,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Entrées</p>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.movements.in')}</p>
                       <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">+335</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">unités ce mois</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('inventory.movements.units_month')}</p>
                 </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
                       <ArrowDownTrayIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
@@ -935,9 +935,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-5 rounded-xl border border-red-200 dark:border-red-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Sorties</p>
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">{t('inventory.movements.out')}</p>
                       <p className="text-2xl font-bold text-red-900 dark:text-red-100">-245</p>
-                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">unités ce mois</p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
                       <ArrowUpTrayIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
@@ -948,9 +948,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Ajustements</p>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">{t('inventory.movements.adjustment')}</p>
                       <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">+5</p>
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">ce mois</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
                       <AdjustmentsHorizontalIcon className="h-6 w-6 text-amber-700 dark:text-amber-300" />
@@ -961,9 +961,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-5 rounded-xl border border-slate-200 dark:border-slate-600">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Transactions</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('inventory.movements.transactions')}</p>
                       <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stockMovements.length}</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">ce mois</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
                       <ArrowPathIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
@@ -975,7 +975,7 @@ const Inventaire: React.FC = () => {
               {/* Historique des mouvements enrichi */}
               <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Historique des Mouvements</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('inventory.movements.history')}</h4>
                 </div>
                 
                 <div className="space-y-0">
@@ -997,21 +997,21 @@ const Inventaire: React.FC = () => {
                         border: 'border-emerald-200 dark:border-emerald-700',
                         text: 'text-emerald-700 dark:text-emerald-300',
                         icon: 'text-emerald-600 dark:text-emerald-400',
-                        label: 'Entrée'
+                        label: t('inventory.movements.in')
                       },
                       out: {
                         bg: 'bg-red-50 dark:bg-red-900/20',
                         border: 'border-red-200 dark:border-red-700',
                         text: 'text-red-700 dark:text-red-300',
                         icon: 'text-red-600 dark:text-red-400',
-                        label: 'Sortie'
+                        label: t('inventory.movements.out')
                       },
                       adjustment: {
                         bg: 'bg-amber-50 dark:bg-amber-900/20',
                         border: 'border-amber-200 dark:border-amber-700',
                         text: 'text-amber-700 dark:text-amber-300',
                         icon: 'text-amber-600 dark:text-amber-400',
-                        label: 'Ajustement'
+                        label: t('inventory.movements.adjustment')
                       }
                     };
 
@@ -1051,12 +1051,12 @@ const Inventaire: React.FC = () => {
                                     <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                                       <ClockIcon className="h-4 w-4 mr-2" />
                                       <span className="font-medium text-slate-900 dark:text-slate-100">
-                                        {movement.date} à {movement.heure}
+                                        {movement.date} {t('common.at')} {movement.heure}
                             </span>
                                     </div>
                                     <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                                       <DocumentTextIcon className="h-4 w-4 mr-2" />
-                                      <span>Réf: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.reference}</span></span>
+                                      <span>{t('inventory.movements.ref')}: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.reference}</span></span>
                                     </div>
                                   </div>
 
@@ -1064,27 +1064,27 @@ const Inventaire: React.FC = () => {
                                     {movement.fournisseur && (
                                       <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                                         <TruckIcon className="h-4 w-4 mr-2" />
-                                        <span>Fournisseur: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.fournisseur}</span></span>
+                                        <span>{t('inventory.movements.provider')}: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.fournisseur}</span></span>
                                       </div>
                                     )}
                                     {movement.client && (
                                       <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                                         <ShoppingCartIcon className="h-4 w-4 mr-2" />
-                                        <span>Client: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.client}</span></span>
+                                        <span>{t('inventory.movements.client')}: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.client}</span></span>
                                       </div>
                                     )}
                                     <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                                       <UserIcon className="h-4 w-4 mr-2" />
-                                      <span>Par: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.responsable}</span></span>
+                                      <span>{t('inventory.movements.responsible')}: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.responsable}</span></span>
                                     </div>
                                   </div>
 
                                   <div className="space-y-1">
                                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                                      Raison: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.reason}</span>
+                                      {t('inventory.movements.reason')}: <span className="font-medium text-slate-900 dark:text-slate-100">{movement.reason}</span>
                                     </p>
                                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                                      Val. unitaire: {formatCurrency(movement.valeurUnitaire)}
+                                      {t('inventory.movements.unit_val')}: {formatCurrency(movement.valeurUnitaire)}
                                     </p>
                                   </div>
                                 </div>
@@ -1095,7 +1095,7 @@ const Inventaire: React.FC = () => {
                                 <p className={`text-2xl font-bold ${movement.quantity > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                             {movement.quantity > 0 ? '+' : ''}{movement.quantity}
                                 </p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">unités</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('inventory.stats.units')}</p>
                                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-2">
                                   {formatCurrency(Math.abs(valeurTotale))}
                                 </p>
@@ -1115,7 +1115,7 @@ const Inventaire: React.FC = () => {
           {/* Onglet Alertes */}
           {activeTab === 'alerts' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Alertes d'Inventaire</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('inventory.tabs.alerts')}</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {inventoryAlerts.map((alert) => (
@@ -1161,30 +1161,30 @@ const Inventaire: React.FC = () => {
               {/* En-tête */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Suggestions de Réapprovisionnement</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Optimisez vos commandes et évitez les ruptures de stock</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.reordering.suggestions')}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.reordering.subtitle')}</p>
                 </div>
                 <div className="flex space-x-3">
                   <button 
-                    onClick={() => alert(`📊 Export de ${reorderSuggestions.length} articles à réapprovisionner...\n\nFichier Excel généré avec succès !`)}
+                    onClick={() => alert(`📊 ${t('inventory.actions.export')}...\n\nFichier Excel généré avec succès !`)}
                     className="flex items-center px-4 py-2.5 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                   >
                     <DocumentTextIcon className="h-4 w-4" />
-                    <span>Exporter</span>
+                    <span>{t('inventory.actions.export')}</span>
                   </button>
                   <button 
                     onClick={() => {
                       const totalCost = reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0);
                       const totalQuantity = reorderSuggestions.reduce((sum, a) => sum + a.suggestedOrder, 0);
-                      alert(`🛒 Commande groupée de ${reorderSuggestions.length} articles\n\n` +
-                            `Quantité totale: ${totalQuantity} unités\n` +
-                            `Coût total estimé: ${formatCurrency(totalCost)}\n\n` +
-                            `✅ ${reorderSuggestions.length} bons de commande créés avec succès !`);
+                      alert(`🛒 ${t('inventory.actions.order_all')}\n\n` +
+                            `${t('inventory.table.quantity')} : ${totalQuantity} ${t('inventory.stats.units')}\n` +
+                            `${t('inventory.reordering.est_cost')} : ${formatCurrency(totalCost)}\n\n` +
+                            `✅ ${reorderSuggestions.length} ${t('crm.suppliers.purchase_orders')} ${t('common.success')}`);
                     }}
                     className="flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                   >
                     <ShoppingCartIcon className="h-4 w-4" />
-                    <span>Commander Tout</span>
+                    <span>{t('inventory.actions.order_all')}</span>
                   </button>
                 </div>
               </div>
@@ -1194,11 +1194,11 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-5 rounded-xl border border-red-200 dark:border-red-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Urgence Élevée</p>
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">{t('inventory.reordering.high_urgency')}</p>
                       <p className="text-2xl font-bold text-red-900 dark:text-red-100">
                         {reorderSuggestions.filter(a => a.urgency === 'high').length}
                       </p>
-                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">articles critiques</p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">{t('inventory.reordering.critical_articles')}</p>
                 </div>
                     <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
                       <ExclamationTriangleIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
@@ -1209,11 +1209,11 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
                   <div className="flex items-center justify-between">
                             <div>
-                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Urgence Moyenne</p>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">{t('inventory.reordering.medium_urgency')}</p>
                       <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
                         {reorderSuggestions.filter(a => a.urgency === 'medium').length}
                       </p>
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">à surveiller</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{t('inventory.reordering.to_watch')}</p>
                             </div>
                     <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
                       <ClockIcon className="h-6 w-6 text-amber-700 dark:text-amber-300" />
@@ -1224,9 +1224,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-5 rounded-xl border border-slate-200 dark:border-slate-600">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Total Articles</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('common.total')} {t('inventory.table.article')}</p>
                       <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{reorderSuggestions.length}</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">à réapprovisionner</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{t('inventory.stats.to_reorder')}</p>
                     </div>
                     <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
                       <CubeIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
@@ -1237,11 +1237,11 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Coût Estimé</p>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.reordering.est_cost')}</p>
                       <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
                         {formatCurrency(reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0))}
                       </p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">total commandes</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('inventory.reordering.total_orders')}</p>
                     </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
                       <CurrencyDollarIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
@@ -1261,13 +1261,13 @@ const Inventaire: React.FC = () => {
                     icon: string;
                     label: string;
                   }> = {
-                    high: {
+                                    high: {
                       bg: 'bg-red-50 dark:bg-red-900/20',
                       border: 'border-red-200 dark:border-red-700',
                       text: 'text-red-700 dark:text-red-300',
                       badge: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/40 dark:text-red-300 dark:border-red-700',
                       icon: 'text-red-600 dark:text-red-400',
-                      label: '🔴 Urgence Élevée'
+                      label: '🔴 ' + t('inventory.reordering.high_urgency')
                     },
                     medium: {
                       bg: 'bg-amber-50 dark:bg-amber-900/20',
@@ -1275,7 +1275,7 @@ const Inventaire: React.FC = () => {
                       text: 'text-amber-700 dark:text-amber-300',
                       badge: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
                       icon: 'text-amber-600 dark:text-amber-400',
-                      label: '🟡 Urgence Moyenne'
+                      label: '🟡 ' + t('inventory.reordering.medium_urgency')
                     },
                     low: {
                       bg: 'bg-slate-50 dark:bg-slate-800',
@@ -1283,7 +1283,7 @@ const Inventaire: React.FC = () => {
                       text: 'text-slate-700 dark:text-slate-300',
                       badge: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600',
                       icon: 'text-slate-600 dark:text-slate-400',
-                      label: '🟢 Urgence Faible'
+                      label: '🟢 ' + t('inventory.reordering.low_urgency')
                     }
                   };
 
@@ -1315,8 +1315,8 @@ const Inventaire: React.FC = () => {
                             {/* Barre de progression du stock */}
                             <div className="mb-4">
                               <div className="flex items-center justify-between text-xs mb-1">
-                                <span className="text-slate-600 dark:text-slate-400">Stock actuel</span>
-                                <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} / {article.stockOptimal} unités</span>
+                                <span className="text-slate-600 dark:text-slate-400">{t('inventory.status.available')}</span>
+                                <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} / {article.stockOptimal} {t('inventory.stats.units')}</span>
                               </div>
                               <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                                 <div 
@@ -1331,19 +1331,19 @@ const Inventaire: React.FC = () => {
                             {/* Détails en grille */}
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                               <div className="space-y-1">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Stock Minimum</p>
-                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.stockMinimum} unités</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('inventory.reordering.stock_min')}</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.stockMinimum} {t('inventory.stats.units')}</p>
                               </div>
                               <div className="space-y-1">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Quantité Suggérée</p>
-                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">+{article.suggestedOrder} unités</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('inventory.reordering.suggested_order')}</p>
+                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">+{article.suggestedOrder} {t('inventory.stats.units')}</p>
                               </div>
                               <div className="space-y-1">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Délai de Livraison</p>
-                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.delaiLivraison} jours</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('inventory.reordering.lead_time')}</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{article.delaiLivraison} {t('common.days')}</p>
                               </div>
                               <div className="space-y-1">
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Coût Estimé</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('inventory.reordering.est_cost')}</p>
                                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(article.coutEstime)}</p>
                               </div>
                             </div>
@@ -1352,11 +1352,11 @@ const Inventaire: React.FC = () => {
                             <div className="mt-4 flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
                               <div className="flex items-center space-x-2">
                                 <TruckIcon className="h-4 w-4" />
-                                <span>Fournisseur: <span className="font-medium text-slate-900 dark:text-slate-100">{article.fournisseurPrincipal}</span></span>
+                                <span>{t('inventory.movements.provider')}: <span className="font-medium text-slate-900 dark:text-slate-100">{article.fournisseurPrincipal}</span></span>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <ClockIcon className="h-4 w-4" />
-                                <span>Dernier achat: <span className="font-medium text-slate-900 dark:text-slate-100">{article.dernierAchat}</span></span>
+                                <span>{t('inventory.reordering.last_purchase')}: <span className="font-medium text-slate-900 dark:text-slate-100">{article.dernierAchat}</span></span>
                               </div>
                             </div>
                           </div>
@@ -1371,7 +1371,7 @@ const Inventaire: React.FC = () => {
                               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium flex items-center space-x-2 whitespace-nowrap"
                             >
                               <ShoppingCartIcon className="h-4 w-4" />
-                              <span>Commander</span>
+                              <span>{t('inventory.actions.order')}</span>
                             </button>
                             <button 
                               onClick={() => {
@@ -1380,7 +1380,7 @@ const Inventaire: React.FC = () => {
                               }}
                               className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors font-medium"
                             >
-                              Détails
+                              {t('inventory.actions.view_details')}
                             </button>
                 </div>
               </div>
@@ -1393,8 +1393,8 @@ const Inventaire: React.FC = () => {
               {reorderSuggestions.length === 0 && (
                 <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                   <CubeIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">Aucun article à réapprovisionner</h3>
-                  <p className="text-slate-600 dark:text-slate-400">Tous vos stocks sont à un niveau optimal !</p>
+                  <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">{t('inventory.reordering.no_reorder_suggestion')}</h3>
+                  <p className="text-slate-600 dark:text-slate-400">{t('inventory.reordering.opt_level_msg')}</p>
                 </div>
               )}
             </div>
@@ -1405,15 +1405,15 @@ const Inventaire: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Gestion des Codes-barres</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Gérez et imprimez les codes-barres de vos articles</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.barcode.title')}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.barcode.subtitle')}</p>
                 </div>
                 <button 
                   onClick={() => alert(`🖨️ Impression groupée de codes-barres\n\n${filteredAndSortedArticles.length} étiquettes à imprimer\nFormat: EAN-13 (50x30mm)\n\n✅ Envoi vers l'imprimante...`)}
                   className="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                 >
                   <PrinterIcon className="h-4 w-4" />
-                  <span>Imprimer Codes-barres</span>
+                  <span>{t('inventory.actions.print_barcode')}</span>
                 </button>
               </div>
 
@@ -1422,9 +1422,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-5 rounded-xl border border-blue-200 dark:border-blue-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">Articles Scannés</p>
+                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">{t('inventory.barcode.scanned')}</p>
                       <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">47</p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">ce mois</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-lg">
                       <FunnelIcon className="h-6 w-6 text-blue-700 dark:text-blue-300" />
@@ -1435,9 +1435,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Codes Générés</p>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.barcode.generated')}</p>
                       <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">152</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">total</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('common.total')}</p>
                     </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
                       <CheckCircleIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
@@ -1448,9 +1448,9 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-5 rounded-xl border border-slate-200 dark:border-slate-600">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Sans Code-barres</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('inventory.barcode.missing')}</p>
                       <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">8</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">à générer</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{t('inventory.barcode.to_generate')}</p>
                     </div>
                     <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
                       <ExclamationTriangleIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
@@ -1462,7 +1462,7 @@ const Inventaire: React.FC = () => {
               {/* Liste des articles avec codes-barres */}
               <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Articles Récents</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('inventory.barcode.recent_articles')}</h4>
                 </div>
                 <div className="p-6 space-y-4">
                   {filteredAndSortedArticles.slice(0, 5).map((article) => (
@@ -1484,7 +1484,7 @@ const Inventaire: React.FC = () => {
                           }}
                           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                         >
-                          Générer
+                          {t('inventory.actions.generate')}
                         </button>
                         <button 
                           onClick={() => {
@@ -1510,15 +1510,15 @@ const Inventaire: React.FC = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Rapports d'Inventaire</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Générez et consultez vos rapports de stock avec analyses graphiques</p>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.reports.title')}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.reports.subtitle')}</p>
                 </div>
                 <button 
                   onClick={handleExportStock}
                   className="flex items-center px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                 >
                   <DocumentTextIcon className="h-4 w-4" />
-                  <span>Nouveau Rapport</span>
+                  <span>{t('common.new_report', { defaultValue: 'Nouveau Rapport' })}</span>
                 </button>
               </div>
 
@@ -1526,7 +1526,7 @@ const Inventaire: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
                   { 
-                    title: 'Rapport de Stock Complet', 
+                    title: t('inventory.reports.full_stock'), 
                     icon: CubeIcon, 
                     color: 'blue', 
                     desc: 'Vue d\'ensemble de tous les articles', 
@@ -1534,7 +1534,7 @@ const Inventaire: React.FC = () => {
                     details: `Contenu du rapport:\n- Liste complète de ${products.length} articles\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Niveaux de stock\n- Historique des mouvements`
                   },
                   { 
-                    title: 'Mouvements du Mois', 
+                    title: t('inventory.reports.monthly_moves'), 
                     icon: ArrowPathIcon, 
                     color: 'emerald', 
                     desc: 'Entrées et sorties mensuelles', 
@@ -1542,7 +1542,7 @@ const Inventaire: React.FC = () => {
                     details: `Contenu du rapport:\n- 8 mouvements enregistrés\n- Entrées: +335 unités\n- Sorties: -245 unités\n- Solde net: +90 unités\n- Détail par fournisseur/client`
                   },
                   { 
-                    title: 'Valeur du Stock', 
+                    title: t('inventory.reports.stock_valuation'), 
                     icon: CurrencyDollarIcon, 
                     color: 'amber', 
                     desc: 'Valorisation totale des stocks', 
@@ -1550,7 +1550,7 @@ const Inventaire: React.FC = () => {
                     details: `Contenu du rapport:\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Évolution sur 6 mois\n- Articles à forte valeur\n- Comparaison avec objectifs`
                   },
                   { 
-                    title: 'Articles en Alerte', 
+                    title: t('inventory.reports.alert_summary'), 
                     icon: ExclamationTriangleIcon, 
                     color: 'red', 
                     desc: 'Stock faible et ruptures', 
@@ -1558,7 +1558,7 @@ const Inventaire: React.FC = () => {
                     details: `Contenu du rapport:\n- ${reorderSuggestions.filter(a => a.urgency === 'high').length} articles en urgence élevée\n- ${reorderSuggestions.filter(a => a.urgency === 'medium').length} articles en urgence moyenne\n- Coût total réapprovisionnement: ${formatCurrency(reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0))}\n- Recommandations de commande`
                   },
                   { 
-                    title: 'Rapport de Rotation', 
+                    title: t('inventory.reports.rotation_rate'), 
                     icon: ArrowPathIcon, 
                     color: 'purple', 
                     desc: 'Taux de rotation des stocks', 
@@ -1566,7 +1566,7 @@ const Inventaire: React.FC = () => {
                     details: `Contenu du rapport:\n- Taux de rotation: 3.5× par an\n- Durée moyenne de stockage: 104 jours\n- Articles à rotation rapide\n- Articles à rotation lente\n- Recommandations d'optimisation`
                   },
                   { 
-                    title: 'Analyse ABC', 
+                    title: t('inventory.reports.abc_analysis'), 
                     icon: ChartBarIcon, 
                     color: 'slate', 
                     desc: 'Classification par valeur', 
@@ -1620,14 +1620,14 @@ const Inventaire: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Graphique Évolution du Stock */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Évolution du Stock (6 derniers mois)</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">{t('inventory.reports.stock_valuation')} (6 {t('common.months', { defaultValue: 'derniers mois' })})</h4>
                   <div className="h-64">
                     <Line
                       data={{
                         labels: ['Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
                         datasets: [
                           {
-                            label: 'Valeur du Stock',
+                            label: t('inventory.reports.stock_valuation'),
                             data: [980000, 1050000, 1120000, 1180000, 1220000, totalStock],
                             borderColor: '#3B82F6',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -1635,7 +1635,7 @@ const Inventaire: React.FC = () => {
                             fill: true
                           },
                           {
-                            label: 'Quantité Totale',
+                            label: t('inventory.stats.total_items'),
                             data: [850, 920, 980, 1050, 1120, products.reduce((sum, a) => sum + a.stock, 0)],
                             borderColor: '#10B981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1682,7 +1682,7 @@ const Inventaire: React.FC = () => {
 
                 {/* Graphique Répartition par Catégorie */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Répartition par Catégorie</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">{t('inventory.tabs.stock')} {t('common.by_category', { defaultValue: 'par Catégorie' })}</h4>
                   <div className="h-64">
                     <Doughnut
                       data={{
@@ -1724,21 +1724,21 @@ const Inventaire: React.FC = () => {
 
                 {/* Graphique Mouvements Mensuels */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Mouvements Mensuels</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">{t('inventory.tabs.movements')} {t('common.monthly', { defaultValue: 'Mensuels' })}</h4>
                   <div className="h-64">
                     <Bar
                       data={{
                         labels: ['Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
                         datasets: [
                           {
-                            label: 'Entrées',
+                            label: t('inventory.movements.in'),
                             data: [250, 320, 280, 310, 290, 335],
                             backgroundColor: '#10B981',
                             borderColor: '#059669',
                             borderWidth: 1
                           },
                           {
-                            label: 'Sorties',
+                            label: t('inventory.movements.out'),
                             data: [180, 210, 195, 230, 220, 245],
                             backgroundColor: '#EF4444',
                             borderColor: '#DC2626',
@@ -1766,13 +1766,13 @@ const Inventaire: React.FC = () => {
 
                 {/* Graphique Analyse ABC */}
                 <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Analyse ABC - Classification par Valeur</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">{t('inventory.reports.abc_analysis')} - {t('common.classification_by_value', { defaultValue: 'Classification par Valeur' })}</h4>
                   <div className="h-64">
                     <Bar
                       data={{
                         labels: ['Catégorie A\n(Haute Valeur)', 'Catégorie B\n(Valeur Moyenne)', 'Catégorie C\n(Faible Valeur)'],
                         datasets: [{
-                          label: 'Nombre d\'articles',
+                          label: t('inventory.stats.total_items'),
                           data: [
                             Math.floor(products.length * 0.20),
                             Math.floor(products.length * 0.30),
@@ -1832,7 +1832,7 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-5 rounded-xl border border-blue-200 dark:border-blue-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">Stock Normal</p>
+                      <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">{t('inventory.status.normal')}</p>
                       <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                         {products.filter(a => a.stock > 50).length}
                       </p>
@@ -1847,7 +1847,7 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 p-5 rounded-xl border border-amber-200 dark:border-amber-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">Stock Faible</p>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">{t('inventory.status.low')}</p>
                       <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
                         {products.filter(a => a.stock <= 50 && a.stock > 20).length}
                       </p>
@@ -1862,7 +1862,7 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-5 rounded-xl border border-red-200 dark:border-red-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">Stock Critique</p>
+                      <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">{t('inventory.status.critical')}</p>
                       <p className="text-2xl font-bold text-red-900 dark:text-red-100">
                         {products.filter(a => a.stock <= 20).length}
                       </p>
@@ -1877,7 +1877,7 @@ const Inventaire: React.FC = () => {
                 <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">Taux de Rotation</p>
+                      <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.reordering.turnover')}</p>
                       <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">3.5×</p>
                       <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">fois par an</p>
                     </div>
@@ -1994,7 +1994,7 @@ const Inventaire: React.FC = () => {
             <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">📋 Inventaire Physique</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Vérifiez et ajustez les quantités en stock</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.actions.physical_audit')}</p>
               </div>
               <button 
                 onClick={() => setShowInventoryModal(false)}
@@ -2063,7 +2063,7 @@ const Inventaire: React.FC = () => {
                   }}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
                 >
-                  Valider l'Inventaire
+                  {t('inventory.actions.validate')}
                 </button>
               </div>
             </div>

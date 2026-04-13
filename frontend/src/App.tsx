@@ -1,12 +1,14 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ErrorBoundary from './shared/components/Effects/ErrorBoundary';
 import Layout from './core/layout/Layout';
 import Login from '@features/auth/pages/Login';
 import { ProtectedRoute } from '@shared/components/ProtectedRoute';
+import { CSRFTokenService } from '@security/csrfToken';
 
-// Dashboard Components (Mapped from shared/components)
-import RealisticDashboard from '@shared/components/Dashboard/RealisticDashboard';
+// Dashboard Components (Refactored!)
+import DashboardRefactore from '@features/dashboard/pages/DashboardRefactore';
+// Deprecated: import RealisticDashboard from '@shared/components/Dashboard/RealisticDashboard';
 import AnalyticsAvancees from '@features/dashboard/pages/AnalyticsAvancees';
 
 // Operations Components
@@ -50,6 +52,24 @@ const RapprochementBancairePage = React.lazy(() => import('@/pages/accounting/Ra
 import { useRealtime } from '@shared/hooks/useRealtime';
 
 function App() {
+  // ✅ Initialize CSRF token on app startup
+  useEffect(() => {
+    const initializeCSRF = async () => {
+      try {
+        const token = await CSRFTokenService.initialize();
+        if (token) {
+          console.log('✅ CSRF Token initialized successfully');
+        } else {
+          console.warn('⚠️ CSRF Token initialization returned null');
+        }
+      } catch (error) {
+        console.error('❌ Failed to initialize CSRF token:', error);
+      }
+    };
+
+    initializeCSRF();
+  }, []);
+
   useRealtime();
 
   return (
@@ -62,9 +82,9 @@ function App() {
             <Layout>
               <Suspense fallback={<div className="p-8 text-center">Chargement du module...</div>}>
                 <Routes>
-                  {/* Dashboard */}
-                  <Route path="/dashboard" element={<ProtectedRoute><RealisticDashboard isVisible={true} /></ProtectedRoute>} />
-                  <Route path="/dashboard/temps-reel" element={<ProtectedRoute><RealisticDashboard isVisible={true} /></ProtectedRoute>} />
+                  {/* Dashboard - Refactored Components */}
+                  <Route path="/dashboard" element={<ProtectedRoute><DashboardRefactore isCollapsible /></ProtectedRoute>} />
+                  <Route path="/dashboard/temps-reel" element={<ProtectedRoute><DashboardRefactore isCollapsible /></ProtectedRoute>} />
                   <Route path="/dashboard/analytics" element={<ProtectedRoute requiredPermission="rapports-basic"><AnalyticsAvancees /></ProtectedRoute>} />
                   <Route path="/dashboard/alertes" element={<ProtectedRoute requiredPermission="dashboard-alerts"><Audit /></ProtectedRoute>} />
                   <Route path="/dashboard/calendrier" element={<ProtectedRoute requiredPermission="dashboard-calendar"><Fiscalite /></ProtectedRoute>} />

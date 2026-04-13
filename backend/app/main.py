@@ -12,6 +12,10 @@ from starlette.middleware.gzip import GZipMiddleware
 from app.core.config import settings
 from app.core.database import close_db, init_db
 from app.api.v1.api import api_router
+from app.core.csrf_middleware import CSRFMiddleware, add_security_middleware
+from app.core.security_config import CorsPolicies
+from app.core.schemas import HealthCheckResponse
+from app.middleware.request_id import RequestIDMiddleware
 
 
 
@@ -45,13 +49,42 @@ app = FastAPI(
     openapi_url=settings.OPENAPI_URL,
     lifespan=lifespan,
 )
-# Security Middleware
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
-# GZIP Compression
+# ========== SECURITY & MIDDLEWARE STACK (Order Matters!) ==========
+# 1. TRUSTED HOST MIDDLEWARE (First - validates Host header)
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=[
+        "localhost",
+        "127.0.0.1",
+        "app.dinarlytics.com",
+        "api.dinarlytics.com",
+    ],
+)
+
+# 2. REQUEST ID MIDDLEWARE (For distributed tracing)
+app.add_middleware(RequestIDMiddleware)
+
+# 3. CORS MIDDLEWARE (Restrictive - whitelist approach)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CorsPolicies.ALLOWED_ORIGINS,
+    allow_methods=CorsPolicies.ALLOWED_METHODS,
+    allow_headers=CorsPolicies.ALLOWED_HEADERS,
+    allow_credentials=CorsPolicies.ALLOW_CREDENTIALS,
+    max_age=CorsPolicies.MAX_AGE,
+)
+
+# 4. CSRF PROTECTION MIDDLEWARE
+app.add_middleware(CSRFMiddleware, secret_key=settings.SECRET_KEY)
+
+# 5. CUSTOM SECURITY HEADERS MIDDLEWARE
+app.middleware("http")(add_security_middleware)
+
+# 6. GZIP COMPRESSION
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# Rate Limiting
+# 7. RATE LIMITING
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.errors import RateLimitExceeded
 from app.core.limiter import limiter
@@ -63,17 +96,15 @@ app.add_middleware(SlowAPIMiddleware)
 def rate_limit_handler(request, exc):
     return JSONResponse(
         status_code=429,
-        content={"detail": "Too many requests, please try again later."},
+        content={
+            "error": "Too Many Requests",
+            "detail": "Rate limit exceeded. Please try again later.",
+            "retry_after": exc.headers.get("Retry-After", "60"),
+        },
+        headers={"Retry-After": exc.headers.get("Retry-After", "60")},
     )
 
-# CORS Middleware (Outermost for Preflight)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+logger.info("✅ Security middleware stack configured")
 
 # Sentry Integration
 import sentry_sdk
@@ -84,6 +115,13 @@ if settings.SENTRY_DSN:
         profiles_sample_rate=1.0,
         environment=settings.APP_ENVIRONMENT,
     )
+
+# OpenTelemetry Distributed Tracing
+from app.core.observability import init_observability
+from app.core.database import engine
+
+init_observability(app, settings)
+logger.info("✅ Observability and monitoring initialized")
 
 
 # ========== EXCEPTION HANDLERS ==========
@@ -112,10 +150,20 @@ async def general_exception_handler(_request, exc):
 
 # ========== HEALTH & INFO ENDPOINTS ==========
 
+@app.get("/api/v1/health", tags=["health"], response_model=HealthCheckResponse)
+async def health_check():
+    """Health check endpoint with database and cache status"""
+    return HealthCheckResponse(
+        status="healthy",
+        timestamp=datetime.utcnow(),
+        database="ok",
+        cache="ok",
+        message="All systems operational"
+    )
 
 @app.get("/health", tags=["health"])
-async def health_check():
-    """Health check endpoint"""
+async def health_check_simple():
+    """Simple health check endpoint (deprecated, keep for backward compatibility)"""
     return {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),

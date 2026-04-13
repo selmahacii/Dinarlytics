@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import {
   DocumentTextIcon,
   CalendarIcon,
@@ -21,6 +22,7 @@ import Card from '@shared/components/UI/Card';
 import { usePermission } from '@shared/hooks/usePermission';
 
 const DocumentsFiscaux: React.FC = () => {
+  const { t } = useTranslation();
   const { 
     user, 
     currentDevise, 
@@ -101,10 +103,10 @@ const DocumentsFiscaux: React.FC = () => {
 
   const getFrequencyLabel = (frequency: string) => {
     switch (frequency) {
-      case 'mensuel': return 'Mensuel';
-      case 'trimestriel': return 'Trimestriel';
-      case 'annuel': return 'Annuel';
-      case 'ponctuel': return 'Ponctuel';
+      case 'mensuel': return t('accounting.fiscal.documents.frequencies.mensuel');
+      case 'trimestriel': return t('accounting.fiscal.documents.frequencies.trimestriel');
+      case 'annuel': return t('accounting.fiscal.documents.frequencies.annuel');
+      case 'ponctuel': return t('accounting.fiscal.documents.frequencies.ponctuel');
       default: return frequency;
     }
   };
@@ -116,12 +118,12 @@ const DocumentsFiscaux: React.FC = () => {
   });
 
   const countryNames: Record<Country, string> = {
-    DZ: 'Algérie',
-    FR: 'France',
-    DE: 'Allemagne',
-    IT: 'Italie',
-    US: 'États-Unis',
-    EU: 'Union Européenne'
+    DZ: t('common.countries.algeria'),
+    FR: t('common.countries.france'),
+    DE: t('common.countries.germany'),
+    IT: t('common.countries.italy'),
+    US: t('common.countries.usa'),
+    EU: t('common.countries.eu')
   };
 
   return (
@@ -134,9 +136,9 @@ const DocumentsFiscaux: React.FC = () => {
               <DocumentTextIcon className="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Documents Fiscaux</h1>
+              <h1 className="text-3xl font-bold text-white">{t('accounting.fiscal.documents.title')}</h1>
               <p className="text-slate-200 text-sm mt-1">
-                Gestion des documents fiscaux pour {countryNames[currentCountry]}
+                {t('accounting.fiscal.documents.subtitle', { country: countryNames[currentCountry] })}
               </p>
             </div>
           </div>
@@ -161,36 +163,36 @@ const DocumentsFiscaux: React.FC = () => {
       <Card className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('accounting.fiscal.documents.filters.category')}</label>
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="all">Toutes les catégories</option>
-              <option value="declaration">Déclarations</option>
-              <option value="attestation">Attestations</option>
-              <option value="bilan">Bilans</option>
-              <option value="formulaire">Formulaires</option>
-              <option value="certificat">Certificats</option>
+              <option value="all">{t('accounting.fiscal.documents.filters.all_categories')}</option>
+              <option value="declaration">{t('accounting.fiscal.documents.categories.declaration')}</option>
+              <option value="attestation">{t('accounting.fiscal.documents.categories.attestation')}</option>
+              <option value="bilan">{t('accounting.fiscal.documents.categories.bilan')}</option>
+              <option value="formulaire">{t('accounting.fiscal.documents.categories.formulaire')}</option>
+              <option value="certificat">{t('accounting.fiscal.documents.categories.certificat')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Fréquence</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('accounting.fiscal.documents.filters.frequency')}</label>
             <select
               value={filterFrequency}
               onChange={(e) => setFilterFrequency(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="all">Toutes les fréquences</option>
-              <option value="mensuel">Mensuel</option>
-              <option value="trimestriel">Trimestriel</option>
-              <option value="annuel">Annuel</option>
-              <option value="ponctuel">Ponctuel</option>
+              <option value="all">{t('accounting.fiscal.documents.filters.all_frequencies')}</option>
+              <option value="mensuel">{t('accounting.fiscal.documents.frequencies.mensuel')}</option>
+              <option value="trimestriel">{t('accounting.fiscal.documents.frequencies.trimestriel')}</option>
+              <option value="annuel">{t('accounting.fiscal.documents.frequencies.annuel')}</option>
+              <option value="ponctuel">{t('accounting.fiscal.documents.frequencies.ponctuel')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Pays</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('accounting.fiscal.documents.filters.country')}</label>
             <div className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg">
               <span className="text-sm font-medium text-gray-900">{countryNames[currentCountry]}</span>
             </div>
@@ -230,7 +232,7 @@ const DocumentsFiscaux: React.FC = () => {
                 </div>
                 {document.required && (
                   <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">
-                    Obligatoire
+                    {t('accounting.fiscal.documents.details.required')}
                   </span>
                 )}
               </div>
@@ -245,22 +247,22 @@ const DocumentsFiscaux: React.FC = () => {
                 {document.deadline && (
                   <span className="flex items-center">
                     <ClockIcon className="h-4 w-4 mr-1" />
-                    {document.deadline}
+                    {t('accounting.fiscal.documents.details.deadline')}: {document.deadline}
                   </span>
                 )}
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500">
-                  {document.forEntity === 'both' ? 'Entreprise & Particulier' :
-                   document.forEntity === 'entreprise' ? 'Entreprise' : 'Particulier'}
+                  {document.forEntity === 'both' ? t('accounting.fiscal.documents.details.business_type.both') :
+                   document.forEntity === 'entreprise' ? t('accounting.fiscal.documents.details.business_type.entreprise') : t('accounting.fiscal.documents.details.business_type.particulier')}
                 </span>
                 <button
                   onClick={() => handleCreateDocument(document)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
                 >
                   <PlusIcon className="h-4 w-4 mr-1" />
-                  Créer
+                  {t('accounting.fiscal.documents.actions.create')}
                 </button>
               </div>
             </Card>
@@ -271,15 +273,15 @@ const DocumentsFiscaux: React.FC = () => {
       {/* Documents créés */}
       {createdDocuments.length > 0 && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Documents Créés</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">{t('accounting.fiscal.documents.table.created_title')}</h2>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.fiscal.documents.table.document')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.fiscal.documents.table.date')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.fiscal.documents.table.statut')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('accounting.fiscal.documents.table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -294,7 +296,7 @@ const DocumentsFiscaux: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(doc.statut)}`}>
-                        {doc.statut.charAt(0).toUpperCase() + doc.statut.slice(1)}
+                        {t(`accounting.fiscal.documents.status.${doc.statut}`)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -336,7 +338,7 @@ const DocumentsFiscaux: React.FC = () => {
               {selectedDocument.deadline && (
                 <p className="text-xs text-blue-600 mt-2">
                   <ClockIcon className="h-4 w-4 inline mr-1" />
-                  Échéance: {selectedDocument.deadline}
+                  {t('accounting.fiscal.documents.details.deadline')}: {selectedDocument.deadline}
                 </p>
               )}
             </div>
@@ -391,13 +393,13 @@ const DocumentsFiscaux: React.FC = () => {
                 }}
                 className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
               >
-                Annuler
+                {t('accounting.fiscal.documents.actions.cancel')}
               </button>
               <button
                 onClick={handleSubmitDocument}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Créer le document
+                {t('accounting.fiscal.documents.actions.submit')}
               </button>
             </div>
           </div>

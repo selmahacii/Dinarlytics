@@ -143,10 +143,10 @@ const Articles: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-3">
-                  <h1 className="text-3xl font-bold">Gestion des Articles</h1>
+                  <h1 className="text-3xl font-bold">{t('inventory.articles.title')}</h1>
                   <HelpButton pageId="articles" variant="icon" className="text-white/80 hover:text-white" />
                 </div>
-                <p className="text-slate-300 text-lg mt-1">Catalogue produits et tarification</p>
+                <p className="text-slate-300 text-lg mt-1">{t('inventory.articles.subtitle')}</p>
               </div>
             </div>
           </div>
@@ -157,14 +157,14 @@ const Articles: React.FC = () => {
             <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg w-fit mb-3">
               <CubeIcon className="h-7 w-7 text-white" />
             </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Articles Actifs</h3>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">{t('inventory.articles.stats.active_articles')}</h3>
             {loadingStats ? (
               <p className="text-2xl font-extrabold text-slate-400">...</p>
             ) : (
               <>
                 <p className="text-3xl font-extrabold text-slate-900">{articlesStats?.active ?? 0}</p>
                 <div className="mt-3 pt-3 border-t border-slate-200">
-                  <p className="text-xs text-emerald-600 font-semibold">📦 En catalogue ({articlesStats?.total ?? 0} total)</p>
+                  <p className="text-xs text-emerald-600 font-semibold">📦 {t('inventory.articles.stats.in_catalog', { count: articlesStats?.total ?? 0 })}</p>
                 </div>
               </>
             )}
@@ -174,21 +174,21 @@ const Articles: React.FC = () => {
             <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg w-fit mb-3">
               <ArrowPathIcon className="h-7 w-7 text-white" />
             </div>
-            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">Rotation</h3>
+            <h3 className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-1">{t('inventory.articles.stats.rotation')}</h3>
             {loadingStats ? (
               <p className="text-2xl font-extrabold text-slate-400">...</p>
             ) : (
               <>
                 <p className="text-3xl font-extrabold text-slate-900">{(articlesStats?.rotation ?? 0).toFixed(1)}x</p>
                 <div className="mt-3 pt-3 border-t border-slate-200">
-                  <p className="text-xs text-blue-600 font-semibold">📊 Par an</p>
+                  <p className="text-xs text-blue-600 font-semibold">📊 {t('inventory.articles.stats.per_year')}</p>
                 </div>
               </>
             )}
           </div>
 
           <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-lg">
-            <h3 className="text-lg font-bold text-slate-900 mb-3">Actions Rapides</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-3">{t('inventory.sections.quick_actions')}</h3>
             <button
               onClick={() => {
                 setSelectedArticle(null);
@@ -197,7 +197,7 @@ const Articles: React.FC = () => {
               className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
             >
               <PlusIcon className="h-5 w-5" />
-              Nouvel article
+              {t('articles.actions.new_article')}
             </button>
           </div>
         </div>
@@ -206,10 +206,9 @@ const Articles: React.FC = () => {
         <Modal
           isOpen={isModalOpen}
           onClose={() => {
-            setIsModalOpen(false);
             setSelectedArticle(null);
           }}
-          title={selectedArticle ? 'Modifier Article' : 'Nouvel Article'}
+          title={selectedArticle ? t('inventory.articles.modal.edit_title') : t('inventory.articles.modal.create_title')}
           size="lg"
         >
           <form
@@ -232,8 +231,8 @@ const Articles: React.FC = () => {
                   description
                 });
                 setSuccessData({
-                  title: '✅ Article modifié avec succès !',
-                  message: `L'article "${nom}" a été mis à jour dans votre catalogue.`,
+                  title: t('inventory.articles.success.modified_title'),
+                  message: t('inventory.articles.success.modified_msg', { name: nom }),
                   details: [
                     `Nom : ${nom}`,
                     `Code PCA : ${codePCA || 'Non défini'}`,
@@ -261,8 +260,8 @@ const Articles: React.FC = () => {
                 // Ajouter au contexte (simulation locale)
                 setProducts([...products, newArticle]);
                 setSuccessData({
-                  title: '✅ Article créé avec succès !',
-                  message: `L'article "${nom}" a été ajouté à votre catalogue.`,
+                  title: t('inventory.articles.success.created_title'),
+                  message: t('inventory.articles.success.created_msg', { name: nom }),
                   details: [
                     `Nom : ${nom}`,
                     `Code PCA : ${codePCA || 'Non défini'}`,
@@ -295,7 +294,7 @@ const Articles: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom de l'article <span className="text-red-500">*</span>
+                  {t('inventory.table.article')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -309,16 +308,16 @@ const Articles: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Code PCA
+                  {t('inventory.table.pca_code')}
                 </label>
                 <select
                   name="codePCA"
                   defaultValue={selectedArticle?.codePCA || ''}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  aria-label="Sélectionner le code PCA"
-                  title="Sélectionner le code PCA"
+                  aria-label={t('common.select') + ' ' + t('inventory.table.pca_code')}
+                  title={t('common.select') + ' ' + t('inventory.table.pca_code')}
                 >
-                  <option value="">Sélectionner un code</option>
+                  <option value="">{t('common.select')}</option>
                   <option value="601100">601100 - Matières premières</option>
                   <option value="602100">602100 - Fournitures consommables</option>
                   <option value="355000">355000 - Produits finis</option>
@@ -329,7 +328,7 @@ const Articles: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Prix unitaire (DZD) <span className="text-red-500">*</span>
+                  {t('inventory.table.pu')} (DZD) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -345,14 +344,14 @@ const Articles: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Unité
+                  {t('inventory.table.unit', { defaultValue: 'Unité' })}
                 </label>
                 <select
                   name="unite"
                   defaultValue={selectedArticle?.unite || 'unité'}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  aria-label="Sélectionner l'unité"
-                  title="Sélectionner l'unité"
+                  aria-label={t('common.select') + ' ' + t('inventory.table.unit')}
+                  title={t('common.select') + ' ' + t('inventory.table.unit')}
                 >
                   <option value="unité">Unité</option>
                   <option value="kg">Kilogramme (kg)</option>
@@ -368,7 +367,7 @@ const Articles: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+                {t('common.description')}
               </label>
               <textarea
                 name="description"
@@ -388,7 +387,7 @@ const Articles: React.FC = () => {
                 }}
                 className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Annuler
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
@@ -403,12 +402,12 @@ const Articles: React.FC = () => {
         {/* Liste des Articles - Catalogue */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-slate-900">Catalogue des Articles</h2>
+            <h2 className="text-2xl font-bold text-slate-900">{t('inventory.articles.title')}</h2>
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Rechercher un article..."
+                  placeholder={t('inventory.articles.placeholders.filter')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
@@ -423,12 +422,12 @@ const Articles: React.FC = () => {
               <table className="w-full">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Article</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Code PCA</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Prix Unitaire</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Stock</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Valeur</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{t('inventory.table.article')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{t('inventory.table.pca_code')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{t('inventory.table.pu')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{t('inventory.table.quantity')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{t('inventory.table.total_value')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">{t('inventory.table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-200">
@@ -458,7 +457,7 @@ const Articles: React.FC = () => {
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900">{formatCurrency(article.prixUnitaire)}</td>
                         <td className="px-4 py-3">
                           <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[stockStatus]}`}>
-                            {article.stock} {article.unite || 'unité'}
+                            {article.stock} {article.unite || t('inventory.stats.units')}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-slate-900">{formatCurrency(valeurTotale)}</td>
@@ -470,7 +469,7 @@ const Articles: React.FC = () => {
                                 setIsModalOpen(true);
                               }}
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              title="Modifier"
+                              title={t('common.edit')}
                             >
                               <PencilIcon className="h-4 w-4" />
                             </button>
@@ -479,11 +478,11 @@ const Articles: React.FC = () => {
                                 if (confirm(`Êtes-vous sûr de vouloir supprimer "${article.nom}" ?`)) {
                                   // Supprimer l'article de la liste
                                   setProducts(products.filter(a => a.id !== article.id));
-                                  alert('Article supprimé avec succès !');
+                                  alert(t('common.success'));
                                 }
                               }}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Supprimer"
+                              title={t('common.delete')}
                             >
                               <TrashIcon className="h-4 w-4" />
                             </button>
@@ -498,7 +497,7 @@ const Articles: React.FC = () => {
           ) : (
             <div className="text-center py-12">
               <CubeIcon className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500 text-lg font-medium">Aucun article trouvé</p>
+              <p className="text-slate-500 text-lg font-medium">{t('inventory.messages.no_article_found')}</p>
               <p className="text-slate-400 text-sm mt-2">
                 {searchTerm ? 'Essayez avec un autre terme de recherche' : 'Commencez par créer votre premier article'}
               </p>
@@ -734,7 +733,7 @@ const Articles: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-black uppercase tracking-tighter italic">Intelligence Inventaire</h1>
+                <h1 className="text-4xl font-black uppercase tracking-tighter italic">{t('inventory.articles.intelligence_title')}</h1>
                 <span className="px-3 py-1 bg-cyan-500 text-[9px] font-black uppercase tracking-widest rounded-lg animate-pulse">Live</span>
               </div>
               <p className="text-slate-400 text-xs font-bold mt-2 uppercase tracking-[0.3em] opacity-80 italic">Optimisation des flux & Pilotage du catalogue</p>
@@ -742,7 +741,7 @@ const Articles: React.FC = () => {
           </div>
           <div className="flex items-center gap-8">
             <div className="text-right">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Valorisation Totale</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{t('articles.stats.total_valuation')}</p>
               <p className="text-3xl font-black font-mono tracking-tighter">{formatCurrency(articleAnalytics.totalValue)}</p>
             </div>
             <div className="h-12 w-[1px] bg-white/10 hidden md:block"></div>
@@ -751,7 +750,7 @@ const Articles: React.FC = () => {
               className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-white/5 flex items-center gap-3"
             >
               <ChartBarIcon className="h-4 w-4" />
-              Générer Audit IA
+              {t('inventory.articles.actions.generate_audit')}
             </button>
           </div>
         </div>
@@ -760,11 +759,11 @@ const Articles: React.FC = () => {
       <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
         <nav className="flex flex-wrap border-b border-slate-200 dark:border-slate-700">
           {[
-            { id: 'catalogue', name: 'Catalogue Stock', icon: BuildingOfficeIcon },
-            { id: 'categories', name: 'Segmentation', icon: TagIcon },
-            { id: 'pricing', name: 'Gestion Tarifs', icon: CurrencyDollarIcon },
-            { id: 'barcode', name: 'Traçabilité', icon: QrCodeIcon },
-            { id: 'reports', name: 'Analyses & Rapports', icon: DocumentTextIcon }
+            { id: 'catalogue', name: t('inventory.articles.tabs.catalog'), icon: BuildingOfficeIcon },
+            { id: 'categories', name: t('inventory.articles.tabs.segmentation'), icon: TagIcon },
+            { id: 'pricing', name: t('inventory.articles.tabs.pricing'), icon: CurrencyDollarIcon },
+            { id: 'barcode', name: t('inventory.articles.tabs.traceability'), icon: QrCodeIcon },
+            { id: 'reports', name: t('inventory.articles.tabs.reports'), icon: DocumentTextIcon }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -789,12 +788,9 @@ const Articles: React.FC = () => {
               {/* Search and Actions */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                 <div className="relative w-full sm:w-96">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <MagnifyingGlassIcon className="h-4 w-4 text-slate-400" />
-                  </div>
                   <input
                     type="text"
-                    placeholder="Filtrer le catalogue (Nom, Code PCA, Catégorie)..."
+                    placeholder={t('inventory.articles.placeholders.filter')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-11 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-bold uppercase tracking-wider focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
@@ -810,7 +806,7 @@ const Articles: React.FC = () => {
                     className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-[10px] font-black uppercase tracking-widest"
                   >
                     <PlusIcon className="h-4 w-4" />
-                    Nouvel Article
+                    {t('articles.actions.new_article')}
                   </button>
                 </div>
               </div>
@@ -821,22 +817,22 @@ const Articles: React.FC = () => {
                   <thead className="bg-slate-50/50 dark:bg-slate-900">
                     <tr>
                       <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Désignation Article
+                        {t('articles.table.article')}
                       </th>
                       <th className="px-8 py-5 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Code PCA
+                        {t('articles.table.pca_code')}
                       </th>
                       <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        P.U (DZD)
+                        {t('articles.table.price')}
                       </th>
                       <th className="px-8 py-5 text-center text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Stock Reel
+                        {t('articles.table.stock')}
                       </th>
                       <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Valorisation
+                        {t('articles.table.value')}
                       </th>
                       <th className="px-8 py-5 text-right text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Actions ERP
+                        {t('articles.table.actions')}
                       </th>
                     </tr>
                   </thead>
@@ -867,7 +863,7 @@ const Articles: React.FC = () => {
                             article.stock > 20 ? 'bg-amber-50 text-amber-600' :
                               'bg-red-50 text-red-600'
                             }`}>
-                            {article.stock} UNITS
+                            {article.stock} {t('common.units', { defaultValue: 'UNITS' })}
                           </span>
                         </td>
                         <td className="px-8 py-6 text-right text-[11px] font-black font-mono text-slate-900 italic">
@@ -876,9 +872,9 @@ const Articles: React.FC = () => {
                         <td className="px-8 py-6 text-right">
                           <div className="flex justify-end gap-1">
                             {[
-                              { icon: PencilIcon, color: 'text-slate-400 hover:text-slate-900 hover:bg-slate-100', onClick: () => handleEdit(article), title: "Modifier" },
+                              { icon: PencilIcon, color: 'text-slate-400 hover:text-slate-900 hover:bg-slate-100', onClick: () => handleEdit(article), title: t('common.edit', { defaultValue: 'Modifier' }) },
                               { icon: CurrencyDollarIcon, color: 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50', onClick: () => handlePricingManagement(article), title: "Tarifs" },
-                              { icon: QrCodeIcon, color: 'text-cyan-400 hover:text-cyan-600 hover:bg-cyan-50', onClick: () => handleBarcodeManagement(article), title: "Traçabilité" },
+                              { icon: QrCodeIcon, color: 'text-cyan-400 hover:text-cyan-600 hover:bg-cyan-50', onClick: () => handleBarcodeManagement(article), title: t('articles.tabs.traceability') },
                               {
                                 icon: TrashIcon, color: 'text-red-300 hover:text-red-600 hover:bg-red-50', onClick: () => {
                                   if (confirm(`Supprimer l'article ${article.nom} ?`)) {
@@ -1135,26 +1131,26 @@ const Articles: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedArticle ? 'Modifier Article' : 'Nouveau Produit'}
+        title={selectedArticle ? t('articles.modal.edit_title') : t('articles.modal.create_title')}
         size="lg"
       >
         <form className="space-y-8 p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                Désignation Article
+                {t('articles.modal.article_name')}
               </label>
               <input
                 type="text"
                 defaultValue={selectedArticle?.nom || ''}
                 className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-slate-900 focus:border-transparent text-xs font-bold uppercase transition-all"
-                placeholder="Ex: Matière première A"
+                placeholder={t('articles.modal.placeholder_name')}
               />
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                Code PCA / Comptable
+                {t('articles.table.pca_code')} / Comptable
               </label>
               <select
                 defaultValue={selectedArticle?.codePCA || ''}
@@ -1171,7 +1167,7 @@ const Articles: React.FC = () => {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                Prix Unitaire (DA)
+                {t('articles.modal.price_label')}
               </label>
               <input
                 type="number"
@@ -1217,13 +1213,13 @@ const Articles: React.FC = () => {
               onClick={() => setIsModalOpen(false)}
               className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all"
             >
-              Annuler
+              {t('articles.modal.cancel')}
             </button>
             <button
               type="submit"
               className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
             >
-              {selectedArticle ? 'Enregistrer les modifications' : 'Créer l\'article'}
+              {selectedArticle ? t('articles.modal.edit_btn') : t('articles.modal.create_btn')}
             </button>
           </div>
         </form>

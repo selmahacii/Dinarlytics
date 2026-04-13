@@ -73,33 +73,33 @@ const Clients: React.FC = () => {
 
   // Constants for form options
   const communicationTypes = [
-    { value: 'email', label: 'Email', color: 'blue' },
-    { value: 'call', label: 'Appel', color: 'green' },
-    { value: 'meeting', label: 'Réunion', color: 'orange' },
-    { value: 'proposition', label: 'Proposition', color: 'blue' },
-    { value: 'reclamation', label: 'Réclamation', color: 'red' }
+    { value: 'email', label: t('crm.clients.communication.types.email'), color: 'blue' },
+    { value: 'call', label: t('crm.clients.communication.types.call'), color: 'green' },
+    { value: 'meeting', label: t('crm.clients.communication.types.meeting'), color: 'orange' },
+    { value: 'proposition', label: t('crm.clients.communication.types.proposition'), color: 'blue' },
+    { value: 'reclamation', label: t('crm.clients.communication.types.reclamation'), color: 'red' }
   ];
 
   const relanceTypes = [
-    { value: 'amiable', label: 'Amiable', color: 'yellow' },
-    { value: 'formelle', label: 'Formelle', color: 'orange' },
-    { value: 'juridique', label: 'Juridique', color: 'red' }
+    { value: 'amiable', label: t('crm.clients.recovery.types.amiable'), color: 'yellow' },
+    { value: 'formelle', label: t('crm.clients.recovery.types.formelle'), color: 'orange' },
+    { value: 'juridique', label: t('crm.clients.recovery.types.juridique'), color: 'red' }
   ];
 
   const relanceCanaux = [
-    { value: 'email', label: 'Email' },
-    { value: 'telephone', label: 'Téléphone' },
-    { value: 'courrier', label: 'Courrier' },
-    { value: 'sms', label: 'SMS' }
+    { value: 'email', label: t('crm.clients.recovery.channels.email') },
+    { value: 'telephone', label: t('crm.clients.recovery.channels.telephone') },
+    { value: 'courrier', label: t('crm.clients.recovery.channels.courrier') },
+    { value: 'sms', label: t('crm.clients.recovery.channels.sms') }
   ];
 
   const typesRapports = [
-    { value: 'ventes', label: 'Ventes' },
-    { value: 'paiements', label: 'Paiements' },
-    { value: 'relances', label: 'Relances' },
-    { value: 'satisfaction', label: 'Satisfaction' },
-    { value: 'performance', label: 'Performance' },
-    { value: 'risque', label: 'Risque' }
+    { value: 'ventes', label: t('crm.clients.reports.types.ventes') },
+    { value: 'paiements', label: t('crm.clients.reports.types.paiements') },
+    { value: 'relances', label: t('crm.clients.reports.types.relances') },
+    { value: 'satisfaction', label: t('crm.clients.reports.types.satisfaction') },
+    { value: 'performance', label: t('crm.clients.reports.types.performance') },
+    { value: 'risque', label: t('crm.clients.reports.types.risque') }
   ];
 
   const formatsRapport = [
@@ -109,11 +109,11 @@ const Clients: React.FC = () => {
   ];
 
   const periodesRapport = [
-    { value: 'semaine', label: 'Cette semaine' },
-    { value: 'mois', label: 'Ce mois' },
-    { value: 'trimestre', label: 'Ce trimestre' },
-    { value: 'annee', label: 'Cette année' },
-    { value: 'personnalise', label: 'Personnalisé' }
+    { value: 'semaine', label: t('crm.clients.reports.periods.semaine') },
+    { value: 'mois', label: t('crm.clients.reports.periods.mois') },
+    { value: 'trimestre', label: t('crm.clients.reports.periods.trimestre') },
+    { value: 'annee', label: t('crm.clients.reports.periods.annee') },
+    { value: 'personnalise', label: t('crm.clients.reports.periods.personnalise') }
   ];
 
   // Calculer les analyses de valeur client
@@ -371,7 +371,7 @@ const Clients: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+    if (window.confirm(t('common.confirm_delete_client'))) {
       try {
         await deleteClient(id);
       } catch (err) {
@@ -473,7 +473,7 @@ const Clients: React.FC = () => {
       }));
       exportToCSV(dataToExport, `Rapport_Clients_${new Date().toISOString().split('T')[0]}`);
     } else {
-      alert(`Le format ${rapport.format} n'est pas encore supporté nativement. Utilisation de l'impression navigateur.`);
+      alert(t('common.format_not_supported', { format: rapport.format }));
       window.print();
     }
   };
@@ -527,72 +527,58 @@ const Clients: React.FC = () => {
               <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <UserGroupIcon className="h-8 w-8 text-slate-700 dark:text-slate-300" />
               </div>
-              <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{pageContent.title}</h1>
-                  <HelpButton pageId="clients" variant="icon" className="text-slate-400 hover:text-slate-600" />
-                  <LIAContextualButton
-                    question="Comment améliorer ma relation avec mes clients ?"
-                    context="clients"
-                    variant="icon"
-                    className="text-slate-400 hover:text-slate-600"
-                    tooltip="Demander à LIA sur les clients"
-                  />
-                </div>
-                <p className="text-slate-500 font-medium text-lg mt-1">{pageContent.subtitle}</p>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{t('clients.title')}</h1>
+                <HelpButton pageId="clients" variant="icon" className="text-slate-400 hover:text-slate-600" />
+                <LIAContextualButton
+                  question="Comment améliorer ma relation avec mes clients ?"
+                  context="clients"
+                  variant="icon"
+                  className="text-slate-400 hover:text-slate-600"
+                  tooltip={t('chatbot.ask_lia_tooltip')}
+                />
               </div>
+              <p className="text-slate-500 font-medium text-lg mt-1">{t('clients.subtitle')}</p>
             </div>
-          </div>
-          {/* Description adaptative */}
-          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-slate-800">
-            <p className="text-slate-600 dark:text-slate-400 text-sm font-medium leading-relaxed">{pageContent.description}</p>
           </div>
         </div>
 
-        {/* Contenu adaptatif - Conseils et Insights */}
-        <AdaptiveContentDisplay
-          pageId="clients"
-          context={contentContext}
-          showTips={true}
-          showInsights={true}
-        />
-
-        {/* 4 KPIs Clients */}
         {/* 4 KPIs Clients - Style Sober */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-slate-600"><UserGroupIcon className="h-6 w-6" /></div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Portefeuille</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('clients.portfolio')}</span>
             </div>
-            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Base Clientèle</div>
+            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('clients.base_clients')}</div>
             <div className="text-3xl font-black text-slate-900 dark:text-white mt-2">{nombreClients}</div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl text-emerald-600"><CheckCircleIcon className="h-6 w-6" /></div>
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 text-[10px] font-black uppercase">{tauxFidelisation}% Actifs</span>
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 text-[10px] font-black uppercase">{tauxFidelisation}% {t('clients.active_status')}S</span>
             </div>
-            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Clients Actifs</div>
+            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('clients.active_clients')}</div>
             <div className="text-3xl font-black text-slate-900 dark:text-white mt-2">{clientsActifs}</div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-600"><ArrowTrendingUpIcon className="h-6 w-6" /></div>
-              <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 text-[10px] font-black uppercase">Acquisition</span>
+              <span className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 text-[10px] font-black uppercase">{t('clients.new_clients_month')}</span>
             </div>
-            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Nouveaux (Mois)</div>
+            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('clients.new_clients_month')}</div>
             <div className="text-3xl font-black text-slate-900 dark:text-white mt-2">{clientsNouveaux}</div>
           </div>
 
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl text-indigo-600"><CurrencyDollarIcon className="h-6 w-6" /></div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Moyenne</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('dashboard.stats.average')}</span>
             </div>
-            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">Revenu / Client</div>
+            <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('clients.revenue_per_client')}</div>
             <div className="text-3xl font-black text-slate-900 dark:text-white mt-2">{formatCurrency(caParClient)}</div>
           </div>
         </div>
@@ -604,9 +590,9 @@ const Clients: React.FC = () => {
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center">
                 <ChartBarIcon className="h-6 w-6 text-slate-500 mr-3" />
-                Top 5 Clients Clés
+                {t('clients.top_clients_title')}
               </h2>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Par Chiffre d'Affaires</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{t('clients.by_revenue')}</span>
             </div>
             <div className="space-y-4">
               {topClients.map((client, idx) => (
@@ -622,7 +608,7 @@ const Clients: React.FC = () => {
                     <p className="font-black text-slate-800 dark:text-slate-200 font-mono">{formatCurrency(client.ca)}</p>
                     <div className="flex items-center justify-end gap-2 mt-1">
                       <span className={`w-2 h-2 rounded-full ${client.statut === 'Actif' ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">{client.statut}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">{client.statut === 'Actif' ? t('clients.active_status') : 'INACTIF'}</span>
                     </div>
                   </div>
                 </div>
@@ -635,21 +621,21 @@ const Clients: React.FC = () => {
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
               <h2 className="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center">
                 <ExclamationTriangleIcon className="h-6 w-6 text-slate-500 mr-3" />
-                Points d'Attention
+                {t('clients.attention_points')}
               </h2>
               <div className="space-y-3">
                 <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-800/30 flex items-start gap-4">
                   <ExclamationCircleIcon className="h-6 w-6 text-rose-500 shrink-0" />
                   <div>
-                    <h4 className="text-sm font-black text-rose-700 dark:text-rose-400">Risque Client</h4>
-                    <p className="text-xs text-rose-600/80 mt-1 font-medium">Le Client E est inactif depuis plus de 60 jours. Une relance commerciale est recommandée.</p>
+                    <h4 className="text-sm font-black text-rose-700 dark:text-rose-400">{t('clients.alerts.risk')}</h4>
+                    <p className="text-xs text-rose-600/80 mt-1 font-medium">{t('clients.alerts.risk_desc', { name: "Client E" })}</p>
                   </div>
                 </div>
                 <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-100 dark:border-amber-800/30 flex items-start gap-4">
                   <ClockIcon className="h-6 w-6 text-amber-600 shrink-0" />
                   <div>
-                    <h4 className="text-sm font-black text-amber-700 dark:text-amber-400">Retards de Paiement</h4>
-                    <p className="text-xs text-amber-600/80 mt-1 font-medium">3 factures en dépassement d'échéance. Montant total impacté: {formatCurrency(Math.round(caTotal * 0.05))}.</p>
+                    <h4 className="text-sm font-black text-amber-700 dark:text-amber-400">{t('clients.alerts.payment_delay')}</h4>
+                    <p className="text-xs text-amber-600/80 mt-1 font-medium">{t('clients.alerts.payment_delay_desc', { count: 3, amount: formatCurrency(Math.round(caTotal * 0.05)) })}</p>
                   </div>
                 </div>
               </div>
@@ -657,25 +643,25 @@ const Clients: React.FC = () => {
 
             {/* Actions Rapides */}
             <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-xl shadow-slate-900/20">
-              <h3 className="text-lg font-black uppercase tracking-widest text-slate-400 mb-6">Actions Rapides</h3>
+              <h3 className="text-lg font-black uppercase tracking-widest text-slate-400 mb-6">{t('clients.quick_actions')}</h3>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={handleAdd}
                   className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700"
                 >
                   <PlusIcon className="h-6 w-6 mb-3 text-emerald-400" />
-                  <span className="font-bold text-sm block">Nouveau Client</span>
+                  <span className="font-bold text-sm block">{t('clients.new_client')}</span>
                 </button>
                 <button className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700">
                   <DocumentChartBarIcon className="h-6 w-6 mb-3 text-blue-400" />
-                  <span className="font-bold text-sm block">Analyser Portefeuille</span>
+                  <span className="font-bold text-sm block">{t('clients.analyze_portfolio')}</span>
                 </button>
                 <button className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700 col-span-2 flex items-center justify-between">
                   <span className="font-bold text-sm flex items-center">
                     <EnvelopeIcon className="h-5 w-5 mr-3 text-amber-400" />
-                    Relancer Inactifs
+                    {t('clients.remind_inactives')}
                   </span>
-                  <span className="bg-slate-900 px-2 py-1 rounded text-[10px] font-black">ACTIVE</span>
+                  <span className="bg-slate-900 px-2 py-1 rounded text-[10px] font-black">{t('clients.active_status')}</span>
                 </button>
               </div>
             </div>
@@ -712,13 +698,13 @@ const Clients: React.FC = () => {
               <UserGroupIcon className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Clients & Ventes</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">Gestion complète de la clientèle, ventes et relations commerciales</p>
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{t('crm.clients.title')}</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{t('crm.clients.subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Portefeuille</div>
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('crm.clients.stats.total_clients')}</div>
               {loadingClients ? (
                 <div className="text-lg text-slate-400 font-mono">...</div>
               ) : errorClients ? (
@@ -738,12 +724,12 @@ const Clients: React.FC = () => {
         <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
           <nav className="flex overflow-x-auto px-6" aria-label="Tabs">
             {[
-              { id: 'liste', name: 'Liste Clients', icon: UserGroupIcon },
-              { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
-              { id: 'relances', name: 'Relances', icon: ExclamationTriangleIcon },
-              { id: 'livraisons', name: 'Logistique', icon: TruckIcon },
-              { id: 'communications', name: 'Communications', icon: PhoneIcon },
-              { id: 'rapports', name: 'Rapports', icon: DocumentTextIcon }
+              { id: 'liste', name: t('crm.clients.tabs.list'), icon: UserGroupIcon },
+              { id: 'analytics', name: t('crm.clients.tabs.intelligence'), icon: ChartBarIcon },
+              { id: 'relances', name: t('crm.clients.tabs.recovery'), icon: ExclamationTriangleIcon },
+              { id: 'livraisons', name: t('crm.clients.tabs.delivery'), icon: TruckIcon },
+              { id: 'communications', name: t('crm.clients.tabs.crm'), icon: PhoneIcon },
+              { id: 'rapports', name: t('crm.clients.tabs.documents'), icon: DocumentTextIcon }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -768,7 +754,7 @@ const Clients: React.FC = () => {
                 <div className="w-full sm:w-auto">
                   <input
                     type="text"
-                    placeholder="Rechercher par nom ou NIF..."
+                    placeholder={t('crm.clients.filters.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full sm:w-72 px-4 py-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-slate-400 focus:border-slate-400 placeholder-slate-400 font-medium"
@@ -781,14 +767,14 @@ const Clients: React.FC = () => {
                     className="flex items-center px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:border-slate-400 transition-all font-black text-[10px] uppercase tracking-[0.2em]"
                   >
                     <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-                    Exporter
+                    {t('crm.clients.actions.export')}
                   </button>
                   <button
                     onClick={handleAdd}
                     className="flex items-center px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl"
                   >
                     <PlusIcon className="h-4 w-4 mr-2" />
-                    {t('ajouter')} Client
+                    {t('crm.clients.actions.new_client')}
                   </button>
                 </div>
               </div>
@@ -799,25 +785,25 @@ const Clients: React.FC = () => {
                   <thead className="bg-slate-50 dark:bg-slate-900/50">
                     <tr>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Partenaire
+                        {t('crm.clients.table.partner')}
                       </th>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Identité (NIF)
+                        {t('crm.clients.table.nif_label')}
                       </th>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Contact Direct
+                        {t('crm.clients.table.direct_contact')}
                       </th>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Engagements
+                        {t('crm.clients.table.current_outstanding')}
                       </th>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Limite ERP
+                        {t('crm.clients.table.allowed_limit')}
                       </th>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Status Audit
+                        {t('common.status')}
                       </th>
                       <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                        Actions
+                        {t('common.actions')}
                       </th>
                     </tr>
                   </thead>
@@ -850,18 +836,18 @@ const Clients: React.FC = () => {
                             client.solde > 0 ? 'bg-slate-100 text-slate-600' :
                               'bg-emerald-50 text-emerald-700'
                             }`}>
-                            {client.solde > (client.limiteCredit ?? 0) ? 'Risque' :
-                              client.solde > 0 ? 'Actif' : 'Sain'}
+                            {client.solde > (client.limiteCredit ?? 0) ? t('clients.status.risk') :
+                              client.solde > 0 ? t('clients.status.active') : t('clients.status.sane')}
                           </span>
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-1">
                             {[
-                              { icon: EyeIcon, title: "Détails", onClick: () => handleViewClientDetails(client as Client) },
-                              { icon: PencilIcon, title: "Editer", onClick: () => handleEdit(client as Client) },
-                              { icon: BanknotesIcon, title: "Finance", onClick: () => handleViewPaymentHistory(client as Client) },
-                              { icon: PhoneIcon, title: "Contact", onClick: () => handleCommunicateWithClient(client as Client) },
-                              { icon: TrashIcon, title: "Supprimer", onClick: () => client.id && handleDelete(client.id), isDanger: true }
+                              { icon: EyeIcon, title: t('clients.actions.details'), onClick: () => handleViewClientDetails(client as Client) },
+                              { icon: PencilIcon, title: t('clients.actions.edit'), onClick: () => handleEdit(client as Client) },
+                              { icon: BanknotesIcon, title: t('clients.actions.finance'), onClick: () => handleViewPaymentHistory(client as Client) },
+                              { icon: PhoneIcon, title: t('clients.actions.contact'), onClick: () => handleCommunicateWithClient(client as Client) },
+                              { icon: TrashIcon, title: t('clients.actions.delete'), onClick: () => client.id && handleDelete(client.id), isDanger: true }
                             ].map((action, i) => (
                               <button
                                 key={i}
@@ -888,13 +874,13 @@ const Clients: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-base font-black uppercase tracking-widest text-slate-500 flex items-center space-x-2">
                     <ExclamationTriangleIcon className="h-5 w-5 text-amber-500" />
-                    <span>Relances en Cours</span>
+                    <span>{t('clients.sections.active_reminders')}</span>
                   </h3>
                   <button
                     onClick={() => setActiveTab('relances')}
-                    className="px-4 py-2 text-xs bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 font-black transition-colors"
+                    className="px-4 py-2 text-xs bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                   >
-                    Voir Toutes
+                    {t('clients.actions.view_all')}
                   </button>
                 </div>
 
@@ -902,7 +888,7 @@ const Clients: React.FC = () => {
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-slate-300 transition-all">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Urgentes</p>
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">{t('clients.sections.urgent')}</p>
                         <p className="text-3xl font-black text-slate-900 dark:text-white">{interactionsCRM.filter(i => i.type === 'relance').length}</p>
                       </div>
                       <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 group-hover:text-rose-500 transition-colors"><ExclamationTriangleIcon className="h-6 w-6" /></div>
@@ -911,7 +897,7 @@ const Clients: React.FC = () => {
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-slate-300 transition-all">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">En Suivi</p>
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">{t('clients.sections.follow_up')}</p>
                         <p className="text-3xl font-black text-slate-900 dark:text-white">{interactionsCRM.filter(i => i.type === 'suivi').length}</p>
                       </div>
                       <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 group-hover:text-amber-500 transition-colors"><ClockIcon className="h-6 w-6" /></div>
@@ -920,7 +906,7 @@ const Clients: React.FC = () => {
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-slate-800 group hover:border-slate-300 transition-all">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">Résolues</p>
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1">{t('clients.sections.resolved_interactions')}</p>
                         <p className="text-3xl font-black text-slate-900 dark:text-white">{interactionsCRM.filter(i => i.resultat === 'positif').length}</p>
                       </div>
                       <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 group-hover:text-emerald-500 transition-colors"><CheckCircleIcon className="h-6 w-6" /></div>
@@ -929,7 +915,7 @@ const Clients: React.FC = () => {
                 </div>
 
                 <div className="mt-6">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Dernières Interactions CRM</h4>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('clients.sections.last_interactions')}</h4>
                   <div className="space-y-3">
                     {interactionsCRM.length > 0 ? (
                       interactionsCRM.slice(0, 4).map((interaction, i) => {
@@ -958,13 +944,13 @@ const Clients: React.FC = () => {
                               </div>
                             </div>
                             <span className={`text-xs font-black px-2 py-1 rounded-lg ${colorMap[interaction.resultat || 'neutre'] || colorMap.neutre}`}>
-                              {interaction.resultat === 'positif' ? '✓ Résolu' : interaction.resultat === 'negatif' ? '✗ Problème' : '⏳ En cours'}
-                            </span>
+                               {interaction.resultat === 'positif' ? `✓ ${t('clients.status.resolved')}` : interaction.resultat === 'negatif' ? `✗ ${t('clients.status.problem')}` : `⏳ ${t('clients.status.in_progress')}`}
+                             </span>
                           </div>
                         );
                       })
                     ) : (
-                      <div className="text-center py-6 text-xs text-slate-400">Aucune interaction CRM enregistrée</div>
+                      <div className="text-center py-6 text-xs text-slate-400">{t('clients.messages.no_crm_interactions')}</div>
                     )}
                   </div>
                 </div>
@@ -975,13 +961,13 @@ const Clients: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-base font-black uppercase tracking-widest text-slate-500 flex items-center space-x-2">
                     <ChartBarIcon className="h-5 w-5 text-blue-500" />
-                    <span>Analytics Clients</span>
+                    <span>{t('clients.sections.analytics_title')}</span>
                   </h3>
                   <button
                     onClick={() => setActiveTab('analytics')}
-                    className="px-4 py-2 text-xs bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 font-black transition-colors"
+                    className="px-4 py-2 text-xs bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                   >
-                    Voir Détails
+                    {t('clients.actions.view_details')}
                   </button>
                 </div>
 
@@ -990,14 +976,14 @@ const Clients: React.FC = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-slate-400"><UserGroupIcon className="h-4 w-4" /></div>
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Clients</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('clients.base_clients')}</p>
                     <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{clientStats?.total_clients || apiClients.length}</p>
                   </div>
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-3">
                       <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl text-emerald-500"><CheckCircleIcon className="h-4 w-4" /></div>
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Actifs</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('clients.status.active')}</p>
                     <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{clientStats?.active_clients || Math.round(apiClients.length * 0.78)}</p>
                   </div>
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800">
@@ -1011,13 +997,13 @@ const Clients: React.FC = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm text-slate-400"><ChartPieIcon className="h-4 w-4" /></div>
                     </div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Score Valeur</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('crm.clients.metrics.clv_score')}</p>
                     <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{Math.round(metriquesPortefeuille.scoreMoyen || 72)}/100</p>
                   </div>
                 </div>
 
                 <div className="mt-6">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Top Clients par Valeur (CLV)</h4>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('clients.sections.top_value_clv')}</h4>
                   <div className="space-y-3">
                     {analysesValeurClient.length > 0 ? (
                       [...analysesValeurClient].sort((a, b) => b.clv - a.clv).slice(0, 5).map((analyse, i) => (
@@ -1037,7 +1023,7 @@ const Clients: React.FC = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-6 text-xs text-slate-400">Aucune donnée client disponible</div>
+                      <div className="text-center py-6 text-xs text-slate-400">{t('crm.clients.messages.no_client_data')}</div>
                     )}
                   </div>
                 </div>
@@ -1048,13 +1034,13 @@ const Clients: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-base font-black uppercase tracking-widest text-slate-500 flex items-center space-x-2">
                     <ChartBarIcon className="h-5 w-5 text-emerald-500" />
-                    <span>Analyses Visuelles</span>
+                    <span>{t('crm.clients.sections.visual_analytics')}</span>
                   </h3>
                   <button
                     onClick={() => setActiveTab('rapports')}
                     className="px-4 py-2 text-xs bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 font-black transition-colors"
                   >
-                    Voir Graphiques
+                    {t('crm.clients.actions.view_graphs')}
                   </button>
                 </div>
 
@@ -1062,7 +1048,7 @@ const Clients: React.FC = () => {
                   {/* Répartition Segments — données réelles */}
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">Segments Clients</h4>
+                      <h4 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">{t('crm.clients.sections.segments')}</h4>
                       <ChartPieIcon className="h-4 w-4 text-slate-400" />
                     </div>
                     <div className="space-y-3">
@@ -1091,12 +1077,12 @@ const Clients: React.FC = () => {
                   {/* Indicateurs Clés — données calculées */}
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">Indicateurs</h4>
+                      <h4 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">{t('crm.clients.sections.indicators')}</h4>
                       <ChartBarIcon className="h-4 w-4 text-slate-400" />
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center text-xs">
-                        <span className="text-slate-500 font-bold">DSO Moyen</span>
+                        <span className="text-slate-500 font-bold">{t('crm.clients.stats.avg_payment_delay')}</span>
                         <span className="px-2 py-1 bg-white dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 font-mono font-bold border border-slate-200 dark:border-slate-700">{Math.round(metriquesPortefeuille.dsoMoyen || 0)}j</span>
                       </div>
                       <div className="flex justify-between items-center text-xs">
@@ -1113,14 +1099,14 @@ const Clients: React.FC = () => {
                   {/* Évolution CA — données réelles */}
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">Portefeuille</h4>
+                      <h4 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-wide">{t('crm.clients.sections.concentration_portfolio')}</h4>
                       <ArrowTrendingUpIcon className="h-4 w-4 text-slate-400" />
                     </div>
                     <div className="flex flex-col justify-end h-32">
-                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Revenu Portefeuille</div>
+                      <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">{t('crm.clients.stats.ca_total')}</div>
                       <div className="text-2xl font-black text-slate-900 dark:text-white mb-4">{formatCurrency(clientStats?.total_revenue || metriquesPortefeuille.caTotal)}</div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-400 font-bold uppercase">CA Moyen / Client</span>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase">{t('crm.clients.metrics.avg_revenue')}</span>
                         <span className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-black">{formatCurrency(metriquesPortefeuille.caMoyen || 0)}</span>
                       </div>
                     </div>
@@ -1136,8 +1122,8 @@ const Clients: React.FC = () => {
                       <TruckIcon className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Suivi Logistique</h3>
-                      <p className="text-xs text-slate-500 font-semibold mt-1">Bons de livraison liés aux clients actifs</p>
+                      <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{t('clients.sections.logistics_title')}</h3>
+                      <p className="text-xs text-slate-500 font-semibold mt-1">{t('clients.sections.logistics_subtitle')}</p>
                     </div>
                   </div>
                   <button
@@ -1145,7 +1131,7 @@ const Clients: React.FC = () => {
                     className="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-slate-900/20"
                   >
                     <EyeIcon className="h-3 w-3" />
-                    Console Logistique
+                    {t('clients.actions.view_details')}
                   </button>
                 </div>
 
@@ -1163,10 +1149,10 @@ const Clients: React.FC = () => {
                             <div className="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-2xl group-hover:scale-110 transition-transform">
                               <TruckIcon className="h-6 w-6" />
                             </div>
-                            <span className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase">En Cours</span>
+                            <span className="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase">{t('crm.clients.status.analysis_in_progress')}</span>
                           </div>
                           <div className="text-4xl font-black text-slate-900 dark:text-white mb-1 font-mono">{enTransit}</div>
-                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">Transit Actif</div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">{t('crm.clients.table.shipping_id')}</div>
                           <div className="mt-4 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                             <div className="bg-blue-500 h-full rounded-full" style={{ width: `${totalLivraisons > 0 ? Math.round((enTransit / totalLivraisons) * 100) : 0}%` }}></div>
                           </div>
@@ -1176,10 +1162,10 @@ const Clients: React.FC = () => {
                             <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500 rounded-2xl group-hover:scale-110 transition-transform">
                               <CheckCircleIcon className="h-6 w-6" />
                             </div>
-                            <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase">Succès</span>
+                            <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase">{t('crm.clients.status.validated')}</span>
                           </div>
                           <div className="text-4xl font-black text-slate-900 dark:text-white mb-1 font-mono">{livrees}</div>
-                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">Livrées (Mois)</div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">{t('crm.clients.stats.payments_obtained')} (Mois)</div>
                           <div className="mt-4 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                             <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${totalLivraisons > 0 ? Math.round((livrees / totalLivraisons) * 100) : 0}%` }}></div>
                           </div>
@@ -1189,10 +1175,10 @@ const Clients: React.FC = () => {
                             <div className="p-3 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-2xl group-hover:scale-110 transition-transform">
                               <ExclamationTriangleIcon className="h-6 w-6" />
                             </div>
-                            <span className="px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[10px] font-black uppercase">Retard</span>
+                            <span className="px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[10px] font-black uppercase">{t('crm.clients.status.overdue')}</span>
                           </div>
                           <div className="text-4xl font-black text-slate-900 dark:text-white mb-1 font-mono">{enRetard}</div>
-                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">Incidents</div>
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">{t('crm.clients.sections.overdue_invoices')}</div>
                           <div className="mt-4 w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                             <div className="bg-rose-500 h-full rounded-full" style={{ width: `${totalLivraisons > 0 ? Math.round((enRetard / totalLivraisons) * 100) : 0}%` }}></div>
                           </div>
@@ -1203,7 +1189,7 @@ const Clients: React.FC = () => {
                       <div className="bg-slate-50 dark:bg-slate-900/40 rounded-3xl p-6 border border-slate-100 dark:border-slate-800/50">
                         <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                          Bons de Livraison Récents
+                          {t('clients.sections.recent_bl')}
                         </h4>
                         <div className="space-y-4">
                           {apiClients.length > 0 ? (
@@ -1223,7 +1209,7 @@ const Clients: React.FC = () => {
                                     <div>
                                       <div className="flex items-center gap-2 mb-1">
                                         <span className="text-sm font-black text-slate-900 dark:text-white">BL-{new Date().getFullYear()}-{String(i + 1).padStart(3, '0')}</span>
-                                        <span className={`text-[10px] font-bold ${cfg.color} uppercase`}>• {cfg.label}</span>
+                                        <span className={`text-[10px] font-bold ${cfg.color} uppercase`}>• {t(`crm.clients.status.${status}`)}</span>
                                       </div>
                                       <div className="text-xs text-slate-500 font-medium">{client.nom} <span className="text-slate-300">|</span> {client.adresse || 'Adresse non spécifiée'}</div>
                                     </div>
@@ -1248,11 +1234,11 @@ const Clients: React.FC = () => {
                 <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-3">
                   <button className="px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors text-xs font-bold flex items-center gap-2">
                     <PlusIcon className="h-4 w-4 text-emerald-400" />
-                    Nouveau BL
+                    {t('clients.actions.new_bl')}
                   </button>
                   <button className="px-5 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:border-slate-300 transition-colors text-xs font-bold flex items-center gap-2">
                     <MapPinIcon className="h-4 w-4" />
-                    Suivi Géographique
+                    {t('clients.actions.geographical_tracking')}
                   </button>
                 </div>
               </Card>
@@ -1261,14 +1247,14 @@ const Clients: React.FC = () => {
               <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-3xl">
                 <h4 className="text-base font-black uppercase tracking-widest text-slate-500 mb-6 flex items-center space-x-2">
                   <ClockIcon className="h-5 w-5 text-slate-400" />
-                  <span>Balance Âgée Clients</span>
+                  <span>{t('clients.sections.aged_balance')}</span>
                 </h4>
                 <div className="space-y-3">
                   {[
-                    { label: '0-30 jours', sub: 'Dans les délais', amount: Math.round(metriquesPortefeuille.caTotal * 0.15).toLocaleString('fr-FR'), pct: 68, color: 'bg-emerald-500' },
-                    { label: '31-60 jours', sub: 'Retard léger', amount: Math.round(metriquesPortefeuille.caTotal * 0.05).toLocaleString('fr-FR'), pct: 20, color: 'bg-blue-500' },
-                    { label: '61-90 jours', sub: 'Attention requise', amount: Math.round(metriquesPortefeuille.caTotal * 0.02).toLocaleString('fr-FR'), pct: 8, color: 'bg-amber-500' },
-                    { label: '+90 jours', sub: 'Recouvrement urgent', amount: Math.round(metriquesPortefeuille.caTotal * 0.01).toLocaleString('fr-FR'), pct: 4, color: 'bg-rose-500' },
+                    { label: t('clients.aged_balance.v0_30'), sub: t('clients.aged_balance.within_delay'), amount: Math.round(metriquesPortefeuille.caTotal * 0.15).toLocaleString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR'), pct: 68, color: 'bg-emerald-500' },
+                    { label: t('clients.aged_balance.v31_60'), sub: t('clients.aged_balance.slight_delay'), amount: Math.round(metriquesPortefeuille.caTotal * 0.05).toLocaleString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR'), pct: 20, color: 'bg-blue-500' },
+                    { label: t('clients.aged_balance.v61_90'), sub: t('clients.aged_balance.attention_required'), amount: Math.round(metriquesPortefeuille.caTotal * 0.02).toLocaleString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR'), pct: 8, color: 'bg-amber-500' },
+                    { label: t('clients.aged_balance.v90_plus'), sub: t('clients.aged_balance.urgent_recovery'), amount: Math.round(metriquesPortefeuille.caTotal * 0.01).toLocaleString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR'), pct: 4, color: 'bg-rose-500' },
                   ].map((row, i) => (
                     <div key={i} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-slate-300 transition-colors">
                       <div className="flex items-center gap-4">
@@ -1291,8 +1277,8 @@ const Clients: React.FC = () => {
                   ))}
                 </div>
                 <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Total Créances</span>
-                  <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">{Math.round(metriquesPortefeuille.caTotal * 0.23).toLocaleString('fr-FR')} <span className="text-sm text-slate-400 font-normal">DA</span></span>
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('clients.sections.total_receivables')}</span>
+                  <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">{Math.round(metriquesPortefeuille.caTotal * 0.23).toLocaleString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR')} <span className="text-sm text-slate-400 font-normal">DA</span></span>
                 </div>
               </Card>
             </>
@@ -1307,39 +1293,39 @@ const Clients: React.FC = () => {
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-base font-black uppercase tracking-widest text-slate-500 flex items-center gap-3">
                     <ChartPieIcon className="h-5 w-5 text-emerald-500" />
-                    Métriques du Portefeuille
+                    {t('crm.clients.sections.health_audit')}
                   </h3>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setIsSegmentationModalOpen(true)}
                       className="px-4 py-2 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                     >
-                      Segmentation
+                      {t('crm.clients.actions.segmentation')}
                     </button>
                     <button
                       onClick={() => setIsAnalyseValeurModalOpen(true)}
                       className="px-4 py-2 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
                     >
-                      Analyse Valeur
+                      {t('crm.clients.actions.analyze_value')}
                     </button>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-slate-50 dark:bg-slate-900/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">CA Total</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('crm.clients.ca_total')}</p>
                     <p className="text-xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(metriquesPortefeuille.caTotal)}</p>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Clients</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('crm.clients.stats.total_clients')}</p>
                     <p className="text-xl font-black text-slate-900 dark:text-white font-mono">{metriquesPortefeuille.nombreClients}</p>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">CA Moyen</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('crm.clients.table.avg_revenue')}</p>
                     <p className="text-xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(metriquesPortefeuille.caMoyen)}</p>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/30 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Concentration</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('crm.clients.sections.concentration')}</p>
                     <p className="text-xl font-black text-slate-900 dark:text-white font-mono">{metriquesPortefeuille.concentration.toFixed(1)}%</p>
                   </div>
                 </div>
@@ -1372,7 +1358,7 @@ const Clients: React.FC = () => {
                   className="flex items-center justify-center p-5 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl group"
                 >
                   <PhoneIcon className="h-5 w-5 mr-3 text-slate-400" />
-                  <span className="font-black text-xs uppercase tracking-[0.2em]">Interactions CRM</span>
+                  <span className="font-black text-xs uppercase tracking-[0.2em]">{t('crm.clients.sections.crm_interactions')}</span>
                   {interactionsCRM.length > 0 && (
                     <span className="ml-3 px-2 py-1 bg-white/10 rounded-lg text-xs font-mono font-bold">
                       {interactionsCRM.length}
@@ -1384,14 +1370,14 @@ const Clients: React.FC = () => {
                   className="flex items-center justify-center p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl hover:border-slate-400 transition-all group"
                 >
                   <ChartBarIcon className="h-5 w-5 mr-3 text-slate-400" />
-                  <span className="font-black text-xs uppercase tracking-[0.2em]">Prévisions Revenus</span>
+                  <span className="font-black text-xs uppercase tracking-[0.2em]">{t('crm.clients.sections.revenue_forecasts')}</span>
                 </button>
                 <button
                   onClick={() => setIsAnalyseValeurModalOpen(true)}
                   className="flex items-center justify-center p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl hover:border-slate-400 transition-all group"
                 >
                   <CurrencyDollarIcon className="h-5 w-5 mr-3 text-slate-400" />
-                  <span className="font-black text-xs uppercase tracking-[0.2em]">Valeur Client (CLV)</span>
+                  <span className="font-black text-xs uppercase tracking-[0.2em]">{t('crm.clients.sections.clv_title')}</span>
                 </button>
               </div>
             </div>
@@ -1406,7 +1392,7 @@ const Clients: React.FC = () => {
                     <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-500">
                       <ArrowTrendingUpIcon className="h-5 w-5" />
                     </div>
-                    Récapitulatif Prévisions (6 mois)
+                    {t('crm.clients.sections.forecast_summary')}
                   </h3>
                   <div className="space-y-5">
                     {(() => {
@@ -1442,7 +1428,7 @@ const Clients: React.FC = () => {
                                 ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
                                 : 'bg-slate-100 text-slate-600 border-slate-200'
                                 }`}>
-                                Confiance {data.confiance}
+                                {t('crm.clients.confidence_with_level', { level: t(`crm.clients.status.${data.confiance}`) })}
                               </span>
                             </div>
                           </div>
@@ -1464,7 +1450,7 @@ const Clients: React.FC = () => {
                     <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500">
                       <ChartPieIcon className="h-5 w-5" />
                     </div>
-                    Concentration Portefeuille
+                    {t('crm.clients.sections.concentration_portfolio')}
                   </h3>
                   <div className="flex flex-col items-center justify-center">
                     <div className="relative w-40 h-40 flex items-center justify-center">
@@ -1479,17 +1465,17 @@ const Clients: React.FC = () => {
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <span className="text-3xl font-black font-mono">{metriquesPortefeuille.concentration.toFixed(1)}%</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Indice Top 20</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t('crm.clients.index_top_20')}</span>
                       </div>
                     </div>
                     <div className="mt-8 grid grid-cols-2 gap-4 w-full border-t border-slate-800 pt-6">
                       <div className="text-center border-r border-slate-800">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Impact Risque</p>
-                        <p className="text-xs font-black text-slate-200 uppercase">{metriquesPortefeuille.concentration > 70 ? 'Critique' : 'Modéré'}</p>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">{t('crm.clients.risk_impact')}</p>
+                        <p className="text-xs font-black text-slate-200 uppercase">{metriquesPortefeuille.concentration > 70 ? t('crm.clients.risk_levels.critical') : t('crm.clients.risk_levels.moderate')}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">Stabilité</p>
-                        <p className="text-xs font-black text-slate-200 uppercase">Optimisée</p>
+                        <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">{t('crm.clients.stability')}</p>
+                        <p className="text-xs font-black text-slate-200 uppercase">{t('crm.clients.status.optimized')}</p>
                       </div>
                     </div>
                   </div>
@@ -1503,9 +1489,9 @@ const Clients: React.FC = () => {
                     <div className="p-2 bg-slate-50 dark:bg-slate-900/30 rounded-lg text-slate-500">
                       <SparklesIcon className="h-5 w-5" />
                     </div>
-                    Analyse Top Valeur (CLV)
+                    {t('crm.clients.sections.clv_analytics')}
                   </h3>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Calculé sur 12 mois</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.calculated_over_12_months')}</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {analysesValeurClient.slice(0, 3).map((analyse, i) => (
@@ -1522,7 +1508,7 @@ const Clients: React.FC = () => {
                       </div>
                       <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                         <div className="flex flex-col">
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">Score Valeur</span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase">{t('crm.clients.metrics.clv_score')}</span>
                           <span className="text-xs font-black text-slate-700 dark:text-slate-300">{analyse.scoreValeur}/100</span>
                         </div>
                         <div className="h-8 w-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -1541,9 +1527,9 @@ const Clients: React.FC = () => {
               {/* Relances Dashboard - Sober Style */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { label: "Encours Échu (Balance Âgée)", val: formatCurrency(communicationStats.montantTotalEnRetard), accent: "border-slate-900", icon: BanknotesIcon, sub: "Total à recouvrer" },
-                  { label: "Dossiers Litigieux", val: communicationStats.relancesEnCours, accent: "border-slate-400", icon: ExclamationTriangleIcon, sub: "Action requise" },
-                  { label: "Taux de Recouvrement", val: "84.2%", accent: "border-slate-200", icon: ArrowTrendingUpIcon, sub: "Performance (Mois)" }
+                  { label: t('crm.clients.outstanding_overdue'), val: formatCurrency(communicationStats.montantTotalEnRetard), accent: "border-slate-900", icon: BanknotesIcon, sub: t('crm.clients.total_to_recover') },
+                  { label: t('crm.clients.litigious_files'), val: communicationStats.relancesEnCours, accent: "border-slate-400", icon: ExclamationTriangleIcon, sub: t('crm.clients.action_required') },
+                  { label: t('crm.clients.recovery_rate'), val: "84.2%", accent: "border-slate-200", icon: ArrowTrendingUpIcon, sub: t('crm.clients.performance_month') }
                 ].map((kpi, i) => (
                   <Card key={i} className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-3xl flex items-center gap-5">
                     <div className="p-4 bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-2xl border border-slate-100 dark:border-slate-800">
@@ -1564,11 +1550,11 @@ const Clients: React.FC = () => {
                     <div className="p-2 bg-slate-50 dark:bg-slate-900/40 rounded-lg text-slate-500">
                       <DocumentTextIcon className="h-5 w-5" />
                     </div>
-                    Priorités de Recouvrement
+                    {t('crm.clients.recovery_priorities')}
                   </h3>
                   <div className="flex gap-2">
-                    <button className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors">Exporter Liste</button>
-                    <button className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-colors">Filtrer</button>
+                    <button className="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors uppercase">{t('crm.clients.actions.export_list')}</button>
+                    <button className="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-colors uppercase">{t('crm.clients.actions.filter')}</button>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -1582,14 +1568,14 @@ const Clients: React.FC = () => {
                           <div>
                             <div className="flex items-center gap-2 mb-1">
                               <p className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">{rel.sujet}</p>
-                              <span className="text-[9px] font-black px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded uppercase">Priorité</span>
+                              <span className="text-[9px] font-black px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded uppercase">{t('crm.clients.priority')}</span>
                             </div>
                             <p className="text-[10px] text-slate-500 font-medium">{rel.description}</p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] font-black text-slate-400 uppercase mb-2">{new Date(rel.date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                          <button className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-colors">Agir</button>
+                          <p className="text-[10px] font-black text-slate-400 uppercase mb-2">{new Date(rel.date).toLocaleDateString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                          <button className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-colors">{t('crm.clients.actions.act')}</button>
                         </div>
                       </div>
                     ))
@@ -1598,9 +1584,9 @@ const Clients: React.FC = () => {
                       <div className="inline-flex p-5 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 mb-6 transition-transform hover:scale-110 duration-500">
                         <CheckIcon className="h-10 w-10 text-emerald-500" />
                       </div>
-                      <h4 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">Conformité Validée</h4>
+                      <h4 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest mb-2">{t('crm.clients.status.compliance_validated')}</h4>
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight max-w-xs mx-auto">
-                        Le moteur d'analyse n'a détecté aucune anomalie critique sur les encours clients.
+                        {t('crm.clients.messages.no_anomalies')}
                       </p>
                       <button
                         onClick={() => {
@@ -1617,7 +1603,7 @@ const Clients: React.FC = () => {
                         }}
                         className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
                       >
-                        Lancer un Audit Profond
+                        {t('crm.clients.actions.deep_audit')}
                       </button>
                     </div>
                   )}
@@ -1631,10 +1617,10 @@ const Clients: React.FC = () => {
               {/* Tracker Logistique Dynamique */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 {[
-                  { label: "En Préparation", count: Math.round(apiClients.length * 0.15) },
-                  { label: "Pris en Charge", count: Math.round(apiClients.length * 0.1) },
-                  { label: "En Transit", count: Math.round(apiClients.length * 0.08) },
-                  { label: "Livré (Auj.)", count: Math.round(apiClients.length * 0.12) },
+                  { label: t('crm.clients.status.preparing'), count: Math.round(apiClients.length * 0.15) },
+                  { label: t('crm.clients.status.taken_care_of'), count: Math.round(apiClients.length * 0.1) },
+                  { label: t('crm.clients.status.analysis_in_progress'), count: Math.round(apiClients.length * 0.08) },
+                  { label: t('crm.clients.status.delivered_today'), count: Math.round(apiClients.length * 0.12) },
                 ].map((stat, i) => (
                   <div key={i} className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm relative overflow-hidden group hover:border-slate-900 transition-colors">
                     <div className="absolute top-0 left-0 w-1 h-full bg-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -1645,15 +1631,15 @@ const Clients: React.FC = () => {
               </div>
 
               <Card className="p-8 bg-white dark:bg-slate-800 border-none shadow-xl rounded-[2.5rem]">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-8">Suivi des Expéditions Actives</h3>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mb-8">{t('crm.clients.sections.active_shipping_tracking')}</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="text-left border-b border-slate-100 dark:border-slate-800">
-                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Expédition</th>
-                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Destinataire</th>
-                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
-                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Date Prévue</th>
+                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.shipping_id')}</th>
+                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.recipient')}</th>
+                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.status')}</th>
+                        <th className="pb-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">{t('crm.clients.table.planned_date')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -1689,10 +1675,10 @@ const Clients: React.FC = () => {
               {/* En-tête avec statistiques */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {[
-                  { label: "Communications", val: communicationStats.totalCommunications, icon: ChatBubbleLeftRightIcon },
-                  { label: "En Attente", val: communicationStats.communicationsEnAttente, icon: ClockIcon },
-                  { label: "Relances", val: communicationStats.relancesEnCours, icon: ExclamationCircleIcon },
-                  { label: "Total Retard", val: formatCurrency(communicationStats.montantTotalEnRetard), icon: CurrencyDollarIcon },
+                  { label: t('crm.clients.tabs.communications'), val: communicationStats.totalCommunications, icon: ChatBubbleLeftRightIcon },
+                  { label: t('crm.clients.stats.communications_pending'), val: communicationStats.communicationsEnAttente, icon: ClockIcon },
+                  { label: t('crm.clients.tabs.recovery'), val: communicationStats.relancesEnCours, icon: ExclamationCircleIcon },
+                  { label: t('crm.clients.stats.overdue_amount'), val: formatCurrency(communicationStats.montantTotalEnRetard), icon: CurrencyDollarIcon },
                 ].map((stat, i) => (
                   <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
@@ -1712,27 +1698,27 @@ const Clients: React.FC = () => {
                   <select
                     value={communicationFilter}
                     onChange={(e) => setCommunicationFilter(e.target.value)}
-                    aria-label="Filtrer par type de communication"
-                    className="px-4 py-2 border border-slate-300 bg-white rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm text-slate-700 font-medium"
+                    aria-label={t('common.search')}
+                    className="px-4 py-2 border border-slate-300 bg-white dark:bg-slate-800 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm text-slate-700 dark:text-slate-300 font-medium"
                   >
-                    <option value="tous">Toutes</option>
-                    <option value="relance">Relances</option>
-                    <option value="email">Emails</option>
-                    <option value="appel">Appels</option>
-                    <option value="rendez-vous">RDV</option>
+                    <option value="tous">{t('common.all')}</option>
+                    <option value="relance">{t('crm.clients.tabs.recovery')}</option>
+                    <option value="email">{t('crm.clients.communication.types.email')}</option>
+                    <option value="appel">{t('crm.clients.communication.types.call')}</option>
+                    <option value="rendez-vous">{t('crm.clients.communication.types.meeting')}</option>
                   </select>
 
                   <select
                     value={relanceFilter}
                     onChange={(e) => setRelanceFilter(e.target.value)}
-                    aria-label="Filtrer par type de relance"
-                    className="px-4 py-2 border border-slate-300 bg-white rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm text-slate-700 font-medium"
+                    aria-label={t('common.search')}
+                    className="px-4 py-2 border border-slate-300 bg-white dark:bg-slate-800 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm text-slate-700 dark:text-slate-300 font-medium"
                   >
-                    <option value="tous">Toutes relances</option>
-                    <option value="premiere">1ère</option>
-                    <option value="deuxieme">2ème</option>
-                    <option value="troisieme">3ème</option>
-                    <option value="mise_en_demeure">Mise en demeure</option>
+                    <option value="tous">{t('crm.clients.sections.ongoing_reminders_list')}</option>
+                    <option value="premiere">{t('crm.clients.relance_levels.premiere')}</option>
+                    <option value="deuxieme">{t('crm.clients.relance_levels.deuxieme')}</option>
+                    <option value="troisieme">{t('crm.clients.relance_levels.troisieme')}</option>
+                    <option value="mise_en_demeure">{t('crm.clients.relance_levels.mise_en_demeure')}</option>
                   </select>
                 </div>
 
@@ -1742,14 +1728,14 @@ const Clients: React.FC = () => {
                     className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
-                    Communication
+                    {t('crm.clients.actions.new_communication_short')}
                   </button>
                   <button
                     onClick={() => setIsRelanceModalOpen(true)}
                     className="flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium shadow-sm"
                   >
                     <BellIcon className="h-5 w-5 mr-2" />
-                    Relance
+                    {t('crm.clients.actions.new_reminder_short')}
                   </button>
                 </div>
               </div>
@@ -1758,7 +1744,7 @@ const Clients: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-base font-black text-slate-800 dark:text-white uppercase tracking-tight mb-4 flex items-center gap-2">
                   <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-                  Communications Récentes
+                  {t('crm.clients.sections.recent_communications')}
                 </h3>
                 <div className="space-y-3">
                   {interactionsCRMRecent.length > 0 ? (
@@ -1803,7 +1789,7 @@ const Clients: React.FC = () => {
                     ))
                   ) : (
                     <div className="text-center py-12 bg-slate-50 dark:bg-slate-900/10 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800">
-                      <p className="text-xs font-black text-slate-400 uppercase">Aucune communication trouvée</p>
+                      <p className="text-xs font-black text-slate-400 uppercase">{t('crm.clients.messages.no_communication_found')}</p>
                     </div>
                   )}
                 </div>
@@ -1813,7 +1799,7 @@ const Clients: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-base font-black text-slate-800 dark:text-white uppercase tracking-tight mb-4 flex items-center gap-2">
                   <div className="w-1 h-4 bg-rose-500 rounded-full"></div>
-                  Relances en Cours
+                  {t('crm.clients.sections.ongoing_reminders_list')}
                 </h3>
                 <div className="space-y-3">
                   {interactionsCRM.filter(i => i.type === 'relance').length > 0 ? (
@@ -1829,15 +1815,15 @@ const Clients: React.FC = () => {
                                 <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">
                                   {relance.sujet}
                                 </h4>
-                                <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded bg-rose-100 text-rose-700">Urgent</span>
+                                <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded bg-rose-100 text-rose-700">{t('crm.clients.status.urgent')}</span>
                               </div>
                               <p className="text-xs text-slate-500 italic">"{relance.description}"</p>
                               <div className="flex justify-between items-center mt-3">
                                 <div className="flex items-center space-x-4 text-[9px] font-bold text-slate-400 uppercase">
-                                  <span>Client: {relance.nom || 'Inconnu'}</span>
-                                  <span>Échéance: {new Date(relance.date).toLocaleDateString()}</span>
+                                  <span>{t('crm.clients.table.client')} {relance.nom || 'Inconnu'}</span>
+                                  <span>{t('crm.clients.table.due_date_label')} {new Date(relance.date).toLocaleDateString()}</span>
                                 </div>
-                                <button className="px-4 py-1.5 bg-rose-600 text-white rounded-lg text-[9px] font-black uppercase">Agir</button>
+                                <button className="px-4 py-1.5 bg-rose-600 text-white rounded-lg text-[9px] font-black uppercase">{t('crm.clients.actions.act')}</button>
                               </div>
                             </div>
                           </div>
@@ -1846,7 +1832,7 @@ const Clients: React.FC = () => {
                     ))
                   ) : (
                     <div className="text-center py-10 bg-slate-50 dark:bg-slate-900/10 rounded-3xl border border-slate-200 dark:border-slate-800">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aucune relance active</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.messages.no_active_reminders')}</p>
                     </div>
                   )}
                 </div>
@@ -1861,7 +1847,7 @@ const Clients: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 font-medium">Total Rapports</p>
+                      <p className="text-sm text-slate-600 font-medium">{t('crm.clients.stats.total_reports')}</p>
                       <p className="text-2xl font-bold text-slate-900 mt-1">{statistiquesRapports.totalRapports}</p>
                     </div>
                     <div className="p-3 bg-slate-100 rounded-lg">
@@ -1873,7 +1859,7 @@ const Clients: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 font-medium">Rapports Générés</p>
+                      <p className="text-sm text-slate-600 font-medium">{t('crm.clients.stats.reports_generated')}</p>
                       <p className="text-2xl font-bold text-emerald-600 mt-1">{statistiquesRapports.rapportsGeneres}</p>
                     </div>
                     <div className="p-3 bg-emerald-100 rounded-lg">
@@ -1885,7 +1871,7 @@ const Clients: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600 font-medium">En Cours</p>
+                      <p className="text-sm text-slate-600 font-medium">{t('crm.clients.status.analysis_in_progress')}</p>
                       <p className="text-2xl font-bold text-amber-600 mt-1">{statistiquesRapports.rapportsEnCours}</p>
                     </div>
                     <div className="p-3 bg-amber-100 rounded-lg">
@@ -1897,7 +1883,7 @@ const Clients: React.FC = () => {
                 <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm border-l-4 border-slate-900">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Taille Totale</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.stats.total_size')}</p>
                       <p className="text-xl font-black text-slate-900 dark:text-white mt-1 font-mono">{statistiquesRapports.tailleTotale}</p>
                     </div>
                     <div className="p-3 bg-slate-900 text-white rounded-xl">
@@ -1931,7 +1917,7 @@ const Clients: React.FC = () => {
                         <span className={`text-[9px] font-black uppercase flex items-center gap-1 ${metrique.trend === 'up' ? 'text-emerald-500' : 'text-rose-500'}`}>
                           {metrique.trend === 'up' ? '↗' : '↘'} {metrique.evolution}%
                         </span>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-2">vs dernier audit</span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-2">{t('crm.clients.vs_last_audit')}</span>
                       </div>
                     </div>
                   </div>
@@ -1943,10 +1929,10 @@ const Clients: React.FC = () => {
                 <select
                   value={rapportFilter}
                   onChange={(e) => setRapportFilter(e.target.value)}
-                  aria-label="Filtrer par type de rapport"
-                  className="px-4 py-2 border border-slate-300 bg-white rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700 font-medium"
+                  aria-label={t('common.search')}
+                  className="px-4 py-2 border border-slate-300 bg-white dark:bg-slate-800 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm text-slate-700 dark:text-slate-300 font-medium"
                 >
-                  <option value="tous">Tous les rapports</option>
+                  <option value="tous">{t('crm.clients.all_reports')}</option>
                   {typesRapports.map(type => (
                     <option key={type.value} value={type.value}>
                       {type.label}
@@ -1959,7 +1945,7 @@ const Clients: React.FC = () => {
                   className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium shadow-sm"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
-                  Nouveau Rapport
+                  {t('crm.clients.actions.new_report')}
                 </button>
               </div>
 
@@ -1967,7 +1953,7 @@ const Clients: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                   <DocumentTextIcon className="h-5 w-5 text-slate-400" />
-                  Rapports & Archives ERP
+                  {t('crm.clients.sections.reports_archives')}
                 </h3>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   {allRapports.filter((rapport: any) => rapportFilter === 'tous' || rapport.type === rapportFilter)
@@ -1994,18 +1980,18 @@ const Clients: React.FC = () => {
                               </div>
                             </div>
                             <span className={`px-2 py-1 text-[9px] font-black uppercase rounded-lg ${rapport.statut === 'termine' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                              {rapport.statut === 'termine' ? 'Prêt' : 'En Cours'}
+                              {rapport.statut === 'termine' ? t('crm.clients.status.ready') : t('crm.clients.status.analysis_in_progress')}
                             </span>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 mb-6">
                             <div className="p-3 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-slate-800">
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Période</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('crm.clients.table.period')}</p>
                               <p className="text-xs font-black text-slate-700 dark:text-slate-300">{rapport.periode}</p>
                             </div>
                             <div className="p-3 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-slate-800">
-                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Généré le</p>
-                              <p className="text-xs font-black text-slate-700 dark:text-slate-300">{new Date(rapport.dateGeneration).toLocaleDateString('fr-FR')}</p>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('crm.clients.table.generated_on')}</p>
+                              <p className="text-xs font-black text-slate-700 dark:text-slate-300">{new Date(rapport.dateGeneration).toLocaleDateString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR')}</p>
                             </div>
                           </div>
 
@@ -2018,14 +2004,14 @@ const Clients: React.FC = () => {
                               <button
                                 onClick={() => handleDownloadRapport(rapport)}
                                 className="p-2 text-slate-400 hover:text-blue-500 transition-colors"
-                                title="Télécharger"
+                                title={t('common.download')}
                               >
                                 <DocumentArrowDownIcon className="h-5 w-5" />
                               </button>
                               <button
                                 onClick={() => handleViewRapport(rapport)}
                                 className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                                title="Voir"
+                                title={t('common.view')}
                               >
                                 <EyeIcon className="h-5 w-5" />
                               </button>
@@ -2099,7 +2085,7 @@ const Clients: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedClient.nom}</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{selectedClient.secteur}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{t(`crm.clients.segment_names.${selectedClient.secteur.toLowerCase()}`)}</p>
                 </div>
               </div>
             </div>
@@ -2234,7 +2220,7 @@ const Clients: React.FC = () => {
         {selectedClient && (
           <div className="space-y-8">
             <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-1">Journal de Communication</h4>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-1">{t('crm.clients.sections.communication_log')}</h4>
               <div className="space-y-4">
                 {clientCommunications.map((comm) => (
                   <div key={comm.id} className="p-5 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 border-l-4 border-l-slate-900">
@@ -2260,35 +2246,35 @@ const Clients: React.FC = () => {
             </div>
 
             <div className="space-y-6">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nouvelle Entrée au Journal</h4>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.sections.new_log_entry')}</h4>
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Médium de communication</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('crm.clients.table.communication_medium')}</label>
                   <select aria-label="Médium" className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest">
-                    <option value="email text-slate-900">Email Sortant</option>
-                    <option value="call text-slate-900">Appel Direct</option>
-                    <option value="meeting text-slate-900">Session Présentielle</option>
+                    <option value="email text-slate-900">{t('crm.clients.communication_modes.email_outgoing')}</option>
+                    <option value="call text-slate-900">{t('crm.clients.communication_modes.call_direct')}</option>
+                    <option value="meeting text-slate-900">{t('crm.clients.communication_modes.meeting_presential')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Sujet de l'interaction</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('crm.clients.table.interaction_subject')}</label>
                   <input
                     type="text"
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-                    placeholder="Objet précis de l'échange..."
+                    placeholder={t('crm.clients.placeholders.interaction_subject')}
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Détails de l'échange</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('crm.clients.table.interaction_details')}</label>
                   <textarea
                     rows={4}
                     className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-                    placeholder="Compte-rendu synthétique de la communication..."
+                    placeholder={t('crm.clients.placeholders.interaction_details')}
                   />
                 </div>
                 <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-                  <button onClick={() => setIsCommunicationModalOpen(false)} className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Annuler</button>
-                  <button className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">Enregistrer Interaction</button>
+                  <button onClick={() => setIsCommunicationModalOpen(false)} className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">{t('common.cancel')}</button>
+                  <button className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl">{t('crm.clients.actions.save_interaction')}</button>
                 </div>
               </div>
             </div>
@@ -2612,12 +2598,12 @@ const Clients: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Périodicité</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.periodicity')}</label>
               <select
                 required
                 value={rapportFormData.periode}
                 onChange={(e) => setRapportFormData({ ...rapportFormData, periode: e.target.value })}
-                aria-label="Période"
+                aria-label={t('crm.clients.table.period')}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest"
               >
                 {periodesRapport.map(periode => (
@@ -2629,14 +2615,14 @@ const Clients: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Libellé du Rapport</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.report_label')}</label>
               <input
                 type="text"
                 required
                 value={rapportFormData.libelle}
                 onChange={(e) => setRapportFormData({ ...rapportFormData, libelle: e.target.value })}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-                placeholder="Ex: Analyse Q1 2024..."
+                placeholder={t('crm.clients.placeholders.report_label_example')}
               />
             </div>
           </div>
@@ -2645,8 +2631,8 @@ const Clients: React.FC = () => {
             <DocumentChartBarIcon className={`h-5 w-5 ${isGeneratingRapport ? 'animate-spin text-blue-400' : 'text-slate-400'}`} />
             <p className="text-[9px] font-black uppercase tracking-widest">
               {isGeneratingRapport
-                ? 'Architecture ERP active : Compilation des flux financiers en cours...'
-                : 'Système : Le moteur de reporting compile les données ERP en arrière-plan.'}
+                ? t('crm.clients.status.erp_active_compiling')
+                : t('crm.clients.status.system_reporting_engine')}
             </p>
           </div>
 
@@ -2657,7 +2643,7 @@ const Clients: React.FC = () => {
               onClick={() => setIsNouveauRapportModalOpen(false)}
               className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -2665,7 +2651,7 @@ const Clients: React.FC = () => {
               className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-2 disabled:bg-slate-700"
             >
               {isGeneratingRapport && <ArrowPathIcon className="h-4 w-4 animate-spin" />}
-              {isGeneratingRapport ? 'Génération...' : 'Générer Rapport'}
+              {isGeneratingRapport ? t('crm.clients.actions.generating') : t('crm.clients.actions.generate_report_btn')}
             </button>
           </div>
         </form>
@@ -2716,7 +2702,7 @@ const Clients: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-4 py-2 bg-slate-900 text-white text-[10px] font-black uppercase rounded-xl tracking-widest">
-                  {selectedRapport?.statut === 'termine' ? 'Document Prêt' : 'Génération active'}
+                  {selectedRapport?.statut === 'termine' ? t('crm.clients.status.document_ready') : t('crm.clients.status.generation_active')}
                 </span>
               </div>
             </div>
@@ -2728,7 +2714,7 @@ const Clients: React.FC = () => {
                   <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6">
                     <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
                       <div className="w-1.5 h-6 bg-slate-900 dark:bg-white rounded-full"></div>
-                      Analyse des Ventes par Client
+                      {t('crm.clients.sections.sales_analysis_by_client')}
                     </h4>
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{selectedRapport.periode}</span>
                   </div>
@@ -2754,17 +2740,17 @@ const Clients: React.FC = () => {
                   {/* Top 05 Performance Table */}
                   <div>
                     <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-1 flex items-center gap-2">
-                      <SparklesIcon className="h-4 w-4" /> Top 05 Performance Clients
+                      <SparklesIcon className="h-4 w-4" /> {t('crm.clients.sections.top_5_performance_clients')}
                     </h5>
                     <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-3xl">
                       <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
                         <thead className="bg-slate-50 dark:bg-slate-900/50">
                           <tr>
-                            <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Rang</th>
-                            <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">Client partenaire</th>
-                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">C.A Généré</th>
-                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Quote-part</th>
-                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">Évolution</th>
+                            <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.rang')}</th>
+                            <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.partner')}</th>
+                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.ca_generated')}</th>
+                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.quote_part')}</th>
+                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.evolution')}</th>
                           </tr>
                         </thead>
                         <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-50 dark:divide-slate-800">
@@ -2798,31 +2784,31 @@ const Clients: React.FC = () => {
 
               {selectedRapport.type === 'paiements' && (
                 <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">💰 Analyse des Paiements et Retards - {selectedRapport.periode}</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">💰 {t('crm.clients.sections.payment_and_delay_analysis_with_period', { period: selectedRapport.periode })}</h4>
 
                   {/* Statistiques des paiements */}
                   <div className="grid grid-cols-4 gap-4">
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">Paiements reçus</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.payments_received')}</div>
                       <div className="text-2xl font-bold text-emerald-600">1,850,000 DZD</div>
                     </div>
                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">En attente</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.communications_pending')}</div>
                       <div className="text-2xl font-bold text-amber-600">425,000 DZD</div>
                     </div>
                     <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                      <div className="text-sm text-slate-600 mb-1">En retard</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.overdue_amount')}</div>
                       <div className="text-2xl font-bold text-red-600">175,000 DZD</div>
                     </div>
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                      <div className="text-sm text-slate-600 mb-1">Taux de recouvrement</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.recovery_rate')}</div>
                       <div className="text-2xl font-bold text-slate-900">75.5%</div>
                     </div>
                   </div>
 
                   {/* Détails des retards */}
                   <div>
-                    <h5 className="text-base font-semibold text-slate-900 mb-3">Factures en Retard</h5>
+                    <h5 className="text-base font-semibold text-slate-900 mb-3">{t('crm.clients.sections.overdue_invoices')}</h5>
                     <div className="space-y-2">
                       {[
                         { facture: 'FAC-2024-001', client: 'Société XYZ', montant: 85000, jours: 45, priorite: 'haute' },
@@ -2834,7 +2820,7 @@ const Clients: React.FC = () => {
                             <div className="flex items-center space-x-3">
                               <div>
                                 <p className="text-sm font-medium text-gray-900">{retard.facture} - {retard.client}</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{retard.jours} jours de retard</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{retard.jours} {t('crm.clients.days_overdue')}</p>
                               </div>
                             </div>
                           </div>
@@ -2856,46 +2842,46 @@ const Clients: React.FC = () => {
 
               {selectedRapport.type === 'relances' && (
                 <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">📧 Suivi des Relances Clients - {selectedRapport.periode}</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">📧 {t('crm.clients.sections.reminder_tracking_with_period', { period: selectedRapport.periode })}</h4>
 
                   <div className="grid grid-cols-3 gap-4">
                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">Relances envoyées</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.reminders_sent')}</div>
                       <div className="text-2xl font-bold text-amber-600">24</div>
                     </div>
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">Paiements obtenus</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.payments_obtained')}</div>
                       <div className="text-2xl font-bold text-emerald-600">18</div>
                     </div>
                     <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                      <div className="text-sm text-slate-600 mb-1">Taux de succès</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.response_rate')}</div>
                       <div className="text-2xl font-bold text-cyan-600">75%</div>
                     </div>
                   </div>
 
                   <div className="text-sm text-slate-600 leading-relaxed">
-                    <p className="mb-2">📊 <strong>Efficacité des relances:</strong> Sur 24 relances envoyées ce mois, 18 ont abouti à un paiement, soit un taux de réussite de 75%.</p>
-                    <p className="mb-2">📈 <strong>Délai moyen de paiement après relance:</strong> 8 jours</p>
-                    <p>💡 <strong>Recommandation:</strong> Les relances par téléphone ont un taux de succès de 85%, contre 65% pour les emails.</p>
+                    <p className="mb-2">📊 <strong>{t('crm.clients.efficiency_of_reminders_label')}</strong> Sur 24 relances envoyées ce mois, 18 ont abouti à un paiement, soit un taux de réussite de 75%.</p>
+                    <p className="mb-2">📈 <strong>{t('crm.clients.avg_payment_delay_after_reminder_label')}</strong> 8 jours</p>
+                    <p>💡 <strong>{t('common.recommendation_prefix')}</strong> Les relances par téléphone ont un taux de succès de 85%, contre 65% pour les emails.</p>
                   </div>
                 </div>
               )}
 
               {selectedRapport.type === 'satisfaction' && (
                 <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⭐ Enquête Satisfaction Clients - {selectedRapport.periode}</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⭐ {t('crm.clients.sections.satisfaction_survey_with_period', { period: selectedRapport.periode })}</h4>
 
                   <div className="grid grid-cols-4 gap-4">
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">Score moyen</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.avg_score')}</div>
                       <div className="text-3xl font-bold text-emerald-600">4.2/5</div>
                     </div>
                     <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                      <div className="text-sm text-slate-600 mb-1">Réponses</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.responses_count')}</div>
                       <div className="text-2xl font-bold text-cyan-600">156</div>
                     </div>
                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">Taux de réponse</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.response_rate')}</div>
                       <div className="text-2xl font-bold text-amber-600">62%</div>
                     </div>
                     <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
@@ -2905,7 +2891,7 @@ const Clients: React.FC = () => {
                   </div>
 
                   <div>
-                    <h5 className="text-base font-semibold text-slate-900 mb-3">Répartition des Notes</h5>
+                    <h5 className="text-base font-semibold text-slate-900 mb-3">{t('crm.clients.sections.notes_distribution')}</h5>
                     <div className="space-y-2">
                       {[
                         { note: 5, count: 78, color: 'emerald' },
@@ -2915,7 +2901,7 @@ const Clients: React.FC = () => {
                         { note: 1, count: 3, color: 'red' }
                       ].map((item) => (
                         <div key={item.note} className="flex items-center space-x-3">
-                          <div className="w-16 text-sm font-medium text-slate-700">{item.note} étoiles</div>
+                          <div className="w-16 text-sm font-medium text-slate-700">{item.note} {t('crm.clients.stars')}</div>
                           <div className="flex-1 bg-slate-200 rounded-full h-2 mr-2">
                             <div
                               className={`bg-${item.color}-500 h-2 rounded-full flex items-center justify-end pr-2`}
@@ -2933,46 +2919,46 @@ const Clients: React.FC = () => {
 
               {selectedRapport.type === 'performance' && (
                 <div className="space-y-8">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 pb-4">Analyse Performance VIP</h4>
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 pb-4">{t('crm.clients.sections.vip_performance_analysis')}</h4>
 
                   <div className="grid grid-cols-2 gap-8">
                     <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Chiffre d'Affaires VIP</p>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('crm.clients.stats.ca_vip')}</p>
                       <p className="text-3xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(1240000)}</p>
                       <div className="mt-4 flex items-center gap-2">
                         <div className="h-1.5 flex-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                           <div className="h-full bg-slate-900 dark:bg-white w-[50.6%]"></div>
                         </div>
-                        <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase">50.6% CA</span>
+                        <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase">{t('crm.clients.percent_ca', { percent: 50.6 })}</span>
                       </div>
                     </div>
                     <div className="p-8 bg-slate-900 text-white rounded-[2rem]">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Volume Base Client</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">{t('crm.clients.stats.client_base_volume')}</p>
                       <p className="text-3xl font-black font-mono">15</p>
                       <div className="mt-4 flex items-center gap-2">
                         <div className="h-1.5 flex-1 bg-white/20 rounded-full overflow-hidden">
                           <div className="h-full bg-white w-[17%]"></div>
                         </div>
-                        <span className="text-[10px] font-black text-white uppercase">17% Base</span>
+                        <span className="text-[10px] font-black text-white uppercase">{t('crm.clients.percent_base', { percent: 17 })}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="text-sm text-slate-600 leading-relaxed">
-                    <p>💎 <strong>Observation clé:</strong> Les 15 clients VIP représentent plus de la moitié du chiffre d'affaires total. La fidélisation de ces comptes stratégiques est prioritaire.</p>
+                    <p>💎 <strong>{t('crm.clients.key_observation_prefix')}</strong> Les 15 clients VIP représentent plus de la moitié du chiffre d'affaires total. La fidélisation de ces comptes stratégiques est prioritaire.</p>
                   </div>
                 </div>
               )}
 
               {selectedRapport.type === 'risques' && (
                 <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⚠️ Évaluation des Risques Clients - {selectedRapport.periode}</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⚠️ {t('crm.clients.sections.risk_evaluation_with_period', { period: selectedRapport.periode })}</h4>
 
                   <div className="grid grid-cols-3 gap-4">
                     <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                      <div className="text-sm text-slate-600 mb-1">Risque élevé</div>
-                      <div className="text-2xl font-bold text-red-600">8 clients</div>
-                      <div className="text-xs text-slate-600 mt-1">Exposition: 285k DZD</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.risk_levels.critical')}</div>
+                      <div className="text-2xl font-bold text-red-600">8 {t('crm.clients.tabs.list')}</div>
+                      <div className="text-xs text-slate-600 mt-1">{t('crm.clients.exposure_label')} 285k DZD</div>
                     </div>
                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                       <div className="text-sm text-slate-600 mb-1">Risque moyen</div>
@@ -2980,9 +2966,9 @@ const Clients: React.FC = () => {
                       <div className="text-xs text-slate-600 mt-1">Exposition: 520k DZD</div>
                     </div>
                     <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">Risque faible</div>
-                      <div className="text-2xl font-bold text-emerald-600">56 clients</div>
-                      <div className="text-xs text-slate-600 mt-1">Exposition: 1,645k DZD</div>
+                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.risk_levels.moderate')}</div>
+                      <div className="text-2xl font-bold text-emerald-600">56 {t('crm.clients.tabs.list')}</div>
+                      <div className="text-xs text-slate-600 mt-1">{t('crm.clients.exposure_label')} 1,645k DZD</div>
                     </div>
                   </div>
 
@@ -2990,7 +2976,7 @@ const Clients: React.FC = () => {
                     <div className="flex items-start space-x-3">
                       <ExclamationTriangleIcon className="h-6 w-6 text-amber-600 flex-shrink-0 mt-1" />
                       <div className="text-sm text-slate-700">
-                        <strong>Actions recommandées:</strong> 8 clients présentent un risque élevé avec une exposition totale de 285,000 DZD. Révision des limites de crédit et renforcement du suivi recommandés.
+                        <strong>{t('common.recommended_actions_prefix')}</strong> 8 clients présentent un risque élevé avec une exposition totale de 285,000 DZD. Révision des limites de crédit et renforcement du suivi recommandés.
                       </div>
                     </div>
                   </div>
@@ -3001,8 +2987,8 @@ const Clients: React.FC = () => {
               {!['ventes', 'paiements', 'relances', 'satisfaction', 'performance', 'risques'].includes(selectedRapport.type) && (
                 <div className="text-center py-12">
                   <DocumentTextIcon className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-500">Aperçu du rapport non disponible</p>
-                  <p className="text-sm text-slate-400 mt-2">Utilisez le bouton "Télécharger" pour accéder au contenu complet</p>
+                  <p className="text-slate-500">{t('crm.clients.messages.report_preview_not_available')}</p>
+                  <p className="text-sm text-slate-400 mt-2">{t('crm.clients.messages.use_download_button')}</p>
                 </div>
               )}
             </div>
@@ -3016,14 +3002,14 @@ const Clients: React.FC = () => {
                 }}
                 className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
               >
-                Fermer
+                {t('common.close')}
               </button>
               <button
                 onClick={() => handleDownloadRapport(selectedRapport)}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
               >
                 <DocumentArrowDownIcon className="h-5 w-5 inline mr-2" />
-                Télécharger
+                {t('common.download')}
               </button>
             </div>
           </div>
@@ -3041,7 +3027,7 @@ const Clients: React.FC = () => {
           <div className="p-6 bg-slate-900 text-white rounded-3xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
             <p className="text-xs font-medium leading-relaxed opacity-80 relative z-10">
-              Moteur d'analyse prédictive : Calcul du CLV (Customer Lifetime Value) et du CAC (Customer Acquisition Cost) pour optimiser la rentabilité long-terme de votre portefeuille.
+              {t('crm.clients.messages.predictive_analysis_desc')}
             </p>
           </div>
 
@@ -3049,14 +3035,14 @@ const Clients: React.FC = () => {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">Client</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">CLV</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">CAC</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Ratio CLV/CAC</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Panier Moyen</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">Fréquence</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Score</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">Tendance</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.client')}</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.clv')}</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.cac')}</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.ratio_clv_cac')}</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.avg_basket')}</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.frequency')}</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.score')}</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-slate-600 uppercase">{t('crm.clients.table.trend')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
@@ -3071,7 +3057,7 @@ const Clients: React.FC = () => {
                     <td className="px-6 py-4 text-center">
                       <span className={`px-3 py-1 bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white text-[9px] font-black uppercase rounded-lg tracking-widest ${analyse.scoreValeur >= 85 ? 'ring-1 ring-slate-900' : ''
                         }`}>
-                        {analyse.scoreValeur} INDEX
+                        {analyse.scoreValeur} {t('crm.clients.table.index_shorthand')}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -3090,7 +3076,7 @@ const Clients: React.FC = () => {
               onClick={() => setIsAnalyseValeurModalOpen(false)}
               className="px-8 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all"
             >
-              Fermer l'analyse
+              {t('crm.clients.actions.close_analysis')}
             </button>
           </div>
         </div>
@@ -3110,7 +3096,7 @@ const Clients: React.FC = () => {
                 <ChartBarIcon className="h-6 w-6" />
               </div>
               <p className="text-xs font-bold leading-relaxed opacity-90 uppercase tracking-tight">
-                Analyse Prédictive à 180 jours • Tendance basées sur l'historique ERP
+                {t('crm.clients.messages.predictive_analysis_range_desc')}
               </p>
             </div>
           </div>
@@ -3119,11 +3105,11 @@ const Clients: React.FC = () => {
             <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
               <thead className="bg-slate-50 dark:bg-slate-900/50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Partenaire</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Cycle</th>
-                  <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Projection Revenue</th>
-                  <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Indice Probabilité</th>
-                  <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Niveau Confiance</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.partner')}</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.cycle')}</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.projected_revenue')}</th>
+                  <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.probability_index')}</th>
+                  <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.confidence_level')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-900">
@@ -3164,7 +3150,7 @@ const Clients: React.FC = () => {
               onClick={() => setIsPrevisionsRevenusModalOpen(false)}
               className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-slate-800 transition-all"
             >
-              Fermer l'Analyse
+              {t('crm.clients.actions.close_analysis')}
             </button>
           </div>
         </div>
@@ -3210,7 +3196,7 @@ const Clients: React.FC = () => {
                       </div>
                       <div>
                         <h4 className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-widest">{interaction.sujet}</h4>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">{new Date(interaction.date).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">{new Date(interaction.date).toLocaleDateString(i18n.language === 'ar' ? 'ar-DZ' : 'fr-FR')}</p>
                       </div>
                     </div>
                   </div>
@@ -3219,7 +3205,7 @@ const Clients: React.FC = () => {
                     <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Impact Prochaine Action</p>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('crm.clients.table.next_action_impact')}</p>
                           <p className="text-xs font-black text-slate-900 dark:text-white uppercase">{interaction.prochaineAction}</p>
                         </div>
                         {interaction.dateProchaineAction && (
@@ -3240,9 +3226,9 @@ const Clients: React.FC = () => {
                     <CpuChipIcon className="h-6 w-6 text-slate-900 dark:text-white" />
                   </div>
                 </div>
-                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">Silence Opérationnel</p>
+                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em]">{t('crm.clients.status.operational_silence')}</p>
                 <p className="text-[10px] text-slate-400 font-bold uppercase mt-2 tracking-widest text-center px-12">
-                  L'algorithme IA ne détecte aucune anomalie ou opportunité critique nécessitant une intervention immédiate.
+                  {t('crm.clients.messages.no_critical_anomalies_detected')}
                 </p>
                 <div className="mt-8 flex gap-2">
                   <div className="w-1 h-1 bg-slate-900 dark:bg-white rounded-full animate-pulse"></div>
@@ -3258,7 +3244,7 @@ const Clients: React.FC = () => {
               onClick={() => setIsCrmModalOpen(false)}
               className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all"
             >
-              Fermer le moniteur
+              {t('crm.clients.actions.close_monitor')}
             </button>
           </div>
         </div>
@@ -3274,18 +3260,18 @@ const Clients: React.FC = () => {
         <div className="space-y-8">
           <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-relaxed">
-              Algorithme de Classification : Segmentation dynamique basée sur le RFM (Récence, Fréquence, Montant) et les indices de solvabilité ERP.
+              {t('crm.clients.messages.segmentation_algorithm_desc')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[...segmentsClients.entries()].map(([segmentId, clientIds]) => {
               const segmentNames: Record<string, string> = {
-                vip: 'Élite VIP',
-                strategique: 'Croissance Stratégique',
-                reguliers: 'Portefeuille Standard',
-                occasionnels: 'Bas de Cycle',
-                a_risque: 'Surveillance Critique'
+                vip: t('crm.clients.segment_names.vip'),
+                strategique: t('crm.clients.segment_names.strategique'),
+                reguliers: t('crm.clients.segment_names.reguliers'),
+                occasionnels: t('crm.clients.segment_names.occasionnels'),
+                a_risque: t('crm.clients.segment_names.a_risque')
               };
 
               return (
@@ -3299,7 +3285,7 @@ const Clients: React.FC = () => {
                       <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">{segmentNames[segmentId] || segmentId}</h4>
                     </div>
                     <div className="px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-full text-[10px] font-black text-slate-600 dark:text-slate-400 font-mono">
-                      {clientIds.length.toString().padStart(2, '0')} UNITS
+                      {clientIds.length.toString().padStart(2, '0')} {t('crm.clients.table.units_shorthand')}
                     </div>
                   </div>
 
@@ -3329,7 +3315,7 @@ const Clients: React.FC = () => {
               onClick={() => setIsSegmentationModalOpen(false)}
               className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all"
             >
-              Fermer le registre
+              {t('crm.clients.actions.close_registry')}
             </button>
           </div>
         </div>
@@ -3341,63 +3327,63 @@ const Clients: React.FC = () => {
           setIsModalOpen(false);
           setEditingClient(null);
         }}
-        title={editingClient ? "Modifier le Client" : "Nouveau Client"}
+        title={editingClient ? t('crm.clients.actions.edit_client') : t('crm.clients.actions.new_client')}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Dénomination Sociale</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.company_name')}</label>
               <input
                 type="text"
                 required
                 value={formData.nom}
                 onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-                placeholder="Ex: SARL Algérie Tech"
+                placeholder={t('crm.clients.placeholders.company_name_example')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Identifiant Fiscal (NIF)</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.nif_label')}</label>
               <input
                 type="text"
                 value={formData.nif}
                 onChange={(e) => setFormData({ ...formData, nif: e.target.value })}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
-                placeholder="15 ou 20 chiffres"
+                placeholder={t('crm.clients.placeholders.nif_digits')}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Art. Imposition (AI)</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.tax_article_short')}</label>
               <input
                 type="text"
                 value={formData.ai}
                 onChange={(e) => setFormData({ ...formData, ai: e.target.value })}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
-                placeholder="11 chiffres"
+                placeholder={t('crm.clients.placeholders.ai_digits')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Registre Commerce (RC)</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.commerce_registry_short')}</label>
               <input
                 type="text"
                 value={formData.rc}
                 onChange={(e) => setFormData({ ...formData, rc: e.target.value })}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
-                placeholder="Format: 00B1234567"
+                placeholder={t('crm.clients.placeholders.rc_format')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Identifiant Stat. (NIS)</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.stat_id_short')}</label>
               <input
                 type="text"
                 value={formData.nis}
                 onChange={(e) => setFormData({ ...formData, nis: e.target.value })}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold font-mono text-slate-900 dark:text-white"
-                placeholder="15 chiffres"
+                placeholder={t('crm.clients.placeholders.nis_digits')}
               />
             </div>
           </div>
@@ -3405,8 +3391,8 @@ const Clients: React.FC = () => {
           <div className="p-6 bg-blue-50 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-800 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Exonération TVA</h4>
-                <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">Le client bénéficie-t-il d'une franchise de TVA ?</p>
+                <h4 className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">{t('crm.clients.table.vat_exemption')}</h4>
+                <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">{t('crm.clients.messages.vat_exemption_desc')}</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -3421,13 +3407,13 @@ const Clients: React.FC = () => {
 
             {formData.isExonereTVA && (
               <div className="pt-4 border-t border-blue-100 dark:border-blue-800">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">N° Attestation / Date de validité</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.exemption_cert_no_validity')}</label>
                 <input
                   type="text"
                   value={formData.numAttestationExo}
                   onChange={(e) => setFormData({ ...formData, numAttestationExo: e.target.value })}
                   className="w-full mt-2 p-4 bg-white dark:bg-slate-900 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white shadow-sm"
-                  placeholder="Ex: 1234/2024 du 01/01/2024"
+                  placeholder={t('crm.clients.placeholders.exemption_cert_example')}
                 />
               </div>
             )}
@@ -3435,7 +3421,7 @@ const Clients: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Téléphone Direct</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.direct_line')}</label>
               <input
                 type="text"
                 value={formData.telephone}
@@ -3445,7 +3431,7 @@ const Clients: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email Professionnel</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.pro_email')}</label>
               <input
                 type="email"
                 value={formData.email}
@@ -3457,29 +3443,29 @@ const Clients: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Siège Social</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.headquarters')}</label>
             <input
               type="text"
               value={formData.adresse}
               onChange={(e) => setFormData({ ...formData, adresse: e.target.value })}
               className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-              placeholder="Adresse complète..."
+              placeholder={t('crm.clients.placeholders.full_address')}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Secteur d'Activité</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.activity_sector')}</label>
               <input
                 type="text"
                 value={formData.secteur}
                 onChange={(e) => setFormData({ ...formData, secteur: e.target.value })}
                 className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-                placeholder="Ex: Distribution, BTP..."
+                placeholder={t('crm.clients.placeholders.sector_example')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Limite de Crédit (DZD)</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.allowed_limit')}</label>
               <input
                 type="number"
                 value={formData.limiteCredit}
@@ -3490,13 +3476,13 @@ const Clients: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Notes & Observations</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.table.notes_observations')}</label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
               className="w-full p-4 bg-slate-50 dark:bg-slate-800 border-none rounded-2xl text-xs font-medium text-slate-900 dark:text-white"
-              placeholder="Notes confidentielles..."
+              placeholder={t('crm.clients.placeholders.confidential_notes')}
             />
           </div>
 
@@ -3509,13 +3495,13 @@ const Clients: React.FC = () => {
               }}
               className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
             >
-              {editingClient ? "Mettre à jour" : "Enregistrer Client"}
+              {editingClient ? t('common.update') : t('crm.clients.actions.save_client')}
             </button>
           </div>
         </form>

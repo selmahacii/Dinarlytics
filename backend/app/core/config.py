@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 from dotenv import load_dotenv  # type: ignore[import-not-found]
 from pydantic_settings import BaseSettings  # type: ignore[import-not-found]
+from pydantic import Field, field_validator
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,9 +34,10 @@ class Settings(BaseSettings):
 
     # ========== SECURITY SETTINGS ==========
     # JWT Configuration
-    SECRET_KEY: str = os.getenv(
-        "SECRET_KEY",
-        "your-secret-key-change-in-production",
+    SECRET_KEY: str = Field(
+        default="your-secret-key-change-in-production",
+        min_length=8,
+        description="Secret key for JWT signing. Must be 32+ chars in production."
     )
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -46,6 +48,23 @@ class Settings(BaseSettings):
     PASSWORD_REQUIRE_SPECIAL_CHARS: bool = True
     PASSWORD_REQUIRE_NUMBERS: bool = True
     PASSWORD_REQUIRE_UPPERCASE: bool = True
+
+    # ✅ VALIDATOR: Ensure production has a real SECRET_KEY
+    @field_validator("SECRET_KEY", mode="after")
+    @classmethod
+    def validate_secret_key_for_production(cls, v: str, info) -> str:
+        """Ensure production environment has a secure SECRET_KEY"""
+        app_env = info.data.get("APP_ENVIRONMENT", "development")
+
+        if app_env == "production":
+            if v == "your-secret-key-change-in-production" or len(v) < 32:
+                raise ValueError(
+                    "CRITICAL: Production SECRET_KEY must be set to a random "
+                    "32+ character value. Never use the default key. "
+                    "Set the SECRET_KEY environment variable before deploying to production."
+                )
+
+        return v
 
     # CORS Configuration
     CORS_ORIGINS: list = [
@@ -110,6 +129,14 @@ class Settings(BaseSettings):
 
     # Sentry (Error Tracking)
     SENTRY_DSN: Optional[str] = os.getenv("SENTRY_DSN", None)
+
+    # ========== OBSERVABILITY SETTINGS (OpenTelemetry) ==========
+    # Distributed Tracing
+    OTEL_ENABLED: bool = os.getenv("OTEL_ENABLED", "false").lower() == "true"
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = os.getenv(
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "http://localhost:4317"  # Jaeger collector endpoint
+    )
 
     # ========== AI SERVICE SETTINGS ==========
     AI_MODEL_PATH: str = "models/"

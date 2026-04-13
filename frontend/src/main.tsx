@@ -9,6 +9,7 @@ import { ProductsProvider } from '@core/context/ProductsContext';
 import { queryClient } from './lib/queryClient';
 import './index.css';
 import './styles/erpnext.css';
+import './i18n/config';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

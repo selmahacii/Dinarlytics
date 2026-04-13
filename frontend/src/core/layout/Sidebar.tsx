@@ -33,6 +33,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { usePermission } from '../../shared/hooks/usePermission';
+import { useTranslation } from '../../shared/hooks/useTranslation';
 
 type SidebarIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
@@ -60,6 +61,7 @@ const Sidebar: React.FC = () => {
   const { planComptable, isSidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setMobileMenuOpen } = useApp();
   const location = useLocation();
   const { has, user } = usePermission();
+  const { t } = useTranslation();
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
     'intelligence-lia': false,
@@ -80,13 +82,13 @@ const Sidebar: React.FC = () => {
       type: 'submenu',
       id: 'intelligence-lia',
       icon: SparklesIcon,
-      label: 'Intelligence LIA',
+      label: t('nav.intelligence_lia'),
       isOpen: openMenus['intelligence-lia'],
       onToggle: () => toggleMenu('intelligence-lia'),
       subItems: [
-        has('lia-chatbot') && { path: '/lia/chatbot', icon: SparklesIcon, label: 'Assistant Chatbot' },
-        has('lia-analyses') && { path: '/lia/analyses', icon: ChartBarIcon, label: 'Analyses Prédictives' },
-        has('lia-train') && { path: '/entrainement-modele-ia', icon: CpuChipIcon, label: 'Entrainement Modèles' }
+        has('lia-chatbot') && { path: '/lia/chatbot', icon: SparklesIcon, label: t('nav.lia_chatbot') },
+        has('lia-analyses') && { path: '/lia/analyses', icon: ChartBarIcon, label: t('nav.lia_predictive') },
+        has('lia-train') && { path: '/entrainement-modele-ia', icon: CpuChipIcon, label: t('nav.lia_train') }
       ].filter(Boolean)
     },
 
@@ -95,13 +97,13 @@ const Sidebar: React.FC = () => {
       type: 'submenu',
       id: 'finance-comptabilite',
       icon: CalculatorIcon,
-      label: 'Finance & Compta',
+      label: t('nav.finance_accounting'),
       isOpen: openMenus['finance-comptabilite'],
       onToggle: () => toggleMenu('finance-comptabilite'),
       subItems: [
-        { path: '/comptabilite/etats', icon: DocumentTextIcon, label: 'Balance & Bilan' },
-        { path: '/fiscalite', icon: ScaleIcon, label: 'Déclarations Fiscale' },
-        has('comptabilite-write') && { path: '/comptabilite/journaux', icon: ClipboardDocumentListIcon, label: 'Saisie Journal' }
+        { path: '/comptabilite/etats', icon: DocumentTextIcon, label: t('nav.balance_sheet') },
+        { path: '/fiscalite', icon: ScaleIcon, label: t('nav.tax_declarations') },
+        has('comptabilite-write') && { path: '/comptabilite/journaux', icon: ClipboardDocumentListIcon, label: t('nav.journal_entry') }
       ].filter(Boolean)
     },
 
@@ -110,13 +112,13 @@ const Sidebar: React.FC = () => {
       type: 'submenu',
       id: 'pilotage-tableaux',
       icon: HomeIcon,
-      label: 'Pilotage',
+      label: t('nav.steering'),
       isOpen: openMenus['pilotage-tableaux'],
       onToggle: () => toggleMenu('pilotage-tableaux'),
       subItems: [
-        has('dashboard-overview') && { path: '/dashboard', icon: HomeIcon, label: "Vue Globale" },
-        has('dashboard-alerts') && { path: '/dashboard/alertes', icon: ExclamationTriangleIcon, label: 'Alertes & Risques' },
-        has('dashboard-calendar') && { path: '/dashboard/calendrier', icon: CalendarIcon, label: 'Calendrier Fiscal' }
+        has('dashboard-overview') && { path: '/dashboard', icon: HomeIcon, label: t('nav.global_view') },
+        has('dashboard-alerts') && { path: '/dashboard/alertes', icon: ExclamationTriangleIcon, label: t('nav.alerts_risks') },
+        has('dashboard-calendar') && { path: '/dashboard/calendrier', icon: CalendarIcon, label: t('nav.fiscal_calendar') }
       ].filter(Boolean)
     },
 
@@ -125,15 +127,15 @@ const Sidebar: React.FC = () => {
       type: 'submenu',
       id: 'operations-commerciales',
       icon: ShoppingCartIcon,
-      label: 'Opérations',
+      label: t('nav.operations'),
       isOpen: openMenus['operations-commerciales'],
       onToggle: () => toggleMenu('operations-commerciales'),
       subItems: [
-        { path: '/factures-vente', icon: DocumentTextIcon, label: 'Factures de Vente' },
-        { path: '/achats-charges', icon: BanknotesIcon, label: 'Achats & Charges' },
-        has('clients-manage') && { path: '/clients', icon: UsersIcon, label: 'Portefeuille Clients' },
-        has('fournisseurs-manage') && { path: '/fournisseurs', icon: TruckIcon, label: 'Fournisseurs' },
-        has('stocks-read') && { path: '/articles', icon: CubeIcon, label: 'Stock & Articles' }
+        { path: '/factures-vente', icon: DocumentTextIcon, label: t('common.sales_invoices') },
+        { path: '/achats-charges', icon: BanknotesIcon, label: t('common.purchase_invoices') },
+        has('clients-manage') && { path: '/clients', icon: UsersIcon, label: t('nav.client_portfolio') },
+        has('fournisseurs-manage') && { path: '/fournisseurs', icon: TruckIcon, label: t('common.suppliers') },
+        has('stocks-read') && { path: '/articles', icon: CubeIcon, label: t('nav.stock_articles') }
       ].filter(Boolean)
     },
 
@@ -142,13 +144,13 @@ const Sidebar: React.FC = () => {
       type: 'submenu',
       id: 'analyses-rapports',
       icon: DocumentChartBarIcon,
-      label: 'Analyses',
+      label: t('nav.analytics'),
       isOpen: openMenus['analyses-rapports'],
       onToggle: () => toggleMenu('analyses-rapports'),
       subItems: [
-        has('rapports-tresorerie') && { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: 'Flux de Trésorerie' },
-        has('rapports-ventes') && { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: 'Analyse Commerciale' },
-        has('rapports-advanced') && { path: '/dashboard/analytics', icon: ChartPieIcon, label: 'Performance (DSO/BFR)' }
+        has('rapports-tresorerie') && { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: t('nav.cash_flow') },
+        has('rapports-ventes') && { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: t('nav.commercial_analysis') },
+        has('rapports-advanced') && { path: '/dashboard/analytics', icon: ChartPieIcon, label: t('nav.performance') }
       ].filter(Boolean)
     },
 
@@ -157,13 +159,13 @@ const Sidebar: React.FC = () => {
       type: 'submenu',
       id: 'controle-reglages',
       icon: ShieldCheckIcon,
-      label: 'Admin & Réglages',
+      label: t('nav.admin_settings'),
       isOpen: openMenus['controle-reglages'],
       onToggle: () => toggleMenu('controle-reglages'),
       subItems: [
-        { path: '/audit-explorer', icon: ShieldCheckIcon, label: 'Audit & Traçabilité' },
-        has('admin-users') && { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: 'Utilisateurs' },
-        { path: '/parametres', icon: CogIcon, label: 'Paramètres' }
+        { path: '/audit-explorer', icon: ShieldCheckIcon, label: t('nav.audit_traceability') },
+        has('admin-users') && { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: t('nav.users') },
+        { path: '/parametres', icon: CogIcon, label: t('nav.settings') }
       ].filter(Boolean)
     }
   ] as Array<SidebarItem | false>).filter(Boolean) as SidebarItem[];
@@ -242,7 +244,7 @@ const Sidebar: React.FC = () => {
               className="w-full hidden lg:flex items-center justify-center py-2 mb-2 text-xs font-medium text-slate-400 hover:text-slate-600 transition-colors"
             >
               <ChevronLeftIcon className="w-3 h-3 mr-1" />
-              Réduire
+              {t('common.reduce')}
             </button>
           )}
 
@@ -320,7 +322,7 @@ const Sidebar: React.FC = () => {
           {/* Settings Link (matches screenshot position) */}
           <Link to="/parametres" className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors mb-2">
             <CogIcon className="w-5 h-5 mr-3 text-slate-400" />
-            {!isSidebarCollapsed && <span className="text-sm font-medium">Paramètres</span>}
+            {!isSidebarCollapsed && <span className="text-sm font-medium">{t('nav.settings')}</span>}
           </Link>
 
           {isSidebarCollapsed && (

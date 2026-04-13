@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import {
   DocumentTextIcon,
@@ -18,6 +19,7 @@ import Modal from "@shared/components/UI/Modal";
 import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
 
 const EtatsRapports: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedPeriode, setSelectedPeriode] = useState('2026-04');
   const [selectedEtat, setSelectedEtat] = useState('bilan');
@@ -33,49 +35,47 @@ const EtatsRapports: React.FC = () => {
   const IBS_ANNUEL = 221000;
   const RESULTAT_NET = 629000;
 
-  // Données du bilan
   const bilan = {
     actif: {
       immobilise: [
-        { compte: '21', libelle: 'Immobilisations corporelles', montant: 2500000 },
-        { compte: '28', libelle: 'Amortissements', montant: -450000 }
+        { compte: '21', libelle: t('accounting.ledger.accounts.fixed_assets'), montant: 2500000 },
+        { compte: '28', libelle: t('accounting.ledger.accounts.depreciation'), montant: -450000 }
       ],
       circulant: [
-        { compte: '31', libelle: 'Stocks de marchandises', montant: 850000 },
-        { compte: '411', libelle: 'Clients', montant: 1250000 },
-        { compte: '512', libelle: 'Banque', montant: 668000 },
-        { compte: '53', libelle: 'Caisse', montant: 125000 }
+        { compte: '31', libelle: t('accounting.ledger.accounts.inventory'), montant: 850000 },
+        { compte: '411', libelle: t('accounting.ledger.accounts.customers'), montant: 1250000 },
+        { compte: '512', libelle: t('accounting.ledger.accounts.bank'), montant: 668000 },
+        { compte: '53', libelle: t('accounting.ledger.accounts.cash'), montant: 125000 }
       ]
     },
     passif: {
       capitaux: [
-        { compte: '10', libelle: 'Capital social', montant: 1000000 },
-        { compte: '12', libelle: 'Résultat net de l\'exercice', montant: RESULTAT_NET }
+        { compte: '10', libelle: t('accounting.ledger.accounts.equity'), montant: 1000000 },
+        { compte: '12', libelle: t('accounting.ledger.accounts.net_result'), montant: RESULTAT_NET }
       ],
       dettes: [
-        { compte: '16', libelle: 'Emprunts', montant: 1500000 },
-        { compte: '401', libelle: 'Fournisseurs', montant: 890000 },
-        { compte: '4457', libelle: 'TVA à verser', montant: 399000 },
-        { compte: '444', libelle: 'IBS à payer', montant: 221000 },
-        { compte: '447', libelle: 'TAP à payer', montant: 104000 },
-        { compte: '42', libelle: 'Personnel', montant: 200000 }
+        { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), montant: 1500000 },
+        { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), montant: 890000 },
+        { compte: '4457', libelle: t('accounting.fiscal.rates.tva'), montant: 399000 },
+        { compte: '444', libelle: t('accounting.ledger.accounts.ibs'), montant: 221000 },
+        { compte: '447', libelle: t('accounting.fiscal.rates.tap'), montant: 104000 },
+        { compte: '42', libelle: t('common.personnel', { defaultValue: 'Personnel' }), montant: 200000 }
       ]
     }
   };
 
-  // Données du compte de résultat
   const compteResultat = {
     produits: [
-      { compte: '70', libelle: 'Ventes de marchandises', montant: CA_ACTUEL },
-      { compte: '76', libelle: 'Produits financiers', montant: 45000 }
+      { compte: '70', libelle: t('accounting.ledger.accounts.sales'), montant: CA_ACTUEL },
+      { compte: '76', libelle: t('common.financial_products', { defaultValue: 'Produits financiers' }), montant: 45000 }
     ],
     charges: [
-      { compte: '60', libelle: 'Achats consommés', montant: 3100000 },
-      { compte: '63', libelle: 'Services', montant: 420000 },
-      { compte: '64', libelle: 'Frais de personnel', montant: 680000 },
-      { compte: '66', libelle: 'Charges financières', montant: 95000 },
-      { compte: '68', libelle: 'Dotations aux amortissements', montant: 100000 },
-      { compte: '69', libelle: 'Impôts sur les bénéfices (IBS)', montant: IBS_ANNUEL }
+      { compte: '60', libelle: t('accounting.ledger.accounts.purchases'), montant: 3100000 },
+      { compte: '63', libelle: t('common.services', { defaultValue: 'Services' }), montant: 420000 },
+      { compte: '64', libelle: t('common.staff_costs', { defaultValue: 'Frais de personnel' }), montant: 680000 },
+      { compte: '66', libelle: t('common.financial_charges', { defaultValue: 'Charges financières' }), montant: 95000 },
+      { compte: '68', libelle: t('accounting.ledger.accounts.depreciation'), montant: 100000 },
+      { compte: '69', libelle: t('accounting.ledger.accounts.ibs'), montant: IBS_ANNUEL }
     ]
   };
 
@@ -129,11 +129,11 @@ const EtatsRapports: React.FC = () => {
   };
 
   const etatsDisponibles = [
-    { id: 'bilan', nom: 'Bilan Comptable', icon: ScaleIcon, color: 'slate' },
-    { id: 'resultat', nom: 'Compte de Résultat', icon: ChartBarIcon, color: 'slate' },
-    { id: 'flux', nom: 'Flux de Trésorerie', icon: BanknotesIcon, color: 'slate' },
-    { id: 'balance', nom: 'Balance Générale', icon: CalculatorIcon, color: 'slate' },
-    { id: 'grand-livre', nom: 'Grand Livre', icon: ClipboardDocumentListIcon, color: 'slate' }
+    { id: 'bilan', nom: t('reports.tabs.bilan'), icon: ScaleIcon, color: 'slate' },
+    { id: 'resultat', nom: t('reports.tabs.resultat'), icon: ChartBarIcon, color: 'slate' },
+    { id: 'flux', nom: t('reports.tabs.flux'), icon: BanknotesIcon, color: 'slate' },
+    { id: 'balance', nom: t('reports.tabs.balance'), icon: CalculatorIcon, color: 'slate' },
+    { id: 'grand-livre', nom: t('reports.tabs.grand_livre'), icon: ClipboardDocumentListIcon, color: 'slate' }
   ];
 
   const handleImprimerEtatsOfficiels = () => {
@@ -144,7 +144,7 @@ const EtatsRapports: React.FC = () => {
     // Créer une nouvelle fenêtre pour l'impression
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('Veuillez autoriser les pop-ups pour imprimer les états officiels.');
+      alert(t('common.allow_popups', { defaultValue: 'Veuillez autoriser les pop-ups pour imprimer les états officiels.' }));
       return;
     }
 
@@ -227,10 +227,10 @@ const EtatsRapports: React.FC = () => {
       </head>
       <body>
         <div class="header">
-          <h1>ÉTAT COMPTABLE OFFICIEL</h1>
+          <h1>${t('accounting.reports.official_report')}</h1>
           <h2>${etatNom}</h2>
-          <p>Période: ${periode}</p>
-          <p>Date d'édition: ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+          <p>${t('common.period')}: ${periode}</p>
+          <p>${t('common.edition_date', { defaultValue: "Date d'édition" })}: ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
         </div>
     `;
 
@@ -421,16 +421,16 @@ const EtatsRapports: React.FC = () => {
       contenuHTML += `
         <div class="info">
           <p><strong>${etatNom.toUpperCase()}</strong></p>
-          <p>Période: ${periode}</p>
-          <p>Cet état sera disponible prochainement.</p>
+          <p>${t('common.period')}: ${periode}</p>
+          <p>${t('common.available_soon', { defaultValue: 'Cet état sera disponible prochainement.' })}</p>
         </div>
       `;
     }
 
     contenuHTML += `
         <div class="footer">
-          <p>Document généré le ${new Date().toLocaleString('fr-FR')}</p>
-          <p>Ce document est un état comptable officiel conforme aux normes comptables algériennes.</p>
+          <p>${t('common.document_generated_on', { defaultValue: 'Document généré le' })} ${new Date().toLocaleString('fr-FR')}</p>
+          <p>${t('accounting.reports.disclaimer', { defaultValue: 'Ce document est un état comptable officiel conforme aux normes comptables algériennes.' })}</p>
         </div>
       </body>
       </html>
@@ -456,12 +456,12 @@ const EtatsRapports: React.FC = () => {
               <DocumentTextIcon className="h-8 w-8 text-slate-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">États & Rapports Comptables</h1>
-              <p className="text-slate-600">Bilan, compte de résultat et états financiers</p>
+              <h1 className="text-2xl font-bold text-slate-900">{t('reports.title')}</h1>
+              <p className="text-slate-600">{t('reports.subtitle')}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <select title="Sélectionner une période"
+            <select title={t('reports.period_select')}
               value={selectedPeriode}
               onChange={(e) => setSelectedPeriode(e.target.value)}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500"
@@ -474,7 +474,7 @@ const EtatsRapports: React.FC = () => {
             </select>
             <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium">
               <PrinterIcon className="h-5 w-5 inline mr-2" />
-              Imprimer
+              {t('reports.actions.print')}
             </button>
             <button
               onClick={() => {
@@ -484,7 +484,7 @@ const EtatsRapports: React.FC = () => {
               className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center"
             >
               <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
-              Exporter Jibaya XML
+              {t('reports.actions.export_xml')}
             </button>
           </div>
         </div>
@@ -518,13 +518,13 @@ const EtatsRapports: React.FC = () => {
           {/* Actif */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-6 py-5 bg-slate-900 flex items-center justify-between">
-              <h3 className="text-lg font-black text-white uppercase tracking-widest">ACTIF</h3>
-              <span className="text-xs font-bold text-slate-400">Total en DA</span>
+              <h3 className="text-lg font-black text-white uppercase tracking-widest">{t('reports.bilan.actif')}</h3>
+              <span className="text-xs font-bold text-slate-400">{t('reports.bilan.total_da')}</span>
             </div>
             <div className="p-8 space-y-8">
               {/* Actif immobilisé */}
               <div>
-                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">Actif Immobilisé</h4>
+                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">{t('reports.bilan.actif_immobilise')}</h4>
                 <div className="space-y-1">
                   {bilan.actif.immobilise.map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
@@ -536,7 +536,7 @@ const EtatsRapports: React.FC = () => {
                     </div>
                   ))}
                   <div className="flex items-center justify-between p-4 mt-2 bg-slate-50 rounded-xl border border-slate-100">
-                    <span className="text-xs font-black text-slate-500 uppercase">Sous-total Immobilisé</span>
+                    <span className="text-xs font-black text-slate-500 uppercase">{t('reports.bilan.subtotal_immobilise')}</span>
                     <span className="text-base font-black text-slate-900">
                       {formatCurrency(bilan.actif.immobilise.reduce((s, i) => s + i.montant, 0))}
                     </span>
@@ -546,7 +546,7 @@ const EtatsRapports: React.FC = () => {
 
               {/* Actif circulant */}
               <div>
-                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">Actif Circulant</h4>
+                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">{t('reports.bilan.actif_circulant')}</h4>
                 <div className="space-y-1">
                   {bilan.actif.circulant.map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
@@ -558,7 +558,7 @@ const EtatsRapports: React.FC = () => {
                     </div>
                   ))}
                   <div className="flex items-center justify-between p-4 mt-2 bg-slate-50 rounded-xl border border-slate-100">
-                    <span className="text-xs font-black text-slate-500 uppercase">Sous-total Circulant</span>
+                    <span className="text-xs font-black text-slate-500 uppercase">{t('reports.bilan.subtotal_circulant')}</span>
                     <span className="text-base font-black text-slate-900">
                       {formatCurrency(bilan.actif.circulant.reduce((s, i) => s + i.montant, 0))}
                     </span>
@@ -568,7 +568,7 @@ const EtatsRapports: React.FC = () => {
 
               {/* Total Actif */}
               <div className="flex items-center justify-between p-6 bg-slate-900 rounded-2xl shadow-lg transform hover:scale-[1.01] transition-transform">
-                <span className="text-sm font-black text-white uppercase tracking-widest">TOTAL ACTIF</span>
+                <span className="text-sm font-black text-white uppercase tracking-widest">{t('reports.bilan.total_actif')}</span>
                 <span className="text-2xl font-black text-white">{formatCurrency(totalActif)}</span>
               </div>
             </div>
@@ -577,13 +577,13 @@ const EtatsRapports: React.FC = () => {
           {/* Passif */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-6 py-5 bg-slate-900 flex items-center justify-between">
-              <h3 className="text-lg font-black text-white uppercase tracking-widest">PASSIF</h3>
-              <span className="text-xs font-bold text-slate-400">Total en DA</span>
+              <h3 className="text-lg font-black text-white uppercase tracking-widest">{t('reports.bilan.passif')}</h3>
+              <span className="text-xs font-bold text-slate-400">{t('reports.bilan.total_da')}</span>
             </div>
             <div className="p-8 space-y-8">
               {/* Capitaux propres */}
               <div>
-                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">Capitaux Propres</h4>
+                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">{t('reports.bilan.capitaux_propres')}</h4>
                 <div className="space-y-1">
                   {bilan.passif.capitaux.map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
@@ -595,7 +595,7 @@ const EtatsRapports: React.FC = () => {
                     </div>
                   ))}
                   <div className="flex items-center justify-between p-4 mt-2 bg-slate-50 rounded-xl border border-slate-100">
-                    <span className="text-xs font-black text-slate-500 uppercase">Sous-total Capitaux</span>
+                    <span className="text-xs font-black text-slate-500 uppercase">{t('reports.bilan.subtotal_capitaux')}</span>
                     <span className="text-base font-black text-slate-900">
                       {formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0))}
                     </span>
@@ -605,7 +605,7 @@ const EtatsRapports: React.FC = () => {
 
               {/* Dettes */}
               <div>
-                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">Dettes & Engagements</h4>
+                <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">{t('reports.bilan.dettes_engagements')}</h4>
                 <div className="space-y-1">
                   {bilan.passif.dettes.map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
@@ -617,7 +617,7 @@ const EtatsRapports: React.FC = () => {
                     </div>
                   ))}
                   <div className="flex items-center justify-between p-4 mt-2 bg-slate-50 rounded-xl border border-slate-100">
-                    <span className="text-xs font-black text-slate-500 uppercase">Sous-total Dettes</span>
+                    <span className="text-xs font-black text-slate-500 uppercase">{t('reports.bilan.subtotal_dettes')}</span>
                     <span className="text-base font-black text-slate-900">
                       {formatCurrency(bilan.passif.dettes.reduce((s, i) => s + i.montant, 0))}
                     </span>
@@ -627,7 +627,7 @@ const EtatsRapports: React.FC = () => {
 
               {/* Total Passif */}
               <div className="flex items-center justify-between p-6 bg-slate-900 rounded-2xl shadow-lg transform hover:scale-[1.01] transition-transform">
-                <span className="text-sm font-black text-white uppercase tracking-widest">TOTAL PASSIF</span>
+                <span className="text-sm font-black text-white uppercase tracking-widest">{t('reports.bilan.total_passif')}</span>
                 <span className="text-2xl font-black text-white">{formatCurrency(totalPassif)}</span>
               </div>
             </div>
@@ -639,14 +639,14 @@ const EtatsRapports: React.FC = () => {
       {selectedEtat === 'resultat' && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="px-6 py-5 bg-slate-900 flex items-center justify-between">
-            <h3 className="text-lg font-black text-white uppercase tracking-widest">COMPTE DE RÉSULTAT</h3>
-            <span className="text-xs font-bold text-slate-400">Période : {selectedPeriode}</span>
+            <h3 className="text-lg font-black text-white uppercase tracking-widest">{t('reports.resultat.title')}</h3>
+            <span className="text-xs font-bold text-slate-400">{t('common.period')} : {selectedPeriode}</span>
           </div>
           <div className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Charges */}
               <div className="space-y-6">
-                <h4 className="text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">CHARGES D'EXPLOITATION</h4>
+                <h4 className="text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">{t('reports.resultat.charges_exploitation')}</h4>
                 <div className="space-y-1">
                   {compteResultat.charges.map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
@@ -659,14 +659,14 @@ const EtatsRapports: React.FC = () => {
                   ))}
                 </div>
                 <div className="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-xs font-black text-slate-500 uppercase">TOTAL DES CHARGES</span>
+                  <span className="text-xs font-black text-slate-500 uppercase">{t('reports.resultat.total_charges')}</span>
                   <span className="text-xl font-black text-slate-900">{formatCurrency(totalCharges)}</span>
                 </div>
               </div>
 
               {/* Produits */}
               <div className="space-y-6">
-                <h4 className="text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">PRODUITS D'EXPLOITATION</h4>
+                <h4 className="text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">{t('reports.resultat.produits_exploitation')}</h4>
                 <div className="space-y-1">
                   {compteResultat.produits.map((item, i) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
@@ -679,7 +679,7 @@ const EtatsRapports: React.FC = () => {
                   ))}
                 </div>
                 <div className="flex items-center justify-between p-5 bg-slate-50 rounded-xl border border-slate-100">
-                  <span className="text-xs font-black text-slate-500 uppercase">TOTAL DES PRODUITS</span>
+                  <span className="text-xs font-black text-slate-500 uppercase">{t('reports.resultat.total_produits')}</span>
                   <span className="text-xl font-black text-slate-900">{formatCurrency(totalProduits)}</span>
                 </div>
               </div>
@@ -698,14 +698,14 @@ const EtatsRapports: React.FC = () => {
                     )}
                   </div>
                   <div>
-                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Résultat Net de l'Exercice</p>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{t('reports.resultat.net_result')}</p>
                     <p className="text-4xl font-black text-white">
                       {formatCurrency(resultat)}
                     </p>
                   </div>
                 </div>
                 <div className="mt-6 md:mt-0 text-right">
-                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Marge Nette</p>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{t('reports.resultat.net_margin')}</p>
                   <p className="text-3xl font-black text-white">
                     {((resultat / totalProduits) * 100).toFixed(1)}%
                   </p>
@@ -722,15 +722,15 @@ const EtatsRapports: React.FC = () => {
           {/* Tableau des flux */}
           <div className="bg-white rounded-lg shadow-sm border border-slate-200">
             <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900">TABLEAU DES FLUX DE TRÉSORERIE</h3>
-              <p className="text-sm text-slate-600 mt-1">Méthode indirecte - Période : {selectedPeriode}</p>
+              <h3 className="text-lg font-bold text-slate-900">{t('reports.flux.title')}</h3>
+              <p className="text-sm text-slate-600 mt-1">{t('reports.flux.method_indirect', { period: selectedPeriode })}</p>
             </div>
             <div className="p-6">
               {/* Flux opérationnels */}
               <div className="mb-6">
                 <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center">
                   <div className="w-1 h-6 bg-emerald-500 mr-3"></div>
-                  FLUX DE TRÉSORERIE LIÉS À L'ACTIVITÉ
+                  {t('reports.flux.activity')}
                 </h4>
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -754,7 +754,7 @@ const EtatsRapports: React.FC = () => {
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(95000)}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
-                    <span className="text-sm font-black text-white uppercase tracking-widest">Flux net opérationnel</span>
+                    <span className="text-sm font-black text-white uppercase tracking-widest">{t('reports.flux.net_op_flow')}</span>
                     <span className="text-xl font-black text-white">{formatCurrency(resultat + 100000 - 85000 - 125000 + 95000)}</span>
                   </div>
                 </div>
@@ -764,7 +764,7 @@ const EtatsRapports: React.FC = () => {
               <div className="mb-6">
                 <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center">
                   <div className="w-1 h-6 bg-cyan-500 mr-3"></div>
-                  FLUX DE TRÉSORERIE LIÉS AUX INVESTISSEMENTS
+                  {t('reports.flux.investment')}
                 </h4>
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -776,7 +776,7 @@ const EtatsRapports: React.FC = () => {
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(80000)}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
-                    <span className="text-sm font-black text-white uppercase tracking-widest">Flux net d'investissement</span>
+                    <span className="text-sm font-black text-white uppercase tracking-widest">{t('reports.flux.net_inv_flow')}</span>
                     <span className="text-xl font-black text-white">({formatCurrency(370000)})</span>
                   </div>
                 </div>
@@ -786,7 +786,7 @@ const EtatsRapports: React.FC = () => {
               <div className="mb-6">
                 <h4 className="text-base font-bold text-slate-900 mb-4 flex items-center">
                   <div className="w-1 h-6 bg-amber-500 mr-3"></div>
-                  FLUX DE TRÉSORERIE LIÉS AU FINANCEMENT
+                  {t('reports.flux.financing')}
                 </h4>
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -806,7 +806,7 @@ const EtatsRapports: React.FC = () => {
                     <span className="text-sm font-semibold text-red-600">({formatCurrency(120000)})</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
-                    <span className="text-sm font-black text-white uppercase tracking-widest">Flux net de financement</span>
+                    <span className="text-sm font-black text-white uppercase tracking-widest">{t('reports.flux.net_fin_flow')}</span>
                     <span className="text-xl font-black text-white">{formatCurrency(200000)}</span>
                   </div>
                 </div>
@@ -871,20 +871,20 @@ const EtatsRapports: React.FC = () => {
       {/* Balance Générale */}
       {selectedEtat === 'balance' && (() => {
         const balanceData = [
-          { compte: '21', libelle: 'Immobilisations corporelles', debit: 2500000, credit: 0, solde: 2500000 },
-          { compte: '28', libelle: 'Amortissements', debit: 0, credit: 450000, solde: -450000 },
-          { compte: '31', libelle: 'Stocks de marchandises', debit: 850000, credit: 0, solde: 850000 },
-          { compte: '411', libelle: 'Clients', debit: 1250000, credit: 0, solde: 1250000 },
-          { compte: '512', libelle: 'Banque', debit: 450000, credit: 0, solde: 450000 },
-          { compte: '53', libelle: 'Caisse', debit: 125000, credit: 0, solde: 125000 },
-          { compte: '10', libelle: 'Capital social', debit: 0, credit: 1000000, solde: -1000000 },
-          { compte: '12', libelle: 'Résultat', debit: 0, credit: resultat, solde: -resultat },
-          { compte: '16', libelle: 'Emprunts', debit: 0, credit: 1500000, solde: -1500000 },
-          { compte: '401', libelle: 'Fournisseurs', debit: 0, credit: 890000, solde: -890000 },
-          { compte: '4457', libelle: 'TVA collectée', debit: 0, credit: 285000, solde: -285000 },
-          { compte: '70', libelle: 'Ventes', debit: 0, credit: 5200000, solde: -5200000 },
-          { compte: '60', libelle: 'Achats', debit: 3100000, credit: 0, solde: 3100000 },
-          { compte: '64', libelle: 'Frais de personnel', debit: 680000, credit: 0, solde: 680000 }
+          { compte: '21', libelle: t('accounting.ledger.accounts.fixed_assets'), debit: 2500000, credit: 0, solde: 2500000 },
+          { compte: '28', libelle: t('accounting.ledger.accounts.depreciation'), debit: 0, credit: 450000, solde: -450000 },
+          { compte: '31', libelle: t('accounting.ledger.accounts.inventory'), debit: 850000, credit: 0, solde: 850000 },
+          { compte: '411', libelle: t('accounting.ledger.accounts.customers'), debit: 1250000, credit: 0, solde: 1250000 },
+          { compte: '512', libelle: t('accounting.ledger.accounts.bank'), debit: 450000, credit: 0, solde: 450000 },
+          { compte: '53', libelle: t('accounting.ledger.accounts.cash'), debit: 125000, credit: 0, solde: 125000 },
+          { compte: '10', libelle: t('accounting.ledger.accounts.equity'), debit: 0, credit: 1000000, solde: -1000000 },
+          { compte: '12', libelle: t('accounting.ledger.accounts.net_result'), debit: 0, credit: resultat, solde: -resultat },
+          { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), debit: 0, credit: 1500000, solde: -1500000 },
+          { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), debit: 0, credit: 890000, solde: -890000 },
+          { compte: '4457', libelle: t('accounting.fiscal.rates.tva'), debit: 0, credit: 285000, solde: -285000 },
+          { compte: '70', libelle: t('accounting.ledger.accounts.sales'), debit: 0, credit: 5200000, solde: -5200000 },
+          { compte: '60', libelle: t('accounting.ledger.accounts.purchases'), debit: 3100000, credit: 0, solde: 3100000 },
+          { compte: '64', libelle: t('common.staff_costs', { defaultValue: 'Frais de personnel' }), debit: 680000, credit: 0, solde: 680000 }
         ];
 
         const totalDebitBalance = balanceData.reduce((sum, ligne) => sum + ligne.debit, 0);
@@ -894,7 +894,7 @@ const EtatsRapports: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-6 py-5 bg-slate-900 flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-black text-white uppercase tracking-widest">BALANCE GÉNÉRALE</h3>
+                <h3 className="text-lg font-black text-white uppercase tracking-widest">{t('reports.balance.title')}</h3>
                 <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">État exhaustif des comptes • {selectedPeriode}</p>
               </div>
               <div className="flex items-center space-x-2">
@@ -905,10 +905,10 @@ const EtatsRapports: React.FC = () => {
               <table className="min-w-full divide-y divide-slate-100">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Compte</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Libellé</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Débit</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Crédit</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('reports.balance.account')}</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('reports.balance.label')}</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('reports.balance.debit')}</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('reports.balance.credit')}</th>
                     <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Solde Net</th>
                   </tr>
                 </thead>
@@ -936,7 +936,7 @@ const EtatsRapports: React.FC = () => {
                           <span className={`text-sm font-black ${ligne.solde >= 0 ? 'text-slate-900' : 'text-slate-900'}`}>
                             {formatCurrency(Math.abs(ligne.solde))}
                           </span>
-                          <span className="text-[9px] font-black text-slate-400 uppercase">{ligne.solde >= 0 ? 'Débiteur' : 'Créditeur'}</span>
+                          <span className="text-[9px] font-black text-slate-400 uppercase">{ligne.solde >= 0 ? t('common.debtor') : t('common.creditor')}</span>
                         </div>
                       </td>
                     </tr>
@@ -945,7 +945,7 @@ const EtatsRapports: React.FC = () => {
                 <tfoot className="bg-slate-900">
                   <tr>
                     <td colSpan={2} className="px-6 py-5 text-right">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">TOTAUX GÉNÉRAUX DE BALANCE :</span>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('reports.balance.total_general')} :</span>
                     </td>
                     <td className="px-6 py-5 text-right">
                       <span className="text-lg font-black text-white">{formatCurrency(totalDebitBalance)}</span>
@@ -957,7 +957,7 @@ const EtatsRapports: React.FC = () => {
                       <div className="flex items-center justify-end space-x-2">
                         <div className={`w-2.5 h-2.5 rounded-full ${totalDebitBalance === totalCreditBalance ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500'}`}></div>
                         <span className="text-xs font-black text-white uppercase tracking-widest">
-                          {totalDebitBalance === totalCreditBalance ? 'Balance Équilibrée' : 'Déséquilibre Détecté'}
+                          {totalDebitBalance === totalCreditBalance ? t('reports.balance.balanced') : t('reports.balance.unbalanced')}
                         </span>
                       </div>
                     </td>
@@ -1050,16 +1050,14 @@ const EtatsRapports: React.FC = () => {
       })()}
 
       {/* Ratios financiers détaillés */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
         <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
           <CalculatorIcon className="h-6 w-6 text-slate-600 mr-2" />
-          Ratios Financiers Clés
+          {t('reports.ratios.title', { defaultValue: 'Ratios Financiers Clés' })}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Ratio de liquidité */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Liquidité Générale</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('reports.ratios.current_liquidity', { defaultValue: 'Liquidité Générale' })}</p>
               <BanknotesIcon className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-3xl font-black text-slate-900 mb-2">
@@ -1072,16 +1070,10 @@ const EtatsRapports: React.FC = () => {
                 style={{ width: `${Math.min((bilan.actif.circulant.reduce((s, i) => s + i.montant, 0) / bilan.passif.dettes.reduce((s, i) => s + i.montant, 0)) * 50, 100)}%` }}
               ></div>
             </div>
-            <div className="flex items-center mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-              <CheckCircleIcon className="h-3 w-3 mr-1 text-emerald-500" />
-              Solvabilité correcte
-            </div>
           </div>
-
-          {/* Ratio d'endettement */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Autonomie Financière</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('reports.ratios.financial_autonomy', { defaultValue: 'Autonomie Financière' })}</p>
               <ScaleIcon className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-3xl font-black text-slate-900 mb-2">
@@ -1094,16 +1086,10 @@ const EtatsRapports: React.FC = () => {
                 style={{ width: `${Math.min(((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0)) * 100) / 2, 100)}%` }}
               ></div>
             </div>
-            <div className="flex items-center mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-              <InformationCircleIcon className="h-3 w-3 mr-1" />
-              Endettement à surveiller
-            </div>
           </div>
-
-          {/* Rentabilité nette */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Marge Nette</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('reports.resultat.net_margin')}</p>
               <ChartBarIcon className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-3xl font-black text-slate-900 mb-2">
@@ -1116,16 +1102,10 @@ const EtatsRapports: React.FC = () => {
                 style={{ width: `${((resultat / totalProduits) * 100) * 5}%` }}
               ></div>
             </div>
-            <div className="flex items-center mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-              <CheckCircleIcon className="h-3 w-3 mr-1" />
-              Performance solide
-            </div>
           </div>
-
-          {/* Marge brute */}
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Valeur Ajoutée</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('reports.ratios.added_value', { defaultValue: 'Valeur Ajoutée' })}</p>
               <ArrowTrendingUpIcon className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-3xl font-black text-slate-900 mb-2">
@@ -1137,10 +1117,6 @@ const EtatsRapports: React.FC = () => {
                 className="bg-slate-900 h-full rounded-full"
                 style={{ width: `${(((totalProduits - compteResultat.charges.find(c => c.compte === '60')!.montant) / totalProduits) * 100) * 2}%` }}
               ></div>
-            </div>
-            <div className="flex items-center mt-3 text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
-              <CheckCircleIcon className="h-3 w-3 mr-1" />
-              Liquidité correcte
             </div>
           </div>
         </div>
@@ -1347,29 +1323,28 @@ const EtatsRapports: React.FC = () => {
         </div>
       </div>
 
-      {/* Actions rapides */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <button className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-all shadow-sm active:scale-95 group">
           <DocumentArrowDownIcon className="h-5 w-5 text-slate-400 group-hover:text-slate-900 mr-2" />
-          <span className="text-sm font-bold text-slate-700">Exporter PDF</span>
+          <span className="text-sm font-bold text-slate-700">{t('common.export_pdf', { defaultValue: 'Exporter PDF' })}</span>
         </button>
         <button className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-all shadow-sm active:scale-95 group">
           <DocumentArrowDownIcon className="h-5 w-5 text-slate-400 group-hover:text-slate-900 mr-2" />
-          <span className="text-sm font-bold text-slate-700">Exporter Excel</span>
+          <span className="text-sm font-bold text-slate-700">{t('common.export_excel', { defaultValue: 'Exporter Excel' })}</span>
         </button>
         <button
           onClick={handleImprimerEtatsOfficiels}
           className="flex items-center justify-center p-4 bg-white hover:bg-slate-50 rounded-xl border border-slate-200 transition-all shadow-sm active:scale-95 group"
         >
           <PrinterIcon className="h-5 w-5 text-slate-400 group-hover:text-slate-900 mr-2" />
-          <span className="text-sm font-bold text-slate-700">Imprimer</span>
+          <span className="text-sm font-bold text-slate-700">{t('common.print', { defaultValue: 'Imprimer' })}</span>
         </button>
         <button
           onClick={() => setIsAnalyseGraphiqueModalOpen(true)}
           className="flex items-center justify-center p-4 bg-slate-900 hover:bg-black text-white rounded-xl transition-all shadow-lg active:scale-95 group"
         >
           <ChartBarIcon className="h-5 w-5 text-slate-400 group-hover:text-white mr-2" />
-          <span className="text-sm font-bold">Analyse Graphique</span>
+          <span className="text-sm font-bold">{t('reports.actions.graphical_analysis', { defaultValue: 'Analyse Graphique' })}</span>
         </button>
       </div>
 

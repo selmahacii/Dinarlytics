@@ -1,0 +1,1083 @@
+{
+  "common": {
+    "all": "الكل",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "download": "تحميل",
+    "search": "بحث",
+    "actions": "إجراءات",
+    "status": "الحالة",
+    "date": "التاريخ",
+    "amount": "المبلغ",
+    "description": "الوصف",
+    "name": "الاسم",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "success": "تمت العملية بنجاح",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "recommendation_prefix": "توصية:",
+    "recommended_actions_prefix": "الإجراءات الموصى بها:"
+  },
+  "crm": {
+    "clients": {
+      "title": "إدارة العملاء",
+      "subtitle": "محفظة العملاء، CRM وتحليل القيمة",
+      "tabs": {
+        "list": "قائمة العملاء",
+        "crm": "CRM والاتصالات",
+        "recovery": "التحصيل والمتابعات",
+        "intelligence": "ذكاء العملاء",
+        "delivery": "تتبع التسليم",
+        "documents": "المستندات والتقارير"
+      },
+      "actions": {
+        "new_client": "عميل جديد",
+        "edit": "تعديل",
+        "delete": "حذف",
+        "view": "عرض",
+        "export": "تصدير",
+        "analyze_value": "تحليل القيمة",
+        "generate_report": "إنشاء تقرير",
+        "new_communication": "اتصال جديد",
+        "new_communication_short": "اتصال",
+        "new_reminder": "متابعة جديدة",
+        "new_reminder_short": "متابعة",
+        "segmentation": "التجزئة",
+        "deep_audit": "إطلاق تدقيق عميق",
+        "export_list": "تصدير القائمة",
+        "filter": "تصفية",
+        "act": "اتخاذ إجراء",
+        "new_report": "تقرير جديد",
+        "consult_details": "عرض التفاصيل",
+        "payments": "المدفوعات",
+        "contact": "اتصال",
+        "management": "الإدارة",
+        "save_interaction": "حفظ التفاعل",
+        "execute_reminder": "تنفيذ المتابعة",
+        "generating": "جاري الإنشاء...",
+        "generate_report_btn": "إنشاء التقرير",
+        "download": "تحميل",
+        "close_analysis": "إغلاق التحليل",
+        "close_monitor": "إغلاق المراقب",
+        "close_registry": "إغلاق السجل",
+        "update": "تحديث",
+        "save_client": "حفظ العميل"
+      },
+      "filters": {
+        "search_placeholder": "البحث عن عميل (الاسم، الرقم الجبائي، المدينة...)",
+        "all": "الكل",
+        "sectors": "القطاعات"
+      },
+      "sections": {
+        "concentration": "التركيز",
+        "segments": "توزيع الشرائح",
+        "crm_interactions": "تفاعلات CRM",
+        "revenue_forecasts": "توقعات الإيرادات",
+        "clv_title": "قيمة العميل (CLV)",
+        "forecast_summary": "ملخص التوقعات (6 أشهر)",
+        "concentration_portfolio": "تركيز المحفظة",
+        "clv_analytics": "تحليل القوة الشرائية (CLV)",
+        "active_shipping_tracking": "تتبع الشحنات النشطة",
+        "recent_communications": "الاتصالات الأخيرة",
+        "ongoing_reminders_list": "المتابعات الجارية",
+        "reports_archives": "تقارير وأرشيف ERP",
+        "value_trends": "اتجاهات القيمة",
+        "health_audit": "تدقيق الصحة المالية",
+        "ia_performance": "أداء الذكاء الاصطناعي",
+        "identity_location": "الهوية والموقع",
+        "direct_contact": "الاتصال المباشر",
+        "financial_flow_history": "سجل التدفقات المالية",
+        "communication_log": "سجل الاتصالات",
+        "new_log_entry": "إدخال جديد في السجل",
+        "exchange_report": "تقرير التبادل",
+        "sales_analysis_by_client": "تحليل المبيعات لكل عميل",
+        "top_5_performance_clients": "أفضل 5 عملاء أداءً",
+        "payment_and_delay_analysis_with_period": "تحليل المدفوعات والتأخيرات - {{period}}",
+        "reminder_tracking_with_period": "تتبع متابعات العملاء - {{period}}",
+        "satisfaction_survey_with_period": "استطلاع رضا العملاء - {{period}}",
+        "vip_performance_analysis": "تحليل أداء VIP",
+        "risk_evaluation_with_period": "تقييم مخاطر العملاء - {{period}}",
+        "overdue_invoices": "الفواتير المتأخرة",
+        "notes_distribution": "توزيع الملاحظات"
+      },
+      "table": {
+        "shipping_id": "رقم الشحنة",
+        "recipient": "المستلم",
+        "status": "الحالة",
+        "planned_date": "التاريخ المخطط",
+        "client_label": "العميل:",
+        "due_date_label": "الاستحقاق:",
+        "period": "الفترة",
+        "generated_on": "تم الإنشاء في",
+        "nif_label": "الرقم التعريفي الضريبي (NIF)",
+        "headquarters": "المقر الرئيسي",
+        "direct_line": "الخط المباشر",
+        "pro_email": "البريد المهني",
+        "current_outstanding": "المستحقات الحالية",
+        "allowed_limit": "الحد المسموح به",
+        "risk_index": "مؤشر المخاطر",
+        "communication_medium": "وسيلة الاتصال",
+        "interaction_subject": "موضوع التفاعل",
+        "interaction_details": "تفاصيل التبادل",
+        "partner_choice": "اختيار الشريك",
+        "communication_channel": "قناة الاتصال",
+        "details_and_actions": "التفاصيل والإجراءات",
+        "invoice_ref": "مرجع الفاتورة",
+        "reminder_level": "مستوى المتابعة",
+        "strategic_channel": "القناة الاستراتيجية",
+        "nominal_amount_dzd": "المبلغ الاسمي (د.ج)",
+        "erp_due_date": "تاريخ استحقاق ERP",
+        "reminder_planning": "تخطيط المتابعة",
+        "pro_message": "رسالة مهنية",
+        "document_typology": "نوع المستند",
+        "export_format": "تنسيق التصدير",
+        "periodicity": "الدورية",
+        "report_label": "تسمية التقرير",
+        "rang": "الرتبة",
+        "partner": "الشريك العميل",
+        "ca_generated": "الإيرادات المحققة",
+        "quote_part": "الحصة",
+        "evolution": "التطور",
+        "client": "العميل",
+        "clv": "CLV",
+        "cac": "CAC",
+        "ratio_clv_cac": "نسبة CLV/CAC",
+        "avg_basket": "متوسط السلة",
+        "frequency": "التكرار",
+        "score": "النتيجة",
+        "trend": "الاتجاه",
+        "cycle": "الدورة",
+        "projected_revenue": "توقعات الإيرادات",
+        "probability_index": "مؤشر الاحتمالية",
+        "confidence_level": "مستوى الثقة",
+        "next_action_impact": "تأثير الإجراء التالي",
+        "company_name": "الاسم التجاري",
+        "tax_article_short": "رقم المادة (AI)",
+        "commerce_registry_short": "السجل التجاري (RC)",
+        "stat_id_short": "الرقم الإحصائي (NIS)",
+        "vat_exemption": "الإعفاء من الضريبة",
+        "exemption_cert_no_validity": "رقم الشهادة / تاريخ الصلاحية"
+      },
+      "stats": {
+        "total_clients": "العملاء النشطون",
+        "outstanding_balance": "إجمالي المستحقات",
+        "avg_payment_delay": "متوسط DSO",
+        "churn_risk": "خطر الفقدان",
+        "ca_total": "إجمالي الإيرادات",
+        "communications_total": "إجمالي الاتصالات",
+        "communications_pending": "قيد الانتظار",
+        "ongoing_reminders": "متابعات جارية",
+        "overdue_amount": "المبلغ المتأخر",
+        "total_reports": "إجمالي التقارير",
+        "reports_generated": "تقارير منشأة",
+        "total_size": "الحجم الإجمالي",
+        "total_engagements": "إجمالي الالتزامات",
+        "active_reminders": "متابعات نشطة",
+        "payments_received": "مدفوعات مستلمة",
+        "payments_obtained": "مدفوعات محصلة",
+        "reminders_sent": "متابعات مرسلة",
+        "avg_score": "متوسط النتيجة",
+        "responses_count": "الردود",
+        "response_rate": "معدل الرد",
+        "ca_vip": "إيرادات VIP",
+        "client_base_volume": "حجم قاعدة العملاء"
+      },
+      "status": {
+        "optimized": "محسن",
+        "compliance_validated": "تم التحقق من الامتثال",
+        "analysis_in_progress": "جاري التحليل...",
+        "preparing": "قيد التحضير",
+        "taken_care_of": "تم التكفل به",
+        "delivered_today": "تم التسليم (اليوم)",
+        "deliverable": "قابل للتسليم",
+        "urgent": "عاجل",
+        "ready": "جاهز",
+        "real_time_analysis_active": "التحليل في الوقت الحقيقي نشط",
+        "validated": "تم التحقق",
+        "overdue": "متأخر",
+        "erp_active_compiling": "بنية ERP نشطة: جاري تجميع التدفقات المالية...",
+        "system_reporting_engine": "النظام: محرك التقارير يجمع بيانات ERP في الخلفية.",
+        "document_ready": "المستند جاهز",
+        "generation_active": "الإنشاء نشط",
+        "operational_silence": "هدوء عملياتي"
+      },
+      "messages": {
+        "no_anomalies": "لم يكتشف محرك التحليل أي خلل حرج في حسابات العملاء.",
+        "no_communication_found": "لم يتم العثور على أي اتصال",
+        "no_active_reminders": "لا توجد متابعات نشطة",
+        "ia_suggestion": "يقترح خوارزم الذكاء الاصطناعي زيادة الائتمان بنسبة 12% لشريحة VIP.",
+        "management_note": "ملاحظة الإدارة: سيتم دمج هذه المتابعة في سجل تدقيق الشريك.",
+        "report_preview_not_available": "معاينة التقرير غير متوفرة",
+        "use_download_button": "استخدم زر \"تحميل\" للوصول إلى المحتوى الكامل",
+        "predictive_analysis_desc": "محرك التحليل التنبؤي: حساب CLV و CAC لتحسين ربحية المحفظة على المدى الطويل.",
+        "predictive_analysis_range_desc": "تحليل تنبؤي لـ 180 يومًا • اتجاهات بناءً على تاريخ ERP",
+        "ia_recommendation_engine": "محرك توصيات الذكاء الاصطناعي",
+        "real_time_portfolio_optimization": "تحسين المحفظة في الوقت الحقيقي",
+        "no_critical_anomalies_detected": "لا يكتشف خوارزم الذكاء الاصطناعي أي خلل أو فرص حرجة تتطلب تدخلاً فورياً.",
+        "segmentation_algorithm_desc": "خوارزم التصنيف: تجزئة ديناميكية بناءً على RFM ومؤشرات الملاءة الممالية.",
+        "vat_exemption_desc": "هل يستفيد العميل من إعفاء من الضريبة على القيمة المضافة؟"
+      },
+      "placeholders": {
+        "interaction_subject": "موضوع دقيق للتبادل...",
+        "interaction_details": "ملخص تركيبي للاتصال...",
+        "select_partner": "اختر شريكاً",
+        "exchange_subject_example": "مثال: متابعة الطلبية رقم 45...",
+        "discussion_summary": "ملخص المناقشة والخطوات التالية...",
+        "select_invoice": "اختر فاتورة",
+        "custom_message": "رسالة مخصصة...",
+        "default_reminder_message": "مرحباً، بخصوص الفاتورة المتأخرة، يرجى تسوية الوضع.",
+        "report_label_example": "مثال: تحليل الربع الأول 2024...",
+        "company_name_example": "مثال: شركة الجزائر للتكنولوجيا",
+        "nif_digits": "15 أو 20 رقماً",
+        "ai_digits": "11 رقماً",
+        "rc_format": "التنسيق: 00B1234567",
+        "nis_digits": "15 رقماً",
+        "exemption_cert_example": "مثال: 1234/2024 بتاريخ 01/01/2024",
+        "phone_example": "+213...",
+        "full_address": "العنوان الكامل...",
+        "sector_example": "مثال: التوزيع، الأشغال العمومية...",
+        "confidential_notes": "ملاحظات سرية..."
+      },
+      "metrics": {
+        "avg_revenue": "متوسط الإيرادات",
+        "clv_score": "نتيجة القيمة"
+      },
+      "segment_names": {
+        "vip": "نخبة VIP",
+        "strategique": "نمو استراتيجي",
+        "reguliers": "محفظة قياسية",
+        "occasionnels": "دورة منخفضة",
+        "a_risque": "رقابة حرجة"
+      },
+      "relance_levels": {
+        "premiere": "الأولى",
+        "deuxieme": "الثانية",
+        "troisieme": "الثالثة",
+        "mise_en_demeure": "إعذار رسمي"
+      },
+      "communication_modes": {
+        "email_outgoing": "بريد صادر",
+        "call_direct": "اتصال مباشر",
+        "meeting_presential": "جلسة حضورية"
+      },
+      "modal": {
+        "add_title": "عميل جديد",
+        "edit_title": "تعديل عميل",
+        "details_title": "تفاصيل العميل",
+        "details_title_with_name": "تفاصيل العميل - {{name}}",
+        "crm_history": "سجل CRM",
+        "payment_history": "سجل المدفوعات",
+        "payment_history_title_with_name": "سجل المدفوعات - {{name}}",
+        "communication_title_with_name": "اتصال - {{name}}",
+        "detail_prefix": "تفاصيل:",
+        "new_crm_interaction": "تفاعل CRM جديد",
+        "new_reminder": "متابعة جديدة",
+        "generate_new_report_title": "إنشاء تقرير جديد",
+        "crm_interactions_recommended_actions": "تفاعلات CRM - إجراءات موصى بها"
+      },
+      "ca_total": "إجمالي الإيرادات",
+      "confidence": "الثقة",
+      "confidence_with_level": "ثقة {{level}}",
+      "index_top_20": "مؤشر أفضل 20",
+      "risk_impact": "تأثير المخاطر",
+      "risk_levels": {
+        "critical": "حرج",
+        "moderate": "متوسط"
+      },
+      "stability": "الاستقرار",
+      "calculated_over_12_months": "محسوب على 12 شهراً",
+      "trends": {
+        "growth": "نمو"
+      },
+      "value_score": "نتيجة القيمة",
+      "outstanding_overdue": "مستحقات متأخرة (ميزان الأعمار)",
+      "total_to_recover": "إجمالي للتحصيل",
+      "litigious_files": "ملفات النزاع",
+      "action_required": "إجراء مطلوب",
+      "recovery_rate": "معدل التحصيل",
+      "performance_month": "أداء (أشهر)",
+      "recovery_priorities": "أولويات التحصيل",
+      "priority": "الأولوية",
+      "vs_last_audit": "مقابل آخر تدقيق",
+      "all_reports": "جميع التقارير",
+      "vs_previous_month": "مقابل الشهر السابق",
+      "new_clients_label": "عملاء جدد",
+      "per_client": "لكل عميل",
+      "days_overdue": "أيام تأخير",
+      "efficiency_of_reminders_label": "كفاءة المتابعات:",
+      "avg_payment_delay_after_reminder_label": "متوسط تأخير الدفع بعد المتابعة:",
+      "stars": "نجوم",
+      "percent_ca": "{{percent}}% إيرادات",
+      "percent_base": "{{percent}}% قاعدة",
+      "key_observation_prefix": "ملاحظة رئيسية:",
+      "exposure_label": "التعرض:",
+      "index_shorthand": "مؤشر",
+      "units_shorthand": "وحدات",
+      "other_partners": "شركاء آخرون"
+    },
+    "accounting": {
+      "treasury": {
+        "title": "الخزينة والتدفقات النقدية",
+        "subtitle": "مراقبة السيولة، الحسابات البنكية والتوقعات بالذكاء الاصطناعي.",
+        "tabs": {
+          "dashboard": "لوحة التحكم",
+          "accounts": "الحسابات البنكية",
+          "checks": "تتبع الشيكات",
+          "cash_flow": "بيان التدفقات"
+        },
+        "stats": {
+          "available_cash": "السيولة المتوفرة",
+          "monthly_burn": "الاستهلاك الشهري",
+          "net_position": "المركز النقدي الصافي",
+          "next_forecast": "توقعات 30 يوماً"
+        },
+        "accounts_table": {
+          "bank_name": "البنك",
+          "account_number": "رقم الحساب",
+          "balance": "الرصيد",
+          "status": "الحالة",
+          "last_sync": "آخر مزامنة"
+        },
+        "forecast": {
+          "title": "التدفقات النقدية التنبؤية",
+          "inflow": "المداخيل المتوقعة",
+          "outflow": "المصاريف المتوقعة",
+          "net": "التوقع الصافي"
+        },
+        "reconciliation": {
+          "title": "التقارب البنكي",
+          "subtitle": "طابق قيودك المحاسبية مع كشوفات حسابك البنكي.",
+          "kpis": {
+            "total_lines": "إجمالي الأسطر",
+            "lines_imported": "أسطر مستوردة",
+            "matched": "مقاربة",
+            "matches": "تطابقات موجودة",
+            "unmatched": "غير مقاربة",
+            "to_process": "أسطر للمعالجة",
+            "reconciliation_rate": "معدل التقارب",
+            "progression": "التقدم الإجمالي",
+            "discrepancies": "الفوارق / النزاعات",
+            "disputes": "أسطر تحت النزاع"
+          },
+          "tabs": {
+            "import": "استيراد الكشف",
+            "reconciliation": "التقارب",
+            "discrepancies": "الفوارق",
+            "history": "السجل"
+          },
+          "import": {
+            "title": "استيراد كشوفات الحساب",
+            "action": "استيراد كشف جديد"
+          },
+          "details": {
+            "account": "الحساب",
+            "period": "الفترة",
+            "lines": "عدد الأسطر",
+            "reconciliation": "التقارب",
+            "format": "التنسيق",
+            "view_details": "عرض التفاصيل"
+          },
+          "status": {
+            "rapproche": "تم التقارب",
+            "en_cours": "قيد المعالجة",
+            "importe": "مستورد",
+            "non_rapproche": "غير مقارب",
+            "en_attente": "في الانتظار"
+          },
+          "reconciliation": {
+            "filters": "تصفية",
+            "automate": "إطلاق المطابقة الآلية (IA)",
+            "auto_running": "خوارزمية IA تعمل...",
+            "unmatched_lines": "أسطر كشف غير مقاربة",
+            "unmatched_entries": "قيود محاسبية غير مقاربة",
+            "search_match": "بحث عن تطابق",
+            "found_matches": "تطابقات مكتشفة بواسطة IA"
+          },
+          "table": {
+            "bank_line": "السطر البنكي",
+            "accounting_entry": "القيد المحاسبي",
+            "amount": "المبلغ",
+            "method": "الطريقة",
+            "confidence": "الثقة",
+            "actions": "إجراءات",
+            "reference": "المرجع",
+            "date": "التاريخ"
+          },
+          "modals": {
+            "close": "إغلاق",
+            "export": "تصدير",
+            "tolerance_montant": "تسامح المبلغ",
+            "tolerance_montant_desc": "أقصى فرق مقبول للمطابقة الآلية",
+            "tolerance_date": "تسامح التاريخ (أيام)",
+            "tolerance_date_desc": "أقصى فرق أيام مقبول بين العملية والقيد",
+            "matching_methods": "طرق المطابقة النشطة",
+            "method_exact": "المبلغ الدقيق والتاريخ القريب",
+            "method_date": "التاريخ الدقيق",
+            "method_ref": "المرجع / رقم الشيك",
+            "method_label": "كلمات مفتاحية في البيان",
+            "statement_title": "تفاصيل الكشف رقم {{numero}}",
+            "statement_details": "تفاصيل كشف الحساب البنكي",
+            "solde_debut": "رصيد البداية",
+            "solde_fin": "رصيد النهاية",
+            "statement_lines": "أسطر كشف الحساب"
+          }
+        }
+      },
+      "fiscal": {
+        "title": "الجباية والامتثال",
+        "subtitle": "إدارة الضرائب، تتبع TVA والتدقيق بالذكاء الاصطناعي.",
+        "stats": {
+          "vat_to_pay": "الضريبة على القيمة المضافة (TVA)",
+          "ibs_provision": "مؤونة IBS",
+          "fiscal_risk": "مؤشر المخاطر الجبائية"
+        },
+        "rates": {
+          "tva": "TVA",
+          "tap": "TAP",
+          "ibs": "IBS",
+          "irg": "IRG"
+        },
+        "alerts": {
+          "high_risk": "انحراف جبائي عالٍ",
+          "pending_filing": "تصريح جبائي معلق"
+        },
+        "documents": {
+          "title": "المستندات والملفات الجبائية",
+          "subtitle": "إدارة الالتزامات الجبائية لـ {{country}}",
+          "frequencies": {
+            "mensuel": "شهري",
+            "trimestriel": "فصلي",
+            "annuel": "سنوي",
+            "ponctuel": "ظرفي"
+          },
+          "filters": {
+            "category": "الفئة",
+            "all_categories": "جميع الفئات",
+            "frequency": "الدورية",
+            "all_frequencies": "جميع الدوريات",
+            "country": "بلد الاختصاص"
+          },
+          "categories": {
+            "declaration": "تصريح",
+            "attestation": "شهادة",
+            "bilan": "ميزانية / ملف",
+            "formulaire": "نموذج",
+            "certificat": "شهادة"
+          },
+          "details": {
+            "required": "إلزامي",
+            "deadline": "تاريخ الاستحقاق",
+            "business_type": {
+              "both": "جميع الأنواع",
+              "entreprise": "شركة",
+              "particulier": "فرد"
+            }
+          },
+          "actions": {
+            "create": "إنشاء",
+            "cancel": "إلغاء",
+            "submit": "إرسال / تصديق"
+          },
+          "table": {
+            "created_title": "المستندات الأخيرة والأرشيف",
+            "document": "المستند",
+            "date": "تاريخ الإنشاء",
+            "statut": "الحالة",
+            "actions": "إجراءات"
+          },
+          "status": {
+            "brouillon": "مسودة",
+            "soumis": "تم الإرسال",
+            "valide": "مصادق",
+            "rejete": "مرفوض"
+          }
+        }
+      },
+      "reports": {
+        "title": "التقارير المالية",
+        "subtitle": "الميزانيات، حسابات النتائج الكشوفات المحاسبية.",
+        "tabs": {
+          "bilan": "الميزانية",
+          "resultat": "حساب النتائج (P&L)",
+          "flux": "جدول التدفقات النقدية",
+          "balance": "ميزان المراجعة",
+          "grand_livre": "الأستاذ العام"
+        },
+        "bilan": {
+          "actif": "الأصول",
+          "passif": "الخصوم والأسهم",
+          "total_da": "الإجمالي (د.ج)",
+          "actif_immobilise": "أصول غير متداولة",
+          "subtotal_immobilise": "مجموع الأصول غير المتداولة",
+          "actif_circulant": "أصول متداولة",
+          "subtotal_circulant": "مجموع الأصول المتداولة",
+          "total_actif": "إجمالي الأصول",
+          "capitaux_propres": "الأموال الخاصة",
+          "subtotal_capitaux": "مجموع الأموال الخاصة",
+          "dettes_engagements": "الديون والالتزامات",
+          "subtotal_dettes": "مجموع الديون",
+          "total_passif": "إجمالي الخصوم"
+        },
+        "resultat": {
+          "title": "حساب النتائج",
+          "charges_exploitation": "أعباء الاستغلال",
+          "total_charges": "إجمالي الأعباء",
+          "produits_exploitation": "منتوجات الاستغلال",
+          "total_produits": "إجمالي المنتوجات",
+          "net_result": "النتيجة الصافية",
+          "net_margin": "الهامش الصافي"
+        },
+        "flux": {
+          "title": "جدول تدفقات الخزينة",
+          "method_indirect": "الطريقة غير المباشرة — الفترة: {{period}}",
+          "activity": "التدفقات المرتبطة بالنشاط",
+          "net_op_flow": "صافي التدفقات من الاستغلال",
+          "investment": "تدفقات الاستثمار",
+          "net_inv_flow": "صافي تدفقات الاستثمار",
+          "financing": "تدفقات التمويل"
+        },
+        "balance": {
+          "title": "ميزان المراجعة العام",
+          "balanced": "✓ ميزان متوازن",
+          "unbalanced": "⚠ ميزان غير متوازن",
+          "account": "الحساب",
+          "label": "البيان",
+          "debit": "مدين",
+          "credit": "دائن",
+          "total_general": "المجموع العام"
+        },
+        "official_report": "كشف محاسبي رسمي",
+        "disclaimer": "هذا المستند كشف محاسبي رسمي مطابق للمعايير المحاسبية الجزائرية.",
+        "ratios": {
+          "title": "المؤشرات المالية الرئيسية",
+          "current_liquidity": "السيولة العامة",
+          "financial_autonomy": "الاستقلال المالي",
+          "added_value": "القيمة المضافة"
+        },
+        "actions": {
+          "graphical_analysis": "تحليل بياني"
+        }
+      },
+      "ledger": {
+        "title": "المخطط المحاسبي",
+        "subtitle": "إدارة هيكل حساباتك وتتبع الأرصدة المحاسبية.",
+        "actions": {
+          "new_account": "حساب جديد",
+          "create_account": "إنشاء الحساب",
+          "cancel": "إلغاء"
+        },
+        "stats": {
+          "total_assets": "إجمالي الأصول",
+          "total_liabilities": "إجمالي الخصوم",
+          "total_products": "إجمالي المنتوجات",
+          "total_charges": "إجمالي الأعباء"
+        },
+        "filters": {
+          "search_placeholder": "البحث بالكود أو المسمى...",
+          "all_types": "جميع الأنواع"
+        },
+        "types": {
+          "actif": "أصل",
+          "passif": "خصم",
+          "produit": "منتوج",
+          "charge": "عبء"
+        },
+        "modal": {
+          "add_title": "إضافة حساب جديد",
+          "code_label": "رمز الحساب",
+          "code_placeholder": "مثال: 411001",
+          "name_label": "مسمى الحساب",
+          "name_placeholder": "مثال: زبائن عامون",
+          "type_label": "نوع الحساب"
+        },
+        "accounts": {
+          "fixed_assets": "تثبيتات عينية",
+          "inventory": "مخزونات البضائع",
+          "customers": "الزبائن",
+          "bank": "البنك",
+          "cash": "الصندوق",
+          "equity": "رأس المال",
+          "net_result": "النتيجة الصافية",
+          "sales": "المبيعات",
+          "purchases": "المشتريات",
+          "depreciation": "مخصصات الاهتلاكات",
+          "ibs": "الضريبة على أرباح الشركات (IBS)"
+        }
+      },
+      "scf_names": {
+        "immobilisations": "التثبيتات",
+        "terrains": "الأراضي",
+        "constructions": "المباني",
+        "autres_immo": "تثبيتات أخرى",
+        "creances": "المديونية",
+        "clients": "الزبائن",
+        "clients_douteux": "ديون مشكوك فيها",
+        "personnel": "المستخدمين",
+        "dispo_fin": "الأموال المتاحة",
+        "banque": "البنك",
+        "caisse": "الصندوق",
+        "valeurs_mob": "قيم منقولة",
+        "capitaux_propres": "الأموال الخاصة",
+        "capital_social": "رأس المال",
+        "reserves": "الاحتياطات",
+        "resultat_exercice": "نتيجة الدورة",
+        "dettes": "الديون",
+        "fournisseurs": "الموردون",
+        "etat": "الدولة",
+        "ventes": "المبيعات",
+        "ventes_produits": "مبيعات منتجات",
+        "services": "الخدمات",
+        "produits_vendus": "بضائع مباعة",
+        "achats": "المشتريات",
+        "achats_stock": "مشتريات مخزنة",
+        "fournitures": "لوازم",
+        "transport": "النقل"
+      }
+    }
+  },
+  "inventory": {
+    "title": "إدارة المخزون",
+    "subtitle": "تتبع المخزون، الحركات، وإعادة التموين",
+    "tabs": {
+      "stock": "حالة المخزون",
+      "movements": "حركات المخزون",
+      "alerts": "التنبيهات والنفاد",
+      "reordering": "إعادة التموين",
+      "barcode": "الباركود",
+      "reports": "التقارير والتحليلات"
+    },
+    "stats": {
+      "refs": "المراجع",
+      "total_units": "إجمالي الوحدات",
+      "total_value": "قيمة المخزون",
+      "available": "متوفر",
+      "to_reorder": "للطلب",
+      "units": "وحدات"
+    },
+    "sections": {
+      "category_distribution": "التوزيع حسب الفئة",
+      "alerts_title": "التنبيهات النشطة",
+      "quick_actions": "إجراءات سريعة",
+      "stock_detail": "تفاصيل المخزون الفعلي",
+      "stock_detail_subtitle": "{{count}} مرجع تمت تصفيتها وجاهزة للتحليل",
+      "movements_history": "سجل الحركات"
+    },
+    "actions": {
+      "start_inventory": "بدء الجرد الفعلي",
+      "full_report": "تقرير كامل",
+      "physical_inventory": "الجرد الفعلي",
+      "reordering": "إعادة التموين",
+      "export": "تصدير القائمة",
+      "print": "طباعة الحالة",
+      "reset": "إعادة تعيين الفلاتر",
+      "view_details": "عرض التفاصيل",
+      "edit": "تعديل المادة",
+      "order": "طلب",
+      "generate": "إنشاء باركود",
+      "new_report": "تقرير جديد",
+      "order_all": "طلب الكل",
+      "print_barcode": "طباعة الباركود"
+    },
+    "filters": {
+      "search_placeholder": "البحث عن مادة (الاسم، رمز PCA...)",
+      "all_categories": "جميع الفئات",
+      "all_statuses": "جميع الحالات",
+      "status_normal": "مخزون عادي",
+      "status_low": "مخزون منخفض",
+      "status_critical": "مخزون حرج",
+      "sort_nom": "اسم المادة",
+      "sort_stock": "مستوى المخزون",
+      "sort_valeur": "القيمة السوقية"
+    },
+    "table": {
+      "article": "المادة",
+      "pca_code": "رمز PCA",
+      "quantity": "الكمية",
+      "pu": "سعر الوحدة",
+      "total_value": "القيمة الإجمالية",
+      "status": "الحالة",
+      "actions": "إجراءات"
+    },
+    "status": {
+      "normal": "عادي",
+      "low": "منخفض",
+      "critical": "حرج",
+      "available": "متوفر",
+      "to_reorder": "للطلب",
+      "in_transit": "في العبور"
+    },
+    "movements": {
+      "title": "تدفقات المخزون",
+      "subtitle": "تتبع مفصل للمدخلات، المخرجات، والتعديلات",
+      "in": "مدخلات",
+      "out": "مخرجات",
+      "adjustment": "تعديلات",
+      "history": "سجل الحركات",
+      "date": "التاريخ والوقت",
+      "ref": "المرجع",
+      "provider": "المورد",
+      "client": "الزبون",
+      "responsible": "المسؤول",
+      "reason": "السبب",
+      "unit_val": "قيمة الوحدة",
+      "units_month": "وحدة هذا الشهر",
+      "transactions": "عمليات",
+      "reasons": {
+        "receipt": "استلام طلبية",
+        "sale": "بيع لزبون",
+        "inventory_gap": "جرد فعلي - اكتشاف فارق",
+        "return": "إرجاع من زبون - منتج غير مطابق",
+        "online_order": "طلبية عبر الإنترنت",
+        "urgent_receipt": "استلام طلبية مستعجلة",
+        "correction": "تصحيح خطأ إدخال",
+        "bulk_sale": "بيع مؤسساتي بالجملة"
+      }
+    },
+    "reordering": {
+      "title": "اقتراحات ذكية",
+      "subtitle": "حسن طلبياتك وتجنب نفاد المخزون",
+      "suggestions": "اقتراحات إعادة التموين",
+      "high_urgency": "استعجال عالٍ",
+      "medium_urgency": "استعجال متوسط",
+      "low_urgency": "استعجال منخفض",
+      "suggested_order": "الكمية المقترحة",
+      "stock_min": "الحد الأدنى",
+      "stock_optimal": "المخزون الأمثل",
+      "lead_time": "مدة التوريد",
+      "est_cost": "التكلفة التقديرية",
+      "last_purchase": "آخر شراء",
+      "critical_articles": "مواد حرجة",
+      "to_watch": "للمراقبة",
+      "total_orders": "إجمالي الطلبيات",
+      "no_reorder_suggestion": "لا توجد مواد لإعادة التموين",
+      "opt_level_msg": "جميع مخزوناتك في مستوى أمثل!",
+      "optimize_desc": "حسن طلبياتك لتجنب نفاد المخزون المفاجئ.",
+      "turnover": "دوران المخزون"
+    },
+    "barcode": {
+      "title": "مولد الباركود",
+      "subtitle": "اطبع ملصقاتك ومزامنة مخزونك بالمسح",
+      "scanned": "عمليات المسح هذا الشهر",
+      "generated": "ملصقات تم إنشاؤها",
+      "missing": "باركود مفقود",
+      "to_generate": "للإنشاء",
+      "recent_articles": "المواد الأخيرة بدون رمز"
+    },
+    "reports": {
+      "title": "تقارير وذكاء المخزون",
+      "subtitle": "تحليلات ABC، التقييم وتوقعات الدوران",
+      "full_stock": "تقرير المخزون الكامل",
+      "monthly_moves": "حركات الشهر",
+      "stock_valuation": "تقييم الأصول",
+      "alert_summary": "ملخص التنبيهات",
+      "rotation_rate": "معدل الدوران",
+      "abc_analysis": "تصنيف ABC"
+    },
+    "alerts_msg": {
+      "low_stock_msg": "{{count}} مواد في مخزون منخفض",
+      "out_of_stock_msg": "{{count}} مواد في حالة نفاد تام",
+      "expiring_msg": "{{count}} مواد تقترب من تاريخ الانتهاء",
+      "overstock_msg": "{{count}} مواد في حالة تكدس"
+    },
+    "messages": {
+      "no_article_found": "لم يتم العثور على أي مادة",
+      "search_crit_desc": "حاول تعديل معايير البحث أو إعادة تعيين الفلاتر."
+    },
+    "consolidation": {
+      "title": "التجميع المالي",
+      "subtitle": "تجميع متعدد الفروع، استبعاد المعاملات البينية والقوائم المجمعة.",
+      "is_consolidating": "جاري التجميع...",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "intercompany": "التدفقات البينية",
+        "financial_statements": "القوائم المجمعة",
+        "reports": "التقارير والتدقيق",
+        "analytics": "تحليلات الذكاء الاصطناعي"
+      },
+      "stats": {
+        "total_revenue": "إجمالي الإيرادات المجمعة",
+        "net_income": "صافي الدخل",
+        "total_cash": "سيولة المجموعة",
+        "total_assets": "إجمالي الأصول",
+        "growth": "نمو المجموعة",
+        "risk_score": "معدل المخاطر",
+        "companies": "الفروع",
+        "total_ca": "إجمالي الإيرادات العالمي",
+        "total_profit": "هامش الربح الصافي للمجموعة",
+        "total_active": "إجمالي الأصول"
+      },
+      "actions": {
+        "run_consolidation": "بدء التجميع",
+        "config": "إعدادات المجموعة",
+        "export_pdf": "تصدير PDF",
+        "export_excel": "تصدير Excel",
+        "print": "طباعة القوائم",
+        "add_company": "إضافة فرع",
+        "manage_currencies": "إدارة العملات",
+        "add": "إضافة",
+        "currencies": "العملات"
+      },
+      "intercompany": {
+        "title": "المعاملات البينية",
+        "subtitle": "كشف تلقائي واستبعاد التدفقات الداخلية",
+        "detected": "تدفقات مكتشفة",
+        "to_eliminate": "للاستبعاد",
+        "eliminated": "تم استبعادها",
+        "table": {
+          "from": "المرسل",
+          "to": "المستقبل",
+          "type": "نوع التدفق",
+          "amount": "المبلغ (دج)",
+          "status": "الحالة",
+          "action": "إجراء"
+        }
+      },
+      "statements": {
+        "balance_sheet": "الميزانية المجمعة",
+        "income_statement": "قائمة الدخل المجمعة",
+        "notes": "الملاحق المجمعة",
+        "assets": "أصول المجموعة",
+        "liabilities": "الملكية والالتزامات"
+      },
+      "search_placeholder": "تصفية الكيانات أو المعاملات...",
+      "period": "الفترة",
+      "currency": "العملة",
+      "progress": "تقدم عملية التجميع",
+      "filters": {
+        "all": "جميع الفروع",
+        "active": "النشطة فقط",
+        "inactive": "غير النشطة فقط",
+        "consolidated": "المجمعة مسبقاً",
+        "pending": "في الانتظار"
+      },
+      "placeholders": {
+        "search": "البحث عن فرع أو بلد..."
+      }
+    },
+    "admin": {
+      "title": "إدارة النظام",
+      "subtitle": "التحكم في الوصول",
+      "actions": {
+        "new_user": "مستخدم جديد",
+        "create_account": "إنشاء حساب",
+        "save_changes": "حفظ التغييرات",
+        "cancel": "إلغاء",
+        "delete": "تعطيل",
+        "edit": "تعديل",
+        "confirm": "تأكيد"
+      },
+      "users": {
+        "anniversary": "دليل الموظفين",
+        "manage_access": "إدارة الوصول والامتيازات",
+        "user_count": "مستخدمين",
+        "inactif": "غير نشط",
+        "perms_count": "+{{count}} صلاحيات",
+        "loading": "جاري تحميل بيانات الموظفين...",
+        "delete_confirm_title": "تعطيل الوصول؟",
+        "delete_confirm_desc": "سيقوم هذا الإجراء بإلغاء جميع أذونات وصول المستخدم لنظام Dinarlytic فوراً."
+      },
+      "form": {
+        "new_member": "عضو جديد",
+        "edit_profile": "تعديل الملف الشخصي",
+        "config_account": "إعدادات الحساب",
+        "identity": " الهوية وتسجيل الدخول",
+        "first_name": "الاسم الأول",
+        "last_name": "اللقب",
+        "email": "البريد الإلكتروني العملي",
+        "username": "اسم المستخدم",
+        "password": "كلمة المرور المؤقتة",
+        "main_role": "الدور الرئيسي",
+        "additional_rights": "حقوق وصول إضافية",
+        "errors": {
+          "system_error": "خطأ في النظام",
+          "load_failed": "فشل في تحميل المستخدمين",
+          "fill_fields": "يرجى ملء جميع الحقول المطلوبة",
+          "save_failed": "خطأ أثناء الحفظ",
+          "delete_failed": "خطأ أثناء التعطيل"
+        }
+      }
+    },
+    "settings": {
+      "title": "إدارة الشركة",
+      "subtitle": "إدارة المعلومات والتكوينات الخاصة بك",
+      "multi_company": {
+        "title": "إدارة شركات متعددة",
+        "subtitle": "إدارة شركات متعددة في واجهة واحدة",
+        "active_company": "الشركة النشطة: {{name}}",
+        "none": "لا يوجد",
+        "stats": {
+          "total": "إجمالي الشركات",
+          "active": "نشطة",
+          "users": "المستخدمين",
+          "currencies": "العملات"
+        },
+        "tabs": {
+          "list": "قائمة الشركات",
+          "currencies": "العملات والأسعار",
+          "permissions": "الصلاحيات"
+        },
+        "actions": {
+          "new": "شركة جديدة",
+          "switch": "تبديل الشركة",
+          "search_placeholder": "البحث عن شركة..."
+        },
+        "card": {
+          "status": {
+            "active": "نشط",
+            "inactive": "غير نشط"
+          },
+          "details": {
+            "siret": "SIRET:",
+            "plan": "المخطط المحاسبي:",
+            "users": "المستخدمين:",
+            "last_activity": "آخر نشاط:"
+          }
+        }
+      },
+      "company_form": {
+        "title_new": "شركة جديدة",
+        "info_general": "معلومات عامة",
+        "info_general_desc": "أدخل معلومات الشركة الأساسية",
+        "labels": {
+          "name": "اسم الشركة",
+          "raison_sociale": "الشكل القانوني",
+          "siret": "SIRET",
+          "tva": "الرقم الضريبي",
+          "address": "العنوان",
+          "city": "المدينة",
+          "zip": "الرمز البريدي",
+          "country": "البلد",
+          "phone": "الهاتف",
+          "email": "البريد الإلكتروني",
+          "website": "الموقع الإلكتروني",
+          "currency": "العملة",
+          "accounting_plan": "المخطط المحاسبي",
+          "description": "الوصف"
+        },
+        "placeholders": {
+          "name": "أدخل اسم الشركة",
+          "raison_sociale": "أدخل الشكل القانوني",
+          "siret": "12345678901234",
+          "tva": "DZ123456789",
+          "email": "contact@company.dz",
+          "phone": "+213 21 00 00 00"
+        },
+        "errors": {
+          "name_required": "اسم الشركة مطلوب",
+          "raison_required": "الشكل القانوني مطلوب",
+          "siret_required": "رقم SIRET مطلوب",
+          "siret_format": "يجب أن يتكون SIRET من 14 رقمًا",
+          "email_required": "البريد الإلكتروني مطلوب",
+          "email_format": "تنسيق البريد الإلكتروني غير صحيح",
+          "phone_required": "الهاتف مطلوب",
+          "address_required": "العنوان مطلوب",
+          "city_required": "المدينة مطلوبة",
+          "zip_required": "الرمز البريدي مطلوب"
+        },
+        "success": "تم إنشاء الشركة بنجاح!"
+      }
+    },
+    "analytics": {
+      "financial": {
+        "title": "التحليل المالي",
+        "subtitle": "تحليل متعمق للربحية والأداء المالي",
+        "ratios": {
+          "key_title": "النسب المالية الرئيسية",
+          "advanced_title": "النسب المتقدمة",
+          "dso": "DSO",
+          "dio": "DIO",
+          "dpo": "DPO",
+          "ccc": "CCC",
+          "liquidity": "السيولة العامة",
+          "margin": "الهامش",
+          "roe": "العائد على حقوق الملكية",
+          "roa": "العائد على الأصول",
+          "ebitda": "EBITDA %",
+          "net_debt": "Net Debt/EBITDA",
+          "interest_coverage": "تغطية الفوائد",
+          "autonomy": "الاستقلال المالي",
+          "solvency": "الملاءة (الأصول/الديون)",
+          "quick_liquidity": "السيولة الفورية",
+          "days": "يوم",
+          "multiplier": "مرات"
+        },
+        "alerts": {
+          "title": "تنبيهات مالية ذكية",
+          "score": "النتيجة: {{score}}/100 - {{status}}",
+          "none": "لا توجد تنبيهات رئيسية. جميع المؤشرات ضمن المعايير.",
+          "priority": "الأولوية:",
+          "recommendations": "التوصيات:",
+          "categories": {
+            "liquidity": "السيولة",
+            "profitability": "الربحية"
+          }
+        },
+        "breakeven": {
+          "title": "عتبة الربحية ونقطة التعادل",
+          "status_reached": "تم الوصول",
+          "calc_title": "📊 حساب العتبة",
+          "fixed_costs": "التكاليف الثابتة",
+          "margin_rate": "معدل الهامش",
+          "breakeven_point": "عتبة الربحية",
+          "safety_margin": "هامش الأمان",
+          "dead_point": "نقطة التعادل",
+          "days": "يوم",
+          "currency_symbol": "دج",
+          "brute_margin": "الهامش الإجمالي"
+        },
+        "simulation": {
+          "title": "📈 محاكاة What-If",
+          "revenue_var": "إذا تغير رقم الأعمال {{var}}%",
+          "operating_leverage": "الرافعة التشغيلية",
+          "leverage_desc": "+10% في رقم الأعمال ← +28% في النتيجة"
+        },
+        "sector": {
+          "title": "مقارنة قطاعية",
+          "global_score": "النتيجة الإجمالية",
+          "status": "التصنيف:",
+          "strengths": "نقاط القوة:",
+          "weaknesses": "نقاط للتحسين:"
+        },
+        "actions": {
+          "simulate": "محاكاة سيناريو",
+          "projections": "عرض التوقعات"
+        }
+      },
+      "kpis": {
+        "title": "التحليل المالي المتقدم",
+        "subtitle": "مؤشرات الأداء والنسب المالية ومؤشرات الأداء",
+        "tabs": {
+          "all": "كل مؤشرات الأداء",
+          "rentability": "الربحية",
+          "liquidity": "السيولة",
+          "leverage": "الرافعة المالية",
+          "efficiency": "الكفاءة"
+        },
+        "actions": {
+          "refresh": "تحديث تلقائي",
+          "report": "إنشاء تقرير"
+        },
+        "sections": {
+          "main": "🎯 مؤشرات الأداء المالية الرئيسية",
+          "revenue": "📈 تطور رقم الأعمال",
+          "profitability": "💰 تحليل الربحية",
+          "accounting": "📚 المؤشرات المحاسبية",
+          "advanced": "🔍 النسب المالية المتقدمة",
+          "alerts": "⚠️ التنبيهات والتوصيات"
+        },
+        "benchmarks": {
+          "label": "المعيار:",
+          "target": "الهدف:",
+          "realized": "المحقق"
+        }
+      }
+    }
+  }
+}

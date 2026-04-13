@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import { 
   BuildingOfficeIcon, 
   PlusIcon, 
@@ -29,6 +30,7 @@ import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 
 const GestionEntreprise: React.FC = () => {
+  const { t } = useTranslation();
   const { formatCurrency, currentDevise, setCurrentDevise, planComptable, setPlanComptable } = useApp();
   const [entreprises, setEntreprises] = useState<any[]>([]);
   const [selectedEntreprise, setSelectedEntreprise] = useState<any>(null);
@@ -351,15 +353,15 @@ const GestionEntreprise: React.FC = () => {
       {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Gestion Multi-Entreprises</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">Gérez plusieurs entreprises dans une seule interface</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('settings.multi_company.title')}</h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-2">{t('settings.multi_company.subtitle')}</p>
         </div>
         <div className="text-right">
           <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
             {currentTime.toLocaleString('fr-FR')}
           </div>
           <div className="text-sm text-slate-500 dark:text-slate-500">
-            Entreprise active: {entreprises.find(e => e.devise === currentDevise)?.nom || 'Aucune'}
+            {t('settings.multi_company.active_company', { name: entreprises.find(e => e.devise === currentDevise)?.nom || t('settings.multi_company.none') })}
           </div>
         </div>
       </div>
@@ -372,7 +374,7 @@ const GestionEntreprise: React.FC = () => {
               <BuildingOfficeIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Entreprises</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t('settings.multi_company.stats.total')}</p>
               <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{entreprises.length}</p>
             </div>
           </div>
@@ -384,7 +386,7 @@ const GestionEntreprise: React.FC = () => {
               <CheckCircleIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Actives</p>
+              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t('settings.multi_company.stats.active')}</p>
               <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
                 {entreprises.filter(e => e.isActive).length}
               </p>
@@ -398,7 +400,7 @@ const GestionEntreprise: React.FC = () => {
               <UserGroupIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Utilisateurs</p>
+              <p className="text-sm font-medium text-blue-700 dark:text-blue-300">{t('settings.multi_company.stats.users')}</p>
               <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                 {entreprises.reduce((sum, e) => sum + e.utilisateurs, 0)}
               </p>
@@ -412,7 +414,7 @@ const GestionEntreprise: React.FC = () => {
               <CurrencyDollarIcon className="h-7 w-7 text-white" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Devises</p>
+              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">{t('settings.multi_company.stats.currencies')}</p>
               <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">{devises.length}</p>
             </div>
           </div>
@@ -423,9 +425,9 @@ const GestionEntreprise: React.FC = () => {
       <div className="border-b border-slate-200 dark:border-slate-700">
         <nav className="-mb-px flex space-x-8">
           {[
-            { id: 'list', name: 'Liste des Entreprises', icon: BuildingOfficeIcon },
-            { id: 'currencies', name: 'Devises & Taux', icon: CurrencyDollarIcon },
-            { id: 'permissions', name: 'Permissions', icon: ShieldCheckIcon }
+            { id: 'list', name: t('settings.multi_company.tabs.list'), icon: BuildingOfficeIcon },
+            { id: 'currencies', name: t('settings.multi_company.tabs.currencies'), icon: CurrencyDollarIcon },
+            { id: 'permissions', name: t('settings.multi_company.tabs.permissions'), icon: ShieldCheckIcon }
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -455,7 +457,7 @@ const GestionEntreprise: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <input
                   type="text"
-                  placeholder="Rechercher une entreprise..."
+                  placeholder={t('settings.multi_company.actions.search_placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-2 w-64 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors"
@@ -467,7 +469,7 @@ const GestionEntreprise: React.FC = () => {
                 className="flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-800 hover:to-slate-900 text-white rounded-lg transition-all shadow-sm font-medium"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Nouvelle Entreprise
+                {t('settings.multi_company.actions.new')}
               </button>
 
               <button
@@ -475,7 +477,7 @@ const GestionEntreprise: React.FC = () => {
                 className="flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-lg transition-all shadow-sm font-medium"
               >
                 <ArrowRightIcon className="h-5 w-5 mr-2" />
-                Basculer Entreprise
+                {t('settings.multi_company.actions.switch')}
               </button>
             </div>
           </Card>
@@ -496,7 +498,7 @@ const GestionEntreprise: React.FC = () => {
                   </div>
                   <div className="flex flex-col space-y-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(entreprise.isActive)}`}>
-                      {entreprise.isActive ? 'Actif' : 'Inactif'}
+                      {entreprise.isActive ? t('settings.multi_company.card.status.active') : t('settings.multi_company.card.status.inactive')}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDeviseColor(entreprise.devise)}`}>
                       {entreprise.devise}
@@ -506,19 +508,19 @@ const GestionEntreprise: React.FC = () => {
                 
                 <div className="space-y-2 mb-4 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 dark:text-slate-400">SIRET:</span>
+                    <span className="text-slate-500 dark:text-slate-400">{t('settings.multi_company.card.details.siret')}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">{entreprise.siret}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 dark:text-slate-400">Plan Comptable:</span>
+                    <span className="text-slate-500 dark:text-slate-400">{t('settings.multi_company.card.details.plan')}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">{getPlanComptableName(entreprise.planComptable)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 dark:text-slate-400">Utilisateurs:</span>
+                    <span className="text-slate-500 dark:text-slate-400">{t('settings.multi_company.card.details.users')}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">{entreprise.utilisateurs}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-500 dark:text-slate-400">Dernière activité:</span>
+                    <span className="text-slate-500 dark:text-slate-400">{t('settings.multi_company.card.details.last_activity')}</span>
                     <span className="font-medium text-slate-900 dark:text-slate-100">{entreprise.derniereActivite}</span>
                   </div>
                 </div>
@@ -529,7 +531,7 @@ const GestionEntreprise: React.FC = () => {
                     className="flex-1 flex items-center justify-center px-3 py-2 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white rounded-lg transition-all shadow-sm font-medium"
                   >
                     <PencilIcon className="h-4 w-4 mr-2" />
-                    Modifier
+                    {t('common.edit')}
                   </button>
                   
                   <button
@@ -667,20 +669,20 @@ const GestionEntreprise: React.FC = () => {
           setIsCreateModalOpen(false);
           setErrors({});
         }}
-        title="Nouvelle Entreprise"
+        title={t('settings.company_form.title_new')}
         size="xl"
       >
         <div className="space-y-6">
           {/* Informations générales */}
           <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Informations Générales</h3>
-            <p className="text-sm text-slate-700 dark:text-slate-300">Renseignez les informations de base de l'entreprise</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{t('settings.company_form.info_general')}</h3>
+            <p className="text-sm text-slate-700 dark:text-slate-300">{t('settings.company_form.info_general_desc')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
-                Nom de l'entreprise <span className="text-red-500">*</span>
+                {t('settings.company_form.labels.name')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -695,7 +697,7 @@ const GestionEntreprise: React.FC = () => {
                       ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-600 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
                       : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 focus:border-slate-500 focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-600'
                   } focus:outline-none`}
-                  placeholder="Saisissez le nom de l'entreprise"
+                  placeholder={t('settings.company_form.placeholders.name')}
                 />
                 {errors.nom && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">

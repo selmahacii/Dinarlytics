@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import { 
   BookOpenIcon, 
   PlusIcon, 
@@ -17,6 +18,7 @@ import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 
 const PlanComptable: React.FC = () => {
+  const { t } = useTranslation();
   const { formatCurrency } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -27,78 +29,78 @@ const PlanComptable: React.FC = () => {
     {
       id: '1',
       code: '20',
-      name: 'IMMOBILISATIONS',
-      type: 'Actif',
+      name: t('accounting.ledger.scf_names.immobilisations'),
+      type: t('accounting.ledger.types.actif'),
       subAccounts: [
-        { code: '201', name: 'Terrains', balance: 150000 },
-        { code: '211', name: 'Constructions', balance: 450000 },
-        { code: '218', name: 'Autres immobilisations', balance: 125000 }
+        { code: '201', name: t('accounting.ledger.scf_names.terrains'), balance: 150000 },
+        { code: '211', name: t('accounting.ledger.scf_names.constructions'), balance: 450000 },
+        { code: '218', name: t('accounting.ledger.scf_names.autres_immo'), balance: 125000 }
       ]
     },
     {
       id: '2',
       code: '40',
-      name: 'CRÉANCES',
-      type: 'Actif',
+      name: t('accounting.ledger.scf_names.creances'),
+      type: t('accounting.ledger.types.actif'),
       subAccounts: [
-        { code: '411', name: 'Clients', balance: 125000 },
-        { code: '416', name: 'Clients douteux', balance: 5000 },
-        { code: '421', name: 'Personnel', balance: 2500 }
+        { code: '411', name: t('accounting.ledger.scf_names.clients'), balance: 125000 },
+        { code: '416', name: t('accounting.ledger.scf_names.clients_douteux'), balance: 5000 },
+        { code: '421', name: t('accounting.ledger.scf_names.personnel'), balance: 2500 }
       ]
     },
     {
       id: '3',
       code: '50',
-      name: 'DISPOSITIONS FINANCIÈRES',
-      type: 'Actif',
+      name: t('accounting.ledger.scf_names.dispo_fin'),
+      type: t('accounting.ledger.types.actif'),
       subAccounts: [
-        { code: '512', name: 'Banque', balance: 450000 },
-        { code: '531', name: 'Caisse', balance: 5000 },
-        { code: '542', name: 'Valeurs mobilières', balance: 75000 }
+        { code: '512', name: t('accounting.ledger.scf_names.banque'), balance: 450000 },
+        { code: '531', name: t('accounting.ledger.scf_names.caisse'), balance: 5000 },
+        { code: '542', name: t('accounting.ledger.scf_names.valeurs_mob'), balance: 75000 }
       ]
     },
     {
       id: '4',
       code: '10',
-      name: 'CAPITAUX PROPRES',
-      type: 'Passif',
+      name: t('accounting.ledger.scf_names.capitaux_propres'),
+      type: t('accounting.ledger.types.passif'),
       subAccounts: [
-        { code: '101', name: 'Capital social', balance: 500000 },
-        { code: '106', name: 'Réserves', balance: 125000 },
-        { code: '120', name: 'Résultat exercice', balance: 85000 }
+        { code: '101', name: t('accounting.ledger.scf_names.capital_social'), balance: 500000 },
+        { code: '106', name: t('accounting.ledger.scf_names.reserves'), balance: 125000 },
+        { code: '120', name: t('accounting.ledger.scf_names.resultat_exercice'), balance: 85000 }
       ]
     },
     {
       id: '5',
       code: '40',
-      name: 'DETTES',
-      type: 'Passif',
+      name: t('accounting.ledger.scf_names.dettes'),
+      type: t('accounting.ledger.types.passif'),
       subAccounts: [
-        { code: '401', name: 'Fournisseurs', balance: 85000 },
-        { code: '421', name: 'Personnel', balance: 45000 },
-        { code: '444', name: 'État', balance: 25000 }
+        { code: '401', name: t('accounting.ledger.scf_names.fournisseurs'), balance: 85000 },
+        { code: '421', name: t('accounting.ledger.scf_names.personnel'), balance: 45000 },
+        { code: '444', name: t('accounting.ledger.scf_names.etat'), balance: 25000 }
       ]
     },
     {
       id: '6',
       code: '70',
-      name: 'VENTES',
-      type: 'Produit',
+      name: t('accounting.ledger.scf_names.ventes'),
+      type: t('accounting.ledger.types.produit'),
       subAccounts: [
-        { code: '701', name: 'Ventes produits', balance: 2450000 },
-        { code: '706', name: 'Services', balance: 125000 },
-        { code: '707', name: 'Produits vendus', balance: 1800000 }
+        { code: '701', name: t('accounting.ledger.scf_names.ventes_produits'), balance: 2450000 },
+        { code: '706', name: t('accounting.ledger.scf_names.services'), balance: 125000 },
+        { code: '707', name: t('accounting.ledger.scf_names.produits_vendus'), balance: 1800000 }
       ]
     },
     {
       id: '7',
       code: '60',
-      name: 'ACHATS',
-      type: 'Charge',
+      name: t('accounting.ledger.scf_names.achats'),
+      type: t('accounting.ledger.types.charge'),
       subAccounts: [
-        { code: '601', name: 'Achats matières', balance: 850000 },
-        { code: '602', name: 'Achats fournitures', balance: 125000 },
-        { code: '606', name: 'Services extérieurs', balance: 180000 }
+        { code: '601', name: t('accounting.ledger.scf_names.achats_stock'), balance: 850000 },
+        { code: '602', name: t('accounting.ledger.scf_names.fournitures'), balance: 125000 },
+        { code: '606', name: t('accounting.ledger.scf_names.transport'), balance: 180000 }
       ]
     }
   ];
@@ -106,28 +108,28 @@ const PlanComptable: React.FC = () => {
   // Statistiques
   const statistics = [
     {
-      title: 'Total Actifs',
+      title: t('accounting.ledger.stats.total_assets'),
       value: formatCurrency(1250000),
       change: '+8.5%',
       icon: BuildingOfficeIcon,
       color: 'green'
     },
     {
-      title: 'Total Passifs',
+      title: t('accounting.ledger.stats.total_liabilities'),
       value: formatCurrency(780000),
       change: '+5.2%',
       icon: BanknotesIcon,
       color: 'red'
     },
     {
-      title: 'Total Produits',
+      title: t('accounting.ledger.stats.total_products'),
       value: formatCurrency(2575000),
       change: '+12.4%',
       icon: ArrowTrendingUpIcon,
       color: 'blue'
     },
     {
-      title: 'Total Charges',
+      title: t('accounting.ledger.stats.total_charges'),
       value: formatCurrency(1155000),
       change: '+7.8%',
       icon: ArrowTrendingDownIcon,
@@ -142,16 +144,16 @@ const PlanComptable: React.FC = () => {
                            sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            sub.code.includes(searchTerm)
                          );
-    const matchesCategory = selectedCategory === 'all' || account.type === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || account.type === t(`accounting.ledger.types.${selectedCategory}`);
     return matchesSearch && matchesCategory;
   });
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'Actif': return 'text-green-600 bg-green-50 border-green-200';
-      case 'Passif': return 'text-red-600 bg-red-50 border-red-200';
-      case 'Produit': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'Charge': return 'text-orange-600 bg-orange-50 border-orange-200';
+      case t('accounting.ledger.types.actif'): return 'text-green-600 bg-green-50 border-green-200';
+      case t('accounting.ledger.types.passif'): return 'text-red-600 bg-red-50 border-red-200';
+      case t('accounting.ledger.types.produit'): return 'text-blue-600 bg-blue-50 border-blue-200';
+      case t('accounting.ledger.types.charge'): return 'text-orange-600 bg-orange-50 border-orange-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';
     }
   };
@@ -161,15 +163,15 @@ const PlanComptable: React.FC = () => {
       {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Plan Comptable</h1>
-          <p className="text-gray-600">Gestion du plan comptable général</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('accounting.ledger.title')}</h1>
+          <p className="text-gray-600">{t('accounting.ledger.subtitle')}</p>
         </div>
         <button 
           onClick={() => setIsAddAccountModalOpen(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
         >
           <PlusIcon className="h-5 w-5" />
-          <span>Nouveau Compte</span>
+          <span>{t('accounting.ledger.actions.new_account')}</span>
         </button>
       </div>
 
@@ -204,7 +206,7 @@ const PlanComptable: React.FC = () => {
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
               <input
                 type="text"
-                placeholder="Rechercher un compte..."
+                placeholder={t('accounting.ledger.filters.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -217,11 +219,11 @@ const PlanComptable: React.FC = () => {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
-              <option value="all">Tous les types</option>
-              <option value="Actif">Actif</option>
-              <option value="Passif">Passif</option>
-              <option value="Produit">Produit</option>
-              <option value="Charge">Charge</option>
+              <option value="all">{t('accounting.ledger.filters.all_types')}</option>
+              <option value="actif">{t('accounting.ledger.types.actif')}</option>
+              <option value="passif">{t('accounting.ledger.types.passif')}</option>
+              <option value="produit">{t('accounting.ledger.types.produit')}</option>
+              <option value="charge">{t('accounting.ledger.types.charge')}</option>
             </select>
           </div>
         </div>
@@ -269,32 +271,32 @@ const PlanComptable: React.FC = () => {
       <Modal
         isOpen={isAddAccountModalOpen}
         onClose={() => setIsAddAccountModalOpen(false)}
-        title="Nouveau Compte Comptable"
+        title={t('accounting.ledger.modal.add_title')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Code du compte</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('accounting.ledger.modal.code_label')}</label>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: 411"
+              placeholder={t('accounting.ledger.modal.code_placeholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nom du compte</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('accounting.ledger.modal.name_label')}</label>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Clients"
+              placeholder={t('accounting.ledger.modal.name_placeholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type de compte</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('accounting.ledger.modal.type_label')}</label>
             <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-              <option value="Actif">Actif</option>
-              <option value="Passif">Passif</option>
-              <option value="Produit">Produit</option>
-              <option value="Charge">Charge</option>
+              <option value="actif">{t('accounting.ledger.types.actif')}</option>
+              <option value="passif">{t('accounting.ledger.types.passif')}</option>
+              <option value="produit">{t('accounting.ledger.types.produit')}</option>
+              <option value="charge">{t('accounting.ledger.types.charge')}</option>
             </select>
           </div>
           <div className="flex justify-end space-x-3">
@@ -302,10 +304,10 @@ const PlanComptable: React.FC = () => {
               onClick={() => setIsAddAccountModalOpen(false)}
               className="px-4 py-2 text-gray-600 hover:text-gray-800"
             >
-              Annuler
+              {t('accounting.ledger.actions.cancel')}
             </button>
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Créer le Compte
+              {t('accounting.ledger.actions.create_account')}
             </button>
           </div>
         </div>

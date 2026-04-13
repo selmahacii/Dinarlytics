@@ -1,0 +1,1083 @@
+{
+  "common": {
+    "all": "All",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "download": "Download",
+    "search": "Search",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "amount": "Amount",
+    "description": "Description",
+    "name": "Name",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation successful",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "recommendation_prefix": "Recommendation:",
+    "recommended_actions_prefix": "Recommended actions:"
+  },
+  "crm": {
+    "clients": {
+      "title": "Customer Management",
+      "subtitle": "Customer portfolio, CRM and value analysis",
+      "tabs": {
+        "list": "Customer List",
+        "crm": "CRM & Communications",
+        "recovery": "Recovery & Reminders",
+        "intelligence": "Customer Intelligence",
+        "delivery": "Delivery Tracking",
+        "documents": "Documents & Reports"
+      },
+      "actions": {
+        "new_client": "New Customer",
+        "edit": "Edit",
+        "delete": "Delete",
+        "view": "View",
+        "export": "Export",
+        "analyze_value": "Value Analysis",
+        "generate_report": "Generate Report",
+        "new_communication": "New Comm.",
+        "new_communication_short": "Communication",
+        "new_reminder": "New Reminder",
+        "new_reminder_short": "Reminder",
+        "segmentation": "Segmentation",
+        "deep_audit": "Start Deep Audit",
+        "export_list": "Export List",
+        "filter": "Filter",
+        "act": "Act",
+        "new_report": "New Report",
+        "consult_details": "Consult Details",
+        "payments": "Payments",
+        "contact": "Contact",
+        "management": "Management",
+        "save_interaction": "Save Interaction",
+        "execute_reminder": "Execute Reminder",
+        "generating": "Generating...",
+        "generate_report_btn": "Generate Report",
+        "download": "Download",
+        "close_analysis": "Close Analysis",
+        "close_monitor": "Close Monitor",
+        "close_registry": "Close Registry",
+        "update": "Update",
+        "save_client": "Save Customer"
+      },
+      "filters": {
+        "search_placeholder": "Search for a customer (name, TIN, city...)",
+        "all": "All",
+        "sectors": "Sectors"
+      },
+      "sections": {
+        "concentration": "Concentration",
+        "segments": "Segment Breakdown",
+        "crm_interactions": "CRM Interactions",
+        "revenue_forecasts": "Revenue Forecasts",
+        "clv_title": "Customer Lifetime Value (CLV)",
+        "forecast_summary": "Forecast Summary (6 months)",
+        "concentration_portfolio": "Portfolio Concentration",
+        "clv_analytics": "Top Value Analysis (CLV)",
+        "active_shipping_tracking": "Active Shipping Tracking",
+        "recent_communications": "Recent Communications",
+        "ongoing_reminders_list": "Ongoing Reminders",
+        "reports_archives": "ERP Reports & Archives",
+        "value_trends": "Value Trends",
+        "health_audit": "Health Audit",
+        "ia_performance": "AI Performance",
+        "identity_location": "Identity & Location",
+        "direct_contact": "Direct Contact",
+        "financial_flow_history": "Financial Flow History",
+        "communication_log": "Communication Log",
+        "new_log_entry": "New Log Entry",
+        "exchange_report": "Exchange Report",
+        "sales_analysis_by_client": "Sales Analysis by Customer",
+        "top_5_performance_clients": "Top 05 Performance Customers",
+        "payment_and_delay_analysis_with_period": "Payment and Delay Analysis - {{period}}",
+        "reminder_tracking_with_period": "Customer Reminder Tracking - {{period}}",
+        "satisfaction_survey_with_period": "Customer Satisfaction Survey - {{period}}",
+        "vip_performance_analysis": "VIP Performance Analysis",
+        "risk_evaluation_with_period": "Customer Risk Evaluation - {{period}}",
+        "overdue_invoices": "Overdue Invoices",
+        "notes_distribution": "Notes Distribution"
+      },
+      "table": {
+        "shipping_id": "Shipping ID",
+        "recipient": "Recipient",
+        "status": "Status",
+        "planned_date": "Planned Date",
+        "client_label": "Customer:",
+        "due_date_label": "Due Date:",
+        "period": "Period",
+        "generated_on": "Generated on",
+        "nif_label": "Tax ID (TIN)",
+        "headquarters": "Headquarters",
+        "direct_line": "Direct Line",
+        "pro_email": "Professional Email",
+        "current_outstanding": "Current Outstanding",
+        "allowed_limit": "Allowed Limit",
+        "risk_index": "Risk Index",
+        "communication_medium": "Communication Medium",
+        "interaction_subject": "Interaction Subject",
+        "interaction_details": "Exchange Details",
+        "partner_choice": "Partner Choice",
+        "communication_channel": "Communication Channel",
+        "details_and_actions": "Details and Actions",
+        "invoice_ref": "Invoice Reference",
+        "reminder_level": "Reminder Level",
+        "strategic_channel": "Strategic Channel",
+        "nominal_amount_dzd": "Nominal Amount (DZD)",
+        "erp_due_date": "ERP Due Date",
+        "reminder_planning": "Reminder Planning",
+        "pro_message": "Professional Message",
+        "document_typology": "Document Typology",
+        "export_format": "Export Format",
+        "periodicity": "Periodicity",
+        "report_label": "Report Label",
+        "rang": "Rank",
+        "partner": "Partner customer",
+        "ca_generated": "Revenue Generated",
+        "quote_part": "Share",
+        "evolution": "Evolution",
+        "client": "Customer",
+        "clv": "CLV",
+        "cac": "CAC",
+        "ratio_clv_cac": "CLV/CAC Ratio",
+        "avg_basket": "Average Basket",
+        "frequency": "Frequency",
+        "score": "Score",
+        "trend": "Trend",
+        "cycle": "Cycle",
+        "projected_revenue": "Projected Revenue",
+        "probability_index": "Probability Index",
+        "confidence_level": "Confidence Level",
+        "next_action_impact": "Next Action Impact",
+        "company_name": "Company Name",
+        "tax_article_short": "Tax Art. (AI)",
+        "commerce_registry_short": "Trade Reg. (RC)",
+        "stat_id_short": "Stat ID (NIS)",
+        "vat_exemption": "VAT Exemption",
+        "exemption_cert_no_validity": "Cert. No / Validity Date"
+      },
+      "stats": {
+        "total_clients": "Active Customers",
+        "outstanding_balance": "Total Outstanding",
+        "avg_payment_delay": "Average DSO",
+        "churn_risk": "Churn Risk",
+        "ca_total": "Total Revenue",
+        "communications_total": "Total Communications",
+        "communications_pending": "Pending",
+        "ongoing_reminders": "Ongoing Reminders",
+        "overdue_amount": "Overdue Amount",
+        "total_reports": "Total Reports",
+        "reports_generated": "Reports Generated",
+        "total_size": "Total Size",
+        "total_engagements": "Total Commitments",
+        "active_reminders": "Active Reminders",
+        "payments_received": "Payments Received",
+        "payments_obtained": "Payments Obtained",
+        "reminders_sent": "Reminders Sent",
+        "avg_score": "Average Score",
+        "responses_count": "Responses",
+        "response_rate": "Response Rate",
+        "ca_vip": "VIP Revenue",
+        "client_base_volume": "Customer Base Volume"
+      },
+      "status": {
+        "optimized": "Optimized",
+        "compliance_validated": "Compliance Validated",
+        "analysis_in_progress": "Analysis in progress...",
+        "preparing": "Preparing",
+        "taken_care_of": "Taken Care Of",
+        "delivered_today": "Delivered (Today)",
+        "deliverable": "Deliverable",
+        "urgent": "Urgent",
+        "ready": "Ready",
+        "real_time_analysis_active": "Real-time analysis active",
+        "validated": "Validated",
+        "overdue": "Overdue",
+        "erp_active_compiling": "ERP Architecture active: Compiling financial flows...",
+        "system_reporting_engine": "System: Reporting engine compiling ERP data in background.",
+        "document_ready": "Document Ready",
+        "generation_active": "Generation active",
+        "operational_silence": "Operational Silence"
+      },
+      "messages": {
+        "no_anomalies": "The analysis engine detected no critical anomalies on customer accounts.",
+        "no_communication_found": "No communication found",
+        "no_active_reminders": "No active reminders",
+        "ia_suggestion": "The AI algorithm suggests a 12% credit increase for the VIP segment.",
+        "management_note": "Management Note: This reminder will be integrated into the partner's audit log.",
+        "report_preview_not_available": "Report preview not available",
+        "use_download_button": "Use the \"Download\" button to access full content",
+        "predictive_analysis_desc": "Predictive analysis engine: calculating CLV (Customer Lifetime Value) and CAC (Customer Acquisition Cost) to optimize long-term portfolio profitability.",
+        "predictive_analysis_range_desc": "180-day Predictive Analysis • Trends based on ERP history",
+        "ia_recommendation_engine": "AI Recommendation Engine",
+        "real_time_portfolio_optimization": "Real-time Portfolio Optimization",
+        "no_critical_anomalies_detected": "The AI algorithm detects no anomalies or critical opportunities requiring immediate intervention.",
+        "segmentation_algorithm_desc": "Classification Algorithm: Dynamic segmentation based on RFM (Recency, Frequency, Monetary) and ERP solvability indices.",
+        "vat_exemption_desc": "Does the customer benefit from a VAT exemption?"
+      },
+      "placeholders": {
+        "interaction_subject": "Precise subject of exchange...",
+        "interaction_details": "Synthetic summary of communication...",
+        "select_partner": "Select a partner",
+        "exchange_subject_example": "Ex: Follow-up order #45...",
+        "discussion_summary": "Summary of discussion and next steps...",
+        "select_invoice": "Select an invoice",
+        "custom_message": "Custom message...",
+        "default_reminder_message": "Hello, Regarding the overdue invoice, please settle.",
+        "report_label_example": "Ex: Q1 2024 Analysis...",
+        "company_name_example": "Ex: SARL Algeria Tech",
+        "nif_digits": "15 or 20 digits",
+        "ai_digits": "11 digits",
+        "rc_format": "Format: 00B1234567",
+        "nis_digits": "15 digits",
+        "exemption_cert_example": "Ex: 1234/2024 from 01/01/2024",
+        "phone_example": "+213...",
+        "full_address": "Full address...",
+        "sector_example": "Ex: Distribution, Construction...",
+        "confidential_notes": "Confidential notes..."
+      },
+      "metrics": {
+        "avg_revenue": "Avg Revenue",
+        "clv_score": "Value Score"
+      },
+      "segment_names": {
+        "vip": "VIP Elite",
+        "strategique": "Strategic Growth",
+        "reguliers": "Standard Portfolio",
+        "occasionnels": "Low Cycle",
+        "a_risque": "Critical Surveillance"
+      },
+      "relance_levels": {
+        "premiere": "1st",
+        "deuxieme": "2nd",
+        "troisieme": "3rd",
+        "mise_en_demeure": "Formal Notice"
+      },
+      "communication_modes": {
+        "email_outgoing": "Outgoing Email",
+        "call_direct": "Direct Call",
+        "meeting_presential": "In-person Session"
+      },
+      "modal": {
+        "add_title": "New Customer",
+        "edit_title": "Edit Customer",
+        "details_title": "Customer Details",
+        "details_title_with_name": "Customer Details - {{name}}",
+        "crm_history": "CRM History",
+        "payment_history": "Payment History",
+        "payment_history_title_with_name": "Payment History - {{name}}",
+        "communication_title_with_name": "Communication - {{name}}",
+        "detail_prefix": "Detail:",
+        "new_crm_interaction": "New CRM Interaction",
+        "new_reminder": "New Reminder",
+        "generate_new_report_title": "Generate New Report",
+        "crm_interactions_recommended_actions": "CRM Interactions - Recommended Actions"
+      },
+      "ca_total": "Total Revenue",
+      "confidence": "Confidence",
+      "confidence_with_level": "Confidence {{level}}",
+      "index_top_20": "Top 20 Index",
+      "risk_impact": "Risk Impact",
+      "risk_levels": {
+        "critical": "Critical",
+        "moderate": "Moderate"
+      },
+      "stability": "Stability",
+      "calculated_over_12_months": "Calculated over 12 months",
+      "trends": {
+        "growth": "growth"
+      },
+      "value_score": "Value Score",
+      "outstanding_overdue": "Overdue Outstanding (Aged Trial Balance)",
+      "total_to_recover": "Total to recover",
+      "litigious_files": "Litigious Files",
+      "action_required": "Action required",
+      "recovery_rate": "Recovery Rate",
+      "performance_month": "Performance (Month)",
+      "recovery_priorities": "Recovery Priorities",
+      "priority": "Priority",
+      "vs_last_audit": "vs last audit",
+      "all_reports": "All reports",
+      "vs_previous_month": "vs previous month",
+      "new_clients_label": "new customers",
+      "per_client": "per customer",
+      "days_overdue": "days overdue",
+      "efficiency_of_reminders_label": "Reminder efficiency:",
+      "avg_payment_delay_after_reminder_label": "Avg payment delay after reminder:",
+      "stars": "stars",
+      "percent_ca": "{{percent}}% Revenue",
+      "percent_base": "{{percent}}% Base",
+      "key_observation_prefix": "Key observation:",
+      "exposure_label": "Exposure:",
+      "index_shorthand": "INDEX",
+      "units_shorthand": "UNITS",
+      "other_partners": "other partners"
+    },
+    "accounting": {
+      "treasury": {
+        "title": "Cash Flow & Treasury",
+        "subtitle": "Liquidity monitoring, bank accounts and AI forecasting.",
+        "tabs": {
+          "dashboard": "Dashboard",
+          "accounts": "Bank Accounts",
+          "checks": "Check Tracking",
+          "cash_flow": "Flow Statement"
+        },
+        "stats": {
+          "available_cash": "Available Liquidity",
+          "monthly_burn": "Monthly Cash Burn",
+          "net_position": "Net Cash Position",
+          "next_forecast": "30-Day Forecast"
+        },
+        "accounts_table": {
+          "bank_name": "Bank",
+          "account_number": "Account Number",
+          "balance": "Balance",
+          "status": "Status",
+          "last_sync": "Last Sync"
+        },
+        "forecast": {
+          "title": "Predictive Cash Flow",
+          "inflow": "Projected Inflow",
+          "outflow": "Projected Outflow",
+          "net": "Net Forecast"
+        },
+        "reconciliation": {
+          "title": "Bank Reconciliation",
+          "subtitle": "Match your accounting entries with your bank statements.",
+          "kpis": {
+            "total_lines": "Total Lines",
+            "lines_imported": "Lines imported",
+            "matched": "Reconciled",
+            "matches": "Matches found",
+            "unmatched": "Unmatched",
+            "to_process": "Lines to process",
+            "reconciliation_rate": "Reconciliation rate",
+            "progression": "Global progress",
+            "discrepancies": "Discrepancies / Disputes",
+            "disputes": "Lines in dispute"
+          },
+          "tabs": {
+            "import": "Statement Import",
+            "reconciliation": "Reconciliation",
+            "discrepancies": "Discrepancies",
+            "history": "History"
+          },
+          "import": {
+            "title": "Statement Import",
+            "action": "Import new statement"
+          },
+          "details": {
+            "account": "Account",
+            "period": "Period",
+            "lines": "Nb Lines",
+            "reconciliation": "Reconciliation",
+            "format": "Format",
+            "view_details": "View details"
+          },
+          "status": {
+            "rapproche": "Reconciled",
+            "en_cours": "In Progress",
+            "importe": "Imported",
+            "non_rapproche": "Not Reconciled",
+            "en_attente": "Pending"
+          },
+          "reconciliation": {
+            "filters": "Filters",
+            "automate": "Run AI Auto-Match",
+            "auto_running": "AI Algorithm running...",
+            "unmatched_lines": "Unmatched statement lines",
+            "unmatched_entries": "Unmatched accounting entries",
+            "search_match": "Search match",
+            "found_matches": "AI Detected Matches"
+          },
+          "table": {
+            "bank_line": "Bank Line",
+            "accounting_entry": "Accounting Entry",
+            "amount": "Amount",
+            "method": "Method",
+            "confidence": "Confidence",
+            "actions": "Actions",
+            "reference": "Reference",
+            "date": "Date"
+          },
+          "modals": {
+            "close": "Close",
+            "export": "Export",
+            "tolerance_montant": "Amount tolerance",
+            "tolerance_montant_desc": "Maximum difference accepted for auto-matching",
+            "tolerance_date": "Date tolerance (days)",
+            "tolerance_date_desc": "Maximum day gap accepted between operation and entry",
+            "matching_methods": "Active matching methods",
+            "method_exact": "Exact amount & Close date",
+            "method_date": "Exact date",
+            "method_ref": "Reference / Check No.",
+            "method_label": "Label keywords",
+            "statement_title": "Statement Details {{numero}}",
+            "statement_details": "Bank Statement Details",
+            "solde_debut": "Opening balance",
+            "solde_fin": "Closing balance",
+            "statement_lines": "Statement lines"
+          }
+        }
+      },
+      "fiscal": {
+        "title": "Fiscality & Compliance",
+        "subtitle": "Tax management, VAT tracking and AI auditing.",
+        "stats": {
+          "vat_to_pay": "VAT to Pay",
+          "ibs_provision": "IBS Provision",
+          "fiscal_risk": "Fiscal Risk Score"
+        },
+        "rates": {
+          "tva": "VAT",
+          "tap": "TAP",
+          "ibs": "IBS",
+          "irg": "IRG"
+        },
+        "alerts": {
+          "high_risk": "High Fiscal Deviation",
+          "pending_filing": "Pending Tax Declaration"
+        },
+        "documents": {
+          "title": "Fiscal Documents & Filing",
+          "subtitle": "Management of tax obligations for {{country}}",
+          "frequencies": {
+            "mensuel": "Monthly",
+            "trimestriel": "Quarterly",
+            "annuel": "Annual",
+            "ponctuel": "One-off"
+          },
+          "filters": {
+            "category": "Category",
+            "all_categories": "All categories",
+            "frequency": "Frequency",
+            "all_frequencies": "All frequencies",
+            "country": "Tax Jurisdiction"
+          },
+          "categories": {
+            "declaration": "Filing",
+            "attestation": "Attestation",
+            "bilan": "Balance Sheet/Filing",
+            "formulaire": "Form",
+            "certificat": "Certificate"
+          },
+          "details": {
+            "required": "Required",
+            "deadline": "Deadline",
+            "business_type": {
+              "both": "All types",
+              "entreprise": "Company",
+              "particulier": "Individual"
+            }
+          },
+          "actions": {
+            "create": "Generate",
+            "cancel": "Cancel",
+            "submit": "Submit / Validate"
+          },
+          "table": {
+            "created_title": "Recent Documents & Archives",
+            "document": "Document",
+            "date": "Creation Date",
+            "statut": "Status",
+            "actions": "Actions"
+          },
+          "status": {
+            "brouillon": "Draft",
+            "soumis": "Submitted",
+            "valide": "Validated",
+            "rejete": "Rejected"
+          }
+        }
+      },
+      "reports": {
+        "title": "Financial Reports",
+        "subtitle": "Balance sheets, P&L and accounting statements.",
+        "tabs": {
+          "bilan": "Balance Sheet",
+          "resultat": "Income Statement (P&L)",
+          "flux": "Cash Flow Statement",
+          "balance": "General Balance",
+          "grand_livre": "General Ledger"
+        },
+        "bilan": {
+          "actif": "Assets",
+          "passif": "Liabilities & Equity",
+          "total_da": "Total (DA)",
+          "actif_immobilise": "Fixed Assets",
+          "subtotal_immobilise": "Subtotal Fixed Assets",
+          "actif_circulant": "Current Assets",
+          "subtotal_circulant": "Subtotal Current Assets",
+          "total_actif": "Total Assets",
+          "capitaux_propres": "Equity",
+          "subtotal_capitaux": "Subtotal Equity",
+          "dettes_engagements": "Liabilities",
+          "subtotal_dettes": "Subtotal Liabilities",
+          "total_passif": "Total Liabilities & Equity"
+        },
+        "resultat": {
+          "title": "Income Statement",
+          "charges_exploitation": "Operating Expenses",
+          "total_charges": "Total Expenses",
+          "produits_exploitation": "Operating Revenue",
+          "total_produits": "Total Revenue",
+          "net_result": "Net Income",
+          "net_margin": "Net Margin"
+        },
+        "flux": {
+          "title": "Cash Flow Statement",
+          "method_indirect": "Indirect Method — Period: {{period}}",
+          "activity": "Operating Activities",
+          "net_op_flow": "Net Cash from Operations",
+          "investment": "Investing Activities",
+          "net_inv_flow": "Net Cash from Investing",
+          "financing": "Financing Activities"
+        },
+        "balance": {
+          "title": "General Balance",
+          "balanced": "✓ Balanced",
+          "unbalanced": "⚠ Unbalanced",
+          "account": "Account",
+          "label": "Description",
+          "debit": "Debit",
+          "credit": "Credit",
+          "total_general": "Grand Total"
+        },
+        "official_report": "Official Financial Statement",
+        "disclaimer": "This document is an official accounting statement compliant with Algerian accounting standards.",
+        "ratios": {
+          "title": "Key Financial Ratios",
+          "current_liquidity": "Current Ratio",
+          "financial_autonomy": "Financial Autonomy",
+          "added_value": "Added Value"
+        },
+        "actions": {
+          "graphical_analysis": "Graphical Analysis"
+        }
+      },
+      "ledger": {
+        "title": "Chart of Accounts",
+        "subtitle": "Manage your accounts structure and track accounting balances.",
+        "actions": {
+          "new_account": "New Account",
+          "create_account": "Create Account",
+          "cancel": "Cancel"
+        },
+        "stats": {
+          "total_assets": "Total Assets",
+          "total_liabilities": "Total Liabilities",
+          "total_products": "Total Revenue",
+          "total_charges": "Total Expenses"
+        },
+        "filters": {
+          "search_placeholder": "Search by code or label...",
+          "all_types": "All Types"
+        },
+        "types": {
+          "actif": "Asset",
+          "passif": "Liability",
+          "produit": "Revenue",
+          "charge": "Expense"
+        },
+        "modal": {
+          "add_title": "Add New Account",
+          "code_label": "Account Code",
+          "code_placeholder": "Ex: 411001",
+          "name_label": "Account Label",
+          "name_placeholder": "Ex: General Customers",
+          "type_label": "Account Type"
+        },
+        "accounts": {
+          "fixed_assets": "Fixed assets",
+          "inventory": "Merchandise inventory",
+          "customers": "Customers",
+          "bank": "Bank",
+          "cash": "Cash",
+          "equity": "Social capital",
+          "net_result": "Net result",
+          "sales": "Sales",
+          "purchases": "Purchases",
+          "depreciation": "Depreciation and amortization",
+          "ibs": "Corporate Income Tax (CIT/IBS)"
+        }
+      },
+      "scf_names": {
+        "immobilisations": "FIXED ASSETS",
+        "terrains": "Land",
+        "constructions": "Buildings",
+        "autres_immo": "Other fixed assets",
+        "creances": "RECEIVABLES",
+        "clients": "Customers",
+        "clients_douteux": "Doubtful customers",
+        "personnel": "Staff",
+        "dispo_fin": "FINANCIAL DISPOSITIONS",
+        "banque": "Bank",
+        "caisse": "Cash",
+        "valeurs_mob": "Securities",
+        "capitaux_propres": "EQUITY",
+        "capital_social": "Social capital",
+        "reserves": "Reserves",
+        "resultat_exercice": "Net result",
+        "dettes": "LIABILITIES",
+        "fournisseurs": "Suppliers",
+        "etat": "State",
+        "ventes": "SALES",
+        "ventes_produits": "Product sales",
+        "services": "Services",
+        "produits_vendus": "Goods sold",
+        "achats": "PURCHASES",
+        "achats_stock": "Stock purchases",
+        "fournitures": "Supplies",
+        "transport": "Transport"
+      }
+    }
+  },
+  "inventory": {
+    "title": "Inventory Management",
+    "subtitle": "Stock tracking, movements, and reordering",
+    "tabs": {
+      "stock": "Stock Status",
+      "movements": "Stock Movements",
+      "alerts": "Alerts & Shortages",
+      "reordering": "Reordering",
+      "barcode": "Barcodes",
+      "reports": "Reports & Analytics"
+    },
+    "stats": {
+      "refs": "References",
+      "total_units": "Total Units",
+      "total_value": "Stock Value",
+      "available": "Available",
+      "to_reorder": "To Reorder",
+      "units": "units"
+    },
+    "sections": {
+      "category_distribution": "Distribution by Category",
+      "alerts_title": "Active Alerts",
+      "quick_actions": "Quick Actions",
+      "stock_detail": "Actual Stock Details",
+      "stock_detail_subtitle": "{{count}} references filtered and ready for analysis",
+      "movements_history": "Movement History"
+    },
+    "actions": {
+      "start_inventory": "Start Physical Inventory",
+      "full_report": "Full Report",
+      "physical_inventory": "Physical Inventory",
+      "reordering": "Reordering",
+      "export": "Export List",
+      "print": "Print Status",
+      "reset": "Reset Filters",
+      "view_details": "View Details",
+      "edit": "Edit Article",
+      "order": "Order",
+      "generate": "Generate Barcode",
+      "new_report": "New Report",
+      "order_all": "Order All",
+      "print_barcode": "Print Barcodes"
+    },
+    "filters": {
+      "search_placeholder": "Search an article (name, PCA code...)",
+      "all_categories": "All Categories",
+      "all_statuses": "All Statuses",
+      "status_normal": "Normal Stock",
+      "status_low": "Low Stock",
+      "status_critical": "Critical Stock",
+      "sort_nom": "Article Name",
+      "sort_stock": "Stock Level",
+      "sort_valeur": "Market Value"
+    },
+    "table": {
+      "article": "Article",
+      "pca_code": "PCA Code",
+      "quantity": "Quantity",
+      "pu": "Unit Price",
+      "total_value": "Total Value",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "normal": "NORMAL",
+      "low": "LOW",
+      "critical": "CRITICAL",
+      "available": "Available",
+      "to_reorder": "To Reorder",
+      "in_transit": "In Transit"
+    },
+    "movements": {
+      "title": "Stock Flow",
+      "subtitle": "Detailed tracking of ins, outs, and adjustments",
+      "in": "Incoming",
+      "out": "Outgoing",
+      "adjustment": "Adjustments",
+      "history": "Movement History",
+      "date": "Date and Time",
+      "ref": "Reference",
+      "provider": "Supplier",
+      "client": "Customer",
+      "responsible": "Responsible",
+      "reason": "Reason",
+      "unit_val": "Unit Value",
+      "units_month": "units this month",
+      "transactions": "Transactions",
+      "reasons": {
+        "receipt": "Order Receipt",
+        "sale": "Customer Sale",
+        "inventory_gap": "Physical Inventory - Gap detected",
+        "return": "Customer Return - Non-compliant product",
+        "online_order": "Online Order",
+        "urgent_receipt": "Urgent Order Receipt",
+        "correction": "Entry Error Correction",
+        "bulk_sale": "Corporate Bulk Sale"
+      }
+    },
+    "reordering": {
+      "title": "Intelligent Suggestions",
+      "subtitle": "Optimize your orders and avoid stock shortages",
+      "suggestions": "Reordering Suggestions",
+      "high_urgency": "High Urgency",
+      "medium_urgency": "Medium Urgency",
+      "low_urgency": "Low Urgency",
+      "suggested_order": "Suggested Quantity",
+      "stock_min": "Min Stock",
+      "stock_optimal": "Optimal Stock",
+      "lead_time": "Lead Time",
+      "est_cost": "Estimated Cost",
+      "last_purchase": "Last Purchase",
+      "critical_articles": "critical articles",
+      "to_watch": "to watch",
+      "total_orders": "total orders",
+      "no_reorder_suggestion": "No article to reorder",
+      "opt_level_msg": "All your stocks are at an optimal level!",
+      "optimize_desc": "Optimize your orders to avoid stock shortages.",
+      "turnover": "Stock Turnover"
+    },
+    "barcode": {
+      "title": "Barcode Generator",
+      "subtitle": "Print your labels and sync your stocks by scan",
+      "scanned": "Scans this month",
+      "generated": "Labels generated",
+      "missing": "Missing barcodes",
+      "to_generate": "to generate",
+      "recent_articles": "Recent Articles without Code"
+    },
+    "reports": {
+      "title": "Reports & Stock Intelligence",
+      "subtitle": "ABC analyses, valuation and turnover forecasts",
+      "full_stock": "Full Stock Status",
+      "monthly_moves": "Monthly Movements",
+      "stock_valuation": "Asset Valuation",
+      "alert_summary": "Alerts Summary",
+      "rotation_rate": "Turnover Rate",
+      "abc_analysis": "ABC Classification"
+    },
+    "alerts_msg": {
+      "low_stock_msg": "{{count}} articles with low stock",
+      "out_of_stock_msg": "{{count}} articles completely out of stock",
+      "expiring_msg": "{{count}} articles expiring soon",
+      "overstock_msg": "{{count}} articles in overstock"
+    },
+    "messages": {
+      "no_article_found": "No article found",
+      "search_crit_desc": "Try modifying your search criteria or resetting filters."
+    },
+    "consolidation": {
+      "title": "Financial Consolidation",
+      "subtitle": "Multi-subsidiary aggregation, intercompany eliminations and consolidated statements.",
+      "is_consolidating": "Consolidating...",
+      "tabs": {
+        "overview": "Overview",
+        "intercompany": "Intercompany Flows",
+        "financial_statements": "Consolidated Statements",
+        "reports": "Reports & Audit",
+        "analytics": "AI Analytics"
+      },
+      "stats": {
+        "total_revenue": "Consolidated Revenue",
+        "net_income": "Net Income",
+        "total_cash": "Group Cash",
+        "total_assets": "Total Assets",
+        "growth": "Group Growth",
+        "risk_score": "Risk Score",
+        "companies": "Subsidiaries",
+        "total_ca": "Global Revenue",
+        "total_profit": "Group Net Margin",
+        "total_active": "Total Assets"
+      },
+      "actions": {
+        "run_consolidation": "Run Consolidation",
+        "config": "Group Config",
+        "export_pdf": "Export PDF",
+        "export_excel": "Export Excel",
+        "print": "Print Statements",
+        "add_company": "Add Subsidiary",
+        "manage_currencies": "Manage Currencies",
+        "add": "Add",
+        "currencies": "Currencies"
+      },
+      "intercompany": {
+        "title": "Intercompany Transactions",
+        "subtitle": "Automatic detection and elimination of internal flows",
+        "detected": "Flows detected",
+        "to_eliminate": "To eliminate",
+        "eliminated": "Eliminated",
+        "table": {
+          "from": "Issuer",
+          "to": "Receiver",
+          "type": "Flow Type",
+          "amount": "Amount (DZD)",
+          "status": "Status",
+          "action": "Action"
+        }
+      },
+      "statements": {
+        "balance_sheet": "Consolidated Balance Sheet",
+        "income_statement": "Consolidated Income Statement",
+        "notes": "Consolidated Notes",
+        "assets": "Group Assets",
+        "liabilities": "Equity & Liabilities"
+      },
+      "search_placeholder": "Filter entities or transactions...",
+      "period": "Period",
+      "currency": "Currency",
+      "progress": "Consolidation progress",
+      "filters": {
+        "all": "All subsidiaries",
+        "active": "Active only",
+        "inactive": "Inactive only",
+        "consolidated": "Already consolidated",
+        "pending": "Pending"
+      },
+      "placeholders": {
+        "search": "Search a subsidiary or country..."
+      }
+    },
+    "admin": {
+      "title": "System Administration",
+      "subtitle": "Access Control",
+      "actions": {
+        "new_user": "New User",
+        "create_account": "Create Account",
+        "save_changes": "Save Changes",
+        "cancel": "Cancel",
+        "delete": "Deactivate",
+        "edit": "Edit",
+        "confirm": "Confirm"
+      },
+      "users": {
+        "anniversary": "Personnel Directory",
+        "manage_access": "Manage access and privileges",
+        "user_count": "Users",
+        "inactif": "Inactive",
+        "perms_count": "+{{count}} Perms",
+        "loading": "Loading personnel...",
+        "delete_confirm_title": "Deactivate access?",
+        "delete_confirm_desc": "This action will immediately revoke all user access to the Dinarlytic system."
+      },
+      "form": {
+        "new_member": "New Member",
+        "edit_profile": "Edit Profile",
+        "config_account": "Account Configuration",
+        "identity": "Identity & Login",
+        "first_name": "First Name",
+        "last_name": "Last Name",
+        "email": "Business Email",
+        "username": "Username",
+        "password": "Temporary Password",
+        "main_role": "Main Role",
+        "additional_rights": "Additional access rights",
+        "errors": {
+          "system_error": "System Error",
+          "load_failed": "Error loading users",
+          "fill_fields": "Please fill in all required fields",
+          "save_failed": "Error during saving",
+          "delete_failed": "Error during deactivation"
+        }
+      }
+    },
+    "settings": {
+      "title": "Company Management",
+      "subtitle": "Manage your information and configurations",
+      "multi_company": {
+        "title": "Multi-Company Management",
+        "subtitle": "Manage multiple companies in a single interface",
+        "active_company": "Active company: {{name}}",
+        "none": "None",
+        "stats": {
+          "total": "Total Companies",
+          "active": "Active",
+          "users": "Users",
+          "currencies": "Currencies"
+        },
+        "tabs": {
+          "list": "Company List",
+          "currencies": "Currencies & Rates",
+          "permissions": "Permissions"
+        },
+        "actions": {
+          "new": "New Company",
+          "switch": "Switch Company",
+          "search_placeholder": "Search for a company..."
+        },
+        "card": {
+          "status": {
+            "active": "Active",
+            "inactive": "Inactive"
+          },
+          "details": {
+            "siret": "SIRET:",
+            "plan": "Accounting Plan:",
+            "users": "Users:",
+            "last_activity": "Last activity:"
+          }
+        }
+      },
+      "company_form": {
+        "title_new": "New Company",
+        "info_general": "General Information",
+        "info_general_desc": "Enter basic company information",
+        "labels": {
+          "name": "Company Name",
+          "raison_sociale": "Legal Entity Type",
+          "siret": "SIRET",
+          "tva": "VAT Number",
+          "address": "Address",
+          "city": "City",
+          "zip": "Zip Code",
+          "country": "Country",
+          "phone": "Phone",
+          "email": "Email",
+          "website": "Website",
+          "currency": "Currency",
+          "accounting_plan": "Accounting Plan",
+          "description": "Description"
+        },
+        "placeholders": {
+          "name": "Enter company name",
+          "raison_sociale": "Enter legal entity type",
+          "siret": "12345678901234",
+          "tva": "DZ123456789",
+          "email": "contact@company.dz",
+          "phone": "+213 21 00 00 00"
+        },
+        "errors": {
+          "name_required": "Company name is required",
+          "raison_required": "Legal entity type is required",
+          "siret_required": "SIRET number is required",
+          "siret_format": "SIRET must contain 14 digits",
+          "email_required": "Email is required",
+          "email_format": "Invalid email format",
+          "phone_required": "Phone is required",
+          "address_required": "Address is required",
+          "city_required": "City is required",
+          "zip_required": "Zip code is required"
+        },
+        "success": "Company created successfully!"
+      }
+    },
+    "analytics": {
+      "financial": {
+        "title": "Financial Analysis",
+        "subtitle": "In-depth analysis of profitability and financial performance",
+        "ratios": {
+          "key_title": "Key Financial Ratios",
+          "advanced_title": "Advanced Ratios",
+          "dso": "DSO",
+          "dio": "DIO",
+          "dpo": "DPO",
+          "ccc": "CCC",
+          "liquidity": "Current Ratio",
+          "margin": "Margin",
+          "roe": "ROE",
+          "roa": "ROA",
+          "ebitda": "EBITDA %",
+          "net_debt": "Net Debt/EBITDA",
+          "interest_coverage": "Interest Coverage",
+          "autonomy": "Financial Autonomy",
+          "solvency": "Solvency (Assets/Debt)",
+          "quick_liquidity": "Quick Ratio",
+          "days": "d",
+          "multiplier": "x"
+        },
+        "alerts": {
+          "title": "Smart Financial Alerts",
+          "score": "Score: {{score}}/100 - {{status}}",
+          "none": "No major alerts. All indicators are within standards.",
+          "priority": "Priority:",
+          "recommendations": "Recommendations:",
+          "categories": {
+            "liquidity": "liquidity",
+            "profitability": "profitability"
+          }
+        },
+        "breakeven": {
+          "title": "Breakeven Point",
+          "status_reached": "Reached",
+          "calc_title": "📊 Breakeven Calculation",
+          "fixed_costs": "Fixed Costs",
+          "margin_rate": "Margin Rate",
+          "breakeven_point": "Breakeven Revenue",
+          "safety_margin": "Safety Margin",
+          "dead_point": "Dead Point",
+          "days": "days",
+          "currency_symbol": "DZD",
+          "brute_margin": "Gross Margin"
+        },
+        "simulation": {
+          "title": "📈 What-If Simulation",
+          "revenue_var": "If Revenue {{var}}%",
+          "operating_leverage": "Operating Leverage",
+          "leverage_desc": "+10% Revenue → +28% result"
+        },
+        "sector": {
+          "title": "Sector Comparison",
+          "global_score": "Global Score",
+          "status": "Ranking:",
+          "strengths": "Strengths:",
+          "weaknesses": "Points to Improve:"
+        },
+        "actions": {
+          "simulate": "Simulate Scenario",
+          "projections": "View Forecasts"
+        }
+      },
+      "kpis": {
+        "title": "Advanced Financial Analysis",
+        "subtitle": "KPIs, financial ratios and performance indicators",
+        "tabs": {
+          "all": "All KPIs",
+          "rentability": "Profitability",
+          "liquidity": "Liquidity",
+          "leverage": "Leverage",
+          "efficiency": "Efficiency"
+        },
+        "actions": {
+          "refresh": "Auto-refresh",
+          "report": "Generate Report"
+        },
+        "sections": {
+          "main": "🎯 Main Financial KPIs",
+          "revenue": "📈 Revenue Evolution",
+          "profitability": "💰 Profitability Analysis",
+          "accounting": "📚 Accounting Indicators",
+          "advanced": "🔍 Advanced Financial Ratios",
+          "alerts": "⚠️ Alerts and Recommendations"
+        },
+        "benchmarks": {
+          "label": "Benchmark:",
+          "target": "Target:",
+          "realized": "Realized"
+        }
+      }
+    }
+  }
+}
