@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { BanknotesIcon, TrendingUpIcon, ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, ArrowTrendingUpIcon as TrendingUpIcon, ArrowDownIcon, ArrowUpIcon } from '@heroicons/react/24/outline';
 
 interface TresorerieData {
   soldeActuel: number;

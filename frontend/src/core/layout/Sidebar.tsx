@@ -204,7 +204,7 @@ const Sidebar: React.FC = () => {
                   Dinarlytic
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
-                  ERP Financier
+                  {t('common.erp_tagline')}
                 </span>
               </div>
             )}
@@ -229,7 +229,7 @@ const Sidebar: React.FC = () => {
                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
                 : 'bg-blue-50 text-blue-700 border border-blue-100'
                 }`}>
-                {planComptable === 'algerien' ? 'DZ PCA 2010' : 'INT IFRS'}
+                {planComptable === 'algerien' ? t('common.pca_badge') : t('common.ifrs_badge')}
               </span>
             </div>
           </div>

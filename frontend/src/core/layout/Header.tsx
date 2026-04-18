@@ -9,7 +9,7 @@ import { LanguageSwitcher } from '@shared/components/UI/LanguageSwitcher';
 const Header: React.FC = () => {
   const { user, currentDevise, setCurrentDevise, setMobileMenuOpen } = useApp();
 
-  const { currentLang, changeLang } = useTranslation();
+  const { t, currentLang, changeLang } = useTranslation();
 
   const handleLogout = () => {
     // Fonction de déconnexion

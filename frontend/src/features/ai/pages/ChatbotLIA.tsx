@@ -7,9 +7,12 @@ import {
   ArrowDownTrayIcon,
   ClipboardDocumentCheckIcon,
   ClockIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import aiService from '@features/ai/services/aiService';
 import { computeRatios } from '@shared/utils/ratios';
 import { getBenchmarks } from '@shared/utils/benchmarks';
@@ -55,6 +58,20 @@ interface ActionItem {
   updatedAt: string; // ISO
 }
 
+// Helper to render basic markdown (bold)
+const parseMarkdown = (text: string) => {
+  if (!text) return text;
+  
+  // Handle **bold**
+  const points = text.split(/(\*\*.*?\*\*)/g);
+  return points.map((point, i) => {
+    if (point.startsWith('**') && point.endsWith('**')) {
+      return <strong key={i} className="font-bold">{point.slice(2, -2)}</strong>;
+    }
+    return point;
+  });
+};
+
 const ChatbotLIA: React.FC = () => {
   const { user, companyData, formatCurrency, currentDevise, currentCountry, planComptable, currentLang } = useApp();
   const { t } = useTranslation();
@@ -88,19 +105,21 @@ const ChatbotLIA: React.FC = () => {
 
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // Personalized dynamic greeting
+  // Personalized dynamic greeting using i18n
   useEffect(() => {
     if (user) {
       const roleDisplay = user.role_display || user.role || 'Utilisateur';
-
-      let greeting = '';
-      if (currentLang === 'ar') {
-        greeting = `مرحباً ${user.prenom || ''} ${user.nom || ''}. أنا LIA، مساعدتك للذكاء الاصطناعي.\n\nبصفتك **${roleDisplay}**، أنا مستعدة لمرافقتك في التسيير الاستراتيجي لـ **${user.companyName || 'مؤسستك'}**.\n\nإليك كيف يمكنني مساعدتك اليوم:\n• **التحليل التوقعي**: توقعات التدفق النقدي ورقم الأعمال.\n• **المحاكاة الاستراتيجية**: سيناريوهات متفائلة / واقعية / متشائمة.\n• **تحسين الأداء**: تحليل مالي كامل لدورة التحويل الخاصة بك.\n\nأي جانب من جوانب أدائك تود تدقيقه؟`;
-      } else if (currentLang === 'en') {
-        greeting = `Hello ${user.prenom || ''} ${user.nom || ''}. I am LIA, your Strategic Intelligence Assistant.\n\nAs a **${roleDisplay}**, I am ready to support you in the strategic management of **${user.companyName || 'your organization'}**.\n\nHere is how I can assist you today:\n• **Predictive Analysis**: 13-week cash flow and 12-month revenue projections.\n• **Strategic Simulations**: Optimistic / Realistic / Pessimistic scenarios.\n• **Performance Hub**: Full financial analysis of your conversion cycle (CCC/BFR).\n\nWhich aspect of your performance would you like to audit?`;
-      } else {
-        greeting = `Bonjour ${user.prenom || ''} ${user.nom || ''}. Je suis LIA, votre assistante d'intelligence décisionnelle.\n\nEn tant que **${roleDisplay}**, je suis prête à vous accompagner dans le pilotage stratégique de **${user.companyName || 'votre entreprise'}**.\n\nVoici comment je peux vous assister aujourd'hui :\n• **Analyse Prédictive** : Projections de trésorerie à 13 semaines et CA à 12 mois.\n• **Simulations Stratégiques** : Scénarios Optimiste / Réaliste / Pessimiste.\n• **Optimisation Opérationnelle** : Détection de patterns saisonniers et scoring de risque.\n• **Pilotage de la Performance** : Analyse financière complète de votre cycle de conversion (CCC/BFR).\n\nQuel aspect de votre performance souhaitez-vous auditer ?`;
-      }
+      
+      const greeting = t('chatbot.welcome', { name: `${user.prenom || ''} ${user.nom || ''}` }) + 
+        '\n\n' + 
+        t('chatbot.role_context', { role: roleDisplay }) + 
+        '\n\n' + 
+        t('chatbot.capabilities_intro') + 
+        '\n• ' + t('chatbot.capabilities.predictive') +
+        '\n• ' + t('chatbot.capabilities.simulations') +
+        '\n• ' + t('chatbot.capabilities.optimization') +
+        '\n• ' + t('chatbot.capabilities.performance') +
+        '\n\n' + t('chatbot.question');
 
       const initialSuggestions = getRoleSuggestions(user.role);
 
@@ -121,18 +140,23 @@ const ChatbotLIA: React.FC = () => {
     const r = role?.toLowerCase() || '';
     const isExec = r === 'dg' || r === 'gerant' || r === 'admin' || r.includes('director') || r.includes('ceo');
     const isFinance = r === 'daf' || r.includes('comptable') || r === 'tresorier' || r === 'cfo';
-    const isOps = r.includes('manager') || r === 'commercial' || r === 'vendeur';
-
+    
+    // Industrial grade mapping from translation.json
     if (isExec) {
-      return (currentLang === 'ar' ? ['ملخص استراتيجي للمجموعة', 'تحليل الأداء القطاعي', 'سيناريوهات النمو M+6', 'تقرير المخاطر العالمي'] : currentLang === 'en' ? ['Group strategic summary', 'Sector performance analysis', 'M+6 growth scenarios', 'Global risk report'] : ['Synthèse stratégique du groupe', 'Analyse de performance sectorielle', 'Scénarios de croissance M+6', 'Rapport de risque global']);
+      return [
+        t('chatbot.quick_actions.synthesis'),
+        t('chatbot.quick_actions.sector_analysis'),
+        t('chatbot.quick_actions.growth_scenarios'),
+        t('chatbot.quick_actions.risk_report')
+      ];
     }
-    if (isFinance) {
-      return (currentLang === 'ar' ? ['تحليل دورة النقد (CCC)', 'توقعات التدفق النقدي', 'تحسين رأس المال العامل', 'تدقيق التنبيهات'] : currentLang === 'en' ? ['Cash cycle analysis (CCC)', 'Cash-flow forecasts (13 wk)', 'WCR optimization', 'Flow anomaly audit'] : ['Analyse du cycle de trésorerie (CCC)', 'Prévisions de cash-flow (13 sem)', 'Optimisation du BFR', 'Audit des anomalies de flux']);
-    }
-    if (isOps) {
-      return (currentLang === 'ar' ? ['الأداء العملياتي للوحدة', 'تحسين المخزون (DIO)', 'متابعة التحصيل (DSO)', 'خطة عمل ذات أولوية'] : currentLang === 'en' ? ['Unit operational performance', 'Stock optimization (DIO)', 'Collection follow-up (DSO)', 'Prioritized action plan'] : ['Performance opérationnelle de l\'unité', 'Optimisation des stocks (DIO)', 'Suivi du recouvrement (DSO)', 'Plan d\'actions priorisé']);
-    }
-    return (currentLang === 'ar' ? ['تحليل مالي كامل', 'توقعات التدفق النقدي', 'سيناريوهات توقعية'] : currentLang === 'en' ? ['Full financial analysis', 'Cash flow forecasts', 'Predictive scenarios'] : ['Analyse financière complète', 'Prévisions de trésorerie', 'Scénarios prédictifs']);
+    
+    // Default or other roles
+    return [
+      t('chatbot.quick_actions.synthesis'),
+      t('chatbot.quick_actions.growth_scenarios'),
+      t('chatbot.quick_actions.risk_report')
+    ];
   };
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -1433,10 +1457,10 @@ const ChatbotLIA: React.FC = () => {
       const isEvening = hour >= 18;
 
       const contextualRecos = [
-        isMorning ? '🌅 Bon matin ! C\'est le moment idéal pour planifier votre journée financière.' : '',
-        isEvening ? '🌆 En fin de journée, pensez à faire un point sur les encaissements de la journée.' : '',
-        isWeekend ? '📅 Week-end: moment propice pour analyser les performances de la semaine.' : '',
-        `⏰ Il est ${hour}h${new Date().getMinutes().toString().padStart(2, '0')} — ${isMorning ? 'début' : isEvening ? 'fin' : 'milieu'} de journée.`,
+        isMorning ? ' Bon matin ! C\'est le moment idéal pour planifier votre journée financière.' : '',
+        isEvening ? ' En fin de journée, pensez à faire un point sur les encaissements de la journée.' : '',
+        isWeekend ? ' Week-end: moment propice pour analyser les performances de la semaine.' : '',
+        ` Il est ${hour}h${new Date().getMinutes().toString().padStart(2, '0')} — ${isMorning ? 'début' : isEvening ? 'fin' : 'milieu'} de journée.`,
         '',
         'Recommandations contextuelles:',
         '• Vérifier les paiements en attente',
@@ -1618,14 +1642,18 @@ const ChatbotLIA: React.FC = () => {
               <div className="w-12 h-12 bg-gradient-to-br from-slate-700 via-slate-800 to-black rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3 hover:rotate-0 transition-transform duration-300">
                 <SparklesIcon className="h-7 w-7 text-indigo-300" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm"
+              ></motion.div>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-slate-900 tracking-tight">{t('chatbot.title')}</h1>
-                <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-slate-900 text-white rounded-md">AI v2.0</span>
+                <span className="px-2 py-0.5 text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100/50">LIA AI</span>
               </div>
-              <p className="text-xs font-semibold text-slate-500 tracking-wide uppercase">{t('chatbot.subtitle')}</p>
+              <p className="text-[10px] font-black text-slate-400 tracking-widest uppercase">{t('chatbot.subtitle')}</p>
             </div>
           </div>
           <div className="hidden md:flex items-center space-x-3">
@@ -1669,80 +1697,170 @@ const ChatbotLIA: React.FC = () => {
       </div>
 
       {/* Zone de messages */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 bg-gradient-to-b from-[#f8fafc] to-white">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 bg-gradient-to-b from-[#f8fafc] to-white scrollbar-hide">
         <div className="max-w-4xl mx-auto w-full space-y-8 pb-10">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex opacity-0 animate-[fadeIn_0.5s_ease-out_forwards] ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`group max-w-[85%] md:max-w-2xl px-6 py-5 rounded-[2rem] transition-all duration-300 ${message.type === 'user'
-                  ? 'bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-xl shadow-slate-200 rounded-tr-none'
-                  : 'bg-white text-slate-900 border border-slate-200/60 shadow-lg shadow-slate-100 rounded-tl-none border-b-4 border-b-slate-100 hover:border-b-indigo-200'
-                  }`}
+          <AnimatePresence initial={false}>
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.19, 1, 0.22, 1] }}
+                className={`flex w-full ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.type === 'lia' && (
-                  <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center shadow-md">
-                        <SparklesIcon className="h-4 w-4 text-indigo-300" />
+                <div
+                  className={`relative group transition-all duration-500 ${
+                    message.type === 'user'
+                      ? 'max-w-[80%] bg-slate-900 text-white px-6 py-4 rounded-3xl rounded-tr-none shadow-xl border border-white/10'
+                      : 'w-full max-w-4xl bg-white border border-slate-200/60 rounded-[2rem] rounded-tl-none shadow-[0_20px_50px_-12px_rgba(0,0,0,0.05)] overflow-hidden'
+                  }`}
+                >
+                  {message.type === 'lia' && (
+                    <div className="bg-slate-50/50 px-8 py-5 border-b border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-lg transform -rotate-3 group-hover:rotate-0 transition-transform">
+                          <SparklesIcon className="h-5 w-5 text-indigo-400" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase leading-none mb-1">
+                            Decision Intelligence Unit
+                          </p>
+                          <h2 className="text-sm font-bold text-slate-900">LIA — Strategic Assistant</h2>
+                        </div>
                       </div>
-                      <span className="text-xs font-bold text-slate-800 tracking-widest uppercase">{t('chatbot.title')}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Session ID: 0x{message.id.slice(-4)}</span>
+                      </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-400">{t('chatbot.active_session')}</span>
+                  )}
+
+                  <div className={`px-8 py-6 ${message.type === 'user' ? 'px-6 py-4' : ''}`}>
+                    {/* Gestion du rendu structuré pour LIA */}
+                    {message.type === 'lia' ? (
+                      <div className="space-y-6">
+                        {/* On splitte le contenu pour extraire les puces et les styliser en cartes */}
+                        <div className="text-slate-800 text-[16px] leading-relaxed font-medium">
+                          {parseMarkdown(message.content.split('\n\n')[0])}
+                          {message.content.split('\n\n')[1] && (
+                            <div className="mt-2 text-slate-500 font-normal">
+                              {parseMarkdown(message.content.split('\n\n')[1])}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Détection et rendu des cartes de capacités (Grid) */}
+                        {message.content.includes('•') && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                            {message.content.split('\n')
+                              .filter(line => line.includes('•'))
+                              .map((capability, idx) => {
+                                const [title, desc] = capability.replace('• ', '').split(':');
+                                return (
+                                  <motion.div 
+                                    key={idx}
+                                    whileHover={{ y: -5, borderColor: '#6366f1' }}
+                                    className="p-5 bg-slate-50/50 border border-slate-100 rounded-2xl transition-all group/card"
+                                  >
+                                    <div className="flex items-start gap-4">
+                                      <div className="mt-1 p-2 bg-white rounded-lg shadow-sm group-hover/card:bg-slate-900 group-hover/card:text-white transition-colors">
+                                        <ChevronRightIcon className="h-4 w-4" />
+                                      </div>
+                                      <div>
+                                        <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-1">
+                                          {title.replace(/\*\*/g, '').trim()}
+                                        </h4>
+                                        <p className="text-xs text-slate-500 leading-normal">{parseMarkdown(desc?.trim() || '')}</p>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                );
+                              })
+                            }
+                          </div>
+                        )}
+
+                        {/* Reste du message (la question finale) */}
+                        {message.content.split('\n\n').length > 2 && (
+                          <div className="pt-4 border-t border-slate-50">
+                            <p className="text-sm font-bold text-slate-900 italic tracking-tight text-right">
+                              {parseMarkdown(message.content.split('\n\n').slice(-1)[0])}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap">
+                        {parseMarkdown(message.content)}
+                      </div>
+                    )}
+
+                    {/* Meta data (Time) */}
+                    <div className={`flex items-center gap-2 text-[9px] font-black mt-6 tracking-widest uppercase opacity-40 ${
+                      message.type === 'user' ? 'text-white' : 'text-slate-900'
+                    }`}>
+                      <ClockIcon className="h-3 w-3" />
+                      {message.timestamp.toLocaleTimeString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', {
+                        hour: '2-digit', minute: '2-digit'
+                      })}
+                    </div>
                   </div>
-                )}
 
-                <div className={`whitespace-pre-line leading-relaxed ${message.type === 'user' ? 'text-md font-medium' : 'text-md text-slate-800'}`}>
-                  {message.content}
+                  {/* Quick Actions Premium */}
+                  {message.suggestions && message.suggestions.length > 0 && (
+                    <div className="bg-slate-50/30 px-8 py-6 border-t border-slate-100/60 flex flex-wrap gap-2">
+                       {message.suggestions.map((suggestion, index) => (
+                        <motion.button
+                          key={index}
+                          whileHover={{ scale: 1.02, backgroundColor: '#0f172a', color: '#fff' }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="px-5 py-2.5 text-[11px] font-black uppercase tracking-widest bg-white border border-slate-200 text-slate-600 rounded-xl transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                          {suggestion}
+                        </motion.button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-
-                <div className={`flex items-center gap-2 text-[10px] font-bold mt-4 tracking-wider uppercase ${message.type === 'user' ? 'text-slate-400' : 'text-slate-400'
-                  }`}>
-                  <ClockIcon className="h-3 w-3" />
-                  {message.timestamp.toLocaleTimeString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </div>
-
-                {/* Suggestions intégrées au message */}
-                {message.suggestions && message.suggestions.length > 0 && (
-                  <div className="mt-6 pt-4 border-t border-slate-50 grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {message.suggestions.map((suggestion, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="group flex items-center justify-between px-4 py-3 text-left text-xs bg-slate-50/80 hover:bg-slate-900 hover:text-white text-slate-700 rounded-xl transition-all border border-slate-100 font-bold active:scale-95"
-                      >
-                        <span>{suggestion}</span>
-                        <ChevronRightIcon className={`h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity ${currentLang === 'ar' ? 'rotate-180' : ''}`} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {/* Indicateur de frappe modernisé */}
           {isTyping && (
-            <div className="flex justify-start animate-fadeIn">
-              <div className="bg-white border border-slate-200/60 rounded-3xl rounded-tl-none px-6 py-4 shadow-lg shadow-slate-100">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-start"
+            >
+              <div className="bg-white border border-slate-200/60 rounded-[1.5rem] rounded-tl-none px-6 py-4 shadow-xl shadow-slate-100">
                 <div className="flex items-center space-x-3 mb-2">
                   <div className="w-6 h-6 bg-slate-900 rounded flex items-center justify-center">
                     <SparklesIcon className="h-3 w-3 text-indigo-300" />
                   </div>
-                  <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase italic">{t('chatbot.typing')}</span>
+                  <span className="text-[9px] font-bold text-slate-500 tracking-widest uppercase italic">{t('chatbot.typing')}</span>
                 </div>
                 <div className="flex space-x-1.5 ml-1">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce duration-700"></div>
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce [animation-delay:200ms] duration-700"></div>
-                  <div className="w-2 h-2 bg-slate-300 rounded-full animate-bounce [animation-delay:400ms] duration-700"></div>
+                  <motion.div 
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.6 }}
+                    className="w-1.5 h-1.5 bg-indigo-500 rounded-full"
+                  ></motion.div>
+                  <motion.div 
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
+                    className="w-1.5 h-1.5 bg-slate-400 rounded-full"
+                  ></motion.div>
+                  <motion.div 
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }}
+                    className="w-1.5 h-1.5 bg-slate-300 rounded-full"
+                  ></motion.div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           <div ref={messagesEndRef} />
@@ -1886,26 +2004,37 @@ const ChatbotLIA: React.FC = () => {
       )}
 
       {/* Zone de saisie premium */}
-      <div className="p-4 md:p-8 bg-white border-t border-slate-100">
+      <div className="p-4 md:p-8 bg-white border-t border-slate-100/60 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.03)]">
         <div className="max-w-4xl mx-auto w-full">
-          {/* Suggestions rapides stylisées */}
-          <div className="mb-6 flex flex-wrap gap-2 justify-center">
-            {['Ventes', 'Ratios', 'Recommandations', 'Prévisions'].map((suggestion) => (
-              <button
+          {/* Suggestions rapides stylisées avec Framer Motion */}
+          <div className="mb-8 flex flex-wrap gap-2.5 justify-center">
+            {['Ventes', 'Ratios', 'Recommandations', 'Prévisions'].map((suggestion, idx) => (
+              <motion.button
                 key={suggestion}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * idx }}
+                whileHover={{ y: -3, backgroundColor: '#0f172a', color: '#fff' }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleSuggestionClick(`Comment vont mes ${suggestion.toLowerCase()} ?`)}
-                className="group px-5 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-2xl hover:bg-slate-900 hover:text-white hover:border-slate-900 hover:-translate-y-0.5 transition-all shadow-sm active:scale-95 flex items-center gap-2"
+                className="group px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 border border-slate-100 rounded-2xl transition-all shadow-sm flex items-center gap-2.5"
               >
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-indigo-400"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-300 group-hover:bg-indigo-400"></div>
                 {suggestion}
-              </button>
+              </motion.button>
             ))}
           </div>
 
-          <div className="relative group flex items-center gap-3">
-            <button className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-2xl transition-all active:scale-90" aria-label="Joindre un fichier" title="Joindre un fichier">
+          <div className="relative group flex items-center gap-4">
+            <motion.button 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-4 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-[1.5rem] transition-all" 
+              aria-label="Joindre un fichier" 
+              title="Joindre un fichier"
+            >
               <PaperClipIcon className="h-6 w-6" />
-            </button>
+            </motion.button>
 
             <div className="flex-1 relative">
               <input
@@ -1915,25 +2044,33 @@ const ChatbotLIA: React.FC = () => {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={t('chatbot.placeholder')}
-                className="w-full pl-6 pr-14 py-4 md:py-5 bg-slate-50 border border-slate-100 rounded-[2rem] focus:ring-4 focus:ring-slate-100 focus:border-slate-300 outline-none text-md font-medium text-slate-800 transition-all placeholder:text-slate-400"
+                className="w-full pl-7 pr-16 py-5 md:py-6 bg-slate-50 border border-slate-100 rounded-[2.5rem] focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 outline-none text-[15px] font-medium text-slate-800 transition-all placeholder:text-slate-400 placeholder:font-normal"
               />
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim()}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-3 md:p-4 bg-slate-900 text-indigo-300 rounded-[1.5rem] hover:bg-black disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-4 bg-slate-900 text-indigo-300 rounded-full hover:bg-black disabled:bg-slate-100 disabled:text-slate-300 disabled:cursor-not-allowed transition-all shadow-xl shadow-slate-200"
                 aria-label="Envoyer le message"
                 title="Envoyer"
               >
                 <PaperAirplaneIcon className="h-6 w-6" />
-              </button>
+              </motion.button>
             </div>
 
-            <button className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-2xl transition-all active:scale-90 hidden md:block" aria-label="Activer le micro" title="Activer le micro">
+            <motion.button 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-4 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-[1.5rem] transition-all hidden md:block" 
+              aria-label="Activer le micro" 
+              title="Activer le micro"
+            >
               <MicrophoneIcon className="h-6 w-6" />
-            </button>
+            </motion.button>
           </div>
 
-          <p className="mt-4 text-[10px] font-bold text-center text-slate-400 tracking-widest uppercase">
+          <p className="mt-5 text-[9px] font-bold text-center text-slate-400 tracking-[0.2em] uppercase">
             {t('chatbot.disclaimer')}
           </p>
         </div>

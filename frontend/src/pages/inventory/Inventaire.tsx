@@ -33,7 +33,7 @@ import { useProducts } from '@core/context/ProductsContext';
 
 const Inventaire: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
-  const { t } = useTranslation();
+  const { t, currentLang } = useTranslation();
 
   // Helper: map percentage to Tailwind width classes to avoid inline styles
   const percentToWidth = (percent: number) => {
@@ -846,7 +846,7 @@ const Inventaire: React.FC = () => {
                   
                   <div className="space-y-2 mb-4">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Code PCA:</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('inventory.table_labels.pca_code')}</span>
                       <span className="font-semibold text-slate-900 dark:text-slate-100">{article.codePCA}</span>
                     </div>
                     <div className="flex justify-between text-sm">
@@ -854,11 +854,11 @@ const Inventaire: React.FC = () => {
                       <span className="font-semibold text-slate-900 dark:text-slate-100">{article.stock} {t('inventory.stats.units')}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Prix unitaire:</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('inventory.table_labels.unit_price')}</span>
                       <span className="font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(article.prixUnitaire)}</span>
                     </div>
                     <div className="flex justify-between text-sm pt-2 border-t border-slate-200 dark:border-slate-700">
-                      <span className="text-slate-600 dark:text-slate-400 font-medium">Valeur totale:</span>
+                      <span className="text-slate-600 dark:text-slate-400 font-medium">{t('inventory.table_labels.total_value')}</span>
                       <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(valeurTotale)}</span>
                     </div>
                   </div>
@@ -1809,19 +1809,19 @@ const Inventaire: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     <div className="text-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400">Catégorie A</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">{t('inventory.sections.abc.cat_a')}</p>
                       <p className="text-lg font-bold text-emerald-900 dark:text-emerald-100">20%</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">80% de la valeur</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">{t('inventory.sections.abc.value_a')}</p>
                     </div>
                     <div className="text-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                      <p className="text-xs text-amber-600 dark:text-amber-400">Catégorie B</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400">{t('inventory.sections.abc.cat_b')}</p>
                       <p className="text-lg font-bold text-amber-900 dark:text-amber-100">30%</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">15% de la valeur</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">{t('inventory.sections.abc.value_b')}</p>
                     </div>
                     <div className="text-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                      <p className="text-xs text-slate-600 dark:text-slate-400">Catégorie C</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">{t('inventory.sections.abc.cat_c')}</p>
                       <p className="text-lg font-bold text-slate-900 dark:text-slate-100">50%</p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">5% de la valeur</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">{t('inventory.sections.abc.value_c')}</p>
                     </div>
                   </div>
                 </div>
@@ -1836,7 +1836,7 @@ const Inventaire: React.FC = () => {
                       <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">
                         {products.filter(a => a.stock > 50).length}
                       </p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">articles</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">{t('inventory.stats.articles_count')}</p>
                     </div>
                     <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-lg">
                       <CheckCircleIcon className="h-6 w-6 text-blue-700 dark:text-blue-300" />
@@ -1851,7 +1851,7 @@ const Inventaire: React.FC = () => {
                       <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">
                         {products.filter(a => a.stock <= 50 && a.stock > 20).length}
                       </p>
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">articles</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{t('inventory.stats.articles_count')}</p>
                     </div>
                     <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
                       <ExclamationTriangleIcon className="h-6 w-6 text-amber-700 dark:text-amber-300" />
@@ -1866,7 +1866,7 @@ const Inventaire: React.FC = () => {
                       <p className="text-2xl font-bold text-red-900 dark:text-red-100">
                         {products.filter(a => a.stock <= 20).length}
                       </p>
-                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">articles</p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">{t('inventory.stats.articles_count')}</p>
                     </div>
                     <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
                       <ExclamationTriangleIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
@@ -1879,7 +1879,7 @@ const Inventaire: React.FC = () => {
                     <div>
                       <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.reordering.turnover')}</p>
                       <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">3.5×</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">fois par an</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('inventory.reordering.times_per_year')}</p>
                     </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
                       <ArrowPathIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
@@ -1891,7 +1891,7 @@ const Inventaire: React.FC = () => {
               {/* Historique des rapports */}
               <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
-                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Rapports Récents</h4>
+                  <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('inventory.reports.recent_reports')}</h4>
                 </div>
                 <div className="p-6 space-y-3">
                   {[
@@ -1939,7 +1939,7 @@ const Inventaire: React.FC = () => {
                                   `📂 Fichier enregistré dans: Téléchargements/`);
                           }}
                           className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title="Télécharger"
+                          title={t('inventory.actions.download')}
                         >
                           <ArrowDownTrayIcon className="h-5 w-5" />
                         </button>
@@ -1956,7 +1956,7 @@ const Inventaire: React.FC = () => {
                                   `⏳ Temps estimé: ${rapport.pages * 3} secondes`);
                           }}
                           className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                          title="Imprimer"
+                          title={t('inventory.actions.print')}
                         >
                           <PrinterIcon className="h-5 w-5" />
                         </button>
@@ -1973,7 +1973,7 @@ const Inventaire: React.FC = () => {
                                   `✅ Chargement du document en cours...`);
                           }}
                           className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                          title="Aperçu"
+                          title={t('inventory.actions.preview')}
                         >
                           <EyeIcon className="h-5 w-5" />
                         </button>
@@ -1993,14 +1993,14 @@ const Inventaire: React.FC = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">📋 Inventaire Physique</h3>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.modal.physical_title')}</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.actions.physical_audit')}</p>
               </div>
               <button 
                 onClick={() => setShowInventoryModal(false)}
                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                aria-label="Fermer"
-                title="Fermer"
+                aria-label={t('common.close')}
+                title={t('common.close')}
               >
                 <XMarkIcon className="h-6 w-6 text-slate-600 dark:text-slate-400" />
               </button>
@@ -2011,8 +2011,8 @@ const Inventaire: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <MagnifyingGlassIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   <div>
-                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">Session d'inventaire en cours</h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-300">Date: {new Date().toLocaleDateString('fr-FR')} • {filteredAndSortedArticles.length} articles à vérifier</p>
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">{t('inventory.modal.session_active')}</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">{t('common.date')}: {new Date().toLocaleDateString()} • {filteredAndSortedArticles.length} {t('inventory.stats.articles_count')}</p>
                   </div>
                 </div>
               </div>
@@ -2028,19 +2028,19 @@ const Inventaire: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
-                          <p className="text-xs text-slate-500 dark:text-slate-400">Stock système</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{t('inventory.modal.system_stock')}</p>
                           <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{article.stock}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Stock physique</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('inventory.modal.physical_stock')}</p>
                           <input 
                             type="number" 
                             defaultValue={article.stock}
                             className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded text-center font-semibold"
-                            aria-label="Stock physique"
+                            aria-label={t('inventory.modal.physical_stock')}
                           />
                         </div>
-                        <button className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors" aria-label="Valider le comptage" title="Valider le comptage">
+                        <button className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors" aria-label={t('inventory.actions.validate')} title={t('inventory.actions.validate')}>
                           <CheckCircleIcon className="h-5 w-5" />
                         </button>
                       </div>

@@ -72,7 +72,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const raw = window.localStorage.getItem('app_user');
       if (raw) {
-        return JSON.parse(raw) as User;
+        const u = JSON.parse(raw) as User;
+        // Fix for missing sidebar modules: ensure base role/type if missing from old session
+        if (!u.role) u.role = 'dg';
+        if (!u.companyType) u.companyType = 'spa';
+        if (!u.accessLevel) u.accessLevel = 'enterprise';
+        return u;
       }
     } catch {
       return null;

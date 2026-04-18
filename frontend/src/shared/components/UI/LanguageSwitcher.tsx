@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@/shared/hooks/useTranslation';
 import { Globe } from 'lucide-react';
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -12,13 +12,13 @@ const languages = [
 ];
 
 export const LanguageSwitcher: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n, changeLang, currentLang: langCode } = useTranslation();
 
   const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+    changeLang(lng as any);
   };
 
-  const currentLanguage = languages.find((l) => l.code === i18n.language) || languages[0];
+  const currentLanguage = languages.find((l) => l.code === langCode) || languages[0];
 
   return (
     <Menu as="div" className="relative inline-block text-left">

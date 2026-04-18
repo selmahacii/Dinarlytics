@@ -190,6 +190,7 @@ class CorsPolicies:
     ALLOWED_ORIGINS = [
         "http://localhost:5173",  # Dev local
         "http://localhost:3000",  # Alt dev
+        "http://localhost:3001",  # Local dev alternative
         "https://app.dinarlytics.com",  # Production
     ]
 
@@ -200,6 +201,10 @@ class CorsPolicies:
         "Authorization",
         "X-CSRF-Token",
         "X-Company-ID",
+        "x-company-id",
+        "Accept-Language",
+        "X-Requested-With",
+        "ngrok-skip-browser-warning",
     ]
 
     ALLOW_CREDENTIALS = True

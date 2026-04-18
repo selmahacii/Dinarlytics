@@ -10,10 +10,11 @@
  */
 
 import React, { useState } from 'react'
-import { TresorerieWidget, RatiosWidget, ScenariosWidget, AlertesFinancieres } from './components'
-import { useFinancialData } from './hooks/useFinancialData'
+import { TresorerieWidget, RatiosWidget, ScenariosWidget, AlertesFinancieres } from '../components'
+import { useFinancialData } from '../hooks/useFinancialData'
 import { AlerteFinanciere } from '@shared/mockData/dashboardMocks'
-import { useAuth } from '@core/auth/useAuth'
+import { useApp } from '@core/context/AppContext'
+import { useTranslation } from '@shared/hooks/useTranslation'
 
 interface DashboardRefactorePropsEnhanced {
   isCollapsible?: boolean
@@ -31,20 +32,23 @@ const WidgetSkeleton: React.FC<{ height?: string }> = ({ height = 'h-64' }) => (
 /**
  * Error Widget Component
  */
-const ErrorWidget: React.FC<{ message: string; onRetry?: () => void }> = ({ message, onRetry }) => (
-  <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-    <h4 className="text-lg font-semibold text-red-900 mb-2">❌ Erreur de Chargement</h4>
-    <p className="text-sm text-red-700 mb-4">{message}</p>
-    {onRetry && (
-      <button
-        onClick={onRetry}
-        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-      >
-        Réessayer
-      </button>
-    )}
-  </div>
-)
+const ErrorWidget: React.FC<{ message: string; onRetry?: () => void }> = ({ message, onRetry }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <h4 className="text-lg font-semibold text-red-900 mb-2">❌ {t('common.errors.loading_failed')}</h4>
+      <p className="text-sm text-red-700 mb-4">{message}</p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+        >
+          {t('common.errors.retry')}
+        </button>
+      )}
+    </div>
+  );
+};
 
 /**
  * Main Dashboard Component with React Query
@@ -65,8 +69,8 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
   })
 
   // Get company ID from auth context or override
-  const { user } = useAuth()
-  const companyId = overrideCompanyId || user?.company_id || 'default'
+  const { user } = useApp()
+  const companyId = overrideCompanyId || user?.companyId || 'default'
 
   // ✅ Fetch real data via React Query
   const {
@@ -76,6 +80,8 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
     error,
     refetch,
   } = useFinancialData(companyId)
+
+  const { t } = useTranslation()
 
   // Handlers
   const handleModifierAlerte = (alerte: AlerteFinanciere) => {
@@ -104,7 +110,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
           onClick={() => setIsCollapsed(false)}
           className="flex items-center gap-2 text-slate-700 hover:text-slate-900 font-medium"
         >
-          📊 Tableau de bord financier (déplier)
+          📊 {t('dashboard.title')} (déplier)
         </button>
       </div>
     )
@@ -115,11 +121,11 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Tableau de Bord Financier</h2>
+          <h2 className="text-2xl font-bold text-slate-900">{t('dashboard.title')}</h2>
           <p className="text-slate-600 mt-1">
-            {isLoading && '🔄 Chargement des données...'}
-            {isError && '⚠️ Erreur lors du chargement'}
-            {dashboardData && '✅ Données en temps réel'}
+            {isLoading && '🔄 ' + t('common.loading')}
+            {isError && '⚠️ ' + t('common.error')}
+            {dashboardData && '✅ ' + t('dashboard.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -127,7 +133,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
             <button
               onClick={() => refetch()}
               className="px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
-              title="Rafraîchir"
+              title={t('common.refresh')}
             >
               🔄
             </button>
@@ -137,7 +143,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
               onClick={() => setIsCollapsed(true)}
               className="px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
             >
-              Réduire
+              {t('dashboard.reduce_btn')}
             </button>
           )}
         </div>
@@ -146,7 +152,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
       {/* Error State */}
       {isError && (
         <ErrorWidget
-          message={error?.message || 'Impossible de charger les données du dashboard'}
+          message={error?.message || t('common.errors.dashboard_load_error')}
           onRetry={() => refetch()}
         />
       )}
@@ -163,7 +169,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
               onAnalyseClick={() => handleAnalyseWithLIA('tresorerie')}
             />
           ) : (
-            <ErrorWidget message="Impossible de charger la trésorerie" />
+            <ErrorWidget message={t('common.errors.treasury_load_error')} />
           )}
         </div>
       )}
@@ -179,7 +185,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
               onAnalyseClick={() => handleAnalyseWithLIA('ratios')}
             />
           ) : (
-            <ErrorWidget message="Impossible de charger les ratios" />
+            <ErrorWidget message={t('common.errors.ratios_load_error')} />
           )}
         </div>
       )}
@@ -194,7 +200,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
               scenarios={[
                 {
                   id: 1,
-                  nom: 'Pessimiste',
+                  nom: t('dashboard.widgets.scenarios.names.pessimistic'),
                   ca_mois6: 12000000,
                   profit_mois6: 1800000,
                   tresorerie_mois6: 8000000,
@@ -202,7 +208,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
                 },
                 {
                   id: 2,
-                  nom: 'Réaliste',
+                  nom: t('dashboard.widgets.scenarios.names.realistic'),
                   ca_mois6: 15000000,
                   profit_mois6: 2700000,
                   tresorerie_mois6: 12000000,
@@ -210,7 +216,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
                 },
                 {
                   id: 3,
-                  nom: 'Optimiste',
+                  nom: t('dashboard.widgets.scenarios.names.optimistic'),
                   ca_mois6: 18000000,
                   profit_mois6: 3600000,
                   tresorerie_mois6: 16000000,
@@ -222,7 +228,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
               onAnalyseClick={() => handleAnalyseWithLIA('scenarios')}
             />
           ) : (
-            <ErrorWidget message="Impossible de charger les scénarios" />
+            <ErrorWidget message={t('common.errors.scenarios_load_error')} />
           )}
         </div>
       )}
@@ -245,19 +251,17 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
 
       {/* Info Footer */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <p className="font-medium mb-2">💡 À propos</p>
+        <p className="font-medium mb-2">💡 {t('dashboard.demo_notice_title')}</p>
         <p>
-          ✅ Données en <strong>temps réel</strong> (refresh auto toutes les 30 secondes)
+          {t('dashboard.demo_notice_text')}
           <br />
-          ⚠️ Erreurs API → Fallback sur mocks
-          <br />
-          🔄 Cliquez sur l'icône refresh pour mettre à jour manuellement
+          🔄 {t('common.recommended_actions_prefix')} {t('common.refresh')}
         </p>
       </div>
 
       {/* Widget Controls */}
       <details className="bg-slate-100 rounded-lg p-4">
-        <summary className="cursor-pointer font-medium text-slate-700">Options d'affichage</summary>
+        <summary className="cursor-pointer font-medium text-slate-700">{t('dashboard.options_title')}</summary>
         <div className="mt-4 space-y-2">
           {Object.entries(widgets).map(([key, value]) => (
             <label key={key} className="flex items-center gap-2">
@@ -266,7 +270,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
                 checked={value}
                 onChange={e => setWidgets({ ...widgets, [key]: e.target.checked })}
               />
-              <span className="capitalize text-slate-700">{key}</span>
+              <span className="text-slate-700">{t(`dashboard.widgets.${key}.title`)}</span>
             </label>
           ))}
         </div>

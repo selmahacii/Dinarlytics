@@ -256,7 +256,9 @@ const AnalyseFinanciere: React.FC = () => {
                       <div className="flex items-center gap-2">
                         {alerte.type === 'critique' && <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />}
                         {alerte.type === 'opportunite' && <LightBulbIcon className="h-5 w-5 text-green-600" />}
-                        <h3 className="font-semibold text-slate-900">{alerte.titre}</h3>
+                        <h3 className="font-semibold text-slate-900">
+                          {t(`analytics.financial.alerts.items.${alerte.id}.title`, alerte.titre)}
+                        </h3>
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
                           alerte.categorie === 'liquidite' ? 'bg-blue-100 text-blue-800' :
                           alerte.categorie === 'rentabilite' ? 'bg-green-100 text-green-800' :
@@ -267,13 +269,21 @@ const AnalyseFinanciere: React.FC = () => {
                       </div>
                       <span className="text-xs text-slate-500">{t('analytics.financial.alerts.priority')} {alerte.priorite}/10</span>
                     </div>
-                    <p className="text-sm text-slate-700 mb-3">{alerte.message}</p>
+                    <p className="text-sm text-slate-700 mb-3">
+                      {t(`analytics.financial.alerts.items.${alerte.id}.message`, {
+                        value: alerte.valeurActuelle,
+                        threshold: alerte.seuilCritique,
+                        defaultValue: alerte.message
+                      })}
+                    </p>
                     {alerte.recommandations.length > 0 && (
                       <div className="mt-3">
                         <p className="text-xs font-semibold text-slate-600 mb-1">{t('analytics.financial.alerts.recommendations')}</p>
                         <ul className="list-disc list-inside text-xs text-slate-600 space-y-1">
-                          {alerte.recommandations.slice(0, 3).map((rec: string, idx: number) => (
-                            <li key={idx}>{rec}</li>
+                          {alerte.recommandations.map((_, idx: number) => (
+                            <li key={idx}>
+                              {t(`analytics.financial.alerts.items.${alerte.id}.recommendations.${idx}`, alerte.recommandations[idx])}
+                            </li>
                           ))}
                         </ul>
                       </div>
@@ -288,68 +298,68 @@ const AnalyseFinanciere: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900 flex items-center space-x-2">
                 <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
-                <span>Seuil de Rentabilité & Point Mort</span>
+                <span>{t('analytics.financial.breakeven.title')}</span>
               </h2>
               <div className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-sm font-medium">
-                Atteint
+                {t('analytics.financial.breakeven.status_reached')}
               </div>
             </div>
 
             {/* Calcul du Seuil */}
             <div className="mb-6">
-              <h3 className="text-base font-semibold text-slate-900 mb-4">📊 Calcul du Seuil</h3>
+              <h3 className="text-base font-semibold text-slate-900 mb-4">{t('analytics.financial.breakeven.calc_title')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                  <div className="text-xs text-slate-600 mb-1">Coûts Fixes</div>
+                  <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.breakeven.fixed_costs')}</div>
                   <div className="text-2xl font-bold text-slate-900">850K</div>
-                  <div className="text-xs text-slate-500 mt-1">دج</div>
+                  <div className="text-xs text-slate-500 mt-1">{t('analytics.financial.breakeven.currency_symbol')}</div>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                  <div className="text-xs text-slate-600 mb-1">Taux Marge</div>
+                  <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.breakeven.margin_rate')}</div>
                   <div className="text-2xl font-bold text-slate-900">42.8%</div>
-                  <div className="text-xs text-slate-500 mt-1">Marge brute</div>
+                  <div className="text-xs text-slate-500 mt-1">{t('analytics.financial.breakeven.brute_margin')}</div>
                 </div>
                 <div className="p-4 bg-slate-100 rounded-lg border border-slate-300 text-center">
-                  <div className="text-xs text-slate-700 mb-1">Seuil de Rentabilité</div>
+                  <div className="text-xs text-slate-700 mb-1">{t('analytics.financial.breakeven.breakeven_point')}</div>
                   <div className="text-2xl font-bold text-slate-900">1.99M</div>
-                  <div className="text-xs text-slate-600 mt-1">DZD</div>
+                  <div className="text-xs text-slate-600 mt-1">{t('analytics.financial.breakeven.currency_symbol')}</div>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                  <div className="text-xs text-slate-600 mb-1">Marge sécurité</div>
+                  <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.breakeven.safety_margin')}</div>
                   <div className="text-2xl font-bold text-slate-900">510K</div>
-                  <div className="text-xs text-slate-500 mt-1">دج</div>
+                  <div className="text-xs text-slate-500 mt-1">{t('analytics.financial.breakeven.currency_symbol')}</div>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                  <div className="text-xs text-slate-600 mb-1">Point mort</div>
+                  <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.breakeven.dead_point')}</div>
                   <div className="text-2xl font-bold text-slate-900">292j</div>
-                  <div className="text-xs text-slate-500 mt-1">jours</div>
+                  <div className="text-xs text-slate-500 mt-1">{t('analytics.financial.breakeven.days')}</div>
                 </div>
               </div>
             </div>
 
             {/* Simulations What-If */}
               <div>
-              <h3 className="text-base font-semibold text-slate-900 mb-4">📈 Simulation What-If</h3>
+              <h3 className="text-base font-semibold text-slate-900 mb-4">{t('analytics.financial.simulation.title')}</h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-sm text-slate-700">Si CA -10%</span>
+                    <span className="text-sm text-slate-700">{t('analytics.financial.simulation.revenue_var', { var: '-10' })}</span>
                     <span className="text-lg font-bold text-slate-900">2.25M</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
-                    <span className="text-sm text-slate-700">Si CA -20%</span>
+                    <span className="text-sm text-slate-700">{t('analytics.financial.simulation.revenue_var', { var: '-20' })}</span>
                     <span className="text-lg font-bold text-red-700">2.00M</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                    <span className="text-sm text-slate-700">Si CA +10%</span>
+                    <span className="text-sm text-slate-700">{t('analytics.financial.simulation.revenue_var', { var: '+10' })}</span>
                     <span className="text-lg font-bold text-emerald-700">2.75M</span>
                   </div>
                 </div>
                 <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-sm text-slate-600 mb-2">Levier Opérationnel</div>
+                    <div className="text-sm text-slate-600 mb-2">{t('analytics.financial.simulation.operating_leverage')}</div>
                     <div className="text-4xl font-bold text-slate-900 mb-2">2.8x</div>
-                    <div className="text-sm text-slate-600">+10% CA → +28% résultat</div>
+                    <div className="text-sm text-slate-600">{t('analytics.financial.simulation.leverage_desc')}</div>
                   </div>
                 </div>
               </div>
@@ -360,12 +370,12 @@ const AnalyseFinanciere: React.FC = () => {
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
               <ChartBarIcon className="h-5 w-5 text-purple-600" />
-              Comparaison Sectorielle
+              {t('analytics.financial.sector.title')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-200">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-purple-900">Score Global</span>
+                  <span className="text-sm font-medium text-purple-900">{t('analytics.financial.sector.global_score')}</span>
                   <span className={`text-2xl font-bold ${
                     comparaisonBenchmarks.score >= 85 ? 'text-green-600' :
                     comparaisonBenchmarks.score >= 70 ? 'text-blue-600' :
@@ -387,14 +397,14 @@ const AnalyseFinanciere: React.FC = () => {
                   ></div>
                 </div>
                 <p className="text-xs text-purple-700 mt-2">
-                  Classement: <span className="font-semibold">{comparaisonBenchmarks.classement}</span>
+                  {t('analytics.financial.sector.status')} <span className="font-semibold">{comparaisonBenchmarks.classement}</span>
                 </p>
               </div>
               
               <div className="space-y-2">
                 {comparaisonBenchmarks.pointsFort.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-green-700 mb-1">Points Forts:</p>
+                    <p className="text-xs font-semibold text-green-700 mb-1">{t('analytics.financial.sector.strengths')}</p>
                     <ul className="list-disc list-inside text-xs text-green-600 space-y-1">
                       {comparaisonBenchmarks.pointsFort.map((point: string, idx: number) => (
                         <li key={idx}>{point}</li>
@@ -404,7 +414,7 @@ const AnalyseFinanciere: React.FC = () => {
                 )}
                 {comparaisonBenchmarks.pointsFaible.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-red-700 mb-1">Points à Améliorer:</p>
+                    <p className="text-xs font-semibold text-red-700 mb-1">{t('analytics.financial.sector.weaknesses')}</p>
                     <ul className="list-disc list-inside text-xs text-red-600 space-y-1">
                       {comparaisonBenchmarks.pointsFaible.map((point: string, idx: number) => (
                         <li key={idx}>{point}</li>
@@ -423,14 +433,14 @@ const AnalyseFinanciere: React.FC = () => {
               className="flex items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
             >
               <CalculatorIcon className="h-5 w-5 mr-2" />
-              <span className="font-semibold">Simuler un Scénario</span>
+              <span className="font-semibold">{t('analytics.financial.actions.simulate')}</span>
             </button>
             <button
               onClick={() => setIsPrevisionsModalOpen(true)}
               className="flex items-center justify-center p-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg"
             >
               <ChartBarIcon className="h-5 w-5 mr-2" />
-              <span className="font-semibold">Voir les Prévisions</span>
+              <span className="font-semibold">{t('analytics.financial.actions.projections')}</span>
             </button>
           </div>
         </div>
@@ -439,59 +449,59 @@ const AnalyseFinanciere: React.FC = () => {
       <Modal
         isOpen={isScenarioModalOpen}
         onClose={() => setIsScenarioModalOpen(false)}
-        title="Simulation de Scénario Financier"
+        title={t('analytics.financial.modals.simulation_title')}
         size="xl"
       >
         <div className="space-y-6">
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-800">
-              Simulez l'impact de différents scénarios sur vos ratios financiers et votre rentabilité.
+              {t('analytics.financial.modals.simulation_desc')}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Variation du CA (%)
+                {t('analytics.financial.modals.revenue_var_label')}
               </label>
               <input
                 type="number"
                 defaultValue={0}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-                placeholder="Ex: +10 ou -5"
+                placeholder={t('analytics.financial.modals.placeholder_ex')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Variation des Charges (%)
+                {t('analytics.financial.modals.costs_var_label')}
               </label>
               <input
                 type="number"
                 defaultValue={0}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-                placeholder="Ex: -5 ou +10"
+                placeholder={t('analytics.financial.modals.placeholder_ex')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Variation DSO (jours)
+                {t('analytics.financial.modals.dso_var_label')}
               </label>
               <input
                 type="number"
                 defaultValue={0}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-                placeholder="Ex: -5 ou +10"
+                placeholder={t('analytics.financial.modals.placeholder_ex')}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Variation DIO (jours)
+                {t('analytics.financial.modals.dio_var_label')}
               </label>
               <input
                 type="number"
                 defaultValue={0}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-                placeholder="Ex: -3 ou +5"
+                placeholder={t('analytics.financial.modals.placeholder_ex')}
               />
             </div>
           </div>
@@ -501,11 +511,11 @@ const AnalyseFinanciere: React.FC = () => {
               onClick={() => setIsScenarioModalOpen(false)}
               className="px-4 py-2 text-slate-600 hover:text-slate-800"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <SparklesIcon className="h-4 w-4 inline mr-2" />
-              Lancer la Simulation
+              {t('analytics.financial.modals.run_simulation')}
             </button>
           </div>
         </div>
@@ -515,30 +525,30 @@ const AnalyseFinanciere: React.FC = () => {
       <Modal
         isOpen={isPrevisionsModalOpen}
         onClose={() => setIsPrevisionsModalOpen(false)}
-        title="Prévisions Financières"
+        title={t('analytics.financial.modals.projections_title')}
         size="xl"
       >
         <div className="space-y-6">
           <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
             <p className="text-sm text-purple-800">
-              Prévisions financières sur 12 mois basées sur vos données actuelles et les tendances du secteur.
+              {t('analytics.financial.modals.projections_desc')}
             </p>
           </div>
           
           <div className="grid grid-cols-3 gap-4 mb-4">
             <button className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-medium hover:bg-green-200">
-              Scénario Optimiste
+              {t('analytics.financial.modals.scenarios.optimistic')}
             </button>
             <button className="px-4 py-2 bg-blue-100 text-blue-800 rounded-lg font-medium hover:bg-blue-200">
-              Scénario Réaliste
+              {t('analytics.financial.modals.scenarios.realistic')}
             </button>
             <button className="px-4 py-2 bg-red-100 text-red-800 rounded-lg font-medium hover:bg-red-200">
-              Scénario Pessimiste
+              {t('analytics.financial.modals.scenarios.pessimistic')}
             </button>
           </div>
           
           <div className="text-center text-slate-500 py-8">
-            Les prévisions seront générées après sélection du scénario
+            {t('analytics.financial.modals.waiting_selection')}
           </div>
           
           <div className="flex justify-end">
@@ -546,7 +556,7 @@ const AnalyseFinanciere: React.FC = () => {
               onClick={() => setIsPrevisionsModalOpen(false)}
               className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
             >
-              Fermer
+              {t('common.close')}
             </button>
           </div>
         </div>

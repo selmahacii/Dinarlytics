@@ -5,7 +5,7 @@ export interface AlerteFinanciere {
   id: string;
   nom: string;
   description: string;
-  statut: 'Déclenchée' | 'Surveillance' | 'Inactive';
+  statut: 'triggered' | 'monitoring' | 'inactive' | 'Déclenchée' | 'Surveillance' | 'Inactive';
   seuil: number;
   valeurActuelle: number;
   unite: string;
@@ -17,10 +17,10 @@ export interface AlerteFinanciere {
 
 export const ALERTES_FINANCIERES_MOCK: AlerteFinanciere[] = [
   {
-    id: 'ventes',
+    id: 'sales_threshold',
     nom: 'Seuil de Ventes',
     description: 'Alerte si les ventes mensuelles dépassent 2M DZD',
-    statut: 'Déclenchée',
+    statut: 'triggered',
     seuil: 2000000,
     valeurActuelle: 2450000,
     unite: 'DZD',
@@ -30,10 +30,10 @@ export const ALERTES_FINANCIERES_MOCK: AlerteFinanciere[] = [
     active: true
   },
   {
-    id: 'liquidite',
+    id: 'liquidity_ratio',
     nom: 'Ratio de Liquidité',
     description: 'Alerte si le ratio de liquidité descend sous 1.5',
-    statut: 'Surveillance',
+    statut: 'monitoring',
     seuil: 1.5,
     valeurActuelle: 1.8,
     unite: '',
@@ -43,10 +43,10 @@ export const ALERTES_FINANCIERES_MOCK: AlerteFinanciere[] = [
     active: true
   },
   {
-    id: 'stock',
+    id: 'out_of_stock',
     nom: 'Rupture de Stock',
     description: 'Alerte si un article atteint le seuil de réapprovisionnement',
-    statut: 'Déclenchée',
+    statut: 'triggered',
     seuil: 10,
     valeurActuelle: 5,
     unite: 'unités',
@@ -56,10 +56,10 @@ export const ALERTES_FINANCIERES_MOCK: AlerteFinanciere[] = [
     active: true
   },
   {
-    id: 'factures',
+    id: 'overdue_invoices',
     nom: 'Factures en Retard',
     description: 'Alerte si des factures clients sont en retard de plus de 30 jours',
-    statut: 'Déclenchée',
+    statut: 'triggered',
     seuil: 30,
     valeurActuelle: 45,
     unite: 'jours',
@@ -105,6 +105,8 @@ export const INDICATEURS_FINANCIERS_MOCK = {
     solvabilite: 2.1
   }
 };
+
+export const RATIOS_FINANCIERS_MOCK = INDICATEURS_FINANCIERS_MOCK.ratios;
 
 export const DEPENSES_PAR_CATEGORIE_MOCK = {
   labels: ['Achats', 'Salaires', 'Loyer', 'Utilities', 'Marketing'],

@@ -17,6 +17,7 @@ import {
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@shared/hooks/useTranslation';
 
 /**
  * 🔐 MENU LATÉRAL ADAPTÉ POUR EURL
@@ -26,23 +27,24 @@ const EURLSidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, companyData } = useApp();
+  const { t } = useTranslation();
 
   if (!user) return null;
 
   const menuItems = [
     {
-      section: 'Principal',
+      section: t('nav.steering'),
       items: [
         {
           id: 'accueil',
-          label: 'Accueil',
+          label: t('nav.global_view'),
           icon: HomeIcon,
           path: '/dashboard',
           badge: null
         },
         {
           id: 'tableau-bord',
-          label: 'Tableau de Bord',
+          label: t('dashboard.title'),
           icon: ChartBarIcon,
           path: '/dashboard/tableau-bord',
           badge: null
@@ -50,11 +52,11 @@ const EURLSidebar: React.FC = () => {
       ]
     },
     {
-      section: 'Intelligence',
+      section: t('nav.intelligence_lia'),
       items: [
         {
           id: 'lia',
-          label: 'Analyses LIA',
+          label: t('nav.lia_predictive'),
           icon: SparklesIcon,
           path: '/lia/analyses',
           badge: 'IA'
@@ -62,25 +64,25 @@ const EURLSidebar: React.FC = () => {
       ]
     },
     {
-      section: 'Rapports',
+      section: t('nav.analytics'),
       items: [
         {
           id: 'rapports-ventes',
-          label: 'Ventes & Clients',
+          label: t('nav.commercial_analysis'),
           icon: ChartBarIcon,
           path: '/rapports/ventes-clients',
           badge: null
         },
         {
           id: 'rapports-tresorerie',
-          label: 'Trésorerie',
+          label: t('nav.cash_flow'),
           icon: BanknotesIcon,
           path: '/rapports/tresorerie-banque',
           badge: null
         },
         {
           id: 'rapports-fiscalite',
-          label: 'Fiscalité',
+          label: t('nav.tax_declarations'),
           icon: DocumentTextIcon,
           path: '/rapports/fiscalite-declarations',
           badge: 'G50'
@@ -88,32 +90,32 @@ const EURLSidebar: React.FC = () => {
       ]
     },
     {
-      section: 'Commercial',
+      section: t('nav.operations'),
       items: [
         {
           id: 'clients',
-          label: 'Clients',
+          label: t('nav.client_portfolio'),
           icon: UserGroupIcon,
           path: '/clients',
           badge: companyData?.clientsCount.toString()
         },
         {
           id: 'factures',
-          label: 'Factures',
+          label: t('common.sales_invoices'),
           icon: DocumentTextIcon,
           path: '/factures',
           badge: companyData?.pendingInvoices > 0 ? companyData.pendingInvoices.toString() : null
         },
         {
           id: 'fournisseurs',
-          label: 'Fournisseurs',
+          label: t('common.suppliers'),
           icon: TruckIcon,
           path: '/fournisseurs',
           badge: null
         },
         {
           id: 'articles',
-          label: 'Articles',
+          label: t('nav.stock_articles'),
           icon: CubeIcon,
           path: '/articles',
           badge: null
@@ -121,18 +123,18 @@ const EURLSidebar: React.FC = () => {
       ]
     },
     {
-      section: 'Comptabilité',
+      section: t('nav.finance_accounting'),
       items: [
         {
           id: 'compta',
-          label: 'Journaux',
+          label: t('nav.journal_entry'),
           icon: BookOpenIcon,
           path: '/comptabilite/journaux',
           badge: null
         },
         {
           id: 'templates',
-          label: 'Templates',
+          label: t('nav.settings'),
           icon: DocumentDuplicateIcon,
           path: '/template-document',
           badge: null
@@ -140,11 +142,11 @@ const EURLSidebar: React.FC = () => {
       ]
     },
     {
-      section: 'Système',
+      section: t('nav.admin_settings'),
       items: [
         {
           id: 'parametres',
-          label: 'Paramètres',
+          label: t('nav.settings'),
           icon: Cog6ToothIcon,
           path: '/parametres',
           badge: null
@@ -224,10 +226,10 @@ const EURLSidebar: React.FC = () => {
       {/* Message de restriction */}
       <div className="p-4 mx-4 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p className="text-xs text-blue-800 font-semibold mb-1">
-          ℹ️ Menu Adapté
+          {t('nav.eurl_adapted_menu')}
         </p>
         <p className="text-xs text-blue-700">
-          Votre menu est optimisé pour une EURL. Seules les fonctionnalités essentielles sont affichées.
+          {t('nav.eurl_menu_optimized')}
         </p>
       </div>
     </div>

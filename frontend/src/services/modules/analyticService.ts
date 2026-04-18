@@ -245,6 +245,10 @@ export const analyticService = {
                 taux: 19,
                 evolution: 3.2
             },
+            indicateursTVA: [
+                { id: 1, nom: 'TVA Collectée', montant: 988000 * factor, taux: 19, evolution: 3.2, credit: 0 },
+                { id: 2, nom: 'TVA Déductible', montant: 589000 * factor, taux: 19, evolution: 1.5, aRecuperer: 589000 * factor, credit: 200000 }
+            ],
             bilans: {
                 actif: 4943000 * factor,
                 passif: 4943000 * factor,
@@ -253,16 +257,18 @@ export const analyticService = {
                 dateDernier: '31/12/2025'
             },
             ratios: [
-                { nom: 'Liquidité Générale', valeur: '1.4', couleur: 'green' },
-                { nom: 'Solvabilité', valeur: '40%', couleur: 'blue' },
-                { nom: 'Rentabilité Nette', valeur: '12%', couleur: 'green' },
-                { nom: 'Dette / Équité', valeur: '0.8', couleur: 'orange' }
+                { id: 1, nom: 'Liquidité Générale', valeur: '1.4', unite: '', evolution: 2.5, objectif: 2.0, description: 'Capacité de paiement', couleur: 'green', norme: 'SCF' },
+                { id: 2, nom: 'Solvabilité', valeur: '40', unite: '%', evolution: 1.2, objectif: 50, description: 'Solidité financière', couleur: 'blue', norme: 'SCF' },
+                { id: 3, nom: 'Rentabilité Nette', valeur: '12', unite: '%', evolution: 0.5, objectif: 15, description: 'Performance', couleur: 'green', norme: 'IFRS' }
+            ],
+            ratiosFinanciers: [
+                { id: 1, nom: 'Liquidité Générale', valeur: '1.4', unite: '', evolution: 2.5, objectif: 2.0, description: 'Capacité de paiement', couleur: 'green', norme: 'SCF' },
+                { id: 2, nom: 'Solvabilité', valeur: '40', unite: '%', evolution: 1.2, objectif: 50, description: 'Solidité financière', couleur: 'blue', norme: 'SCF' }
             ],
             journaux: [
-                { nom: 'Journal des Achats', statut: 'Validé', entries: Math.round(450 * factor), lastUpdate: 'Aujourd\'hui' },
-                { nom: 'Journal des Ventes', statut: 'Validé', entries: Math.round(620 * factor), lastUpdate: 'Aujourd\'hui' },
-                { nom: 'Journal de Banque', statut: 'En cours', entries: Math.round(120 * factor), lastUpdate: 'Hier' },
-                { nom: 'Opérations Diverses', statut: 'En cours', entries: Math.round(60 * factor), lastUpdate: 'Hier' }
+                { id: 1, nom: 'Journal des Achats', statut: 'Validé', nombre: Math.round(450 * factor), montant: 1200000 * factor, periode: 'Mensuel', lastUpdate: 'Aujourd\'hui' },
+                { id: 2, nom: 'Journal des Ventes', statut: 'Validé', nombre: Math.round(620 * factor), montant: 2500000 * factor, periode: 'Mensuel', lastUpdate: 'Aujourd\'hui' },
+                { id: 3, nom: 'Journal de Banque', statut: 'En cours', nombre: Math.round(120 * factor), montant: 850000 * factor, periode: 'Hebdo', lastUpdate: 'Hier' }
             ]
         };
     },
@@ -450,11 +456,12 @@ Profil: PME • Modèle: EAD-IsolationForest • Analyse: Temps Réel
                     { type: 'info', message: 'Prévision de cash flow positive.' }
                 ],
                 ai_insights: {
-                    prediction: 'Risque Attrition Client (PCP)', // Model 3.2
-                    value: '3 Comptes Stratégiques',
+                    prediction: 'advanced_analytics.ai_insights.churn_risk',
+                    value_key: 'advanced_analytics.ai_insights.strategic_accounts',
+                    value_count: 3,
                     confidence: 76,
                     details: 'Client "SARL Bâtiment" probability de churn 85%. Cause: Délais livraison.',
-                    action: 'Activer le protocole "Rétention Premium".',
+                    action: 'advanced_analytics.ai_insights.retention_action',
                     full_report: `SIMULATION DE RISQUE & SCÉNARIOS (Monte Carlo)
 Profil: ETI • Modèle: Risk-Ensemble-v4 • Itérations: 10,000
 

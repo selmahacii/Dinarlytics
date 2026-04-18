@@ -375,6 +375,14 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     level: 'advanced'
   },
   {
+    id: 'fiscalite-declarations',
+    name: 'Déclarations fiscales',
+    description: 'Gérer et valider les déclarations G50, IBS, TAP',
+    category: 'fiscalite',
+    requiredFor: ['eurl', 'sarl', 'spa'],
+    level: 'advanced'
+  },
+  {
     id: 'rapports-personnalises',
     name: 'Rapports personnalisés',
     description: 'Créer des rapports personnalisés',
@@ -422,7 +430,7 @@ export const USER_ROLES: UserRole[] = [
       'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
       'rapports-tresorerie', 'rapports-basic', 'rapports-ventes', 'rapports-achats',
       'clients-manage', 'fournisseurs-manage',
-      'lia-access', 'lia-chatbot', 'lia-analyses'
+      'lia-access', 'lia-chatbot', 'lia-analyses', 'fiscalite-declarations'
     ],
     companyTypes: ['eurl', 'sarl'],
     accessLevels: ['starter', 'professional']
@@ -447,7 +455,7 @@ export const USER_ROLES: UserRole[] = [
       'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-alerts',
       'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close', 'consolidation',
       'facturation-read', 'facturation-validate', 'facturation-cancel',
-      'rapports-tresorerie', 'rapports-advanced', 'rapports-create', 'rapports-comptabilite', 'rapports-fiscalite',
+      'rapports-tresorerie', 'rapports-advanced', 'rapports-create', 'rapports-comptabilite', 'rapports-fiscalite', 'fiscalite-declarations',
       'paie-read', 'paie-validate',
       'audit-read',
       'lia-access', 'lia-analyses', 'lia-train'
@@ -545,7 +553,7 @@ export const USER_ROLES: UserRole[] = [
       'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
       'facturation-read', 'facturation-validate',
       'paie-read', 'paie-create',
-      'rapports-comptabilite', 'rapports-fiscalite', 'rapports-basic', 'rapports-advanced',
+      'rapports-comptabilite', 'rapports-fiscalite', 'fiscalite-declarations', 'rapports-basic', 'rapports-advanced',
       'lia-access', 'lia-analyses'
     ],
     companyTypes: ['spa'],
@@ -562,7 +570,7 @@ export const USER_ROLES: UserRole[] = [
       'comptabilite-read', 'comptabilite-write',
       'facturation-read', 'facturation-validate',
       'paie-read',
-      'rapports-comptabilite', 'rapports-basic',
+      'rapports-comptabilite', 'fiscalite-declarations', 'rapports-basic',
       'lia-access'
     ],
     companyTypes: ['eurl', 'sarl', 'spa'],

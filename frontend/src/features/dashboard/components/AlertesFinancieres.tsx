@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '@shared/hooks/useTranslation';
 import { AlerteFinanciere } from '@shared/mockData/dashboardMocks';
 import {
   ExclamationTriangleIcon,
@@ -30,23 +30,30 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const getStatutIcon = (statut: string) => {
-    switch (statut) {
-      case 'Déclenchée':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />;
-      case 'Surveillance':
-        return <ClockIcon className="h-5 w-5 text-amber-600" />;
-      case 'Inactive':
-        return <CheckCircleIcon className="h-5 w-5 text-slate-400" />;
-      default:
-        return null;
-    }
+    const s = statut.toLowerCase();
+    if (s === 'déclenchée' || s === 'triggered')
+      return <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />;
+    if (s === 'surveillance' || s === 'monitoring')
+      return <ClockIcon className="h-5 w-5 text-amber-600" />;
+    if (s === 'inactive' || s === 'inactive')
+      return <CheckCircleIcon className="h-5 w-5 text-slate-400" />;
+    return null;
+  };
+
+  const getStatutLabel = (statut: string) => {
+    const s = statut.toLowerCase();
+    if (s === 'déclenchée' || s === 'triggered') return t('dashboard.widgets.alertes.triggered');
+    if (s === 'surveillance' || s === 'monitoring') return t('dashboard.widgets.alertes.monitoring');
+    return t('common.inactive', { defaultValue: 'Inactive' });
   };
 
   const getStatutBg = (statut: string) => {
     switch (statut) {
       case 'Déclenchée':
+      case 'triggered':
         return 'bg-red-50 border-red-200';
       case 'Surveillance':
+      case 'monitoring':
         return 'bg-amber-50 border-amber-200';
       default:
         return 'bg-slate-50 border-slate-200';
@@ -54,8 +61,14 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
   };
 
   const activeAlertes = alertes.filter(a => a.active);
-  const declenchees = activeAlertes.filter(a => a.statut === 'Déclenchée').length;
-  const surveillance = activeAlertes.filter(a => a.statut === 'Surveillance').length;
+  const declenchees = activeAlertes.filter(a => {
+    const s = a.statut.toLowerCase();
+    return s === 'déclenchée' || s === 'triggered';
+  }).length;
+  const surveillance = activeAlertes.filter(a => {
+    const s = a.statut.toLowerCase();
+    return s === 'surveillance' || s === 'monitoring';
+  }).length;
 
   return (
     <div className="space-y-4">
@@ -103,25 +116,29 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
               <div className="flex items-start gap-3 flex-1">
                 {getStatutIcon(alerte.statut)}
                 <div className="flex-1">
-                  <h4 className="font-medium text-slate-900">{alerte.nom}</h4>
-                  <p className="text-sm text-slate-600">{alerte.description}</p>
+                  <h4 className="font-medium text-slate-900">
+                    {t(`dashboard.widgets.alertes.names.${alerte.id}`, { defaultValue: alerte.nom })}
+                  </h4>
+                  <p className="text-sm text-slate-600">
+                    {t(`dashboard.widgets.alertes.descriptions.${alerte.id}`, { defaultValue: alerte.description })}
+                  </p>
                   {expandedId === alerte.id && (
                     <div className="mt-3 pt-3 border-t border-current border-opacity-20 space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-slate-600">{t('dashboard.widgets.alertes.threshold')} :</span>
-                        <span className="font-medium">{alerte.seuil} {alerte.unite}</span>
+                        <span className="font-medium">{alerte.seuil} {t(`common.units.${alerte.unite.toLowerCase()}`, { defaultValue: alerte.unite })}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">{t('dashboard.widgets.alertes.current_value')} :</span>
-                        <span className="font-medium">{alerte.valeurActuelle} {alerte.unite}</span>
+                        <span className="font-medium">{alerte.valeurActuelle} {t(`common.units.${alerte.unite.toLowerCase()}`, { defaultValue: alerte.unite })}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">{t('dashboard.widgets.alertes.frequency')} :</span>
-                        <span className="font-medium capitalize">{alerte.frequence}</span>
+                        <span className="font-medium capitalize">{t(`common.frequencies.${alerte.frequence}`, { defaultValue: alerte.frequence })}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">{t('dashboard.widgets.alertes.recipients')} :</span>
-                        <span className="font-medium text-xs">{alerte.destinataires.length} email(s)</span>
+                        <span className="font-medium text-xs">{alerte.destinataires.length} {t('common.emails', { count: alerte.destinataires.length, defaultValue: 'email(s)' })}</span>
                       </div>
                       {alerte.derniereAlerte && (
                         <div className="flex justify-between">

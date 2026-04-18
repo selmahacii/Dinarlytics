@@ -113,7 +113,13 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
       {/* Scénarios - Full width */}
       {widgets.scenarios && (
         <ScenariosWidget
-          scenarios={SCENARIOS_MOCK}
+          scenarios={SCENARIOS_MOCK.map(s => ({
+            ...s,
+            risque: s.risque as 'HAUTE' | 'MOYEN' | 'FAIBLE',
+            nom: t(`dashboard.widgets.scenarios.names.${
+              s.id === 1 ? 'pessimistic' : s.id === 2 ? 'realistic' : 'optimistic'
+            }`)
+          }))}
           scenarioSelectionne={scenarioSelectionne}
           onSelectScenario={setScenarioSelectionne}
           onAnalyseClick={() => handleAnalyseWithLIA('scenarios')}
@@ -148,7 +154,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
                 checked={value}
                 onChange={e => setWidgets({ ...widgets, [key]: e.target.checked })}
               />
-              <span className="capitalize text-slate-700">{t(`dashboard.widgets.${key}`)}</span>
+              <span className="text-slate-700">{t(`dashboard.widgets.${key}.title`)}</span>
             </label>
           ))}
         </div>

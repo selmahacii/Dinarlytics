@@ -12,8 +12,8 @@ from starlette.middleware.gzip import GZipMiddleware
 from app.core.config import settings
 from app.core.database import close_db, init_db
 from app.api.v1.api import api_router
-from app.core.csrf_middleware import CSRFMiddleware, add_security_middleware
-from app.core.security_config import CorsPolicies
+from app.core.csrf_middleware import CSRFMiddleware
+from app.core.security_config import CorsPolicies, add_security_middleware
 from app.core.schemas import HealthCheckResponse
 from app.middleware.request_id import RequestIDMiddleware
 
@@ -59,13 +59,33 @@ app.add_middleware(
         "127.0.0.1",
         "app.dinarlytics.com",
         "api.dinarlytics.com",
+        "*.ngrok-free.dev",
+        "*.ngrok-free.app",
+        "yosef-untwilled-defilingly.ngrok-free.dev",
     ],
 )
 
 # 2. REQUEST ID MIDDLEWARE (For distributed tracing)
 app.add_middleware(RequestIDMiddleware)
 
-# 3. CORS MIDDLEWARE (Restrictive - whitelist approach)
+# 3. CSRF PROTECTION MIDDLEWARE
+app.add_middleware(CSRFMiddleware, secret_key=settings.SECRET_KEY)
+
+# 4. CUSTOM SECURITY HEADERS MIDDLEWARE
+app.middleware("http")(add_security_middleware)
+
+# 5. GZIP COMPRESSION
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# 6. RATE LIMITING
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.errors import RateLimitExceeded
+from app.core.limiter import limiter
+
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
+# 7. CORS MIDDLEWARE (MUST BE LAST/OUTERMOST so it handles all error responses)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CorsPolicies.ALLOWED_ORIGINS,
@@ -74,23 +94,6 @@ app.add_middleware(
     allow_credentials=CorsPolicies.ALLOW_CREDENTIALS,
     max_age=CorsPolicies.MAX_AGE,
 )
-
-# 4. CSRF PROTECTION MIDDLEWARE
-app.add_middleware(CSRFMiddleware, secret_key=settings.SECRET_KEY)
-
-# 5. CUSTOM SECURITY HEADERS MIDDLEWARE
-app.middleware("http")(add_security_middleware)
-
-# 6. GZIP COMPRESSION
-app.add_middleware(GZipMiddleware, minimum_size=1000)
-
-# 7. RATE LIMITING
-from slowapi.middleware import SlowAPIMiddleware
-from slowapi.errors import RateLimitExceeded
-from app.core.limiter import limiter
-
-app.state.limiter = limiter
-app.add_middleware(SlowAPIMiddleware)
 
 @app.exception_handler(RateLimitExceeded)
 def rate_limit_handler(request, exc):

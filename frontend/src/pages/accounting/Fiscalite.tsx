@@ -63,9 +63,14 @@ const Fiscalite: React.FC = () => {
   const { t } = useTranslation();
   const { has } = usePermission();
 
-  // Vérifier les permissions d'accès (accès admin explicite)
-  const isAdmin = user?.role === 'admin' || has('admin');
-  if (!has('fiscalite-declarations') && !isAdmin) {
+  // Vérifier les permissions d'accès (Accès Admin, DG ou DAF autorisé par défaut)
+  const isAuthorized = has('fiscalite-declarations') || 
+                       user?.role === 'admin' || 
+                       user?.role === 'dg' || 
+                       user?.role === 'daf' || 
+                       has('admin');
+
+  if (!isAuthorized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
@@ -82,7 +87,9 @@ const Fiscalite: React.FC = () => {
           </p>
           <div className="bg-slate-50 rounded-lg p-4 mb-6">
             <p className="text-sm text-slate-700 font-medium mb-1">{t('common.permission_required', { defaultValue: 'Permission requise:' })}</p>
-            <p className="text-sm text-slate-600">fiscalite-declarations {t('common.or', { defaultValue: 'ou' })} {t('common.role_admin', { defaultValue: 'rôle administrateur' })}</p>
+            <p className="text-sm text-slate-600">
+              fiscalite-declarations, DG, DAF {t('common.or', { defaultValue: 'ou' })} {t('common.role_admin', { defaultValue: 'Administrateur' })}
+            </p>
           </div>
           <button
             onClick={() => window.history.back()}
@@ -1818,7 +1825,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               purchasesHT={declarationData.achatsHT}
               companyInfo={{
                 name: user?.companyName || 'MA SOCIÉTÉ DZ',
-                address: user?.address || 'Alger, Algérie',
+                address: user?.adresse || 'Alger, Algérie',
                 taxId: user?.nif || '000123456789',
                 rc: user?.rc || '16/00-1234567',
                 ai: user?.ai || '16123456789'
@@ -1831,7 +1838,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               beneficiaires={declarationData.beneficiaires}
               companyInfo={{
                 name: user?.companyName || 'MA SOCIÉTÉ DZ',
-                address: user?.address || 'Alger, Algérie',
+                address: user?.adresse || 'Alger, Algérie',
                 taxId: user?.nif || '000123456789',
                 rc: user?.rc || '16/00-1234567',
                 ai: user?.ai || '16123456789'

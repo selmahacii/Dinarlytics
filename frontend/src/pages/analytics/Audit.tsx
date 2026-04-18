@@ -24,8 +24,10 @@ import {
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import axios from 'axios';
+import { useTranslation } from '@shared/hooks/useTranslation';
 
 const Audit: React.FC = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -100,8 +102,8 @@ const Audit: React.FC = () => {
         passed: 38,
         failed: isToday ? 0 : 4,
         score: isToday ? 100 : 92,
-        lastCheck: isToday ? 'Auj. 09:00' : '15 Oct 09:00',
-        nextCheck: isToday ? 'Demain 09:00' : '22 Oct 09:00'
+        lastCheck: isToday ? `${t('common.today')} 09:00` : '15 Oct 09:00',
+        nextCheck: isToday ? `${t('common.tomorrow')} 09:00` : '22 Oct 09:00'
       });
 
       // Mock Security Data
@@ -116,7 +118,7 @@ const Audit: React.FC = () => {
 
     } catch (err) {
       console.error('Error fetching data:', err);
-      setErrorLogs('Erreur lors du chargement des données. Veuillez réessayer.');
+      setErrorLogs(t('common.errors.loading_failed'));
     } finally {
       setLoadingLogs(false);
     }
@@ -231,88 +233,45 @@ const Audit: React.FC = () => {
   // ...existing code...
 
   const riskAssessment = [
-    { id: 1, risk: 'Accès non autorisé', level: 'Élevé', probability: 75, impact: 90, mitigation: 'Renforcer l\'authentification' },
-    { id: 2, risk: 'Perte de données', level: 'Moyen', probability: 30, impact: 85, mitigation: 'Sauvegarde automatique' },
-    { id: 3, risk: 'Non-conformité fiscale', level: 'Élevé', probability: 40, impact: 95, mitigation: 'Audit régulier' },
-    { id: 4, risk: 'Erreur de calcul', level: 'Faible', probability: 15, impact: 60, mitigation: 'Validation automatique' }
+    { id: 1, risk: 'audit.risks.items.acc_unauth', level: 'Élevé', probability: 75, impact: 90, mitigation: 'audit.risks.items.acc_unauth_mit' },
+    { id: 2, risk: 'audit.risks.items.data_loss', level: 'Moyen', probability: 30, impact: 85, mitigation: 'audit.risks.items.data_loss_mit' },
+    { id: 3, risk: 'audit.risks.items.tax_non_comp', level: 'Élevé', probability: 40, impact: 95, mitigation: 'audit.risks.items.tax_non_comp_mit' },
+    { id: 4, risk: 'audit.risks.items.calc_error', level: 'Faible', probability: 15, impact: 60, mitigation: 'audit.risks.items.calc_error_mit' }
   ];
 
   const auditCategories = [
-    { name: 'Connexions', count: 1247, color: 'blue' },
-    { name: 'Modifications', count: 456, color: 'green' },
-    { name: 'Suppressions', count: 23, color: 'red' },
-    { name: 'Exports', count: 89, color: 'yellow' },
-    { name: 'Imports', count: 67, color: 'purple' }
+    { name: 'audit.analytics.metrics.logins', count: 1247, color: 'blue' },
+    { name: 'audit.analytics.metrics.modifications', count: 456, color: 'green' },
+    { name: 'audit.analytics.metrics.deletions', count: 23, color: 'red' },
+    { name: 'audit.analytics.metrics.exports', count: 89, color: 'yellow' },
+    { name: 'audit.analytics.metrics.imports', count: 67, color: 'purple' }
   ];
 
-  // Logs d'audit
-  const auditLogs = [
-    {
-      id: '1',
-      timestamp: '2024-01-15 14:30:25',
-      user: 'Marie Dubois',
-      action: 'Connexion',
-      resource: 'Système',
-      status: 'success',
-      ip: '192.168.1.100',
-      details: 'Connexion réussie depuis le bureau principal'
-    },
-    {
-      id: '2',
-      timestamp: '2024-01-15 14:25:10',
-      user: 'Jean Martin',
-      action: 'Modification',
-      resource: 'Facture #F-2024-001',
-      status: 'success',
-      ip: '192.168.1.101',
-      details: 'Montant modifié de 2500€ à 2750€'
-    },
-    {
-      id: '3',
-      timestamp: '2024-01-15 14:20:45',
-      user: 'Ahmed Benali',
-      action: 'Export',
-      resource: 'Rapport Financier',
-      status: 'warning',
-      ip: '192.168.1.102',
-      details: 'Export de données sensibles - autorisation requise'
-    },
-    {
-      id: '4',
-      timestamp: '2024-01-15 14:15:30',
-      user: 'Fatima Zohra',
-      action: 'Suppression',
-      resource: 'Client #C-2024-045',
-      status: 'failed',
-      ip: '192.168.1.103',
-      details: 'Tentative de suppression refusée - client avec factures en cours'
-    }
-  ];
 
   const auditStats = [
     {
-      title: 'Connexions',
+      title: 'audit.stats.logins',
       value: '1,247',
       change: '+12',
       icon: UserIcon,
       color: 'blue'
     },
     {
-      title: 'Modifications',
+      title: 'audit.stats.modifications',
       value: '156',
       change: '+12',
       icon: DocumentTextIcon,
       color: 'green'
     },
     {
-      title: 'Tentatives Échouées',
+      title: 'audit.stats.failed_attempts',
       value: '3',
       change: '-2',
       icon: ExclamationTriangleIcon,
       color: 'red'
     },
     {
-      title: 'Exports',
+      title: 'audit.stats.exports',
       value: '8',
       change: '+3',
       icon: DocumentArrowDownIcon,
@@ -387,8 +346,8 @@ const Audit: React.FC = () => {
       {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Audit & Sécurité</h1>
-          <p className="text-slate-600">Surveillance avancée des activités et sécurité du système</p>
+          <h1 className="text-2xl font-bold text-slate-800">{t('audit.title')}</h1>
+          <p className="text-slate-600">{t('audit.subtitle')}</p>
         </div>
         <div className="flex space-x-3">
           <select
@@ -398,19 +357,19 @@ const Audit: React.FC = () => {
             title="Sélectionner la période d'audit"
             aria-label="Sélectionner la période d'audit"
           >
-            <option value="jour">Aujourd'hui</option>
-            <option value="semaine">Cette semaine</option>
-            <option value="mois">Ce mois</option>
-            <option value="trimestre">Ce trimestre</option>
+            <option value="jour">{t('audit.controls.today')}</option>
+            <option value="semaine">{t('audit.controls.this_week')}</option>
+            <option value="mois">{t('audit.controls.this_month')}</option>
+            <option value="trimestre">{t('audit.controls.this_quarter')}</option>
           </select>
           <button
             type="button"
             onClick={handleRefresh}
             className="px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-lg hover:from-slate-800 hover:to-slate-900 flex items-center space-x-2 transition-all duration-200 shadow-md hover:shadow-lg"
-            title="Actualiser les données d'audit"
+            title={t('audit.controls.refresh')}
           >
             <ArrowPathIcon className="h-5 w-5" />
-            <span>Actualiser</span>
+            <span>{t('audit.controls.refresh')}</span>
           </button>
         </div>
       </div>
@@ -420,12 +379,12 @@ const Audit: React.FC = () => {
         <div className="border-b border-slate-100 bg-white sticky top-0 z-10">
           <nav className="flex space-x-1 px-4 py-2" aria-label="Tabs">
             {[
-              { id: 'logs', name: 'Logs Audit', icon: DocumentTextIcon },
-              { id: 'compliance', name: 'Conformité', icon: ShieldCheckIcon },
-              { id: 'security', name: 'Sécurité', icon: LockClosedIcon },
-              { id: 'risks', name: 'Risques', icon: ExclamationTriangleIcon },
-              { id: 'analytics', name: 'Analytics', icon: ChartBarIcon },
-              { id: 'reports', name: 'Rapports', icon: DocumentArrowDownIcon }
+              { id: 'logs', name: t('audit.tabs.logs'), icon: DocumentTextIcon },
+              { id: 'compliance', name: t('audit.tabs.compliance'), icon: ShieldCheckIcon },
+              { id: 'security', name: t('audit.tabs.security'), icon: LockClosedIcon },
+              { id: 'risks', name: t('audit.tabs.risks'), icon: ExclamationTriangleIcon },
+              { id: 'analytics', name: t('audit.tabs.analytics'), icon: ChartBarIcon },
+              { id: 'reports', name: t('audit.tabs.reports'), icon: DocumentArrowDownIcon }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -462,12 +421,14 @@ const Audit: React.FC = () => {
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                           : 'bg-rose-50 text-rose-700 border-rose-100'
                           }`}>
-                          {stat.change.startsWith('+') ? <ArrowPathIcon className="h-3 w-3 mr-1" /> : <ExclamationTriangleIcon className="h-3 w-3 mr-1" />}
-                          {stat.change}
+                          {stat.change.startsWith('+') ? <ArrowUpIcon className="h-3 w-3 mr-1" /> : <ArrowDownIcon className="h-3 w-3 mr-1" />}
+                          {stat.change}%
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-1">{stat.title}</h4>
+                        <h4 className="text-slate-500 text-xs font-semibold uppercase tracking-wide mb-1">
+                          {t(stat.title)}
+                        </h4>
                         <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
                       </div>
                     </div>
@@ -483,7 +444,7 @@ const Audit: React.FC = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Rechercher..."
+                    placeholder={t('audit.controls.search')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="block w-full pl-9 pr-3 py-2 bg-white border border-slate-300 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-500 focus:border-slate-500 rounded-md sm:text-sm"
@@ -492,11 +453,11 @@ const Audit: React.FC = () => {
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button className="flex-1 sm:flex-none items-center justify-center px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-md hover:bg-slate-50 font-medium text-sm transition-colors">
                     <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-                    Export
+                    {t('audit.controls.export')}
                   </button>
                   <button className="flex-1 sm:flex-none items-center justify-center px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 font-medium text-sm transition-colors">
                     <PrinterIcon className="h-4 w-4 mr-2" />
-                    Imprimer
+                    {t('audit.controls.print')}
                   </button>
                 </div>
               </div>
@@ -507,11 +468,11 @@ const Audit: React.FC = () => {
                   <table className="min-w-full divide-y divide-slate-200">
                     <thead className="bg-slate-50">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">Horodatage</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">Utilisateur</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">Action</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">Ressource</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">Statut</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">{t('audit.table.timestamp')}</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">{t('audit.table.user')}</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">{t('audit.table.action')}</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">{t('audit.table.resource')}</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider border-b border-slate-200">{t('audit.table.status')}</th>
                         <th scope="col" className="relative px-6 py-3 border-b border-slate-200"><span className="sr-only">Actions</span></th>
                       </tr>
                     </thead>
@@ -542,7 +503,7 @@ const Audit: React.FC = () => {
                               log.status === 'warning' ? 'bg-amber-50 text-amber-700 border-amber-100' :
                                 'bg-rose-50 text-rose-700 border-rose-100'
                               }`}>
-                              {log.status === 'success' ? 'Succès' : log.status === 'warning' ? 'Alerte' : 'Échec'}
+                              {log.status === 'success' ? t('audit.table.success') : log.status === 'warning' ? t('audit.table.warning') : t('audit.table.failed')}
                             </span>
                           </td>
                           <td className="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
@@ -570,9 +531,9 @@ const Audit: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-bold text-slate-800 flex items-center">
                     <ShieldCheckIcon className="h-5 w-5 text-slate-600 mr-2" />
-                    Conformité et Contrôles
+                    {t('audit.compliance.title')}
                   </h3>
-                  <p className="text-slate-500 text-sm">Audit réglementaire et validation des standards</p>
+                  <p className="text-slate-500 text-sm">{t('audit.compliance.subtitle')}</p>
                 </div>
                 <button
                   type="button"
@@ -580,7 +541,7 @@ const Audit: React.FC = () => {
                   className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium flex items-center"
                 >
                   <ArrowPathIcon className="h-4 w-4 mr-2" />
-                  Lancer l'Audit
+                  {t('audit.compliance.run_audit')}
                 </button>
               </div>
 
@@ -589,7 +550,7 @@ const Audit: React.FC = () => {
 
                 {/* Global Score Card */}
                 <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col items-center justify-center">
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-6">Score Global</h4>
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-6">{t('audit.compliance.global_score')}</h4>
 
                   <div className="relative w-40 h-40 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
@@ -607,12 +568,12 @@ const Audit: React.FC = () => {
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-4xl font-bold text-slate-800">{complianceData.score || 85}%</span>
-                      <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded mt-1">OPTIMAL</span>
+                      <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded mt-1">{t('audit.compliance.optimal')}</span>
                     </div>
                   </div>
 
                   <div className="mt-6 text-center text-xs text-slate-500">
-                    <p>Dernier audit: <span className="font-semibold text-slate-700">{complianceData.lastCheck !== '-' ? complianceData.lastCheck : 'Aujourd\'hui 09:30'}</span></p>
+                    <p>{t('audit.compliance.last_audit')} <span className="font-semibold text-slate-700">{complianceData.lastCheck !== '-' ? complianceData.lastCheck : `${t('audit.controls.today')} 09:30`}</span></p>
                   </div>
                 </div>
 
@@ -621,7 +582,7 @@ const Audit: React.FC = () => {
                   {/* Total Checks */}
                   <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase">Total Contrôles</span>
+                      <span className="text-xs font-semibold text-slate-500 uppercase">{t('audit.compliance.total_checks')}</span>
                       <ClipboardDocumentListIcon className="h-5 w-5 text-slate-400" />
                     </div>
                     <div className="text-2xl font-bold text-slate-800">{complianceData.totalChecks || 42}</div>
@@ -630,7 +591,7 @@ const Audit: React.FC = () => {
                   {/* Passed Checks */}
                   <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase">Validés</span>
+                      <span className="text-xs font-semibold text-slate-500 uppercase">{t('audit.compliance.passed')}</span>
                       <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div className="text-2xl font-bold text-slate-800">{complianceData.passed || 38}</div>
@@ -639,7 +600,7 @@ const Audit: React.FC = () => {
                   {/* Failed Checks */}
                   <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase">À Revoir</span>
+                      <span className="text-xs font-semibold text-slate-500 uppercase">{t('audit.compliance.to_review')}</span>
                       <ExclamationTriangleIcon className="h-5 w-5 text-rose-600" />
                     </div>
                     <div className="text-2xl font-bold text-slate-800">{complianceData.failed || 2}</div>
@@ -648,7 +609,7 @@ const Audit: React.FC = () => {
                   {/* Upcoming Audit */}
                   <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-semibold text-slate-500 uppercase">Prochain Audit</span>
+                      <span className="text-xs font-semibold text-slate-500 uppercase">{t('audit.compliance.next_audit')}</span>
                       <CalendarIcon className="h-5 w-5 text-slate-400" />
                     </div>
                     <div className="text-xl font-bold text-slate-800">{complianceData.nextCheck !== '-' ? complianceData.nextCheck : '25 Oct 2024'}</div>
@@ -659,14 +620,14 @@ const Audit: React.FC = () => {
               {/* Detailed Breakdown Categories */}
               <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
-                  <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide">Détail des Analyses</h4>
+                  <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide">{t('audit.compliance.analysis_detail')}</h4>
                 </div>
                 <div className="divide-y divide-slate-200">
                   {[
-                    { category: 'Sécurité Fiscale', score: 100, status: 'Conforme', details: 'Déclarations G50 validation croisée', icon: ScaleIcon },
-                    { category: 'Intégrité des Données', score: 95, status: 'Conforme', details: 'Sauvegardes chiffrées quotidiennes', icon: CircleStackIcon },
-                    { category: 'Accès Utilisateurs', score: 80, status: 'Attention', details: '2 comptes inactifs détectés', icon: UserIcon },
-                    { category: 'RGPD / Confidentialité', score: 100, status: 'Conforme', details: 'Anonymisation active', icon: ShieldCheckIcon }
+                    { category: t('audit.compliance.fiscal_security'), score: 100, status: t('audit.compliance.compliant'), details: t('audit.compliance.fiscal_security_details'), icon: ScaleIcon },
+                    { category: t('audit.compliance.data_integrity'), score: 95, status: t('audit.compliance.compliant'), details: t('audit.compliance.data_integrity_details'), icon: CircleStackIcon },
+                    { category: t('audit.compliance.user_access'), score: 80, status: t('audit.compliance.attention'), details: t('audit.compliance.user_access_details'), icon: UserIcon },
+                    { category: t('audit.compliance.gdpr'), score: 100, status: t('audit.compliance.compliant'), details: t('audit.compliance.gdpr_details'), icon: ShieldCheckIcon }
                   ].map((item, idx) => (
                     <div key={idx} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
                       <div className="flex items-center space-x-4">
@@ -704,7 +665,7 @@ const Audit: React.FC = () => {
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 flex items-center">
                     <LockClosedIcon className="h-6 w-6 text-slate-700 mr-2" />
-                    Surveillance de Sécurité
+                    {t('audit.security.title')}
                   </h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className="flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
@@ -712,9 +673,9 @@ const Audit: React.FC = () => {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
-                      Système Sécurisé
+                      {t('audit.security.status_secured')}
                     </span>
-                    <span className="text-xs text-slate-500">| Dernière analyse: <span className="font-semibold text-slate-700">Il y a 5 min</span></span>
+                    <span className="text-xs text-slate-500">| {t('audit.security.last_analysis')} <span className="font-semibold text-slate-700">{t('audit.security.time_ago_short', { min: 5 })}</span></span>
                   </div>
                 </div>
                 <button
@@ -723,7 +684,7 @@ const Audit: React.FC = () => {
                   className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 transition-all shadow-sm text-sm font-medium flex items-center"
                 >
                   <ArrowPathIcon className="h-4 w-4 mr-2" />
-                  Lancer l'Analyse
+                  {t('audit.security.run_analysis')}
                 </button>
               </div>
 
@@ -735,7 +696,7 @@ const Audit: React.FC = () => {
                     <UserIcon className="h-16 w-16 text-slate-800" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Connexions (24h)</h4>
+                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">{t('audit.security.logins_24h')}</h4>
                     <div className="mt-2 flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-slate-800">{securityMetrics.totalLogins || 142}</span>
                       <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">+5%</span>
@@ -752,10 +713,10 @@ const Audit: React.FC = () => {
                     <ExclamationTriangleIcon className="h-16 w-16 text-rose-600" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Échecs Auth.</h4>
+                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">{t('audit.security.auth_failed')}</h4>
                     <div className="mt-2 flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-rose-600">{securityMetrics.failedLogins || 3}</span>
-                      <span className="text-xs font-medium text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">Attention</span>
+                      <span className="text-xs font-medium text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{t('audit.security.status.warning')}</span>
                     </div>
                   </div>
                   <div className="w-full bg-rose-50 h-1.5 rounded-full overflow-hidden mt-4">
@@ -769,13 +730,13 @@ const Audit: React.FC = () => {
                     <EyeIcon className="h-16 w-16 text-amber-500" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Activités Suspectes</h4>
+                    <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">{t('audit.security.suspicious_activity')}</h4>
                     <div className="mt-2 flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-amber-600">{securityMetrics.suspiciousActivity || 0}</span>
                       {securityMetrics.suspiciousActivity > 0 ? (
-                        <span className="text-xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">À vérifier</span>
+                        <span className="text-xs font-medium text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">{t('audit.security.status.to_verify')}</span>
                       ) : (
-                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">Aucune</span>
+                        <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">{t('audit.security.status.none')}</span>
                       )}
                     </div>
                   </div>
@@ -789,14 +750,14 @@ const Audit: React.FC = () => {
                 {/* Security Alerts List */}
                 <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                   <div className="px-5 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                    <h4 className="text-sm font-bold text-slate-700">Dernières Alertes de Sécurité</h4>
-                    <button className="text-xs text-indigo-600 font-medium hover:underline">Voir tout l'historique</button>
+                    <h4 className="text-sm font-bold text-slate-700">{t('audit.security.latest_alerts')}</h4>
+                    <button className="text-xs text-indigo-600 font-medium hover:underline">{t('audit.security.view_all_history')}</button>
                   </div>
                   <div className="divide-y divide-slate-100 flex-1">
                     {[
-                      { type: 'Login', msg: 'Tentative de connexion échouée (IP: 192.168.1.45)', time: '10:42', severity: 'medium' },
-                      { type: 'System', msg: 'Mise à jour des règles de pare-feu effectuée', time: '09:15', severity: 'low' },
-                      { type: 'Access', msg: 'Compte utilisateur "j.doe" verrouillé après 5 essais', time: 'Yesterday', severity: 'high' }
+                      { type: t('audit.security.alert_types.login'), msg: t('audit.security.alerts.failed_login_ip', { ip: '192.168.1.45' }), time: '10:42', severity: 'medium' },
+                      { type: t('audit.security.alert_types.system'), msg: t('audit.security.alerts.firewall_update'), time: '09:15', severity: 'low' },
+                      { type: t('audit.security.alert_types.access'), msg: t('audit.security.alerts.account_locked', { user: 'j.doe' }), time: t('common.yesterday'), severity: 'high' }
                     ].map((alert, idx) => (
                       <div key={idx} className="p-4 flex items-start space-x-3 hover:bg-slate-50 transition-colors">
                         <div className={`mt-0.5 h-2 w-2 rounded-full ${alert.severity === 'high' ? 'bg-rose-500' : alert.severity === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'}`}></div>
@@ -815,27 +776,27 @@ const Audit: React.FC = () => {
                 {/* System Health / Status */}
                 <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                   <div className="px-5 py-4 border-b border-slate-100 bg-slate-50">
-                    <h4 className="text-sm font-bold text-slate-700">État des Systèmes de Protection</h4>
+                    <h4 className="text-sm font-bold text-slate-700">{t('audit.security.protection_status')}</h4>
                   </div>
                   <div className="p-5 space-y-4">
                     {[
-                      { name: 'Pare-feu Applicatif (WAF)', status: 'Actif', health: 100 },
-                      { name: 'Détection d\'Intrusion (IDS)', status: 'Actif', health: 98 },
-                      { name: 'Chiffrement des Données', status: 'Actif', health: 100 },
-                      { name: 'Double Authentification (2FA)', status: 'Partiel', health: 85 }
+                      { key: 'waf', status: 'active', health: 100 },
+                      { key: 'ids', status: 'active', health: 98 },
+                      { key: 'encryption', status: 'active', health: 100 },
+                      { key: 'mfa', status: 'partial', health: 85 }
                     ].map((sys, idx) => (
                       <div key={idx} className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className={`p-1.5 rounded-full ${sys.health === 100 ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
                             <ShieldCheckIcon className="h-4 w-4" />
                           </div>
-                          <span className="text-sm font-medium text-slate-700">{sys.name}</span>
+                          <span className="text-sm font-medium text-slate-700">{t(`audit.security.systems.${sys.key}`)}</span>
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="w-24 bg-slate-100 rounded-full h-1.5 overflow-hidden">
                             <div className={`h-full rounded-full ${sys.health > 90 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${sys.health}%` }}></div>
                           </div>
-                          <span className={`text-xs font-bold ${sys.health === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{sys.status}</span>
+                          <span className={`text-xs font-bold ${sys.health === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{t(`audit.security.status.${sys.status}`)}</span>
                         </div>
                       </div>
                     ))}
@@ -843,7 +804,7 @@ const Audit: React.FC = () => {
                   <div className="mt-auto bg-slate-50 p-3 text-center border-t border-slate-100">
                     <button className="text-xs font-medium text-slate-600 hover:text-slate-800 flex items-center justify-center w-full">
                       <KeyIcon className="h-3 w-3 mr-1.5" />
-                      Gérer les clés de chiffrement
+                      {t('audit.security.manage_keys')}
                     </button>
                   </div>
                 </div>
@@ -856,63 +817,68 @@ const Audit: React.FC = () => {
             <div className="space-y-6 animate-in fade-in duration-500">
               <div className="flex justify-between items-center border-b border-slate-200 pb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">Matrice des Risques Opérationnels</h3>
-                  <p className="text-slate-500 text-sm">Identification, évaluation et mitigation des menaces potentielles</p>
+                  <h3 className="text-xl font-bold text-slate-800">{t('audit.risks.title')}</h3>
+                  <p className="text-slate-500 text-sm">{t('audit.risks.subtitle')}</p>
                 </div>
                 <button className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 text-sm font-medium flex items-center shadow-sm">
                   <ArrowPathIcon className="h-4 w-4 mr-2" />
-                  Mettre à jour l'analyse
+                  {t('audit.risks.update_analysis')}
                 </button>
               </div>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Risk Heatmap Visualization */}
                 <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
-                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">Distribution des Risques (Heatmap)</h4>
-                  <div className="grid grid-cols-3 gap-1 h-48">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-4">{t('audit.risks.heatmap_title')}</h4>
+                  <div className="grid grid-cols-3 gap-1 h-48 relative">
                     {/* Critical Zone */}
-                    <div className="bg-rose-100 flex items-center justify-center text-xs font-bold text-rose-800 rounded-tl-md">Moyen</div>
-                    <div className="bg-rose-200 flex items-center justify-center text-xs font-bold text-rose-800">Élevé</div>
-                    <div className="bg-rose-400 flex items-center justify-center text-xs font-bold text-white rounded-tr-md shadow-inner">Critique</div>
+                    <div className="bg-rose-100 flex items-center justify-center text-xs font-bold text-rose-800 rounded-tl-md">{t('audit.risks.levels.medium')}</div>
+                    <div className="bg-rose-200 flex items-center justify-center text-xs font-bold text-rose-800">{t('audit.risks.levels.high')}</div>
+                    <div className="bg-rose-400 flex items-center justify-center text-xs font-bold text-white rounded-tr-md shadow-inner relative">
+                      {t('audit.risks.levels.critical')}
+                      <div className="absolute top-2 right-2 text-[9px] font-bold text-white/50">{t('audit.risks.levels.critical').toUpperCase()}</div>
+                    </div>
 
                     {/* Warning Zone */}
-                    <div className="bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-800">Faible</div>
+                    <div className="bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-800">{t('audit.risks.levels.low')}</div>
                     <div className="bg-amber-200 flex items-center justify-center text-xs font-bold text-amber-800 relative ring-2 ring-slate-400 z-10 rounded shadow-lg">
-                      Moyen
+                      {t('audit.risks.levels.medium')}
                       <span className="absolute -top-1 -right-1 flex h-3 w-3">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
                       </span>
                     </div>
-                    <div className="bg-rose-200 flex items-center justify-center text-xs font-bold text-rose-800">Élevé</div>
+                    <div className="bg-rose-200 flex items-center justify-center text-xs font-bold text-rose-800">{t('audit.risks.levels.high')}</div>
 
                     {/* Safe Zone */}
-                    <div className="bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-800 rounded-bl-md">Minime</div>
-                    <div className="bg-emerald-200 flex items-center justify-center text-xs font-bold text-emerald-800">Faible</div>
-                    <div className="bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-800 rounded-br-md">Moyen</div>
+                    <div className="bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-800 rounded-bl-md relative">
+                      {t('audit.risks.levels.minimal')}
+                      <div className="absolute bottom-2 left-2 text-[9px] font-bold text-emerald-800/30">{t('audit.risks.levels.minimal').toUpperCase()}</div>
+                    </div>
+                    <div className="bg-emerald-200 flex items-center justify-center text-xs font-bold text-emerald-800">{t('audit.risks.levels.low')}</div>
+                    <div className="bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-800 rounded-br-md">{t('audit.risks.levels.medium')}</div>
                   </div>
                   <div className="flex justify-between text-[10px] text-slate-400 mt-2 uppercase font-medium">
-                    <span>Impact Faible</span>
-                    <span>Impact Élevé</span>
+                    <span>{t('audit.risks.impact_low')}</span>
+                    <span>{t('audit.risks.impact_high')}</span>
                   </div>
                 </div>
 
                 {/* Risk Summary Stats */}
                 <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-white p-5 rounded-lg border border-blue-100 shadow-sm border-l-4 border-l-blue-500">
-                    <h4 className="text-sm font-semibold text-slate-600 mb-1">Score de Risque Global</h4>
-                    <div className="text-3xl font-bold text-slate-800">Low-Medium</div>
-                    <p className="text-xs text-slate-500 mt-2">Basé sur 24 facteurs pondérés. Tendance stable par rapport au mois dernier.</p>
+                    <h4 className="text-sm font-semibold text-slate-600 mb-1">{t('audit.risks.global_score')}</h4>
+                    <div className="text-3xl font-bold text-slate-800">{t('audit.risks.summary_text')}</div>
+                    <p className="text-xs text-slate-500 mt-2">{t('audit.risks.factors_count')}</p>
                   </div>
                   <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-center">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-slate-700">Risques Mitigés</span>
+                      <span className="text-sm font-medium text-slate-700">{t('audit.risks.mitigated_risks')}</span>
                       <span className="text-sm font-bold text-emerald-600">85%</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2">
                       <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '85%' }}></div>
                     </div>
-                    <p className="text-xs text-slate-500 mt-3">3 risques residuels nécessitent une attention particulière.</p>
+                    <p className="text-xs text-slate-500 mt-3">{t('audit.risks.attention_needed', { count: 3 })}</p>
                   </div>
                 </div>
               </div>
@@ -922,18 +888,18 @@ const Audit: React.FC = () => {
                 <table className="min-w-full divide-y divide-slate-200">
                   <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Risque Identifié</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Niveau & Classification</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Probabilité vs Impact</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Stratégie de Mitigation</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('audit.risks.table.risk')}</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('audit.risks.table.level')}</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('audit.risks.table.prob_impact')}</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">{t('audit.risks.table.mitigation')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 bg-white">
                     {[
-                      { id: 1, risk: 'Intrusion Système / Malware', cat: 'Cybersécurité', level: 'Critique', prob: 25, impact: 95, mitigation: 'Mise à jour IPS/IDS, Patching 24h', status: 'Actif' },
-                      { id: 2, risk: 'Panne Serveur SGBD Principal', cat: 'Infrastructure', level: 'Élevé', prob: 10, impact: 90, mitigation: 'Failover Cluster Automatique', status: 'Surveillé' },
-                      { id: 3, risk: 'Erreur Humaine (Saisie)', cat: 'Opérationnel', level: 'Moyen', prob: 60, impact: 40, mitigation: 'Double validation entrées', status: 'Contrôlé' },
-                      { id: 4, risk: 'Non-Conformité RGPD', cat: 'Légal', level: 'Faible', prob: 15, impact: 70, mitigation: 'Revue trimestrielle DPO', status: 'Conforme' },
+                      { id: 1, risk: t('audit.risks.items.acc_unauth'), cat: t('audit.risks.categories.cybersecurity'), level: 'Élevé', prob: 75, impact: 90, mitigation: t('audit.risks.items.acc_unauth_mit'), status: t('audit.risks.statuses.active') },
+                      { id: 2, risk: t('audit.risks.items.data_loss'), cat: t('audit.risks.categories.infrastructure'), level: 'Moyen', prob: 30, impact: 85, mitigation: t('audit.risks.items.data_loss_mit'), status: t('audit.risks.statuses.monitored') },
+                      { id: 3, risk: t('audit.risks.items.tax_non_comp'), cat: t('audit.risks.categories.legal'), level: 'Élevé', prob: 40, impact: 95, mitigation: t('audit.risks.items.tax_non_comp_mit'), status: t('audit.risks.statuses.controlled') },
+                      { id: 4, risk: t('audit.risks.items.calc_error'), cat: t('audit.risks.categories.operational'), level: 'Faible', prob: 15, impact: 60, mitigation: t('audit.risks.items.calc_error_mit'), status: t('audit.risks.statuses.compliant') },
                     ].map((risk) => (
                       <tr key={risk.id} className="hover:bg-slate-50 transition-colors group">
                         <td className="px-6 py-4">
@@ -946,21 +912,24 @@ const Audit: React.FC = () => {
                               risk.level === 'Moyen' ? 'bg-amber-100 text-amber-800 border-amber-200' :
                                 'bg-emerald-100 text-emerald-800 border-emerald-200'
                             }`}>
-                            {risk.level}
+                            {risk.level === 'Critique' ? t('audit.risks.levels.critical') :
+                              risk.level === 'Élevé' ? t('audit.risks.levels.high') :
+                              risk.level === 'Moyen' ? t('audit.risks.levels.medium') :
+                              t('audit.risks.levels.low')}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <div className="space-y-2 max-w-[140px]">
-                            <div className="flex justify-between text-[10px] text-slate-500"><span>Prob.</span><span className="font-mono">{risk.prob}%</span></div>
+                            <div className="flex justify-between text-[10px] text-slate-500"><span>{t('audit.risks.table.prob_short')}</span><span className="font-mono">{risk.prob}%</span></div>
                             <div className="w-full bg-slate-100 h-1.5 rounded-sm overflow-hidden"><div className="bg-slate-400 h-full" style={{ width: `${risk.prob}%` }}></div></div>
 
-                            <div className="flex justify-between text-[10px] text-slate-500"><span>Imp.</span><span className="font-mono">{risk.impact}%</span></div>
+                            <div className="flex justify-between text-[10px] text-slate-500"><span>{t('audit.risks.table.impact_short')}</span><span className="font-mono">{risk.impact}%</span></div>
                             <div className="w-full bg-slate-100 h-1.5 rounded-sm overflow-hidden"><div className="bg-slate-700 h-full" style={{ width: `${risk.impact}%` }}></div></div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-slate-700 font-medium">{risk.mitigation}</div>
-                          <button className="text-xs font-bold text-indigo-600 hover:text-indigo-800 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Voir le plan d'action &rarr;</button>
+                          <button className="text-xs font-bold text-indigo-600 hover:text-indigo-800 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">{t('audit.risks.table.action_plan')} &rarr;</button>
                         </td>
                       </tr>
                     ))}
@@ -974,9 +943,9 @@ const Audit: React.FC = () => {
           {activeTab === 'analytics' && (
             <div className="space-y-8 animate-in fade-in duration-500">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-slate-800">Analyse de l'Activité Système</h3>
+                <h3 className="text-xl font-bold text-slate-800">{t('audit.analytics.title')}</h3>
                 <div className="flex space-x-2">
-                  <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold border border-slate-200">Derniers 30 jours</span>
+                  <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold border border-slate-200">{t('audit.analytics.last_30_days')}</span>
                 </div>
               </div>
 
@@ -995,7 +964,7 @@ const Audit: React.FC = () => {
 
                   return (
                     <div key={index} className={`bg-white p-4 rounded-lg border border-slate-200 shadow-sm border-l-4 ${theme.border}`}>
-                      <h4 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">{category.name}</h4>
+                      <h4 className="text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">{t(category.name)}</h4>
                       <div className="text-2xl font-bold text-slate-800">{category.count.toLocaleString()}</div>
                     </div>
                   );
@@ -1008,18 +977,18 @@ const Audit: React.FC = () => {
                 {/* Main Activity Chart - Clean */}
                 <div className="lg:col-span-2 bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col">
                   <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-                    <h4 className="text-sm font-bold text-slate-700">Volume d'Activité</h4>
+                    <h4 className="text-sm font-bold text-slate-700">{t('audit.analytics.activity_volume')}</h4>
                   </div>
 
                   <div className="flex-1 flex items-end justify-between space-x-4 min-h-[200px] px-2">
                     {[
-                      { day: 'Lun', val: 65 },
-                      { day: 'Mar', val: 85 },
-                      { day: 'Mer', val: 55 },
-                      { day: 'Jeu', val: 90 },
-                      { day: 'Ven', val: 45 },
-                      { day: 'Sam', val: 30 },
-                      { day: 'Dim', val: 75 }
+                      { day: t('common.frequencies.days_short.mon'), val: 65 },
+                      { day: t('common.frequencies.days_short.tue'), val: 85 },
+                      { day: t('common.frequencies.days_short.wed'), val: 55 },
+                      { day: t('common.frequencies.days_short.thu'), val: 90 },
+                      { day: t('common.frequencies.days_short.fri'), val: 45 },
+                      { day: t('common.frequencies.days_short.sat'), val: 30 },
+                      { day: t('common.frequencies.days_short.sun'), val: 75 }
                     ].map((item, i) => (
                       <div key={i} className="flex-1 flex flex-col justify-end items-center group h-full">
                         <div className="w-full bg-slate-100 rounded-sm relative h-full flex items-end overflow-hidden">
@@ -1037,7 +1006,7 @@ const Audit: React.FC = () => {
 
                 {/* Distribution Chart - Minimalist */}
                 <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col">
-                  <h4 className="text-sm font-bold text-slate-700 mb-6 border-b border-slate-100 pb-4">Répartition</h4>
+                  <h4 className="text-sm font-bold text-slate-700 mb-6 border-b border-slate-100 pb-4">{t('audit.analytics.distribution')}</h4>
                   <div className="flex-1 flex items-center justify-center relative">
                     <div className="w-48 h-48 rounded-full border-[16px] border-slate-100 flex items-center justify-center relative">
                       <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -1048,21 +1017,21 @@ const Audit: React.FC = () => {
                       </svg>
                       <div className="text-center">
                         <span className="block text-2xl font-bold text-slate-800">1.8k</span>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total</span>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{t('audit.analytics.total')}</span>
                       </div>
                     </div>
                   </div>
                   <div className="mt-6 space-y-2">
                     <div className="flex justify-between items-center text-xs">
-                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-800 mr-2 rounded-sm"></span>Connexions</span>
+                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-800 mr-2 rounded-sm"></span>{t('audit.analytics.metrics.logins')}</span>
                       <span className="font-bold text-slate-800">75%</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-400 mr-2 rounded-sm"></span>Modifications</span>
+                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-400 mr-2 rounded-sm"></span>{t('audit.analytics.metrics.modifications')}</span>
                       <span className="font-bold text-slate-800">15%</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-amber-500 mr-2 rounded-sm"></span>Autres</span>
+                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-amber-500 mr-2 rounded-sm"></span>{t('audit.analytics.metrics.others')}</span>
                       <span className="font-bold text-slate-800">10%</span>
                     </div>
                   </div>
@@ -1073,17 +1042,17 @@ const Audit: React.FC = () => {
               {/* Users Stats Table - Corporate */}
               <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                  <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide">Utilisateurs les plus actifs</h4>
-                  <button className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline">Voir tout</button>
+                  <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide">{t('audit.analytics.active_users')}</h4>
+                  <button className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline">{t('audit.analytics.view_all')}</button>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-slate-200">
                     <thead className="bg-white">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Utilisateur</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Rôle</th>
-                        <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Evénements</th>
-                        <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Tendance</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('audit.analytics.table.user')}</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('audit.analytics.table.role')}</th>
+                        <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('audit.analytics.table.events')}</th>
+                        <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('audit.analytics.table.trend')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -1103,7 +1072,9 @@ const Audit: React.FC = () => {
                           </td>
                           <td className="px-6 py-3">
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-white text-slate-600 border border-slate-200 uppercase tracking-wide">
-                              {user.role}
+                              {user.role === 'Directeur' ? t('roles.dg') :
+                                user.role === 'DAF' ? t('roles.daf') :
+                                t('roles.manager_ops')}
                             </span>
                           </td>
                           <td className="px-6 py-3 text-right">
@@ -1134,14 +1105,14 @@ const Audit: React.FC = () => {
                     <DocumentTextIcon className="h-20 w-20 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold opacity-80 uppercase tracking-wider mb-1">Rapports Générés</h4>
+                    <h4 className="text-sm font-bold opacity-80 uppercase tracking-wider mb-1">{t('audit.reports.generated_count')}</h4>
                     <div className="text-3xl font-bold">{128 + reportHistory.length}</div>
                     <div className="text-xs text-emerald-400 font-medium mt-1 flex items-center">
-                      <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +12% ce mois
+                      <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +12% {t('audit.controls.this_month')}
                     </div>
                   </div>
                   <div className="mt-4">
-                    <div className="text-xs opacity-60 mb-1">Stockage utilisé</div>
+                    <div className="text-xs opacity-60 mb-1">{t('audit.reports.storage_used')}</div>
                     <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
                       <div className="bg-emerald-500 h-full rounded-full" style={{ width: '45%' }}></div>
                     </div>
@@ -1152,21 +1123,21 @@ const Audit: React.FC = () => {
                 <div className="lg:col-span-3 bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col justify-center">
                   <div className="flex justify-between items-center mb-4">
                     <div>
-                      <h3 className="text-lg font-bold text-slate-800">Centre de Rapports</h3>
-                      <p className="text-slate-500 text-sm">Génération, planification et archivage des audits réglementaires</p>
+                      <h3 className="text-lg font-bold text-slate-800">{t('audit.reports.center_title')}</h3>
+                      <p className="text-slate-500 text-sm">{t('audit.reports.center_subtitle')}</p>
                     </div>
                     <button
                       onClick={handleScheduleReport}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors text-sm font-medium flex items-center shadow-sm"
                     >
                       <CalendarIcon className="h-4 w-4 mr-2" />
-                      Planifier un Rapport
+                      {t('audit.reports.schedule_btn')}
                     </button>
                   </div>
                   <div className="flex space-x-6 text-sm text-slate-600 border-t border-slate-100 pt-4">
-                    <div className="flex items-center"><CheckCircleIcon className="h-4 w-4 text-emerald-500 mr-2" /> 3 Rapports planifiés actifs</div>
-                    <div className="flex items-center"><ShieldCheckIcon className="h-4 w-4 text-indigo-500 mr-2" /> Signature numérique activée</div>
-                    <div className="flex items-center"><CircleStackIcon className="h-4 w-4 text-slate-400 mr-2" /> Retention: 3 ans</div>
+                    <div className="flex items-center"><CheckCircleIcon className="h-4 w-4 text-emerald-500 mr-2" /> {t('audit.reports.active_scheduled_count', { count: 3 })}</div>
+                    <div className="flex items-center"><ShieldCheckIcon className="h-4 w-4 text-indigo-500 mr-2" /> {t('audit.reports.digital_signature')}</div>
+                    <div className="flex items-center"><CircleStackIcon className="h-4 w-4 text-slate-400 mr-2" /> {t('audit.reports.retention', { years: 3 })}</div>
                   </div>
                 </div>
               </div>
@@ -1177,38 +1148,38 @@ const Audit: React.FC = () => {
                   <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50">
                     <h4 className="text-sm font-bold text-slate-800 flex items-center">
                       <PrinterIcon className="h-4 w-4 mr-2 text-slate-500" />
-                      Générateur Rapide
+                      {t('audit.reports.generator_title')}
                     </h4>
                   </div>
                   <div className="p-5 flex-1 flex flex-col space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Type de document</label>
+                      <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">{t('audit.reports.doc_type')}</label>
                       <select
                         className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
                         value={reportType}
                         onChange={(e) => setReportType(e.target.value)}
                       >
-                        <option>Audit Complet (détaillé)</option>
-                        <option>Synthèse de Conformité</option>
-                        <option>Journal des Incidents</option>
-                        <option>Matrice des Risques</option>
+                        <option>{t('audit.reports.types.full_audit')}</option>
+                        <option>{t('audit.reports.types.compliance_summary')}</option>
+                        <option>{t('audit.reports.types.incident_log')}</option>
+                        <option>{t('audit.reports.types.risk_matrix')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Période</label>
+                      <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">{t('audit.reports.period')}</label>
                       <select
                         className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 outline-none transition-all"
                         value={reportPeriod}
                         onChange={(e) => setReportPeriod(e.target.value)}
                       >
-                        <option>30 derniers jours</option>
-                        <option>Trimestre en cours (Q3)</option>
-                        <option>Année fiscale 2024</option>
-                        <option>Personnalisé...</option>
+                        <option>{t('audit.reports.periods.last_30_days')}</option>
+                        <option>{t('audit.reports.periods.current_quarter')}</option>
+                        <option>{t('audit.reports.periods.fiscal_year_2024')}</option>
+                         <option>{t('audit.reports.periods.custom')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Format de sortie</label>
+                      <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">{t('audit.reports.format')}</label>
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => setReportFormat('PDF')}
@@ -1234,12 +1205,12 @@ const Audit: React.FC = () => {
                         {isGenerating ? (
                           <>
                             <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" />
-                            Génération en cours...
+                            {t('audit.reports.generating')}
                           </>
                         ) : (
                           <>
                             <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
-                            Générer le Document
+                            {t('audit.reports.generate_btn')}
                           </>
                         )}
                       </button>
@@ -1252,8 +1223,8 @@ const Audit: React.FC = () => {
                   {/* Scheduled items */}
                   <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
                     <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                      <h4 className="text-sm font-bold text-slate-800">Rapports Planifiés (Automatisations)</h4>
-                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Actif</span>
+                      <h4 className="text-sm font-bold text-slate-800">{t('audit.reports.scheduled_reports')}</h4>
+                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">{t('audit.reports.active')}</span>
                     </div>
                     <div className="divide-y divide-slate-100">
                       {[
@@ -1271,7 +1242,7 @@ const Audit: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xs font-bold text-slate-500 uppercase">Prochain envoi</div>
+                            <div className="text-xs font-bold text-slate-500 uppercase">{t('audit.reports.next_send')}</div>
                             <div className="text-sm font-semibold text-slate-800">{item.next}</div>
                           </div>
                         </div>
@@ -1282,7 +1253,7 @@ const Audit: React.FC = () => {
                   {/* Recent History Table */}
                   <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
                     <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50">
-                      <h4 className="text-sm font-bold text-slate-800">Historique Récent</h4>
+                      <h4 className="text-sm font-bold text-slate-800">{t('audit.reports.history')}</h4>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-slate-100">
@@ -1304,9 +1275,9 @@ const Audit: React.FC = () => {
                               <td className="px-5 py-3.5 text-sm text-slate-500">{file.date}</td>
                               <td className="px-5 py-3.5">
                                 {file.status === 'ready' ? (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">Disponible</span>
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wide">{t('audit.reports.available')}</span>
                                 ) : (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wide">Expiré</span>
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wide">{t('audit.reports.expired')}</span>
                                 )}
                               </td>
                               <td className="px-5 py-3.5 text-right text-xs font-mono text-slate-500">
@@ -1315,7 +1286,7 @@ const Audit: React.FC = () => {
                                   <button
                                     onClick={() => handleDownloadReport(file.name)}
                                     className="ml-3 text-indigo-600 hover:text-indigo-800 font-bold hover:underline"
-                                    title="Télécharger"
+                                    title={t('audit.reports.download')}
                                   >
                                     <DocumentArrowDownIcon className="h-4 w-4 inline" />
                                   </button>
@@ -1338,21 +1309,21 @@ const Audit: React.FC = () => {
       <Modal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
-        title="Détails de l'Audit"
+        title={t('audit.modals.details_title')}
       >
         {selectedLog && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Utilisateur</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.table.user')}</label>
                 <p className="text-sm text-slate-800">{selectedLog.user}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Action</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.table.action')}</label>
                 <p className="text-sm text-slate-800">{selectedLog.action}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Ressource</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.table.resource')}</label>
                 <p className="text-sm text-slate-800">{selectedLog.resource}</p>
               </div>
               <div>
@@ -1362,11 +1333,11 @@ const Audit: React.FC = () => {
                 </span>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Adresse IP</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.modals.ip_address')}</label>
                 <p className="text-sm text-slate-800">{selectedLog.ip}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Horodatage</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.table.timestamp')}</label>
                 <p className="text-sm text-slate-800">{selectedLog.timestamp}</p>
               </div>
             </div>
@@ -1379,9 +1350,9 @@ const Audit: React.FC = () => {
                 type="button"
                 onClick={() => setIsDetailModalOpen(false)}
                 className="px-4 py-2 text-slate-600 hover:text-slate-800"
-                title="Fermer la fenêtre de détails"
+                title={t('audit.modals.close')}
               >
-                Fermer
+                {t('audit.modals.close')}
               </button>
             </div>
           </div>
@@ -1392,33 +1363,33 @@ const Audit: React.FC = () => {
       <Modal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        title="Planifier une Automatisation d'Audit"
+        title={t('audit.modals.schedule_title')}
         size="lg"
       >
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase">Nom de l'automatisation</label>
-              <input type="text" placeholder="ex: Audit Fiscal Hebdomadaire" className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <label className="text-xs font-black text-slate-500 uppercase">{t('audit.modals.automation_name')}</label>
+              <input type="text" placeholder={t('audit.modals.automation_placeholder')} className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase">Type de Rapport</label>
+              <label className="text-xs font-black text-slate-500 uppercase">{t('audit.modals.doc_type')}</label>
               <select className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
-                <option>Conformité Réglementaire</option>
-                <option>Sécurité des Données</option>
-                <option>Traces d'Audit (Logs)</option>
+                 <option>{t('audit.reports.types.compliance')}</option>
+                 <option>{t('audit.reports.types.security')}</option>
+                 <option>{t('audit.reports.types.logs')}</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase">Fréquence</label>
+              <label className="text-xs font-black text-slate-500 uppercase">{t('audit.modals.frequency')}</label>
               <select className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
-                <option>Quotidien (00:00)</option>
-                <option>Hebdomadaire (Lundi)</option>
-                <option>Mensuel (1er du mois)</option>
+                <option>{t('audit.modals.frequencies.daily')}</option>
+                <option>{t('audit.modals.frequencies.weekly')}</option>
+                <option>{t('audit.modals.frequencies.monthly')}</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase">Destinataire (Email)</label>
+              <label className="text-xs font-black text-slate-500 uppercase">{t('audit.modals.recipient')}</label>
               <input type="email" placeholder="admin@entreprise.dz" className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" />
             </div>
           </div>
@@ -1426,20 +1397,20 @@ const Audit: React.FC = () => {
           <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100 flex gap-3">
             <InformationCircleIcon className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-indigo-700 leading-relaxed">
-              Les rapports seront automatiquement générés, chiffrés et archivés dans votre espace de stockage sécurisé. Un lien de téléchargement temporaire sera envoyé au destinataire.
+              {t('audit.modals.info_note')}
             </p>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button onClick={() => setIsScheduleModalOpen(false)} className="px-6 py-3 text-[10px] font-black uppercase text-slate-500">Annuler</button>
+            <button onClick={() => setIsScheduleModalOpen(false)} className="px-6 py-3 text-[10px] font-black uppercase text-slate-500">{t('common.cancel')}</button>
             <button
               onClick={() => {
-                alert("Planification enregistrée avec succès !");
+                alert(t('audit.modals.success_save'));
                 setIsScheduleModalOpen(false);
               }}
               className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl"
             >
-              Enregistrer l'automatisation
+              {t('audit.modals.save_automation')}
             </button>
           </div>
         </div>
@@ -1449,23 +1420,28 @@ const Audit: React.FC = () => {
       <Modal
         isOpen={isComplianceModalOpen}
         onClose={() => setIsComplianceModalOpen(false)}
-        title="Rapport de Conformité Réglementaire"
+        title={t('audit.modals.compliance_report_title')}
         size="xl"
       >
         <div className="space-y-8 p-2">
           <div className="flex items-center justify-between bg-slate-50 p-6 rounded-2xl border border-slate-100">
             <div>
-              <h4 className="text-2xl font-black text-slate-900">Score de Conformité : 98.4%</h4>
-              <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">Dernière vérification : il y a 2 minutes</p>
+              <h4 className="text-2xl font-black text-slate-900">{t('audit.modals.compliance_score')} : 98.4%</h4>
+              <p className="text-xs text-slate-500 mt-1 uppercase tracking-widest font-bold">{t('audit.modals.last_check_prefix')} : {t('audit.modals.last_check_suffix')}</p>
             </div>
             <div className="h-16 w-16 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin-slow"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Points de Contrôle Validés</h5>
+              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('audit.modals.validated_points')}</h5>
               <ul className="space-y-3">
-                {['Intégrité des écritures comptables', 'Chiffrement PII (Données Personnelles)', 'Traçabilité des exports de données', 'Archivage légal (10 ans)'].map((p, i) => (
+                {[
+                  t('audit.modals.points.integrity'),
+                  t('audit.modals.points.encryption'),
+                  t('audit.modals.points.traceability'),
+                  t('audit.modals.points.archiving')
+                ].map((p, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-slate-700">
                     <CheckCircleIcon className="h-5 w-5 text-emerald-500" /> {p}
                   </li>
@@ -1473,15 +1449,15 @@ const Audit: React.FC = () => {
               </ul>
             </div>
             <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Actions de Remédiation</h5>
+              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('audit.modals.remediation_actions')}</h5>
               <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl text-xs text-orange-800 leading-relaxed">
-                <strong>Attention :</strong> 2 mot de passe utilisateurs expirent dans moins de 48h. Une notification automatique a été envoyée.
+                {t('audit.modals.remediation_warning')}
               </div>
             </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button onClick={() => setIsComplianceModalOpen(false)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Fermer le Rapport</button>
+            <button onClick={() => setIsComplianceModalOpen(false)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">{t('audit.modals.close_report')}</button>
           </div>
         </div>
       </Modal>

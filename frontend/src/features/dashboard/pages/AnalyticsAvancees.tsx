@@ -117,15 +117,15 @@ const AnalyticsAvancees: React.FC = () => {
 
   const currentMetrics = React.useMemo(() => [
     {
-      name: 'DSO (Délai Client)',
+      name: t('advanced_analytics.metrics.dso'),
       value: kpiData ? `${kpiData.dso_days}j` : '35j',
       diff: -2.3,
       icon: ClockIcon,
       color: 'slate',
-      target: '30j'
+      target: `30j`
     },
     {
-      name: 'BFR (Besoin Fonds)',
+      name: t('advanced_analytics.metrics.bfr'),
       value: formatCurrency((kpiData?.bfr_value || 1300000) * scaleFactor),
       diff: 5.1,
       icon: BanknotesIcon,
@@ -133,22 +133,22 @@ const AnalyticsAvancees: React.FC = () => {
       target: `< ${formatCurrency(1500000 * scaleFactor)}`
     },
     {
-      name: 'Seuil Rentabilité',
+      name: t('advanced_analytics.metrics.break_even'),
       value: formatCurrency((kpiData?.break_even_point || 4200000) * scaleFactor),
       diff: 0.0,
       icon: ScaleIcon,
       color: 'slate',
-      target: 'Validé'
+      target: t('steering.dashboard.accounting.validated')
     },
     {
-      name: 'Solvabilité',
+      name: t('advanced_analytics.metrics.solvency'),
       value: kpiData ? `${Math.round(kpiData.solvency_ratio * 100)}%` : '210%',
       diff: 1.5,
       icon: ChartBarSquareIcon,
       color: 'slate',
       target: '> 120%'
     }
-  ], [scaleFactor, formatCurrency, kpiData]);
+  ], [scaleFactor, formatCurrency, kpiData, t]);
 
   // Projecting values for Rolling Forecast
   const projectionValue = forecastData?.predicted_revenue_next_month || (2750000 * scaleFactor);
@@ -161,7 +161,7 @@ const AnalyticsAvancees: React.FC = () => {
       <div className="flex items-center justify-center min-h-[600px] bg-white rounded-3xl">
         <div className="flex flex-col items-center space-y-4 animate-pulse">
           <ArrowPathIcon className="h-10 w-10 text-slate-300 animate-spin" />
-          <p className="text-slate-400 font-medium">Actualisation des analyses...</p>
+          <p className="text-slate-400 font-medium">{t('advanced_analytics.updating')}</p>
         </div>
       </div>
     );
@@ -176,10 +176,10 @@ const AnalyticsAvancees: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center">
               <PresentationChartLineIcon className="h-7 w-7 text-indigo-600 mr-3" />
-              Analyse Financière Avancée
+              {t('advanced_analytics.title')}
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Pilotage de la performance et prévisionnel budgétaire.
+              {t('advanced_analytics.subtitle')}
             </p>
           </div>
 
@@ -192,10 +192,10 @@ const AnalyticsAvancees: React.FC = () => {
                 onChange={(e) => setSelectedPeriod(e.target.value)}
                 className="bg-transparent text-sm font-semibold text-slate-700 outline-none border-none py-1.5 pr-8 cursor-pointer hover:bg-slate-100 rounded-md transition-colors"
               >
-                <option value="7d">7 derniers jours</option>
-                <option value="30d">30 derniers jours</option>
-                <option value="90d">Trimestre en cours</option>
-                <option value="1y">Exercice Annuel</option>
+                <option value="7d">{t('advanced_analytics.periods.7d')}</option>
+                <option value="30d">{t('advanced_analytics.periods.30d')}</option>
+                <option value="90d">{t('advanced_analytics.periods.90d')}</option>
+                <option value="1y">{t('advanced_analytics.periods.1y')}</option>
               </select>
             </div>
 
@@ -209,7 +209,7 @@ const AnalyticsAvancees: React.FC = () => {
                   }`}
               >
                 <FunnelIcon className="h-4 w-4 mr-2" />
-                Comparatif N-1
+                {t('advanced_analytics.comparative_n1')}
               </button>
 
               <div className="h-8 w-px bg-slate-200 mx-1 hidden md:block"></div>
@@ -219,7 +219,7 @@ const AnalyticsAvancees: React.FC = () => {
                 className="px-4 py-2 text-sm font-medium bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors flex items-center shadow-sm"
               >
                 <DocumentArrowUpIcon className="h-4 w-4 mr-2" />
-                Importer
+                {t('advanced_analytics.import_btn')}
               </button>
 
               <div className="flex rounded-lg shadow-sm">
@@ -228,7 +228,7 @@ const AnalyticsAvancees: React.FC = () => {
                   className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-l-lg hover:bg-slate-800 border-r border-slate-700 transition-colors flex items-center"
                 >
                   <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-                  Exporter
+                  {t('advanced_analytics.export_btn')}
                 </button>
                 <select
                   value={exportFormat}
@@ -279,8 +279,8 @@ const AnalyticsAvancees: React.FC = () => {
           {/* 🟢 CONVERSION / FUNNEL */}
           <div className="lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-slate-800">Pipeline Commercial</h3>
-              <button className="text-xs text-indigo-600 font-semibold hover:underline">Voir détails</button>
+              <h3 className="font-bold text-slate-800">{t('advanced_analytics.pipeline_title')}</h3>
+              <button className="text-xs text-indigo-600 font-semibold hover:underline">{t('advanced_analytics.view_details')}</button>
             </div>
 
             <div className="space-y-4">
@@ -309,11 +309,11 @@ const AnalyticsAvancees: React.FC = () => {
             <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
               <h3 className="font-bold text-slate-800 flex items-center">
                 <ClockIcon className="h-5 w-5 text-slate-500 mr-2" />
-                Prévisions de Trésorerie (Rolling Forecast)
+                {t('advanced_analytics.treasury_forecast_title')}
               </h3>
               <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 shadow-sm flex items-center">
                 <SparklesIcon className="h-3 w-3 mr-1 text-indigo-500" />
-                IA Trust Score: {Math.round((forecastData?.confidence_score || 0.89) * 100)}%
+                {t('advanced_analytics.ia_trust_score')}: {Math.round((forecastData?.confidence_score || 0.89) * 100)}%
               </span>
             </div>
 
@@ -321,7 +321,7 @@ const AnalyticsAvancees: React.FC = () => {
               <div className="flex-1 w-full space-y-6">
                 <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Fin du Mois (Projection)</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t('advanced_analytics.projection_end_month')}</p>
                     <div className="flex items-baseline md:flex-row flex-col">
                       <h2 className="text-4xl font-black text-slate-800 mr-3">{formatCurrency(projectionValue)}</h2>
                       <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center">
@@ -353,21 +353,27 @@ const AnalyticsAvancees: React.FC = () => {
               <div className="lg:w-1/3 w-full bg-slate-50 p-5 rounded-xl border border-slate-200">
                 <h4 className="text-xs font-bold text-slate-500 uppercase mb-4 flex items-center">
                   <ExclamationTriangleIcon className="h-4 w-4 mr-1.5" />
-                  Points d'Attention
+                  {t('advanced_analytics.attention_points')}
                 </h4>
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <div className="h-2 w-2 rounded-full bg-indigo-500 mt-1.5 mr-2.5 flex-shrink-0"></div>
                     <div>
-                      <p className="text-xs font-bold text-slate-700">{sizeMetrics?.ai_insights?.prediction || "Analyse IA"}</p>
-                      <p className="text-[10px] text-slate-500 leading-tight">Valeur: {sizeMetrics?.ai_insights?.value}</p>
+                      <p className="text-xs font-bold text-slate-700">{sizeMetrics?.ai_insights?.prediction ? t(sizeMetrics.ai_insights.prediction) : t('advanced_analytics.updating')}</p>
+                      <p className="text-[10px] text-slate-500 leading-tight">
+                        {sizeMetrics?.ai_insights?.value_key 
+                          ? t(sizeMetrics.ai_insights.value_key, { count: sizeMetrics.ai_insights.value_count }) 
+                          : sizeMetrics?.ai_insights?.value}
+                      </p>
                     </div>
                   </li>
                   <li className="flex items-start">
                     <div className="h-2 w-2 rounded-full bg-rose-500 mt-1.5 mr-2.5 flex-shrink-0"></div>
                     <div>
-                      <p className="text-xs font-bold text-slate-700">Recommandation</p>
-                      <p className="text-[10px] text-slate-500 leading-tight underline decoration-rose-300">{sizeMetrics?.ai_insights?.action}</p>
+                      <p className="text-xs font-bold text-slate-700">{t('advanced_analytics.ai_insights.recommendation')}</p>
+                      <p className="text-[10px] text-slate-500 leading-tight underline decoration-rose-300">
+                        {sizeMetrics?.ai_insights?.action ? t(sizeMetrics.ai_insights.action) : ""}
+                      </p>
                     </div>
                   </li>
                 </ul>
@@ -375,7 +381,7 @@ const AnalyticsAvancees: React.FC = () => {
                   onClick={() => setIsTreasuryReportOpen(true)}
                   className="w-full mt-4 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-600 text-xs font-bold rounded-lg transition-colors"
                 >
-                  Voir le rapport complet
+                  {t('advanced_analytics.view_details')}
                 </button>
               </div>
             </div>
@@ -444,48 +450,48 @@ const AnalyticsAvancees: React.FC = () => {
       <Modal
         isOpen={isTreasuryReportOpen}
         onClose={() => setIsTreasuryReportOpen(false)}
-        title="Rapport Détaillé : Prévisions de Trésorerie"
+        title={t('advanced_analytics.ia_report_title')}
         size="xl"
       >
         <div className="space-y-8 p-4">
           <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
             <div className="flex justify-between items-start mb-8">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">Statut de Confiance IA</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">{t('advanced_analytics.ia_confidence_status')}</p>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <h3 className="text-2xl font-black">{Math.round((forecastData?.confidence_score || 0.89) * 100)}% - Fiabilité Haute</h3>
+                  <h3 className="text-2xl font-black">{Math.round((forecastData?.confidence_score || 0.89) * 100)}% - {t('advanced_analytics.ia_reliability_high')}</h3>
                 </div>
               </div>
               <SparklesIcon className="h-10 w-10 text-indigo-400 opacity-50" />
             </div>
 
             <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
-              L'algorithme de prédiction a analysé les 24 derniers mois de flux bancaires, la saisonnalité sectorielle et les comportements de paiement clients actuels.
+              {t('advanced_analytics.ia_analysis_desc')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Projections de Flux (30 jours)</h4>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{t('advanced_analytics.projections_30d')}</h4>
               <div className="space-y-6">
                 <div className="flex justify-between items-end border-b border-slate-50 pb-4">
-                  <span className="text-xs font-bold text-slate-500">Encaissements Prévus</span>
+                  <span className="text-xs font-bold text-slate-500">{t('advanced_analytics.expected_inflow')}</span>
                   <span className="text-lg font-black text-emerald-600">{formatCurrency(projectionValue * 1.15)}</span>
                 </div>
                 <div className="flex justify-between items-end border-b border-slate-50 pb-4">
-                  <span className="text-xs font-bold text-slate-500">Décaissements Prévus</span>
+                  <span className="text-xs font-bold text-slate-500">{t('advanced_analytics.expected_outflow')}</span>
                   <span className="text-lg font-black text-rose-600">{formatCurrency(projectionValue * 0.7)}</span>
                 </div>
                 <div className="flex justify-between items-end">
-                  <span className="text-xs font-bold text-slate-500">Solde Net Projeté</span>
+                  <span className="text-xs font-bold text-slate-500">{t('advanced_analytics.projected_net_balance')}</span>
                   <span className="text-lg font-black text-indigo-600">{formatCurrency(projectionValue * 0.45)}</span>
                 </div>
               </div>
             </div>
 
             <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Alertes & Risques IA</h4>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{t('advanced_analytics.risks_alerts_title')}</h4>
               <div className="space-y-4">
                 <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex gap-4">
                   <ExclamationTriangleIcon className="h-5 w-5 text-orange-500 flex-shrink-0" />
@@ -506,8 +512,8 @@ const AnalyticsAvancees: React.FC = () => {
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button onClick={() => setIsTreasuryReportOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest">Fermer</button>
-            <button onClick={() => window.print()} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">Imprimer le Rapport</button>
+            <button onClick={() => setIsTreasuryReportOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest">{t('advanced_analytics.close_btn')}</button>
+            <button onClick={() => window.print()} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">{t('advanced_analytics.print_report')}</button>
           </div>
         </div>
       </Modal>

@@ -51,31 +51,31 @@ const IndicateursPerformance: React.FC = () => {
   // Données comptables SCF/IFRS
   const normesComptables = {
     algerien: {
-      nom: 'SCF (Système Comptable Financier)',
+      nom: t('steering.dashboard.accounting.norm_scf'),
       code: 'SCF',
       emoji: '🇩🇿',
       comptes: {
-        ventes: '701 - Ventes de biens',
-        tva: '44571 - TVA collectée',
-        clients: '411 - Clients',
-        stocks: '31 - Stocks',
-        produits: '7011 - Ventes de produits finis',
-        charges: '601 - Achats de marchandises',
-        immobilisations: '20 - Immobilisations corporelles'
+        ventes: `701 - ${t('steering.dashboard.chart_accounts.items.sales_goods')}`,
+        tva: `44571 - ${t('steering.dashboard.chart_accounts.items.vat_collected')}`,
+        clients: `411 - ${t('steering.dashboard.chart_accounts.items.clients')}`,
+        stocks: `31 - ${t('steering.dashboard.chart_accounts.items.inventory')}`,
+        produits: `7011 - ${t('steering.dashboard.chart_accounts.items.finished_products')}`,
+        charges: `601 - ${t('steering.dashboard.chart_accounts.items.purchase_merchandise')}`,
+        immobilisations: `20 - ${t('steering.dashboard.chart_accounts.items.fixed_assets')}`
       }
     },
     international: {
-      nom: 'IFRS (International Financial Reporting Standards)',
+      nom: t('steering.dashboard.accounting.norm_ifrs'),
       code: 'IFRS',
       emoji: '🌍',
       comptes: {
-        ventes: 'Revenue - Sales of goods',
-        tva: 'VAT Payable',
-        clients: 'Trade Receivables',
-        stocks: 'Inventory',
-        produits: 'Sales Revenue',
-        charges: 'Cost of Goods Sold',
-        immobilisations: 'Property, Plant & Equipment'
+        ventes: t('steering.dashboard.chart_accounts.items.sales_intl'),
+        tva: t('steering.dashboard.chart_accounts.items.vat_payable'),
+        clients: t('steering.dashboard.chart_accounts.items.trade_receivables'),
+        stocks: t('steering.dashboard.chart_accounts.items.inventory_intl'),
+        produits: t('steering.dashboard.chart_accounts.items.revenue_intl'),
+        charges: t('steering.dashboard.chart_accounts.items.cogs'),
+        immobilisations: t('steering.dashboard.chart_accounts.items.ppe')
       }
     }
   };
@@ -90,18 +90,18 @@ const IndicateursPerformance: React.FC = () => {
   const [indicatorsError, setIndicatorsError] = useState<string | null>(null);
 
   // Load KPIs and financial indicators from backend
-  React.useEffect(() => {
+  useEffect(() => {
     setLoadingKpi(true);
-    api.kpis.getKPIs()
-      .then(data => {
+    api.analytics.getKPIs()
+      .then((data: any) => {
         setKpiComptables(data);
       })
       .catch(() => setKpiError('Erreur lors du chargement des KPIs'))
       .finally(() => setLoadingKpi(false));
 
     setLoadingIndicators(true);
-    api.kpis.getFinancialIndicators()
-      .then(data => {
+    api.analytics.getHealthKPIs()
+      .then((data: any) => {
         setFinancialIndicators(data);
       })
       .catch(() => setIndicatorsError('Erreur lors du chargement des indicateurs financiers'))
@@ -406,7 +406,7 @@ const IndicateursPerformance: React.FC = () => {
             {t('analytics.kpis.title')}
           </h1>
           <p className="text-gray-600">{t('analytics.kpis.subtitle')}</p>
-      </div>
+        </div>
 
         <div className="flex items-center space-x-4">
           <select
@@ -420,20 +420,6 @@ const IndicateursPerformance: React.FC = () => {
             <option value="6m">6 mois</option>
             <option value="12m">12 mois</option>
             <option value="24m">24 mois</option>
-          </select>
-          
-          <select
-            value={selectedMetric}
-            onChange={(e) => setSelectedMetric(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            aria-label={t('analytics.kpis.tabs.all')}
-            title={t('analytics.kpis.tabs.all')}
-          >
-            <option value="all">{t('analytics.kpis.tabs.all')}</option>
-            <option value="rentability">{t('analytics.kpis.tabs.rentability')}</option>
-            <option value="liquidity">{t('analytics.kpis.tabs.liquidity')}</option>
-            <option value="leverage">{t('analytics.kpis.tabs.leverage')}</option>
-            <option value="efficiency">{t('analytics.kpis.tabs.efficiency')}</option>
           </select>
           
           <button
@@ -481,7 +467,7 @@ const IndicateursPerformance: React.FC = () => {
                     <TrendIcon className={`h-4 w-4 ${kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'}`} />
                     <span className={`text-sm font-medium ${kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
                       {kpi.change > 0 ? '+' : ''}{kpi.change}{kpi.unit}
-                  </span>
+                    </span>
                   </div>
                 </div>
                 
@@ -493,7 +479,7 @@ const IndicateursPerformance: React.FC = () => {
                 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Benchmark: {kpi.benchmark}{kpi.unit}</span>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails du KPI" aria-label="Voir les détails du KPI">
+                  <button className="text-blue-600 hover:text-blue-800 text-sm">
                     <EyeIcon className="h-4 w-4" />
                   </button>
                 </div>
@@ -503,242 +489,87 @@ const IndicateursPerformance: React.FC = () => {
         </div>
       </Card>
 
-      {/* Graphiques de Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Graphique des Revenus */}
-        <Card title={t('analytics.kpis.sections.revenue')}>
-          <div className="space-y-4">
-            {financialData.chartData.revenue.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
-                <span className="text-sm font-medium text-gray-700">{item.month}</span>
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{formatCurrency(item.value)}</div>
-                    <div className="text-xs text-gray-500">Réalisé</div>
-            </div>
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-blue-600">{formatCurrency(item.target)}</div>
-                    <div className="text-xs text-gray-500">Objectif</div>
-            </div>
-                  <div className="text-xs text-gray-600">
-                    {Math.min((item.value / item.target) * 100, 100).toFixed(0)}% de l'objectif
-                  </div>
-                </div>
-              </div>
-            ))}
-            </div>
-        </Card>
-
-        {/* Graphique de Rentabilité */}
-        <Card title={t('analytics.kpis.sections.profitability')}>
-          <div className="space-y-4">
-            {financialData.chartData.profitability.map((item, index) => (
-              <div key={index} className="p-4 bg-white rounded border border-gray-100">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">{item.metric}</span>
-                  <span className="text-lg font-bold text-gray-900">{item.value}%</span>
-                </div>
-                <div className="text-xs text-gray-600 mb-2">
-                  {Math.min((item.value / item.benchmark) * 100, 100).toFixed(0)}% du benchmark
-                </div>
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Benchmark: {item.benchmark}%</span>
-                  <span>{((item.value / item.benchmark) * 100).toFixed(0)}% du benchmark</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-        </div>
-
       {/* Indicateurs Comptables SCF/IFRS */}
       <Card title={t('analytics.kpis.sections.accounting')}>
         <div className="space-y-6">
-          {/* En-tête avec norme comptable */}
           <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Norme Comptable Active
+                   {t('steering.dashboard.accounting.norm_label')}
                 </h3>
                 <p className="text-gray-600">
                   <BookOpenIcon className="h-5 w-5 inline mr-2" />
-                  {normesComptables[planComptable as keyof typeof normesComptables].nom}
+                  {normesComptables[planComptable as keyof typeof normesComptables]?.nom}
                 </p>
               </div>
               <div className="text-right">
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-500 mb-1">Plan Comptable</p>
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    {normesComptables[planComptable as keyof typeof normesComptables].emoji} {normesComptables[planComptable as keyof typeof normesComptables].code}
+                    {normesComptables[planComptable as keyof typeof normesComptables]?.emoji} {normesComptables[planComptable as keyof typeof normesComptables]?.code}
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Ratios Financiers Comptables */}
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Ratios Financiers Comptables</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {kpiComptables.ratiosFinanciers.map((ratio: any) => (
-                <div key={ratio.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`p-3 rounded-lg ${
-                      ratio.couleur === 'green' ? 'bg-green-100' :
-                      ratio.couleur === 'orange' ? 'bg-orange-100' :
-                      'bg-blue-100'
-                    }`}>
-                      <ScaleIcon className={`h-6 w-6 ${
-                        ratio.couleur === 'green' ? 'text-green-600' :
-                        ratio.couleur === 'orange' ? 'text-orange-600' :
-                        'text-blue-600'
-                      }`} />
-                    </div>
-                    <span className="text-sm text-gray-500">{ratio.norme}</span>
-                  </div>
-                  <h5 className="font-semibold text-gray-900 mb-2">{ratio.nom}</h5>
-                  <p className="text-2xl font-bold text-gray-900 mb-2">
-                    {ratio.valeur}{ratio.unite}
-                  </p>
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className={`font-medium ${
-                      ratio.evolution >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {ratio.evolution >= 0 ? '+' : ''}{ratio.evolution}%
-                    </span>
-                    <span className="text-gray-500">Objectif: {ratio.objectif}{ratio.unite}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">{ratio.description}</p>
-                </div>
-              ))}
+          {loadingKpi ? (
+            <div className="flex justify-center p-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
-          </div>
-
-          {/* Indicateurs TVA */}
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Indicateurs TVA</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {kpiComptables.indicateursTVA.map((tva: any) => (
-                <div key={tva.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="p-3 bg-purple-100 rounded-lg">
-                      <DocumentCheckIcon className="h-6 w-6 text-purple-600" />
+          ) : kpiComptables ? (
+            <div className="space-y-8">
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.widgets.ratios')}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {(kpiComptables.ratiosFinanciers || []).map((ratio: any) => (
+                    <div key={ratio.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className={`p-3 rounded-lg ${
+                          ratio.couleur === 'green' ? 'bg-green-100' : 'bg-blue-100'
+                        }`}>
+                          <ScaleIcon className={`h-6 w-6 ${
+                            ratio.couleur === 'green' ? 'text-green-600' : 'text-blue-600'
+                          }`} />
+                        </div>
+                        <span className={`text-sm font-medium ${
+                          ratio.evolution >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {ratio.evolution >= 0 ? '+' : ''}{ratio.evolution}%
+                        </span>
+                      </div>
+                      <h5 className="font-semibold text-gray-900 mb-1">{ratio.nom}</h5>
+                      <p className="text-2xl font-bold text-gray-900">{ratio.valeur}{ratio.unite}</p>
+                      <p className="text-xs text-gray-500 mt-2">Objectif: {ratio.objectif}{ratio.unite}</p>
                     </div>
-                    <span className="text-sm text-gray-500">{tva.taux}%</span>
-                  </div>
-                  <h5 className="font-semibold text-gray-900 mb-2">{tva.nom}</h5>
-                  <p className="text-2xl font-bold text-gray-900 mb-4">
-                    {formatCurrency(tva.montant)}
-                  </p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">À verser/récupérer:</span>
-                      <span className="font-medium">{formatCurrency(tva.aVerser ?? tva.aRecuperer ?? 0)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Crédit:</span>
-                      <span className="font-medium text-green-600">{formatCurrency(tva.credit)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Évolution:</span>
-                      <span className="font-medium text-green-600">+{tva.evolution}%</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Écritures Comptables */}
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Journaux Comptables</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {kpiComptables.ecrituresComptables.map((journal: any) => (
-                <div key={journal.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="p-3 bg-indigo-100 rounded-lg">
-                      <ClipboardDocumentListIcon className="h-6 w-6 text-indigo-600" />
-                    </div>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      journal.statut === 'Validé' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {journal.statut}
-                    </span>
-                  </div>
-                  <h5 className="font-semibold text-gray-900 mb-2">{journal.nom}</h5>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Nombre d'écritures:</span>
-                      <span className="font-medium">{journal.nombre}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Montant total:</span>
-                      <span className="font-medium">{formatCurrency(journal.montant)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Période:</span>
-                      <span className="font-medium">{journal.periode}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Codes Comptables */}
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-4">Codes Comptables Utilisés</h4>
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h5 className="font-semibold text-gray-900 mb-3">Comptes de Vente</h5>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Ventes de biens</p>
-                        <p className="text-sm text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.ventes}</p>
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">{t('steering.dashboard.accounting.vat_to_pay')}</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {(kpiComptables.indicateursTVA || []).map((tva: any) => (
+                    <div key={tva.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="p-3 bg-purple-100 rounded-lg">
+                          <DocumentCheckIcon className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <span className="text-xs font-bold text-purple-600">{tva.taux}%</span>
                       </div>
-                      <ScaleIcon className="h-5 w-5 text-gray-400" />
+                      <h5 className="font-semibold text-gray-900 mb-1">{tva.nom}</h5>
+                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(tva.montant)}</p>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Produits finis</p>
-                        <p className="text-sm text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.produits}</p>
-                      </div>
-                      <ScaleIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h5 className="font-semibold text-gray-900 mb-3">Comptes de Gestion</h5>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">TVA Collectée</p>
-                        <p className="text-sm text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.tva}</p>
-                      </div>
-                      <ScaleIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Clients</p>
-                        <p className="text-sm text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.clients}</p>
-                      </div>
-                      <ScaleIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Stocks</p>
-                        <p className="text-sm text-gray-500">{normesComptables[planComptable as keyof typeof normesComptables].comptes.stocks}</p>
-                      </div>
-                      <ScaleIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-red-50 p-6 rounded-lg text-red-600 text-center">
+              Impossible de charger les indicateurs comptables.
+            </div>
+          )}
         </div>
       </Card>
 
@@ -773,14 +604,14 @@ const IndicateursPerformance: React.FC = () => {
                 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Benchmark: {ratio.benchmark}{ratio.unit}</span>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm" title="Voir les détails du ratio" aria-label="Voir les détails du ratio">
+                  <button className="text-blue-600 hover:text-blue-800 text-sm">
                     <EyeIcon className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             );
           })}
-            </div>
+        </div>
       </Card>
 
       {/* Alertes et Recommandations */}
@@ -805,7 +636,7 @@ const IndicateursPerformance: React.FC = () => {
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900 mb-1">{alert.title}</h4>
                     <p className="text-sm text-gray-600 mb-2">{alert.message}</p>
-                <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">Action: {alert.action}</span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         alert.priority === 'high' ? 'bg-red-100 text-red-800' :
@@ -815,7 +646,7 @@ const IndicateursPerformance: React.FC = () => {
                         {alert.priority === 'high' ? 'Priorité Haute' :
                          alert.priority === 'medium' ? 'Priorité Moyenne' : 'Priorité Faible'}
                       </span>
-                </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -831,7 +662,7 @@ const IndicateursPerformance: React.FC = () => {
             <div>
               <span className="text-gray-600">Secteur:</span>
               <span className="font-medium text-gray-900 ml-2">{financialData.benchmarking.sector}</span>
-              </div>
+            </div>
             <div>
               <span className="text-gray-600">Taille:</span>
               <span className="font-medium text-gray-900 ml-2">{financialData.benchmarking.companySize}</span>
@@ -847,51 +678,25 @@ const IndicateursPerformance: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Métrique
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Notre Entreprise
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Moyenne Secteur
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Moyenne Marché
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Performance
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Métrique</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notre Entreprise</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moyenne Secteur</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {financialData.benchmarking.comparisons.map((comparison, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {comparison.metric}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {comparison.company}%
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {comparison.sector}%
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {comparison.market}%
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{comparison.metric}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{comparison.company}%</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{comparison.sector}%</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       comparison.company > comparison.market 
                         ? 'bg-green-100 text-green-800' 
-                        : comparison.company > comparison.sector
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        : 'bg-blue-100 text-blue-800'
                     }`}>
-                      {comparison.company > comparison.market 
-                        ? 'Au-dessus du marché' 
-                        : comparison.company > comparison.sector
-                        ? 'Au-dessus du secteur'
-                        : 'En dessous du secteur'}
+                      {comparison.company > comparison.market ? 'Au-dessus' : 'Dans les normes'}
                     </span>
                   </td>
                 </tr>
@@ -905,392 +710,100 @@ const IndicateursPerformance: React.FC = () => {
       <Modal
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
-        title={`Détails - ${selectedKPI?.title}`}
+        title={`Détails - ${selectedKPI?.title || ''}`}
       >
         {selectedKPI && (
           <div className="space-y-6">
-            {/* Informations générales */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                  <ChartBarIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Valeur Actuelle
-                </h4>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">
-                    {selectedKPI.value}{selectedKPI.unit}
-                </div>
-                  <div className="flex items-center justify-center space-x-2">
-                    {(() => {
-                      const TrendIcon = getTrendIcon(selectedKPI.trend);
-                      return (
-                        <>
-                          <TrendIcon className={`h-5 w-5 ${selectedKPI.trend === 'up' ? 'text-green-600' : 'text-red-600'}`} />
-                          <span className={`font-medium ${selectedKPI.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                            {selectedKPI.change > 0 ? '+' : ''}{selectedKPI.change}{selectedKPI.unit}
-                          </span>
-                        </>
-                      );
-                    })()}
-                </div>
+              <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+                <h4 className="font-semibold text-gray-800 mb-2">Valeur Actuelle</h4>
+                <div className="text-4xl font-bold text-gray-900">{selectedKPI.value}{selectedKPI.unit}</div>
+              </div>
+              <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm text-center">
+                <h4 className="font-semibold text-gray-800 mb-2">Benchmark</h4>
+                <div className="text-4xl font-bold text-gray-500">{selectedKPI.benchmark}{selectedKPI.unit}</div>
               </div>
             </div>
-
-              <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                  <ScaleIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Benchmark
-                </h4>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-2">
-                    {selectedKPI.benchmark}{selectedKPI.unit}
-                </div>
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(selectedKPI.status)}`}>
-                    {selectedKPI.status === 'excellent' ? 'Excellent' :
-                     selectedKPI.status === 'good' ? 'Bon' :
-                     selectedKPI.status === 'warning' ? 'Attention' : 'Critique'}
-                </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Description et formule */}
-            <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                <InformationCircleIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Informations Détaillées
-              </h4>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <p className="text-gray-600">{selectedKPI.description}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Formule de Calcul</label>
-                  <div className="p-3 bg-gray-50 rounded border border-gray-100">
-                    <code className="text-sm text-gray-800">{selectedKPI.formula}</code>
-                </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Recommandations */}
-            <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                <LightBulbIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Recommandations
-              </h4>
-              <div className="space-y-3">
-                {selectedKPI.status === 'excellent' && (
-                  <div className="p-3 bg-green-50 rounded border border-green-200">
-                    <p className="text-sm text-green-800">
-                      ✅ Excellente performance ! Maintenez cette tendance positive.
-              </p>
-            </div>
-                )}
-                {selectedKPI.status === 'good' && (
-                  <div className="p-3 bg-blue-50 rounded border border-blue-200">
-                    <p className="text-sm text-blue-800">
-                      📈 Bonne performance. Continuez à optimiser pour atteindre l'excellence.
-                    </p>
-          </div>
-                )}
-                {selectedKPI.status === 'warning' && (
-                  <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
-                    <p className="text-sm text-yellow-800">
-                      ⚠️ Attention requise. Analysez les causes et mettez en place un plan d'amélioration.
-              </p>
-            </div>
-                )}
-                {selectedKPI.status === 'critical' && (
-                  <div className="p-3 bg-red-50 rounded border border-red-200">
-                    <p className="text-sm text-red-800">
-                      🚨 Action immédiate requise. Priorité haute pour l'amélioration.
-              </p>
-            </div>
-                )}
-          </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-gray-800 mb-2">Formule de calcul</h4>
+              <code className="text-sm bg-gray-100 p-2 rounded block">{selectedKPI.formula}</code>
             </div>
           </div>
         )}
       </Modal>
 
-      {/* Modal Génération de Rapport */}
+      {/* Modal Rapport */}
       <Modal
         isOpen={showReportModal}
         onClose={() => setShowReportModal(false)}
-        title="📊 Génération de Rapport Financier"
+        title="Générer un Rapport de KPIs"
       >
         <div className="space-y-6">
-          {/* Type de rapport */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Type de Rapport</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportType === 'comprehensive' 
-                    ? 'bg-blue-50 border-blue-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportType('comprehensive')}
-                title="Rapport Complet"
-                aria-label="Rapport Complet"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportType === 'comprehensive'}
-                    onChange={() => setReportType('comprehensive')}
-                    className="mr-3"
-                    title="Rapport Complet"
-                    aria-label="Rapport Complet"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">Rapport Complet</h4>
-                    <p className="text-sm text-gray-600">Tous les KPIs, ratios et analyses</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportType === 'executive' 
-                    ? 'bg-blue-50 border-blue-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportType('executive')}
-                title="Rapport Exécutif"
-                aria-label="Rapport Exécutif"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportType === 'executive'}
-                    onChange={() => setReportType('executive')}
-                    className="mr-3"
-                    title="Rapport Exécutif"
-                    aria-label="Rapport Exécutif"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">Rapport Exécutif</h4>
-                    <p className="text-sm text-gray-600">Synthèse des KPIs principaux</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportType === 'detailed' 
-                    ? 'bg-blue-50 border-blue-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportType('detailed')}
-                title="Rapport Détaillé"
-                aria-label="Rapport Détaillé"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportType === 'detailed'}
-                    onChange={() => setReportType('detailed')}
-                    className="mr-3"
-                    title="Rapport Détaillé"
-                    aria-label="Rapport Détaillé"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">Rapport Détaillé</h4>
-                    <p className="text-sm text-gray-600">Analyse approfondie avec recommandations</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportType === 'benchmarking' 
-                    ? 'bg-blue-50 border-blue-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportType('benchmarking')}
-                title="Benchmarking"
-                aria-label="Benchmarking"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportType === 'benchmarking'}
-                    onChange={() => setReportType('benchmarking')}
-                    className="mr-3"
-                    title="Benchmarking"
-                    aria-label="Benchmarking"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">Benchmarking</h4>
-                    <p className="text-sm text-gray-600">Comparaison sectorielle</p>
-                  </div>
-                </div>
-              </div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Type de Rapport</label>
+            <div className="grid grid-cols-2 gap-4">
+              {['comprehensive', 'executive', 'detailed', 'benchmarking'].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setReportType(type)}
+                  className={`p-3 rounded-lg border text-sm font-medium transition-colors ${
+                    reportType === type ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200'
+                  }`}
+                >
+                  {type === 'comprehensive' ? 'Complet' : type === 'executive' ? 'Exécutif' : type === 'detailed' ? 'Détaillé' : 'Benchmarking'}
+                </button>
+              ))}
             </div>
           </div>
-
-          {/* Format de rapport */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Format de Rapport</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportFormat === 'pdf' 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportFormat('pdf')}
-                title="Format PDF"
-                aria-label="Format PDF"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportFormat === 'pdf'}
-                    onChange={() => setReportFormat('pdf')}
-                    className="mr-3"
-                    title="Format PDF"
-                    aria-label="Format PDF"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">PDF</h4>
-                    <p className="text-sm text-gray-600">Document imprimable</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportFormat === 'excel' 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportFormat('excel')}
-                title="Format Excel"
-                aria-label="Format Excel"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportFormat === 'excel'}
-                    onChange={() => setReportFormat('excel')}
-                    className="mr-3"
-                    title="Format Excel"
-                    aria-label="Format Excel"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">Excel</h4>
-                    <p className="text-sm text-gray-600">Données tabulaires</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div 
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  reportFormat === 'json' 
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-white border-gray-200 hover:bg-gray-50'
-                }`}
-                onClick={() => setReportFormat('json')}
-                title="Format JSON"
-                aria-label="Format JSON"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    checked={reportFormat === 'json'}
-                    onChange={() => setReportFormat('json')}
-                    className="mr-3"
-                    title="Format JSON"
-                    aria-label="Format JSON"
-                  />
-                  <div>
-                    <h4 className="font-medium text-gray-900">JSON</h4>
-                    <p className="text-sm text-gray-600">Données structurées</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Période */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="period-select">Période d'Analyse</label>
-            <select
-              id="period-select"
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              aria-label="Période d'analyse"
-              title="Période d'analyse"
-            >
-              <option value="3m">3 derniers mois</option>
-              <option value="6m">6 derniers mois</option>
-              <option value="12m">12 derniers mois</option>
-              <option value="24m">24 derniers mois</option>
-            </select>
-          </div>
-
-          {/* Résumé du rapport */}
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h4 className="font-medium text-gray-900 mb-2">Résumé du Rapport</h4>
-            <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex justify-between">
-                <span>Type:</span>
-                <span className="font-medium">
-                  {reportType === 'comprehensive' ? 'Rapport Complet' :
-                   reportType === 'executive' ? 'Rapport Exécutif' :
-                   reportType === 'detailed' ? 'Rapport Détaillé' : 'Benchmarking'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Format:</span>
-                <span className="font-medium">{reportFormat.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Période:</span>
-                <span className="font-medium">
-                  {selectedPeriod === '3m' ? '3 derniers mois' :
-                   selectedPeriod === '6m' ? '6 derniers mois' :
-                   selectedPeriod === '12m' ? '12 derniers mois' : '24 derniers mois'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>KPIs inclus:</span>
-                <span className="font-medium">{financialData.mainKPIs.length + financialData.advancedRatios.length}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
           <div className="flex justify-end space-x-4">
-            <button
-              onClick={() => setShowReportModal(false)}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              title="Annuler"
-              aria-label="Annuler"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={handleExportReport}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-              title="Générer et Télécharger le rapport"
-              aria-label="Générer et Télécharger le rapport"
-            >
-              <DocumentChartBarIcon className="h-4 w-4 mr-2" />
-              Générer et Télécharger
-            </button>
+            <button onClick={() => setShowReportModal(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">Annuler</button>
+            <button onClick={handleExportReport} className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">Générer</button>
           </div>
         </div>
       </Modal>
+
+      {/* Graphiques de Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Graphique des Revenus */}
+        <Card title={t('analytics.kpis.sections.revenue')}>
+          <div className="space-y-4">
+            {financialData.chartData.revenue.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                <span className="text-sm font-medium text-gray-700">{item.month}</span>
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900">{formatCurrency(item.value)}</div>
+                    <div className="text-xs text-gray-500">Réalisé</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-blue-600">{formatCurrency(item.target)}</div>
+                    <div className="text-xs text-gray-500">Objectif</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Graphique de Rentabilité */}
+        <Card title={t('analytics.kpis.sections.profitability')}>
+          <div className="space-y-4">
+            {financialData.chartData.profitability.map((item, index) => (
+              <div key={index} className="p-4 bg-white rounded border border-gray-100">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">{item.metric}</span>
+                  <span className="text-lg font-bold text-gray-900">{item.value}%</span>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>Benchmark: {item.benchmark}%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };
 
 export default IndicateursPerformance;
-
-

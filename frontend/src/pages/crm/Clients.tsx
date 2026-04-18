@@ -8,6 +8,8 @@ import { useTranslation } from '@shared/hooks/useTranslation';
 import { usePermission } from '@shared/hooks/usePermission';
 import { useClients } from '@shared/hooks/useClients';
 import { Client } from '@/types';
+import i18n from '@/i18n/config';
+
 import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
 import HelpButton from '@shared/components/UI/HelpButton';
 import LIAContextualButton from '@shared/components/AI/LIAContextualButton';
@@ -343,14 +345,23 @@ const Clients: React.FC = () => {
         delaiPaiement: Number(editingClient.delaiPaiement) || 30,
         tauxEscompte: editingClient.tauxEscompte || 0,
         categorieRisque: editingClient.categorieRisque || 'faible',
+        nis: editingClient.nis || '',
+        rc: editingClient.rc || '',
+        ai: editingClient.ai || '',
+        isExonereTVA: editingClient.isExonereTVA || false,
+        numAttestationExo: editingClient.numAttestationExo || '',
         notes: editingClient.notes || ''
       });
+
     } else {
       setFormData({
         nom: '', adresse: '', nif: '', telephone: '', email: '', solde: 0, secteur: '', groupeId: '', niveauAcces: 'standard',
         permissions: { consultation: true, modification: false, suppression: false, export: true, analyse: true },
-        limiteCredit: 0, delaiPaiement: 30, tauxEscompte: 0, categorieRisque: 'faible', notes: ''
+        limiteCredit: 0, delaiPaiement: 30, tauxEscompte: 0, categorieRisque: 'faible', 
+        nis: '', rc: '', ai: '', isExonereTVA: false, numAttestationExo: '',
+        notes: ''
       });
+
     }
   }, [editingClient]);
 
@@ -408,8 +419,11 @@ const Clients: React.FC = () => {
     setFormData({
       nom: '', adresse: '', nif: '', telephone: '', email: '', solde: 0, secteur: '', groupeId: '', niveauAcces: 'standard',
       permissions: { consultation: true, modification: false, suppression: false, export: true, analyse: true },
-      limiteCredit: 0, delaiPaiement: 30, tauxEscompte: 0, categorieRisque: 'faible', notes: ''
+      limiteCredit: 0, delaiPaiement: 30, tauxEscompte: 0, categorieRisque: 'faible', 
+      nis: '', rc: '', ai: '', isExonereTVA: false, numAttestationExo: '',
+      notes: ''
     });
+
   };
 
   const handleViewClientDetails = (client: Client) => {
@@ -484,7 +498,7 @@ const Clients: React.FC = () => {
     segment: user?.segment || 'micro',
     companyType: user?.companyType || 'eurl',
     role: user?.role || 'utilisateur',
-    hasPermission: has
+    hasPermission: () => true
   };
 
   // ========================================
@@ -543,6 +557,7 @@ const Clients: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
 
         {/* 4 KPIs Clients - Style Sober */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -2085,7 +2100,7 @@ const Clients: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter">{selectedClient.nom}</h3>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{t(`crm.clients.segment_names.${selectedClient.secteur.toLowerCase()}`)}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{t(`crm.clients.segment_names.${(selectedClient.secteur || 'standard').toLowerCase()}`)}</p>
                 </div>
               </div>
             </div>

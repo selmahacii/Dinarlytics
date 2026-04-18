@@ -57,31 +57,31 @@ const Statistiques: React.FC = () => {
   // Données comptables SCF/IFRS
   const normesComptables = {
     algerien: {
-      nom: 'SCF (Système Comptable Financier)',
+      nom: t('steering.dashboard.accounting.norm_scf'),
       code: 'SCF',
       emoji: '🇩🇿',
       comptes: {
-        ventes: '701 - Ventes de biens',
-        tva: '44571 - TVA collectée',
-        clients: '411 - Clients',
-        stocks: '31 - Stocks',
-        produits: '7011 - Ventes de produits finis',
-        charges: '601 - Achats de marchandises',
-        immobilisations: '20 - Immobilisations corporelles'
+        ventes: `701 - ${t('steering.dashboard.chart_accounts.items.sales_goods')}`,
+        tva: `44571 - ${t('steering.dashboard.chart_accounts.items.vat_collected')}`,
+        clients: `411 - ${t('steering.dashboard.chart_accounts.items.clients')}`,
+        stocks: `31 - ${t('steering.dashboard.chart_accounts.items.inventory')}`,
+        produits: `7011 - ${t('steering.dashboard.chart_accounts.items.finished_products')}`,
+        charges: `601 - ${t('steering.dashboard.chart_accounts.items.purchase_merchandise')}`,
+        immobilisations: `20 - ${t('steering.dashboard.chart_accounts.items.fixed_assets')}`
       }
     },
     international: {
-      nom: 'IFRS (International Financial Reporting Standards)',
+      nom: t('steering.dashboard.accounting.norm_ifrs'),
       code: 'IFRS',
       emoji: '🌍',
       comptes: {
-        ventes: 'Revenue - Sales of goods',
-        tva: 'VAT Payable',
-        clients: 'Trade Receivables',
-        stocks: 'Inventory',
-        produits: 'Sales Revenue',
-        charges: 'Cost of Goods Sold',
-        immobilisations: 'Property, Plant & Equipment'
+        ventes: t('steering.dashboard.chart_accounts.items.sales_intl'),
+        tva: t('steering.dashboard.chart_accounts.items.vat_payable'),
+        clients: t('steering.dashboard.chart_accounts.items.trade_receivables'),
+        stocks: t('steering.dashboard.chart_accounts.items.inventory_intl'),
+        produits: t('steering.dashboard.chart_accounts.items.revenue_intl'),
+        charges: t('steering.dashboard.chart_accounts.items.cogs'),
+        immobilisations: t('steering.dashboard.chart_accounts.items.ppe')
       }
     }
   };
@@ -229,10 +229,10 @@ const Statistiques: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-                Tableau de Bord Financier
+                {t('steering.dashboard.title')}
               </h1>
               <p className="text-slate-500 mt-2 text-lg max-w-2xl">
-                Vue d'ensemble stratégique des performances, de la trésorerie et de la conformité comptable.
+                {t('steering.dashboard.subtitle')}
               </p>
             </div>
 
@@ -242,8 +242,8 @@ const Statistiques: React.FC = () => {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
               </span>
               <div className="text-sm">
-                <p className="text-slate-900 font-semibold">Données en Temps Réel</p>
-                <p className="text-slate-500 text-xs text-right">Mise à jour: À l'instant</p>
+                <p className="text-slate-900 font-semibold">{t('steering.dashboard.real_time')}</p>
+                <p className="text-slate-500 text-xs text-right">{t('steering.dashboard.updated_now')}</p>
               </div>
             </div>
           </div>
@@ -252,8 +252,8 @@ const Statistiques: React.FC = () => {
           <div className="mt-8 flex items-start space-x-3 bg-blue-50/50 border border-blue-100 rounded-lg p-3 max-w-3xl">
             <ExclamationTriangleIcon className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-blue-700">
-              <span className="font-semibold mr-1"> Environnement de Démonstration :</span>
-              {t('disclaimer')} - Les indicateurs financiers et comptables présentés ci-dessous sont générés à titre d'illustration pour simuler les capacités d'analyse de Dinarlytic.
+              <span className="font-semibold mr-1"> {t('steering.dashboard.demo_env')}</span>
+              {t('steering.dashboard.demo_desc')}
             </p>
           </div>
         </div>
@@ -267,7 +267,7 @@ const Statistiques: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">Chiffre d'Affaires</p>
+          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.revenue')}</p>
           <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{formatCurrency(metriques.ventesTotal)}</h3>
           <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
             <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
@@ -278,7 +278,7 @@ const Statistiques: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">Marge Brute</p>
+          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.gross_margin')}</p>
           <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.margeBrute}%</h3>
           <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
             <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
@@ -289,30 +289,30 @@ const Statistiques: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">Rotation Stock</p>
-          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.rotationStock}x/an</h3>
+          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.stock_rotation')}</p>
+          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.rotationStock}x/{t('common.days')}</h3>
           <div className="flex items-center mt-2 text-xs font-medium text-slate-500">
-            Target: 8x
+            {t('steering.dashboard.metrics.target')} 8x
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <UserGroupIcon className="h-8 w-8 text-orange-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">Clients Actifs</p>
+          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.active_clients')}</p>
           <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.nombreClients}</h3>
           <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
-            <span>+{metriques.nouveauxClients} new</span>
+            <span>+{metriques.nouveauxClients} {t('steering.dashboard.metrics.new')}</span>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <CheckCircleIcon className="h-8 w-8 text-teal-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">Fidélisation</p>
+          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.loyalty')}</p>
           <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.tauxFidelisation}%</h3>
           <div className="flex items-center mt-2 text-xs font-medium text-teal-700 bg-teal-50 w-fit px-2 py-1 rounded-full">
-            Top Tier
+            {t('steering.dashboard.metrics.top_tier')}
           </div>
         </div>
       </div>
@@ -330,9 +330,9 @@ const Statistiques: React.FC = () => {
                   <BookOpenIcon className="h-6 w-6 text-indigo-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800">Indicateurs Comptables</h2>
+                  <h2 className="text-lg font-bold text-slate-800">{t('steering.dashboard.accounting.title')}</h2>
                   <p className="text-sm text-slate-500">
-                    Norme: <span className="font-semibold text-indigo-600">{normesComptables[planComptable as keyof typeof normesComptables].nom}</span>
+                    {t('steering.dashboard.accounting.norm_label')} <span className="font-semibold text-indigo-600">{normesComptables[planComptable as keyof typeof normesComptables].nom}</span>
                   </p>
                 </div>
               </div>
@@ -346,7 +346,7 @@ const Statistiques: React.FC = () => {
               <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex flex-col">
-                    <span className="text-slate-500 text-sm font-medium">Écritures Totales</span>
+                    <span className="text-slate-500 text-sm font-medium">{t('steering.dashboard.accounting.total_entries')}</span>
                     <span className="text-2xl font-bold text-slate-800">{kpiComptables.ecrituresComptables.total}</span>
                   </div>
                   <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
@@ -357,8 +357,8 @@ const Statistiques: React.FC = () => {
                   <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${(kpiComptables.ecrituresComptables.validees / kpiComptables.ecrituresComptables.total) * 100}%` }}></div>
                 </div>
                 <div className="flex justify-between text-xs text-slate-500">
-                  <span>{kpiComptables.ecrituresComptables.validees} validées</span>
-                  <span className="text-orange-500 font-medium">{kpiComptables.ecrituresComptables.enAttente} attente</span>
+                  <span>{kpiComptables.ecrituresComptables.validees} {t('steering.dashboard.accounting.validated')}</span>
+                  <span className="text-orange-500 font-medium">{kpiComptables.ecrituresComptables.enAttente} {t('steering.dashboard.accounting.pending')}</span>
                 </div>
               </div>
 
@@ -366,7 +366,7 @@ const Statistiques: React.FC = () => {
               <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex flex-col">
-                    <span className="text-slate-500 text-sm font-medium">TVA à Verser</span>
+                    <span className="text-slate-500 text-sm font-medium">{t('steering.dashboard.accounting.vat_to_pay')}</span>
                     <span className="text-2xl font-bold text-slate-800">{formatCurrency(kpiComptables.tva.aVerser)}</span>
                   </div>
                   <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
@@ -375,11 +375,11 @@ const Statistiques: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   <div className="text-xs">
-                    <p className="text-slate-400">Collectée</p>
+                    <p className="text-slate-400">{t('steering.dashboard.accounting.collected')}</p>
                     <p className="font-semibold text-slate-700">{formatCurrency(kpiComptables.tva.collectee)}</p>
                   </div>
                   <div className="text-xs">
-                    <p className="text-slate-400">Déductible</p>
+                    <p className="text-slate-400">{t('steering.dashboard.accounting.deductible')}</p>
                     <p className="font-semibold text-slate-700">{formatCurrency(kpiComptables.tva.deductible)}</p>
                   </div>
                 </div>
@@ -389,7 +389,7 @@ const Statistiques: React.FC = () => {
               <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex flex-col">
-                    <span className="text-slate-500 text-sm font-medium">Total Bilan</span>
+                    <span className="text-slate-500 text-sm font-medium">{t('steering.dashboard.accounting.total_balance_sheet')}</span>
                     <span className="text-2xl font-bold text-slate-800">{formatCurrency(kpiComptables.bilans.actif)}</span>
                   </div>
                   <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
@@ -397,14 +397,14 @@ const Statistiques: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-xs text-slate-500 mt-2">
-                  <span className="font-medium text-emerald-600">+{kpiComptables.bilans.evolution}%</span> vs période précédente
+                  <span className="font-medium text-emerald-600">+{kpiComptables.bilans.evolution}%</span> {t('steering.dashboard.accounting.vs_previous')}
                 </div>
               </div>
 
               {/* Ratios Quick View */}
               <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-md transition-all">
                 <div className="flex justify-between items-start mb-3">
-                  <span className="text-slate-500 text-sm font-medium">Ratios Clés</span>
+                  <span className="text-slate-500 text-sm font-medium">{t('steering.dashboard.ratios.title')}</span>
                   <div className="p-1.5 bg-white rounded-md shadow-sm border border-slate-100">
                     <ChartBarSquareIcon className="h-5 w-5 text-orange-600" />
                   </div>
@@ -424,21 +424,21 @@ const Statistiques: React.FC = () => {
 
           {/* Codes Comptables */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <h3 className="text-lg font-bold text-slate-800 mb-4">Plan Comptable Simplifié</h3>
+            <h3 className="text-lg font-bold text-slate-800 mb-4">{t('steering.dashboard.chart_accounts.title')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {['Ventes', 'Gestion', 'Stocks'].map((section) => (
                 <div key={section} className="space-y-2">
-                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-400">{section}</h4>
+                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-400">{t(`steering.dashboard.chart_accounts.${section.toLowerCase()}`)}</h4>
                   <div className="space-y-1">
                     {(section === 'Ventes' ? [
-                      { label: 'Ventes biens', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.ventes },
-                      { label: 'Produits finis', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.produits }
+                      { label: t('steering.dashboard.chart_accounts.items.sales_goods'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.ventes },
+                      { label: t('steering.dashboard.chart_accounts.items.finished_products'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.produits }
                     ] : section === 'Gestion' ? [
-                      { label: 'TVA Collectée', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.tva },
-                      { label: 'Clients', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.clients }
+                      { label: t('steering.dashboard.chart_accounts.items.vat_collected'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.tva },
+                      { label: t('steering.dashboard.chart_accounts.items.clients'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.clients }
                     ] : [
-                      { label: 'Stocks', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.stocks },
-                      { label: 'Immob.', code: normesComptables[planComptable as keyof typeof normesComptables].comptes.immobilisations }
+                      { label: t('steering.dashboard.chart_accounts.items.inventory'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.stocks },
+                      { label: t('steering.dashboard.chart_accounts.items.fixed_assets'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.immobilisations }
                     ]).map((item, idx) => (
                       <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
                         <span className="text-slate-600">{item.label}</span>
@@ -457,7 +457,7 @@ const Statistiques: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 h-full">
             <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center">
               <BookOpenIcon className="h-5 w-5 mr-2 text-slate-400" />
-              Journaux
+              {t('steering.dashboard.journals.title')}
             </h3>
             <div className="space-y-4">
               {kpiComptables.journaux.map((journal: any, index: number) => (
@@ -465,13 +465,13 @@ const Statistiques: React.FC = () => {
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="font-semibold text-slate-700">{journal.nom}</h4>
                     <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${journal.statut === 'Validé' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {journal.statut}
+                      {journal.statut === 'Validé' ? t('steering.dashboard.journals.status.validated') : t('steering.dashboard.journals.status.in_progress')}
                     </span>
                   </div>
                   <div className="flex justify-between items-end">
                     <div className="text-xs text-slate-500">
-                      <p>Mise à jour: {journal.lastUpdate || 'N/A'}</p>
-                      <p className="mt-0.5">{journal.entries || 0} lignes</p>
+                      <p>{t('steering.dashboard.journals.update')} {journal.lastUpdate || 'N/A'}</p>
+                      <p className="mt-0.5">{journal.entries || 0} {t('steering.dashboard.journals.lines')}</p>
                     </div>
                     <div className="flex flex-col items-end">
                       {/* Mock financial volume for demo looks */}
@@ -483,15 +483,15 @@ const Statistiques: React.FC = () => {
             </div>
 
             <div className="mt-8 pt-6 border-t border-slate-100">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Actions Rapides</h4>
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{t('steering.dashboard.actions.title')}</h4>
               <div className="grid grid-cols-2 gap-3">
                 <button className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
                   <DocumentCheckIcon className="h-5 w-5 mb-1" />
-                  <span className="text-xs font-semibold">Saisie</span>
+                  <span className="text-xs font-semibold">{t('steering.dashboard.actions.entry')}</span>
                 </button>
                 <button className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors">
                   <CalculatorIcon className="h-5 w-5 mb-1" />
-                  <span className="text-xs font-semibold">TVA</span>
+                  <span className="text-xs font-semibold">{t('steering.dashboard.actions.vat')}</span>
                 </button>
               </div>
             </div>
@@ -502,7 +502,7 @@ const Statistiques: React.FC = () => {
       {/* 🏆 Top Clients Professional Cards */}
       <div className="mt-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-slate-800">Top Clients Stratégiques</h2>
+          <h2 className="text-xl font-bold text-slate-800">{t('steering.dashboard.top_clients.title')}</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {clientsToDisplay.map((client: any) => (
@@ -529,11 +529,11 @@ const Statistiques: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                  <p className="text-xs text-slate-500 mb-1">Vol. Affaires</p>
+                  <p className="text-xs text-slate-500 mb-1">{t('steering.dashboard.top_clients.business_volume')}</p>
                   <p className="font-bold text-slate-800">{formatCurrency(client.ca || 0)}</p>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
-                  <p className="text-xs text-slate-500 mb-1">Performance</p>
+                  <p className="text-xs text-slate-500 mb-1">{t('steering.dashboard.top_clients.performance')}</p>
                   <p className="font-bold text-emerald-600">+{client.croissance ?? 0}%</p>
                 </div>
               </div>
@@ -543,13 +543,13 @@ const Statistiques: React.FC = () => {
                   onClick={() => handleViewDetails(client)}
                   className="flex-1 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition-colors"
                 >
-                  Détails Complets
+                  {t('steering.dashboard.top_clients.full_details')}
                 </button>
                 <button
                   onClick={() => handleContact(client)}
                   className="flex-1 py-2 text-sm font-semibold text-white bg-slate-900 border border-slate-900 rounded-lg hover:bg-slate-800 transition-colors shadow-sm"
                 >
-                  Action
+                  {t('steering.dashboard.top_clients.action')}
                 </button>
               </div>
             </div>
@@ -558,31 +558,31 @@ const Statistiques: React.FC = () => {
       </div>
 
       {/* Navigation vers les autres sections */}
-      <Card title="🔗 Accès aux Autres Sections">
+      <Card title={t('steering.dashboard.sections_access.title')}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-6 bg-white rounded-lg border border-gray-200">
-            <h3 className="text-xl font-bold text-blue-900 mb-3">💰 Tableau de Bord Financier</h3>
+            <h3 className="text-xl font-bold text-blue-900 mb-3">{t('steering.dashboard.sections_access.financial_dashboard')}</h3>
             <p className="text-blue-700 mb-4">
-              Accédez aux 8 graphiques financiers spécialisés pour une analyse approfondie
+              {t('steering.dashboard.sections_access.financial_dashboard_desc')}
             </p>
             <a
               href="/dashboard"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Accéder au Tableau de Bord
+              {t('steering.dashboard.sections_access.financial_dashboard_btn')}
             </a>
           </div>
 
           <div className="p-6 bg-white rounded-lg border border-gray-200">
-            <h3 className="text-xl font-bold text-green-900 mb-3">📈 Indicateurs de Performance</h3>
+            <h3 className="text-xl font-bold text-green-900 mb-3">{t('steering.dashboard.sections_access.kpi')}</h3>
             <p className="text-green-700 mb-4">
-              Explorez les KPIs financiers détaillés et les recommandations stratégiques
+              {t('steering.dashboard.sections_access.kpi_desc')}
             </p>
             <a
               href="/dashboard/analytics"
               className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
-              Voir les Indicateurs
+              {t('steering.dashboard.sections_access.kpi_btn')}
             </a>
           </div>
         </div>
@@ -592,7 +592,7 @@ const Statistiques: React.FC = () => {
       <div className="flex justify-center">
         <button className="flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
           <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
-          📊 Exporter le Rapport Complet
+          {t('steering.dashboard.export')}
         </button>
       </div>
 
@@ -600,7 +600,7 @@ const Statistiques: React.FC = () => {
       <Modal
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
-        title={`Détails Complets - ${selectedClient?.nom}`}
+        title={t('steering.dashboard.modals.details.title', { name: selectedClient?.nom })}
         size="xl"
       >
         {selectedClient && (
@@ -610,19 +610,19 @@ const Statistiques: React.FC = () => {
               <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                   <ChartBarIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Informations Financières
+                  {t('steering.dashboard.modals.details.financial_info')}
                 </h4>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Chiffre d'affaires:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.metrics.revenue')}:</span>
                     <span className="font-medium text-gray-900">{formatCurrency(selectedClient.ca)}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Part du CA total:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.details.revenue_share')}</span>
                     <span className="font-medium text-gray-900">{selectedClient.pourcentage}%</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Croissance:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.top_clients.performance')}:</span>
                     <span className="font-medium text-green-600">+{selectedClient.croissance}%</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
@@ -635,23 +635,23 @@ const Statistiques: React.FC = () => {
               <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                   <StarIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Performance Client
+                  {t('steering.dashboard.modals.details.performance')}
                 </h4>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Délai de paiement:</span>
-                    <span className="font-medium text-gray-900">{selectedClient.metriques.delaiPaiement} jours</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.details.payment_delay')}</span>
+                    <span className="font-medium text-gray-900">{selectedClient.metriques.delaiPaiement} {t('common.days')}</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Taux de renouvellement:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.details.renewal_rate')}</span>
                     <span className="font-medium text-gray-900">{selectedClient.metriques.tauxRenouvellement}%</span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Satisfaction:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.details.satisfaction')}</span>
                     <span className="font-medium text-gray-900">{selectedClient.metriques.satisfaction}/5</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
-                    <span className="text-gray-600">Recommandations:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.details.recommendations')}</span>
                     <span className="font-medium text-gray-900">{selectedClient.metriques.recommandations}</span>
                   </div>
                 </div>
@@ -662,7 +662,7 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <CheckCircleIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Pourquoi ce client est TOP ?
+                {t('steering.dashboard.modals.details.why_top')}
               </h4>
               <ul className="space-y-3">
                 {selectedClient.raisonsTop.map((raison: string, index: number) => (
@@ -678,7 +678,7 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <ArrowTrendingUpIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Historique Récent
+                {t('steering.dashboard.modals.details.recent_history')}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
@@ -703,7 +703,7 @@ const Statistiques: React.FC = () => {
       <Modal
         isOpen={showContactModal}
         onClose={() => setShowContactModal(false)}
-        title={`Contacter - ${selectedClient?.nom}`}
+        title={t('steering.dashboard.modals.contact.title', { name: selectedClient?.nom })}
       >
         {selectedClient && (
           <div className="space-y-6">
@@ -712,28 +712,28 @@ const Statistiques: React.FC = () => {
               <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                   <PhoneIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Contact Principal
+                  {t('steering.dashboard.modals.contact.main')}
                 </h4>
                 <div className="space-y-4">
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
                     <PhoneIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
                       <p className="font-medium text-gray-900">+213 555 123 456</p>
-                      <p className="text-sm text-gray-600">Téléphone principal</p>
+                      <p className="text-sm text-gray-600">{t('steering.dashboard.modals.contact.phone_label')}</p>
                     </div>
                   </div>
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
                     <EnvelopeIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
                       <p className="font-medium text-gray-900">contact@{selectedClient.nom.toLowerCase().replace(/\s+/g, '')}.dz</p>
-                      <p className="text-sm text-gray-600">Email principal</p>
+                      <p className="text-sm text-gray-600">{t('steering.dashboard.modals.contact.email_label')}</p>
                     </div>
                   </div>
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
                     <MapPinIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
                       <p className="font-medium text-gray-900">Alger, Algérie</p>
-                      <p className="text-sm text-gray-600">Adresse principale</p>
+                      <p className="text-sm text-gray-600">{t('steering.dashboard.modals.contact.address_label')}</p>
                     </div>
                   </div>
                 </div>
@@ -742,7 +742,7 @@ const Statistiques: React.FC = () => {
               <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                   <UserGroupIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Contact Commercial
+                  {t('steering.dashboard.modals.contact.commercial')}
                 </h4>
                 <div className="space-y-4">
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
@@ -770,20 +770,20 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <EnvelopeIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Actions Rapides
+                {t('steering.dashboard.modals.contact.actions')}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
                   <EnvelopeIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
-                  Envoyer Email
+                  {t('steering.dashboard.modals.contact.send_email')}
                 </button>
                 <button className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
                   <PhoneIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
-                  Appeler
+                  {t('steering.dashboard.modals.contact.call')}
                 </button>
                 <button className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
                   <CalendarIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
-                  Planifier RDV
+                  {t('steering.dashboard.modals.contact.schedule')}
                 </button>
               </div>
             </div>
@@ -792,27 +792,27 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <CalendarIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Historique des Contacts
+                {t('steering.dashboard.modals.contact.history')}
               </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
                   <div className="flex items-center">
                     <EnvelopeIcon className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-700">Email envoyé</span>
+                    <span className="text-gray-700">{t('steering.dashboard.modals.contact.email_sent')}</span>
                   </div>
                   <span className="text-gray-500">15 Jan 2024</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
                   <div className="flex items-center">
                     <PhoneIcon className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-700">Appel téléphonique</span>
+                    <span className="text-gray-700">{t('steering.dashboard.modals.contact.phone_call')}</span>
                   </div>
                   <span className="text-gray-500">10 Jan 2024</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
                   <div className="flex items-center">
                     <CalendarIcon className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-700">Réunion en personne</span>
+                    <span className="text-gray-700">{t('steering.dashboard.modals.contact.meeting')}</span>
                   </div>
                   <span className="text-gray-500">05 Jan 2024</span>
                 </div>
@@ -826,7 +826,7 @@ const Statistiques: React.FC = () => {
       <Modal
         isOpen={showAnalysisModal}
         onClose={() => setShowAnalysisModal(false)}
-        title={`Analyse Avancée - ${selectedClient?.nom}`}
+        title={t('steering.dashboard.modals.analysis.title', { name: selectedClient?.nom })}
       >
         {selectedClient && (
           <div className="space-y-6">
@@ -835,28 +835,28 @@ const Statistiques: React.FC = () => {
               <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                   <ChartBarSquareIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Analyse Financière
+                  {t('steering.dashboard.modals.analysis.financial')}
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Rentabilité:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.analysis.profitability')}</span>
                     <div className="flex items-center">
                       <ArrowTrendingUpIcon className="h-4 w-4 text-green-600 mr-1" />
-                      <span className="font-medium text-green-600">Excellente</span>
+                      <span className="font-medium text-green-600">{t('steering.dashboard.modals.analysis.levels.excellent')}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                    <span className="text-gray-600">Stabilité:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.analysis.stability')}</span>
                     <div className="flex items-center">
                       <CheckCircleIcon className="h-4 w-4 text-green-600 mr-1" />
-                      <span className="font-medium text-green-600">Très stable</span>
+                      <span className="font-medium text-green-600">{t('steering.dashboard.modals.analysis.levels.stable')}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-gray-600">Potentiel:</span>
+                    <span className="text-gray-600">{t('steering.dashboard.modals.analysis.potential')}</span>
                     <div className="flex items-center">
                       <ArrowTrendingUpIcon className="h-4 w-4 text-gray-600 mr-1" />
-                      <span className="font-medium text-gray-900">Élevé</span>
+                      <span className="font-medium text-gray-900">{t('steering.dashboard.modals.analysis.levels.high')}</span>
                     </div>
                   </div>
                 </div>
@@ -865,7 +865,7 @@ const Statistiques: React.FC = () => {
               <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
                 <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                   <CheckCircleIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  Recommandations
+                  {t('steering.dashboard.modals.analysis.recommendations')}
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-start text-sm text-gray-700">
@@ -888,20 +888,20 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <ExclamationTriangleIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Analyse de Risque
+                {t('steering.dashboard.modals.analysis.risk')}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-gray-50 rounded border border-gray-100">
-                  <div className="text-2xl font-bold text-green-600 mb-1">Faible</div>
-                  <div className="text-sm text-gray-600">Risque Financier</div>
+                  <div className="text-2xl font-bold text-green-600 mb-1">{t('steering.dashboard.modals.analysis.levels.low')}</div>
+                  <div className="text-sm text-gray-600">{t('steering.dashboard.modals.analysis.risks.financial')}</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded border border-gray-100">
-                  <div className="text-2xl font-bold text-gray-600 mb-1">Moyen</div>
-                  <div className="text-sm text-gray-600">Risque Commercial</div>
+                  <div className="text-2xl font-bold text-gray-600 mb-1">{t('steering.dashboard.modals.analysis.levels.medium')}</div>
+                  <div className="text-sm text-gray-600">{t('steering.dashboard.modals.analysis.risks.commercial')}</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded border border-gray-100">
-                  <div className="text-2xl font-bold text-green-600 mb-1">Faible</div>
-                  <div className="text-sm text-gray-600">Risque Opérationnel</div>
+                  <div className="text-2xl font-bold text-green-600 mb-1">{t('steering.dashboard.modals.analysis.levels.low')}</div>
+                  <div className="text-sm text-gray-600">{t('steering.dashboard.modals.analysis.risks.operational')}</div>
                 </div>
               </div>
             </div>
@@ -910,7 +910,7 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <ArrowTrendingUpIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Prévisions 2024
+                {t('steering.dashboard.modals.analysis.forecast')}
               </h4>
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
@@ -932,25 +932,25 @@ const Statistiques: React.FC = () => {
             <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                 <CalendarIcon className="h-5 w-5 text-gray-600 mr-2" />
-                Plan d'Action
+                {t('steering.dashboard.modals.analysis.action_plan')}
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">Programmer une réunion stratégique</span>
+                  <span className="text-gray-700">{t('steering.dashboard.modals.analysis.actions.schedule_meeting')}</span>
                   <button className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors border border-gray-300">
-                    Planifier
+                    {t('steering.dashboard.modals.analysis.actions.btn_schedule')}
                   </button>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">Préparer une proposition commerciale</span>
+                  <span className="text-gray-700">{t('steering.dashboard.modals.analysis.actions.prepare_proposal')}</span>
                   <button className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors border border-gray-300">
-                    Créer
+                    {t('steering.dashboard.modals.analysis.actions.btn_create')}
                   </button>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">Analyser la concurrence</span>
+                  <span className="text-gray-700">{t('steering.dashboard.modals.analysis.actions.analyze_competition')}</span>
                   <button className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors border border-gray-300">
-                    Analyser
+                    {t('steering.dashboard.modals.analysis.actions.btn_analyze')}
                   </button>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ChartBarIcon,
   ChartPieIcon,
@@ -61,9 +62,6 @@ ChartJS.register(
   Filler,
   RadialLinearScale
 );
-
-import { CalculatorIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'react-i18next';
 
 const AnalyticsFacturation: React.FC = () => {
   const { t, i18n } = useTranslation();

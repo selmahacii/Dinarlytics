@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '@/core/context/AppContext';
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, 
@@ -16,6 +17,7 @@ import {
   ExclamationTriangleIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend,
@@ -31,6 +33,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   isCollapsible = false, 
   defaultCollapsed = false 
 }) => {
+  const { t, i18n } = useTranslation();
+  const { formatCurrency } = useApp();
   const [periode, setPeriode] = useState('12mois');
   const [devise, setDevise] = useState('DZD');
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
@@ -44,17 +48,15 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     rentabilite: true,
     insights: true
   });
-  const [language, setLanguage] = useState<'fr' | 'ar'>('fr'); // JSX fix
   const [showActionsModal, setShowActionsModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
-  // État des alertes intelligentes
+  // État des alertes intelligentes - Utilisant des clés pour la traduction
   const [alertes, setAlertes] = useState([
     {
       id: 'ventes',
-      nom: 'Seuil de Ventes',
-      description: 'Alerte si les ventes mensuelles dépassent 2M DZD',
+      id_key: 'sales_threshold',
       statut: 'Déclenchée',
       seuil: 2000000,
       valeurActuelle: 2450000,
@@ -66,8 +68,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     },
     {
       id: 'liquidite',
-      nom: 'Ratio de Liquidité',
-      description: 'Alerte si le ratio de liquidité descend sous 1.5',
+      id_key: 'liquidity_ratio',
       statut: 'Surveillance',
       seuil: 1.5,
       valeurActuelle: 1.8,
@@ -79,8 +80,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     },
     {
       id: 'stock',
-      nom: 'Rupture de Stock',
-      description: 'Alerte si un article atteint le seuil de réapprovisionnement',
+      id_key: 'out_of_stock',
       statut: 'Déclenchée',
       seuil: 10,
       valeurActuelle: 5,
@@ -92,8 +92,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     },
     {
       id: 'factures',
-      nom: 'Factures en Retard',
-      description: 'Alerte si des factures clients sont en retard de plus de 30 jours',
+      id_key: 'overdue_invoices',
       statut: 'Déclenchée',
       seuil: 30,
       valeurActuelle: 45,
@@ -128,8 +127,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
       const depassement = alerte.valeurActuelle - alerte.seuil;
       
       const result = {
-        type: alerte.nom,
-        description: alerte.description,
+        type: t('dashboard.alertes.names.' + alerte.id_key),
+        description: t('dashboard.alertes.descriptions.' + alerte.id_key),
         seuil: alerte.seuil,
         valeurActuelle: alerte.valeurActuelle,
         unite: alerte.unite,
@@ -160,9 +159,9 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   const testerAlerte = (alerteId: string) => {
     const alerte = alertes.find(a => a.id === alerteId);
     if (alerte) {
-      const result = ` TEST D'ALERTE - ${alerte.nom}\n\n` +
-        `Alerte: ${alerte.nom}\n` +
-        `Description: ${alerte.description}\n` +
+      const result = ` TEST D'ALERTE - ${t('dashboard.alertes.names.' + alerte.id_key)}\n\n` +
+        `Alerte: ${t('dashboard.alertes.names.' + alerte.id_key)}\n` +
+        `Description: ${t('dashboard.alertes.descriptions.' + alerte.id_key)}\n` +
         ` Statut actuel: ${alerte.statut}\n` +
         ` Valeur actuelle: ${alerte.valeurActuelle} ${alerte.unite}\n` +
         ` Seuil configuré: ${alerte.seuil} ${alerte.unite}\n` +
@@ -417,7 +416,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number, devise: string) => {
+  const formatCurrencyLocal = (amount: number, devise: string) => {
     const rate = getDeviseRate(devise);
     const convertedAmount = amount * rate;
     const symbol = getDeviseSymbol(devise);
@@ -467,35 +466,10 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   const periodData = getPeriodData(periode);
   const deviseSymbol = getDeviseSymbol(devise);
 
-  // Traductions multilingues (après déclaration des variables)
-  const t = {
-    fr: {
-      title: 'Dashboard Financier',
-      subtitle: `Analyse temps réel • ${deviseSymbol} • ${periodData.periodLabel}`,
-      equilibre: 'Équilibre Financier SCF',
-      evaluation: 'Évaluation & Capital',
-      scenarios: 'Scénarios de Risque',
-      alertes: 'Alertes Précoces',
-      ratios: 'Ratios Financiers Détaillés',
-      simulations: 'Simulations What-If & Sensibilité',
-      rentabilite: 'Rentabilité par Dimension',
-      insights: 'Insights IA & Performance Opér.',
-   
-    },
-    ar: {
-      title: 'لوحة القيادة المالية',
-      subtitle: `تحليل في الوقت الفعلي • ${deviseSymbol} • ${periodData.periodLabel}`,
-      equilibre: 'التوازن المالي SCF',
-      evaluation: 'التقييم ورأس المال',
-      scenarios: 'سيناريوهات المخاطر',
-      alertes: 'الإنذارات المبكرة',
-      ratios: 'النسب المالية المفصلة',
-      simulations: 'محاكاة ماذا لو والحساسية',
-      rentabilite: 'الربحية حسب البعد',
-      insights: 'رؤى الذكاء الاصطناعي والأداء التشغيلي',
-     
-    }
-  }[language];
+  const dashboardSubtitle = t('dashboard.subtitle', { 
+    devise: deviseSymbol, 
+    period: periodData.periodLabel 
+  });
 
   // Données pour les graphiques (adaptées selon les filtres)
   const mois = periodData.labels;
@@ -856,26 +830,25 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
               <ChartBarIcon className="h-5 w-5 text-slate-700" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">{t.title}</h2>
+              <h2 className="text-lg font-bold text-slate-900">{t('steering.dashboard.title')}</h2>
               <p className="text-sm text-slate-600">
-                {t.subtitle}
+                {t('steering.dashboard.subtitle')}
               </p>
             </div>
           </div>
           
-          {/* Contrôles de langue et widgets */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setLanguage(language === 'fr' ? 'ar' : 'fr')}
+              onClick={() => i18n.changeLanguage(i18n.language === 'fr' ? 'ar' : 'fr')}
               className="px-3 py-1 text-xs bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-colors"
             >
-              {language === 'fr' ? 'العربية' : 'Français'}
+              {i18n.language === 'fr' ? 'العربية' : 'Français'}
             </button>
             <button
               onClick={toggleAllWidgets}
               className="px-3 py-1 text-xs bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-colors"
             >
-              {Object.values(widgets).every(Boolean) ? 'Masquer Tout' : 'Afficher Tout'}
+              {Object.values(widgets).every(Boolean) ? t('common.reduce') : t('common.all')}
             </button>
           </div>
           
@@ -884,7 +857,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
-                title={isCollapsed ? "Développer" : "Réduire"}
+                title={isCollapsed ? t('common.controls.expand') : t('common.controls.collapse')}
               >
                 {isCollapsed ? (
                   <ChevronDownIcon className="h-4 w-4 text-slate-700" />
@@ -898,21 +871,21 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
               value={periode}
               onChange={(e) => setPeriode(e.target.value)}
               className="bg-white text-slate-700 text-sm px-3 py-1.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:outline-none"
-              aria-label="Sélectionner la période"
-              title="Sélectionner la période"
+              aria-label={t('common.controls.select_period')}
+              title={t('common.controls.select_period')}
             >
-              <option value="30jours">30 jours</option>
-              <option value="3mois">3 mois</option>
-              <option value="6mois">6 mois</option>
-              <option value="12mois">12 mois</option>
+              <option value="30jours">{t('common.periods.30days')}</option>
+              <option value="3mois">{t('common.periods.3months')}</option>
+              <option value="6mois">{t('common.periods.6months')}</option>
+              <option value="12mois">{t('common.periods.12months')}</option>
             </select>
             
             <select
               value={devise}
               onChange={(e) => setDevise(e.target.value)}
               className="bg-white text-slate-700 text-sm px-3 py-1.5 rounded-lg border border-slate-300 focus:border-slate-500 focus:outline-none"
-              aria-label="Sélectionner la devise"
-              title="Sélectionner la devise"
+              aria-label={t('common.controls.select_devise')}
+              title={t('common.controls.select_devise')}
             >
               <option value="DZD">DZD</option>
               <option value="EUR">EUR</option>
@@ -928,7 +901,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <BanknotesIcon className="h-4 w-4 text-slate-700" />
-               {t.equilibre}
+               {t('dashboard.widgets.equilibre.title')}
           </h3>
             <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded border border-emerald-200">
@@ -956,8 +929,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-600 mb-1">Actifs Courants – Passifs Courants</p>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(580000, devise)}</p>
-              <p className="text-xs text-emerald-600">+12% vs Prev: {formatCurrency(650000, devise)}</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(580000)}</p>
+              <p className="text-xs text-emerald-600">+12% vs Prev: {formatCurrency(650000)}</p>
             </div>
 
             {/* BFR - Besoin en Fonds de Roulement */}
@@ -969,7 +942,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-600 mb-1">(Stocks + Clients) – Fournisseurs</p>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(130000, devise)}</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(130000)}</p>
               <p className="text-xs text-amber-600">En augmentation</p>
             </div>
 
@@ -982,7 +955,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
             </span>
               </div>
               <p className="text-xs text-slate-600 mb-1">FRN – BFR</p>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(450000, devise)}</p>
+              <p className="text-2xl font-bold text-slate-900">{formatCurrency(450000)}</p>
               <p className="text-xs text-emerald-600">Trésorerie saine</p>
             </div>
           </div>
@@ -1012,15 +985,15 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-xs text-slate-600">FRN Estimé</span>
-                  <span className="text-xs font-semibold text-blue-600">{formatCurrency(720000, devise)}</span>
+                  <span className="text-xs font-semibold text-blue-600">{formatCurrency(720000)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-slate-600">BFR Estimé</span>
-                  <span className="text-xs font-semibold text-blue-600">{formatCurrency(180000, devise)}</span>
+                  <span className="text-xs font-semibold text-blue-600">{formatCurrency(180000)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-xs text-slate-600">TN Estimée</span>
-                  <span className="text-xs font-semibold text-blue-600">{formatCurrency(540000, devise)}</span>
+                  <span className="text-xs font-semibold text-blue-600">{formatCurrency(540000)}</span>
                 </div>
               </div>
             </div>
@@ -1042,7 +1015,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <CurrencyDollarIcon className="h-4 w-4 text-slate-700" />
-              💰 {t.evaluation}
+              💰 {t('dashboard.widgets.evaluation.title')}
             </h3>
             <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-200">
@@ -1064,7 +1037,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
               <h4 className="text-sm font-semibold text-slate-900 mb-2">VAN</h4>
-              <p className="text-xl font-bold text-emerald-600">+{formatCurrency(285000, devise)}</p>
+              <p className="text-xl font-bold text-emerald-600">+{formatCurrency(285000)}</p>
               <p className="text-xs text-slate-600">Valeur Actuelle Nette</p>
             </div>
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
@@ -1130,7 +1103,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <ExclamationTriangleIcon className="h-4 w-4 text-slate-700" />
-              🎲 {t.scenarios}
+              🎲 {t('dashboard.widgets.scenarios.title')}
             </h3>
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded border border-amber-200">
@@ -1211,20 +1184,20 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              Alertes Intelligentes
-            </h3>
-                  <p className="text-sm text-slate-300">Surveillance automatisée des indicateurs critiques</p>
+                    {t('dashboard.alertes.title')}
+                  </h3>
+                  <p className="text-sm text-slate-300">{t('dashboard.alertes.subtitle')}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-slate-600 rounded-lg px-3 py-2">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-white">Système Actif</span>
+                  <span className="text-sm font-medium text-white">{t('dashboard.alertes.monitoring')}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-slate-600 rounded-lg px-3 py-2">
                   <span className="text-sm font-medium text-white">
-                {alertes.filter(a => a.active).length} Alertes Actives
-              </span>
+                    {alertes.filter(a => a.active).length} {t('dashboard.alertes.total_active')}
+                  </span>
                 </div>
               <button
                 onClick={() => toggleWidget('alertes')}
@@ -1341,8 +1314,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                             </svg>
                           </div>
                         <div>
-                          <h4 className="text-base font-bold text-slate-900">{alerte.nom}</h4>
-                          <p className="text-xs text-slate-600 mt-0.5">{alerte.description}</p>
+                          <h4 className="text-base font-bold text-slate-900">{t(`dashboard.alertes.names.${alerte.id_key}`)}</h4>
+                          <p className="text-xs text-slate-600 mt-0.5">{t(`dashboard.alertes.descriptions.${alerte.id_key}`)}</p>
                       </div>
                   </div>
                     </div>
@@ -1388,9 +1361,9 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <div className="absolute left-0 top-0 h-full w-0.5 bg-slate-900" style={{ left: '100%', transform: 'translateX(-1px)' }} />
                   </div>
                     <div className="flex justify-between items-center mt-1.5 text-xs">
-                      <span className="text-slate-600">Seuil: <strong className="text-slate-900">{alerte.unite === 'DZD' ? formatCurrency(alerte.seuil, devise) : `${alerte.seuil} ${alerte.unite}`}</strong></span>
+                      <span className="text-slate-600">Seuil: <strong className="text-slate-900">{alerte.unite === 'DZD' ? formatCurrency(alerte.seuil) : `${alerte.seuil} ${alerte.unite}`}</strong></span>
                       <span className={`font-semibold ${alerte.statut === 'Déclenchée' ? 'text-slate-900' : 'text-slate-600'}`}>
-                        Actuel: <strong>{alerte.unite === 'DZD' ? formatCurrency(alerte.valeurActuelle, devise) : `${alerte.valeurActuelle} ${alerte.unite}`}</strong>
+                        Actuel: <strong>{alerte.unite === 'DZD' ? formatCurrency(alerte.valeurActuelle) : `${alerte.valeurActuelle} ${alerte.unite}`}</strong>
                       </span>
                   </div>
                   </div>
@@ -1533,7 +1506,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <ChartBarIcon className="h-4 w-4 text-slate-700" />
-              📐 {t.ratios}
+              📐 {t('dashboard.widgets.ratios.title')}
             </h3>
             <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-200">
@@ -1645,11 +1618,11 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <ExclamationTriangleIcon className="h-4 w-4 text-slate-700" />
-               {t.simulations}
+               {t('dashboard.widgets.simulations.title')}
             </h3>
             <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded border border-purple-200">
-                Interactif
+                {t('dashboard.status.interactif')}
             </span>
               <button
                 onClick={() => toggleWidget('simulations')}
@@ -1666,46 +1639,46 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           {/* Scénarios What-If */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
-              <h4 className="text-sm font-semibold text-slate-900 mb-2">Si CA -10%</h4>
+              <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.scenarios.ca_minus_10')}</h4>
               <p className="text-xl font-bold text-slate-900">2.25M</p>
-              <p className="text-xs text-slate-600">Impact modéré</p>
+              <p className="text-xs text-slate-600">{t('dashboard.impact.modere')}</p>
             </div>
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
-              <h4 className="text-sm font-semibold text-slate-900 mb-2">Si CA -20%</h4>
+              <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.scenarios.ca_minus_20')}</h4>
               <p className="text-xl font-bold text-amber-600">2.00M </p>
-              <p className="text-xs text-amber-600">Impact significatif</p>
+              <p className="text-xs text-amber-600">{t('dashboard.impact.significatif')}</p>
             </div>
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
-              <h4 className="text-sm font-semibold text-slate-900 mb-2">Si CA +10%</h4>
+              <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.scenarios.ca_plus_10')}</h4>
               <p className="text-xl font-bold text-emerald-600">2.75M ✓</p>
-              <p className="text-xs text-emerald-600">Impact positif</p>
+              <p className="text-xs text-emerald-600">{t('dashboard.impact.positif')}</p>
             </div>
             </div>
 
           {/* Levier opérationnel */}
           <div className="bg-slate-50 rounded-lg border border-slate-200 p-3 mb-4">
-            <h4 className="text-sm font-semibold text-slate-900 mb-2">Levier Opérationnel</h4>
+            <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.levier.operationnel')}</h4>
             <p className="text-2xl font-bold text-slate-900">2.8x</p>
-            <p className="text-xs text-slate-600">+10% CA → +28% résultat</p>
+            <p className="text-xs text-slate-600">{t('dashboard.levier.description')}</p>
           </div>
 
           {/* Impacts détaillés */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
-              <h4 className="text-sm font-semibold text-slate-900 mb-2">Prix +10%</h4>
+              <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.impacts.prix_plus_10')}</h4>
               <p className="text-lg font-bold text-emerald-600">+8.5% CA</p>
-              <p className="text-xs text-slate-600">Impact sur marge</p>
+              <p className="text-xs text-slate-600">{t('dashboard.impacts.marge')}</p>
             </div>
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
-              <h4 className="text-sm font-semibold text-slate-900 mb-2">DSO -5j</h4>
+              <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.impacts.dso_minus_5')}</h4>
               <p className="text-lg font-bold text-emerald-600">+45K Tréso</p>
-              <p className="text-xs text-slate-600">Amélioration BFR</p>
+              <p className="text-xs text-slate-600">{t('dashboard.impacts.bfr')}</p>
             </div>
             </div>
 
           {/* Slider interactif */}
             <div className="bg-slate-50 rounded-lg border border-slate-200 p-3">
-            <h4 className="text-sm font-semibold text-slate-900 mb-2">Test CA ±%</h4>
+            <h4 className="text-sm font-semibold text-slate-900 mb-2">{t('dashboard.slider.test_ca')}</h4>
             <input
               type="range"
               min="-30"
@@ -1733,8 +1706,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                 <span className="text-white text-lg">🎯</span>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">{t.rentabilite}</h3>
-                <p className="text-sm text-slate-600">Analyse multi-dimensionnelle de la rentabilité</p>
+                <h3 className="text-lg font-semibold text-slate-900">{t('dashboard.widgets.rentabilite.title')}</h3>
+                <p className="text-sm text-slate-600">{t('dashboard.rentabilite.description')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1831,7 +1804,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <div className="w-3 h-3 bg-slate-800 rounded-full"></div>
                       <span className="text-xs font-semibold text-slate-800">1. Alpha SA</span>
                     </div>
-                    <span className="text-xs font-bold text-slate-900">{formatCurrency(385000, devise)}</span>
+                    <span className="text-xs font-bold text-slate-900">{formatCurrency(385000)}</span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-600">
                     <span>15.4% du CA</span>
@@ -1845,7 +1818,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <div className="w-3 h-3 bg-slate-600 rounded-full"></div>
                       <span className="text-xs font-semibold text-slate-800">2. Beta SARL</span>
                     </div>
-                    <span className="text-xs font-bold text-slate-900">{formatCurrency(320000, devise)}</span>
+                    <span className="text-xs font-bold text-slate-900">{formatCurrency(320000)}</span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-600">
                     <span>12.8% du CA</span>
@@ -1859,7 +1832,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <div className="w-3 h-3 bg-slate-500 rounded-full"></div>
                       <span className="text-xs font-semibold text-slate-800">3. Gamma SPA</span>
                     </div>
-                    <span className="text-xs font-bold text-slate-900">{formatCurrency(285000, devise)}</span>
+                    <span className="text-xs font-bold text-slate-900">{formatCurrency(285000)}</span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-600">
                     <span>11.4% du CA</span>
@@ -1870,7 +1843,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                 <div className="bg-slate-100 rounded-lg p-3 border border-slate-200">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-600">Autres clients (Top 5)</span>
-                    <span className="font-semibold text-slate-700">{formatCurrency(330000, devise)} (13.2%)</span>
+                    <span className="font-semibold text-slate-700">{formatCurrency(330000)} (13.2%)</span>
                   </div>
                 </div>
               </div>
@@ -1924,7 +1897,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-600">CA:</span>
-                      <span className="font-semibold text-slate-900">{formatCurrency(875000, devise)}</span>
+                      <span className="font-semibold text-slate-900">{formatCurrency(875000)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Marge:</span>
@@ -1950,7 +1923,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-600">CA:</span>
-                      <span className="font-semibold text-slate-900">{formatCurrency(1250000, devise)}</span>
+                      <span className="font-semibold text-slate-900">{formatCurrency(1250000)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Marge:</span>
@@ -1976,7 +1949,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-600">CA:</span>
-                      <span className="font-semibold text-slate-900">{formatCurrency(375000, devise)}</span>
+                      <span className="font-semibold text-slate-900">{formatCurrency(375000)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Marge:</span>
@@ -2001,7 +1974,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                   Performance Régionale
                 </h4>
               <span className="px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded border border-slate-300">
-                CA Total: {formatCurrency(2800000, devise)}
+                CA Total: {formatCurrency(2800000)}
               </span>
               </div>
               
@@ -2016,7 +1989,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Alger</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(950000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(950000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(33.9%)</span>
                   </div>
                 </div>
@@ -2026,7 +1999,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Oran</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(800000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(800000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(28.6%)</span>
                   </div>
                 </div>
@@ -2036,7 +2009,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Constantine</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(600000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(600000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(21.4%)</span>
                   </div>
                 </div>
@@ -2046,7 +2019,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Autres</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(450000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(450000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(16.1%)</span>
                   </div>
                 </div>
@@ -2075,7 +2048,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Direct B2B</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(1400000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(1400000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(50%)</span>
                   </div>
                 </div>
@@ -2085,7 +2058,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">E-commerce</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(900000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(900000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(32.1%)</span>
                   </div>
                 </div>
@@ -2095,7 +2068,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Partenaires</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(350000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(350000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(12.5%)</span>
                   </div>
                 </div>
@@ -2105,7 +2078,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs text-slate-700">Télévente</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(150000, devise)}</span>
+                    <span className="text-xs font-semibold text-slate-900">{formatCurrency(150000)}</span>
                     <span className="text-xs text-slate-600 ml-2">(5.4%)</span>
                   </div>
                 </div>
@@ -2238,7 +2211,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <ExclamationTriangleIcon className="h-4 w-4 text-slate-700" />
-               {t.insights}
+               {t('dashboard.widgets.insights.title')}
             </h3>
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded border border-slate-200">
@@ -2374,7 +2347,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
               <div className="w-full bg-slate-200 rounded-full h-1.5">
                 <div className="bg-slate-500 h-1.5 rounded-full" style={{ width: '93%' }}></div>
                   </div>
-              <p className="text-xs text-slate-600 mt-1">Économies: {formatCurrency(45000, devise)}/mois</p>
+              <p className="text-xs text-slate-600 mt-1">Économies: {formatCurrency(45000)}/mois</p>
             </div>
           </div>
 
@@ -2487,7 +2460,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs font-semibold text-slate-700">Optimisation BFR</span>
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200">Action</span>
               </div>
-                  <p className="text-sm font-bold text-slate-900">-{formatCurrency(12000, devise)} possible</p>
+                  <p className="text-sm font-bold text-slate-900">-{formatCurrency(12000)} possible</p>
                   <p className="text-xs text-slate-600">Via négociation délais fournisseurs</p>
               </div>
             </div>
@@ -2548,7 +2521,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
             </div>
                 <p className="text-xs text-slate-600 mb-2">Optimiser recouvrement clients Alpha SA</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Impact: +{formatCurrency(8000, devise)}</span>
+                  <span className="text-xs text-slate-500">Impact: +{formatCurrency(8000)}</span>
                   <button 
                     onClick={handleActionsRapides}
                     disabled={showActionsModal && actionsEnCours}
@@ -2657,7 +2630,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <h4 className="text-sm font-semibold text-slate-900">Optimisation BFR</h4>
                     <p className="text-xs text-slate-600">
                       {resultatsActions.bfrOptimization 
-                        ? `Optimisation BFR lancée avec succès - Gain estimé: +${formatCurrency(45000, devise)}`
+                        ? `Optimisation BFR lancée avec succès - Gain estimé: +${formatCurrency(45000)}`
                         : actionsEnCours 
                           ? 'Analyse des stocks et créances en cours...'
                           : 'En attente d\'exécution'
@@ -2750,7 +2723,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <span className="text-slate-600">💰</span>
                       <span className="text-xs font-semibold text-slate-800">Impact Financier</span>
             </div>
-                    <p className="text-lg font-bold text-slate-900">+{formatCurrency(75000, devise)}</p>
+                    <p className="text-lg font-bold text-slate-900">+{formatCurrency(75000)}</p>
                     <p className="text-xs text-slate-600">BFR optimisé</p>
           </div>
                   <div className="bg-white rounded-lg p-3 border border-slate-200">
@@ -2780,18 +2753,18 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                         <span className="text-xs font-semibold text-slate-800">Optimisation BFR</span>
                       </div>
                       <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200">
-                        +{formatCurrency(45000, devise)}
+                        +{formatCurrency(45000)}
                 </span>
               </div>
                     <p className="text-xs text-slate-700 mb-2">Analyse automatique des stocks et créances clients</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="flex justify-between">
                         <span className="text-slate-600">Stocks optimisés:</span>
-                        <span className="font-semibold text-slate-800">-{formatCurrency(15000, devise)}</span>
+                        <span className="font-semibold text-slate-800">-{formatCurrency(15000)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Créances recouvrées:</span>
-                        <span className="font-semibold text-slate-800">-{formatCurrency(30000, devise)}</span>
+                        <span className="font-semibold text-slate-800">-{formatCurrency(30000)}</span>
                       </div>
               </div>
             </div>
@@ -2803,7 +2776,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                         <span className="text-xs font-semibold text-slate-800">Négociation Fournisseurs</span>
                       </div>
                       <span className="px-2 py-1 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200">
-                        +{formatCurrency(30000, devise)}
+                        +{formatCurrency(30000)}
                 </span>
               </div>
                     <p className="text-xs text-slate-700 mb-2">Extension automatique des délais de paiement</p>
@@ -3209,14 +3182,14 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                         <span className="text-amber-600">•</span>
                 <div>
                           <span className="font-semibold text-amber-800">Cycle de Conversion (57j)</span>
-                          <p className="text-amber-700">Dépassement de 12j vs objectif. Impact estimé: -{formatCurrency(45000, devise)} de trésorerie bloquée</p>
+                          <p className="text-amber-700">Dépassement de 12j vs objectif. Impact estimé: -{formatCurrency(45000)} de trésorerie bloquée</p>
                   </div>
                   </div>
                       <div className="flex items-start gap-2">
                         <span className="text-amber-600">•</span>
                 <div>
                           <span className="font-semibold text-amber-800">DPO Optimisable (25j)</span>
-                          <p className="text-amber-700">Opportunité d'extension à 35j pour libérer +{formatCurrency(30000, devise)} de BFR</p>
+                          <p className="text-amber-700">Opportunité d'extension à 35j pour libérer +{formatCurrency(30000)} de BFR</p>
                   </div>
                   </div>
                 </div>
@@ -3298,7 +3271,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <h5 className="text-sm font-semibold text-slate-900 mb-1">Optimiser le Cycle de Conversion</h5>
                       <p className="text-xs text-slate-600 mb-2">Réduire de 57j à 45j pour améliorer la trésorerie</p>
                       <div className="flex items-center gap-4 text-xs text-slate-500">
-                        <span>Impact: +{formatCurrency(45000, devise)}</span>
+                        <span>Impact: +{formatCurrency(45000)}</span>
                         <span>Effort: Moyen</span>
                         <span>Délai: 3 mois</span>
                 </div>
@@ -3314,7 +3287,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <h5 className="text-sm font-semibold text-slate-900 mb-1">Renégocier les Délais Fournisseurs</h5>
                       <p className="text-xs text-slate-600 mb-2">Étendre DPO de 25j à 35j pour optimiser le BFR</p>
                       <div className="flex items-center gap-4 text-xs text-slate-500">
-                        <span>Impact: +{formatCurrency(30000, devise)}</span>
+                        <span>Impact: +{formatCurrency(30000)}</span>
                         <span>Effort: Faible</span>
                         <span>Délai: 1 mois</span>
             </div>

@@ -29,9 +29,420 @@
     "at": "à",
     "days": "jours",
     "total": "Total",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "tomorrow": "Demain",
     "success_suffix": "avec succès",
     "asc": "Croissant",
-    "desc": "Décroissant"
+    "desc": "Décroissant",
+    "refresh": "Rafraîchir",
+    "sales_invoices": "Factures Vente",
+    "purchase_invoices": "Factures Achat",
+    "suppliers": "Fournisseurs",
+    "reduce": "Réduire",
+    "logout": "Déconnexion",
+    "erp_tagline": "ERP Financier",
+    "pca_badge": "DZ PCA 2010",
+    "ifrs_badge": "INT IFRS",
+    "errors": {
+      "loading_failed": "Échec du chargement",
+      "retry": "Réessayer",
+      "dashboard_load_error": "Impossible de charger les données du dashboard",
+      "treasury_load_error": "Impossible de charger la trésorerie",
+      "ratios_load_error": "Impossible de charger les ratios",
+      "scenarios_load_error": "Impossible de charger les scénarios"
+    },
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
+    "periods": {
+      "30days": "30 jours",
+      "3months": "3 mois",
+      "6months": "6 mois",
+      "12months": "12 mois",
+      "year": "Année"
+    },
+    "loans": "Emprunts",
+    "personnel": "Personnel",
+    "debtor": "Débiteur",
+    "creditor": "Créditeur",
+    "staff_costs": "Charges de personnel",
+    "services": "Services",
+    "financial_charges": "Charges financières",
+    "financial_products": "Produits financiers",
+    "units": {
+      "dzd": "DZD",
+      "da": "DA",
+      "unités": "unités",
+      "units": "unités",
+      "jours": "jours",
+      "days": "jours",
+      "dso": "jours",
+      "percent": "%",
+      "percent_short": "%"
+    },
+    "frequencies": {
+      "quotidienne": "Quotidienne",
+      "daily": "Quotidienne",
+      "hebdomadaire": "Hebdomadaire",
+      "weekly": "Hebdomadaire",
+      "mensuel": "Mensuelle",
+      "monthly": "Mensuelle",
+      "trimestriel": "Trimestrielle",
+      "quarterly": "Trimestrielle",
+      "annuel": "Annuelle",
+      "annual": "Annuelle",
+      "temps_reel": "Temps réel",
+      "days_short": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven",
+        "sat": "Sam",
+        "sun": "Dim"
+      }
+    },
+    "emails": "email(s)",
+    "controls": {
+      "select_period": "Sélectionner la période",
+      "select_devise": "Sélectionner la devise",
+      "expand": "Développer",
+      "collapse": "Réduire"
+    },
+    "print": "Imprimer",
+    "export": "Exporter",
+    "export_pdf": "Exporter PDF",
+    "export_excel": "Exporter Excel",
+    "account_states": {
+      "debtor": "Débiteur",
+      "creditor": "Créditeur",
+      "debtor_short": "D",
+      "creditor_short": "C"
+    }
+  },
+  "breadcrumb": {
+    "home": "Accueil",
+    "dashboard": "Tableau de Bord",
+    "real_time": "Vue Temps Réel",
+    "advanced_analytics": "Analytics Avancées",
+    "custom_reports": "Rapports Personnalisés",
+    "custom_dashboard": "Tableau Personnalisable",
+    "user_mgmt": "Gestion Utilisateurs",
+    "accounting_mgmt": "Gestion Comptable",
+    "client_mgmt": "Gestion Clients",
+    "supplier_mgmt": "Gestion Fournisseurs",
+    "article_mgmt": "Gestion Articles",
+    "inventory": "Inventaire",
+    "billing": "Facturation",
+    "financial_analysis": "Analyse Financière",
+    "chart_of_accounts": "Plan Comptable",
+    "advanced_config": "Configuration Avancée",
+    "mobile_features": "Fonctionnalités Mobile",
+    "integrations": "Intégrations",
+    "audit": "Audit",
+    "client_groups": "Groupes Clients",
+    "statistics": "Statistiques",
+    "financial_dashboard": "Tableau de Bord Financier",
+    "performance_indicators": "Indicateurs de Performance",
+    "reports_analytics": "Rapports & Analytics",
+    "settings": "Paramètres"
+  },
+  "nav": {
+    "intelligence_lia": "Intelligence LIA",
+    "lia_chatbot": "Chatbot LIA",
+    "lia_predictive": "Analyses Prédictives",
+    "lia_train": "Entraînement Modèle",
+    "finance_accounting": "Finance & Comptabilité",
+    "balance_sheet": "États Financiers",
+    "tax_declarations": "Fiscalité & Déclarations",
+    "journal_entry": "Saisie de Journaux",
+    "steering": "Pilotage & Tableaux",
+    "global_view": "Vue d'Ensemble",
+    "alerts_risks": "Alertes & Risques",
+    "fiscal_calendar": "Calendrier Fiscal",
+    "operations": "Opérations Commerciales",
+    "client_portfolio": "Portefeuille Clients",
+    "stock_articles": "Stocks & Articles",
+    "analytics": "Analyses & Rapports",
+    "cash_flow": "Trésorerie & Banque",
+    "commercial_analysis": "Analyse Commerciale",
+    "performance": "Matrice Performance",
+    "admin_settings": "Contrôle & Réglages",
+    "audit_traceability": "Audit & Traçabilité",
+    "users": "Gestion Utilisateurs",
+    "settings": "Paramètres",
+    "templates": "Modèles de Documents",
+    "eurl_adapted_menu": "ℹ️ Menu Adapté",
+    "eurl_menu_optimized": "Votre menu est optimisé pour une EURL. Seules les fonctionnalités essentielles sont affichées."
+  },
+  "dashboard": {
+    "title": "Tableau de Bord Financier",
+    "subtitle": "Analyse en temps réel, KPIs et scénarios prédictifs",
+    "reduce_btn": "Réduire",
+    "widgets": {
+      "tresorerie": {
+        "title": "Trésorerie & Flux",
+        "subtitle": "État actuel des liquidités et prévisions à court terme",
+        "analyse_lia": "Analyse LIA",
+        "current_balance": "Solde Actuel",
+        "transit_balance": "Solde en Itinéraire",
+        "inflows": "Entrées (30j)",
+        "outflows": "Sorties (30j)",
+        "net_flow": "Flux Net",
+        "low_cash_alert": "Seuil de sécurité atteint",
+        "corrective_actions": "Actions correctives recommandées"
+      },
+      "ratios": {
+        "title": "Ratios de Santé Financière",
+        "subtitle": "Indicateurs de solvabilité, liquidité et autonomie",
+        "analyse_lia": "Analyse LIA",
+        "names": {
+          "liquidite": "Ratio de Liquidité",
+          "autonomie": "Autonomie Financière",
+          "endettement": "Ratio d'Endettement",
+          "solvabilite": "Ratio de Solvabilité"
+        },
+        "target_gap": "{{percent}}% de l'objectif",
+        "legend": {
+          "good": "Sain",
+          "average": "À surveiller",
+          "critical": "Critique"
+        }
+      },
+      "scenarios": {
+        "title": "Simulations & Scénarios",
+        "subtitle": "Projections de performance à 6 mois (IA)",
+        "analyse_lia": "Analyse LIA",
+        "risk_label": "Risque",
+        "risks": {
+          "FAIBLE": "FAIBLE",
+          "MOYEN": "MOYEN",
+          "HAUTE": "ÉLEVÉ"
+        },
+        "ca_label": "CA Prévisionnel",
+        "profit_label": "Résultat Estimé",
+        "cash_label": "Trésorerie Finale",
+        "probable_label": "Scénario le plus probable",
+        "names": {
+          "pessimistic": "Pessimiste",
+          "realistic": "Réaliste",
+          "optimistic": "Optimiste"
+        },
+        "recommendation_title": "💡 Recommendation LIA",
+        "recommendation_text": "Le scénario {{name}} est privilégié. Focus sur la rentabilité avec un profit cible de {{profit}}."
+      },
+      "alertes": {
+        "title": "Alertes & Monitoring",
+        "subtitle": "Surveillance automatique des seuils critiques",
+        "triggered": "Déclenchées",
+        "monitoring": "En Surveillance",
+        "total_active": "Total Actives",
+        "threshold": "Seuil",
+        "current_value": "Valeur Actuelle",
+        "frequency": "Fréquence",
+        "recipients": "Destinataires",
+        "last_alert": "Dernière Alerte",
+        "test_btn": "Tester",
+        "modify_btn": "Modifier",
+        "delete_btn": "Supprimer",
+        "no_alerts": "Aucune alerte active à afficher.",
+        "names": {
+          "sales_threshold": "Seuil de Ventes",
+          "liquidity_ratio": "Ratio de Liquidité",
+          "out_of_stock": "Rupture de Stock",
+          "overdue_invoices": "Factures en Retard"
+        },
+        "descriptions": {
+          "sales_threshold": "Alerte si les ventes mensuelles dépassent 2M DZD",
+          "liquidity_ratio": "Alerte si le ratio de liquidité descend sous 1.5",
+          "out_of_stock": "Alerte si un article atteint le seuil de réapprovisionnement",
+          "overdue_invoices": "Alerte si des factures clients sont en retard de plus de 30 jours"
+        }
+      },
+      "equilibre": {
+        "title": "Équilibre Financier SCF"
+      },
+      "evaluation": {
+        "title": "Évaluation & Capital"
+      },
+      "simulations": {
+        "title": "Simulations What-If & Sensibilité"
+      },
+      "rentabilite": {
+        "title": "Rentabilité par Dimension"
+      },
+      "insights": {
+        "title": "Insights IA & Performance Opér."
+      }
+    },
+    "demo_notice_title": "Mode Démonstration",
+    "demo_notice_text": "Les données affichées sont des simulations basées sur votre historique récent.",
+    "options_title": "Options d'affichage"
+  },
+  "steering": {
+    "dashboard": {
+      "title": "Tableau de Bord Financier",
+      "subtitle": "Vue d'ensemble stratégique des performances, de la trésorerie et de la conformité comptable.",
+      "real_time": "Données en Temps Réel",
+      "updated_now": "Mise à jour: À l'instant",
+      "demo_env": "Environnement de Démonstration :",
+      "demo_desc": "Les indicateurs financiers et comptables présentés ci-dessous sont générés à titre d'illustration pour simuler les capacités d'analyse de Dinarlytic.",
+      "metrics": {
+        "revenue": "Chiffre d'Affaires",
+        "gross_margin": "Marge Brute",
+        "stock_rotation": "Rotation Stock",
+        "active_clients": "Clients Actifs",
+        "loyalty": "Fidélisation",
+        "target": "Target:",
+        "new": "new",
+        "top_tier": "Top Tier"
+      },
+      "accounting": {
+        "title": "Indicateurs Comptables",
+        "norm_label": "Standard:",
+        "norm_scf": "🇩🇿 SCF (Système Comptable Financier)",
+        "norm_ifrs": "🌍 IFRS (International Financial Reporting Standards)",
+        "total_entries": "Écritures Totales",
+        "validated": "validées",
+        "pending": "attente",
+        "vat_to_pay": "TVA à Verser",
+        "collected": "Collectée",
+        "deductible": "Déductible",
+        "total_balance_sheet": "Total Bilan",
+        "vs_previous": "vs période précédente"
+      },
+      "ratios": {
+        "title": "Ratios Clés",
+        "liquidity": "Liquidité Générale",
+        "solvency": "Solvabilité"
+      },
+      "chart_accounts": {
+        "title": "Plan Comptable Simplifié",
+        "sales": "Ventes",
+        "management": "Gestion",
+        "stocks": "Stocks",
+        "items": {
+          "sales_goods": "Ventes biens",
+          "finished_products": "Produits finis",
+          "vat_collected": "TVA Collectée",
+          "clients": "Clients",
+          "inventory": "Stocks",
+          "fixed_assets": "Immob.",
+          "purchase_merchandise": "Achats de marchandises",
+          "sales_intl": "Chiffre d'affaires - Ventes de biens",
+          "vat_payable": "TVA à payer",
+          "trade_receivables": "Créances clients",
+          "inventory_intl": "Stocks",
+          "revenue_intl": "Produits d'exploitation",
+          "cogs": "Coût des ventes",
+          "ppe": "Immobilisations corporelles (PPE)"
+        }
+      },
+      "journals": {
+        "title": "Journaux",
+        "status": {
+          "validated": "Validé",
+          "in_progress": "En cours"
+        },
+        "update": "Mise à jour:",
+        "lines": "lignes"
+      },
+      "actions": {
+        "title": "Actions Rapides",
+        "entry": "Saisie",
+        "vat": "TVA"
+      },
+      "top_clients": {
+        "title": "Top Clients Stratégiques",
+        "business_volume": "Vol. Affaires",
+        "performance": "Performance",
+        "full_details": "Détails Complets",
+        "action": "Action"
+      },
+      "sections_access": {
+        "title": "🔗 Accès aux Autres Sections",
+        "financial_dashboard": "💰 Tableau de Bord Financier",
+        "financial_dashboard_desc": "Accédez aux 8 graphiques financiers spécialisés pour une analyse approfondie",
+        "financial_dashboard_btn": "Accéder au Tableau de Bord",
+        "kpi": "📈 Indicateurs de Performance",
+        "kpi_desc": "Explorez les KPIs financiers détaillés et les recommandations stratégiques",
+        "kpi_btn": "Voir les Indicateurs"
+      },
+      "export": "📊 Exporter le Rapport Complet",
+      "modals": {
+        "details": {
+          "title": "Détails Complets - {{name}}",
+          "financial_info": "Informations Financières",
+          "performance": "Performance Client",
+          "why_top": "Pourquoi ce client est TOP ?",
+          "recent_history": "Historique Récent",
+          "revenue_share": "Part du CA total:",
+          "payment_delay": "Délai de paiement:",
+          "renewal_rate": "Taux de renouvellement:",
+          "satisfaction": "Satisfaction:",
+          "recommendations": "Recommandations:"
+        },
+        "contact": {
+          "title": "Contacter - {{name}}",
+          "main": "Contact Principal",
+          "commercial": "Contact Commercial",
+          "phone_label": "Téléphone principal",
+          "email_label": "Email principal",
+          "address_label": "Adresse principale",
+          "actions": "Actions Rapides",
+          "history": "Historique des Contacts",
+          "send_email": "Envoyer Email",
+          "call": "Appeler",
+          "schedule": "Planifier RDV",
+          "email_sent": "Email envoyé",
+          "phone_call": "Appel téléphonique",
+          "meeting": "Réunion en personne"
+        },
+        "analysis": {
+          "title": "Analyse Avancée - {{name}}",
+          "financial": "Analyse Financière",
+          "profitability": "Rentabilité:",
+          "stability": "Stabilité:",
+          "potential": "Potentiel:",
+          "recommendations": "Recommandations",
+          "risk": "Analyse de Risque",
+          "forecast": "Prévisions 2024",
+          "action_plan": "Plan d'Action",
+          "levels": {
+            "excellent": "Excellente",
+            "stable": "Très stable",
+            "high": "Élevé",
+            "low": "Faible",
+            "medium": "Moyen"
+          },
+          "risks": {
+            "financial": "Risque Financier",
+            "commercial": "Risque Commercial",
+            "operational": "Risque Opérationnel"
+          },
+          "actions": {
+            "schedule_meeting": "Programmer une réunion stratégique",
+            "prepare_proposal": "Préparer une proposition commerciale",
+            "analyze_competition": "Analyser la concurrence",
+            "btn_schedule": "Planifier",
+            "btn_create": "Créer",
+            "btn_analyze": "Analyser"
+          }
+        }
+      }
+    }
   },
   "crm": {
     "clients": {
@@ -328,7 +739,7 @@
       "exposure_label": "Exposition:",
       "index_shorthand": "INDEX",
       "units_shorthand": "UNITS",
-    "other_partners": "autres partenaires"
+      "other_partners": "autres partenaires"
     }
   },
   "suppliers": {
@@ -546,6 +957,11 @@
   "inventory": {
     "title": "Gestion de l'Inventaire",
     "subtitle": "Suivi des stocks, mouvements et réapprovisionnements",
+    "table_labels": {
+      "pca_code": "Code PCA:",
+      "unit_price": "Prix unitaire:",
+      "total_value": "Valeur totale:"
+    },
     "tabs": {
       "stock": "État des Stocks",
       "movements": "Mouvements de Stock",
@@ -560,7 +976,8 @@
       "total_value": "Valeur du Stock",
       "available": "Disponible",
       "to_reorder": "À réapprovisionner",
-      "units": "unités"
+      "units": "unités",
+      "articles_count": "articles"
     },
     "sections": {
       "category_distribution": "Répartition par Catégorie",
@@ -571,7 +988,15 @@
       "movements_history": "Historique des Mouvements",
       "general_info": "Informations générales",
       "stock_levels": "Niveaux de stock",
-      "logistics": "Fournisseur et logistique"
+      "logistics": "Fournisseur et logistique",
+      "abc": {
+        "cat_a": "Catégorie A",
+        "cat_b": "Catégorie B",
+        "cat_c": "Catégorie C",
+        "value_a": "80% de la valeur",
+        "value_b": "15% de la valeur",
+        "value_c": "5% de la valeur"
+      }
     },
     "actions": {
       "start_inventory": "Lancer Inventaire Physique",
@@ -579,7 +1004,7 @@
       "physical_inventory": "Inventaire Physique",
       "reordering": "Réapprovisionnement",
       "export": "Exporter Liste",
-      "print": "Imprimer État",
+      "print_status": "Imprimer État",
       "reset": "Réinitialiser les filtres",
       "view_details": "Voir Détails",
       "edit": "Modifier Article",
@@ -588,7 +1013,10 @@
       "new_report": "Nouveau Rapport",
       "order_all": "Commander Tout",
       "print_barcode": "Imprimer Codes-barres",
-      "validate": "Valider le comptage"
+      "validate": "Valider le comptage",
+      "download": "Télécharger",
+      "print": "Imprimer",
+      "preview": "Aperçu"
     },
     "filters": {
       "search_placeholder": "Rechercher un article (nom, code PCA...)",
@@ -670,7 +1098,8 @@
       "opt_level_msg": "Tous vos stocks sont à un niveau optimal !",
       "optimize_desc": "Optimisez vos commandes pour éviter les ruptures de stock sèches.",
       "turnover": "Rotation de Stock",
-      "priority": "Priorité"
+      "priority": "Priorité",
+      "times_per_year": "fois par an"
     },
     "barcode": {
       "title": "Gestion des Codes-barres",
@@ -689,7 +1118,8 @@
       "stock_valuation": "Valeur du Stock",
       "alert_summary": "Articles en Alerte",
       "rotation_rate": "Rapport de Rotation",
-      "abc_analysis": "Analyse ABC"
+      "abc_analysis": "Analyse ABC",
+      "recent_reports": "Rapports Récents"
     },
     "alerts_msg": {
       "low_stock_msg": "{{count}} articles en stock faible",
@@ -1066,7 +1496,10 @@
       "period_select": "Sélectionner la période",
       "actions": {
         "print": "Imprimer État",
-        "export_xml": "Exporter XML (DGI)"
+        "export_xml": "Exporter XML (DGI)",
+        "export_pdf": "Exporter PDF",
+        "export_excel": "Exporter Excel",
+        "graphical_analysis": "Analyse Graphique"
       },
       "tabs": {
         "bilan": "Bilan",
@@ -1097,7 +1530,8 @@
         "produits_exploitation": "Produits d'Exploitation",
         "total_produits": "Total Produits",
         "net_result": "Résultat Net",
-        "net_margin": "Marge Nette"
+        "net_margin": "Marge Nette",
+        "net_margin_desc": "Résultat net / CA total"
       },
       "flux": {
         "title": "Tableau des Flux de Trésorerie",
@@ -1111,8 +1545,56 @@
       "balance": {
         "title": "Balance Générale",
         "balanced": "✓ Balance équilibrée",
-        "unbalanced": "⚠ Balance déséquilibrée"
+        "unbalanced": "⚠ Balance déséquilibrée",
+        "account": "Compte",
+        "label": "Libellé",
+        "debit": "Débit",
+        "credit": "Crédit",
+        "balance": "Solde"
       },
+      "ledger": {
+        "title": "Grand Livre",
+        "final_balance": "Solde Final de Période",
+        "date": "Date",
+        "label": "Libellé",
+        "debit": "Débit",
+        "credit": "Crédit",
+        "balance": "Solde"
+      },
+      "ratios": {
+        "title": "Ratios Financiers Clés",
+        "current_liquidity": "Liquidité Générale",
+        "current_liquidity_desc": "Actif circulant / Dettes CT",
+        "financial_autonomy": "Autonomie Financière",
+        "financial_autonomy_desc": "Dettes / Capitaux propres",
+        "added_value": "Valeur Ajoutée",
+        "added_value_desc": "Marge brute / CA",
+        "roe": "ROE (Return on Equity)",
+        "roe_desc": "Rentabilité des capitaux propres",
+        "roa": "ROA (Return on Assets)",
+        "roa_desc": "Rentabilité de l'actif total",
+        "working_capital": "Fonds de Roulement",
+        "working_capital_desc": "Capacité de financement CT",
+        "labels": {
+          "stable_resources": "Ressources stables",
+          "stable_uses": "Emplois stables",
+          "net_result": "Résultat Net",
+          "equity": "Capitaux propres",
+          "total_assets": "Total Actif"
+        }
+      },
+      "evolution_title": "Évolution des Postes Clés",
+      "comparison_n_n1": "Comparaison N / N-1",
+      "period_n": "Exercice N",
+      "period_n1": "Exercice N-1",
+      "structure_title": "Structure du Bilan",
+      "post_weight": "Poids des Postes",
+      "actif_distribution": "RÉPARTITION DE L'ACTIF",
+      "passif_structure": "STRUCTURE DU PASSIF",
+      "fixed_assets": "Actif Immobilisé",
+      "current_assets": "Actif Circulant",
+      "equity": "Capitaux Propres",
+      "liabilities": "Dettes",
       "official_report": "État Comptable Officiel"
     },
     "ledger": {
@@ -1415,8 +1897,58 @@
           "priority": "Priorité:",
           "recommendations": "Recommandations:",
           "categories": {
-            "liquidity": "liquidité",
-            "profitability": "rentabilité"
+            "liquidite": "liquidité",
+            "rentabilite": "rentabilité",
+            "solvabilite": "solvabilité",
+            "efficacite": "efficacité",
+            "liquidité": "liquidité",
+            "rentabilité": "rentabilité",
+            "efficacité": "efficacité"
+          },
+          "items": {
+            "dso-critique": {
+              "title": "DSO critique — recouvrement client insuffisant",
+              "message": "Le délai de règlement client est de {{value}} jours, bien au-dessus du seuil optimal de {{threshold}} jours.",
+              "recommendations": [
+                "Mettre en place des relances automatiques à J+30, J+45 et J+60",
+                "Réviser les conditions de paiement accordées",
+                "Envisager l'escompte pour paiement anticipé"
+              ]
+            },
+            "dso-warning": {
+              "title": "DSO à surveiller",
+              "message": "Le délai de règlement client ({{value}}j) dépasse légèrement l'optimal.",
+              "recommendations": [
+                "Renforcer le suivi des relances clients"
+              ]
+            },
+            "marge-faible": {
+              "title": "Marge brute insuffisante",
+              "message": "La marge brute de {{value}}% est inférieure au seuil minimum de {{threshold}}%.",
+              "recommendations": [
+                "Revoir la politique tarifaire",
+                "Identifier et réduire les coûts directs",
+                "Négocier les achats avec les fournisseurs"
+              ]
+            },
+            "liquidite-faible": {
+              "title": "Risque de liquidité",
+              "message": "Le ratio de liquidité générale ({{value}}) est inférieur à {{threshold}}.",
+              "recommendations": [
+                "Accélérer l'encaissement des créances",
+                "Différer les investissements non critiques",
+                "Explorer les lignes de crédit disponibles"
+              ]
+            },
+            "autonomie-faible": {
+              "title": "Autonomie financière limitée",
+              "message": "L'autonomie financière de {{value}}% indique une dépendance importante à l'endettement externe.",
+              "recommendations": [
+                "Renforcer les capitaux propres",
+                "Envisager une augmentation de capital",
+                "Prioriser l'autofinancement"
+              ]
+            }
           }
         },
         "breakeven": {
@@ -1448,6 +1980,24 @@
         "actions": {
           "simulate": "Simuler un Scénario",
           "projections": "Voir les Prévisions"
+        },
+        "modals": {
+          "simulation_title": "Simulation de Scénario Financier",
+          "simulation_desc": "Simulez l'impact de différents scénarios sur vos ratios financiers et votre rentabilité.",
+          "revenue_var_label": "Variation du CA (%)",
+          "costs_var_label": "Variation des Charges (%)",
+          "dso_var_label": "Variation DSO (jours)",
+          "dio_var_label": "Variation DIO (jours)",
+          "placeholder_ex": "Ex: +10 ou -5",
+          "run_simulation": "Lancer la Simulation",
+          "projections_title": "Prévisions Financières",
+          "projections_desc": "Prévisions financières sur 12 mois basées sur vos données actuelles et les tendances du secteur.",
+          "scenarios": {
+            "optimistic": "Scénario Optimiste",
+            "realistic": "Scénario Réaliste",
+            "pessimistic": "Scénario Pessimiste"
+          },
+          "waiting_selection": "Les prévisions seront générées après sélection du scénario"
         }
       },
       "kpis": {
@@ -1479,5 +2029,366 @@
         }
       }
     }
+  },
+  "chatbot": {
+    "title": "LIA — Intelligence Décisionnelle",
+    "active_session": "Session Active",
+    "welcome": "Bonjour {{name}}. Je suis LIA, votre assistante d'intelligence décisionnelle.",
+    "role_context": "En tant que **{{role}}**, je suis prête à vous accompagner dans le pilotage stratégique de **votre entreprise**.",
+    "capabilities_intro": "Voici comment je peux vous assister aujourd'hui :",
+    "capabilities": {
+      "predictive": "**Analyse Prédictive** : Projections de trésorerie à 13 semaines et CA à 12 mois.",
+      "simulations": "**Simulations Stratégiques** : Scénarios Optimiste / Réaliste / Pessimiste.",
+      "optimization": "**Optimisation Opérationnelle** : Détection de patterns saisonniers et scoring de risque.",
+      "performance": "**Pilotage de la Performance** : Analyse financière complète de votre cycle de conversion (CCC/BFR)."
+    },
+    "question": "Quel aspect de votre performance souhaitez-vous auditer ?",
+    "quick_actions": {
+      "synthesis": "Synthèse stratégique du groupe",
+      "sector_analysis": "Analyse de performance sectorielle",
+      "growth_scenarios": "Scénarios de croissance M+6",
+      "risk_report": "Rapport de risque global"
+    },
+    "input_placeholder": "Posez une question à l'intelligence LIA..."
+  },
+  "access": {
+    "denied": "Accès refusé",
+    "permission_not_granted": "Vous n'avez pas la permission d'accéder à cette section.",
+    "permission_required": "Permission requise:",
+    "request_access": "Demander l'accès",
+    "view_docs": "Permissions"
+  },
+  "invoices": {
+    "modal": {
+      "create_title": "Nouvelle Facture — Intelligence Comptable",
+      "legal_info": "Informations Légales & Fiscales",
+      "client_id_section": "Identification Client",
+      "raison_sociale": "Raison Sociale",
+      "address_billing": "Adresse de Facturation",
+      "nif": "N.I.F (Numéro d'Identification Fiscale)",
+      "nis": "N.I.S (Numéro d'Identification Statistique)",
+      "rc": "R.C (Registre du Commerce)",
+      "ai": "A.I (Article d'Imposition)",
+      "rib": "R.I.B / Compte Bancaire",
+      "sector": "Secteur d'Activité",
+      "date_emission": "Date d'Émission",
+      "date_echeance": "Date d'Échéance",
+      "items_title": "Détails des Prestations / Articles",
+      "add_item": "Ajouter une ligne",
+      "item_desc": "Désignation",
+      "item_qty": "Qté",
+      "item_pu": "P.U (HT)",
+      "item_tva": "TVA (%)",
+      "payment_config": "Configuration du Paiement",
+      "ttc_total": "Total TTC",
+      "save": "Générer la Facture",
+      "accounting_simulation": "Simulation d'Imputation Comptable (Grand Livre)"
+    },
+    "table": {
+      "status": "Statut"
+    },
+    "advanced_analytics": {
+      "title": "Analyse Financière Avancée",
+      "subtitle": "Pilotage de la performance et prévisionnel budgétaire.",
+      "comparative_n1": "Comparatif N-1",
+      "import_btn": "Importer",
+      "export_btn": "Exporter",
+      "updating": "Actualisation des analyses...",
+      "pipeline_title": "Pipeline Commercial",
+      "view_details": "Voir détails",
+      "treasury_forecast_title": "Prévisions de Trésorerie (Rolling Forecast)",
+      "ia_trust_score": "IA Trust Score",
+      "projection_end_month": "Fin du Mois (Projection)",
+      "attention_points": "Points d'Attention",
+      "ia_report_title": "Rapport Détaillé : Prévisions de Trésorerie",
+      "ia_confidence_status": "Statut de Confiance IA",
+      "ia_reliability_high": "Fiabilité Haute",
+      "ia_analysis_desc": "L'algorithme de prédiction a analysé les 24 derniers mois de flux bancaires, la saisonnalité sectorielle et les comportements de paiement clients actuels.",
+      "projections_30d": "Projections de Flux (30 jours)",
+      "expected_inflow": "Encaissements Prévus",
+      "expected_outflow": "Décaissements Prévus",
+      "projected_net_balance": "Solde Net Projeté",
+      "risks_alerts_title": "Alertes & Risques IA",
+      "close_btn": "Fermer",
+      "print_report": "Imprimer le Rapport",
+      "periods": {
+        "7d": "7 derniers jours",
+        "30d": "30 derniers jours",
+        "90d": "Trimestre en cours",
+        "1y": "Exercice Annuel"
+      },
+      "metrics": {
+        "dso": "DSO (Délai Client)",
+        "bfr": "BFR (Besoin Fonds)",
+        "break_even": "Seuil Rentabilité",
+        "solvency": "Solvabilité"
+      },
+      "ai_insights": {
+        "churn_risk": "Risque Attrition Client",
+        "billing_anomaly": "Anomalie Débours / Facturation",
+        "retention_action": "Activer le protocole Rétention",
+        "verify_invoice": "Vérifier la facture",
+        "strategic_accounts": "{{count}} Comptes Stratégiques",
+        "recommendation": "Recommandation"
+      }
+    }
+  },
+  "audit": {
+    "title": "Audit & Sécurité",
+    "subtitle": "Surveillance avancée des activités et sécurité du système",
+    "tabs": {
+      "logs": "Logs Audit",
+      "compliance": "Conformité",
+      "security": "Sécurité",
+      "risks": "Risques",
+      "analytics": "Analytics",
+      "reports": "Rapports"
+    },
+    "controls": {
+      "select_period": "Sélectionner la période d'audit",
+      "refresh": "Actualiser",
+      "today": "Aujourd'hui",
+      "this_week": "Cette semaine",
+      "this_month": "Ce mois",
+      "this_quarter": "Ce trimestre",
+      "search": "Rechercher...",
+      "export": "Export",
+      "print": "Imprimer"
+    },
+    "stats": {
+      "logins": "Connexions",
+      "modifications": "Modifications",
+      "failed_attempts": "Tentatives Échouées",
+      "exports": "Exports"
+    },
+    "table": {
+      "timestamp": "Horodatage",
+      "user": "Utilisateur",
+      "action": "Action",
+      "resource": "Ressource",
+      "status": "Statut",
+      "success": "Succès",
+      "warning": "Alerte",
+      "failed": "Échec"
+    },
+    "compliance": {
+      "title": "Conformité et Contrôles",
+      "subtitle": "Audit réglementaire et validation des standards",
+      "run_audit": "Lancer l'Audit",
+      "global_score": "Score Global",
+      "optimal": "OPTIMAL",
+      "last_audit": "Dernier audit:",
+      "total_checks": "Total Contrôles",
+      "passed": "Validés",
+      "to_review": "À Revoir",
+      "next_audit": "Prochain Audit",
+      "analysis_detail": "Détail des Analyses",
+      "fiscal_security": "Sécurité Fiscale",
+      "fiscal_security_details": "Déclarations G50 validation croisée",
+      "data_integrity": "Intégrité des Données",
+      "data_integrity_details": "Sauvegardes chiffrées quotidiennes",
+      "user_access": "Accès Utilisateurs",
+      "user_access_details": "2 comptes inactifs détectés",
+      "gdpr": "RGPD / Confidentialité",
+      "gdpr_details": "Anonymisation active",
+      "compliant": "Conforme",
+      "attention": "Attention",
+      "validated_points": "Points de contrôle validés",
+      "points": {
+        "integrity": "Intégrité des écritures comptables",
+        "encryption": "Chiffrement PII (Données Personnelles)",
+        "traceability": "Traçabilité des exports de données",
+        "archiving": "Archivage légal (10 ans)"
+      },
+      "remediation_review_accounts": "Revoir les permissions des 2 comptes inactifs sous 48h.",
+      "remediation_encryption_check": "Valider le certificat de chiffrement du serveur de backup."
+    },
+    "security": {
+      "title": "Surveillance de Sécurité",
+      "status_secured": "Système Sécurisé",
+      "last_analysis": "Dernière analyse:",
+      "run_analysis": "Lancer l'Analyse",
+      "logins_24h": "Connexions (24h)",
+      "auth_failed": "Échecs Auth.",
+      "suspicious_activity": "Activités Suspectes",
+      "latest_alerts": "Dernières Alertes de Sécurité",
+      "view_all_history": "Voir tout l'historique",
+      "protection_status": "État des Systèmes de Protection",
+      "manage_keys": "Gérer les clés de chiffrement",
+      "time_ago_short": "Il y a {{min}} min",
+      "status": {
+        "active": "Actif",
+        "partial": "Partiel",
+        "warning": "Attention",
+        "to_verify": "À vérifier",
+        "none": "Aucune"
+      },
+      "systems": {
+        "waf": "Pare-feu Applicatif (WAF)",
+        "ids": "Détection d'Intrusion (IDS)",
+        "encryption": "Chiffrement des Données",
+        "mfa": "Double Authentification (2FA)"
+      },
+      "alert_types": {
+        "login": "Connexion",
+        "system": "Système",
+        "access": "Accès"
+      },
+      "alerts": {
+        "failed_login_ip": "Tentative de connexion échouée (IP: {{ip}})",
+        "firewall_update": "Mise à jour des règles de pare-feu effectuée",
+        "account_locked": "Compte utilisateur \"{{user}}\" verrouillé après 5 essais"
+      }
+    },
+    "risks": {
+      "levels": {
+        "critical": "Critique",
+        "high": "Élevé",
+        "medium": "Moyen",
+        "low": "Faible",
+        "minimal": "Minime"
+      },
+      "title": "Matrice des Risques Opérationnels",
+      "subtitle": "Identification, évaluation et mitigation des menaces potentielles",
+      "update_analysis": "Mettre à jour l'analyse",
+      "heatmap_title": "Distribution des Risques (Heatmap)",
+      "impact_low": "Impact Faible",
+      "impact_high": "Impact Élevé",
+      "global_score": "Score Global",
+      "summary_text": "Bas-Moyen",
+      "factors_count": "Basé sur 24 facteurs pondérés. Tendance stable par rapport au mois dernier.",
+      "mitigated_risks": "Risques Atténués",
+      "attention_needed": "{{count}} risques résiduels nécessitent une attention particulière.",
+      "items": {
+        "intrusion": "Intrusion Système / Malware",
+        "intrusion_mitigation": "Mise à jour IPS/IDS, Patching 24h",
+        "server_failure": "Panne Serveur SGBD Principal",
+        "server_failure_mitigation": "Failover Cluster Automatique",
+        "human_error": "Erreur Humaine (Saisie)",
+        "human_error_mitigation": "Double validation entrées",
+        "gdpr": "Non-Conformité RGPD",
+        "gdpr_mitigation": "Revue trimestrielle DPO",
+        "acc_unauth": "Accès non autorisé",
+        "acc_unauth_mit": "Renforcer l'authentification",
+        "data_loss": "Perte de données",
+        "data_loss_mit": "Sauvegarde automatique",
+        "tax_non_comp": "Non-Conformité fiscale",
+        "tax_non_comp_mit": "Audit régulier",
+        "calc_error": "Erreur de calcul",
+        "calc_error_mit": "Validation automatique"
+      },
+      "categories": {
+        "cybersecurity": "Cybersécurité",
+        "infrastructure": "Infrastructure",
+        "operational": "Opérationnel",
+        "legal": "Légal"
+      },
+      "statuses": {
+        "active": "Actif",
+        "monitored": "Surveillé",
+        "controlled": "Contrôlé",
+        "compliant": "Conforme"
+      },
+      "table": {
+        "risk": "Risque Identifié",
+        "level": "Niveau & Classification",
+        "prob_short": "Prob.",
+        "impact_short": "Imp.",
+        "prob_impact": "Probabilité vs Impact",
+        "mitigation": "Stratégie de Mitigation",
+        "action_plan": "Voir le plan d'action"
+      }
+    },
+    "analytics": {
+      "title": "Analyse de l'Activité Système",
+      "last_30_days": "Derniers 30 jours",
+      "activity_volume": "Volume d'Activité",
+      "distribution": "Répartition",
+      "active_users": "Utilisateurs les plus actifs",
+      "total": "Total",
+      "view_all": "Voir tout",
+      "metrics": {
+        "logins": "Connexions",
+        "modifications": "Modifications",
+        "deletions": "Suppressions",
+        "exports": "Exports",
+        "imports": "Imports",
+        "others": "Autres"
+      },
+      "table": {
+        "user": "Utilisateur",
+        "role": "Rôle",
+        "events": "Événements",
+        "trend": "Tendance"
+      }
+    },
+    "reports": {
+      "generated_count": "Rapports Générés",
+      "storage_used": "Stockage utilisé",
+      "center_title": "Centre de Rapports",
+      "center_subtitle": "Génération, planification et archivage des audits réglementaires",
+      "schedule_btn": "Planifier un Rapport",
+      "scheduled_reports": "Rapports Planifiés (Automatisations)",
+      "active": "Actif",
+      "next_send": "Prochain envoi",
+      "active_scheduled_count": "{{count}} Rapports planifiés actifs",
+      "digital_signature": "Signature numérique activée",
+      "retention": "Rétention: {{years}} ans",
+      "history": "Historique Récent",
+      "generator_title": "Générateur Rapide",
+      "types": {
+        "compliance": "Conformité Réglementaire",
+        "security": "Sécurité des Données",
+        "logs": "Traces d'Audit (Logs)",
+        "full_audit": "Audit Complet (détaillé)",
+        "compliance_summary": "Synthèse de Conformité",
+        "incident_log": "Journal des Incidents",
+        "risk_matrix": "Matrice des Risques"
+      },
+      "periods": {
+        "last_30_days": "30 derniers jours",
+        "current_quarter": "Trimestre en cours (Q3)",
+        "fiscal_year_2024": "Année fiscale 2024",
+        "custom": "Personnalisé..."
+      },
+      "doc_type": "Type de document",
+      "period": "Période",
+      "format": "Format de sortie",
+      "generate_btn": "Générer le Document",
+      "generating": "Génération en cours...",
+      "available": "Disponible",
+      "expired": "Expiré",
+      "download": "Télécharger"
+    },
+    "modals": {
+      "details_title": "Détails de l'Audit",
+      "ip_address": "Adresse IP",
+      "details_label": "Détails",
+      "close": "Fermer",
+      "schedule_title": "Planifier une Automatisation d'Audit",
+      "auto_name": "Nom de l'automatisation",
+      "frequency": "Fréquence",
+      "recipient": "Destinataire (Email)",
+      "success_save": "Planification enregistrée avec succès !",
+      "info_note": "Les rapports seront automatiquement générés, chiffrés et archivés dans votre espace de stockage sécurisé. Un lien de téléchargement temporaire sera envoyé au destinataire.",
+      "save_auto": "Enregistrer l'automatisation",
+      "compliance_report_title": "Rapport de Conformité Réglementaire",
+      "compliance_score": "Score de Conformité",
+      "points": {
+        "integrity": "Intégrité des écritures comptables",
+        "encryption": "Chiffrement PII (Données Personnelles)",
+        "traceability": "Traçabilité des exports de données",
+        "archiving": "Archivage légal (10 ans)"
+      },
+      "last_check": "Dernière vérification",
+      "validated_points": "Points de Contrôle Validés",
+      "remediation_actions": "Actions de Remédiation",
+      "close_report": "Fermer le Rapport"
+    }
+  },
+  "roles": {
+    "dg": "Directeur",
+    "daf": "DAF",
+    "manager_ops": "Manager Ops"
   }
 }

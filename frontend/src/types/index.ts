@@ -20,6 +20,11 @@ export interface Client {
     export?: boolean;
     analyse?: boolean;
   };
+  nis?: string;
+  rc?: string;
+  ai?: string;
+  isExonereTVA?: boolean;
+  numAttestationExo?: string;
   notes?: string;
 }
 
@@ -161,6 +166,8 @@ export interface User {
   anneeCreation?: number;
   licenceCommerciale?: string;
   nif?: string;
+  rc?: string;
+  ai?: string;
   statut?: string;
   revenue?: number;
   employees?: number;

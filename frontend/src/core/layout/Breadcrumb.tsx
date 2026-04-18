@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRightIcon, HomeIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface BreadcrumbItem {
   name: string;
@@ -9,34 +10,35 @@ interface BreadcrumbItem {
 }
 
 const Breadcrumb: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
 
   // Mapping des routes vers les noms de pages
   const routeNames: { [key: string]: string } = {
-    '/dashboard': 'Tableau de Bord',
-    '/dashboard/temps-reel': 'Vue Temps Réel',
-    '/dashboard/analytics': 'Analytics Avancées',
-    '/dashboard/rapports': 'Rapports Personnalisés',
-    '/dashboard/personnalisable': 'Tableau Personnalisable',
-    '/gestion-utilisateurs': 'Gestion Utilisateurs',
-    '/gestion-comptable': 'Gestion Comptable',
-    '/clients': 'Gestion Clients',
-    '/fournisseurs': 'Gestion Fournisseurs',
-    '/articles': 'Gestion Articles',
-    '/inventaire': 'Inventaire',
-    '/factures-vente': 'Facturation',
-    '/analyse-financiere': 'Analyse Financière',
-    '/plan-comptable': 'Plan Comptable',
-    '/configuration-avancee': 'Configuration Avancée',
-    '/mobile-features': 'Fonctionnalités Mobile',
-    '/integrations': 'Intégrations',
-    '/audit': 'Audit',
-    '/groupes-clients': 'Groupes Clients',
-    '/statistiques': 'Statistiques',
-    '/statistiques/financier': 'Tableau de Bord Financier',
-    '/statistiques/performance': 'Indicateurs de Performance',
-    '/rapports-analytics': 'Rapports & Analytics',
-    '/parametres': 'Paramètres'
+    '/dashboard': t('breadcrumb.dashboard'),
+    '/dashboard/temps-reel': t('breadcrumb.real_time'),
+    '/dashboard/analytics': t('breadcrumb.advanced_analytics'),
+    '/dashboard/rapports': t('breadcrumb.custom_reports'),
+    '/dashboard/personnalisable': t('breadcrumb.custom_dashboard'),
+    '/gestion-utilisateurs': t('breadcrumb.user_mgmt'),
+    '/gestion-comptable': t('breadcrumb.accounting_mgmt'),
+    '/clients': t('breadcrumb.client_mgmt'),
+    '/fournisseurs': t('breadcrumb.supplier_mgmt'),
+    '/articles': t('breadcrumb.article_mgmt'),
+    '/inventaire': t('breadcrumb.inventory'),
+    '/factures-vente': t('breadcrumb.billing'),
+    '/analyse-financiere': t('breadcrumb.financial_analysis'),
+    '/plan-comptable': t('breadcrumb.chart_of_accounts'),
+    '/configuration-avancee': t('breadcrumb.advanced_config'),
+    '/mobile-features': t('breadcrumb.mobile_features'),
+    '/integrations': t('breadcrumb.integrations'),
+    '/audit': t('breadcrumb.audit'),
+    '/groupes-clients': t('breadcrumb.client_groups'),
+    '/statistiques': t('breadcrumb.statistics'),
+    '/statistiques/financier': t('breadcrumb.financial_dashboard'),
+    '/statistiques/performance': t('breadcrumb.performance_indicators'),
+    '/rapports-analytics': t('breadcrumb.reports_analytics'),
+    '/parametres': t('breadcrumb.settings')
   };
 
   // Génération des breadcrumbs basée sur la route actuelle
@@ -44,7 +46,7 @@ const Breadcrumb: React.FC = () => {
     const pathnames = location.pathname.split('/').filter((x) => x);
     const breadcrumbs: BreadcrumbItem[] = [
       {
-        name: 'Accueil',
+        name: t('breadcrumb.home'),
         href: '/dashboard',
         current: pathnames.length === 0
       }

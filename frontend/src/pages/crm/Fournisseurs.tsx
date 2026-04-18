@@ -36,8 +36,10 @@ import {
   ArrowTrendingDownIcon,
   PencilSquareIcon,
   MagnifyingGlassIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
+
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
@@ -97,6 +99,8 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const { formatCurrency } = useApp();
+  const { t } = useTranslation();
+
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -1408,7 +1412,7 @@ const Fournisseurs: React.FC = () => {
               : 'text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
           >
-            {tab.icon className="h-4 w-4 mr-2" />
+            <tab.icon className="h-4 w-4 mr-2" />
             {t(`suppliers.tabs.${tab.id}`, { defaultValue: tab.name })}
           </button>
         ))}

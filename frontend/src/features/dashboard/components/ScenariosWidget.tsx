@@ -48,7 +48,7 @@ const ScenariosWidget: React.FC<ScenariosWidgetProps> = ({
     }
   };
 
-  const scenarioRealiste = scenarios.find(s => s.nom.includes('Réaliste'));
+  const scenarioRealiste = scenarios.find(s => s.id === 2);
 
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">

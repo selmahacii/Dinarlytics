@@ -19,14 +19,15 @@ export interface ScenarioSimulation {
 
 export interface AlerteFinanciere {
   id: string;
-  type: 'danger' | 'warning' | 'info';
-  categorie: 'liquidité' | 'rentabilité' | 'endettement' | 'efficacité';
+  type: 'critique' | 'avertissement' | 'opportunite' | 'info';
+  categorie: 'liquidite' | 'rentabilite' | 'endettement' | 'efficacite';
   titre: string;
+  message: string;
   description: string;
   valeurActuelle: number;
   seuilCritique: number;
   recommandations: string[];
-  priorite: 'haute' | 'moyenne' | 'faible';
+  priorite: number;
 }
 
 export interface PrevisionFinanciere {
@@ -147,9 +148,10 @@ export function genererAlertesFinancieres(
   if (ratios.dso > seuils.dsoOptimal * 1.3) {
     alertes.push({
       id: 'dso-critique',
-      type: 'danger',
-      categorie: 'liquidité',
+      type: 'critique',
+      categorie: 'liquidite',
       titre: 'DSO critique — recouvrement client insuffisant',
+      message: `Le délai de règlement client est de ${ratios.dso} jours, bien au-dessus du seuil optimal de ${seuils.dsoOptimal} jours.`,
       description: `Le délai de règlement client est de ${ratios.dso} jours, bien au-dessus du seuil optimal de ${seuils.dsoOptimal} jours.`,
       valeurActuelle: ratios.dso,
       seuilCritique: seuils.dsoOptimal,
@@ -158,19 +160,20 @@ export function genererAlertesFinancieres(
         'Réviser les conditions de paiement accordées',
         'Envisager l\'escompte pour paiement anticipé'
       ],
-      priorite: 'haute'
+      priorite: 9
     });
   } else if (ratios.dso > seuils.dsoOptimal) {
     alertes.push({
       id: 'dso-warning',
-      type: 'warning',
-      categorie: 'liquidité',
+      type: 'avertissement',
+      categorie: 'liquidite',
       titre: 'DSO à surveiller',
+      message: `Le délai de règlement client (${ratios.dso}j) dépasse légèrement l'optimal.`,
       description: `Le délai de règlement client (${ratios.dso}j) dépasse légèrement l'optimal.`,
       valeurActuelle: ratios.dso,
       seuilCritique: seuils.dsoOptimal,
       recommandations: ['Renforcer le suivi des relances clients'],
-      priorite: 'moyenne'
+      priorite: 6
     });
   }
 
@@ -178,9 +181,10 @@ export function genererAlertesFinancieres(
   if (ratios.margeBrute < seuils.margeMinimale) {
     alertes.push({
       id: 'marge-faible',
-      type: 'danger',
-      categorie: 'rentabilité',
+      type: 'critique',
+      categorie: 'rentabilite',
       titre: 'Marge brute insuffisante',
+      message: `La marge brute de ${ratios.margeBrute.toFixed(1)}% est inférieure au seuil minimum de ${seuils.margeMinimale}%.`,
       description: `La marge brute de ${ratios.margeBrute.toFixed(1)}% est inférieure au seuil minimum de ${seuils.margeMinimale}%.`,
       valeurActuelle: ratios.margeBrute,
       seuilCritique: seuils.margeMinimale,
@@ -189,7 +193,7 @@ export function genererAlertesFinancieres(
         'Identifier et réduire les coûts directs',
         'Négocier les achats avec les fournisseurs'
       ],
-      priorite: 'haute'
+      priorite: 8
     });
   }
 
@@ -197,9 +201,10 @@ export function genererAlertesFinancieres(
   if (ratios.liquiditeGenerale < seuils.liquiditeMinimale) {
     alertes.push({
       id: 'liquidite-faible',
-      type: 'danger',
-      categorie: 'liquidité',
+      type: 'critique',
+      categorie: 'liquidite',
       titre: 'Risque de liquidité',
+      message: `Le ratio de liquidité générale (${ratios.liquiditeGenerale.toFixed(2)}) est inférieur à ${seuils.liquiditeMinimale}.`,
       description: `Le ratio de liquidité générale (${ratios.liquiditeGenerale.toFixed(2)}) est inférieur à ${seuils.liquiditeMinimale}.`,
       valeurActuelle: ratios.liquiditeGenerale,
       seuilCritique: seuils.liquiditeMinimale,
@@ -208,7 +213,7 @@ export function genererAlertesFinancieres(
         'Différer les investissements non critiques',
         'Explorer les lignes de crédit disponibles'
       ],
-      priorite: 'haute'
+      priorite: 10
     });
   }
 
@@ -216,9 +221,10 @@ export function genererAlertesFinancieres(
   if (ratios.endettement < 30) {
     alertes.push({
       id: 'autonomie-faible',
-      type: 'warning',
+      type: 'avertissement',
       categorie: 'endettement',
       titre: 'Autonomie financière limitée',
+      message: `L'autonomie financière de ${ratios.endettement.toFixed(1)}% indique une dépendance importante à l'endettement externe.`,
       description: `L'autonomie financière de ${ratios.endettement.toFixed(1)}% indique une dépendance importante à l'endettement externe.`,
       valeurActuelle: ratios.endettement,
       seuilCritique: 30,
@@ -227,7 +233,7 @@ export function genererAlertesFinancieres(
         'Envisager une augmentation de capital',
         'Prioriser l\'autofinancement'
       ],
-      priorite: 'moyenne'
+      priorite: 5
     });
   }
 
@@ -307,19 +313,27 @@ export function calculerSeuilRentabilite(
 
 // ─── comparerAvecBenchmarks ───────────────────────────────────────────────────
 
+export interface ResultatComparaisonBenchmark {
+  details: ComparaisonBenchmark[];
+  score: number;
+  classement: 'excellent' | 'bon' | 'moyen' | 'insuffisant';
+  pointsFort: string[];
+  pointsFaible: string[];
+}
+
 /**
  * Compare les indicateurs de l'entreprise avec les benchmarks sectoriels.
  */
 export function comparerAvecBenchmarks(
   ratios: DonneesRatios,
   benchmarks: BenchmarkSectoriel
-): ComparaisonBenchmark[] {
-  const comparaisons: ComparaisonBenchmark[] = [];
+): ResultatComparaisonBenchmark {
+  const details: ComparaisonBenchmark[] = [];
+  const pointsFort: string[] = [];
+  const pointsFaible: string[] = [];
 
   const determinerPosition = (valeur: number, ref: { min: number; max: number; median: number }, inverse = false): 'au-dessus' | 'dans-la-moyenne' | 'en-dessous' => {
-    const ecartMedian = ((valeur - ref.median) / ref.median) * 100;
     if (inverse) {
-      // Pour des indicateurs où moins = mieux (ex: DSO)
       if (valeur < ref.median * 0.9) return 'au-dessus';
       if (valeur > ref.median * 1.1) return 'en-dessous';
       return 'dans-la-moyenne';
@@ -329,39 +343,70 @@ export function comparerAvecBenchmarks(
     return 'dans-la-moyenne';
   };
 
-  comparaisons.push({
+  // DSO
+  const posDso = determinerPosition(ratios.dso, benchmarks.dso, true);
+  details.push({
     indicateur: 'DSO (jours)',
     valeurEntreprise: ratios.dso,
     medianeSectorielle: benchmarks.dso.median,
     ecart: Math.round(((ratios.dso - benchmarks.dso.median) / benchmarks.dso.median) * 100),
-    position: determinerPosition(ratios.dso, benchmarks.dso, true)
+    position: posDso
   });
+  if (posDso === 'au-dessus') pointsFort.push('Encaissement client rapide');
+  else if (posDso === 'en-dessous') pointsFaible.push('Délais clients trop longs');
 
-  comparaisons.push({
+  // Marge
+  const posMarge = determinerPosition(ratios.margeBrute, benchmarks.margeBrute);
+  details.push({
     indicateur: 'Marge Brute (%)',
     valeurEntreprise: ratios.margeBrute,
     medianeSectorielle: benchmarks.margeBrute.median,
     ecart: Math.round(((ratios.margeBrute - benchmarks.margeBrute.median) / benchmarks.margeBrute.median) * 100),
-    position: determinerPosition(ratios.margeBrute, benchmarks.margeBrute)
+    position: posMarge
   });
+  if (posMarge === 'au-dessus') pointsFort.push('Excellente rentabilité brute');
+  else if (posMarge === 'en-dessous') pointsFaible.push('Marge inférieure au secteur');
 
-  comparaisons.push({
+  // ROE
+  const posRoe = determinerPosition(ratios.roe, benchmarks.roe);
+  details.push({
     indicateur: 'ROE (%)',
     valeurEntreprise: ratios.roe,
     medianeSectorielle: benchmarks.roe.median,
     ecart: Math.round(((ratios.roe - benchmarks.roe.median) / benchmarks.roe.median) * 100),
-    position: determinerPosition(ratios.roe, benchmarks.roe)
+    position: posRoe
   });
+  if (posRoe === 'au-dessus') pointsFort.push('Très bon rendement des fonds propres');
 
-  comparaisons.push({
+  // Liquidité
+  const posLiq = determinerPosition(ratios.liquiditeGenerale, benchmarks.liquidite);
+  details.push({
     indicateur: 'Liquidité Générale',
     valeurEntreprise: ratios.liquiditeGenerale,
     medianeSectorielle: benchmarks.liquidite.median,
     ecart: Math.round(((ratios.liquiditeGenerale - benchmarks.liquidite.median) / benchmarks.liquidite.median) * 100),
-    position: determinerPosition(ratios.liquiditeGenerale, benchmarks.liquidite)
+    position: posLiq
   });
+  if (posLiq === 'au-dessus') pointsFort.push('Solide position de liquidité');
 
-  return comparaisons;
+  // Calcul du score (0-100)
+  let score = 50;
+  score += pointsFort.length * 15;
+  score -= pointsFaible.length * 15;
+  score = Math.max(0, Math.min(100, score));
+
+  let classement: 'excellent' | 'bon' | 'moyen' | 'insuffisant' = 'moyen';
+  if (score >= 85) classement = 'excellent';
+  else if (score >= 70) classement = 'bon';
+  else if (score < 40) classement = 'insuffisant';
+
+  return {
+    details,
+    score,
+    classement,
+    pointsFort,
+    pointsFaible
+  };
 }
 
 // Fix typo in genererPrevisions (resultatsims should be resultatMois)
