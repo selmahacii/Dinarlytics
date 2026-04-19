@@ -1315,21 +1315,21 @@ const ChatbotLIA: React.FC = () => {
       const liqQuick = ((cash + ar) / Math.max(1, ap));
 
       const note = liqGen < bm.liqGenMin
-        ? `Attention: liquidité générale sous la cible (≥ ${bm.liqGenMin.toFixed(2)}).`
-        : 'Liquidité correcte par rapport à la cible.';
+        ? t('chatbot.fallback.ratios.low_liquidity', { target: bm.liqGenMin.toFixed(2) })
+        : t('chatbot.fallback.ratios.correct_liquidity');
 
       // Inclure ratios avancés synthétiques
       const advLine = `ROE ${ratiosAdv.roePct}% | ROA ${ratiosAdv.roaPct}% | EBITDA ${ratiosAdv.ebitdaMarginPct}% | Autonomie ${ratiosAdv.autonomyPct}%`;
       const debtLine = ratiosAdv.netDebtToEbitda !== null ? `Net Debt/EBITDA ${ratiosAdv.netDebtToEbitda}` : '';
 
       const content = [
-        `Ratios financiers — Profil: ${companyType.toUpperCase()} • ${segment} • ${sectorLabel}`,
+        `${t('chatbot.fallback.ratios.title')} — Profil: ${companyType.toUpperCase()} • ${t(`segments.${segment}`)} • ${sectorLabel}`,
         '',
-        `• Marge: ${marginPct.toFixed(1)}% (cible ≥ ${bm.marginMin}%)`,
-        `• Rotation du stock: ${turnover.toFixed(1)}x (référence 6–10x)`,
-        `• Liquidité générale: ${liqGen.toFixed(2)} (cible ≥ ${bm.liqGenMin.toFixed(2)})`,
-        `• Liquidité immédiate: ${liqQuick.toFixed(2)} (cible ≥ ${bm.liqQuickMin.toFixed(2)})`,
-        `• DSO: ${dso} j (cible ≤ ${bm.dsoMax} j) | DIO: ${dio} j (cible ≤ ${bm.dioMax} j) | DPO: ${dpo} j (cible ≥ ${bm.dpoMin} j)`,
+        `• ${t('common.margin')}: ${marginPct.toFixed(1)}% (${t('chatbot.fallback.ratios.target')} ≥ ${bm.marginMin}%)`,
+        `• ${t('chatbot.fallback.ratios.stock_turnover')}: ${turnover.toFixed(1)}x (${t('chatbot.fallback.ratios.reference')} 6–10x)`,
+        `• ${t('chatbot.fallback.ratios.liq_gen')}: ${liqGen.toFixed(2)} (${t('chatbot.fallback.ratios.target')} ≥ ${bm.liqGenMin.toFixed(2)})`,
+        `• ${t('chatbot.fallback.ratios.liq_quick')}: ${liqQuick.toFixed(2)} (${t('chatbot.fallback.ratios.target')} ≥ ${bm.liqQuickMin.toFixed(2)})`,
+        `• DSO: ${dso} j (${t('chatbot.fallback.ratios.target')} ≤ ${bm.dsoMax} j) | DIO: ${dio} j (${t('chatbot.fallback.ratios.target')} ≤ ${bm.dioMax} j) | DPO: ${dpo} j (${t('chatbot.fallback.ratios.target')} ≥ ${bm.dpoMin} j)`,
         `• ${advLine}`,
         debtLine,
         '',
@@ -1341,7 +1341,7 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content: content,
         timestamp: new Date(),
-        suggestions: ['Comment améliorer ma trésorerie ?', 'Générer le plan depuis l’analyse', 'Voir plan d’actions', 'Prévisions 13 semaines']
+        suggestions: [t('chatbot.quick_actions.growth_scenarios'), t('chatbot.auto_generate'), t('chatbot.plan_title'), t('chatbot.quick_actions.audit_forecast')]
       };
     }
 
@@ -1349,9 +1349,9 @@ const ChatbotLIA: React.FC = () => {
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Recommandations personnalisées\n\n- Trésorerie: raccourcir les délais de paiement clients (cible < 35 jours)\n- Stock: prioriser les 20% d'articles générant 80% du CA\n- Marge: limiter les remises sur produits à faible rentabilité\n- Clients: relancer les soldes > 30 jours\n\nAction prioritaire: optimiser le cycle de trésorerie.`,
+        content: `${t('chatbot.fallback.advice.title')}\n\n- ${t('common.cash')}: ${t('chatbot.fallback.advice.cash_tip')}\n- ${t('chatbot.fallback.advice.stock_label')}: ${t('chatbot.fallback.advice.stock_tip')}\n- ${t('common.margin')}: ${t('chatbot.fallback.advice.margin_tip')}\n- ${t('chatbot.fallback.advice.client_label')}: ${t('chatbot.fallback.advice.client_tip')}\n\n${t('chatbot.fallback.advice.priority')}: ${t('chatbot.fallback.advice.priority_tip')}`,
         timestamp: new Date(),
-        suggestions: ['Montrez-moi mes prévisions', 'Comment vont mes ventes ?', 'Quels sont mes ratios ?']
+        suggestions: [t('chatbot.quick_actions.revenue_forecast'), t('chatbot.quick_actions.synthesis'), t('chatbot.quick_actions.risk_report')]
       };
     }
 
@@ -1371,20 +1371,20 @@ const ChatbotLIA: React.FC = () => {
       const ap = companyData?.accountsPayable ?? 1;
       const inv = companyData?.inventoryValue ?? 0;
       const liqGen = ((cash + ar + inv) / Math.max(1, ap));
-      const risk = liqGen >= bm.liqGenMin ? 'OK' : (liqGen >= bm.liqGenMin - 0.1 ? 'Surveillance' : 'Tension');
+      const risk = liqGen >= bm.liqGenMin ? 'OK' : (liqGen >= bm.liqGenMin - 0.1 ? t('chatbot.labels.status_warning') : t('chatbot.labels.status_critical'));
       const reco = liqGen >= bm.liqGenMin
-        ? 'Poursuivre le suivi des encaissements et la maîtrise des décaissements.'
-        : 'Accélérer encaissements (relances/conditions), lisser décaissements, temporiser capex non critiques.';
+        ? t('chatbot.fallback.treasury.reco_ok')
+        : t('chatbot.fallback.treasury.reco_ko');
 
       const content = [
-        `Trésorerie (jour) — Profil: ${companyType.toUpperCase()} • ${segment} • ${sectorLabel}`,
+        `${t('common.cash')} (${t('common.today')}) — Profil: ${companyType.toUpperCase()} • ${t(`segments.${segment}`)} • ${sectorLabel}`,
         '',
-        `- Encaissements: +${formatCurrency ? formatCurrency(dailySummary.encaissements.in) : `${dailySummary.encaissements.in.toLocaleString()} DA`}`,
-        `- Décaissements: -${formatCurrency ? formatCurrency(dailySummary.encaissements.out) : `${dailySummary.encaissements.out.toLocaleString()} DA`}`,
-        `- Solde net: +${formatCurrency ? formatCurrency(dailySummary.encaissements.in - dailySummary.encaissements.out) : `${(dailySummary.encaissements.in - dailySummary.encaissements.out).toLocaleString()} DA`}`,
+        `- ${t('chatbot.fallback.treasury.inflow')}: +${formatCurrency ? formatCurrency(dailySummary.encaissements.in) : `${dailySummary.encaissements.in.toLocaleString()}`}`,
+        `- ${t('chatbot.fallback.treasury.outflow')}: -${formatCurrency ? formatCurrency(dailySummary.encaissements.out) : `${dailySummary.encaissements.out.toLocaleString()}`}`,
+        `- ${t('chatbot.fallback.treasury.net_balance')}: +${formatCurrency ? formatCurrency(dailySummary.encaissements.in - dailySummary.encaissements.out) : `${(dailySummary.encaissements.in - dailySummary.encaissements.out).toLocaleString()}`}`,
         '',
-        `Liquidité générale (estimée): ${liqGen.toFixed(2)} (cible ≥ ${bm.liqGenMin.toFixed(2)}) — ${risk}`,
-        `Recommandation: ${reco}`
+        `${t('chatbot.fallback.ratios.liq_gen')} (${t('chatbot.fallback.ratios.estimated')}): ${liqGen.toFixed(2)} (${t('chatbot.fallback.ratios.target')} ≥ ${bm.liqGenMin.toFixed(2)}) — ${risk}`,
+        `${t('chatbot.fallback.advice.recommendation_label')}: ${reco}`
       ].join('\n');
 
       return {
@@ -1392,7 +1392,7 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Voir plan d’actions', 'Générer le plan depuis l’analyse', 'Prévisions 13 semaines', 'Optimiser recouvrement']
+        suggestions: [t('chatbot.plan_title'), t('chatbot.auto_generate'), t('chatbot.quick_actions.audit_forecast')]
       };
     }
 
