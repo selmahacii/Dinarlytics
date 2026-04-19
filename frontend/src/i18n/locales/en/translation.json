@@ -63,6 +63,9 @@
       "december": "December"
     },
     "periods": {
+      "day": "Day",
+      "month": "Month",
+      "week": "Week",
       "30days": "30 days",
       "3months": "3 months",
       "6months": "6 months",
@@ -118,6 +121,7 @@
       "collapse": "Collapse"
     },
     "print": "Print",
+    "share": "Share",
     "export": "Export",
     "export_pdf": "Export PDF",
     "export_excel": "Export Excel",
@@ -154,6 +158,20 @@
     "performance_indicators": "Performance Indicators",
     "reports_analytics": "Reports & Analytics",
     "settings": "Settings"
+  },
+  "quick_navigation": {
+    "title": "Quick Navigation",
+    "search_placeholder": "Search for a page or module...",
+    "no_results": "No results found",
+    "footer": "Type to search or use categories to navigate quickly",
+    "categories": {
+      "ia_analytics": "AI & Analytics",
+      "general": "General",
+      "commercial": "Commercial",
+      "accounting": "Accounting",
+      "reports": "Reports",
+      "administration": "Administration"
+    }
   },
   "nav": {
     "intelligence_lia": "LIA Intelligence",
@@ -1911,6 +1929,14 @@
             "comparative_analysis": "Comparative Analysis Y / Y-1",
             "working_capital_monitoring": "Working Capital Monitoring"
           },
+          "graphical_analysis": {
+            "title": "Interactive Charts",
+            "desc": "Access the dashboard's interactive charts to analyze your financial data."
+          },
+          "reports_analytics": {
+            "title": "Reports & Analytics",
+            "desc": "Consult detailed reports with graphical and statistical analysis."
+          },
           "imprimer_desc": "Select the accounting statement you wish to print. The document will be generated in the official format compliant with Algerian accounting standards.",
           "print_official_title": "Print Official Reports",
           "state_to_print": "Report to print",
@@ -2007,49 +2033,53 @@
             "clients": "Trade Receivables"
           }
         },
-        "sales": {
-          "title": "Sales & Customers",
-          "hero": {
-            "performance": "Commercial Performance",
-            "audited": "Audited",
-            "view_daily": "Daily View",
-            "view_monthly": "Monthly View",
-            "daily_label": "daily",
-            "monthly_label": "monthly"
-          },
-          "kpi": {
-            "revenue": "Revenue",
-            "invoices": "Invoices Issued",
-            "avg_basket": "Average Basket",
-            "margin_rate": "Margin Rate",
-            "validated_ops": "Validated operations",
-            "avg_unit_value": "Average unit value",
-            "global_profitability": "Global gross profitability",
-            "vs_previous": "vs previous period"
-          },
-          "tabs": {
-            "sales_reports": "Sales Reports",
-            "client_analysis": "Client Analysis",
-            "forecasts": "Comparative & Forecasts"
-          },
-          "sections": {
-            "top_products": "Top 5 Products",
-            "product_performance": "Performance per item",
-            "categories_split": "Category Distribution",
-            "revenue_weight": "Weight on total revenue"
-          },
-          "client_metrics": {
-            "active_clients": "Active Clients",
-            "new_clients": "New",
-            "this_month": "This month",
-            "retention": "Retention",
-            "recurring_clients": "Recurring clients",
-            "avg_dso": "Average DSO",
-            "collection_delay": "Collection time",
-            "total_base": "out of {{total}}"
-          }
-        },
-        "treasury": {
+      }
+    }
+  },
+  "sales": {
+    "title": "Sales & Customers",
+    "hero": {
+      "performance": "Commercial Performance",
+      "audited": "Audited",
+      "view_daily": "Daily View",
+      "view_monthly": "Monthly View",
+      "daily_label": "daily",
+      "monthly_label": "monthly"
+    },
+    "kpi": {
+      "revenue": "Revenue",
+      "invoices": "Invoices Issued",
+      "avg_basket": "Average Basket",
+      "margin_rate": "Margin Rate",
+      "validated_ops": "Validated operations",
+      "avg_unit_value": "Average unit value",
+      "global_profitability": "Global gross profitability",
+      "vs_previous": "vs previous period"
+    },
+    "tabs": {
+      "sales_reports": "Sales Reports",
+      "client_analysis": "Client Analysis",
+      "forecasts": "Comparative & Forecasts"
+    },
+    "sections": {
+      "top_products": "Top 5 Products",
+      "product_performance": "Performance per item",
+      "categories_split": "Category Distribution",
+      "revenue_weight": "Weight on total revenue"
+    },
+    "client_metrics": {
+      "active_clients": "Active Clients",
+      "new_clients": "New",
+      "this_month": "This month",
+      "retention": "Retention",
+      "recurring_clients": "Recurring clients",
+      "avg_dso": "Average DSO",
+      "collection_delay": "Collection time",
+      "total_base": "out of {{total}}"
+    }
+  },
+  "treasury_legacy": {
+    "treasury": {
           "sections": {
             "outflows_split": "Outflows Decomposition"
           },

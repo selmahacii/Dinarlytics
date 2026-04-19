@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import {
   MagnifyingGlassIcon,
@@ -41,6 +42,7 @@ interface QuickNavItem {
 const QuickNavigation: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useTranslation();
   const location = useLocation();
 
   const navigationItems: QuickNavItem[] = [
@@ -159,7 +161,7 @@ const QuickNavigation: React.FC = () => {
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 bg-gradient-to-r from-emerald-500 to-teal-500 text-white p-4 rounded-full shadow-lg hover:from-emerald-600 hover:to-teal-600 transition-all transform hover:scale-110 z-40"
-        title="Navigation rapide"
+        title={t('quick_navigation.title')}
       >
         <MagnifyingGlassIcon className="h-6 w-6" />
       </button>
@@ -170,7 +172,7 @@ const QuickNavigation: React.FC = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
             {/* En-tête */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-semibold text-slate-900">Navigation Rapide</h2>
+              <h2 className="text-xl font-semibold text-slate-900">{t('quick_navigation.title')}</h2>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
@@ -187,7 +189,7 @@ const QuickNavigation: React.FC = () => {
                 <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Rechercher une page ou un module..."
+                  placeholder={t('quick_navigation.search_placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
@@ -200,7 +202,7 @@ const QuickNavigation: React.FC = () => {
             <div className="p-6 overflow-y-auto max-h-96">
               {Object.keys(groupedItems).length === 0 ? (
                 <div className="text-center text-slate-500 py-8">
-                  Aucun résultat trouvé
+                  {t('quick_navigation.no_results')}
                 </div>
               ) : (
                 Object.entries(groupedItems).map(([category, items]) => (
@@ -277,7 +279,7 @@ const QuickNavigation: React.FC = () => {
             {/* Pied de page */}
             <div className="p-6 border-t border-slate-200 bg-slate-50">
               <div className="text-sm text-slate-600">
-                Tapez pour rechercher ou utilisez les catégories pour naviguer rapidement
+                {t('quick_navigation.footer')}
               </div>
             </div>
           </div>

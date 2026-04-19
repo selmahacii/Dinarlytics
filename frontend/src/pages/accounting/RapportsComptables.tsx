@@ -1374,9 +1374,9 @@ const EtatsRapports: React.FC = () => {
               className="p-8 bg-white rounded-2xl border border-slate-200 hover:border-slate-900 hover:shadow-xl transition-all text-left group"
             >
               <ChartBarIcon className="h-10 w-10 text-slate-400 group-hover:text-slate-900 mb-4 transition-colors" />
-              <h3 className="font-black text-slate-900 uppercase tracking-widest mb-2 text-xs">Graphiques Interactifs</h3>
+              <h3 className="font-black text-slate-900 uppercase tracking-widest mb-2 text-xs">{t('accounting.reports.modals.graphical_analysis.title')}</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Accédez aux graphiques interactifs du dashboard pour analyser vos données financières.
+                {t('accounting.reports.modals.graphical_analysis.desc')}
               </p>
             </button>
 
@@ -1388,9 +1388,9 @@ const EtatsRapports: React.FC = () => {
               className="p-8 bg-white rounded-2xl border border-slate-200 hover:border-slate-900 hover:shadow-xl transition-all text-left group"
             >
               <ChartBarIcon className="h-10 w-10 text-slate-400 group-hover:text-slate-900 mb-4 transition-colors" />
-              <h3 className="font-black text-slate-900 uppercase tracking-widest mb-2 text-xs">Rapports & Analytics</h3>
+              <h3 className="font-black text-slate-900 uppercase tracking-widest mb-2 text-xs">{t('accounting.reports.modals.reports_analytics.title')}</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Consultez les rapports détaillés avec analyses graphiques et statistiques.
+                {t('accounting.reports.modals.reports_analytics.desc')}
               </p>
             </button>
           </div>

@@ -1,4 +1,46 @@
 {
+  "sales": {
+    "title": "المبيعات والعملاء",
+    "hero": {
+      "performance": "الأداء التجاري",
+      "audited": "مدقق",
+      "view_daily": "عرض يومي",
+      "view_monthly": "عرض شهري",
+      "daily_label": "يومي",
+      "monthly_label": "شهري"
+    },
+    "kpi": {
+      "revenue": "رقم الأعمال",
+      "invoices": "الفواتير الصادرة",
+      "avg_basket": "متوسط السلة",
+      "margin_rate": "معدل الهامش",
+      "validated_ops": "عمليات مصادق عليها",
+      "avg_unit_value": "متوسط القيمة الوحدوية",
+      "global_profitability": "الربحية الإجمالية",
+      "vs_previous": "مقارنة بالفترة السابقة"
+    },
+    "tabs": {
+      "sales_reports": "تقارير المبيعات",
+      "client_analysis": "تحليل العملاء",
+      "forecasts": "المقارنة والتوقعات"
+    },
+    "sections": {
+      "top_products": "أفضل 5 منتجات",
+      "product_performance": "الأداء حسب المنتج",
+      "categories_split": "توزيع الفئات",
+      "revenue_weight": "الوزن في إجمالي رقم الأعمال"
+    },
+    "client_metrics": {
+      "active_clients": "العملاء النشطون",
+      "new_clients": "جديد",
+      "this_month": "هذا الشهر",
+      "retention": "الولاء / الاحتفاظ",
+      "recurring_clients": "عملاء متكررون",
+      "avg_dso": "متوسط DSO",
+      "collection_delay": "مدة التحصيل",
+      "total_base": "من إجمالي {{total}}"
+    }
+  },
   "common": {
     "all": "الكل",
     "cancel": "إلغاء",
@@ -9,6 +51,7 @@
     "view": "عرض",
     "download": "تحميل",
     "search": "بحث",
+    "share": "مشاركة",
     "actions": "إجراءات",
     "status": "الحالة",
     "date": "التاريخ",
@@ -64,6 +107,8 @@
       "december": "ديسمبر"
     },
     "periods": {
+      "day": "يومي",
+      "month": "شهري",
       "30days": "30 يوم",
       "3months": "3 أشهر",
       "6months": "6 أشهر",
@@ -155,6 +200,20 @@
     "performance_indicators": "مؤشرات الأداء",
     "reports_analytics": "التقارير والتحليلات",
     "settings": "الإعدادات"
+  },
+  "quick_navigation": {
+    "title": "التنقل السريع",
+    "search_placeholder": "البحث عن صفحة أو وحدة...",
+    "no_results": "لم يتم العثور على نتائج",
+    "footer": "اكتب للبحث أو استخدم الفئات للتنقل بسرعة",
+    "categories": {
+      "ia_analytics": "الذكاء الاصطناعي والتحليلات",
+      "general": "عام",
+      "commercial": "تجاري",
+      "accounting": "المحاسبة",
+      "reports": "التقارير",
+      "administration": "الإدارة"
+    }
   },
   "nav": {
     "intelligence_lia": "ذكاء LIA",
@@ -1863,6 +1922,22 @@
         },
         "modals": {
           "metrics_title": "المؤشرات والمقاييس المتاحة",
+          "metrics_list": {
+            "balance_evolution": "تطور الميزانية (الأصول / الخصوم)",
+            "net_income_performance": "أداء النتيجة الصافية",
+            "operating_cash_flow": "تدفقات الخزينة التشغيلية",
+            "liquidity_solvency_ratios": "نسب السيولة والملاءة",
+            "comparative_analysis": "التحليلات المقارنة N / N-1",
+            "working_capital_monitoring": "متابعة احتياجات رأس المال العامل"
+          },
+          "graphical_analysis": {
+            "title": "الرسومات البيانية التفاعلية",
+            "desc": "الوصول إلى الرسوم البيانية التفاعلية في لوحة القيادة لتحليل بياناتك المالية."
+          },
+          "reports_analytics": {
+            "title": "التقارير والتحليلات",
+            "desc": "اطلع على التقارير المفصلة مع التحليلات البيانية والإحصائية."
+          },
           "imprimer_desc": "اختر القائمة المحاسبية التي ترغب في طباعتها. سيتم إنشاء المستند بالتنسيق الرسمي المتوافق مع المعايير المحاسبية الجزائرية."
         },
         "tabs": {
