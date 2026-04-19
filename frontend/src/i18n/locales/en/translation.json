@@ -2498,7 +2498,22 @@
       },
       "seasonal": {
         "title": "🔄 SEASONAL PATTERN AUDIT",
-        "error_min_data": "[ERROR] Not enough historical data to detect seasonal patterns. Minimum 12 months required."
+        "error_min_data": "[ERROR] Not enough historical data to detect seasonal patterns. Minimum 12 months required.",
+        "detection_title": "SEASONALITY DETECTION",
+        "critical_points": "CRITICAL CONTROL POINTS",
+        "peak_period": "Peak Period (High)",
+        "low_period": "Low Period (Low)",
+        "factor": "Seasonality Factor",
+        "recommendations_title": "STRATEGIC PILOTING RECOMMENDATIONS",
+        "marked_seasonal": "Marked Seasonality",
+        "stock_opt": "Stock Optimization: Anticipate restocking 60 days before peak.",
+        "cash_mgt": "Cash Management: Build liquidity reserve during peak to cover low period.",
+        "marketing_launch": "Marketing: Launch acquisition campaigns 30 days before uptrend.",
+        "hr_mgt": "HR: Consider temporary reinforcements or flexible hours.",
+        "linear_activity": "Linear Activity",
+        "linear_focus": "Focus on continuous margin improvement.",
+        "linear_cash": "Stable cash flows allowing regular investments.",
+        "linear_stock": "Maintenance of constant stock levels."
       }
     }
   },
