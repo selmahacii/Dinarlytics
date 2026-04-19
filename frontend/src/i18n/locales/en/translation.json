@@ -18,6 +18,8 @@
     "loading": "Loading...",
     "error": "An error occurred",
     "success": "Operation successful",
+    "warning": "Warning",
+    "period": "Period",
     "confirm": "Confirm",
     "back": "Back",
     "next": "Next",
@@ -1901,7 +1903,18 @@
         },
         "modals": {
           "metrics_title": "Indicators & Available Metrics",
-          "imprimer_desc": "Select the accounting statement you wish to print. The document will be generated in the official format compliant with Algerian accounting standards."
+          "metrics_list": {
+            "balance_evolution": "Balance Sheet Evolution (Assets / Liabilities)",
+            "net_income_performance": "Net Income Performance",
+            "operating_cash_flow": "Operating Cash Flows",
+            "liquidity_solvency_ratios": "Liquidity & Solvency Ratios",
+            "comparative_analysis": "Comparative Analysis Y / Y-1",
+            "working_capital_monitoring": "Working Capital Monitoring"
+          },
+          "imprimer_desc": "Select the accounting statement you wish to print. The document will be generated in the official format compliant with Algerian accounting standards.",
+          "print_official_title": "Print Official Reports",
+          "state_to_print": "Report to print",
+          "popup_warning": "Ensure your browser allows pop-ups for printing. The document will open in a new window."
         },
         "tabs": {
           "bilan": "Balance Sheet",
@@ -1980,7 +1993,72 @@
           "credit": "Credit",
           "balance": "Balance",
           "creditor_short": "C",
-          "debtor_short": "D"
+          "debtor_short": "D",
+          "account_abbr": "Acc",
+          "labels": {
+            "opening_balance": "Opening balance",
+            "sale_invoice": "Sale Invoice",
+            "supplier_payment": "Supplier Payment",
+            "salary_payment": "Salary Payment",
+            "client_payment": "Invoice Payment"
+          },
+          "accounts": {
+            "bank": "Standard Chartered Bank",
+            "clients": "Trade Receivables"
+          }
+        },
+        "sales": {
+          "title": "Sales & Customers",
+          "hero": {
+            "performance": "Commercial Performance",
+            "audited": "Audited",
+            "view_daily": "Daily View",
+            "view_monthly": "Monthly View",
+            "daily_label": "daily",
+            "monthly_label": "monthly"
+          },
+          "kpi": {
+            "revenue": "Revenue",
+            "invoices": "Invoices Issued",
+            "avg_basket": "Average Basket",
+            "margin_rate": "Margin Rate",
+            "validated_ops": "Validated operations",
+            "avg_unit_value": "Average unit value",
+            "global_profitability": "Global gross profitability",
+            "vs_previous": "vs previous period"
+          },
+          "tabs": {
+            "sales_reports": "Sales Reports",
+            "client_analysis": "Client Analysis",
+            "forecasts": "Comparative & Forecasts"
+          },
+          "sections": {
+            "top_products": "Top 5 Products",
+            "product_performance": "Performance per item",
+            "categories_split": "Category Distribution",
+            "revenue_weight": "Weight on total revenue"
+          },
+          "client_metrics": {
+            "active_clients": "Active Clients",
+            "new_clients": "New",
+            "this_month": "This month",
+            "retention": "Retention",
+            "recurring_clients": "Recurring clients",
+            "avg_dso": "Average DSO",
+            "collection_delay": "Collection time",
+            "total_base": "out of {{total}}"
+          }
+        },
+        "treasury": {
+          "sections": {
+            "outflows_split": "Outflows Decomposition"
+          },
+          "items": {
+            "supplier_purchases": "Supplier purchases",
+            "salaries_charges": "Salaries & charges",
+            "fixed_charges": "Fixed charges",
+            "other_expenses": "Other expenses"
+          }
         },
         "ratios": {
           "title": "Key Financial Ratios",
@@ -2015,8 +2093,7 @@
         "fixed_assets": "Fixed Assets",
         "current_assets": "Current Assets",
         "equity": "Equity",
-        "liabilities": "Liabilities",
-        "official_report": "Official Accounting Statement"
+        "liabilities": "Liabilities"
       },
       "ledger": {
         "title": "Chart of Accounts",

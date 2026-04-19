@@ -18,6 +18,8 @@
     "loading": "جاري التحميل...",
     "error": "حدث خطأ",
     "success": "تمت العملية بنجاح",
+    "warning": "تنبيه",
+    "period": "الفترة",
     "confirm": "تأكيد",
     "back": "رجوع",
     "next": "التالي",
@@ -1940,7 +1942,125 @@
           "credit": "دائن",
           "balance": "الرصيد",
           "creditor_short": "د",
-          "debtor_short": "م"
+          "debtor_short": "م",
+          "account_abbr": "حساب",
+          "labels": {
+            "opening_balance": "الرصيد الافتتاحي",
+            "sale_invoice": "فاتورة بيع",
+            "supplier_payment": "دفع للمورد",
+            "salary_payment": "تحويل راتب",
+            "client_payment": "تسديد فاتورة"
+          },
+          "accounts": {
+            "bank": "بنك ستاندرد تشارترد",
+            "clients": "الزبائن المشتركون"
+          }
+        },
+        "sales": {
+          "title": "المبيعات والزبائن",
+          "hero": {
+            "performance": "الأداء التجاري",
+            "audited": "مدقق",
+            "view_daily": "عرض يومي",
+            "view_monthly": "عرض شهري",
+            "daily_label": "يومي",
+            "monthly_label": "شهري"
+          },
+          "kpi": {
+            "revenue": "رقم الأعمال",
+            "invoices": "الفواتير الصادرة",
+            "avg_basket": "متوسط السلة",
+            "margin_rate": "معدل الهامش",
+            "validated_ops": "عمليات مؤكدة",
+            "avg_unit_value": "متوسط القيمة الموحدة",
+            "global_profitability": "الربحية الإجمالية العامة",
+            "vs_previous": "مقارنة بالفترة السابقة"
+          },
+          "tabs": {
+            "sales_reports": "تقارير المبيعات",
+            "client_analysis": "تحليل الزبائن",
+            "forecasts": "مقارنة وتوقعات"
+          },
+          "sections": {
+            "top_products": "أفضل 5 منتجات",
+            "product_performance": "الأداء حسب المنتج",
+            "categories_split": "توزيع الفئات",
+            "revenue_weight": "الوزن في إجمالي رقم الأعمال"
+          },
+          "client_metrics": {
+            "active_clients": "الزبائن النشطون",
+            "new_clients": "جديد",
+            "this_month": "هذا الشهر",
+            "retention": "الولاء",
+            "recurring_clients": "الزبائن المتكررون",
+            "avg_dso": "متوسط DSO",
+            "collection_delay": "مدة التحصيل",
+            "total_base": "من أصل {{total}}"
+          }
+        },
+        "treasury": {
+          "sections": {
+            "outflows_split": "تفكيك المبالغ المصروفة"
+          },
+          "items": {
+            "supplier_purchases": "مشتريات الموردين",
+            "salaries_charges": "الرواتب والأعباء",
+            "fixed_charges": "أعباء ثابتة",
+            "other_expenses": "مصاريف أخرى"
+          }
+        },
+        "sales": {
+          "title": "المبيعات والزبائن",
+          "hero": {
+            "performance": "الأداء التجاري",
+            "audited": "مدقق",
+            "view_daily": "عرض يومي",
+            "view_monthly": "عرض شهري",
+            "daily_label": "يومي",
+            "monthly_label": "شهري"
+          },
+          "kpi": {
+            "revenue": "رقم الأعمال",
+            "invoices": "الفواتير الصادرة",
+            "avg_basket": "متوسط السلة",
+            "margin_rate": "معدل الهامش",
+            "validated_ops": "عمليات مؤكدة",
+            "avg_unit_value": "متوسط القيمة الموحدة",
+            "global_profitability": "الربحية الإجمالية العامة",
+            "vs_previous": "مقارنة بالفترة السابقة"
+          },
+          "tabs": {
+            "sales_reports": "تقارير المبيعات",
+            "client_analysis": "تحليل الزبائن",
+            "forecasts": "مقارنة وتوقعات"
+          },
+          "sections": {
+            "top_products": "أفضل 5 منتجات",
+            "product_performance": "الأداء حسب المنتج",
+            "categories_split": "توزيع الفئات",
+            "revenue_weight": "الوزن في إجمالي رقم الأعمال"
+          },
+          "client_metrics": {
+            "active_clients": "الزبائن النشطون",
+            "new_clients": "جديد",
+            "this_month": "هذا الشهر",
+            "retention": "الولاء",
+            "recurring_clients": "الزبائن المتكررون",
+            "avg_dso": "متوسط DSO",
+            "collection_delay": "مدة التحصيل",
+            "total_base": "من أصل {{total}}"
+          }
+        },
+        "treasury": {
+          "sections": {
+            "outflows_split": "تفكيك المبالغ المصروفة"
+          },
+          "items": {
+            "supplier_purchases": "مشتريات الموردين",
+            "salaries_charges": "الرواتب والأعباء",
+            "fixed_charges": "أعباء ثابتة",
+            "other_expenses": "مصاريف أخرى"
+          }
         },
         "ratios": {
           "title": "النسب المالية الرئيسية",
@@ -1975,8 +2095,7 @@
         "fixed_assets": "الأصول غير الجارية",
         "current_assets": "الأصول الجارية",
         "equity": "الأموال الخاصة",
-        "liabilities": "الديون",
-        "official_report": "قائمة محاسبية رسمية"
+        "liabilities": "الديون"
       },
       "ledger": {
         "title": "المخطط المحاسبي",
@@ -2508,7 +2627,6 @@
         "risks_title": "عوامل الخطر"
       }
     },
-    "title": "مساعد استراتيجي",
     "subtitle": "وحدة ذكاء القرار",
     "user_label": "المستخدم",
     "typing": "ليا تفكر...",

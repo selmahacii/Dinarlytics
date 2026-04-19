@@ -976,21 +976,21 @@ const EtatsRapports: React.FC = () => {
         const grandLivreData = [
           {
             compte: '512',
-            nom: 'Banque Standard Chartered',
+            nom: t('accounting.reports.ledger.accounts.bank'),
             ecritures: [
-              { date: '2026-04-01', libelle: 'Solde à nouveau', debit: 450000, credit: 0, solde: 450000 },
-              { date: '2026-04-05', libelle: 'Vente Facture F2026-001', debit: 125000, credit: 0, solde: 575000 },
-              { date: '2026-04-10', libelle: 'Paiement Fournisseur Sarl ABC', debit: 0, credit: 85000, solde: 490000 },
-              { date: '2026-04-15', libelle: 'Virement salaire Avril', debit: 0, credit: 150000, solde: 340000 }
+              { date: '2026-04-01', libelle: t('accounting.reports.ledger.labels.opening_balance'), debit: 450000, credit: 0, solde: 450000 },
+              { date: '2026-04-05', libelle: `${t('accounting.reports.ledger.labels.sale_invoice')} F2026-001`, debit: 125000, credit: 0, solde: 575000 },
+              { date: '2026-04-10', libelle: `${t('accounting.reports.ledger.labels.supplier_payment')} Sarl ABC`, debit: 0, credit: 85000, solde: 490000 },
+              { date: '2026-04-15', libelle: `${t('accounting.reports.ledger.labels.salary_payment')} ${t('common.months.april')}`, debit: 0, credit: 150000, solde: 340000 }
             ]
           },
           {
             compte: '411',
-            nom: 'Clients Collectifs',
+            nom: t('accounting.reports.ledger.accounts.clients'),
             ecritures: [
-              { date: '2026-04-01', libelle: 'Solde à nouveau', debit: 1250000, credit: 0, solde: 1250000 },
-              { date: '2026-04-05', libelle: 'Facture F2026-001 - Client XYZ', debit: 85000, credit: 0, solde: 1335000 },
-              { date: '2026-04-20', libelle: 'Règlement Facture F2026-001', debit: 0, credit: 85000, solde: 1250000 }
+              { date: '2026-04-01', libelle: t('accounting.reports.ledger.labels.opening_balance'), debit: 1250000, credit: 0, solde: 1250000 },
+              { date: '2026-04-05', libelle: `${t('accounting.reports.ledger.labels.sale_invoice')} F2026-001 - Client XYZ`, debit: 85000, credit: 0, solde: 1335000 },
+              { date: '2026-04-20', libelle: `${t('accounting.reports.ledger.labels.client_payment')} F2026-001`, debit: 0, credit: 85000, solde: 1250000 }
             ]
           }
         ];
@@ -1002,7 +1002,7 @@ const EtatsRapports: React.FC = () => {
                 <div className="px-6 py-5 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="p-2 bg-slate-800 text-white rounded-lg mr-3 font-mono font-black text-xs border border-slate-700">
-                      Cpt {compte.compte}
+                      {t('accounting.reports.ledger.account_abbr')} {compte.compte}
                     </div>
                     <h3 className="text-lg font-black text-white uppercase tracking-widest">{compte.nom}</h3>
                   </div>
@@ -1028,7 +1028,7 @@ const EtatsRapports: React.FC = () => {
                       {compte.ecritures.map((ecriture, i) => (
                         <tr key={i} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-3 whitespace-nowrap text-sm text-slate-600">
-                            {new Date(ecriture.date).toLocaleDateString('fr-FR')}
+                            {new Date(ecriture.date).toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR')}
                           </td>
                           <td className="px-6 py-3 text-sm text-slate-900">{ecriture.libelle}</td>
                           <td className="px-6 py-3 text-right text-sm font-medium text-slate-900">
@@ -1403,12 +1403,12 @@ const EtatsRapports: React.FC = () => {
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 relative z-10">
               {[
-                'Évolution du bilan (Actif / Passif)',
-                'Performance du résultat net',
-                'Flux de trésorerie opérationnels',
-                'Ratios de liquidité & solvabilité',
-                'Analyses comparatives N / N-1',
-                'Suivi du besoin en fonds de roulement'
+                t('accounting.reports.modals.metrics_list.balance_evolution'),
+                t('accounting.reports.modals.metrics_list.net_income_performance'),
+                t('accounting.reports.modals.metrics_list.operating_cash_flow'),
+                t('accounting.reports.modals.metrics_list.liquidity_solvency_ratios'),
+                t('accounting.reports.modals.metrics_list.comparative_analysis'),
+                t('accounting.reports.modals.metrics_list.working_capital_monitoring')
               ].map((item, i) => (
                 <div key={i} className="flex items-center text-xs text-slate-600 group">
                   <div className="w-1.5 h-1.5 rounded-full bg-slate-300 mr-3 group-hover:bg-slate-900 transition-colors"></div>
@@ -1424,7 +1424,7 @@ const EtatsRapports: React.FC = () => {
       <Modal
         isOpen={isImprimerModalOpen}
         onClose={() => setIsImprimerModalOpen(false)}
-        title="Imprimer États Officiels"
+        title={t('accounting.reports.modals.print_official_title')}
       >
         <div className="space-y-6">
           <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
@@ -1435,7 +1435,7 @@ const EtatsRapports: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              État à imprimer <span className="text-red-500">*</span>
+              {t('accounting.reports.modals.state_to_print')} <span className="text-red-500">*</span>
             </label>
             <select title="Sélectionner un état à imprimer"
               value={etatAImprimer}
@@ -1452,7 +1452,7 @@ const EtatsRapports: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Période
+              {t('common.period')}
             </label>
             <input title="Sélectionner un mois" placeholder="mm/yyyy"
               type="month"
@@ -1463,9 +1463,9 @@ const EtatsRapports: React.FC = () => {
           </div>
 
           <div className="bg-slate-50 border-l-4 border-slate-900 rounded-xl p-6 shadow-sm">
-            <p className="text-xs text-slate-600 font-bold uppercase tracking-widest mb-1">Attention</p>
+            <p className="text-xs text-slate-600 font-bold uppercase tracking-widest mb-1">{t('common.warning')}</p>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Assurez-vous que votre navigateur autorise les pop-ups pour l'impression. Le document sera ouvert dans une nouvelle fenêtre.
+              {t('accounting.reports.modals.popup_warning')}
             </p>
           </div>
 
@@ -1474,14 +1474,14 @@ const EtatsRapports: React.FC = () => {
               onClick={() => setIsImprimerModalOpen(false)}
               className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleConfirmImprimer}
               className="px-4 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center"
             >
               <PrinterIcon className="h-5 w-5 mr-2" />
-              Imprimer
+              {t('common.print')}
             </button>
           </div>
         </div>

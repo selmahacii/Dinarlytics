@@ -471,13 +471,13 @@ const TresorerieBanque: React.FC = () => {
 
             {/* Décaissements */}
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Décomposition Décaissements</h3>
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('treasury.sections.outflows_split')}</h3>
               <div className="space-y-4">
                 {[
-                  { label: 'Achats fournisseurs', pct: 45, mont: Math.round(TOTAL_DEC * 0.45) },
-                  { label: 'Salaires & charges', pct: 32, mont: Math.round(TOTAL_DEC * 0.32) },
-                  { label: 'Charges fixes', pct: 15, mont: Math.round(TOTAL_DEC * 0.15) },
-                  { label: 'Autres dépenses', pct: 8, mont: Math.round(TOTAL_DEC * 0.08) },
+                  { label: t('treasury.items.supplier_purchases'), pct: 45, mont: Math.round(TOTAL_DEC * 0.45) },
+                  { label: t('treasury.items.salaries_charges'), pct: 32, mont: Math.round(TOTAL_DEC * 0.32) },
+                  { label: t('treasury.items.fixed_charges'), pct: 15, mont: Math.round(TOTAL_DEC * 0.15) },
+                  { label: t('treasury.items.other_expenses'), pct: 8, mont: Math.round(TOTAL_DEC * 0.08) },
                 ].map((item, i) => (
                   <div key={i}>
                     <div className="flex items-center justify-between mb-2">

@@ -21,6 +21,8 @@
     "loading": "Chargement...",
     "error": "Une erreur est survenue",
     "success": "Opération réussie",
+    "warning": "Attention",
+    "period": "Période",
     "confirm": "Confirmer",
     "back": "Retour",
     "next": "Suivant",
@@ -1519,7 +1521,18 @@
       },
       "modals": {
         "metrics_title": "Indicateurs & Métriques Disponibles",
-        "imprimer_desc": "Sélectionnez l'état comptable que vous souhaitez imprimer. Le document sera généré au format officiel conforme aux normes comptables algériennes."
+        "metrics_list": {
+          "balance_evolution": "Évolution du bilan (Actif / Passif)",
+          "net_income_performance": "Performance du résultat net",
+          "operating_cash_flow": "Flux de trésorerie opérationnels",
+          "liquidity_solvency_ratios": "Ratios de liquidité & solvabilité",
+          "comparative_analysis": "Analyses comparatives N / N-1",
+          "working_capital_monitoring": "Suivi du besoin en fonds de roulement"
+        },
+        "imprimer_desc": "Sélectionnez l'état comptable que vous souhaitez imprimer. Le document sera généré au format officiel conforme aux normes comptables algériennes.",
+        "print_official_title": "Imprimer États Officiels",
+        "state_to_print": "État à imprimer",
+        "popup_warning": "Assurez-vous que votre navigateur autorise les pop-ups pour l'impression. Le document sera ouvert dans une nouvelle fenêtre."
       },
       "tabs": {
         "bilan": "Bilan",
@@ -1598,7 +1611,72 @@
         "credit": "Crédit",
         "balance": "Solde",
         "creditor_short": "C",
-        "debtor_short": "D"
+        "debtor_short": "D",
+        "account_abbr": "Cpt",
+        "labels": {
+          "opening_balance": "Solde à nouveau",
+          "sale_invoice": "Facture Vente",
+          "supplier_payment": "Paiement Fournisseur",
+          "salary_payment": "Virement salaire",
+          "client_payment": "Règlement Facture"
+        },
+        "accounts": {
+          "bank": "Banque Standard Chartered",
+          "clients": "Clients Collectifs"
+        }
+      },
+      "sales": {
+        "title": "Ventes & Clients",
+        "hero": {
+          "performance": "Performance Commerciale",
+          "audited": "Audité",
+          "view_daily": "Vue quotidienne",
+          "view_monthly": "Vue mensuelle",
+          "daily_label": "quotidienne",
+          "monthly_label": "mensuelle"
+        },
+        "kpi": {
+          "revenue": "Chiffre d'Affaires",
+          "invoices": "Factures Émises",
+          "avg_basket": "Panier Moyen",
+          "margin_rate": "Taux Marge",
+          "validated_ops": "Opérations validées",
+          "avg_unit_value": "Valeur unitaire moyenne",
+          "global_profitability": "Rentabilité brute globale",
+          "vs_previous": "vs période précédente"
+        },
+        "tabs": {
+          "sales_reports": "Rapports de ventes",
+          "client_analysis": "Analyse client",
+          "forecasts": "Comparatif & prévisions"
+        },
+        "sections": {
+          "top_products": "Top 5 Produits",
+          "product_performance": "Performance par article",
+          "categories_split": "Répartition Catégories",
+          "revenue_weight": "Poids sur le CA total"
+        },
+        "client_metrics": {
+          "active_clients": "Clients Actifs",
+          "new_clients": "Nouveaux",
+          "this_month": "Ce mois-ci",
+          "retention": "Fidélisation",
+          "recurring_clients": "Clients récurrents",
+          "avg_dso": "DSO Moyen",
+          "collection_delay": "Délai encaissement",
+          "total_base": "sur {{total}}"
+        }
+      },
+      "treasury": {
+        "sections": {
+          "outflows_split": "Décomposition Décaissements"
+        },
+        "items": {
+          "supplier_purchases": "Achats fournisseurs",
+          "salaries_charges": "Salaires & charges",
+          "fixed_charges": "Charges fixes",
+          "other_expenses": "Autres dépenses"
+        }
       },
       "ratios": {
         "title": "Ratios Financiers Clés",
@@ -1633,8 +1711,7 @@
       "fixed_assets": "Actif Immobilisé",
       "current_assets": "Actif Circulant",
       "equity": "Capitaux Propres",
-      "liabilities": "Dettes",
-      "official_report": "État Comptable Officiel"
+      "liabilities": "Dettes"
     },
     "ledger": {
       "title": "Plan Comptable",

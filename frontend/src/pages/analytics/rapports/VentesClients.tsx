@@ -24,9 +24,11 @@ import { useApp } from '@core/context/AppContext';
 import { useSalesReports } from '@shared/hooks/useSalesReports';
 import Modal from '@shared/components/UI/Modal';
 import { usePermission } from '@shared/hooks/usePermission';
+import { useTranslation } from '@/shared/hooks/useTranslation';
 
 const VentesClients: React.FC = () => {
   const navigate = useNavigate();
+  const { t, currentLang } = useTranslation();
   const { user, formatCurrency } = useApp();
   const fmt = (n: number) => formatCurrency(n); // Defensive alias for removed helper
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
@@ -40,9 +42,9 @@ const VentesClients: React.FC = () => {
   const { data, loading, error } = useSalesReports(selectedPeriod);
 
   const tabs = [
-    { id: 'rapports' as const, label: 'Rapports de ventes', icon: ChartBarIcon },
-    { id: 'analyse' as const, label: 'Analyse client', icon: UserGroupIcon },
-    { id: 'previsions' as const, label: 'Comparatif & prévisions', icon: ChartPieIcon },
+    { id: 'rapports' as const, label: t('sales.tabs.sales_reports'), icon: ChartBarIcon },
+    { id: 'analyse' as const, label: t('sales.tabs.client_analysis'), icon: UserGroupIcon },
+    { id: 'previsions' as const, label: t('sales.tabs.forecasts'), icon: ChartPieIcon },
   ];
 
   // ── Export PDF ───────────────────────────────
@@ -189,28 +191,28 @@ const VentesClients: React.FC = () => {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <div className="flex items-center gap-3 mb-2 opacity-60">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Performance Commerciale</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">{t('sales.hero.performance')}</p>
                 <div className="h-px w-6 bg-slate-700" />
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Audité</p>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">{t('sales.hero.audited')}</p>
               </div>
-              <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-white">Ventes & Clients</h1>
+              <h1 className="text-3xl font-black uppercase tracking-tight leading-none text-white">{t('sales.title')}</h1>
               <div className="flex items-center gap-4 mt-4">
                 <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
                   <button
                     onClick={() => setSelectedPeriod('jour')}
                     className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedPeriod === 'jour' ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400'}`}
                   >
-                    Jour
+                    {t('common.periods.day')}
                   </button>
                   <button
                     onClick={() => setSelectedPeriod('mois')}
                     className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${selectedPeriod === 'mois' ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400'}`}
                   >
-                    Mois
+                    {t('common.periods.month')}
                   </button>
                 </div>
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">
-                  Vue {selectedPeriod === 'jour' ? 'quotidienne' : 'mensuelle'} · {new Date().toLocaleDateString('fr-DZ', { month: 'long', year: 'numeric' })}
+                  {selectedPeriod === 'jour' ? t('sales.hero.view_daily') : t('sales.hero.view_monthly')} · {new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', { month: 'long', year: 'numeric' })}
                 </p>
               </div>
             </div>
@@ -220,14 +222,14 @@ const VentesClients: React.FC = () => {
                 className="px-6 py-3 bg-white text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all hover:bg-slate-100 flex items-center gap-2"
               >
                 <PrinterIcon className="h-3.5 w-3.5" />
-                Imprimer
+                {t('common.print')}
               </button>
               <button
                 onClick={handleShare}
                 className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
               >
                 <ShareIcon className="h-3.5 w-3.5" />
-                Partager
+                {t('common.share')}
               </button>
             </div>
           </div>
@@ -235,10 +237,10 @@ const VentesClients: React.FC = () => {
           {/* Métriques HERO */}
           <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-12 border-t border-white/5">
             {[
-              { label: "Chiffre d'Affaires", val: formatCurrency(salesData.ca.value), sub: `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% vs période précédente`, icon: CurrencyDollarIcon, color: 'text-white' },
-              { label: "Factures Émises", val: salesData.facturesEmises, sub: 'Opérations validées', icon: DocumentArrowDownIcon, color: 'text-slate-400' },
-              { label: "Panier Moyen", val: formatCurrency(salesData.panierMoyen), sub: 'Valeur unitaire moyenne', icon: ShoppingCartIcon, color: 'text-slate-400' },
-              { label: "Taux Marge", val: salesData.margeBrute + '%', sub: 'Rentabilité brute globale', icon: ChartPieIcon, color: 'text-slate-400' },
+              { label: t("sales.kpi.revenue"), val: formatCurrency(salesData.ca.value), sub: `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% ${t('sales.kpi.vs_previous')}`, icon: CurrencyDollarIcon, color: 'text-white' },
+              { label: t("sales.kpi.invoices"), val: salesData.facturesEmises, sub: t('sales.kpi.validated_ops'), icon: DocumentArrowDownIcon, color: 'text-slate-400' },
+              { label: t("sales.kpi.avg_basket"), val: formatCurrency(salesData.panierMoyen), sub: t('sales.kpi.avg_unit_value'), icon: ShoppingCartIcon, color: 'text-slate-400' },
+              { label: t("sales.kpi.margin_rate"), val: salesData.margeBrute + '%', sub: t('sales.kpi.global_profitability'), icon: ChartPieIcon, color: 'text-slate-400' },
             ].map((m, i) => (
               <div key={i} className="group cursor-default border border-white/5 hover:border-white/20 transition-all rounded-[2rem] p-6 bg-white/[0.02]">
                 <m.icon className={`h-5 w-5 ${m.color} mb-4 opacity-50`} />
@@ -280,8 +282,8 @@ const VentesClients: React.FC = () => {
                       <StarIcon className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Top 5 Produits</h3>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Performance par article</p>
+                      <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">{t("sales.sections.top_products")}</h3>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">{t("sales.sections.product_performance")}</p>
                     </div>
                   </div>
                   <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
@@ -322,8 +324,8 @@ const VentesClients: React.FC = () => {
                     <ChartPieIcon className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Répartition Catégories</h3>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Poids sur le CA total</p>
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">{t("sales.sections.categories_split")}</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">{t("sales.sections.revenue_weight")}</p>
                   </div>
                 </div>
 
@@ -349,10 +351,10 @@ const VentesClients: React.FC = () => {
             {/* Metrics Clients */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: 'Clients Actifs', val: clientMetrics.clientsActifs, sub: `sur ${clientMetrics.totalClients}`, icon: UserGroupIcon },
-                { label: 'Nouveaux', val: clientMetrics.nouveauxClients, sub: 'Ce mois-ci', icon: StarIcon },
-                { label: 'Fidélisation', val: (clientMetrics.tauxFidelisation || 0).toFixed(1) + '%', sub: 'Clients récurrents', icon: CheckCircleIcon },
-                { label: 'DSO Moyen', val: clientMetrics.dsoMoyen + 'j', sub: 'Délai encaissement', icon: CalendarIcon },
+                { label: t("sales.client_metrics.active_clients"), val: clientMetrics.clientsActifs, sub: t("sales.client_metrics.total_base", { total: clientMetrics.totalClients }), icon: UserGroupIcon },
+                { label: t("sales.client_metrics.new_clients"), val: clientMetrics.nouveauxClients, sub: t("sales.client_metrics.this_month"), icon: StarIcon },
+                { label: t("sales.client_metrics.retention"), val: (clientMetrics.tauxFidelisation || 0).toFixed(1) + '%', sub: t("sales.client_metrics.recurring_clients"), icon: CheckCircleIcon },
+                { label: t("sales.client_metrics.avg_dso"), val: clientMetrics.dsoMoyen + 'j', sub: t("sales.client_metrics.collection_delay"), icon: CalendarIcon },
               ].map((m, i) => (
                 <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 text-center flex flex-col items-center">
                   <div className="p-3 bg-slate-50 rounded-2xl mb-4 group hover:bg-slate-950 transition-all cursor-pointer">
