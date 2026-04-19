@@ -33,6 +33,8 @@
     "logout": "Logout",
     "erp_tagline": "Financial ERP",
     "pca_badge": "DZ PCA 2010",
+    "international": "International",
+    "ifrs_badge": "IFRS - Reporting",
     "total": "Total",
     "days": "days",
     "errors": {
@@ -1930,10 +1932,25 @@
           "title": "Cash Flow Statement",
           "method_indirect": "Indirect Method — Period: {{period}}",
           "activity": "Activity Flows",
+          "net_result": "Net profit for the year",
+          "depreciation": "+ Depreciation and amortization",
+          "inventory_var": "- Variation in inventory",
+          "receivables_var": "- Variation in accounts receivable",
+          "payables_var": "+ Variation in accounts payable",
           "net_op_flow": "Net Operating Flow",
           "investment": "Investment Flows",
+          "acquisition_fixed": "- Acquisition of fixed assets",
+          "disposal_fixed": "+ Disposal of fixed assets",
           "net_inv_flow": "Net Investment Flow",
-          "financing": "Financing Flows"
+          "financing": "Financing Flows",
+          "capital_increase": "+ Capital increase",
+          "new_loans": "+ New loans",
+          "loan_repayment": "- Loan repayment",
+          "dividends": "- Dividends paid",
+          "net_fin_flow": "Net Financing Flow",
+          "opening_cash": "Opening Cash",
+          "net_variation": "Net Cash Variation",
+          "closing_cash": "Closing Cash"
         },
         "balance": {
           "title": "General Trial Balance",
@@ -2691,6 +2708,133 @@
       "tip_title": "Tip:",
       "tip_text": "Click on a company to see its users, then click on a user to log in automatically.",
       "demo_load_error": "Error loading demo users"
+    }
+  },
+  "admin": {
+    "title": "System Configuration",
+    "subtitle": "Manage global settings, taxation, and organization access",
+    "warning_title": "Important Warning",
+    "warning_text": "The settings on this page affect the overall behavior of the application. Any changes to accounting or tax parameters can impact your financial declarations and reports.",
+    "recommendation": "Consult your accountant before modifying 2025 parameters.",
+    "profile_title": "User Profile",
+    "company": "Company",
+    "segment": "Segment",
+    "preferences_title": "Interface Preferences",
+    "language": "Interface Language",
+    "language_desc": "Affects the entire ERP interface",
+    "currency": "Default Currency",
+    "currency_desc": "Used for displaying amounts",
+    "roles_title": "Roles & Permissions",
+    "btn_configure_roles": "Configure Roles",
+    "tax_ibs_dz": "IBS (Income Tax)",
+    "tax_ibs_int": "Corporate Tax",
+    "tax_tva_normal": "VAT Normal Rate",
+    "tax_tva_reduced": "VAT Reduced Rate ({{rate}}%)",
+    "categories": {
+      "purchases": "Purchases",
+      "billing": "Billing",
+      "reports": "Reports",
+      "admin": "Administration",
+      "accounting": "Accounting",
+      "inventory": "Inventory"
+    },
+    "users_count": "USERS",
+    "users_count_count": "{{count}} USERS",
+    "accounting_params": "Accounting Parameters",
+    "ref_system": "Reference System",
+    "standard": "Standard in effect",
+    "pca_certified": "Audit Certified",
+    "pca_algerien": "Algerian PCA",
+    "recommendation_prefix": "Recommendation:",
+    "fiscal_year": "Fiscal Year {{year}}",
+    "opening": "Opening",
+    "closing": "Closing",
+    "modify_btn": "Modify",
+    "validate_btn": "Validate",
+    "cancel_btn": "Cancel",
+    "chart_of_accounts": "Full Chart of Accounts",
+    "chart_of_accounts_desc": "Access the optimized PCA accounts database",
+    "open_plan": "Open Plan",
+    "fiscal_matrix": "2025 Tax Matrix",
+    "edit_rates": "Edit Rates",
+    "tax_consistency": "Consistency Control",
+    "tax_impact_msg": "Any modification to the tax matrix directly impacts the 2025 compliance audits.",
+    "roles_modal": {
+      "title": "Configure Roles & Permissions",
+      "desc": "Create or modify a custom role by selecting the appropriate permissions. Roles define the access and authorized actions for each user within the ERP system.",
+      "role_name": "Role name",
+      "role_name_desc": "Choose a descriptive name for this role",
+      "role_desc": "Role description",
+      "role_scope_placeholder": "Role's scope of action...",
+      "available_permissions": "Available permissions",
+      "check_all_desc": "Check the permissions you want to assign to this role",
+      "save_role": "Save Role"
+    },
+    "form": {
+      "new_member": "New Member",
+      "edit_profile": "Edit Profile",
+      "config_account": "Account configuration",
+      "identity": "Identity",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "email": "Email Address",
+      "username": "Username",
+      "password": "Password",
+      "main_role": "Main Role",
+      "additional_rights": "Additional access rights",
+      "errors": {
+        "load_failed": "Failed to load system data",
+        "system_error": "System Error"
+      }
+    },
+    "roles_data": {
+      "admin": {
+        "name": "Administrator",
+        "desc": "Full access to all features"
+      },
+      "accountant": {
+        "name": "Accountant",
+        "desc": "Management of accounting operations and invoices"
+      },
+      "user": {
+        "name": "User",
+        "desc": "Consultation of data and reports"
+      }
+    },
+    "permissions_list": {
+      "crm": "Customer management",
+      "purchases": "Supplier management",
+      "billing_create": "Invoice creation",
+      "billing_validate": "Invoice validation",
+      "reports_view": "Report consultation",
+      "data_export": "Data export",
+      "system_settings": "System settings",
+      "user_mgmt": "User management",
+      "accounting_entry": "Accounting entry",
+      "accounting_validate": "Entry validation",
+      "accounting_closing": "Accounting closing",
+      "inventory_mgmt": "Stock management"
+    },
+    "actions": {
+      "new_user": "New User",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "save_changes": "Save Changes",
+      "create_account": "Create Account"
+    },
+    "users": {
+      "loading": "Loading users...",
+      "anniversary": "Users List",
+      "manage_access": "Role and permissions configuration",
+      "user_count": "USERS",
+      "inactif": "Inactive",
+      "perms_count": "{{count}} PERMISSIONS",
+      "delete_confirm_title": "Deactivate User?",
+      "delete_confirm_desc": "This action will restrict access for this user. You can reactivate them later at any time.",
+      "status_active": "Active",
+      "status_inactive": "Inactive"
     }
   }
 }

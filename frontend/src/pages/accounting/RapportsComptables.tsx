@@ -723,7 +723,19 @@ const EtatsRapports: React.FC = () => {
           {/* Tableau des flux */}
           <div className="bg-white rounded-lg shadow-sm border border-slate-200">
             <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900">{t('accounting.reports.flux.title')}</h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-lg font-bold text-slate-900">{t('accounting.reports.flux.title')}</h3>
+                  <div className="flex space-x-2">
+                    <span className="px-2 py-0.5 bg-slate-900 text-[10px] font-black text-white rounded uppercase tracking-tighter">
+                      {t('common.international')}
+                    </span>
+                    <span className="px-2 py-0.5 bg-blue-600 text-[10px] font-black text-white rounded uppercase tracking-tighter">
+                      {t('common.ifrs_badge')}
+                    </span>
+                  </div>
+                </div>
+              </div>
               <p className="text-sm text-slate-600 mt-1">{t('accounting.reports.flux.method_indirect', { period: selectedPeriode })}</p>
             </div>
             <div className="p-6">
@@ -735,23 +747,23 @@ const EtatsRapports: React.FC = () => {
                 </h4>
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">Résultat net de l'exercice</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.net_result')}</span>
                     <span className="text-sm font-bold text-emerald-600">{formatCurrency(resultat)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700 ml-4">+ Dotations aux amortissements</span>
+                    <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.depreciation')}</span>
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(100000)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700 ml-4">- Variation des stocks</span>
+                    <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.inventory_var')}</span>
                     <span className="text-sm font-semibold text-red-600">({formatCurrency(85000)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700 ml-4">- Variation des créances clients</span>
+                    <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.receivables_var')}</span>
                     <span className="text-sm font-semibold text-red-600">({formatCurrency(125000)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700 ml-4">+ Variation des dettes fournisseurs</span>
+                    <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.payables_var')}</span>
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(95000)}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
@@ -769,11 +781,11 @@ const EtatsRapports: React.FC = () => {
                 </h4>
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">- Acquisition immobilisations</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.acquisition_fixed')}</span>
                     <span className="text-sm font-semibold text-red-600">({formatCurrency(450000)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">+ Cession d'immobilisations</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.disposal_fixed')}</span>
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(80000)}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
@@ -791,19 +803,19 @@ const EtatsRapports: React.FC = () => {
                 </h4>
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">+ Augmentation de capital</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.capital_increase')}</span>
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">+ Nouveaux emprunts</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.new_loans')}</span>
                     <span className="text-sm font-semibold text-slate-900">{formatCurrency(500000)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">- Remboursement emprunts</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.loan_repayment')}</span>
                     <span className="text-sm font-semibold text-red-600">({formatCurrency(180000)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span className="text-sm text-slate-700">- Dividendes versés</span>
+                    <span className="text-sm text-slate-700">{t('accounting.reports.flux.dividends')}</span>
                     <span className="text-sm font-semibold text-red-600">({formatCurrency(120000)})</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
@@ -817,17 +829,17 @@ const EtatsRapports: React.FC = () => {
               <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg text-white">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-700">
-                    <span className="text-base font-medium">Trésorerie d'ouverture</span>
+                    <span className="text-base font-medium">{t('accounting.reports.flux.opening_cash')}</span>
                     <span className="text-lg font-bold">{formatCurrency(450000)}</span>
                   </div>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-700">
-                    <span className="text-base font-medium">Variation nette de trésorerie</span>
+                    <span className="text-base font-medium">{t('accounting.reports.flux.net_variation')}</span>
                     <span className="text-lg font-bold text-emerald-400">
                       {formatCurrency((resultat + 100000 - 85000 - 125000 + 95000) - 370000 + 200000)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-2">
-                    <span className="text-lg font-bold">Trésorerie de clôture</span>
+                    <span className="text-lg font-bold">{t('accounting.reports.flux.closing_cash')}</span>
                     <span className="text-2xl font-bold text-emerald-400">
                       {formatCurrency(450000 + ((resultat + 100000 - 85000 - 125000 + 95000) - 370000 + 200000))}
                     </span>

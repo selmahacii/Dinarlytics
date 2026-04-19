@@ -346,7 +346,7 @@ export const AdminRoleManagement: React.FC = () => {
 
                   <div className="space-y-4">
                     <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-2 mt-6">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Droits d'accès additionnels</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('admin.form.additional_rights')}</p>
                       <span className="text-[9px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-bold">{formData.permissions.length}</span>
                     </div>
                     <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">

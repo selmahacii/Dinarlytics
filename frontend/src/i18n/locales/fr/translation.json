@@ -63,7 +63,8 @@
     "logout": "Déconnexion",
     "erp_tagline": "ERP Financier",
     "pca_badge": "DZ PCA 2010",
-    "ifrs_badge": "INT IFRS",
+    "international": "International",
+    "ifrs_badge": "IFRS - Reporting",
     "errors": {
       "loading_failed": "Échec du chargement",
       "retry": "Réessayer",
@@ -1550,10 +1551,25 @@
         "title": "Tableau des Flux de Trésorerie",
         "method_indirect": "Méthode Indirecte — Période : {{period}}",
         "activity": "Flux liés à l'Activité",
+        "net_result": "Résultat net de l'exercice",
+        "depreciation": "+ Dotations aux amortissements",
+        "inventory_var": "- Variation des stocks",
+        "receivables_var": "- Variation des créances clients",
+        "payables_var": "+ Variation des dettes fournisseurs",
         "net_op_flow": "Flux Net d'Exploitation",
         "investment": "Flux d'Investissement",
+        "acquisition_fixed": "- Acquisition d'immobilisations",
+        "disposal_fixed": "+ Cession d'immobilisations",
         "net_inv_flow": "Flux Net d'Investissement",
-        "financing": "Flux de Financement"
+        "financing": "Flux de Financement",
+        "capital_increase": "+ Augmentation de capital",
+        "new_loans": "+ Nouveaux emprunts",
+        "loan_repayment": "- Remboursement d'emprunts",
+        "dividends": "- Dividendes versés",
+        "net_fin_flow": "Flux Net de Financement",
+        "opening_cash": "Trésorerie d'Ouverture",
+        "net_variation": "Variation Nette de Trésorerie",
+        "closing_cash": "Trésorerie de Clôture"
       },
       "balance": {
         "title": "Balance Générale",
@@ -2719,6 +2735,133 @@
       "prevu": "Prévu",
       "reel": "Réalisé",
       "month": "Mois"
+    }
+  },
+  "admin": {
+    "title": "Configuration Système",
+    "subtitle": "Gérez les paramètres globaux, la fiscalité et les accès de l'organisation",
+    "warning_title": "Avertissement Important",
+    "warning_text": "Les paramètres de cette page affectent le comportement global de l'application. Toute modification des paramètres comptables ou fiscaux peut impacter vos déclarations et rapports financiers.",
+    "recommendation": "Consultez votre expert-comptable avant de modifier les paramètres 2025.",
+    "profile_title": "Profil Utilisateur",
+    "company": "Entreprise",
+    "segment": "Segment",
+    "preferences_title": "Préférences Interface",
+    "language": "Langue d'interface",
+    "language_desc": "Affecte l'ensemble de l'interface ERP",
+    "currency": "Devise par défaut",
+    "currency_desc": "Utilisée pour l'affichage des montants",
+    "roles_title": "Rôles & Permissions",
+    "btn_configure_roles": "Configurer Rôles",
+    "tax_ibs_dz": "IBS (Impôt Bénéfices)",
+    "tax_ibs_int": "Corporate Tax",
+    "tax_tva_normal": "TVA Taux Normal",
+    "tax_tva_reduced": "TVA Taux Réduit ({{rate}}%)",
+    "categories": {
+      "purchases": "Achats",
+      "billing": "Facturation",
+      "reports": "Rapports",
+      "admin": "Administration",
+      "accounting": "Comptabilité",
+      "inventory": "Inventaire"
+    },
+    "users_count": "UTILISATEURS",
+    "users_count_count": "{{count}} UTILISATEURS",
+    "accounting_params": "Paramètres Comptables",
+    "ref_system": "Système de Référence",
+    "standard": "Norme en vigueur",
+    "pca_certified": "Certifié Audit",
+    "pca_algerien": "PCA Algérien",
+    "recommendation_prefix": "Recommandation :",
+    "fiscal_year": "Exercice Fiscal {{year}}",
+    "opening": "Ouverture",
+    "closing": "Clôture",
+    "modify_btn": "Modifier",
+    "validate_btn": "Valider",
+    "cancel_btn": "Annuler",
+    "chart_of_accounts": "Plan Comptable Complet",
+    "chart_of_accounts_desc": "Accédez à la base de données optimisée des comptes PCA",
+    "open_plan": "Ouvrir le Plan",
+    "fiscal_matrix": "Matrice Fiscale 2025",
+    "edit_rates": "Editer Taux",
+    "tax_consistency": "Contrôle de Cohérence",
+    "tax_impact_msg": "Toute modification de la matrice fiscale impacte directement les audits de conformité de l'exercice 2025.",
+    "roles_modal": {
+      "title": "Configuration des Rôles et Permissions",
+      "desc": "Créez ou modifiez un rôle personnalisé en sélectionnant les permissions appropriées. Les rôles définissent les accès et actions autorisées pour chaque utilisateur au sein du système ERP.",
+      "role_name": "Nom du rôle",
+      "role_name_desc": "Choisissez un nom descriptif pour ce rôle",
+      "role_desc": "Description du rôle",
+      "role_scope_placeholder": "Périmètre d'action du rôle...",
+      "available_permissions": "Permissions disponibles",
+      "check_all_desc": "Cochez les permissions que vous souhaitez attribuer à ce rôle",
+      "save_role": "Sauvegarder Rôle"
+    },
+    "form": {
+      "new_member": "Nouveau Membre",
+      "edit_profile": "Modifier Profil",
+      "config_account": "Configuration compte",
+      "identity": "Identité",
+      "first_name": "Prénom",
+      "last_name": "Nom",
+      "email": "Adresse Email",
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "main_role": "Rôle Principal",
+      "additional_rights": "Droits d'accès additionnels",
+      "errors": {
+        "load_failed": "Échec du chargement des données système",
+        "system_error": "Erreur Système"
+      }
+    },
+    "roles_data": {
+      "admin": {
+        "name": "Administrateur",
+        "desc": "Accès complet à toutes les fonctionnalités"
+      },
+      "accountant": {
+        "name": "Comptable",
+        "desc": "Gestion des opérations comptables et factures"
+      },
+      "user": {
+        "name": "Utilisateur",
+        "desc": "Consultation des données et rapports"
+      }
+    },
+    "permissions_list": {
+      "crm": "Gestion clients",
+      "purchases": "Gestion fournisseurs",
+      "billing_create": "Création factures",
+      "billing_validate": "Validation factures",
+      "reports_view": "Consultation rapports",
+      "data_export": "Export données",
+      "system_settings": "Paramètres système",
+      "user_mgmt": "Gestion utilisateurs",
+      "accounting_entry": "Saisie écritures comptables",
+      "accounting_validate": "Validation écritures",
+      "accounting_closing": "Clôture comptable",
+      "inventory_mgmt": "Gestion stocks"
+    },
+    "actions": {
+      "new_user": "Nouveau Utilisateur",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "save_changes": "Enregistrer les modifications",
+      "create_account": "Créer le compte"
+    },
+    "users": {
+      "loading": "Chargement des utilisateurs...",
+      "anniversary": "Liste des Utilisateurs",
+      "manage_access": "Configuration des rôles et droits d'accès",
+      "user_count": "UTILISATEURS",
+      "inactif": "Inactif",
+      "perms_count": "{{count}} PERMISSIONS",
+      "delete_confirm_title": "Désactiver l'utilisateur ?",
+      "delete_confirm_desc": "Cette action restreindra l'accès pour cet utilisateur. Vous pouvez le réactiver plus tard à tout moment.",
+      "status_active": "Actif",
+      "status_inactive": "Inactif"
     }
   }
 }

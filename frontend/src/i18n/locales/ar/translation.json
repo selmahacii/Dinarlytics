@@ -34,6 +34,8 @@
     "logout": "تسجيل الخروج",
     "erp_tagline": "نظام مالي مؤسسي",
     "pca_badge": "DZ PCA 2010",
+    "international": "دولي",
+    "ifrs_badge": "نظام المعايير الدولية (IFRS)",
     "total": "الإجمالي",
     "days": "أيّام",
     "errors": {
@@ -1890,10 +1892,25 @@
           "title": "جدول تدفقات الخزينة",
           "method_indirect": "الطريقة غير المباشرة — الفترة : {{period}}",
           "activity": "تدفقات الأنشطة",
+          "net_result": "النتيجة الصافية للسنة المالية",
+          "depreciation": "+ مخصصات الاهتلاك",
+          "inventory_var": "- تغير في المخزون",
+          "receivables_var": "- تغير في حقوق الزبائن",
+          "payables_var": "+ تغير في ديون الموردين",
           "net_op_flow": "صافي تدفقات الاستغلال",
           "investment": "تدفقات الاستثمار",
+          "acquisition_fixed": "- اقتناء أصول غير جارية",
+          "disposal_fixed": "+ التنازل عن أصول غير جارية",
           "net_inv_flow": "صافي تدفقات الاستثمار",
-          "financing": "تدفقات التمويل"
+          "financing": "تدفقات التمويل",
+          "capital_increase": "+ زيادة في رأس المال",
+          "new_loans": "+ قروض جديدة",
+          "loan_repayment": "- تسديد القروض",
+          "dividends": "- توزيعات الأرباح",
+          "net_fin_flow": "صافي تدفقات التمويل",
+          "opening_cash": "الخزينة الافتتاحية",
+          "net_variation": "التغير الصافي في الخزينة",
+          "closing_cash": "خزينة الإغلاق"
         },
         "balance": {
           "title": "ميزان المراجعة العام",
@@ -2650,6 +2667,133 @@
       "tip_title": "نصيحة:",
       "tip_text": "انقر على شركة لرؤية مستخدميها، ثم انقر على مستخدم لتسجيل الدخول تلقائيًا.",
       "demo_load_error": "خطأ في تحميل المستخدمين التجريبيين"
+    }
+  },
+  "admin": {
+    "title": "إعدادات النظام",
+    "subtitle": "إدارة الإعدادات العامة، الضرائب، وصلاحيات الوصول للمؤسسة",
+    "warning_title": "تحذير هام",
+    "warning_text": "تؤثر الإعدادات الموجودة في هذه الصفحة على السلوك العام للتطبيق. أي تغيير في المعايير المحاسبية أو الضريبية يمكن أن يؤثر على تصريحاتكم وتقاريركم المالية.",
+    "recommendation": "استشر محاسبك المعتمد قبل تعديل معايير 2025.",
+    "profile_title": "ملف المستخدم",
+    "company": "الشركة",
+    "segment": "القطاع",
+    "preferences_title": "تفضيلات الواجهة",
+    "language": "لغة الواجهة",
+    "language_desc": "تؤثر على كامل واجهة نظام ERP",
+    "currency": "العملة الافتراضية",
+    "currency_desc": "تستخدم لعرض المبالغ المالية",
+    "roles_title": "الأدوار والصلاحيات",
+    "btn_configure_roles": "تكوين الأدوار",
+    "tax_ibs_dz": "IBS (ضريبة الأرباح)",
+    "tax_ibs_int": "ضريبة الشركات",
+    "tax_tva_normal": "ضريبة القيمة المضافة العادية",
+    "tax_tva_reduced": "ضريبة القيمة المضافة المخفضة ({{rate}}%)",
+    "categories": {
+      "purchases": "المشتريات",
+      "billing": "الفواتير",
+      "reports": "التقارير",
+      "admin": "الإدارة",
+      "accounting": "المحاسبة",
+      "inventory": "المخزون"
+    },
+    "users_count": "مستخدمين",
+    "users_count_count": "{{count}} مستخدمين",
+    "accounting_params": "المعايير المحاسبية",
+    "ref_system": "نظام المرجعية",
+    "standard": "المعيار المعمول به",
+    "pca_certified": "معتمد للتدقيق",
+    "pca_algerien": "المخطط الوطني (PCA)",
+    "recommendation_prefix": "توصية:",
+    "fiscal_year": "السنة المالية {{year}}",
+    "opening": "الافتتاح",
+    "closing": "الإغلاق",
+    "modify_btn": "تعديل",
+    "validate_btn": "تأكيد",
+    "cancel_btn": "إلغاء",
+    "chart_of_accounts": "مخطط الحسابات الكامل",
+    "chart_of_accounts_desc": "الوصول إلى قاعدة البيانات المحسنة لحسابات PCA",
+    "open_plan": "فتح المخطط",
+    "fiscal_matrix": "المصفوفة الضريبية 2025",
+    "edit_rates": "تعديل المعدلات",
+    "tax_consistency": "مراقبة الاتساق",
+    "tax_impact_msg": "أي تعديل في المصفوفة الضريبية يؤثر مباشرة على تدقيقات الامتثال لسنة 2025.",
+    "roles_modal": {
+      "title": "تكوين الأدوار والصلاحيات",
+      "desc": "قم بإنشاء أو تعديل دور مخصص باختيار الصلاحيات المناسبة. تحدد الأدوار الوصول والإجراءات المصرح بها لكل مستخدم داخل نظام ERP.",
+      "role_name": "اسم الدور",
+      "role_name_desc": "اختر اسماً وصفياً لهذا الدور",
+      "role_desc": "وصف الدور",
+      "role_scope_placeholder": "نطاق عمل الدور...",
+      "available_permissions": "الصلاحيات المتاحة",
+      "check_all_desc": "حدد الصلاحيات التي تريد تخصيصها لهذا الدور",
+      "save_role": "حفظ الدور"
+    },
+    "form": {
+      "new_member": "عضو جديد",
+      "edit_profile": "تعديل الملف الشخصي",
+      "config_account": "إعداد الحساب",
+      "identity": "الهوية",
+      "first_name": "الاسم الأول",
+      "last_name": "اللقب",
+      "email": "البريد الإلكتروني",
+      "username": "اسم المستخدم",
+      "password": "كلمة المرور",
+      "main_role": "الدور الرئيسي",
+      "additional_rights": "حقوق وصول إضافية",
+      "errors": {
+        "load_failed": "فشل تحميل بيانات النظام",
+        "system_error": "خطأ في النظام"
+      }
+    },
+    "roles_data": {
+      "admin": {
+        "name": "مدير النظام",
+        "desc": "وصول كامل لجميع الميزات"
+      },
+      "accountant": {
+        "name": "محاسب",
+        "desc": "إدارة العمليات المحاسبية والفواتير"
+      },
+      "user": {
+        "name": "مستخدم",
+        "desc": "الاطلاع على البيانات والتقارير"
+      }
+    },
+    "permissions_list": {
+      "crm": "إدارة الزبائن",
+      "purchases": "إدارة الموردين",
+      "billing_create": "إنشاء الفواتير",
+      "billing_validate": "تأكيد الفواتير",
+      "reports_view": "الاطلاع على التقارير",
+      "data_export": "تصدير البيانات",
+      "system_settings": "إعدادات النظام",
+      "user_mgmt": "إدارة المستخدمين",
+      "accounting_entry": "القيود المحاسبية",
+      "accounting_validate": "تأكيد القيود",
+      "accounting_closing": "الإغلاق المحاسبي",
+      "inventory_mgmt": "إدارة المخزون"
+    },
+    "actions": {
+      "new_user": "مستخدم جديد",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "confirm": "تأكيد",
+      "cancel": "إلغاء",
+      "save_changes": "حفظ التغييرات",
+      "create_account": "إنشاء الحساب"
+    },
+    "users": {
+        "loading": "جاري تحميل المستخدمين...",
+      "anniversary": "قائمة المستخدمين",
+      "manage_access": "تهيئة الأدوار وصلاحيات الوصول",
+      "user_count": "مستخدمين",
+      "inactif": "غير نشط",
+      "perms_count": "{{count}} صلاحيات",
+      "delete_confirm_title": "تعطيل المستخدم؟",
+      "delete_confirm_desc": "هذا الإجراء سيقيد وصول هذا المستخدم. يمكنك إعادة تفعيله لاحقاً في أي وقت.",
+      "status_active": "نشط",
+      "status_inactive": "غير نشط"
     }
   }
 }

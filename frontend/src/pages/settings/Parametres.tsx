@@ -96,21 +96,34 @@ const Parametres: React.FC = () => {
 
   const roles = [
     {
-      nom: 'Administrateur',
-      description: 'Accès complet à toutes les fonctionnalités',
-      permissions: ['Gestion utilisateurs', 'Configuration système', 'Toutes opérations comptables', 'Exports'],
+      nom: t('admin.roles_data.admin.name'),
+      description: t('admin.roles_data.admin.desc'),
+      permissions: [
+        t('admin.permissions_list.user_mgmt'),
+        t('admin.permissions_list.system_settings'),
+        t('admin.permissions_list.accounting_entry'),
+        t('admin.permissions_list.data_export')
+      ],
       utilisateurs: 1
     },
     {
-      nom: 'Comptable',
-      description: 'Gestion des opérations comptables et factures',
-      permissions: ['Création factures', 'Saisie écritures', 'Consultation rapports', 'Exports limités'],
+      nom: t('admin.roles_data.accountant.name'),
+      description: t('admin.roles_data.accountant.desc'),
+      permissions: [
+        t('admin.permissions_list.billing_create'),
+        t('admin.permissions_list.accounting_entry'),
+        t('admin.permissions_list.reports_view'),
+        t('admin.permissions_list.data_export')
+      ],
       utilisateurs: 2
     },
     {
-      nom: 'Utilisateur',
-      description: 'Consultation des données et rapports',
-      permissions: ['Consultation données', 'Visualisation rapports'],
+      nom: t('admin.roles_data.user.name'),
+      description: t('admin.roles_data.user.desc'),
+      permissions: [
+        t('admin.permissions_list.billing_create'),
+        t('admin.permissions_list.reports_view')
+      ],
       utilisateurs: 5
     }
   ];
@@ -135,8 +148,8 @@ const Parametres: React.FC = () => {
               <CogIcon className="h-7 w-7 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Configuration Système</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">Gérez les paramètres globaux, la fiscalité et les accès de l'organisation</p>
+              <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{t('admin.title')}</h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{t('admin.subtitle')}</p>
             </div>
           </div>
 
@@ -144,14 +157,13 @@ const Parametres: React.FC = () => {
             <div className="flex items-start gap-4">
               <InformationCircleIcon className="h-6 w-6 text-slate-900 dark:text-white shrink-0 mt-0.5" />
               <div>
-                <h3 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-2">Avertissement Important</h3>
+                <h3 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-[0.2em] mb-2">{t('admin.warning_title')}</h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
-                  Les paramètres de cette page affectent le comportement global de l'application.
-                  Toute modification des paramètres comptables ou fiscaux peut impacter vos déclarations et rapports financiers.
+                  {t('admin.warning_text')}
                 </p>
                 <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Recommandation :</span>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">Consultez votre expert-comptable avant de modifier les paramètres 2025.</p>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('admin.recommendation_prefix')}</span>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">{t('admin.recommendation')}</p>
                 </div>
               </div>
             </div>
@@ -163,7 +175,7 @@ const Parametres: React.FC = () => {
         {/* ══════════════ PROFIL UTILISATEUR ══════════════ */}
         <div className="lg:col-span-1 space-y-8">
           <Card className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 border-b border-slate-50 dark:border-slate-800 pb-4">Profil Utilisateur</h3>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 border-b border-slate-50 dark:border-slate-800 pb-4">{t('admin.profile_title')}</h3>
             <div className="flex flex-col items-center text-center">
               <div className="h-24 w-24 bg-slate-900 rounded-[2rem] flex items-center justify-center shadow-2xl mb-6 relative group cursor-pointer">
                 <span className="text-white font-black text-3xl font-mono">D</span>
@@ -176,11 +188,11 @@ const Parametres: React.FC = () => {
 
               <div className="mt-8 w-full space-y-3">
                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entreprise</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('admin.company')}</span>
                   <span className="text-xs font-black text-slate-900 dark:text-white uppercase">SPA</span>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Segment</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('admin.segment')}</span>
                   <span className="text-xs font-black text-slate-400 uppercase font-mono">N/A</span>
                 </div>
               </div>
@@ -188,10 +200,10 @@ const Parametres: React.FC = () => {
           </Card>
 
           <Card className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 border-b border-slate-50 dark:border-slate-800 pb-4">Préférences Interface</h3>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 border-b border-slate-50 dark:border-slate-800 pb-4">{t('admin.preferences_title')}</h3>
             <div className="space-y-6">
               <div>
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Langue d'interface</label>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">{t('admin.language')}</label>
                 <select
                   value={currentLang}
                   onChange={(e) => changeLang(e.target.value as any)}
@@ -201,11 +213,11 @@ const Parametres: React.FC = () => {
                   <option value="ar">العربية</option>
                   <option value="en">English</option>
                 </select>
-                <p className="text-[9px] text-slate-400 font-bold uppercase mt-3 tracking-tight">Affecte l'ensemble de l'interface ERP</p>
+                <p className="text-[9px] text-slate-400 font-bold uppercase mt-3 tracking-tight">{t('admin.language_desc')}</p>
               </div>
 
               <div>
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">Devise par défaut</label>
+                <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block">{t('admin.currency')}</label>
                 <select
                   value={currentDevise}
                   onChange={(e) => setCurrentDevise(e.target.value as any)}
@@ -215,7 +227,7 @@ const Parametres: React.FC = () => {
                   <option value="EUR">Euro (EUR)</option>
                   <option value="USD">Dollar US (USD)</option>
                 </select>
-                <p className="text-[9px] text-slate-400 font-bold uppercase mt-3 tracking-tight">Utilisée pour l'affichage des montants</p>
+                <p className="text-[9px] text-slate-400 font-bold uppercase mt-3 tracking-tight">{t('admin.currency_desc')}</p>
               </div>
             </div>
           </Card>
@@ -229,13 +241,13 @@ const Parametres: React.FC = () => {
                 <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-slate-600">
                   <ShieldCheckIcon className="h-6 w-6" />
                 </div>
-                Rôles & Permissions
+                {t('admin.roles_title')}
               </h3>
               <button
                 onClick={() => setIsRoleModalOpen(true)}
                 className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl"
               >
-                Configurer Rôles
+                {t('admin.btn_configure_roles')}
               </button>
             </div>
 
@@ -245,7 +257,7 @@ const Parametres: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{role.nom}</h4>
                     <span className="text-[9px] font-black px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg uppercase">
-                      {role.utilisateurs} UTILISATEURS
+                      {t('admin.users_count', { count: role.utilisateurs })}
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-6 leading-relaxed line-clamp-2">{role.description}</p>
@@ -266,13 +278,13 @@ const Parametres: React.FC = () => {
               <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-slate-600">
                 <BookOpenIcon className="h-6 w-6" />
               </div>
-              Paramètres Comptables
+              {t('admin.accounting_params')}
             </h3>
 
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Système de Référence</label>
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{t('admin.ref_system')}</label>
                   <div className="flex bg-slate-50 dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800">
                     <button
                       onClick={() => handlePlanComptableChange('algerien')}
@@ -296,14 +308,14 @@ const Parametres: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">Norme en vigueur</label>
+                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">{t('admin.standard')}</label>
                   <div className="py-3.5 px-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center justify-between">
                     <span className="text-xs font-black text-slate-900 dark:text-white uppercase">
-                      {planComptable === 'algerien' ? 'PCA Algérien' : 'International'}
+                      {planComptable === 'algerien' ? t('admin.pca_algerien') : t('common.international')}
                     </span>
                     <div className="flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-slate-900 animate-pulse"></div>
-                      <span className="text-[9px] font-black text-slate-400 uppercase">Certifié Audit</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase">{t('admin.pca_certified')}</span>
                     </div>
                   </div>
                 </div>
@@ -313,21 +325,21 @@ const Parametres: React.FC = () => {
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
                     <CalendarIcon className="h-5 w-5 text-slate-400" />
-                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Exercice Fiscal 2025</h4>
+                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('admin.fiscal_year', { year: 2025 })}</h4>
                   </div>
                   {!isEditingFiscalYear ? (
-                    <button onClick={() => setIsEditingFiscalYear(true)} className="text-[10px] font-black text-slate-400 uppercase hover:text-slate-900 transition-colors">Modifier</button>
+                    <button onClick={() => setIsEditingFiscalYear(true)} className="text-[10px] font-black text-slate-400 uppercase hover:text-slate-900 transition-colors">{t('admin.modify_btn')}</button>
                   ) : (
                     <div className="flex gap-2">
-                      <button onClick={handleSaveFiscalYear} className="text-[10px] font-black text-slate-900 uppercase">Valider</button>
-                      <button onClick={() => setIsEditingFiscalYear(false)} className="text-[10px] font-black text-rose-500 uppercase">Annuler</button>
+                      <button onClick={handleSaveFiscalYear} className="text-[10px] font-black text-slate-900 uppercase">{t('admin.validate_btn')}</button>
+                      <button onClick={() => setIsEditingFiscalYear(false)} className="text-[10px] font-black text-rose-500 uppercase">{t('admin.cancel_btn')}</button>
                     </div>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Ouverture</label>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('admin.opening')}</label>
                     <input
                       type="date"
                       value={fiscalYear.start}
@@ -336,7 +348,7 @@ const Parametres: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Clôture</label>
+                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('admin.closing')}</label>
                     <input
                       type="date"
                       value={fiscalYear.end}
@@ -349,14 +361,14 @@ const Parametres: React.FC = () => {
 
               <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">Plan Comptable Complet</h4>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Accédez à la base de données optimisée des comptes PCA</p>
+                  <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">{t('admin.chart_of_accounts')}</h4>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{t('admin.chart_of_accounts_desc')}</p>
                 </div>
                 <button
                   onClick={handleViewPlanComptable}
                   className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-900 dark:border-white text-slate-900 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all"
                 >
-                  Ouvrir le Plan
+                  {t('admin.open_plan')}
                 </button>
               </div>
             </div>
@@ -369,28 +381,28 @@ const Parametres: React.FC = () => {
                 <div className="p-2 bg-white dark:bg-slate-800 rounded-lg text-slate-600 shadow-sm">
                   <CalculatorIcon className="h-6 w-6" />
                 </div>
-                Matrice Fiscale 2025
+                {t('admin.fiscal_matrix')}
               </h3>
               {!isEditingFiscal ? (
                 <button
                   onClick={() => setIsEditingFiscal(true)}
                   className="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all shadow-sm"
                 >
-                  Editer Taux
+                  {t('admin.edit_rates')}
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button onClick={handleSaveFiscal} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Enregistrer</button>
-                  <button onClick={() => setIsEditingFiscal(false)} className="px-6 py-3 bg-white text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest">Fermer</button>
+                  <button onClick={handleSaveFiscal} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">{t('common.save')}</button>
+                  <button onClick={() => setIsEditingFiscal(false)} className="px-6 py-3 bg-white text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest">{t('common.close')}</button>
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { label: planComptable === 'algerien' ? 'IBS (Impôt Bénéfices)' : 'Corporate Tax', val: fiscalSettings.ibs, unit: '%' },
-                { label: 'TVA Taux Normal', val: fiscalSettings.tvaNormal, unit: '%' },
-                { label: 'TVA Taux Réduit', val: fiscalSettings.tvaReduit, unit: '%' }
+                { label: planComptable === 'algerien' ? t('admin.tax_ibs_dz') : t('admin.tax_ibs_int'), val: fiscalSettings.ibs, unit: '%' },
+                { label: t('admin.tax_tva_normal'), val: fiscalSettings.tvaNormal, unit: '%' },
+                { label: t('admin.tax_tva_reduced', { rate: 9 }), val: fiscalSettings.tvaReduit, unit: '%' }
               ].map((tax, i) => (
                 <div key={i} className="p-6 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative group">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">{tax.label}</p>
@@ -412,9 +424,9 @@ const Parametres: React.FC = () => {
               <div className="mt-8 p-6 bg-slate-900 text-white rounded-[2rem] flex items-start gap-4 shadow-2xl">
                 <ExclamationTriangleIcon className="h-6 w-6 text-emerald-400 mt-1 shrink-0" />
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest mb-1">Contrôle de Cohérence</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest mb-1">{t('admin.tax_consistency')}</p>
                   <p className="text-xs text-slate-400 font-medium leading-relaxed">
-                    Toute modification de la matrice fiscale impacte directement les audits de conformité de l'exercice 2025.
+                    {t('admin.tax_impact_msg')}
                   </p>
                 </div>
               </div>
@@ -464,18 +476,18 @@ const Parametres: React.FC = () => {
             <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-8 max-h-96 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { name: 'Gestion clients', category: 'CRM' },
-                  { name: 'Gestion fournisseurs', category: 'Achats' },
-                  { name: 'Création factures', category: 'Facturation' },
-                  { name: 'Validation factures', category: 'Facturation' },
-                  { name: 'Consultation rapports', category: 'Rapports' },
-                  { name: 'Export données', category: 'Rapports' },
-                  { name: 'Paramètres système', category: 'Administration' },
-                  { name: 'Gestion utilisateurs', category: 'Administration' },
-                  { name: 'Saisie écritures comptables', category: 'Comptabilité' },
-                  { name: 'Validation écritures', category: 'Comptabilité' },
-                  { name: 'Clôture comptable', category: 'Comptabilité' },
-                  { name: 'Gestion stocks', category: 'Inventaire' }
+                  { name: t('admin.permissions_list.crm'), category: 'CRM' },
+                  { name: t('admin.permissions_list.purchases'), category: t('admin.categories.purchases') },
+                  { name: t('admin.permissions_list.billing_create'), category: t('admin.categories.billing') },
+                  { name: t('admin.permissions_list.billing_validate'), category: t('admin.categories.billing') },
+                  { name: t('admin.permissions_list.reports_view'), category: t('admin.categories.reports') },
+                  { name: t('admin.permissions_list.data_export'), category: t('admin.categories.reports') },
+                  { name: t('admin.permissions_list.system_settings'), category: t('admin.categories.admin') },
+                  { name: t('admin.permissions_list.user_mgmt'), category: t('admin.categories.admin') },
+                  { name: t('admin.permissions_list.accounting_entry'), category: t('admin.categories.accounting') },
+                  { name: t('admin.permissions_list.accounting_validate'), category: t('admin.categories.accounting') },
+                  { name: t('admin.permissions_list.accounting_closing'), category: t('admin.categories.accounting') },
+                  { name: t('admin.permissions_list.inventory_mgmt'), category: t('admin.categories.inventory') }
                 ].map((permission, index) => (
                   <label key={index} className="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-slate-900 transition-all cursor-pointer group">
                     <div className="relative flex items-center">
@@ -501,13 +513,13 @@ const Parametres: React.FC = () => {
               onClick={() => setIsRoleModalOpen(false)}
               className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all"
             >
-              Sauvegarder Rôle
+              {t('admin.roles_modal.save_role')}
             </button>
           </div>
         </div>
