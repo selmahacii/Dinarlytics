@@ -103,15 +103,15 @@ const VentesClients: React.FC = () => {
 
   const handleShare = async () => {
     if (!data) return;
-    const text = `Rapport Ventes — ${new Date().toLocaleDateString('fr-DZ')}\n` +
-      `CA : ${formatCurrency(data.salesData.ca.value)}\n` +
-      `Clients actifs : ${data.clientMetrics.clientsActifs}\n` +
-      `Taux fidélisation : ${data.clientMetrics.tauxFidelisation}%`;
+    const text = `${t('sales.excel.report_title')} — ${new Date().toLocaleDateString('fr-DZ')}\n` +
+      `${t('sales.kpi.revenue')} : ${formatCurrency(data.salesData.ca.value)}\n` +
+      `${t('sales.client_metrics.active_clients')} : ${data.clientMetrics.clientsActifs}\n` +
+      `${t('sales.client_metrics.retention')} : ${data.clientMetrics.tauxFidelisation}%`;
     if (navigator.share) {
-      try { await navigator.share({ title: 'Rapport Ventes & Clients', text }); } catch { }
+      try { await navigator.share({ title: t('sales.excel.report_title'), text }); } catch { }
     } else {
       await navigator.clipboard.writeText(text);
-      alert('Résumé copié !');
+      alert(t('common.success'));
     }
   };
 
@@ -298,7 +298,7 @@ const VentesClients: React.FC = () => {
                         <div className="flex items-center gap-4">
                           <span className="text-4xl font-black text-slate-200 group-hover:text-white/20 transition-colors italic">0{i + 1}</span>
                           <div>
-                            <p className="text-[10px] font-black text-slate-400 group-hover:text-slate-500 uppercase tracking-widest mb-1">{p.quantity} unités soldées</p>
+                            <p className="text-[10px] font-black text-slate-400 group-hover:text-slate-500 uppercase tracking-widest mb-1">{t('sales.client_metrics.units_sold', { count: p.quantity })}</p>
                             <h4 className="text-sm font-black text-slate-900 group-hover:text-white uppercase tracking-tight">{p.name}</h4>
                           </div>
                         </div>
@@ -334,7 +334,13 @@ const VentesClients: React.FC = () => {
                     <div key={idx} className="relative">
                       <div className="flex justify-between items-end mb-3">
                         <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{cat.category}</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                            {cat.category === 'Services' ? t('sales.categories.services') :
+                             cat.category === 'Licences' ? t('sales.categories.licences') :
+                             cat.category === 'Formations' ? t('sales.categories.formations') :
+                             cat.category === 'Autres' ? t('sales.categories.autres') :
+                             cat.category}
+                          </p>
                           <p className="text-sm font-black text-slate-900 uppercase">{formatCurrency(cat.amount)}</p>
                         </div>
                         <p className="text-3xl font-black italic text-slate-100">{cat.percentage}%</p>
@@ -380,8 +386,8 @@ const VentesClients: React.FC = () => {
                     <UserGroupIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Classement Excellence Client</h3>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Analyse qualitative et volume d'affaires</p>
+                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">{t('sales.analysis.excellence_ranking')}</h3>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">{t('sales.analysis.ranking_desc')}</p>
                   </div>
                 </div>
                 <button
@@ -389,7 +395,7 @@ const VentesClients: React.FC = () => {
                   className="px-6 py-3 bg-slate-50 text-slate-900 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2"
                 >
                   <DocumentArrowDownIcon className="h-4 w-4" />
-                  Exporter CSV
+                  {t('sales.analysis.export_csv')}
                 </button>
               </div>
 
@@ -404,7 +410,7 @@ const VentesClients: React.FC = () => {
 
                     <div className="flex items-start justify-between relative z-10 mb-8">
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{client.orders} commandes validées</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{t('sales.client_metrics.orders_validated', { count: client.orders })}</p>
                         <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">{client.name}</h4>
                       </div>
                       <div className={`p-2 rounded-xl border ${client.trend > 0 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : client.trend < 0 ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-slate-50 border-slate-100 text-slate-600'}`}>
@@ -414,18 +420,18 @@ const VentesClients: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-8 relative z-10">
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Ventes</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('sales.analysis.total_sales')}</p>
                         <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(client.sales)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Panier Moyen</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('sales.analysis.avg_basket')}</p>
                         <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(client.avgBasket)}</p>
                       </div>
                     </div>
 
                     <div className="absolute bottom-6 right-8 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
                       <span className="text-[10px] font-black text-slate-900 uppercase tracking-tighter underline underline-offset-4 hover:text-slate-600 transition-colors">
-                        Voir fiche complète →
+                        {t('sales.analysis.view_details')}
                       </span>
                     </div>
                   </div>
@@ -444,8 +450,8 @@ const VentesClients: React.FC = () => {
                   <SparklesIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Analyse Prédictive LIA</h3>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">Prévisions basées sur l'historique et les tendances du marché</p>
+                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">{t('sales.forecast.predictive_analysis')}</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">{t('sales.forecast.forecast_desc')}</p>
                 </div>
               </div>
 
@@ -453,28 +459,38 @@ const VentesClients: React.FC = () => {
                 {forecasts.map((f, i) => (
                   <div key={i} className={`p-8 rounded-[2.5rem] border transition-all duration-500 ${f.actual > 0 ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100 hover:border-slate-950 shadow-sm hover:shadow-2xl'}`}>
                     <div className="flex justify-between items-start mb-6">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{f.month} 2024</span>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        {(() => {
+                          const monthKey = f.month.toLowerCase().startsWith('jan') ? 'january' :
+                                           f.month.toLowerCase().startsWith('fév') || f.month.toLowerCase().startsWith('feb') ? 'february' :
+                                           f.month.toLowerCase().startsWith('mar') ? 'march' :
+                                           f.month.toLowerCase().startsWith('avr') || f.month.toLowerCase().startsWith('apr') ? 'april' :
+                                           f.month.toLowerCase().startsWith('mai') || f.month.toLowerCase().startsWith('may') ? 'may' :
+                                           f.month.toLowerCase().startsWith('jun') ? 'june' : f.month;
+                          return t(`common.months.${monthKey}`);
+                        })()} 2024
+                      </span>
                       {f.actual > 0 ? (
-                        <div className="px-3 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">Réalisé</div>
+                        <div className="px-3 py-1 bg-slate-900 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">{t('sales.forecast.realized')}</div>
                       ) : (
-                        <div className="px-3 py-1 bg-emerald-500 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">Projection</div>
+                        <div className="px-3 py-1 bg-emerald-500 text-white rounded-full text-[8px] font-black uppercase tracking-tighter">{t('sales.forecast.projection')}</div>
                       )}
                     </div>
 
                     <div className="space-y-4">
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Objectif Target</p>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{t('sales.forecast.target_objective')}</p>
                         <p className="text-xl font-black font-mono text-slate-900 tracking-tighter">{formatCurrency(f.target)}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{f.actual > 0 ? 'Chiffre Réalisé' : 'Prévision Attendu'}</p>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{f.actual > 0 ? t('sales.forecast.realized_amount') : t('sales.forecast.expected_forecast')}</p>
                         <p className="text-2xl font-black font-mono text-slate-950 tracking-tighter">{formatCurrency(f.actual > 0 ? f.actual : f.forecast)}</p>
                       </div>
                     </div>
 
                     <div className="mt-8 pt-6 border-t border-slate-100">
                       <div className="flex justify-between items-center">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Écart vs Target</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('sales.forecast.variance_target')}</p>
                         <span className="text-xs font-black font-mono text-slate-600">
                           {f.variance > 0 ? '+' : ''}{f.variance}%
                         </span>
@@ -494,17 +510,18 @@ const VentesClients: React.FC = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 -mr-32 -mt-32 rounded-full blur-3xl text-white" />
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                   <div>
-                    <h4 className="text-white text-xl font-black uppercase tracking-tight italic mb-2">Recommandation Stratégique LIA</h4>
+                    <h4 className="text-white text-xl font-black uppercase tracking-tight italic mb-2">{t('sales.forecast.ai_recommendation')}</h4>
                     <p className="text-slate-400 text-sm max-w-xl">
-                      La tendance actuelle indique une croissance de <span className="text-emerald-400 font-bold">16.3%</span> pour le prochain trimestre.
-                      Il est conseillé d'augmenter le stock sur la catégorie <span className="text-white underline underline-offset-4">Services Conseil</span> pour répondre à la demande projetée de Mai/Juin.
+                      {t('sales.forecast.growth_trend', { percent: '16.3' })}
+                      {' '}
+                      {t('sales.forecast.stock_increase', { category: t('sales.categories.services'), months: 'Mai/Juin' })}
                     </p>
                   </div>
                   <button
                     onClick={handleGenererAuditIA}
                     className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
                   >
-                    Générer Audit AI Complet
+                    {t('sales.forecast.generate_audit')}
                   </button>
                 </div>
               </div>
@@ -519,14 +536,14 @@ const VentesClients: React.FC = () => {
             className="px-10 py-5 bg-slate-950 text-white rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
           >
             <PrinterIcon className="h-5 w-5" />
-            Rapport Exportable
+            {t('sales.actions.exportable_report')}
           </button>
           <button
             onClick={handleExportExcel}
             className="px-10 py-5 bg-white text-slate-900 border border-slate-200 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all flex items-center gap-3"
           >
             <DocumentArrowDownIcon className="h-5 w-5" />
-            Fichier Analyse XL
+            {t('sales.actions.excel_file')}
           </button>
         </div>
       </div>

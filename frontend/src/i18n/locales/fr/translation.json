@@ -1,4 +1,85 @@
 {
+  "sales": {
+    "title": "Ventes & Clients",
+    "hero": {
+      "performance": "Performance Commerciale",
+      "audited": "Audité",
+      "view_daily": "Vue quotidienne",
+      "view_monthly": "Vue mensuelle",
+      "daily_label": "quotidienne",
+      "monthly_label": "mensuelle"
+    },
+    "kpi": {
+      "revenue": "Chiffre d'Affaires",
+      "invoices": "Factures Émises",
+      "avg_basket": "Panier Moyen",
+      "margin_rate": "Taux Marge",
+      "validated_ops": "Opérations validées",
+      "avg_unit_value": "Valeur unitaire moyenne",
+      "global_profitability": "Rentabilité brute globale",
+      "vs_previous": "vs période précédente"
+    },
+    "tabs": {
+      "sales_reports": "Rapports de ventes",
+      "client_analysis": "Analyse client",
+      "forecasts": "Comparatif & prévisions"
+    },
+    "sections": {
+      "top_products": "Top 5 Produits",
+      "product_performance": "Performance par article",
+      "categories_split": "Répartition Catégories",
+      "revenue_weight": "Poids sur le CA total"
+    },
+    "client_metrics": {
+      "active_clients": "Clients Actifs",
+      "new_clients": "Nouveaux",
+      "this_month": "Ce mois-ci",
+      "retention": "Fidélisation",
+      "recurring_clients": "Clients récurrents",
+      "avg_dso": "DSO Moyen",
+      "collection_delay": "Délai encaissement",
+      "total_base": "sur {{total}}",
+      "units_sold": "{{count}} unités soldées",
+      "orders_validated": "{{count}} commandes validées"
+    },
+    "categories": {
+      "services": "Services",
+      "licences": "Licences",
+      "formations": "Formations",
+      "autres": "Autres"
+    },
+    "excel": {
+      "report_title": "DINARLYTICS — RAPPORT DÉTAILLÉ DES VENTES & ANALYSE CLIENT",
+      "period": "Période : {{period}} — Exercice 2024",
+      "generated_by": "Généré par : {{user}} le {{date}} à {{time}}"
+    },
+    "analysis": {
+      "excellence_ranking": "Classement Excellence Client",
+      "ranking_desc": "Analyse qualitative et volume d'affaires",
+      "export_csv": "Exporter CSV",
+      "total_sales": "Total Ventes",
+      "avg_basket": "Panier Moyen",
+      "view_details": "Voir fiche complète →"
+    },
+    "forecast": {
+      "predictive_analysis": "Analyse Prédictive LIA",
+      "forecast_desc": "Prévisions basées sur l'historique et les tendances du marché",
+      "realized": "Réalisé",
+      "projection": "Projection",
+      "target_objective": "Objectif Target",
+      "realized_amount": "Chiffre Réalisé",
+      "expected_forecast": "Prévision Attendu",
+      "variance_target": "Écart vs Target",
+      "ai_recommendation": "Recommandation Stratégique LIA",
+      "growth_trend": "La tendance actuelle indique une croissance de {{percent}}% pour le prochain trimestre.",
+      "stock_increase": "Il est conseillé d'augmenter le stock sur la catégorie {{category}} pour répondre à la demande projetée de {{months}}.",
+      "generate_audit": "Générer Audit AI Complet"
+    },
+    "actions": {
+      "exportable_report": "Rapport Exportable",
+      "excel_file": "Fichier Analyse XL"
+    }
+  },
   "common": {
     "all": "Tous",
     "cancel": "Annuler",
@@ -1647,50 +1728,7 @@
           "bank": "Banque Standard Chartered",
           "clients": "Clients Collectifs"
         }
-      },
       }
-    }
-  },
-  "sales": {
-    "title": "Ventes & Clients",
-    "hero": {
-      "performance": "Performance Commerciale",
-      "audited": "Audité",
-      "view_daily": "Vue quotidienne",
-      "view_monthly": "Vue mensuelle",
-      "daily_label": "quotidienne",
-      "monthly_label": "mensuelle"
-    },
-    "kpi": {
-      "revenue": "Chiffre d'Affaires",
-      "invoices": "Factures Émises",
-      "avg_basket": "Panier Moyen",
-      "margin_rate": "Taux Marge",
-      "validated_ops": "Opérations validées",
-      "avg_unit_value": "Valeur unitaire moyenne",
-      "global_profitability": "Rentabilité brute globale",
-      "vs_previous": "vs période précédente"
-    },
-    "tabs": {
-      "sales_reports": "Rapports de ventes",
-      "client_analysis": "Analyse client",
-      "forecasts": "Comparatif & prévisions"
-    },
-    "sections": {
-      "top_products": "Top 5 Produits",
-      "product_performance": "Performance par article",
-      "categories_split": "Répartition Catégories",
-      "revenue_weight": "Poids sur le CA total"
-    },
-    "client_metrics": {
-      "active_clients": "Clients Actifs",
-      "new_clients": "Nouveaux",
-      "this_month": "Ce mois-ci",
-      "retention": "Fidélisation",
-      "recurring_clients": "Clients récurrents",
-      "avg_dso": "DSO Moyen",
-      "collection_delay": "Délai encaissement",
-      "total_base": "sur {{total}}"
     }
   },
   "treasury_legacy": {
@@ -2171,8 +2209,7 @@
           "realized": "Réalisé"
         }
       }
-    }
-  },
+    },
 
   "access": {
     "denied": "Accès refusé",

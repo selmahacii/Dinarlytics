@@ -38,7 +38,46 @@
       "recurring_clients": "عملاء متكررون",
       "avg_dso": "متوسط DSO",
       "collection_delay": "مدة التحصيل",
-      "total_base": "من إجمالي {{total}}"
+      "total_base": "من إجمالي {{total}}",
+      "units_sold": "تم بيع {{count}} قطعة",
+      "orders_validated": "تم تأكيد {{count}} طلبية"
+    },
+    "categories": {
+      "services": "خدمات",
+      "licences": "تراخيص",
+      "formations": "تكوين",
+      "autres": "أخرى"
+    },
+    "excel": {
+      "report_title": "DINARLYTICS — تقرير مفصل للمبيعات وتحليل العملاء",
+      "period": "الفترة: {{period}} — السنة المالية 2024",
+      "generated_by": "تم الاستخراج بواسطة: {{user}} بتاريخ {{date}} الساعة {{time}}"
+    },
+    "analysis": {
+      "excellence_ranking": "تصنيف تميز العملاء",
+      "ranking_desc": "التحليل النوعي وحجم الأعمال",
+      "export_csv": "تصدير CSV",
+      "total_sales": "إجمالي المبيعات",
+      "avg_basket": "متوسط السلة",
+      "view_details": "عرض التفاصيل الكاملة ←"
+    },
+    "forecast": {
+      "predictive_analysis": "التحليل التنبؤي بالذكاء الاصطناعي",
+      "forecast_desc": "توقعات بناءً على السجل التاريخي واتجاهات السوق",
+      "realized": "منجز",
+      "projection": "توقعات",
+      "target_objective": "الهدف المسطر",
+      "realized_amount": "المبلغ المنجز",
+      "expected_forecast": "التوقع المنتظر",
+      "variance_target": "الفارق عن الهدف",
+      "ai_recommendation": "توصية استراتيجية من الذاء الاصطناعي (LIA)",
+      "growth_trend": "يشير الاتجاه الحالي إلى نمو بنسبة {{percent}}% للربع القادم.",
+      "stock_increase": "يُنصح بزيادة المخزون في فئة '{{category}}' لتلبية الطلب المتوقع لشهر {{months}}.",
+      "generate_audit": "إنشاء تدقيق كامل بالذكاء الاصطناعي"
+    },
+    "actions": {
+      "exportable_report": "تقرير قابل للتصدير",
+      "excel_file": "ملف تحليل XL"
     }
   },
   "common": {
@@ -2029,150 +2068,10 @@
           "accounts": {
             "bank": "بنك ستاندرد تشارترد",
             "clients": "الزبائن المشتركون"
-          }
-        },
-        "sales": {
-          "title": "المبيعات والزبائن",
-          "hero": {
-            "performance": "الأداء التجاري",
-            "audited": "مدقق",
-            "view_daily": "عرض يومي",
-            "view_monthly": "عرض شهري",
-            "daily_label": "يومي",
-            "monthly_label": "شهري"
-          },
-          "kpi": {
-            "revenue": "رقم الأعمال",
-            "invoices": "الفواتير الصادرة",
-            "avg_basket": "متوسط السلة",
-            "margin_rate": "معدل الهامش",
-            "validated_ops": "عمليات مؤكدة",
-            "avg_unit_value": "متوسط القيمة الموحدة",
-            "global_profitability": "الربحية الإجمالية العامة",
-            "vs_previous": "مقارنة بالفترة السابقة"
-          },
-          "tabs": {
-            "sales_reports": "تقارير المبيعات",
-            "client_analysis": "تحليل الزبائن",
-            "forecasts": "مقارنة وتوقعات"
-          },
-          "sections": {
-            "top_products": "أفضل 5 منتجات",
-            "product_performance": "الأداء حسب المنتج",
-            "categories_split": "توزيع الفئات",
-            "revenue_weight": "الوزن في إجمالي رقم الأعمال"
-          },
-          "client_metrics": {
-            "active_clients": "الزبائن النشطون",
-            "new_clients": "جديد",
-            "this_month": "هذا الشهر",
-            "retention": "الولاء",
-            "recurring_clients": "الزبائن المتكررون",
-            "avg_dso": "متوسط DSO",
-            "collection_delay": "مدة التحصيل",
-            "total_base": "من أصل {{total}}"
-          }
-        },
-        "treasury": {
-          "sections": {
-            "outflows_split": "تفكيك المبالغ المصروفة"
-          },
-          "items": {
-            "supplier_purchases": "مشتريات الموردين",
-            "salaries_charges": "الرواتب والأعباء",
-            "fixed_charges": "أعباء ثابتة",
-            "other_expenses": "مصاريف أخرى"
-          }
-        },
-        "sales": {
-          "title": "المبيعات والزبائن",
-          "hero": {
-            "performance": "الأداء التجاري",
-            "audited": "مدقق",
-            "view_daily": "عرض يومي",
-            "view_monthly": "عرض شهري",
-            "daily_label": "يومي",
-            "monthly_label": "شهري"
-          },
-          "kpi": {
-            "revenue": "رقم الأعمال",
-            "invoices": "الفواتير الصادرة",
-            "avg_basket": "متوسط السلة",
-            "margin_rate": "معدل الهامش",
-            "validated_ops": "عمليات مؤكدة",
-            "avg_unit_value": "متوسط القيمة الموحدة",
-            "global_profitability": "الربحية الإجمالية العامة",
-            "vs_previous": "مقارنة بالفترة السابقة"
-          },
-          "tabs": {
-            "sales_reports": "تقارير المبيعات",
-            "client_analysis": "تحليل الزبائن",
-            "forecasts": "مقارنة وتوقعات"
-          },
-          "sections": {
-            "top_products": "أفضل 5 منتجات",
-            "product_performance": "الأداء حسب المنتج",
-            "categories_split": "توزيع الفئات",
-            "revenue_weight": "الوزن في إجمالي رقم الأعمال"
-          },
-          "client_metrics": {
-            "active_clients": "الزبائن النشطون",
-            "new_clients": "جديد",
-            "this_month": "هذا الشهر",
-            "retention": "الولاء",
-            "recurring_clients": "الزبائن المتكررون",
-            "avg_dso": "متوسط DSO",
-            "collection_delay": "مدة التحصيل",
-            "total_base": "من أصل {{total}}"
-          }
-        },
-        "treasury": {
-          "sections": {
-            "outflows_split": "تفكيك المبالغ المصروفة"
-          },
-          "items": {
-            "supplier_purchases": "مشتريات الموردين",
-            "salaries_charges": "الرواتب والأعباء",
-            "fixed_charges": "أعباء ثابتة",
-            "other_expenses": "مصاريف أخرى"
-          }
-        },
-        "ratios": {
-          "title": "النسب المالية الرئيسية",
-          "current_liquidity": "السيولة العامة",
-          "current_liquidity_desc": "الأصول الجارية / الديون قصيرة الأجل",
-          "financial_autonomy": "الاستقلال المالي",
-          "financial_autonomy_desc": "الديون / الأموال الخاصة",
-          "added_value": "القيمة المضافة",
-          "added_value_desc": "الهامش الإجمالي / رقم الأعمال",
-          "roe": "ROE (العائد على حقوق الملكية)",
-          "roe_desc": "ربحية الأموال الخاصة",
-          "roa": "ROA (العائد على الأصول)",
-          "roa_desc": "ربحية إجمالي الأصول",
-          "working_capital": "رأس المال العامل",
-          "working_capital_desc": "القدرة على التمويل قصير الأجل",
-          "labels": {
-            "stable_resources": "الموارد المستقرة",
-            "stable_uses": "الاستخدامات المستقرة",
-            "net_result": "النتيجة الصافية",
-            "equity": "الأموال الخاصة",
-            "total_assets": "مجموع الأصول"
-          }
-        },
-        "evolution_title": "تطور البنود الرئيسية",
-        "comparison_n_n1": "مقارنة N / N-1",
-        "period_n": "السنة N",
-        "period_n1": "السنة N-1",
-        "structure_title": "هيكل الميزانية",
-        "post_weight": "ثقل البنود",
-        "actif_distribution": "توزيع الأصول",
-        "passif_structure": "هيكل الخصوم",
-        "fixed_assets": "الأصول غير الجارية",
-        "current_assets": "الأصول الجارية",
-        "equity": "الأموال الخاصة",
-        "liabilities": "الديون"
-      },
-      "ledger": {
+        }
+      }
+    },
+    "ledger": {
         "title": "المخطط المحاسبي",
         "subtitle": "إدارة هيكل حساباتك ومتابعة الأرصدة المحاسبية.",
         "actions": {
