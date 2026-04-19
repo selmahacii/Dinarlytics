@@ -2564,6 +2564,36 @@
         "base_trend": "Tendance de Fond",
         "recommendation": "Alignez vos capacités de production et vos budgets marketing sur cette trajectoire."
       },
+      "ratios": {
+        "title": "Ratios financiers",
+        "target": "cible",
+        "reference": "référence",
+        "estimated": "estimée",
+        "stock_turnover": "Rotation du stock",
+        "liq_gen": "Liquidité générale",
+        "liq_quick": "Liquidité immédiate",
+        "low_liquidity": "Attention: liquidité générale sous la cible (≥ {{target}}).",
+        "correct_liquidity": "Liquidité correcte par rapport à la cible."
+      },
+      "advice": {
+        "title": "Recommandations personnalisées",
+        "cash_tip": "raccourcir les délais de paiement clients (cible < 35 jours)",
+        "stock_label": "Stock",
+        "stock_tip": "prioriser les 20% d'articles générant 80% du CA",
+        "margin_tip": "limiter les remises sur produits à faible rentabilité",
+        "client_label": "Clients",
+        "client_tip": "relancer les soldes > 30 jours",
+        "priority": "Action prioritaire",
+        "priority_tip": "optimiser le cycle de trésorerie",
+        "recommendation_label": "Recommandation"
+      },
+      "treasury": {
+        "inflow": "Encaissements",
+        "outflow": "Décaissements",
+        "net_balance": "Solde net",
+        "reco_ok": "Poursuivre le suivi des encaissements et la maîtrise des décaissements.",
+        "reco_ko": "Accélérer encaissements (relances/conditions), lisser décaissements, temporiser capex non critiques."
+      },
       "seasonal": {
         "title": "🔄 AUDIT DES PATTERNS SAISONNIERS",
         "error_min_data": "[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis.",

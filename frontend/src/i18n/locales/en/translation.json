@@ -2494,7 +2494,41 @@
       "api_unavailable": "AI API unavailable. Using local simulation logic.",
       "revenue_forecast": {
         "title": "📈 REVENUE FORECAST — 12-MONTH HORIZON",
-        "error_min_data": "❌ Not enough historical data to generate revenue forecasts. Minimum 3 months required."
+        "error_min_data": "❌ Not enough historical data to generate revenue forecasts. Minimum 3 months required.",
+        "summary_title": "FORECASTED GROWTH SUMMARY:",
+        "total_variation": "Estimated Total Variation",
+        "base_trend": "Core Trend",
+        "recommendation": "Align your production capacities and marketing budgets with this trajectory."
+      },
+      "ratios": {
+        "title": "Financial Ratios",
+        "target": "target",
+        "reference": "reference",
+        "estimated": "estimated",
+        "stock_turnover": "Stock turnover",
+        "liq_gen": "General liquidity",
+        "liq_quick": "Quick liquidity",
+        "low_liquidity": "Warning: general liquidity below target (≥ {{target}}).",
+        "correct_liquidity": "Liquidity is correct relative to the target."
+      },
+      "advice": {
+        "title": "Personalized Recommendations",
+        "cash_tip": "shorten customer payment terms (target < 35 days)",
+        "stock_label": "Stock",
+        "stock_tip": "prioritize 20% of items generating 80% of revenue",
+        "margin_tip": "limit discounts on low-profitability products",
+        "client_label": "Clients",
+        "client_tip": "follow up on balances > 30 days",
+        "priority": "Priority Action",
+        "priority_tip": "optimize the cash flow cycle",
+        "recommendation_label": "Recommendation"
+      },
+      "treasury": {
+        "inflow": "Inflow",
+        "outflow": "Outflow",
+        "net_balance": "Net balance",
+        "reco_ok": "Continue monitoring collections and controlling disbursements.",
+        "reco_ko": "Accelerate collections (reminders/terms), smooth disbursements, delay non-critical capex."
       },
       "seasonal": {
         "title": "🔄 SEASONAL PATTERN AUDIT",
