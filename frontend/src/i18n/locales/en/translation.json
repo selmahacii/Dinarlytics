@@ -33,6 +33,8 @@
     "logout": "Logout",
     "erp_tagline": "Financial ERP",
     "pca_badge": "DZ PCA 2010",
+    "total": "Total",
+    "days": "days",
     "errors": {
       "loading_failed": "Loading Failed",
       "retry": "Retry",
@@ -1613,27 +1615,7 @@
       }
     }
   },
-  "chatbot": {
-    "title": "LIA — Decision Intelligence",
-    "active_session": "Active Session",
-    "welcome": "Hello {{name}}. I am LIA, your decision intelligence assistant.",
-    "role_context": "As the **{{role}}**, I am ready to support you in the strategic steering of **your company**.",
-    "capabilities_intro": "Here is how I can assist you today:",
-    "capabilities": {
-      "predictive": "**Predictive Analysis**: 13-week cash flow projections and 12-month revenue forecasts.",
-      "simulations": "**Strategic Simulations**: Optimistic / Realistic / Pessimistic scenarios.",
-      "optimization": "**Operational Optimization**: Detection of seasonal patterns and risk scoring.",
-      "performance": "**Performance Management**: Full financial analysis of your conversion cycle (CCC/WC)."
-    },
-    "question": "Which aspect of your performance would you like to audit?",
-    "quick_actions": {
-      "synthesis": "Group Strategic Synthesis",
-      "sector_analysis": "Sector Performance Analysis",
-      "growth_scenarios": "M+6 Growth Scenarios",
-      "risk_report": "Global Risk Report"
-    },
-    "input_placeholder": "Query LIA intelligence..."
-  },
+
   "analytics": {
     "financial": {
       "title": "Financial Analysis",
@@ -2418,12 +2400,9 @@
       "auto_name": "Automation name",
       "frequency": "Frequency",
       "recipient": "Recipient (Email)",
-      "success_save": "Scheduling saved successfully!",
-      "info_note": "Reports will be automatically generated, encrypted and archived in your secure storage space. A temporary download link will be sent to the recipient.",
-      "save_auto": "Save automation",
-      "info_note": "These reports will be generated and sent automatically without manual intervention.",
       "success_save": "Automation saved successfully!",
       "info_note": "These reports will be generated and sent automatically without manual intervention.",
+      "schedule_title_main": "Schedule an Audit Automation",
       "save_automation": "Save Automation",
       "compliance_report_title": "Detailed Compliance Report",
       "compliance_score": "Compliance Score",
@@ -2446,6 +2425,8 @@
     "manager_ops": "Ops Manager"
   },
   "chatbot": {
+    "title": "LIA — Decision Intelligence",
+    "active_session": "Active Session",
     "labels": {
       "confidence_high": "High Confidence",
       "confidence_medium": "Medium Confidence",
@@ -2465,21 +2446,21 @@
       "status_below": "Below Average",
       "status_poor": "Poor"
     },
-    "welcome": "Hello {{name}}! I am LIA, your financial intelligence assistant.",
-    "role_context": "As {{role}}, I can help you drive your performance.",
-    "capabilities_intro": "My current capabilities:",
+    "welcome": "Hello {{name}}! I am LIA, your decision intelligence assistant.",
+    "role_context": "As the **{{role}}**, I am ready to support you in the strategic steering of **your company**.",
+    "capabilities_intro": "Here is how I can assist you today:",
     "capabilities": {
-      "predictive": "Predictive Analysis (Cash-flow, Revenue)",
-      "simulations": "Strategic Scenario Simulations",
-      "optimization": "WCR Optimization (DSO, DIO, DPO)",
-      "performance": "Performance and Compliance Audit"
+      "predictive": "**Predictive Analysis**: 13-week cash flow projections and 12-month revenue forecasts.",
+      "simulations": "**Strategic Simulations**: Optimistic / Realistic / Pessimistic scenarios.",
+      "optimization": "**Operational Optimization**: Detection of seasonal patterns and risk scoring.",
+      "performance": "**Performance Management**: Full financial analysis of your conversion cycle (CCC/WC)."
     },
-    "question": "How can I enlighten you today?",
+    "question": "Which aspect of your performance would you like to audit?",
     "quick_actions": {
-      "synthesis": "Performance Synthesis",
-      "sector_analysis": "Sector Analysis",
-      "growth_scenarios": "Growth Scenarios",
-      "risk_report": "Risk Report"
+      "synthesis": "Group Strategic Synthesis",
+      "sector_analysis": "Sector Performance Analysis",
+      "growth_scenarios": "M+6 Growth Scenarios",
+      "risk_report": "Global Risk Report"
     },
     "placeholders": {
       "ask": "Ask your financial question here..."
@@ -2549,6 +2530,138 @@
         "linear_cash": "Stable cash flows allowing regular investments.",
         "linear_stock": "Maintenance of constant stock levels."
       }
+    }
+  },
+  "treasury": {
+    "hero": {
+      "category": "Financial Management",
+      "title": "Treasury & Bank",
+      "subtitle": "Flow Analysis · Bank Accounts · Forecasts — 2024 Fiscal Year"
+    },
+    "tabs": {
+      "flux": "Cash Flow",
+      "comptes": "Accounts & Cash",
+      "previsions": "Forecasts & Tensions"
+    },
+    "flux": {
+      "title": "Cash Flow",
+      "evolution": "Cash Flow Evolution — H1 2024",
+      "details": "Detailed Monthly Flow Table",
+      "net_positive": "Positive net flow",
+      "vs_prev": "+12.5% vs H1-2023",
+      "cumul_payments": "Cumulative payments",
+      "monthly_total": "Total Inflows",
+      "monthly_total_dec": "Total Outflows",
+      "monthly_total_cumul": "Cumulative Net Balance"
+    },
+    "comptes": {
+      "title": "Accounts & Cash",
+      "subtitle": "All active accounts",
+      "repartition": "Distribution by Account",
+      "movements": "Recent Movements",
+      "solde_total": "Total Balance",
+      "movements_this_month": "This month",
+      "active": "Active"
+    },
+    "previsions": {
+      "title": "Forecasts & Tensions",
+      "alerts_crit": "Critical Alerts",
+      "warnings": "Warnings",
+      "liquid_ratio": "Liquidity Ratio",
+      "tensions": "Identified Tensions & Alerts",
+      "forecast_3months": "3-Month Forecast",
+      "real_vs_forecast": "Forecast vs Realizations Curve — H1 2024",
+      "confidence_high": "High",
+      "confidence_medium": "Medium",
+      "confidence_elevee": "High",
+      "confidence_moyenne": "Medium",
+      "confidence_faible": "Low",
+      "risk_low": "Low",
+      "risk_medium": "Medium",
+      "risk_high": "High",
+      "risk_faible": "Low",
+      "risk_moyen": "Medium",
+      "risk_eleve": "High"
+    },
+    "status": {
+      "excellent": "Excellent",
+      "bon": "Good",
+      "optimal": "Optimal",
+      "moyen": "Medium",
+      "faible": "Weak",
+      "critique": "Critical"
+    },
+    "ratios": {
+      "liquidite": {
+        "label": "Liquidity Ratio",
+        "desc": "Ability to pay short-term debt"
+      },
+      "dso": {
+        "label": "Avg collection period (DSO)",
+        "desc": "Average customer collection delay"
+      },
+      "dpo": {
+        "label": "Avg payment period (DPO)",
+        "desc": "Average supplier payment delay"
+      },
+      "coverage": {
+        "label": "Cash coverage",
+        "desc": "Days of current expenses covered"
+      }
+    },
+    "health": {
+      "fr": {
+        "label": "Working Capital",
+        "desc": "Stable resources > LT assets"
+      },
+      "bfr": {
+        "label": "Working Capital Requirement",
+        "desc": "Short-term financing gap"
+      },
+      "caf": {
+        "label": "Self-financing Capacity",
+        "desc": "Net income + depreciation"
+      },
+      "cycle": {
+        "label": "Cash Cycle",
+        "desc": "DSO {{dso}}d − DPO {{dpo}}d + stock {{stock}}d"
+      }
+    },
+    "export": {
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "share": "Share",
+      "print": "Print / PDF",
+      "excel_csv": "Export Excel / CSV",
+      "report_complete": "Complete Report",
+      "generated_on": "Generated on",
+      "report_title": "TREASURY & BANK REPORT — 2024 Fiscal Year",
+      "sec_flux": "=== MONTHLY FLOWS ===",
+      "sec_comptes": "=== BANK ACCOUNTS ===",
+      "sec_indicators": "=== FINANCIAL INDICATORS ===",
+      "sec_forecasts": "=== 3-MONTH FORECASTS ===",
+      "exec_summary": "Executive Summary — H1 2024",
+      "detailed_flux": "Detailed Monthly Flows",
+      "key_indicators": "Key Financial Indicators"
+    },
+    "fields": {
+      "inflows": "Inflows",
+      "outflows": "Outflows",
+      "net_balance": "Net Balance",
+      "bank_balance": "Bank Balance",
+      "ratio_ed": "I/O Ratio",
+      "account": "Account",
+      "number": "Number",
+      "type": "Type",
+      "variation": "Variation",
+      "movements": "Movements",
+      "indicator": "Indicator",
+      "value": "Value",
+      "risk": "Risk",
+      "confidence": "Confidence",
+      "prevu": "Forecast",
+      "reel": "Realized",
+      "month": "Month"
     }
   },
   "auth": {

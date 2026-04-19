@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
+  ArrowUpIcon,
+  ArrowDownIcon,
   ArrowPathIcon,
   ArrowTrendingDownIcon,
   ArrowTrendingUpIcon,

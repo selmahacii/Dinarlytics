@@ -91,6 +91,7 @@ app.add_middleware(
     allow_origins=CorsPolicies.ALLOWED_ORIGINS,
     allow_methods=CorsPolicies.ALLOWED_METHODS,
     allow_headers=CorsPolicies.ALLOWED_HEADERS,
+    expose_headers=CorsPolicies.EXPOSED_HEADERS,
     allow_credentials=CorsPolicies.ALLOW_CREDENTIALS,
     max_age=CorsPolicies.MAX_AGE,
 )

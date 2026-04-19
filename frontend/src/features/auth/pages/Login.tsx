@@ -44,7 +44,7 @@ interface LoginFormData {
 
 const Login: React.FC = () => {
   const { setUser } = useApp();
-  const { t, currentLang } = useTranslation();
+  const { t, currentLang, changeLang } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -60,8 +60,8 @@ const Login: React.FC = () => {
   const [showDemoUsers, setShowDemoUsers] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
 
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
+  const handleLanguageChange = (lng: string) => {
+    changeLang(lng as any);
     setShowLangMenu(false);
   };
 
@@ -300,7 +300,7 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 md:p-8 font-outfit relative">
       {/* Language Switcher */}
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-6 end-6 z-50">
         <div className="relative">
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
@@ -315,7 +315,7 @@ const Login: React.FC = () => {
               {['en', 'fr', 'ar'].map((lng) => (
                 <button
                   key={lng}
-                  onClick={() => changeLanguage(lng)}
+                  onClick={() => handleLanguageChange(lng)}
                   className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-50 transition-colors ${currentLang === lng ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
                 >
                   {getLangName(lng)}
@@ -358,8 +358,8 @@ const Login: React.FC = () => {
                 <span className="text-3xl font-bold text-white">D</span>
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-slate-800">Dinarlytic</h1>
-                <p className="text-slate-600 font-medium">Solutions Financières</p>
+                <h1 className="text-3xl font-bold text-slate-800">{t('auth.login.title')}</h1>
+                <p className="text-slate-600 font-medium">{t('auth.login.subtitle')}</p>
               </div>
             </div>
           </div>
@@ -392,7 +392,7 @@ const Login: React.FC = () => {
                 {t('auth.login.email_label')}
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
                   <UserIcon className="h-5 w-5 text-slate-500" />
                 </div>
                 <input
@@ -401,7 +401,7 @@ const Login: React.FC = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="block w-full ms-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
+                  className="block w-full ps-12 pe-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
                   placeholder={t('auth.login.email_placeholder')}
                   required
                 />
@@ -414,7 +414,7 @@ const Login: React.FC = () => {
                 {t('auth.login.password_label')}
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
                   <LockClosedIcon className="h-5 w-5 text-slate-500" />
                 </div>
                 <input
@@ -423,14 +423,14 @@ const Login: React.FC = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="block w-full ms-12 pr-14 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
+                  className="block w-full ps-12 pe-14 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
                   placeholder={t('auth.login.password_placeholder')}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                  className="absolute inset-y-0 end-0 pe-4 flex items-center outline-none"
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="h-5 w-5 text-slate-500 hover:text-slate-700 transition-colors" />
@@ -576,7 +576,7 @@ const Login: React.FC = () => {
                                         copyToClipboard(user.email, user.email);
                                       }}
                                       className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-slate-200 rounded"
-                                      title="Copier l'email"
+                                      title={t('auth.login.copy_email')}
                                     >
                                       {copiedEmail === user.email ? (
                                         <CheckIcon className="h-3 w-3 text-emerald-600" />

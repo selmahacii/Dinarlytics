@@ -48,18 +48,33 @@ export class CSRFTokenService {
     return null;
   }
 
-  /**
-   * Initialise le token en faisant une requête GET
-   * À appeler au chargement de l'app
-   */
   static async initialize(): Promise<string | null> {
+    const baseUrl = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000/api/v1';
+    // Use /health to trigger CSRF cookie/header set
+    const healthUrl = `${baseUrl.replace(/\/$/, '')}/health`;
+
     try {
-      await fetch('/api/v1/health', {
+      const response = await fetch(healthUrl, {
         method: 'GET',
-        credentials: 'include', // Important: inclure les cookies
+        credentials: 'include',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'Accept': 'application/json'
+        }
       });
 
-      // Le cookie est maintenant défini, récupérez-le
+      // Try to get token from header first (better for cross-domain)
+      const tokenFromHeader = response.headers.get(this.HEADER_NAME);
+      if (tokenFromHeader) {
+        // Save to localStorage as fallback since cookie might be inaccessible cross-domain
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+          token: tokenFromHeader,
+          expiresAt: Date.now() + 3600000 // 1 hour
+        }));
+        return tokenFromHeader;
+      }
+
+      // If no header, fallback to cookie (standard same-domain)
       return this.getToken();
     } catch (error) {
       console.error('Erreur lors de l\'initialisation CSRF:', error);

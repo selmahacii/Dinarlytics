@@ -46,15 +46,19 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             # Générer un nouveau token
             csrf_token = CSRFConfig.generate_token()
 
-        # Pour les requêtes GET, HEAD, OPTIONS: juste retourner la réponse avec le token
         if request.method in CSRFConfig.SAFE_METHODS:
             response = await call_next(request)
+            response.headers[CSRFConfig.HEADER_NAME] = csrf_token
+            
+            # Determine if we should use secure cookies based on request scheme
+            is_secure = request.url.scheme == "https"
+            
             response.set_cookie(
                 CSRFConfig.COOKIE_NAME,
                 csrf_token,
                 httponly=True,
-                secure=True,  # HTTPS uniquement
-                samesite="strict",
+                secure=is_secure,
+                samesite="lax",
                 max_age=3600,  # 1 heure
             )
             return response
@@ -86,12 +90,15 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         # Re-définir le cookie avec le token
+        is_secure = request.url.scheme == "https"
+        response.headers[CSRFConfig.HEADER_NAME] = csrf_token
+        
         response.set_cookie(
             CSRFConfig.COOKIE_NAME,
             csrf_token,
             httponly=True,
-            secure=True,
-            samesite="strict",
+            secure=is_secure,
+            samesite="lax",
             max_age=3600,
         )
 

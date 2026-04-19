@@ -25,6 +25,7 @@ import {
   PrinterIcon
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
+import { useTranslation } from '@/shared/hooks/useTranslation';
 import { useTreasuryReports } from '@shared/hooks/useTreasuryReports';
 
 const fmt = (n: number) =>
@@ -94,13 +95,16 @@ const forecasts = [
 // ─────────────────────────────────────────────
 const TresorerieBanque: React.FC = () => {
   const { user } = useApp();
+  const { t, currentLang } = useTranslation();
   const [activeTab, setActiveTab] = useState<'flux' | 'comptes' | 'previsions'>('flux');
   const [showRapport, setShowRapport] = useState(false);
 
+  const monthsKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
   const tabs = [
-    { id: 'flux' as const, label: 'Flux de Trésorerie', icon: CurrencyDollarIcon },
-    { id: 'comptes' as const, label: 'Comptes & Caisses', icon: BuildingLibraryIcon },
-    { id: 'previsions' as const, label: 'Prévisions & Tensions', icon: ClockIcon },
+    { id: 'flux' as const, label: t('treasury.tabs.flux'), icon: CurrencyDollarIcon },
+    { id: 'comptes' as const, label: t('treasury.tabs.comptes'), icon: BuildingLibraryIcon },
+    { id: 'previsions' as const, label: t('treasury.tabs.previsions'), icon: ClockIcon },
   ];
 
   // Cumul mensuel du solde
@@ -127,37 +131,44 @@ const TresorerieBanque: React.FC = () => {
     const BOM = '\uFEFF';
     const sep = ';';
     const rows: string[][] = [
-      ['RAPPORT TRÉSORERIE & BANQUE — Exercice 2024'],
-      ['Généré le', new Date().toLocaleDateString('fr-DZ')],
+      [t('treasury.export.report_title')],
+      [t('treasury.export.generated_on'), new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-DZ')],
       [],
-      ['=== FLUX MENSUELS ==='],
-      ['Mois', 'Encaissements (DA)', 'Décaissements (DA)', 'Solde Net (DA)', 'Ratio E/D (%)'],
-      ...monthlyFlows.map(m => [
-        m.month,
+      [t('treasury.export.sec_flux')],
+      [t('fields.month'), `${t('treasury.fields.inflows')} (DA)`, `${t('treasury.fields.outflows')} (DA)`, `${t('treasury.fields.net_balance')} (DA)`, `${t('treasury.fields.ratio_ed')} (%)`],
+      ...monthlyFlows.map((m, i) => [
+        t(`common.months.${monthsKeys[i]}`),
         m.enc.toString(),
         m.dec.toString(),
         m.solde.toString(),
         Math.round((m.enc / m.dec) * 100).toString(),
       ]),
-      ['TOTAL', TOTAL_ENC.toString(), TOTAL_DEC.toString(), TOTAL_SOLDE.toString(), Math.round((TOTAL_ENC / TOTAL_DEC) * 100).toString()],
+      [t('common.total'), TOTAL_ENC.toString(), TOTAL_DEC.toString(), TOTAL_SOLDE.toString(), Math.round((TOTAL_ENC / TOTAL_DEC) * 100).toString()],
       [],
-      ['=== COMPTES BANCAIRES ==='],
-      ['Compte', 'Numéro', 'Type', 'Solde (DA)', 'Variation (%)', 'Mouvements'],
+      [t('treasury.export.sec_comptes')],
+      [t('treasury.fields.account'), t('treasury.fields.number'), t('treasury.fields.type'), `${t('treasury.fields.bank_balance')} (DA)`, `${t('treasury.fields.variation')} (%)`, t('treasury.fields.movements')],
       ...bankAccounts.map(a => [a.name, a.no, a.type, a.solde.toString(), a.variation.toString(), a.mvt.toString()]),
       [],
-      ['=== INDICATEURS FINANCIERS ==='],
-      ['Indicateur', 'Valeur'],
-      ['Ratio de liquidité', RATIO_LIQUIDITE.toString()],
-      ['Délai moyen encaissement (j)', DSO.toString()],
-      ['Délai moyen décaissement (j)', DPO.toString()],
-      ['Couverture trésorerie (j)', COUVERTURE.toString()],
-      ['Fonds de Roulement (DA)', FR.toString()],
-      ['Besoin en Fonds de Roulement (DA)', BFR.toString()],
-      ['Capacité d\'autofinancement (DA)', CAF.toString()],
+      [t('treasury.export.sec_indicators')],
+      [t('treasury.fields.indicator'), t('treasury.fields.value')],
+      [t('treasury.ratios.liquidite.label'), RATIO_LIQUIDITE.toString()],
+      [t('treasury.ratios.dso.label'), DSO.toString()],
+      [t('treasury.ratios.dpo.label'), DPO.toString()],
+      [t('treasury.ratios.coverage.label'), COUVERTURE.toString()],
+      [t('treasury.health.fr.label'), FR.toString()],
+      [t('treasury.health.bfr.label'), BFR.toString()],
+      [t('treasury.health.caf.label'), CAF.toString()],
       [],
-      ['=== PRÉVISIONS 3 MOIS ==='],
-      ['Mois', 'Encaissements prévus (DA)', 'Décaissements prévus (DA)', 'Solde net prévu (DA)', 'Risque', 'Confiance'],
-      ...forecasts.map(f => [f.month, f.enc.toString(), f.dec.toString(), f.prevu.toString(), f.risque, f.confiance]),
+      [t('treasury.export.sec_forecasts')],
+      [t('fields.month'), `${t('treasury.fields.inflows')} ${t('treasury.fields.prevu')} (DA)`, `${t('treasury.fields.outflows')} ${t('treasury.fields.prevu')} (DA)`, `${t('treasury.fields.net_balance')} ${t('treasury.fields.prevu')} (DA)`, t('treasury.fields.risk'), t('treasury.fields.confidence')],
+      ...forecasts.map((f, i) => [
+        t(`common.months.${monthsKeys[i + 6]}`),
+        f.enc.toString(),
+        f.dec.toString(),
+        f.prevu.toString(),
+        t(`treasury.previsions.risk_${f.risque.toLowerCase().replace('é', 'e')}`),
+        t(`treasury.previsions.confidence_${f.confiance.toLowerCase().replace('é', 'e')}`),
+      ]),
     ];
     const csv = BOM + rows.map(r => r.join(sep)).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -171,17 +182,17 @@ const TresorerieBanque: React.FC = () => {
 
   // ── Partager ─────────────────────────────────
   const handleShare = async () => {
-    const text = `Rapport Trésorerie & Banque — ${new Date().toLocaleDateString('fr-DZ')}\n` +
-      `Encaissements S1 : ${fmt(TOTAL_ENC)}\n` +
-      `Décaissements S1 : ${fmt(TOTAL_DEC)}\n` +
-      `Solde net : +${fmt(TOTAL_SOLDE)}\n` +
-      `Solde bancaire total : ${fmt(SOLDE_TOTAL)}\n` +
-      `Ratio liquidité : ${RATIO_LIQUIDITE}`;
+    const text = `${t('treasury.hero.title')} — ${new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-DZ')}\n` +
+      `${t('treasury.fields.inflows')} S1 : ${fmt(TOTAL_ENC)}\n` +
+      `${t('treasury.fields.outflows')} S1 : ${fmt(TOTAL_DEC)}\n` +
+      `${t('treasury.fields.net_balance')} : +${fmt(TOTAL_SOLDE)}\n` +
+      `${t('treasury.comptes.solde_total')} : ${fmt(SOLDE_TOTAL)}\n` +
+      `${t('treasury.fields.liquidite')} : ${RATIO_LIQUIDITE}`;
     if (navigator.share) {
-      try { await navigator.share({ title: 'Trésorerie & Banque', text }); } catch { }
+      try { await navigator.share({ title: t('treasury.hero.title'), text }); } catch { }
     } else {
       await navigator.clipboard.writeText(text);
-      alert('Résumé copié dans le presse-papiers !');
+      alert(t('common.success'));
     }
   };
 
@@ -193,10 +204,10 @@ const TresorerieBanque: React.FC = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Gestion Financière</p>
-            <h1 className="text-4xl font-black uppercase tracking-tighter italic">Trésorerie & Banque</h1>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('treasury.hero.category')}</p>
+            <h1 className="text-4xl font-black uppercase tracking-tighter italic">{t('treasury.hero.title')}</h1>
             <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">
-              Analyse des Flux · Comptes Bancaires · Prévisions — Exercice 2024
+              {t('treasury.hero.subtitle')}
             </p>
           </div>
           <div className="flex gap-3">
@@ -205,14 +216,14 @@ const TresorerieBanque: React.FC = () => {
               className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center gap-2 shadow-2xl shadow-white/10"
             >
               <ArrowDownTrayIcon className="h-4 w-4" />
-              Export PDF
+              {t('treasury.export.pdf')}
             </button>
             <button
               onClick={handleShare}
               className="px-8 py-4 bg-white/5 hover:bg-white/10 active:bg-white/20 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center gap-2"
             >
               <ShareIcon className="h-4 w-4" />
-              Partager
+              {t('treasury.export.share')}
             </button>
           </div>
         </div>
@@ -220,10 +231,10 @@ const TresorerieBanque: React.FC = () => {
         {/* Métriques synthèse */}
         <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-white/5">
           {[
-            { label: 'Encaissements', val: fmt(TOTAL_ENC), sub: 'Jan → Jun 2024', icon: ArrowTrendingUpIcon },
-            { label: 'Décaissements', val: fmt(TOTAL_DEC), sub: 'Jan → Jun 2024', icon: ArrowTrendingDownIcon },
-            { label: 'Solde Net', val: '+' + fmt(TOTAL_SOLDE), sub: 'Flux net positif', icon: ScaleIcon },
-            { label: 'Solde Banque', val: fmt(SOLDE_TOTAL), sub: 'Tous comptes', icon: BuildingLibraryIcon },
+            { label: t('treasury.fields.inflows'), val: fmt(TOTAL_ENC), sub: 'Jan → Jun 2024', icon: ArrowTrendingUpIcon },
+            { label: t('treasury.fields.outflows'), val: fmt(TOTAL_DEC), sub: 'Jan → Jun 2024', icon: ArrowTrendingDownIcon },
+            { label: t('treasury.fields.net_balance'), val: '+' + fmt(TOTAL_SOLDE), sub: t('treasury.flux.net_positive'), icon: ScaleIcon },
+            { label: t('treasury.fields.bank_balance'), val: fmt(SOLDE_TOTAL), sub: t('treasury.comptes.subtitle'), icon: BuildingLibraryIcon },
           ].map((m, i) => (
             <div key={i} className="border border-white/5 rounded-2xl p-5">
               <m.icon className="h-5 w-5 text-slate-500 mb-3" />
@@ -261,11 +272,11 @@ const TresorerieBanque: React.FC = () => {
           {/* KPI Cards */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
             {[
-              { label: 'Encaissements', val: fmt(TOTAL_ENC), sub: '+12.5% vs S1-2023', icon: ArrowTrendingUpIcon },
-              { label: 'Décaissements', val: fmt(TOTAL_DEC), sub: 'Paiements cumulés', icon: ArrowTrendingDownIcon },
-              { label: 'Solde Net', val: '+' + fmt(TOTAL_SOLDE), sub: 'Flux net positif', icon: CheckCircleIcon },
-              { label: 'Solde Bancaire', val: fmt(SOLDE_TOTAL), sub: '4 comptes actifs', icon: BanknotesIcon },
-              { label: 'Liquidité', val: RATIO_LIQUIDITE.toFixed(2), sub: 'Ratio excellent', icon: ScaleIcon },
+              { label: t('treasury.fields.inflows'), val: fmt(TOTAL_ENC), sub: t('treasury.flux.vs_prev'), icon: ArrowTrendingUpIcon },
+              { label: t('treasury.fields.outflows'), val: fmt(TOTAL_DEC), sub: t('treasury.flux.cumul_payments'), icon: ArrowTrendingDownIcon },
+              { label: t('treasury.fields.net_balance'), val: '+' + fmt(TOTAL_SOLDE), sub: t('treasury.flux.net_positive'), icon: CheckCircleIcon },
+              { label: t('treasury.fields.bank_balance'), val: fmt(SOLDE_TOTAL), sub: t('treasury.comptes.active'), icon: BanknotesIcon },
+              { label: t('treasury.fields.liquidite'), val: RATIO_LIQUIDITE.toFixed(2), sub: t('treasury.status.excellent'), icon: ScaleIcon },
             ].map((kpi, idx) => (
               <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit mb-4">
@@ -281,10 +292,10 @@ const TresorerieBanque: React.FC = () => {
           {/* Graphique barres + courbe */}
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Évolution des Flux de Trésorerie — S1 2024</h2>
+              <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('treasury.flux.evolution')}</h2>
               <div className="flex gap-6">
-                {[['bg-slate-900 dark:bg-white', 'Encaissements'], ['bg-slate-300', 'Décaissements'], ['', 'Solde net ●']].map(([cls, lbl]) => (
-                  <div key={lbl} className="flex items-center gap-2">
+                {[['bg-slate-900 dark:bg-white', t('treasury.fields.inflows')], ['bg-slate-300', t('treasury.fields.outflows')], ['', t('treasury.fields.net_balance') + ' ●']].map(([cls, lbl]) => (
+                  <div key={lbl as string} className="flex items-center gap-2">
                     {cls && <div className={`w-6 h-1.5 ${cls} rounded`} />}
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{lbl}</span>
                   </div>
@@ -323,7 +334,7 @@ const TresorerieBanque: React.FC = () => {
                       <rect x={x} y={220 - hE} width="22" height={hE} fill="url(#encG)" rx="3" />
                       <rect x={x + 25} y={220 - hD} width="22" height={hD} fill="url(#decG)" rx="3" />
                       <circle cx={x + 11} cy={220 - hS} r="5" fill="#0f172a" />
-                      <text x={x + 22} y="240" fill="#475569" fontSize="12" fontWeight="800" textAnchor="middle">{m.month}</text>
+                      <text x={x + 22} y="240" fill="#475569" fontSize="12" fontWeight="800" textAnchor="middle">{t(`common.months.${monthsKeys[i]}`).slice(0, 3)}</text>
                     </g>
                   );
                 })}
@@ -338,9 +349,9 @@ const TresorerieBanque: React.FC = () => {
             {/* Totaux */}
             <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
               {[
-                { label: 'Total Encaissements', val: fmt(TOTAL_ENC), cls: 'text-slate-900 dark:text-white' },
-                { label: 'Total Décaissements', val: '-' + fmt(TOTAL_DEC), cls: 'text-slate-500' },
-                { label: 'Solde Net Cumulé', val: '+' + fmt(TOTAL_SOLDE), cls: 'text-slate-900 dark:text-white' },
+                { label: t('treasury.flux.monthly_total'), val: fmt(TOTAL_ENC), cls: 'text-slate-900 dark:text-white' },
+                { label: t('treasury.flux.monthly_total_dec'), val: '-' + fmt(TOTAL_DEC), cls: 'text-slate-500' },
+                { label: t('treasury.flux.monthly_total_cumul'), val: '+' + fmt(TOTAL_SOLDE), cls: 'text-slate-900 dark:text-white' },
               ].map((s, i) => (
                 <div key={i} className="text-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                   <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-2">{s.label}</p>
@@ -353,13 +364,13 @@ const TresorerieBanque: React.FC = () => {
           {/* Tableau détaillé */}
           <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Tableau Détaillé des Flux Mensuels</h3>
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('treasury.flux.details')}</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead className="bg-slate-50 dark:bg-slate-800/50">
                   <tr>
-                    {['Mois', 'Encaissements', 'Décaissements', 'Solde Net', 'Ratio E/D', 'Statut'].map(h => (
+                    {[t('fields.month'), t('treasury.fields.inflows'), t('treasury.fields.outflows'), t('treasury.fields.net_balance'), t('treasury.fields.ratio_ed'), t('common.status')].map(h => (
                       <th key={h} className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-left last:text-center">{h}</th>
                     ))}
                   </tr>
@@ -369,7 +380,7 @@ const TresorerieBanque: React.FC = () => {
                     const ratio = Math.round((m.enc / m.dec) * 100);
                     return (
                       <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
-                        <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{m.month}</td>
+                        <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{t(`common.months.${monthsKeys[i]}`)}</td>
                         <td className="px-6 py-4 text-xs font-bold font-mono text-slate-900">+{m.enc.toLocaleString()} DA</td>
                         <td className="px-6 py-4 text-xs font-bold font-mono text-slate-400">-{m.dec.toLocaleString()} DA</td>
                         <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{m.solde.toLocaleString()} DA</td>
@@ -388,7 +399,7 @@ const TresorerieBanque: React.FC = () => {
                 </tbody>
                 <tfoot className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
                   <tr>
-                    <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">TOTAL</td>
+                    <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{t('common.total')}</td>
                     <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{TOTAL_ENC.toLocaleString()} DA</td>
                     <td className="px-6 py-4 text-xs font-black font-mono text-slate-400">-{TOTAL_DEC.toLocaleString()} DA</td>
                     <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{TOTAL_SOLDE.toLocaleString()} DA</td>
@@ -403,10 +414,10 @@ const TresorerieBanque: React.FC = () => {
           {/* Ratios financiers */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
-              { label: 'Ratio de liquidité', val: RATIO_LIQUIDITE, unit: '', target: '> 1.5', status: 'excellent', pct: 100, desc: 'Capacité à payer les dettes court terme' },
-              { label: 'Délai moyen encaissement', val: DSO, unit: ' jours', target: '< 30j', status: 'bon', pct: 85, desc: 'Délai moyen de recouvrement clients' },
-              { label: 'Délai moyen décaissement', val: DPO, unit: ' jours', target: '30–45j', status: 'optimal', pct: 90, desc: 'Délai moyen de paiement fournisseurs' },
-              { label: 'Couverture de trésorerie', val: COUVERTURE, unit: ' jours', target: '> 30j', status: 'excellent', pct: 100, desc: 'Jours de charges courantes couvertes' },
+              { label: t('treasury.ratios.liquidite.label'), val: RATIO_LIQUIDITE, unit: '', target: '> 1.5', status: t('treasury.status.excellent'), pct: 100, desc: t('treasury.ratios.liquidite.desc') },
+              { label: t('treasury.ratios.dso.label'), val: DSO, unit: ` ${t('common.days')}`, target: '< 30j', status: t('treasury.status.bon'), pct: 85, desc: t('treasury.ratios.dso.desc') },
+              { label: t('treasury.ratios.dpo.label'), val: DPO, unit: ` ${t('common.days')}`, target: '30–45j', status: t('treasury.status.optimal'), pct: 90, desc: t('treasury.ratios.dpo.desc') },
+              { label: t('treasury.ratios.coverage.label'), val: COUVERTURE, unit: ` ${t('common.days')}`, target: '> 30j', status: t('treasury.status.excellent'), pct: 100, desc: t('treasury.ratios.coverage.desc') },
             ].map((r, i) => (
               <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-4">
@@ -435,12 +446,12 @@ const TresorerieBanque: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Encaissements */}
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Décomposition Encaissements</h3>
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('treasury.flux.monthly_total')}</h3>
               <div className="space-y-4">
                 {[
-                  { label: 'Ventes clients', pct: 62, mont: Math.round(TOTAL_ENC * 0.62) },
-                  { label: 'Créances recouvrées', pct: 28, mont: Math.round(TOTAL_ENC * 0.28) },
-                  { label: 'Autres produits', pct: 10, mont: Math.round(TOTAL_ENC * 0.10) },
+                  { label: t('steering.dashboard.chart_accounts.items.sales_goods'), pct: 62, mont: Math.round(TOTAL_ENC * 0.62) },
+                  { label: t('crm.clients.sections.recovery_priorities'), pct: 28, mont: Math.round(TOTAL_ENC * 0.28) },
+                  { label: t('common.all'), pct: 10, mont: Math.round(TOTAL_ENC * 0.10) },
                 ].map((item, i) => (
                   <div key={i}>
                     <div className="flex items-center justify-between mb-2">
@@ -487,13 +498,13 @@ const TresorerieBanque: React.FC = () => {
 
           {/* Indicateurs de Santé Financière */}
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
-            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Indicateurs de Santé Financière</h3>
+            <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('treasury.export.key_indicators')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: 'Fonds de Roulement', val: fmt(FR), status: 'excellent', icon: BanknotesIcon, desc: 'Ressources stables > Emplois LT' },
-                { label: 'Besoin en Fonds de Roulement', val: fmt(BFR), status: 'bon', icon: ScaleIcon, desc: 'Décalage financement court terme' },
-                { label: 'Capacité Autofinancement', val: fmt(CAF), status: 'bon', icon: CurrencyDollarIcon, desc: 'Résultat net + dotations' },
-                { label: 'Cycle de Trésorerie', val: `${DSO - DPO + 7} j`, status: 'optimal', icon: ClockIcon, desc: `DSO ${DSO}j − DPO ${DPO}j + stock 7j` },
+                { label: t('treasury.health.fr.label'), val: fmt(FR), status: t('treasury.status.excellent'), icon: BanknotesIcon, desc: t('treasury.health.fr.desc') },
+                { label: t('treasury.health.bfr.label'), val: fmt(BFR), status: t('treasury.status.bon'), icon: ScaleIcon, desc: t('treasury.health.bfr.desc') },
+                { label: t('treasury.health.caf.label'), val: fmt(CAF), status: t('treasury.status.bon'), icon: CurrencyDollarIcon, desc: t('treasury.health.caf.desc') },
+                { label: t('treasury.health.cycle.label'), val: `${DSO - DPO + 7} ${t('common.days')}`, status: t('treasury.status.optimal'), icon: ClockIcon, desc: t('treasury.health.cycle.desc', { dso: DSO, dpo: DPO, stock: 7 }) },
               ].map((ind, idx) => (
                 <div key={idx} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <div className="flex items-center justify-between mb-4">
@@ -521,9 +532,9 @@ const TresorerieBanque: React.FC = () => {
           {/* Synthèse */}
           <div className="grid grid-cols-3 gap-6">
             {[
-              { label: 'Solde Total', val: fmt(SOLDE_TOTAL), sub: 'Tous comptes actifs', icon: BanknotesIcon },
-              { label: 'Comptes', val: bankAccounts.length.toString(), sub: '2 bancaires + 1 caisse + 1 épargne', icon: BuildingLibraryIcon },
-              { label: 'Mouvements', val: bankAccounts.reduce((s, a) => s + a.mvt, 0).toString(), sub: 'Ce mois-ci', icon: ArrowPathIcon },
+              { label: t('treasury.comptes.solde_total'), val: fmt(SOLDE_TOTAL), sub: t('treasury.comptes.subtitle'), icon: BanknotesIcon },
+              { label: t('treasury.fields.account'), val: bankAccounts.length.toString(), sub: `2 ${t('nav.cash_flow')} + 1 ${t('common.months_short')} + 1 ${t('common.frequencies.annual')}`, icon: BuildingLibraryIcon },
+              { label: t('treasury.fields.movements'), val: bankAccounts.reduce((s, a) => s + a.mvt, 0).toString(), sub: t('treasury.comptes.movements_this_month'), icon: ArrowPathIcon },
             ].map((k, i) => (
               <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
@@ -556,7 +567,7 @@ const TresorerieBanque: React.FC = () => {
                         <p className="text-[10px] font-bold text-slate-400">{acc.no} · {acc.type}</p>
                       </div>
                     </div>
-                    <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-1 rounded-lg uppercase tracking-widest">Actif</span>
+                    <span className="text-[9px] font-black bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-1 rounded-lg uppercase tracking-widest">{t('treasury.comptes.active')}</span>
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 mb-4">
                     <p className="text-[10px] text-slate-400 mb-1">Solde actuel</p>
@@ -610,12 +621,12 @@ const TresorerieBanque: React.FC = () => {
           {/* Mouvements récents */}
           <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Derniers Mouvements</h3>
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('treasury.comptes.movements')}</h3>
             </div>
             <table className="w-full border-collapse">
               <thead className="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
-                  {['Date', 'Type', 'Libellé', 'Compte', 'Montant', 'Statut'].map(h => (
+                  {[t('common.date'), t('common.type'), t('common.description'), t('treasury.fields.account'), t('common.amount'), t('common.status')].map(h => (
                     <th key={h} className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{h}</th>
                   ))}
                 </tr>
@@ -655,9 +666,9 @@ const TresorerieBanque: React.FC = () => {
           {/* Alertes KPI */}
           <div className="grid grid-cols-3 gap-6">
             {[
-              { label: 'Alertes Critiques', val: tensions.filter(t => t.sev === 'critical').length.toString(), sub: 'Action immédiate requise', icon: ExclamationTriangleIcon, pulse: true },
-              { label: 'Avertissements', val: tensions.filter(t => t.sev === 'warning').length.toString(), sub: 'Surveillance requise', icon: BellIcon, pulse: false },
-              { label: 'Ratio Liquidité', val: RATIO_LIQUIDITE.toFixed(2), sub: 'Cible : > 1.5 — Excellent', icon: ScaleIcon, pulse: false },
+              { label: t('treasury.previsions.alerts_crit'), val: tensions.filter(t => t.sev === 'critical').length.toString(), sub: t('common.action_required'), icon: ExclamationTriangleIcon, pulse: true },
+              { label: t('treasury.previsions.warnings'), val: tensions.filter(t => t.sev === 'warning').length.toString(), sub: t('dashboard.widgets.ratios.legend.average'), icon: BellIcon, pulse: false },
+              { label: t('treasury.previsions.liquid_ratio'), val: RATIO_LIQUIDITE.toFixed(2), sub: t('treasury.status.excellent'), icon: ScaleIcon, pulse: false },
             ].map((k, i) => (
               <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
                 <div className="relative">
@@ -678,7 +689,7 @@ const TresorerieBanque: React.FC = () => {
           {/* Tensions identifiées */}
           <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Tensions & Alertes Identifiées</h3>
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('treasury.previsions.tensions')}</h3>
             </div>
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {tensions.map((t, i) => (
@@ -710,14 +721,14 @@ const TresorerieBanque: React.FC = () => {
             {forecasts.map((f, i) => (
               <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between mb-5">
-                  <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">{f.month}</h3>
+                  <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">{t(`common.months.${monthsKeys[6 + i]}`)}</h3>
                   <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${f.risque === 'Faible' ? 'bg-slate-100 dark:bg-slate-800 text-slate-500' : 'bg-slate-900 text-white'
-                    }`}>{f.risque}</span>
+                    }`}>{t(`treasury.previsions.risk_${f.risque.toLowerCase().replace('é', 'e')}`)}</span>
                 </div>
                 <div className="space-y-4 mb-5">
                   <div>
                     <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-slate-500 uppercase tracking-widest font-black">Encaissements</span>
+                      <span className="text-slate-500 uppercase tracking-widest font-black">{t('treasury.fields.inflows')}</span>
                       <span className="font-black font-mono text-slate-900 dark:text-white">+{fmtK(f.enc)}</span>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
@@ -726,7 +737,7 @@ const TresorerieBanque: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-slate-500 uppercase tracking-widest font-black">Décaissements</span>
+                      <span className="text-slate-500 uppercase tracking-widest font-black">{t('treasury.fields.outflows')}</span>
                       <span className="font-black font-mono text-slate-400">-{fmtK(f.dec)}</span>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
@@ -735,13 +746,13 @@ const TresorerieBanque: React.FC = () => {
                   </div>
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">Solde net prévu</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">{t('treasury.fields.net_balance')} {t('treasury.fields.prevu')}</p>
                   <p className="text-xl font-black font-mono text-slate-900 dark:text-white">+{f.prevu.toLocaleString()} DA</p>
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Confiance</span>
+                  <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">{t('treasury.fields.confidence')}</span>
                   <span className={`text-[10px] font-black uppercase tracking-widest ${f.confiance === 'Élevée' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
-                    {f.confiance}
+                    {t(`treasury.previsions.confidence_${f.confiance.toLowerCase().replace('é', 'e')}`)}
                   </span>
                 </div>
               </div>
@@ -751,7 +762,7 @@ const TresorerieBanque: React.FC = () => {
           {/* Prévisions vs réalisé Jan-Jun */}
           <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">Courbe Prévisions vs Réalisations — S1 2024</h3>
+              <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('treasury.previsions.real_vs_forecast')}</h3>
             </div>
             <div className="p-8">
               <div className="relative h-48">
@@ -775,14 +786,14 @@ const TresorerieBanque: React.FC = () => {
                   {monthlyFlows.map((m, i) => (
                     <g key={i}>
                       <circle cx={80 + i * 100} cy={145 - (m.solde / 300_000) * 135} r="5" fill="#0f172a" />
-                      <text x={80 + i * 100} y="170" fill="#475569" fontSize="12" fontWeight="800" textAnchor="middle">{m.month}</text>
+                      <text x={80 + i * 100} y="170" fill="#475569" fontSize="12" fontWeight="800" textAnchor="middle">{t(`common.months.${monthsKeys[i]}`).slice(0, 3)}</text>
                     </g>
                   ))}
                 </svg>
               </div>
               <div className="flex gap-6 mt-4">
-                <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-slate-300" style={{ borderTop: '2px dashed #94a3b8' }} /><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Prévu</span></div>
-                <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-slate-900 dark:bg-white" /><span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Réalisé</span></div>
+                <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-slate-300" style={{ borderTop: '2px dashed #94a3b8' }} /><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('treasury.fields.prevu')}</span></div>
+                <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-slate-900 dark:bg-white" /><span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{t('treasury.fields.reel')}</span></div>
               </div>
             </div>
           </div>
@@ -796,21 +807,21 @@ const TresorerieBanque: React.FC = () => {
           className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-800 active:scale-95 flex items-center gap-2"
         >
           <EyeIcon className="h-4 w-4" />
-          Rapport Complet
+          {t('treasury.export.report_complete')}
         </button>
         <button
           onClick={handleExportPDF}
           className="px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2"
         >
           <ArrowDownTrayIcon className="h-4 w-4" />
-          Export PDF
+          {t('treasury.export.pdf')}
         </button>
         <button
           onClick={handleExportExcel}
           className="px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-2"
         >
           <DocumentArrowDownIcon className="h-4 w-4" />
-          Export Excel
+          {t('treasury.export.excel')}
         </button>
       </div>
 
@@ -825,9 +836,9 @@ const TresorerieBanque: React.FC = () => {
             {/* En-tête modale */}
             <div className="sticky top-0 bg-slate-900 text-white p-8 rounded-t-[2rem] flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Synthèse Complète</p>
-                <h2 className="text-2xl font-black uppercase tracking-tight italic">Trésorerie & Banque</h2>
-                <p className="text-[10px] text-slate-400 mt-1">Exercice 2024 · Généré le {new Date().toLocaleDateString('fr-DZ')}</p>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">{t('dashboard.widgets.scenarios.recommendation_title')}</p>
+                <h2 className="text-2xl font-black uppercase tracking-tight italic">{t('treasury.hero.title')}</h2>
+                <p className="text-[10px] text-slate-400 mt-1">Exercice 2024 · {t('treasury.export.generated_on')} {new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-DZ')}</p>
               </div>
               <button
                 onClick={() => setShowRapport(false)}
@@ -840,13 +851,13 @@ const TresorerieBanque: React.FC = () => {
             <div className="p-8 space-y-8">
               {/* Résumé exécutif */}
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Résumé Exécutif — S1 2024</h3>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('treasury.export.exec_summary')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: 'Total Encaissements', val: fmt(TOTAL_ENC) },
-                    { label: 'Total Décaissements', val: fmt(TOTAL_DEC) },
-                    { label: 'Solde Net Cumulé', val: '+' + fmt(TOTAL_SOLDE) },
-                    { label: 'Solde Bancaire Total', val: fmt(SOLDE_TOTAL) },
+                    { label: t('treasury.flux.monthly_total'), val: fmt(TOTAL_ENC) },
+                    { label: t('treasury.flux.monthly_total_dec'), val: fmt(TOTAL_DEC) },
+                    { label: t('treasury.flux.monthly_total_cumul'), val: '+' + fmt(TOTAL_SOLDE) },
+                    { label: t('treasury.comptes.solde_total'), val: fmt(SOLDE_TOTAL) },
                   ].map((item, i) => (
                     <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
@@ -858,12 +869,12 @@ const TresorerieBanque: React.FC = () => {
 
               {/* Flux mensuels */}
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Flux Mensuels Détaillés</h3>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('treasury.export.detailed_flux')}</h3>
                 <div className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                   <table className="w-full text-xs border-collapse">
                     <thead className="bg-slate-900 text-white">
                       <tr>
-                        {['Mois', 'Encaissements', 'Décaissements', 'Solde Net', 'E/D'].map(h => (
+                        {[t('treasury.fields.month'), t('treasury.fields.inflows'), t('treasury.fields.outflows'), t('treasury.fields.net_balance'), t('treasury.fields.ratio_ed')].map(h => (
                           <th key={h} className="px-4 py-3 text-left text-[10px] font-black uppercase tracking-widest">{h}</th>
                         ))}
                       </tr>
@@ -871,7 +882,7 @@ const TresorerieBanque: React.FC = () => {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {monthlyFlows.map((m, i) => (
                         <tr key={i} className="odd:bg-slate-50 dark:odd:bg-slate-800/20">
-                          <td className="px-4 py-3 font-black text-slate-900 dark:text-white">{m.month}</td>
+                          <td className="px-4 py-3 font-black text-slate-900 dark:text-white">{t(`common.months.${monthsKeys[i]}`)}</td>
                           <td className="px-4 py-3 font-mono text-slate-900">+{m.enc.toLocaleString()}</td>
                           <td className="px-4 py-3 font-mono text-slate-400">-{m.dec.toLocaleString()}</td>
                           <td className="px-4 py-3 font-black font-mono text-slate-900 dark:text-white">+{m.solde.toLocaleString()}</td>
@@ -881,7 +892,7 @@ const TresorerieBanque: React.FC = () => {
                     </tbody>
                     <tfoot className="bg-slate-100 dark:bg-slate-800 border-t-2 border-slate-300 dark:border-slate-600">
                       <tr>
-                        <td className="px-4 py-3 font-black text-slate-900 dark:text-white">TOTAL</td>
+                        <td className="px-4 py-3 font-black text-slate-900 dark:text-white">{t('common.total')}</td>
                         <td className="px-4 py-3 font-black font-mono text-slate-900 dark:text-white">+{TOTAL_ENC.toLocaleString()}</td>
                         <td className="px-4 py-3 font-black font-mono text-slate-400">-{TOTAL_DEC.toLocaleString()}</td>
                         <td className="px-4 py-3 font-black font-mono text-slate-900 dark:text-white">+{TOTAL_SOLDE.toLocaleString()}</td>
@@ -894,16 +905,16 @@ const TresorerieBanque: React.FC = () => {
 
               {/* Indicateurs clés */}
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Indicateurs Financiers Clés</h3>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('treasury.export.key_indicators')}</h3>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: 'Ratio de liquidité', val: RATIO_LIQUIDITE.toFixed(2), status: 'Excellent — cible > 1.5' },
-                    { label: 'DSO (Délai encaissement)', val: `${DSO} jours`, status: 'Bon — cible < 30j' },
-                    { label: 'DPO (Délai décaissement)', val: `${DPO} jours`, status: 'Optimal — cible 30–45j' },
-                    { label: 'Couverture trésorerie', val: `${COUVERTURE} jours`, status: 'Excellent — cible > 30j' },
-                    { label: 'Fonds de Roulement', val: fmt(FR), status: 'Positif' },
-                    { label: 'BFR', val: fmt(BFR), status: 'Maîtrisé' },
-                    { label: 'CAF', val: fmt(CAF), status: 'Satisfaisante' },
+                    { label: t('treasury.ratios.liquidite.label'), val: RATIO_LIQUIDITE.toFixed(2), status: t('treasury.status.excellent') },
+                    { label: t('treasury.ratios.dso.label'), val: `${DSO} ${t('common.days')}`, status: t('treasury.status.bon') },
+                    { label: t('treasury.ratios.dpo.label'), val: `${DPO} ${t('common.days')}`, status: t('treasury.status.optimal') },
+                    { label: t('treasury.ratios.coverage.label'), val: `${COUVERTURE} ${t('common.days')}`, status: t('treasury.status.excellent') },
+                    { label: t('treasury.health.fr.label'), val: fmt(FR), status: t('treasury.status.excellent') },
+                    { label: t('treasury.health.bfr.label'), val: fmt(BFR), status: t('treasury.status.bon') },
+                    { label: t('treasury.health.caf.label'), val: fmt(CAF), status: t('treasury.status.bon') },
                   ].map((ind, i) => (
                     <div key={i} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
                       <div>
@@ -918,13 +929,13 @@ const TresorerieBanque: React.FC = () => {
 
               {/* Prévisions */}
               <section>
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Prévisions Trimestrielles</h3>
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{t('treasury.previsions.forecast_3months')}</h3>
                 <div className="grid grid-cols-3 gap-4">
                   {forecasts.map((f, i) => (
                     <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
-                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase mb-1">{f.month}</p>
+                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase mb-1">{t(`common.months.${monthsKeys[6 + i]}`)}</p>
                       <p className="text-base font-black font-mono text-slate-900 dark:text-white">+{f.prevu.toLocaleString()} DA</p>
-                      <p className="text-[10px] text-slate-400 mt-1">Risque : {f.risque} · {f.confiance}</p>
+                      <p className="text-[10px] text-slate-400 mt-1">{t('treasury.fields.risk')} : {t(`treasury.previsions.risk_${f.risque.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_')}`)} · {t(`treasury.previsions.confidence_${f.confiance.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_')}`)}</p>
                     </div>
                   ))}
                 </div>
@@ -937,14 +948,14 @@ const TresorerieBanque: React.FC = () => {
                   className="flex-1 px-4 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
                 >
                   <ArrowDownTrayIcon className="h-4 w-4" />
-                  Imprimer / PDF
+                  {t('treasury.export.print')}
                 </button>
                 <button
                   onClick={handleExportExcel}
                   className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <DocumentArrowDownIcon className="h-4 w-4" />
-                  Export Excel / CSV
+                  {t('treasury.export.excel_csv')}
                 </button>
               </div>
             </div>

@@ -187,12 +187,13 @@ class CorsPolicies:
     """Politiques CORS restrictives"""
 
     # À personnaliser selon votre frontend URL
-    ALLOWED_ORIGINS = [
-        "http://localhost:5173",  # Dev local
-        "http://localhost:3000",  # Alt dev
-        "http://localhost:3001",  # Local dev alternative
-        "https://app.dinarlytics.com",  # Production
-    ]
+    # On importe les settings pour utiliser la config centrale
+    from app.core.config import settings
+
+    ALLOWED_ORIGINS = list(set(settings.CORS_ORIGINS + [
+        "http://localhost:3001",
+        "https://yosef-untwilled-defilingly.ngrok-free.dev", # Allow cross-ngrok 
+    ]))
 
     ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
 
@@ -205,6 +206,13 @@ class CorsPolicies:
         "Accept-Language",
         "X-Requested-With",
         "ngrok-skip-browser-warning",
+        "Accept",
+        "Origin",
+    ]
+
+    EXPOSED_HEADERS = [
+        "X-CSRF-Token",
+        "Content-Disposition",
     ]
 
     ALLOW_CREDENTIALS = True

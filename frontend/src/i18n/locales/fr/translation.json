@@ -2043,117 +2043,7 @@
       }
     }
   },
-  "chatbot": {
-    "title": "LIA — Intelligence Décisionnelle",
-    "active_session": "Session Active",
-    "welcome": "Bonjour {{name}}. Je suis LIA, votre assistante d'intelligence décisionnelle.",
-    "role_context": "En tant que **{{role}}**, je suis prête à vous accompagner dans le pilotage stratégique de **votre entreprise**.",
-    "capabilities_intro": "Voici comment je peux vous assister aujourd'hui :",
-    "capabilities": {
-      "predictive": "**Analyse Prédictive** : Projections de trésorerie à 13 semaines et CA à 12 mois.",
-      "simulations": "**Simulations Stratégiques** : Scénarios Optimiste / Réaliste / Pessimiste.",
-      "optimization": "**Optimisation Opérationnelle** : Détection de patterns saisonniers et scoring de risque.",
-      "performance": "**Pilotage de la Performance** : Analyse financière complète de votre cycle de conversion (CCC/BFR)."
-    },
-    "question": "Quel aspect de votre performance souhaitez-vous auditer ?",
-    "quick_actions": {
-      "synthesis": "Synthèse stratégique du groupe",
-      "sector_analysis": "Analyse de performance sectorielle",
-      "growth_scenarios": "Scénarios de croissance M+6",
-      "risk_report": "Rapport de risque global"
-    },
-    "input_placeholder": "Posez une question à l'intelligence LIA...",
-    "labels": {
-      "confidence_high": "Confiance Élevée",
-      "confidence_medium": "Confiance Moyenne",
-      "confidence_low": "Confiance Faible",
-      "trend_up": "En hausse",
-      "trend_down": "En baisse",
-      "trend_stable": "Stable",
-      "risk_low": "Faille",
-      "risk_medium": "Moyen",
-      "risk_high": "Élevé",
-      "risk_critical": "Critique",
-      "status_good": "Bon",
-      "status_warning": "Avertissement",
-      "status_critical": "Critique",
-      "status_excellent": "Excellent",
-      "status_average": "Moyen",
-      "status_below": "Sous la moyenne",
-      "status_poor": "Médiocre"
-    },
-    "tooltips": {
-      "microphone": "Commande vocale",
-      "attachment": "Joindre un document (FEC, G50...)",
-      "export": "Exporter la conversation",
-      "clipboard": "Copier dans le presse-papier"
-    },
-    "fallback": {
-      "api_unavailable": "L'API IA est indisponible. Utilisation de la logique locale de simulation.",
-      "revenue_forecast": {
-        "title": "📈 PRÉVISIONS DE REVENUS — HORIZON 12 MOIS",
-        "error_min_data": "❌ Pas assez de données historiques pour générer des prévisions de CA. Minimum 3 mois requis.",
-        "summary_title": "SYNTHÈSE DE CROISSANCE PRÉVUE :",
-        "total_variation": "Variation Totale Estimée",
-        "base_trend": "Tendance de Fond",
-        "recommendation": "Alignez vos capacités de production et vos budgets marketing sur cette trajectoire."
-      },
-      "seasonal": {
-        "title": "🔄 AUDIT DES PATTERNS SAISONNIERS",
-        "error_min_data": "[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis."
-      },
-      "audit_forecast": {
-        "title": "📑 AUDIT PRÉDICTIF DE TRÉSORERIE (13 semaines)",
-        "org_prefix": "Organisation",
-        "role_prefix": "Rôle",
-        "metrics_title": "PROJECTIONS DES MÉTRIQUES CLÉS",
-        "risk_label": "Risque Financier",
-        "recommendations_title": "RECOMMANDATIONS PRIORITAIRES",
-        "projections_prefix": "Solde prévisionnel",
-        "trend_prefix": "Dynamique",
-        "confidence_prefix": "Indice de confiance",
-        "alert_liquidity": "⚠️ [ALERTE LIQUIDITÉ]",
-        "stable": "✅ [STABLE]"
-      },
-      "risk_audit": {
-        "title": "🛡️ AUDIT DE RISQUE FINANCIER — PROTOCOLE LIA",
-        "overall_level": "Niveau Global",
-        "factors_title": "1. AUDIT DES FACTEURS DE RISQUE",
-        "impact_suffix": "pts",
-        "strategic_recommendation": "2. RECOMMANDATION STRATÉGIQUE RÉGLEMENTAIRE",
-        "footer": "© LIA Risk Management Unit - Financial Compliance"
-      },
-      "scenarios": {
-        "title": "🔮 SCÉNARIOS PRÉDICTIFS — HORIZON 6 MOIS",
-        "prob_high": "🟢 [PROBABILITÉ ÉLEVÉE]",
-        "prob_medium": "🟡 [PROBABILITÉ MOYENNE]",
-        "prob_low": "🔴 [PROBABILITÉ FAIBLE]",
-        "assumptions_title": "HYPOTHÈSES STRATÉGIQUES",
-        "risks_title": "FACTEURS DE RISQUE"
-      }
-    },
-    "subtitle": "Unité d'Intelligence de Décision",
-    "user_label": "Utilisateur",
-    "typing": "LIA réfléchit...",
-    "disclaimer": "LIA est une IA. Vérifiez toujours les décisions critiques avec un professionnel.",
-    "plan_title": "Plan d'Actions Stratégiques",
-    "auto_generate": "Générer via Analyse",
-    "demo_plan": "Plan de Démo",
-    "action": "Action",
-    "owner": "Responsable",
-    "due_date": "Délai",
-    "add_btn": "Ajouter",
-    "no_tasks": "Aucune tâche dans le plan actuel. Générez-en avec LIA !",
-    "todo": "À faire",
-    "in_progress": "En cours",
-    "done": "Terminé",
-    "recommendations": {
-      "collect_early": "Accélérer les encaissements (relances proactives)",
-      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
-      "reduce_opex": "Réduire les dépenses non essentielles",
-      "bridge_finance": "Envisager un financement court terme si nécessaire"
-    }
-  },
+
   "access": {
     "denied": "Accès refusé",
     "permission_not_granted": "Vous n'avez pas la permission d'accéder à cette section.",
@@ -2510,22 +2400,30 @@
     "enterprise": "Enterprise / Groupe"
   },
   "chatbot": {
-    "welcome": "Bonjour {{name}} ! Je suis LIA, votre assistante d'intelligence financière.",
-    "role_context": "En tant que {{role}}, je peux vous aider à piloter votre performance.",
+    "title": "LIA — Intelligence Décisionnelle",
+    "subtitle": "Unité d'Intelligence de Décision",
+    "user_label": "Utilisateur",
+    "typing": "LIA réfléchit...",
+    "disclaimer": "LIA est une IA. Vérifiez toujours les décisions critiques avec un professionnel.",
+    "plan_title": "Plan d'Actions Stratégiques",
+    "active_session": "Session Active",
+    "welcome": "Bonjour {{name}}. Je suis LIA, votre assistante d'intelligence décisionnelle.",
+    "role_context": "En tant que **{{role}}**, je suis prête à vous accompagner dans le pilotage stratégique de **votre entreprise**.",
     "capabilities_intro": "Mes capacités actuelles :",
     "capabilities": {
-      "predictive": "Analyses prédictives (Trésorerie, CA)",
-      "simulations": "Simulations de scénarios stratégiques",
-      "optimization": "Optimisation du BFR (DSO, DIO, DPO)",
-      "performance": "Audit de performance et conformité"
+      "predictive": "**Analyse Prédictive** : Projections de trésorerie à 13 semaines et CA à 12 mois.",
+      "simulations": "**Simulations Stratégiques** : Scénarios Optimiste / Réaliste / Pessimiste.",
+      "optimization": "**Optimisation Opérationnelle** : Détection de patterns saisonniers et scoring de risque.",
+      "performance": "**Pilotage de la Performance** : Analyse financière complète de votre cycle de conversion (CCC/BFR)."
     },
-    "question": "Comment puis-je vous éclairer aujourd'hui ?",
+    "question": "Quel aspect de votre performance souhaitez-vous auditer ?",
     "quick_actions": {
-      "synthesis": "Synthèse de performance",
-      "sector_analysis": "Analyse sectorielle",
-      "growth_scenarios": "Scénarios de croissance",
-      "risk_report": "Rapport de risque"
+      "synthesis": "Synthèse stratégique du groupe",
+      "sector_analysis": "Analyse de performance sectorielle",
+      "growth_scenarios": "Scénarios de croissance M+6",
+      "risk_report": "Rapport de risque global"
     },
+    "input_placeholder": "Posez une question à l'intelligence LIA...",
     "placeholders": {
       "ask": "Posez votre question financière ici..."
     },
@@ -2643,12 +2541,6 @@
         "risks_title": "FACTEURS DE RISQUE"
       }
     },
-    "title": "Assistant Stratégique",
-    "subtitle": "Unité d'Intelligence de Décision",
-    "user_label": "Utilisateur",
-    "typing": "LIA réfléchit...",
-    "disclaimer": "LIA est une IA. Vérifiez toujours les décisions critiques avec un professionnel.",
-    "plan_title": "Plan d'Actions Stratégiques",
     "auto_generate": "Générer via Analyse",
     "demo_plan": "Plan de Démo",
     "close": "Fermer",
@@ -2693,7 +2585,140 @@
       "users_suffix_plural": "utilisateurs",
       "tip_title": "Astuce :",
       "tip_text": "Cliquez sur une entreprise pour voir ses utilisateurs, puis cliquez sur un utilisateur pour vous connecter automatiquement.",
-      "demo_load_error": "Erreur lors du chargement des utilisateurs de démonstration"
+      "demo_load_error": "Erreur lors du chargement des utilisateurs de démonstration",
+      "copy_email": "Copier l'email"
+    }
+  },
+  "treasury": {
+    "hero": {
+      "category": "Gestion Financière",
+      "title": "Trésorerie & Banque",
+      "subtitle": "Analyse des Flux · Comptes Bancaires · Prévisions — Exercice 2024"
+    },
+    "tabs": {
+      "flux": "Flux de Trésorerie",
+      "comptes": "Comptes & Caisses",
+      "previsions": "Prévisions & Tensions"
+    },
+    "flux": {
+      "title": "Flux de Trésorerie",
+      "evolution": "Évolution des Flux de Trésorerie — S1 2024",
+      "details": "Tableau Détaillé des Flux Mensuels",
+      "net_positive": "Flux net positif",
+      "vs_prev": "+12.5% vs S1-2023",
+      "cumul_payments": "Paiements cumulés",
+      "monthly_total": "Total Encaissements",
+      "monthly_total_dec": "Total Décaissements",
+      "monthly_total_cumul": "Solde Net Cumulé"
+    },
+    "comptes": {
+      "title": "Comptes & Caisses",
+      "subtitle": "Tous comptes actifs",
+      "repartition": "Répartition par Compte",
+      "movements": "Derniers Mouvements",
+      "solde_total": "Solde Total",
+      "movements_this_month": "Ce mois-ci",
+      "active": "Actif"
+    },
+    "previsions": {
+      "title": "Prévisions & Tensions",
+      "alerts_crit": "Alertes Critiques",
+      "warnings": "Avertissements",
+      "liquid_ratio": "Ratio Liquidité",
+      "tensions": "Tensions & Alertes Identifiées",
+      "forecast_3months": "Prévisions 3 mois",
+      "real_vs_forecast": "Courbe Prévisions vs Réalisations — S1 2024",
+      "confidence_high": "Élevée",
+      "confidence_medium": "Moyenne",
+      "confidence_elevee": "Élevée",
+      "confidence_moyenne": "Moyenne",
+      "confidence_faible": "Faible",
+      "risk_low": "Faible",
+      "risk_medium": "Moyen",
+      "risk_high": "Élevé",
+      "risk_faible": "Faible",
+      "risk_moyen": "Moyen",
+      "risk_eleve": "Élevé"
+    },
+    "status": {
+      "excellent": "Excellent",
+      "bon": "Bon",
+      "optimal": "Optimal",
+      "moyen": "Moyen",
+      "faible": "Faible",
+      "critique": "Critique"
+    },
+    "ratios": {
+      "liquidite": {
+        "label": "Ratio de liquidité",
+        "desc": "Capacité à payer les dettes court terme"
+      },
+      "dso": {
+        "label": "Délai moyen encaissement",
+        "desc": "Délai moyen de recouvrement clients"
+      },
+      "dpo": {
+        "label": "Délai moyen décaissement",
+        "desc": "Délai moyen de paiement fournisseurs"
+      },
+      "coverage": {
+        "label": "Couverture de trésorerie",
+        "desc": "Jours de charges courantes couvertes"
+      }
+    },
+    "health": {
+      "fr": {
+        "label": "Fonds de Roulement",
+        "desc": "Ressources stables > Emplois LT"
+      },
+      "bfr": {
+        "label": "Besoin en Fonds de Roulement",
+        "desc": "Décalage financement court terme"
+      },
+      "caf": {
+        "label": "Capacité Autofinancement",
+        "desc": "Résultat net + dotations"
+      },
+      "cycle": {
+        "label": "Cycle de Trésorerie",
+        "desc": "DSO {{dso}}j − DPO {{dpo}}j + stock {{stock}}j"
+      }
+    },
+    "export": {
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "share": "Partager",
+      "print": "Imprimer / PDF",
+      "excel_csv": "Export Excel / CSV",
+      "report_complete": "Rapport Complet",
+      "generated_on": "Généré le",
+      "report_title": "RAPPORT TRÉSORERIE & BANQUE — Exercice 2024",
+      "sec_flux": "=== FLUX MENSUELS ===",
+      "sec_comptes": "=== COMPTES BANCAIRES ===",
+      "sec_indicators": "=== INDICATEURS FINANCIERS ===",
+      "sec_forecasts": "=== PRÉVISIONS 3 MOIS ===",
+      "exec_summary": "Résumé Exécutif — S1 2024",
+      "detailed_flux": "Flux Mensuels Détaillés",
+      "key_indicators": "Indicateurs Financiers Clés"
+    },
+    "fields": {
+      "inflows": "Encaissements",
+      "outflows": "Décaissements",
+      "net_balance": "Solde Net",
+      "bank_balance": "Solde Banque",
+      "ratio_ed": "Ratio E/D",
+      "account": "Compte",
+      "number": "Numéro",
+      "type": "Type",
+      "variation": "Variation",
+      "movements": "Mouvements",
+      "indicator": "Indicateur",
+      "value": "Valeur",
+      "risk": "Risque",
+      "confidence": "Confiance",
+      "prevu": "Prévu",
+      "reel": "Réalisé",
+      "month": "Mois"
     }
   }
 }
