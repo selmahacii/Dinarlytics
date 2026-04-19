@@ -20,6 +20,7 @@ import { useTranslation } from '@shared/hooks/useTranslation';
 import { User } from '@/types';
 import currencyIcon from '@shared/assets/currency.png';
 import api from '@/services/api';
+import i18n from '@/i18n/config';
 
 interface DemoUserCredentials {
   id: string;
@@ -57,6 +58,21 @@ const Login: React.FC = () => {
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
   const [showDemoUsers, setShowDemoUsers] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+    setShowLangMenu(false);
+  };
+
+  const getLangName = (lng: string) => {
+    switch (lng) {
+      case 'fr': return 'Français';
+      case 'en': return 'English';
+      case 'ar': return 'العربية';
+      default: return 'English';
+    }
+  };
 
   // Données de démonstration dynamiques depuis le backend
   const [demoUsers, setDemoUsers] = useState<User[]>([]);
@@ -277,12 +293,39 @@ const Login: React.FC = () => {
       case 'medium': return t('segments.medium');
       case 'large': return t('segments.large');
       case 'enterprise': return t('segments.enterprise');
-      default: return t('segments.micro');
+  default: return t('segments.micro');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 md:p-8 font-outfit relative">
+      {/* Language Switcher */}
+      <div className="absolute top-6 right-6 z-50">
+        <div className="relative">
+          <button
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            className="flex items-center space-x-2 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all text-sm font-bold text-slate-700"
+          >
+            <span className="uppercase">{currentLang}</span>
+            <ChevronDownIcon className={`h-4 w-4 transition-transform ${showLangMenu ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showLangMenu && (
+            <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-slideDown">
+              {['en', 'fr', 'ar'].map((lng) => (
+                <button
+                  key={lng}
+                  onClick={() => changeLanguage(lng)}
+                  className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-50 transition-colors ${currentLang === lng ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600'}`}
+                >
+                  {getLangName(lng)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Professional Background Pattern */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(30,41,59,0.02),transparent_50%)]"></div>

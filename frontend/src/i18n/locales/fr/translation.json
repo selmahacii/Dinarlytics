@@ -2494,35 +2494,7 @@
       "history_table": {
         "document": "Document",
         "date": "Date"
-      },
-      "audit_report_content": {
-        "title": "RAPPORT D'AUDIT - DINARLYTICS"
       }
-    },
-    "modals": {
-      "details_title": "Détails de l'Audit",
-      "ip_address": "Adresse IP",
-      "details_label": "Détails",
-      "close": "Fermer",
-      "schedule_title": "Planifier une Automatisation d'Audit",
-      "auto_name": "Nom de l'automatisation",
-      "frequency": "Fréquence",
-      "recipient": "Destinataire (Email)",
-      "success_save": "Planification enregistrée avec succès !",
-      "info_note": "Les rapports seront automatiquement générés, chiffrés et archivés dans votre espace de stockage sécurisé. Un lien de téléchargement temporaire sera envoyé au destinataire.",
-      "save_auto": "Enregistrer l'automatisation",
-      "compliance_report_title": "Rapport de Conformité Réglementaire",
-      "compliance_score": "Score de Conformité",
-      "points": {
-        "integrity": "Intégrité des écritures comptables",
-        "encryption": "Chiffrement PII (Données Personnelles)",
-        "traceability": "Traçabilité des exports de données",
-        "archiving": "Archivage légal (10 ans)"
-      },
-      "last_check": "Dernière vérification",
-      "validated_points": "Points de Contrôle Validés",
-      "remediation_actions": "Actions de Remédiation",
-      "close_report": "Fermer le Rapport"
     }
   },
   "roles": {
@@ -2530,6 +2502,21 @@
     "daf": "DAF",
     "manager_ops": "Manager Ops"
   },
+  "segments": {
+    "micro": "Micro-entreprise",
+    "small": "Petite entreprise",
+    "medium": "Moyenne entreprise",
+    "large": "Grande entreprise",
+    "enterprise": "Enterprise / Groupe"
+  },
+  "chatbot": {
+    "welcome": "Bonjour {{name}} ! Je suis LIA, votre assistante d'intelligence financière.",
+    "role_context": "En tant que {{role}}, je peux vous aider à piloter votre performance.",
+    "capabilities_intro": "Mes capacités actuelles :",
+    "capabilities": {
+      "predictive": "Analyses prédictives (Trésorerie, CA)",
+      "simulations": "Simulations de scénarios stratégiques",
+      "optimization": "Optimisation du BFR (DSO, DIO, DPO)",
       "performance": "Audit de performance et conformité"
     },
     "question": "Comment puis-je vous éclairer aujourd'hui ?",
@@ -2541,6 +2528,25 @@
     },
     "placeholders": {
       "ask": "Posez votre question financière ici..."
+    },
+    "labels": {
+      "confidence_high": "Confiance Élevée",
+      "confidence_medium": "Confiance Moyenne",
+      "confidence_low": "Confiance Faible",
+      "trend_up": "En hausse",
+      "trend_down": "En baisse",
+      "trend_stable": "Stable",
+      "risk_low": "Faille",
+      "risk_medium": "Moyen",
+      "risk_high": "Élevé",
+      "risk_critical": "Critique",
+      "status_good": "Bon",
+      "status_warning": "Avertissement",
+      "status_critical": "Critique",
+      "status_excellent": "Excellent",
+      "status_average": "Moyen",
+      "status_below": "Sous la moyenne",
+      "status_poor": "Médiocre"
     },
     "tooltips": {
       "microphone": "Commande vocale",
@@ -2560,7 +2566,22 @@
       },
       "seasonal": {
         "title": "🔄 AUDIT DES PATTERNS SAISONNIERS",
-        "error_min_data": "[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis."
+        "error_min_data": "[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis.",
+        "detection_title": "DÉTECTION DE SAISONNALITÉ",
+        "critical_points": "POINTS DE CONTRÔLE CRITIQUES",
+        "peak_period": "Période de Pic (High)",
+        "low_period": "Période de Creux (Low)",
+        "factor": "Facteur de Saisonnalité",
+        "recommendations_title": "RECOMMANDATIONS DE PILOTAGE STRATÉGIQUE",
+        "marked_seasonal": "Saisonnalité Marquée",
+        "stock_opt": "Optimisation des Stocks : Anticiper le réapprovisionnement 60 jours avant le pic.",
+        "cash_mgt": "Gestion de Trésorerie : Constituer une réserve de liquidité durant le pic pour couvrir le creux.",
+        "marketing_launch": "Marketing : Lancer les campagnes d'acquisition 30 jours avant la phase ascendante.",
+        "hr_mgt": "RH : Envisager des renforts temporaires ou une modulation du temps de travail.",
+        "linear_activity": "Activité Linéaire",
+        "linear_focus": "Focus sur l'amélioration continue des marges.",
+        "linear_cash": "Stabilité des flux de trésorerie permettant des investissements réguliers.",
+        "linear_stock": "Maintenance d'un niveau de stock constant."
       },
       "audit_forecast": {
         "title": "📑 AUDIT PRÉDICTIF DE TRÉSORERIE (13 semaines)",
@@ -2608,7 +2629,13 @@
     "no_tasks": "Aucune tâche dans le plan actuel. Générez-en avec LIA !",
     "todo": "À faire",
     "in_progress": "En cours",
-    "done": "Terminé"
+    "done": "Terminé",
+    "recommendations": {
+      "collect_early": "Accélérer les encaissements (relances proactives)",
+      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
+      "reduce_opex": "Réduire les denses non essentielles",
+      "bridge_finance": "Envisager un financement court terme si nécessaire"
+    }
   },
   "auth": {
     "login": {
@@ -2637,21 +2664,6 @@
       "tip_title": "Astuce :",
       "tip_text": "Cliquez sur une entreprise pour voir ses utilisateurs, puis cliquez sur un utilisateur pour vous connecter automatiquement.",
       "demo_load_error": "Erreur lors du chargement des utilisateurs de démonstration"
-    }
-  },
-  "segments": {
-    "micro": "Micro-entreprise",
-    "small": "Petite entreprise",
-    "medium": "Moyenne entreprise",
-    "large": "Grande entreprise",
-    "enterprise": "Enterprise / Groupe"
-  },
-  "chatbot": {
-    "recommendations": {
-      "collect_early": "Accélérer les encaissements (relances proactives)",
-      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
-      "reduce_opex": "Réduire les dépenses non essentielles",
-      "bridge_finance": "Envisager un financement court terme si nécessaire"
     }
   }
 }
