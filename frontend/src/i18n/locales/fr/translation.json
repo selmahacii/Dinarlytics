@@ -1508,12 +1508,18 @@
       "title": "États & Rapports Financiers",
       "subtitle": "Liasse fiscale, bilans et analyse SCF",
       "period_select": "Sélectionner la période",
+      "official_report": "État Financier Officiel",
+      "audit_ready": "Audit Ready",
       "actions": {
         "print": "Imprimer État",
         "export_xml": "Exporter XML (DGI)",
         "export_pdf": "Exporter PDF",
         "export_excel": "Exporter Excel",
         "graphical_analysis": "Analyse Graphique"
+      },
+      "modals": {
+        "metrics_title": "Indicateurs & Métriques Disponibles",
+        "imprimer_desc": "Sélectionnez l'état comptable que vous souhaitez imprimer. Le document sera généré au format officiel conforme aux normes comptables algériennes."
       },
       "tabs": {
         "bilan": "Bilan",
@@ -1573,13 +1579,15 @@
       },
       "balance": {
         "title": "Balance Générale",
+        "subtitle": "État exhaustif des comptes • {{period}}",
         "balanced": "✓ Balance équilibrée",
         "unbalanced": "⚠ Balance déséquilibrée",
         "account": "Compte",
         "label": "Libellé",
         "debit": "Débit",
         "credit": "Crédit",
-        "balance": "Solde"
+        "balance": "Solde Net",
+        "total_general": "Total Général des Flux"
       },
       "ledger": {
         "title": "Grand Livre",
@@ -1588,7 +1596,9 @@
         "label": "Libellé",
         "debit": "Débit",
         "credit": "Crédit",
-        "balance": "Solde"
+        "balance": "Solde",
+        "creditor_short": "C",
+        "debtor_short": "D"
       },
       "ratios": {
         "title": "Ratios Financiers Clés",

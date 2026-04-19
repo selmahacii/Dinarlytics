@@ -37,6 +37,7 @@
     "ifrs_badge": "IFRS - Reporting",
     "total": "Total",
     "days": "days",
+    "edition_date": "Edition Date",
     "errors": {
       "loading_failed": "Loading Failed",
       "retry": "Retry",
@@ -1887,14 +1888,20 @@
       },
       "reports": {
         "title": "Financial Statements & Reports",
-        "subtitle": "Tax pack, balance sheets and SCF analysis",
-        "period_select": "Select period",
+        "subtitle": "Tax package, balance sheets and SCF analysis",
+        "period_select": "Select Period",
+        "official_report": "Official Financial Statement",
+        "audit_ready": "Audit Ready",
         "actions": {
-          "print": "Print Statement",
+          "print": "Print List",
           "export_xml": "Export XML (DGI)",
           "export_pdf": "Export PDF",
           "export_excel": "Export Excel",
           "graphical_analysis": "Graphical Analysis"
+        },
+        "modals": {
+          "metrics_title": "Indicators & Available Metrics",
+          "imprimer_desc": "Select the accounting statement you wish to print. The document will be generated in the official format compliant with Algerian accounting standards."
         },
         "tabs": {
           "bilan": "Balance Sheet",
@@ -1954,8 +1961,26 @@
         },
         "balance": {
           "title": "General Trial Balance",
+          "subtitle": "Comprehensive statement of accounts • {{period}}",
           "balanced": "✓ Balance balanced",
-          "unbalanced": "⚠ Balance unbalanced"
+          "unbalanced": "⚠ Balance unbalanced",
+          "account": "Account",
+          "label": "Label",
+          "debit": "Debit",
+          "credit": "Credit",
+          "balance": "Net Balance",
+          "total_general": "Grand Total of Flows"
+        },
+        "ledger": {
+          "title": "General Ledger",
+          "final_balance": "Period Final Balance",
+          "date": "Date",
+          "label": "Label",
+          "debit": "Debit",
+          "credit": "Credit",
+          "balance": "Balance",
+          "creditor_short": "C",
+          "debtor_short": "D"
         },
         "ratios": {
           "title": "Key Financial Ratios",

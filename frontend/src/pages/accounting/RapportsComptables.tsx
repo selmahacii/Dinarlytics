@@ -230,7 +230,7 @@ const EtatsRapports: React.FC = () => {
           <h1>${t('accounting.reports.official_report')}</h1>
           <h2>${etatNom}</h2>
           <p>${t('common.period')}: ${periode}</p>
-          <p>${t('common.edition_date', { defaultValue: "Date d'édition" })}: ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+          <p>${t('common.edition_date')}: ${new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
         </div>
     `;
 
@@ -908,21 +908,21 @@ const EtatsRapports: React.FC = () => {
             <div className="px-6 py-5 bg-slate-900 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-black text-white uppercase tracking-widest">{t('accounting.reports.balance.title')}</h3>
-                <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">État exhaustif des comptes • {selectedPeriode}</p>
+                <p className="text-xs text-slate-400 mt-1 uppercase tracking-wider">{t('accounting.reports.balance.subtitle', { period: selectedPeriode })}</p>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-slate-700">Audit Ready</span>
+                <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-slate-700">{t('accounting.reports.audit_ready')}</span>
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-100">
-                <thead className="bg-slate-50">
+                <thead className="bg-slate-900 border-b-2 border-slate-800">
                   <tr>
                     <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.account')}</th>
                     <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.label')}</th>
                     <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.debit')}</th>
                     <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.credit')}</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Solde Net</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.balance')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-50">
@@ -955,25 +955,14 @@ const EtatsRapports: React.FC = () => {
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="bg-slate-900">
-                  <tr>
-                    <td colSpan={2} className="px-6 py-5 text-right">
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.total_general')} :</span>
+                <tfoot className="bg-slate-900/50">
+                  <tr className="border-t-2 border-slate-800">
+                    <td colSpan={2} className="px-6 py-4 text-[10px] font-black text-white uppercase tracking-widest">
+                      {t('accounting.reports.balance.total_general')}
                     </td>
-                    <td className="px-6 py-5 text-right">
-                      <span className="text-lg font-black text-white">{formatCurrency(totalDebitBalance)}</span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <span className="text-lg font-black text-white">{formatCurrency(totalCreditBalance)}</span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <div className={`w-2.5 h-2.5 rounded-full ${totalDebitBalance === totalCreditBalance ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500'}`}></div>
-                        <span className="text-xs font-black text-white uppercase tracking-widest">
-                          {totalDebitBalance === totalCreditBalance ? t('accounting.reports.balance.balanced') : t('accounting.reports.balance.unbalanced')}
-                        </span>
-                      </div>
-                    </td>
+                    <td className="px-6 py-4 text-right text-sm font-black text-white">{formatCurrency(totalDebitBalance)}</td>
+                    <td className="px-6 py-4 text-right text-sm font-black text-white">{formatCurrency(totalCreditBalance)}</td>
+                    <td className="px-6 py-4 text-right text-sm font-black text-white">{formatCurrency(Math.abs(totalDebitBalance - totalCreditBalance))}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -1026,9 +1015,9 @@ const EtatsRapports: React.FC = () => {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-slate-200">
-                    <thead className="bg-slate-50">
+                    <thead className="bg-slate-50 border-b border-slate-200">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t('common.date')}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.date')}</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.label')}</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.debit')}</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.credit')}</th>
@@ -1049,7 +1038,7 @@ const EtatsRapports: React.FC = () => {
                             {ecriture.credit > 0 ? formatCurrency(ecriture.credit) : '-'}
                           </td>
                           <td className={`px-6 py-3 text-right text-sm font-bold ${ecriture.solde >= 0 ? 'text-slate-900' : 'text-red-600'}`}>
-                            {formatCurrency(Math.abs(ecriture.solde))} {ecriture.solde < 0 ? t('common.account_states.creditor_short') : t('common.account_states.debtor_short')}
+                            {formatCurrency(Math.abs(ecriture.solde))} {ecriture.solde < 0 ? t('accounting.reports.ledger.creditor_short') : t('accounting.reports.ledger.debtor_short')}
                           </td>
                         </tr>
                       ))}
@@ -1410,7 +1399,7 @@ const EtatsRapports: React.FC = () => {
             <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
             <h4 className="text-[10px] font-black text-slate-900 mb-6 uppercase tracking-[0.2em] flex items-center">
               <span className="w-8 h-[1px] bg-slate-300 mr-3"></span>
-              Indicateurs & Métriques Disponibles
+              {t('accounting.reports.modals.metrics_title')}
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 relative z-10">
               {[
@@ -1440,7 +1429,7 @@ const EtatsRapports: React.FC = () => {
         <div className="space-y-6">
           <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
             <p className="text-sm text-slate-600 leading-relaxed">
-              Sélectionnez l'état comptable que vous souhaitez imprimer. Le document sera généré au format officiel conforme aux normes comptables algériennes.
+              {t('accounting.reports.modals.imprimer_desc')}
             </p>
           </div>
 
