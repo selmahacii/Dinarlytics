@@ -72,9 +72,9 @@ const Login: React.FC = () => {
         setDemoUsers(data.users || []);
         setAllDemoUserCreds(data.credentials || []);
       })
-      .catch(() => setLoginError('Erreur lors du chargement des utilisateurs de démonstration'))
+      .catch(() => setLoginError(t('auth.login.demo_load_error')))
       .finally(() => setLoadingDemoUsers(false));
-  }, []);
+  }, [t]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -121,7 +121,7 @@ const Login: React.FC = () => {
         }
       }, 1000);
     } catch (err) {
-      setError('Erreur de connexion. Veuillez réessayer.');
+      setError(t('auth.login.error_generic'));
     } finally {
       setIsLoading(false);
     }
@@ -234,7 +234,7 @@ const Login: React.FC = () => {
         }
       }, 1000);
     } catch (err) {
-      setError('Email ou mot de passe incorrect');
+      setError(t('auth.login.error_incorrect'));
     } finally {
       setIsLoading(false);
     }
@@ -272,12 +272,12 @@ const Login: React.FC = () => {
 
   const getSegmentLabel = (segment: string = 'micro') => {
     switch (segment) {
-      case 'micro': return 'Micro-entreprise';
-      case 'small': return 'Petite entreprise';
-      case 'medium': return 'Moyenne entreprise';
-      case 'large': return 'Grande entreprise';
-      case 'enterprise': return 'Très grande entreprise';
-      default: return 'Micro-entreprise';
+      case 'micro': return t('segments.micro');
+      case 'small': return t('segments.small');
+      case 'medium': return t('segments.medium');
+      case 'large': return t('segments.large');
+      case 'enterprise': return t('segments.enterprise');
+      default: return t('segments.micro');
     }
   };
 
@@ -294,11 +294,11 @@ const Login: React.FC = () => {
       <div className="relative w-full max-w-lg mx-auto mb-8 text-center">
         <div className="flex items-center justify-center space-x-4 mb-4">
           <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center shadow-lg">
-            <img src={currencyIcon} alt="Dinarlytic Logo" className="w-12 h-12 bg-white rounded-lg p-2" />
+            <img src={currencyIcon} alt={t('auth.login.title')} className="w-12 h-12 bg-white rounded-lg p-2" />
           </div>
           <div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight">Dinarlytic</h1>
-            <p className="text-slate-600 text-lg lg:text-xl font-medium">Solutions Financières Intelligentes</p>
+            <h1 className="text-4xl lg:text-5xl font-bold text-slate-800 tracking-tight">{t('auth.login.title')}</h1>
+            <p className="text-slate-600 text-lg lg:text-xl font-medium">{t('auth.login.subtitle')}</p>
           </div>
         </div>
         <div className="w-24 h-1 bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-full mx-auto"></div>
@@ -322,15 +322,15 @@ const Login: React.FC = () => {
           </div>
 
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-slate-800 mb-3">Connexion</h2>
-            <p className="text-slate-600 text-lg">Accédez à votre tableau de bord</p>
+            <h2 className="text-3xl font-bold text-slate-800 mb-3">{t('auth.login.card_title')}</h2>
+            <p className="text-slate-600 text-lg">{t('auth.login.card_subtitle')}</p>
           </div>
 
           {/* Success Message */}
           {showSuccess && (
             <div className="mb-8 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center space-x-4 shadow-sm">
               <CheckCircleIcon className="h-6 w-6 text-emerald-600" />
-              <span className="text-emerald-800 font-medium">Connexion réussie ! Redirection...</span>
+              <span className="text-emerald-800 font-medium">{t('auth.login.success')}</span>
             </div>
           )}
 
@@ -346,7 +346,7 @@ const Login: React.FC = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-3">
-                Adresse email
+                {t('auth.login.email_label')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -358,8 +358,8 @@ const Login: React.FC = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="block w-full pl-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
-                  placeholder="votre@email.com"
+                  className="block w-full ms-12 pr-4 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
+                  placeholder={t('auth.login.email_placeholder')}
                   required
                 />
               </div>
@@ -368,7 +368,7 @@ const Login: React.FC = () => {
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-3">
-                Mot de passe
+                {t('auth.login.password_label')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -380,8 +380,8 @@ const Login: React.FC = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="block w-full pl-12 pr-14 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
-                  placeholder="••••••••"
+                  className="block w-full ms-12 pr-14 py-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all duration-200 text-lg shadow-sm"
+                  placeholder={t('auth.login.password_placeholder')}
                   required
                 />
                 <button
@@ -409,15 +409,15 @@ const Login: React.FC = () => {
                   onChange={handleInputChange}
                   className="h-5 w-5 text-slate-600 focus:ring-slate-500 border-gray-300 rounded-lg"
                 />
-                <label htmlFor="rememberMe" className="ml-3 block text-sm font-medium text-slate-700">
-                  Se souvenir de moi
+                <label htmlFor="rememberMe" className="ms-3 block text-sm font-medium text-slate-700">
+                  {t('auth.login.remember_me')}
                 </label>
               </div>
               <button
                 type="button"
                 className="text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors"
               >
-                Mot de passe oublié ?
+                {t('auth.login.forgot_password')}
               </button>
             </div>
 
@@ -429,13 +429,13 @@ const Login: React.FC = () => {
             >
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                  <span className="text-lg">Connexion...</span>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white me-3"></div>
+                  <span className="text-lg">{t('auth.login.submitting_btn')}</span>
                 </>
               ) : (
                 <>
-                  <span className="text-lg">Se connecter</span>
-                  <ArrowRightIcon className="h-6 w-6 ml-3" />
+                  <span className="text-lg">{t('auth.login.submit_btn')}</span>
+                  <ArrowRightIcon className="h-6 w-6 ms-3" />
                 </>
               )}
             </button>
@@ -444,9 +444,9 @@ const Login: React.FC = () => {
           {/* Additional Info */}
           <div className="mt-10 text-center space-y-3">
             <p className="text-sm text-slate-600">
-              Pas encore de compte ?{' '}
+              {t('auth.login.no_account')}{' '}
               <button className="text-slate-700 hover:text-slate-900 font-semibold transition-colors">
-                Contactez l'administrateur
+                {t('auth.login.contact_admin')}
               </button>
             </p>
 
@@ -465,12 +465,12 @@ const Login: React.FC = () => {
           >
             <div className="flex items-center space-x-4 flex-1">
               <div className="flex-1 text-left">
-                <h3 className="text-2xl font-bold text-slate-800 mb-1">Identifiants de Démonstration</h3>
-                <p className="text-slate-600 text-sm">Cliquez sur un utilisateur pour vous connecter automatiquement</p>
+                <h3 className="text-2xl font-bold text-slate-800 mb-1">{t('auth.login.demo_title')}</h3>
+                <p className="text-slate-600 text-sm">{t('auth.login.demo_subtitle')}</p>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2">
                 <p className="text-sm font-semibold text-emerald-800">
-                  🔑 Mot de passe: <span className="font-mono">demo123</span>
+                  🔑 {t('auth.login.password_demo_label')} <span className="font-mono">demo123</span>
                 </p>
               </div>
             </div>
@@ -497,7 +497,7 @@ const Login: React.FC = () => {
                         <BuildingOfficeIcon className="h-5 w-5 text-slate-600" />
                         <div className="text-left">
                           <h4 className="font-bold text-slate-800">{companyName}</h4>
-                          <p className="text-xs text-slate-500">{users.length} utilisateur{users.length > 1 ? 's' : ''}</p>
+                          <p className="text-xs text-slate-500">{users.length} {users.length > 1 ? t('auth.login.users_suffix_plural') : t('auth.login.users_suffix')}</p>
                         </div>
                       </div>
                       <div className={`px-3 py-1 rounded-lg text-xs font-semibold border ${getRoleColor(users[0].segment || 'micro')}`}>
@@ -557,7 +557,7 @@ const Login: React.FC = () => {
 
               <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
                 <p className="text-xs text-blue-800">
-                  <strong>💡 Astuce :</strong> Cliquez sur une entreprise pour voir ses utilisateurs, puis cliquez sur un utilisateur pour vous connecter automatiquement.
+                  <strong>💡 {t('auth.login.tip_title')}</strong> {t('auth.login.tip_text')}
                 </p>
               </div>
             </div>

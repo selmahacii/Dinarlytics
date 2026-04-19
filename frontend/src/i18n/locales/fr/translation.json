@@ -13,6 +13,9 @@
     "status": "Statut",
     "date": "Date",
     "amount": "Montant",
+    "revenue": "Chiffre d'Affaires",
+    "margin": "Marge",
+    "cash": "Trésorerie",
     "description": "Description",
     "name": "Nom",
     "loading": "Chargement...",
@@ -32,6 +35,23 @@
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "tomorrow": "Demain",
+    "size": "Taille",
+    "tip": "Astuce",
+    "roles": {
+      "dg": "Directeur Général",
+      "daf": "Directeur Financier",
+      "manager_ops": "Responsable Opérations"
+    },
+    "periods": {
+      "month": "mois",
+      "week": "semaine",
+      "day": "jour",
+      "30days": "30 jours",
+      "3months": "3 mois",
+      "6months": "6 mois",
+      "12months": "12 mois",
+      "year": "Année"
+    },
     "success_suffix": "avec succès",
     "asc": "Croissant",
     "desc": "Décroissant",
@@ -65,13 +85,6 @@
       "october": "Octobre",
       "november": "Novembre",
       "december": "Décembre"
-    },
-    "periods": {
-      "30days": "30 jours",
-      "3months": "3 mois",
-      "6months": "6 mois",
-      "12months": "12 mois",
-      "year": "Année"
     },
     "loans": "Emprunts",
     "personnel": "Personnel",
@@ -2049,7 +2062,97 @@
       "growth_scenarios": "Scénarios de croissance M+6",
       "risk_report": "Rapport de risque global"
     },
-    "input_placeholder": "Posez une question à l'intelligence LIA..."
+    "input_placeholder": "Posez une question à l'intelligence LIA...",
+    "labels": {
+      "confidence_high": "Confiance Élevée",
+      "confidence_medium": "Confiance Moyenne",
+      "confidence_low": "Confiance Faible",
+      "trend_up": "En hausse",
+      "trend_down": "En baisse",
+      "trend_stable": "Stable",
+      "risk_low": "Faille",
+      "risk_medium": "Moyen",
+      "risk_high": "Élevé",
+      "risk_critical": "Critique",
+      "status_good": "Bon",
+      "status_warning": "Avertissement",
+      "status_critical": "Critique",
+      "status_excellent": "Excellent",
+      "status_average": "Moyen",
+      "status_below": "Sous la moyenne",
+      "status_poor": "Médiocre"
+    },
+    "tooltips": {
+      "microphone": "Commande vocale",
+      "attachment": "Joindre un document (FEC, G50...)",
+      "export": "Exporter la conversation",
+      "clipboard": "Copier dans le presse-papier"
+    },
+    "fallback": {
+      "api_unavailable": "L'API IA est indisponible. Utilisation de la logique locale de simulation.",
+      "revenue_forecast": {
+        "title": "📈 PRÉVISIONS DE REVENUS — HORIZON 12 MOIS",
+        "error_min_data": "❌ Pas assez de données historiques pour générer des prévisions de CA. Minimum 3 mois requis.",
+        "summary_title": "SYNTHÈSE DE CROISSANCE PRÉVUE :",
+        "total_variation": "Variation Totale Estimée",
+        "base_trend": "Tendance de Fond",
+        "recommendation": "Alignez vos capacités de production et vos budgets marketing sur cette trajectoire."
+      },
+      "seasonal": {
+        "title": "🔄 AUDIT DES PATTERNS SAISONNIERS",
+        "error_min_data": "[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis."
+      },
+      "audit_forecast": {
+        "title": "📑 AUDIT PRÉDICTIF DE TRÉSORERIE (13 semaines)",
+        "org_prefix": "Organisation",
+        "role_prefix": "Rôle",
+        "metrics_title": "PROJECTIONS DES MÉTRIQUES CLÉS",
+        "risk_label": "Risque Financier",
+        "recommendations_title": "RECOMMANDATIONS PRIORITAIRES",
+        "projections_prefix": "Solde prévisionnel",
+        "trend_prefix": "Dynamique",
+        "confidence_prefix": "Indice de confiance",
+        "alert_liquidity": "⚠️ [ALERTE LIQUIDITÉ]",
+        "stable": "✅ [STABLE]"
+      },
+      "risk_audit": {
+        "title": "🛡️ AUDIT DE RISQUE FINANCIER — PROTOCOLE LIA",
+        "overall_level": "Niveau Global",
+        "factors_title": "1. AUDIT DES FACTEURS DE RISQUE",
+        "impact_suffix": "pts",
+        "strategic_recommendation": "2. RECOMMANDATION STRATÉGIQUE RÉGLEMENTAIRE",
+        "footer": "© LIA Risk Management Unit - Financial Compliance"
+      },
+      "scenarios": {
+        "title": "🔮 SCÉNARIOS PRÉDICTIFS — HORIZON 6 MOIS",
+        "prob_high": "🟢 [PROBABILITÉ ÉLEVÉE]",
+        "prob_medium": "🟡 [PROBABILITÉ MOYENNE]",
+        "prob_low": "🔴 [PROBABILITÉ FAIBLE]",
+        "assumptions_title": "HYPOTHÈSES STRATÉGIQUES",
+        "risks_title": "FACTEURS DE RISQUE"
+      }
+    },
+    "subtitle": "Unité d'Intelligence de Décision",
+    "user_label": "Utilisateur",
+    "typing": "LIA réfléchit...",
+    "disclaimer": "LIA est une IA. Vérifiez toujours les décisions critiques avec un professionnel.",
+    "plan_title": "Plan d'Actions Stratégiques",
+    "auto_generate": "Générer via Analyse",
+    "demo_plan": "Plan de Démo",
+    "action": "Action",
+    "owner": "Responsable",
+    "due_date": "Délai",
+    "add_btn": "Ajouter",
+    "no_tasks": "Aucune tâche dans le plan actuel. Générez-en avec LIA !",
+    "todo": "À faire",
+    "in_progress": "En cours",
+    "done": "Terminé",
+    "recommendations": {
+      "collect_early": "Accélérer les encaissements (relances proactives)",
+      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
+      "reduce_opex": "Réduire les dépenses non essentielles",
+      "bridge_finance": "Envisager un financement court terme si nécessaire"
+    }
   },
   "access": {
     "denied": "Accès refusé",
@@ -2320,6 +2423,17 @@
         "role": "Rôle",
         "events": "Événements",
         "trend": "Tendance"
+      },
+      "descriptions": {
+        "login_success_mfa": "Connexion réussie via 2FA",
+        "auth_fail": "Tentative de modification sans droits administrateur",
+        "backup_warning": "Sauvegarde automatique terminée avec avertissements",
+        "bank_update": "Mise à jour des coordonnées bancaires",
+        "log_rotation": "Rotation des logs système (Automatique)",
+        "session_open": "Session administrateur ouverte",
+        "amount_validated": "Montant validé",
+        "export_finance": "Export du rapport financier par Nadia Belkacem",
+        "backup_daily": "Sauvegarde quotidienne effectuée avec succès"
       }
     },
     "reports": {
@@ -2358,7 +2472,32 @@
       "generating": "Génération en cours...",
       "available": "Disponible",
       "expired": "Expiré",
-      "download": "Télécharger"
+      "download": "Télécharger",
+      "formats": {
+        "pdf_signed": "PDF Signé",
+        "excel_csv": "Excel / CSV"
+      },
+      "scheduled": {
+        "items": {
+          "weekly_security": {
+            "name": "Audit Hebdomadaire Sécurité",
+            "schedule": "Chaque Lundi, 08:00",
+            "recipients": "DSI, RSSI"
+          },
+          "monthly_closure": {
+            "name": "Clôture Mensuelle Activité",
+            "schedule": "Le 1er du mois, 06:00",
+            "recipients": "Direction, Finance"
+          }
+        }
+      },
+      "history_table": {
+        "document": "Document",
+        "date": "Date"
+      },
+      "audit_report_content": {
+        "title": "RAPPORT D'AUDIT - DINARLYTICS"
+      }
     },
     "modals": {
       "details_title": "Détails de l'Audit",
@@ -2390,5 +2529,129 @@
     "dg": "Directeur",
     "daf": "DAF",
     "manager_ops": "Manager Ops"
+  },
+      "performance": "Audit de performance et conformité"
+    },
+    "question": "Comment puis-je vous éclairer aujourd'hui ?",
+    "quick_actions": {
+      "synthesis": "Synthèse de performance",
+      "sector_analysis": "Analyse sectorielle",
+      "growth_scenarios": "Scénarios de croissance",
+      "risk_report": "Rapport de risque"
+    },
+    "placeholders": {
+      "ask": "Posez votre question financière ici..."
+    },
+    "tooltips": {
+      "microphone": "Commande vocale",
+      "attachment": "Joindre un document (FEC, G50...)",
+      "export": "Exporter la conversation",
+      "clipboard": "Copier dans le presse-papier"
+    },
+    "fallback": {
+      "api_unavailable": "L'API IA est indisponible. Utilisation de la logique locale de simulation.",
+      "revenue_forecast": {
+        "title": "📈 PRÉVISIONS DE REVENUS — HORIZON 12 MOIS",
+        "error_min_data": "❌ Pas assez de données historiques pour générer des prévisions de CA. Minimum 3 mois requis.",
+        "summary_title": "SYNTHÈSE DE CROISSANCE PRÉVUE :",
+        "total_variation": "Variation Totale Estimée",
+        "base_trend": "Tendance de Fond",
+        "recommendation": "Alignez vos capacités de production et vos budgets marketing sur cette trajectoire."
+      },
+      "seasonal": {
+        "title": "🔄 AUDIT DES PATTERNS SAISONNIERS",
+        "error_min_data": "[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis."
+      },
+      "audit_forecast": {
+        "title": "📑 AUDIT PRÉDICTIF DE TRÉSORERIE (13 semaines)",
+        "org_prefix": "Organisation",
+        "role_prefix": "Rôle",
+        "metrics_title": "PROJECTIONS DES MÉTRIQUES CLÉS",
+        "risk_label": "Risque Financier",
+        "recommendations_title": "RECOMMANDATIONS PRIORITAIRES",
+        "projections_prefix": "Solde prévisionnel",
+        "trend_prefix": "Dynamique",
+        "confidence_prefix": "Indice de confiance",
+        "alert_liquidity": "⚠️ [ALERTE LIQUIDITÉ]",
+        "stable": "✅ [STABLE]"
+      },
+      "risk_audit": {
+        "title": "🛡️ AUDIT DE RISQUE FINANCIER — PROTOCOLE LIA",
+        "overall_level": "Niveau Global",
+        "factors_title": "1. AUDIT DES FACTEURS DE RISQUE",
+        "impact_suffix": "pts",
+        "strategic_recommendation": "2. RECOMMANDATION STRATÉGIQUE RÉGLEMENTAIRE",
+        "footer": "© LIA Risk Management Unit - Financial Compliance"
+      },
+      "scenarios": {
+        "title": "🔮 SCÉNARIOS PRÉDICTIFS — HORIZON 6 MOIS",
+        "prob_high": "🟢 [PROBABILITÉ ÉLEVÉE]",
+        "prob_medium": "🟡 [PROBABILITÉ MOYENNE]",
+        "prob_low": "🔴 [PROBABILITÉ FAIBLE]",
+        "assumptions_title": "HYPOTHÈSES STRATÉGIQUES",
+        "risks_title": "FACTEURS DE RISQUE"
+      }
+    },
+    "title": "Assistant Stratégique",
+    "subtitle": "Unité d'Intelligence de Décision",
+    "user_label": "Utilisateur",
+    "typing": "LIA réfléchit...",
+    "disclaimer": "LIA est une IA. Vérifiez toujours les décisions critiques avec un professionnel.",
+    "plan_title": "Plan d'Actions Stratégiques",
+    "auto_generate": "Générer via Analyse",
+    "demo_plan": "Plan de Démo",
+    "close": "Fermer",
+    "action": "Action",
+    "owner": "Responsable",
+    "due_date": "Délai",
+    "add_btn": "Ajouter",
+    "no_tasks": "Aucune tâche dans le plan actuel. Générez-en avec LIA !",
+    "todo": "À faire",
+    "in_progress": "En cours",
+    "done": "Terminé"
+  },
+  "auth": {
+    "login": {
+      "title": "Dinarlytic",
+      "subtitle": "Solutions Financières Intelligentes",
+      "card_title": "Connexion",
+      "card_subtitle": "Accédez à votre tableau de bord",
+      "success": "Connexion réussie ! Redirection...",
+      "error_incorrect": "Email ou mot de passe incorrect",
+      "error_generic": "Erreur de connexion. Veuillez réessayer.",
+      "email_label": "Adresse email",
+      "email_placeholder": "votre@email.com",
+      "password_label": "Mot de passe",
+      "password_placeholder": "••••••••",
+      "remember_me": "Se souvenir de moi",
+      "forgot_password": "Mot de passe oublié ?",
+      "submit_btn": "Se connecter",
+      "submitting_btn": "Connexion...",
+      "no_account": "Pas encore de compte ?",
+      "contact_admin": "Contactez l'administrateur",
+      "demo_title": "Identifiants de Démonstration",
+      "demo_subtitle": "Cliquez sur un utilisateur pour vous connecter automatiquement",
+      "password_demo_label": "Mot de passe:",
+      "users_suffix": "utilisateur",
+      "users_suffix_plural": "utilisateurs",
+      "tip_title": "Astuce :",
+      "tip_text": "Cliquez sur une entreprise pour voir ses utilisateurs, puis cliquez sur un utilisateur pour vous connecter automatiquement.",
+      "demo_load_error": "Erreur lors du chargement des utilisateurs de démonstration"
+    }
+  },
+  "segments": {
+    "micro": "Micro-entreprise",
+    "small": "Petite entreprise",
+    "medium": "Moyenne entreprise",
+    "large": "Grande entreprise",
+    "enterprise": "Enterprise / Groupe"
+  },
+  "chatbot": {
+    "recommendations": {
+      "collect_early": "Accélérer les encaissements (relances proactives)",
+      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
+      "reduce_opex": "Réduire les dépenses non essentielles",
+      "bridge_finance": "Envisager un financement court terme si nécessaire"
+    }
   }
 }

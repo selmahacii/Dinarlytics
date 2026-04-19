@@ -108,7 +108,7 @@ const ChatbotLIA: React.FC = () => {
   // Personalized dynamic greeting using i18n
   useEffect(() => {
     if (user) {
-      const roleDisplay = user.role_display || user.role || 'Utilisateur';
+      const roleDisplay = user.role_display || user.role || t('common.user');
       
       const greeting = t('chatbot.welcome', { name: `${user.prenom || ''} ${user.nom || ''}` }) + 
         '\n\n' + 
@@ -214,7 +214,7 @@ const ChatbotLIA: React.FC = () => {
   const log = (action: 'create' | 'update' | 'delete' | 'status-change', details: string) => {
     try {
       const userIdNum = user ? (Number((user as any).id) || -1) : -1;
-      logAction({ userId: userIdNum, action, actor: user?.nom || 'Utilisateur', details });
+      logAction({ userId: userIdNum, action, actor: user?.nom || t('common.user'), details });
     } catch { }
   };
 
@@ -459,8 +459,8 @@ const ChatbotLIA: React.FC = () => {
       });
 
       const lines: string[] = [];
-      lines.push(`📑 AUDIT PRÉDICTIF DE TRÉSORERIE (13 semaines)`);
-      lines.push(`Organisation: ${user?.companyName || 'Entreprise'} • Segment: ${segment.toUpperCase()} • Rôle: ${user?.role_display || user?.role}`);
+      lines.push(t('chatbot.fallback.audit_forecast.title'));
+      lines.push(`${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Entreprise'} • Segment: ${t(`segments.${segment}`)} • ${t('chatbot.fallback.audit_forecast.role_prefix')}: ${user?.role_display || user?.role}`);
       lines.push('');
       lines.push('─'.repeat(50));
       lines.push('');
@@ -471,12 +471,12 @@ const ChatbotLIA: React.FC = () => {
         const confidenceLabel = getConfidenceLabel(f.confidence);
         const trendLabel = getTrendLabel(f.trend ?? 'stable');
         const isCritical = criticalWeeks.some(cw => cw.date === f.date);
-        const riskLabel = isCritical ? '⚠️ [ALERTE LIQUIDITÉ]' : '✅ [STABLE]';
+        const riskLabel = isCritical ? t('chatbot.fallback.audit_forecast.alert_liquidity') : t('chatbot.fallback.audit_forecast.stable');
 
         lines.push(`${f.period} (${dateStr}) — ${riskLabel}`);
-        lines.push(`  • Solde prévisionnel: ${formatCurrency(f.value)}`);
-        lines.push(`  • Dynamique: ${trendLabel}`);
-        lines.push(`  • Indice de confiance: ${confidenceLabel}`);
+        lines.push(`  • ${t('chatbot.fallback.audit_forecast.projections_prefix')}: ${formatCurrency(f.value)}`);
+        lines.push(`  • ${t('chatbot.fallback.audit_forecast.trend_prefix')}: ${trendLabel}`);
+        lines.push(`  • ${t('chatbot.fallback.audit_forecast.confidence_prefix')}: ${confidenceLabel}`);
         if (isCritical) {
           lines.push(`  ${riskLabel} Risque de pénurie de trésorerie`);
         }
@@ -489,21 +489,21 @@ const ChatbotLIA: React.FC = () => {
       if (criticalWeeks.length > 0) {
         lines.push('─'.repeat(60));
         lines.push('');
-        lines.push('ALERTES PRÉDICTIVES');
+        lines.push(t('chatbot.fallback.audit_forecast.alert_liquidity'));
         lines.push('');
         criticalWeeks.forEach(cw => {
           const date = new Date(cw.date);
-          const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+          const dateStr = date.toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', { day: '2-digit', month: 'short' });
           const cashMonths = (cw.value / revM).toFixed(1);
-          lines.push(`  • ${cw.period} (${dateStr}): Trésorerie insuffisante`);
-          lines.push(`    Solde prévu: ${formatCurrency(cw.value)} (${cashMonths} mois de CA)`);
+          lines.push(`  • ${cw.period} (${dateStr}): ${t('chatbot.fallback.audit_forecast.alert_liquidity')}`);
+          lines.push(`    ${t('chatbot.fallback.audit_forecast.projections_prefix')}: ${formatCurrency(cw.value)} (${cashMonths} ${t('common.periods.month')})`);
         });
         lines.push('');
-        lines.push('RECOMMANDATIONS PRIORITAIRES:');
-        lines.push('  1. Accélérer les encaissements (relances proactives)');
-        lines.push('  2. Négocier des délais de paiement avec les fournisseurs');
-        lines.push('  3. Réduire les dépenses non essentielles');
-        lines.push('  4. Envisager un financement court terme si nécessaire');
+        lines.push(`${t('chatbot.fallback.audit_forecast.recommendations_title')}:`);
+        lines.push('  1. ' + t('chatbot.recommendations.collect_early'));
+        lines.push('  2. ' + t('chatbot.recommendations.negotiate_dpo'));
+        lines.push('  3. ' + t('chatbot.recommendations.reduce_opex'));
+        lines.push('  4. ' + t('chatbot.recommendations.bridge_finance'));
         lines.push('');
       }
 
@@ -519,21 +519,21 @@ const ChatbotLIA: React.FC = () => {
       );
 
       const content = [
-        `🛡️ AUDIT DE RISQUE FINANCIER — PROTOCOLE LIA`,
-        `Organisation: ${user?.companyName || 'Groupe'} • Niveau Global: ${getRiskLabel(riskAnalysis.overallRisk).toUpperCase()} (${riskAnalysis.score}/100)`,
+        t('chatbot.fallback.risk_audit.title'),
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • ${t('chatbot.fallback.risk_audit.overall_level')}: ${getRiskLabel(riskAnalysis.overallRisk).toUpperCase()} (${riskAnalysis.score}/100)`,
         '',
         '─'.repeat(50),
         '',
-        '1. AUDIT DES FACTEURS DE RISQUE',
+        t('chatbot.fallback.risk_audit.factors_title'),
         ...riskAnalysis.factors.map(factor =>
-          `• ${factor.factor.padEnd(20)} : ${getRiskLabel(factor.risk).toUpperCase()} [Impact: ${factor.impact} pts]\n  ${factor.description}`
+          `• ${factor.factor.padEnd(20)} : ${getRiskLabel(factor.risk).toUpperCase()} [Impact: ${factor.impact} ${t('chatbot.fallback.risk_audit.impact_suffix')}]\n  ${factor.description}`
         ),
         '',
-        '2. RECOMMANDATION STRATÉGIQUE RÉGLEMENTAIRE',
+        t('chatbot.fallback.risk_audit.strategic_recommendation'),
         riskAnalysis.recommendation,
         '',
         '─'.repeat(50),
-        '© LIA Risk Management Unit - Financial Compliance'
+        t('chatbot.fallback.risk_audit.footer')
       ].join('\n');
       return {
         id: Date.now().toString(),
@@ -581,27 +581,27 @@ const ChatbotLIA: React.FC = () => {
       });
 
       const content = [
-        `🔮 SCÉNARIOS PRÉDICTIFS — HORIZON 6 MOIS`,
-        `Organisation: ${user?.companyName || 'Groupe'} • Profil: ${companyType.toUpperCase()} • Secteur: ${sectorLabel}`,
+        t('chatbot.fallback.scenarios.title'),
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • Profil: ${companyType.toUpperCase()} • Secteur: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
         ...scenarios.map((scenario, idx) => {
-          const probLabel = scenario.probability >= 50 ? '🟢 [PROBABILITÉ ÉLEVÉE]' : scenario.probability >= 30 ? '🟡 [PROBABILITÉ MOYENNE]' : '🔴 [PROBABILITÉ FAIBLE]';
+          const probLabel = scenario.probability >= 50 ? t('chatbot.fallback.scenarios.prob_high') : scenario.probability >= 30 ? t('chatbot.fallback.scenarios.prob_medium') : t('chatbot.fallback.scenarios.prob_low');
 
           return [
             `${scenario.name.toUpperCase()} — ${probLabel}`,
             `Description: ${scenario.description}`,
             '',
-            'PROJECTIONS DES MÉTRIQUES CLÉS:',
-            scenario.metrics.revenue ? `  • Chiffre d'Affaires: ${formatCurrency(scenario.metrics.revenue.projected)} (${Number(scenario.metrics.revenue.change) > 0 ? '+' : ''}${((Number(scenario.metrics.revenue.change) / scenario.metrics.revenue.current) * 100).toFixed(1)}%)` : '',
-            scenario.metrics.margin ? `  • Marge Bénéficiaire: ${scenario.metrics.margin.projected.toFixed(1)}% (${Number(scenario.metrics.margin.change) > 0 ? '+' : ''}${scenario.metrics.margin.change.toFixed(1)} pts)` : '',
-            scenario.metrics.cash ? `  • Position de Trésorerie: ${formatCurrency(scenario.metrics.cash.projected)} (${Number(scenario.metrics.cash.change) > 0 ? '+' : ''}${((Number(scenario.metrics.cash.change) / scenario.metrics.cash.current) * 100).toFixed(1)}%)` : '',
+            `${t('chatbot.fallback.audit_forecast.metrics_title')}:`,
+            scenario.metrics.revenue ? `  • ${t('common.revenue')}: ${formatCurrency(scenario.metrics.revenue.projected)} (${Number(scenario.metrics.revenue.change) > 0 ? '+' : ''}${((Number(scenario.metrics.revenue.change) / scenario.metrics.revenue.current) * 100).toFixed(1)}%)` : '',
+            scenario.metrics.margin ? `  • ${t('common.margin')}: ${scenario.metrics.margin.projected.toFixed(1)}% (${Number(scenario.metrics.margin.change) > 0 ? '+' : ''}${scenario.metrics.margin.change.toFixed(1)} pts)` : '',
+            scenario.metrics.cash ? `  • ${t('common.cash')}: ${formatCurrency(scenario.metrics.cash.projected)} (${Number(scenario.metrics.cash.change) > 0 ? '+' : ''}${((Number(scenario.metrics.cash.change) / scenario.metrics.cash.current) * 100).toFixed(1)}%)` : '',
             '',
-            'HYPOTHÈSES STRATÉGIQUES:',
+            `${t('chatbot.fallback.scenarios.assumptions_title')}:`,
             ...scenario.assumptions.map((ass, i) => `  ${i + 1}. ${ass}`),
             '',
-            scenario.risks.length > 0 ? 'FACTEURS DE RISQUE:' : '',
+            scenario.risks.length > 0 ? `${t('chatbot.fallback.scenarios.risks_title')}:` : '',
             ...scenario.risks.map((risk, i) => `  • ${risk}`),
             '',
             '─'.repeat(30),
@@ -648,9 +648,9 @@ const ChatbotLIA: React.FC = () => {
         return {
           id: Date.now().toString(),
           type: 'lia',
-          content: '❌ Pas assez de données historiques pour générer des prévisions de CA. Minimum 3 mois requis.',
+          content: t('chatbot.fallback.revenue_forecast.error_min_data'),
           timestamp: new Date(),
-          suggestions: ['Prévisions de trésorerie (13 semaines)', 'Analyse financière complète']
+          suggestions: [t('chatbot.quick_actions.risk_report'), t('chatbot.quick_actions.synthesis')]
         };
       }
 
@@ -660,25 +660,25 @@ const ChatbotLIA: React.FC = () => {
         : 0;
 
       const content = [
-        `📈 PRÉVISIONS DE REVENUS — HORIZON 12 MOIS`,
-        `Organisation: ${user?.companyName || 'Groupe'} • Profil: ${companyType.toUpperCase()} • Secteur: ${sectorLabel}`,
+        t('chatbot.fallback.revenue_forecast.title'),
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • Profil: ${companyType.toUpperCase()} • Secteur: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
-        'PROJECTIONS MENSUELLES:',
+        t('chatbot.fallback.audit_forecast.metrics_title'),
         ...forecasts.map(f => {
           const date = new Date(f.date);
-          const dateStr = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+          const dateStr = date.toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', { month: 'long', year: 'numeric' });
           return `• ${dateStr.padEnd(18)} : ${formatCurrency(f.value).padStart(15)} [${getConfidenceLabel(f.confidence)}]`;
         }),
         '',
         '─'.repeat(25),
         '',
-        'SYNTHÈSE DE CROISSANCE PRÉVUE:',
-        `• Variation Totale Estimée : ${avgGrowth > 0 ? '+' : ''}${avgGrowth.toFixed(1)}%`,
-        `• Tendance de Fond        : ${avgGrowth > 0 ? 'HAUSSIÈRE (Favorable)' : avgGrowth < 0 ? 'BAISSIÈRE (Critique)' : 'STABLE'}`,
+        t('chatbot.fallback.revenue_forecast.summary_title'),
+        `• ${t('chatbot.fallback.revenue_forecast.total_variation')} : ${avgGrowth > 0 ? '+' : ''}${avgGrowth.toFixed(1)}%`,
+        `• ${t('chatbot.fallback.revenue_forecast.base_trend')}        : ${avgGrowth > 0 ? t('chatbot.labels.trend_up') : avgGrowth < 0 ? t('chatbot.labels.trend_down') : t('chatbot.labels.trend_stable')}`,
         '',
-        '👉 Recommandation : Alignez vos capacités de production et vos budgets marketing sur cette trajectoire.',
+        `👉 ${t('common.tip')} : ${t('chatbot.fallback.revenue_forecast.recommendation')}`,
         '',
         '© LIA Revenue Forecasting - Predictive Growth Analysis'
       ].join('\n');
@@ -725,9 +725,9 @@ const ChatbotLIA: React.FC = () => {
         return {
           id: Date.now().toString(),
           type: 'lia',
-          content: '[ERREUR] Pas assez de données historiques pour détecter des patterns saisonniers. Minimum 12 mois requis.',
+          content: t('chatbot.fallback.seasonal.error_min_data'),
           timestamp: new Date(),
-          suggestions: ['Prévisions de CA (12 mois)', 'Prévisions de trésorerie (13 semaines)']
+          suggestions: [t('chatbot.quick_actions.revenue_forecast'), t('chatbot.quick_actions.audit_forecast')]
         };
       }
 
@@ -737,31 +737,31 @@ const ChatbotLIA: React.FC = () => {
         'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
       const content = [
-        `🔄 AUDIT DES PATTERNS SAISONNIERS`,
-        `Organisation: ${user?.companyName || 'Groupe'} • Période d'Analyse: 24 mois • Secteur: ${sectorLabel}`,
+        t('chatbot.fallback.seasonal.title'),
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • Période d'Analyse: 24 mois • Secteur: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
-        '1. DÉTECTION DE SAISONNALITÉ',
+        '1. ' + t('chatbot.fallback.seasonal.detection_title'),
         safePattern.description,
         '',
-        '2. POINTS DE CONTRÔLE CRITIQUES',
-        `• Période de Pic (High)    : ${monthNames[safePattern.peakMonth!]}`,
-        `• Période de Creux (Low)   : ${monthNames[safePattern.lowMonth!]}`,
-        `• Facteur de Saisonnalité  : ${(safePattern.seasonalityFactor * 100).toFixed(1)}%`,
+        '2. ' + t('chatbot.fallback.seasonal.critical_points'),
+        `• ${t('chatbot.fallback.seasonal.peak_period')}    : ${t(`common.months.${monthNames[safePattern.peakMonth!].toLowerCase()}`)}`,
+        `• ${t('chatbot.fallback.seasonal.low_period')}   : ${t(`common.months.${monthNames[safePattern.lowMonth!].toLowerCase()}`)}`,
+        `• ${t('chatbot.fallback.seasonal.factor')}  : ${(safePattern.seasonalityFactor * 100).toFixed(1)}%`,
         '',
-        '3. RECOMMANDATIONS DE PILOTAGE STRATÉGIQUE',
+        '3. ' + t('chatbot.fallback.seasonal.recommendations_title'),
         ...(safePattern.seasonalityFactor > 0.3 ? [
-          '⚠️ Saisonnalité Marquée :',
-          '  • Optimisation des Stocks : Anticiper le réapprovisionnement 60 jours avant le pic.',
-          '  • Gestion de Trésorerie : Constituer une réserve de liquidité durant le pic pour couvrir le creux.',
-          '  • Marketing : Lancer les campagnes d\'acquisition 30 jours avant la phase ascendante.',
-          '  • RH : Envisager des renforts temporaires ou une modulation du temps de travail.'
+          '⚠️ ' + t('chatbot.fallback.seasonal.marked_seasonal') + ' :',
+          '  • ' + t('chatbot.fallback.seasonal.stock_opt'),
+          '  • ' + t('chatbot.fallback.seasonal.cash_mgt'),
+          '  • ' + t('chatbot.fallback.seasonal.marketing_launch'),
+          '  • ' + t('chatbot.fallback.seasonal.hr_mgt')
         ] : [
-          '✅ Activité Linéaire :',
-          '  • Focus sur l\'amélioration continue des marges.',
-          '  • Stabilité des flux de trésorerie permettant des investissements réguliers.',
-          '  • Maintenance d\'un niveau de stock constant.'
+          '✅ ' + t('chatbot.fallback.seasonal.linear_activity') + ' :',
+          '  • ' + t('chatbot.fallback.seasonal.linear_focus'),
+          '  • ' + t('chatbot.fallback.seasonal.linear_cash'),
+          '  • ' + t('chatbot.fallback.seasonal.linear_stock')
         ]),
         '',
         '─'.repeat(50),
@@ -1677,20 +1677,17 @@ const ChatbotLIA: React.FC = () => {
                 URL.revokeObjectURL(url);
               }}
               disabled={!canExport}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${canExport ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 active:scale-95' : 'text-slate-300 cursor-not-allowed'}`}
-              aria-label={t('chatbot.export')}
-              title={canExport ? t('chatbot.export') : 'Permission requise: export-data'}
+              className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+              title={t('chatbot.tooltips.export')}
             >
               <ArrowDownTrayIcon className="h-5 w-5" />
-              <span>{t('chatbot.export')}</span>
             </button>
             <button
               onClick={() => setShowPlan(v => !v)}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-black transition-all active:scale-95 shadow-md shadow-slate-200"
-              title={t('chatbot.dashboard_btn')}
+              className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+              title={t('chatbot.tooltips.clipboard')}
             >
-              <ClipboardDocumentCheckIcon className="h-5 w-5 text-indigo-300" />
-              <span>{t('chatbot.dashboard_btn')}</span>
+              <ClipboardDocumentCheckIcon className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -1993,7 +1990,7 @@ const ChatbotLIA: React.FC = () => {
                       disabled={!canEditPlan}
                       className="p-2 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                     >
-                      <SparklesIcon className="h-4 w-4 rotate-45" /> {/* Use Sparkles as a fancy delete for now or just generic icon */}
+                      <SparklesIcon className="h-4 w-4 rotate-45" />
                     </button>
                   </div>
                 ))
@@ -2026,15 +2023,12 @@ const ChatbotLIA: React.FC = () => {
           </div>
 
           <div className="relative group flex items-center gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-4 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-[1.5rem] transition-all" 
-              aria-label="Joindre un fichier" 
-              title="Joindre un fichier"
+            <button
+              className="p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all"
+              title={t('chatbot.tooltips.attachment')}
             >
               <PaperClipIcon className="h-6 w-6" />
-            </motion.button>
+            </button>
 
             <div className="flex-1 relative">
               <input
@@ -2043,7 +2037,7 @@ const ChatbotLIA: React.FC = () => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={t('chatbot.placeholder')}
+                placeholder={t('chatbot.placeholders.ask')}
                 className="w-full pl-7 pr-16 py-5 md:py-6 bg-slate-50 border border-slate-100 rounded-[2.5rem] focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 outline-none text-[15px] font-medium text-slate-800 transition-all placeholder:text-slate-400 placeholder:font-normal"
               />
               <motion.button

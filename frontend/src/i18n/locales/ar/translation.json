@@ -2282,6 +2282,17 @@
         "role": "الدور",
         "events": "الفعاليات",
         "trend": "التوجه"
+      },
+      "descriptions": {
+        "login_success_mfa": "دخول ناجح عبر مصادقة ثنائية (2FA)",
+        "auth_fail": "محاولة تعديل بدون صلاحيات مدير",
+        "backup_warning": "اكتمل النسخ الاحتياطي التلقائي مع تحذيرات",
+        "bank_update": "تحديث التفاصيل البنكية",
+        "log_rotation": "تدوير سجلات النظام (تلقائي)",
+        "session_open": "تم فتح جلسة مدير النظام",
+        "amount_validated": "تم التحقق من المبلغ",
+        "export_finance": "تصدير التقرير المالي بواسطة نادية بلقاسم",
+        "backup_daily": "اكتمل النسخ الاحتياطي اليومي بنجاح"
       }
     },
     "reports": {
@@ -2320,7 +2331,32 @@
       "generating": "جاري الإنشاء...",
       "available": "متوفر",
       "expired": "منتهي الصلاحية",
-      "download": "تحميل"
+      "download": "تحميل",
+      "formats": {
+        "pdf_signed": "PDF موقع",
+        "excel_csv": "Excel / CSV"
+      },
+      "scheduled": {
+        "items": {
+          "weekly_security": {
+            "name": "تدقيق الأمن الأسبوعي",
+            "schedule": "كل اثنين، 08:00",
+            "recipients": "مدير الأنظمة، مسؤول الأمن"
+          },
+          "monthly_closure": {
+            "name": "إغلاق النشاط الشهري",
+            "schedule": "الأول من الشهر، 06:00",
+            "recipients": "الإدارة، المالية"
+          }
+        }
+      },
+      "history_table": {
+        "document": "المستند",
+        "date": "التاريخ"
+      },
+      "audit_report_content": {
+        "title": "تقرير التدقيق - DINARLYTICS"
+      }
     },
     "modals": {
       "details_title": "تفاصيل التدقيق",
@@ -2360,5 +2396,144 @@
     "dg": "مدير عام",
     "daf": "مدير مالي",
     "manager_ops": "مدير عمليات"
+  },
+  "chatbot": {
+    "labels": {
+      "confidence_high": "ثقة عالية",
+      "confidence_medium": "ثقة متوسطة",
+      "confidence_low": "ثقة منخفضة",
+      "trend_up": "صاعد",
+      "trend_down": "هابط",
+      "trend_stable": "مستقر",
+      "risk_low": "منخفض",
+      "risk_medium": "متوسط",
+      "risk_high": "عالي",
+      "risk_critical": "حرج",
+      "status_good": "جيد",
+      "status_warning": "تحذير",
+      "status_critical": "حرج",
+      "status_excellent": "ممتاز",
+      "status_average": "متوسط",
+      "status_below": "أقل من المتوسط",
+      "status_poor": "ضعيف"
+    },
+    "welcome": "مرحباً {{name}}! أنا ليا، مساعدتك للذكاء المالي.",
+    "role_context": "بصفتك {{role}}، يمكنني مساعدتك في توجيه أدائك.",
+    "capabilities_intro": "قدراتي الحالية:",
+    "capabilities": {
+      "predictive": "التحليلات التنبؤية (الخزينة، رقم الأعمال)",
+      "simulations": "محاكاة السيناريوهات الاستراتيجية",
+      "optimization": "تحسين المتطلبات من رأس المال العامل (DSO, DIO, DPO)",
+      "performance": "تدقيق الأداء والامتثال"
+    },
+    "question": "كيف يمكنني مساعدتك اليوم؟",
+    "quick_actions": {
+      "synthesis": "ملخص الأداء",
+      "sector_analysis": "تحليل القطاع",
+      "growth_scenarios": "سيناريوهات النمو",
+      "risk_report": "تقرير المخاطر"
+    },
+    "placeholders": {
+      "ask": "اطرح سؤالك المالي هنا..."
+    },
+    "tooltips": {
+      "microphone": "أمر صوتي",
+      "attachment": "إرفاق مستند (FEC, G50...)",
+      "export": "تصدير المحادثة",
+      "clipboard": "نسخ إلى الحافظة"
+    },
+    "fallback": {
+      "api_unavailable": "واجهة برمجة تطبيقات الذكاء الاصطناعي غير متوفرة. استخدام منطق المحاكاة المحلي.",
+      "revenue_forecast": {
+        "title": "📈 توقعات الإيرادات — أفق 12 شهرًا",
+        "error_min_data": "❌ لا توجد بيانات تاريخية كافية لإنشاء توقعات رقم الأعمال. مطلوب 3 أشهر على الأقل."
+      },
+      "seasonal": {
+        "title": "🔄 تدقيق الأنماط الموسمية",
+        "error_min_data": "[خطأ] لا توجد بيانات تاريخية كافية لاكتشاف الأنماط الموسمية. مطلوب 12 شهرًا على الأقل."
+      },
+      "audit_forecast": {
+        "title": "📑 تدقيق الخزينة التنبؤي (13 أسبوعًا)",
+        "org_prefix": "المؤسسة",
+        "role_prefix": "الدور",
+        "metrics_title": "توقعات المقاييس الرئيسية",
+        "risk_label": "المخاطر المالية",
+        "recommendations_title": "التوصيات ذات الأولوية",
+        "projections_prefix": "الرصيد المتوقع",
+        "trend_prefix": "الديناميكيات",
+        "confidence_prefix": "مؤشر الثقة",
+        "alert_liquidity": "⚠️ [تنبيه السيولة]",
+        "stable": "✅ [مستقر]"
+      },
+      "risk_audit": {
+        "title": "🛡️ تدقيق المخاطر المالية — بروتوكول ليا",
+        "overall_level": "المستوى العام",
+        "factors_title": "1. تدقيق عوامل الخطر",
+        "impact_suffix": "نقاط",
+        "strategic_recommendation": "2. التوصية الاستراتيجية التنظيمية",
+        "footer": "© وحدة إدارة مخاطر ليا - الامتثال المالي"
+      },
+      "scenarios": {
+        "title": "🔮 السيناريوهات التنبؤية — أفق 6 أشهر",
+        "prob_high": "🟢 [احتمالية عالية]",
+        "prob_medium": "🟡 [احتمالية متوسطة]",
+        "prob_low": "🔴 [احتمالية منخفضة]",
+        "assumptions_title": "الافتراضات الاستراتيجية",
+        "risks_title": "عوامل الخطر"
+      }
+    },
+    "title": "مساعد استراتيجي",
+    "subtitle": "وحدة ذكاء القرار",
+    "user_label": "المستخدم",
+    "typing": "ليا تفكر...",
+    "disclaimer": "ليا هي ذكاء اصطناعي. تحقق دائماً من القرارات الحاسمة مع مختص.",
+    "plan_title": "خطة العمل الاستراتيجية",
+    "auto_generate": "إنشاء عبر التحليل",
+    "demo_plan": "خطة تجريبية",
+    "close": "إغلاق",
+    "action": "الإجراء",
+    "owner": "المسؤول",
+    "due_date": "الموعد النهائي",
+    "add_btn": "إضافة",
+    "no_tasks": "لا توجد مهام في الخطة الحالية. قم بإنشاء بعضها مع ليا!",
+    "todo": "للقيام به",
+    "in_progress": "قيد التنفيذ",
+    "done": "تم"
+  },
+  "segments": {
+    "micro": "مؤسسة مصغرة",
+    "small": "مؤسسة صغيرة",
+    "medium": "مؤسسة متوسطة",
+    "large": "مؤسسة كبيرة",
+    "enterprise": "مؤسسة كبرى / مجمع"
+  },
+  "auth": {
+    "login": {
+      "title": "Dinarlytic",
+      "subtitle": "حلول مالية ذكية",
+      "card_title": "تسجيل الدخول",
+      "card_subtitle": "الوصول إلى لوحة المعلومات الخاصة بك",
+      "success": "تم تسجيل الدخول بنجاح! جاري التحويل...",
+      "error_incorrect": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+      "error_generic": "خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+      "email_label": "عنوان البريد الإلكتروني",
+      "email_placeholder": "your@email.com",
+      "password_label": "كلمة المرور",
+      "password_placeholder": "••••••••",
+      "remember_me": "تذكرني",
+      "forgot_password": "نسيت كلمة المرور؟",
+      "submit_btn": "تسجيل الدخول",
+      "submitting_btn": "جاري تسجيل الدخول...",
+      "no_account": "ليس لديك حساب بعد؟",
+      "contact_admin": "اتصل بالمسؤول",
+      "demo_title": "بيانات الاعتماد التجريبية",
+      "demo_subtitle": "انقر على مستخدم لتسجيل الدخول تلقائيًا",
+      "password_demo_label": "كلمة المرور:",
+      "users_suffix": "مستخدم",
+      "users_suffix_plural": "مستخدمين",
+      "tip_title": "نصيحة:",
+      "tip_text": "انقر على شركة لرؤية مستخدميها، ثم انقر على مستخدم لتسجيل الدخول تلقائيًا.",
+      "demo_load_error": "خطأ في تحميل المستخدمين التجريبيين"
+    }
   }
 }

@@ -34,14 +34,14 @@ const Audit: React.FC = () => {
   const [selectedLog, setSelectedLog] = useState<any | null>(null);
 
   // Report Generation State
-  const [reportType, setReportType] = useState('Audit Complet (détaillé)');
-  const [reportPeriod, setReportPeriod] = useState('30 derniers jours');
+  const [reportType, setReportType] = useState(t('audit.reports.types.full_audit'));
+  const [reportPeriod, setReportPeriod] = useState(t('audit.reports.periods.last_30_days'));
   const [reportFormat, setReportFormat] = useState('PDF');
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportHistory, setReportHistory] = useState([
     { name: 'Audit_Q3_2024_Final.pdf', date: '15 Oct 14:30', status: 'ready', size: '2.4 MB' },
     { name: 'Securite_Incidents_Sept24.xlsx', date: '01 Oct 09:15', status: 'ready', size: '1.8 MB' },
-    { name: 'Export_Logs_Bruts.csv', date: 'Hier 18:00', status: 'expired', size: '15.2 MB' },
+    { name: 'Export_Logs_Bruts.csv', date: t('common.yesterday') + ' 18:00', status: 'expired', size: '15.2 MB' },
   ]);
   const [activeTab, setActiveTab] = useState('logs');
   // Modal states
@@ -79,18 +79,18 @@ const Audit: React.FC = () => {
 
       // Realistic Mock Logs
       let mockLogs = [
-        { id: 101, action: 'Connexion', user: 'Admin', resource: 'Dashboard', status: 'Succès', ip: '192.168.1.10', timestamp: isToday ? '10:42' : '15 Oct 10:42', details: 'Connexion réussie via 2FA' },
-        { id: 102, action: 'Export', user: 'Finance_Director', resource: 'Rapport_Q3.pdf', status: 'Succès', ip: '192.168.1.25', timestamp: isToday ? '09:15' : '14 Oct 09:15', details: 'Téléchargement rapport complet' },
-        { id: 103, action: 'Échec Connexion', user: 'unknown', resource: 'Login Page', status: 'Échec', ip: '45.33.22.11', timestamp: isToday ? '08:30' : '14 Oct 08:30', details: '3 tentatives échouées (IP bloquée)' },
-        { id: 104, action: 'Modification', user: 'HR_Manager', resource: 'Profil Employé #452', status: 'Succès', ip: '192.168.1.15', timestamp: isToday ? '11:05' : '13 Oct 16:20', details: 'Mise à jour des coordonnées bancaires' },
-        { id: 105, action: 'Suppression', user: 'SysAdmin', resource: 'Log Files', status: 'Avertissement', ip: '10.0.0.5', timestamp: isToday ? '07:00' : '12 Oct 23:00', details: 'Rotation des logs système (Automatique)' },
+        { id: 101, action: t('audit.analytics.metrics.logins'), user: 'Admin', resource: 'Dashboard', status: t('audit.table.success'), ip: '192.168.1.10', timestamp: isToday ? '10:42' : '15 Oct 10:42', details: t('audit.security.alerts.login_success_mfa') || 'Connexion réussie via 2FA' },
+        { id: 102, action: t('audit.analytics.metrics.exports'), user: 'Finance_Director', resource: 'Rapport_Q3.pdf', status: t('audit.table.success'), ip: '192.168.1.25', timestamp: isToday ? '09:15' : '14 Oct 09:15', details: t('audit.reports.download_trigger') || 'Téléchargement rapport complet' },
+        { id: 103, action: t('audit.table.failed_auth') || 'Échec Connexion', user: 'unknown', resource: 'Login Page', status: t('audit.table.failed'), ip: '45.33.22.11', timestamp: isToday ? '08:30' : '14 Oct 08:30', details: t('audit.security.alerts.failed_login_ip', { ip: '45.33.22.11' }) },
+        { id: 104, action: t('audit.analytics.metrics.modifications'), user: 'HR_Manager', resource: 'Profil Employé #452', status: t('audit.table.success'), ip: '192.168.1.15', timestamp: isToday ? '11:05' : '13 Oct 16:20', details: t('audit.activities.descriptions.bank_update') || 'Mise à jour des coordonnées bancaires' },
+        { id: 105, action: t('audit.analytics.metrics.deletions') || 'Suppression', user: 'SysAdmin', resource: 'Log Files', status: t('audit.table.warning'), ip: '10.0.0.5', timestamp: isToday ? '07:00' : '12 Oct 23:00', details: t('audit.activities.descriptions.log_rotation') || 'Rotation des logs système (Automatique)' },
       ];
 
       if (isToday) {
         mockLogs = [
-          { id: 201, action: 'Connexion', user: 'Admin', resource: 'Système', status: 'success', ip: '192.168.1.10', timestamp: '11:24', details: 'Session administrateur ouverte' },
-          { id: 202, action: 'Modification', user: 'Marie Dubois', resource: 'Facture #F-99', status: 'success', ip: '192.168.1.100', timestamp: '10:15', details: 'Montant validé' },
-          { id: 203, action: 'Export', user: 'Système', resource: 'Backup', status: 'warning', ip: 'localhost', timestamp: '03:00', details: 'Sauvegarde automatique terminée avec avertissements' },
+          { id: 201, action: t('audit.analytics.metrics.logins'), user: 'Admin', resource: t('audit.security.systems.waf') || 'Système', status: 'success', ip: '192.168.1.10', timestamp: '11:24', details: t('audit.activities.descriptions.session_open') || 'Session administrateur ouverte' },
+          { id: 202, action: t('audit.analytics.metrics.modifications'), user: 'Nadia Belkacem', resource: 'Facture #F-99', status: 'success', ip: '192.168.1.100', timestamp: '10:15', details: t('audit.activities.descriptions.amount_validated') || 'Montant validé' },
+          { id: 203, action: t('audit.analytics.metrics.exports'), user: t('audit.security.alert_types.system'), resource: 'Backup', status: 'warning', ip: 'localhost', timestamp: '03:00', details: t('audit.activities.descriptions.backup_warning') || 'Sauvegarde automatique terminée avec avertissements' },
         ];
       }
 
@@ -163,11 +163,11 @@ const Audit: React.FC = () => {
         ext = 'csv';
         mimeType = 'text/csv;charset=utf-8;';
         const bom = '\uFEFF'; // Byte Order Mark for Excel
-        content = bom + `Type de Rapport,Période,Date de Génération,Statut\n"${reportType}","${reportPeriod}","${date.toLocaleString()}","Succès"\n\nSection,Détail,Valeur\n"Métriques","Volume de logs",1240\n"Compliance","Score Global","98%"\n"Sécurité","Alertes Critiques",0`;
+        content = bom + `${t('audit.reports.history_table.document')},${t('audit.reports.period')},${t('audit.reports.history_table.date')},${t('audit.table.status')}\n"${reportType}","${reportPeriod}","${date.toLocaleString()}","${t('audit.table.success')}"\n\nSection,${t('audit.modals.details_label')},${t('common.amount')}\n"Métriques","Volume de logs",1240\n"Compliance","Score Global","98%"\n"Sécurité","Alertes Critiques",0`;
       } else {
         // Fallback for PDF (Mock) - Using Text for readability since no PDF lib is installed
         ext = 'txt';
-        content = `==================================================\nRAPPORT D'AUDIT - DINARLYTICS\n==================================================\n\nTYPE: ${reportType}\nPERIODE: ${reportPeriod}\nDATE: ${date.toLocaleString()}\n\nRESUME EXECUTIF:\n----------------\nL'audit a été effectué avec succès. Tous les systèmes sont opérationnels.\nAucune anomalie critique détectée sur la période sélectionnée.\n\nMETRIQUES CLES:\n- Conformité: 98%\n- Sécurité: 100% (0 alerte critique)\n- Performance: Optimale\n\n--------------------------------------------------\nFin du rapport généré automatiquement.\n==================================================`;
+        content = `==================================================\n${t('audit.reports.audit_report_content.title') || 'STRATEGIC FISCAL AUDIT'}\n==================================================\n\nTYPE: ${reportType}\nPERIODE: ${reportPeriod}\nDATE: ${date.toLocaleString()}\n\nRESUME EXECUTIF:\n----------------\nL'audit a été effectué avec succès. Tous les systèmes sont opérationnels.\nAucune anomalie critique détectée sur la période sélectionnée.\n\nMETRIQUES CLES:\n- Conformité: 98%\n- Sécurité: 100% (0 alerte critique)\n- Performance: Optimale\n\n--------------------------------------------------\nFin du rapport généré automatiquement.\n==================================================`;
       }
 
       const fileName = `Rapport_${reportType.replace(/\s+/g, '_')}_${date.getTime()}.${ext}`;
@@ -233,10 +233,10 @@ const Audit: React.FC = () => {
   // ...existing code...
 
   const riskAssessment = [
-    { id: 1, risk: 'audit.risks.items.acc_unauth', level: 'Élevé', probability: 75, impact: 90, mitigation: 'audit.risks.items.acc_unauth_mit' },
-    { id: 2, risk: 'audit.risks.items.data_loss', level: 'Moyen', probability: 30, impact: 85, mitigation: 'audit.risks.items.data_loss_mit' },
-    { id: 3, risk: 'audit.risks.items.tax_non_comp', level: 'Élevé', probability: 40, impact: 95, mitigation: 'audit.risks.items.tax_non_comp_mit' },
-    { id: 4, risk: 'audit.risks.items.calc_error', level: 'Faible', probability: 15, impact: 60, mitigation: 'audit.risks.items.calc_error_mit' }
+    { id: 1, risk: 'audit.risks.items.acc_unauth', level: t('audit.risks.levels.high'), probability: 75, impact: 90, mitigation: 'audit.risks.items.acc_unauth_mit' },
+    { id: 2, risk: 'audit.risks.items.data_loss', level: t('audit.risks.levels.medium'), probability: 30, impact: 85, mitigation: 'audit.risks.items.data_loss_mit' },
+    { id: 3, risk: 'audit.risks.items.tax_non_comp', level: t('audit.risks.levels.high'), probability: 40, impact: 95, mitigation: 'audit.risks.items.tax_non_comp_mit' },
+    { id: 4, risk: 'audit.risks.items.calc_error', level: t('audit.risks.levels.low'), probability: 15, impact: 60, mitigation: 'audit.risks.items.calc_error_mit' }
   ];
 
   const auditCategories = [
@@ -284,27 +284,27 @@ const Audit: React.FC = () => {
     {
       id: '1',
       type: 'security',
-      title: 'Tentative de connexion suspecte',
-      description: 'Plusieurs tentatives de connexion depuis une IP inconnue',
-      time: 'Il y a 5 min',
+      title: t('audit.activities.descriptions.login_fail') || 'Tentative de connexion suspecte',
+      description: t('audit.security.alerts.login_fail_ip', { ip: '197.200.15.42' }) || 'Plusieurs tentatives de connexion depuis une IP inconnue',
+      time: t('audit.security.time_ago_short', { min: 5 }),
       severity: 'high',
       icon: ShieldCheckIcon
     },
     {
       id: '2',
       type: 'data',
-      title: 'Export de données sensible',
-      description: 'Export du rapport financier par Marie Dubois',
-      time: 'Il y a 15 min',
+      title: t('audit.activities.descriptions.export_sensitive') || 'Export de données sensible',
+      description: t('audit.activities.descriptions.export_finance') || 'Export du rapport financier par Nadia Belkacem',
+      time: t('audit.security.time_ago_short', { min: 15 }),
       severity: 'medium',
       icon: CircleStackIcon
     },
     {
       id: '3',
       type: 'system',
-      title: 'Sauvegarde automatique',
-      description: 'Sauvegarde quotidienne effectuée avec succès',
-      time: 'Il y a 1h',
+      title: t('audit.activities.descriptions.backup_success') || 'Sauvegarde automatique',
+      description: t('audit.activities.descriptions.backup_daily') || 'Sauvegarde quotidienne effectuée avec succès',
+      time: t('audit.security.time_ago_short', { min: 60 }),
       severity: 'low',
       icon: CheckCircleIcon
     }
@@ -354,8 +354,8 @@ const Audit: React.FC = () => {
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
             className="px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500"
-            title="Sélectionner la période d'audit"
-            aria-label="Sélectionner la période d'audit"
+            title={t('audit.controls.select_period')}
+            aria-label={t('audit.controls.select_period')}
           >
             <option value="jour">{t('audit.controls.today')}</option>
             <option value="semaine">{t('audit.controls.this_week')}</option>
@@ -395,7 +395,7 @@ const Audit: React.FC = () => {
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
                   }`}
               >
-                {React.createElement(tab.icon, { className: 'h-4 w-4 mr-2' })}
+                {React.createElement(tab.icon, { className: 'h-4 w-4 me-2' })}
                 {tab.name}
               </button>
             ))}
@@ -421,7 +421,7 @@ const Audit: React.FC = () => {
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                           : 'bg-rose-50 text-rose-700 border-rose-100'
                           }`}>
-                          {stat.change.startsWith('+') ? <ArrowUpIcon className="h-3 w-3 mr-1" /> : <ArrowDownIcon className="h-3 w-3 mr-1" />}
+                          {stat.change.startsWith('+') ? <ArrowUpIcon className="h-3 w-3 me-1" /> : <ArrowDownIcon className="h-3 w-3 me-1" />}
                           {stat.change}%
                         </div>
                       </div>
@@ -452,11 +452,11 @@ const Audit: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button className="flex-1 sm:flex-none items-center justify-center px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-md hover:bg-slate-50 font-medium text-sm transition-colors">
-                    <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
+                    <DocumentArrowDownIcon className="h-4 w-4 me-2" />
                     {t('audit.controls.export')}
                   </button>
                   <button className="flex-1 sm:flex-none items-center justify-center px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 font-medium text-sm transition-colors">
-                    <PrinterIcon className="h-4 w-4 mr-2" />
+                    <PrinterIcon className="h-4 w-4 me-2" />
                     {t('audit.controls.print')}
                   </button>
                 </div>
@@ -484,7 +484,7 @@ const Audit: React.FC = () => {
                           </td>
                           <td className="px-6 py-3 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="h-7 w-7 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 mr-3">
+                              <div className="h-7 w-7 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 me-3">
                                 {log.user.charAt(0)}
                               </div>
                               <div className="text-sm font-medium text-slate-900">{log.user}</div>
@@ -530,7 +530,7 @@ const Audit: React.FC = () => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
                   <h3 className="text-lg font-bold text-slate-800 flex items-center">
-                    <ShieldCheckIcon className="h-5 w-5 text-slate-600 mr-2" />
+                    <ShieldCheckIcon className="h-5 w-5 text-slate-600 me-2" />
                     {t('audit.compliance.title')}
                   </h3>
                   <p className="text-slate-500 text-sm">{t('audit.compliance.subtitle')}</p>
@@ -540,7 +540,7 @@ const Audit: React.FC = () => {
                   onClick={handleComplianceCheck}
                   className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium flex items-center"
                 >
-                  <ArrowPathIcon className="h-4 w-4 mr-2" />
+                  <ArrowPathIcon className="h-4 w-4 me-2" />
                   {t('audit.compliance.run_audit')}
                 </button>
               </div>
@@ -664,12 +664,12 @@ const Audit: React.FC = () => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 flex items-center">
-                    <LockClosedIcon className="h-6 w-6 text-slate-700 mr-2" />
+                    <LockClosedIcon className="h-6 w-6 text-slate-700 me-2" />
                     {t('audit.security.title')}
                   </h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className="flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-                      <span className="relative flex h-2 w-2 mr-1.5">
+                      <span className="relative flex h-2 w-2 me-1.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                       </span>
@@ -683,7 +683,7 @@ const Audit: React.FC = () => {
                   onClick={handleSecurityAnalysis}
                   className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 transition-all shadow-sm text-sm font-medium flex items-center"
                 >
-                  <ArrowPathIcon className="h-4 w-4 mr-2" />
+                  <ArrowPathIcon className="h-4 w-4 me-2" />
                   {t('audit.security.run_analysis')}
                 </button>
               </div>
@@ -803,7 +803,7 @@ const Audit: React.FC = () => {
                   </div>
                   <div className="mt-auto bg-slate-50 p-3 text-center border-t border-slate-100">
                     <button className="text-xs font-medium text-slate-600 hover:text-slate-800 flex items-center justify-center w-full">
-                      <KeyIcon className="h-3 w-3 mr-1.5" />
+                      <KeyIcon className="h-3 w-3 me-1.5" />
                       {t('audit.security.manage_keys')}
                     </button>
                   </div>
@@ -821,7 +821,7 @@ const Audit: React.FC = () => {
                   <p className="text-slate-500 text-sm">{t('audit.risks.subtitle')}</p>
                 </div>
                 <button className="px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 text-sm font-medium flex items-center shadow-sm">
-                  <ArrowPathIcon className="h-4 w-4 mr-2" />
+                  <ArrowPathIcon className="h-4 w-4 me-2" />
                   {t('audit.risks.update_analysis')}
                 </button>
               </div>
@@ -896,10 +896,10 @@ const Audit: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-slate-200 bg-white">
                     {[
-                      { id: 1, risk: t('audit.risks.items.acc_unauth'), cat: t('audit.risks.categories.cybersecurity'), level: 'Élevé', prob: 75, impact: 90, mitigation: t('audit.risks.items.acc_unauth_mit'), status: t('audit.risks.statuses.active') },
-                      { id: 2, risk: t('audit.risks.items.data_loss'), cat: t('audit.risks.categories.infrastructure'), level: 'Moyen', prob: 30, impact: 85, mitigation: t('audit.risks.items.data_loss_mit'), status: t('audit.risks.statuses.monitored') },
-                      { id: 3, risk: t('audit.risks.items.tax_non_comp'), cat: t('audit.risks.categories.legal'), level: 'Élevé', prob: 40, impact: 95, mitigation: t('audit.risks.items.tax_non_comp_mit'), status: t('audit.risks.statuses.controlled') },
-                      { id: 4, risk: t('audit.risks.items.calc_error'), cat: t('audit.risks.categories.operational'), level: 'Faible', prob: 15, impact: 60, mitigation: t('audit.risks.items.calc_error_mit'), status: t('audit.risks.statuses.compliant') },
+                      { id: 1, risk: t('audit.risks.items.acc_unauth'), cat: t('audit.risks.categories.cybersecurity'), level: 'high', prob: 75, impact: 90, mitigation: t('audit.risks.items.acc_unauth_mit'), status: t('audit.risks.statuses.active') },
+                      { id: 2, risk: t('audit.risks.items.data_loss'), cat: t('audit.risks.categories.infrastructure'), level: 'medium', prob: 30, impact: 85, mitigation: t('audit.risks.items.data_loss_mit'), status: t('audit.risks.statuses.monitored') },
+                      { id: 3, risk: t('audit.risks.items.tax_non_comp'), cat: t('audit.risks.categories.legal'), level: 'high', prob: 40, impact: 95, mitigation: t('audit.risks.items.tax_non_comp_mit'), status: t('audit.risks.statuses.controlled') },
+                      { id: 4, risk: t('audit.risks.items.calc_error'), cat: t('audit.risks.categories.operational'), level: 'low', prob: 15, impact: 60, mitigation: t('audit.risks.items.calc_error_mit'), status: t('audit.risks.statuses.compliant') },
                     ].map((risk) => (
                       <tr key={risk.id} className="hover:bg-slate-50 transition-colors group">
                         <td className="px-6 py-4">
@@ -907,15 +907,12 @@ const Audit: React.FC = () => {
                           <div className="text-xs text-slate-500 mt-0.5">{risk.cat}</div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide border ${risk.level === 'Critique' ? 'bg-rose-100 text-rose-800 border-rose-200' :
-                            risk.level === 'Élevé' ? 'bg-orange-100 text-orange-800 border-orange-200' :
-                              risk.level === 'Moyen' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wide border ${risk.level === 'critical' ? 'bg-rose-100 text-rose-800 border-rose-200' :
+                            risk.level === 'high' ? 'bg-orange-100 text-orange-800 border-orange-200' :
+                              risk.level === 'medium' ? 'bg-amber-100 text-amber-800 border-amber-200' :
                                 'bg-emerald-100 text-emerald-800 border-emerald-200'
                             }`}>
-                            {risk.level === 'Critique' ? t('audit.risks.levels.critical') :
-                              risk.level === 'Élevé' ? t('audit.risks.levels.high') :
-                              risk.level === 'Moyen' ? t('audit.risks.levels.medium') :
-                              t('audit.risks.levels.low')}
+                            {t(`audit.risks.levels.${risk.level}`)}
                           </span>
                         </td>
                         <td className="px-6 py-4">
@@ -1023,15 +1020,15 @@ const Audit: React.FC = () => {
                   </div>
                   <div className="mt-6 space-y-2">
                     <div className="flex justify-between items-center text-xs">
-                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-800 mr-2 rounded-sm"></span>{t('audit.analytics.metrics.logins')}</span>
+                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-800 me-2 rounded-sm"></span>{t('audit.analytics.metrics.logins')}</span>
                       <span className="font-bold text-slate-800">75%</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-400 mr-2 rounded-sm"></span>{t('audit.analytics.metrics.modifications')}</span>
+                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-slate-400 me-2 rounded-sm"></span>{t('audit.analytics.metrics.modifications')}</span>
                       <span className="font-bold text-slate-800">15%</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-amber-500 mr-2 rounded-sm"></span>{t('audit.analytics.metrics.others')}</span>
+                      <span className="flex items-center text-slate-600"><span className="w-2 h-2 bg-amber-500 me-2 rounded-sm"></span>{t('audit.analytics.metrics.others')}</span>
                       <span className="font-bold text-slate-800">10%</span>
                     </div>
                   </div>
@@ -1064,7 +1061,7 @@ const Audit: React.FC = () => {
                         <tr key={i} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-3">
                             <div className="flex items-center">
-                              <div className="h-8 w-8 rounded bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold mr-3">
+                              <div className="h-8 w-8 rounded bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold me-3">
                                 {user.initials}
                               </div>
                               <div className="text-sm font-medium text-slate-900">{user.name}</div>
@@ -1081,8 +1078,8 @@ const Audit: React.FC = () => {
                             <span className="text-sm font-mono font-semibold text-slate-800">{user.count}</span>
                           </td>
                           <td className="px-6 py-3 text-center">
-                            {user.trend === 'up' && <span className="inline-flex items-center text-emerald-600 text-xs font-medium"><ArrowTrendingUpIcon className="h-3 w-3 mr-1" />+12%</span>}
-                            {user.trend === 'down' && <span className="inline-flex items-center text-rose-600 text-xs font-medium"><ArrowTrendingDownIcon className="h-3 w-3 mr-1" />-5%</span>}
+                            {user.trend === 'up' && <span className="inline-flex items-center text-emerald-600 text-xs font-medium"><ArrowTrendingUpIcon className="h-3 w-3 me-1" />+12%</span>}
+                            {user.trend === 'down' && <span className="inline-flex items-center text-rose-600 text-xs font-medium"><ArrowTrendingDownIcon className="h-3 w-3 me-1" />-5%</span>}
                             {user.trend === 'stable' && <span className="inline-flex items-center text-slate-400 text-xs font-medium">0%</span>}
                           </td>
                         </tr>
@@ -1108,7 +1105,7 @@ const Audit: React.FC = () => {
                     <h4 className="text-sm font-bold opacity-80 uppercase tracking-wider mb-1">{t('audit.reports.generated_count')}</h4>
                     <div className="text-3xl font-bold">{128 + reportHistory.length}</div>
                     <div className="text-xs text-emerald-400 font-medium mt-1 flex items-center">
-                      <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +12% {t('audit.controls.this_month')}
+                      <ArrowTrendingUpIcon className="h-3 w-3 me-1" /> +12% {t('audit.controls.this_month')}
                     </div>
                   </div>
                   <div className="mt-4">
@@ -1130,14 +1127,14 @@ const Audit: React.FC = () => {
                       onClick={handleScheduleReport}
                       className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-colors text-sm font-medium flex items-center shadow-sm"
                     >
-                      <CalendarIcon className="h-4 w-4 mr-2" />
+                      <CalendarIcon className="h-4 w-4 me-2" />
                       {t('audit.reports.schedule_btn')}
                     </button>
                   </div>
                   <div className="flex space-x-6 text-sm text-slate-600 border-t border-slate-100 pt-4">
-                    <div className="flex items-center"><CheckCircleIcon className="h-4 w-4 text-emerald-500 mr-2" /> {t('audit.reports.active_scheduled_count', { count: 3 })}</div>
-                    <div className="flex items-center"><ShieldCheckIcon className="h-4 w-4 text-indigo-500 mr-2" /> {t('audit.reports.digital_signature')}</div>
-                    <div className="flex items-center"><CircleStackIcon className="h-4 w-4 text-slate-400 mr-2" /> {t('audit.reports.retention', { years: 3 })}</div>
+                    <div className="flex items-center"><CheckCircleIcon className="h-4 w-4 text-emerald-500 me-2" /> {t('audit.reports.active_scheduled_count', { count: 3 })}</div>
+                    <div className="flex items-center"><ShieldCheckIcon className="h-4 w-4 text-indigo-500 me-2" /> {t('audit.reports.digital_signature')}</div>
+                    <div className="flex items-center"><CircleStackIcon className="h-4 w-4 text-slate-400 me-2" /> {t('audit.reports.retention', { years: 3 })}</div>
                   </div>
                 </div>
               </div>
@@ -1147,7 +1144,7 @@ const Audit: React.FC = () => {
                 <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden flex flex-col">
                   <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/50">
                     <h4 className="text-sm font-bold text-slate-800 flex items-center">
-                      <PrinterIcon className="h-4 w-4 mr-2 text-slate-500" />
+                      <PrinterIcon className="h-4 w-4 me-2 text-slate-500" />
                       {t('audit.reports.generator_title')}
                     </h4>
                   </div>
@@ -1185,13 +1182,13 @@ const Audit: React.FC = () => {
                           onClick={() => setReportFormat('PDF')}
                           className={`flex items-center justify-center px-3 py-2 border rounded text-sm font-bold transition-colors ${reportFormat === 'PDF' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
                         >
-                          PDF Signé
+                          {t('audit.reports.formats.pdf_signed')}
                         </button>
                         <button
                           onClick={() => setReportFormat('Excel')}
                           className={`flex items-center justify-center px-3 py-2 border rounded text-sm font-medium transition-colors ${reportFormat === 'Excel' ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
                         >
-                          Excel / CSV
+                          {t('audit.reports.formats.excel_csv')}
                         </button>
                       </div>
                     </div>
@@ -1204,12 +1201,12 @@ const Audit: React.FC = () => {
                       >
                         {isGenerating ? (
                           <>
-                            <ArrowPathIcon className="h-5 w-5 mr-2 animate-spin" />
+                            <ArrowPathIcon className="h-5 w-5 me-2 animate-spin" />
                             {t('audit.reports.generating')}
                           </>
                         ) : (
                           <>
-                            <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
+                            <DocumentArrowDownIcon className="h-5 w-5 me-2" />
                             {t('audit.reports.generate_btn')}
                           </>
                         )}
@@ -1228,12 +1225,12 @@ const Audit: React.FC = () => {
                     </div>
                     <div className="divide-y divide-slate-100">
                       {[
-                        { name: 'Audit Hebdomadaire Sécurité', schedule: 'Chaque Lundi, 08:00', recipients: 'DSI, RSSI', next: 'Demain' },
-                        { name: 'Clôture Mensuelle Activité', schedule: 'Le 1er du mois, 06:00', recipients: 'Direction, Finance', next: '01 Nov' }
+                        { name: t('audit.reports.scheduled.items.weekly_security.name'), schedule: t('audit.reports.scheduled.items.weekly_security.schedule'), recipients: t('audit.reports.scheduled.items.weekly_security.recipients'), next: t('common.tomorrow') },
+                        { name: t('audit.reports.scheduled.items.monthly_closure.name'), schedule: t('audit.reports.scheduled.items.monthly_closure.schedule'), recipients: t('audit.reports.scheduled.items.monthly_closure.recipients'), next: '01 Nov' }
                       ].map((item, i) => (
                         <div key={i} className="p-4 flex items-center justify-between hover:bg-slate-50">
                           <div className="flex items-center">
-                            <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600 mr-3">
+                            <div className="bg-indigo-50 p-2 rounded-lg text-indigo-600 me-3">
                               <CalendarIcon className="h-5 w-5" />
                             </div>
                             <div>
@@ -1259,17 +1256,17 @@ const Audit: React.FC = () => {
                       <table className="min-w-full divide-y divide-slate-100">
                         <thead className="bg-white">
                           <tr>
-                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-400 uppercase">Document</th>
-                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-400 uppercase">Date</th>
-                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-400 uppercase">Statut</th>
-                            <th className="px-5 py-3 text-right text-xs font-bold text-slate-400 uppercase">Taille</th>
+                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-400 uppercase">{t('audit.reports.history_table.document')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-400 uppercase">{t('audit.reports.history_table.date')}</th>
+                            <th className="px-5 py-3 text-left text-xs font-bold text-slate-400 uppercase">{t('audit.table.status')}</th>
+                            <th className="px-5 py-3 text-right text-xs font-bold text-slate-400 uppercase">{t('common.size')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                           {reportHistory.map((file, i) => (
                             <tr key={i} className="hover:bg-slate-50 transition-colors group">
                               <td className="px-5 py-3.5 flex items-center">
-                                <DocumentTextIcon className={`h-5 w-5 mr-3 ${file.name.endsWith('.pdf') ? 'text-rose-400' : 'text-emerald-400'}`} />
+                                <DocumentTextIcon className={`h-5 w-5 me-3 ${file.name.endsWith('.pdf') ? 'text-rose-400' : 'text-emerald-400'}`} />
                                 <span className="text-sm font-medium text-slate-700">{file.name}</span>
                               </td>
                               <td className="px-5 py-3.5 text-sm text-slate-500">{file.date}</td>
@@ -1327,9 +1324,9 @@ const Audit: React.FC = () => {
                 <p className="text-sm text-slate-800">{selectedLog.resource}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Statut</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.table.status')}</label>
                 <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(selectedLog.status)}`}>
-                  {selectedLog.status}
+                  {selectedLog.status === 'success' ? t('audit.table.success') : selectedLog.status === 'warning' ? t('audit.table.warning') : t('audit.table.failed')}
                 </span>
               </div>
               <div>
@@ -1342,7 +1339,7 @@ const Audit: React.FC = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Détails</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.modals.details_label')}</label>
               <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg">{selectedLog.details}</p>
             </div>
             <div className="flex justify-end space-x-3">

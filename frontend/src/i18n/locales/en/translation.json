@@ -2333,6 +2333,17 @@
         "role": "Role",
         "events": "Events",
         "trend": "Trend"
+      },
+      "descriptions": {
+        "login_success_mfa": "Successful login via 2FA",
+        "auth_fail": "Unauthorized modification attempt",
+        "backup_warning": "Automatic backup completed with warnings",
+        "bank_update": "Bank details updated",
+        "log_rotation": "System log rotation (Automatic)",
+        "session_open": "Administrator session opened",
+        "amount_validated": "Amount validated",
+        "export_finance": "Financial report export by Nadia Belkacem",
+        "backup_daily": "Daily backup completed successfully"
       }
     },
     "reports": {
@@ -2371,7 +2382,32 @@
       "generating": "Generating...",
       "available": "Available",
       "expired": "Expired",
-      "download": "Download"
+      "download": "Download",
+      "formats": {
+        "pdf_signed": "Signed PDF",
+        "excel_csv": "Excel / CSV"
+      },
+      "scheduled": {
+        "items": {
+          "weekly_security": {
+            "name": "Weekly Security Audit",
+            "schedule": "Every Monday, 08:00",
+            "recipients": "IT, Security"
+          },
+          "monthly_closure": {
+            "name": "Monthly Activity Closure",
+            "schedule": "1st of the month, 06:00",
+            "recipients": "Management, Finance"
+          }
+        }
+      },
+      "history_table": {
+        "document": "Document",
+        "date": "Date"
+      },
+      "audit_report_content": {
+        "title": "AUDIT REPORT - DINARLYTICS"
+      }
     },
     "modals": {
       "details_title": "Audit Details",
@@ -2387,6 +2423,7 @@
       "save_auto": "Save automation",
       "info_note": "These reports will be generated and sent automatically without manual intervention.",
       "success_save": "Automation saved successfully!",
+      "info_note": "These reports will be generated and sent automatically without manual intervention.",
       "save_automation": "Save Automation",
       "compliance_report_title": "Detailed Compliance Report",
       "compliance_score": "Compliance Score",
@@ -2394,7 +2431,6 @@
       "last_check_suffix": "2 minutes ago",
       "validated_points": "Validated Control Points",
       "remediation_actions": "Remediation Actions",
-      "remediation_warning": "Warning: 2 user passwords expire in less than 48h. An automatic notification has been sent.",
       "points": {
         "integrity": "Accounting entries integrity",
         "encryption": "PII Encryption (Personal Data)",
@@ -2408,5 +2444,91 @@
     "dg": "Director",
     "daf": "CFO",
     "manager_ops": "Ops Manager"
+  },
+  "chatbot": {
+    "labels": {
+      "confidence_high": "High Confidence",
+      "confidence_medium": "Medium Confidence",
+      "confidence_low": "Low Confidence",
+      "trend_up": "Upward",
+      "trend_down": "Downward",
+      "trend_stable": "Stable",
+      "risk_low": "Low",
+      "risk_medium": "Medium",
+      "risk_high": "High",
+      "risk_critical": "Critical",
+      "status_good": "Good",
+      "status_warning": "Warning",
+      "status_critical": "Critical",
+      "status_excellent": "Excellent",
+      "status_average": "Average",
+      "status_below": "Below Average",
+      "status_poor": "Poor"
+    },
+    "welcome": "Hello {{name}}! I am LIA, your financial intelligence assistant.",
+    "role_context": "As {{role}}, I can help you drive your performance.",
+    "capabilities_intro": "My current capabilities:",
+    "capabilities": {
+      "predictive": "Predictive Analysis (Cash-flow, Revenue)",
+      "simulations": "Strategic Scenario Simulations",
+      "optimization": "WCR Optimization (DSO, DIO, DPO)",
+      "performance": "Performance and Compliance Audit"
+    },
+    "question": "How can I enlighten you today?",
+    "quick_actions": {
+      "synthesis": "Performance Synthesis",
+      "sector_analysis": "Sector Analysis",
+      "growth_scenarios": "Growth Scenarios",
+      "risk_report": "Risk Report"
+    },
+    "placeholders": {
+      "ask": "Ask your financial question here..."
+    },
+    "tooltips": {
+      "microphone": "Voice command",
+      "attachment": "Attach a document (FEC, G50...)",
+      "export": "Export conversation",
+      "clipboard": "Copy to clipboard"
+    },
+    "fallback": {
+      "api_unavailable": "AI API unavailable. Using local simulation logic.",
+      "revenue_forecast": {
+        "title": "📈 REVENUE FORECAST — 12-MONTH HORIZON",
+        "error_min_data": "❌ Not enough historical data to generate revenue forecasts. Minimum 3 months required."
+      },
+      "seasonal": {
+        "title": "🔄 SEASONAL PATTERN AUDIT",
+        "error_min_data": "[ERROR] Not enough historical data to detect seasonal patterns. Minimum 12 months required."
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Dinarlytic",
+      "subtitle": "Smart Financial Solutions",
+      "card_title": "Login",
+      "card_subtitle": "Access your dashboard",
+      "success": "Login successful! Redirecting...",
+      "error_incorrect": "Incorrect email or password",
+      "error_generic": "Login error. Please try again.",
+      "email_label": "Email Address",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "password_placeholder": "••••••••",
+      "remember_me": "Remember me",
+      "forgot_password": "Forgot password?",
+      "submit_btn": "Log In",
+      "submitting_btn": "Logging in...",
+      "no_account": "No account yet?",
+      "contact_admin": "Contact administrator",
+      "demo_title": "Demo Credentials",
+      "demo_subtitle": "Click on a user to log in automatically",
+      "password_demo_label": "Password:",
+      "users_suffix": "user",
+      "users_suffix_plural": "users",
+      "tip_title": "Tip:",
+      "tip_text": "Click on a company to see its users, then click on a user to log in automatically.",
+      "demo_load_error": "Error loading demo users"
+    }
   }
 }
