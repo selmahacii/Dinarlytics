@@ -211,7 +211,8 @@
       "creditor": "دائن",
       "debtor_short": "م",
       "creditor_short": "د"
-    }
+    },
+    "for": "لأجل"
   },
   "breadcrumb": {
     "home": "الرئيسية",
@@ -315,10 +316,10 @@
     "performance_indicators": "مؤشرات الأداء الجبائي",
     "calcul_details": "تفاصيل الحسابات",
     "rates": {
-       "tva": "معدل الرسم (TVA)",
-       "tap": "معدل الرسم (TAP)",
-       "ibs": "معدل الضريبة (IBS)",
-       "ibs_full": "الضريبة على أرباح الشركات (IBS)"
+      "tva": "معدل الرسم (TVA)",
+      "tap": "معدل الرسم (TAP)",
+      "ibs": "معدل الضريبة (IBS)",
+      "ibs_full": "الضريبة على أرباح الشركات (IBS)"
     },
     "ia": {
       "predicted_tva": "الرسم على القيمة المضافة المتوقع",
@@ -1561,12 +1562,12 @@
       "expert_mode": "وضع الخبير",
       "audit_ia_btn": "تدقيق الذكاء الاصطناعي",
       "rates": {
-         "tva": "معدل الرسم (TVA)",
-         "tap": "معدل الرسم (TAP)",
-         "ibs": "معدل الضريبة (IBS)",
-         "ibs_full": "الضريبة على أرباح الشركات (IBS)",
-         "irg": "الضريبة على الدخل الإجمالي (IRG)",
-         "rate_label": "المعدل"
+        "tva": "معدل الرسم (TVA)",
+        "tap": "معدل الرسم (TAP)",
+        "ibs": "معدل الضريبة (IBS)",
+        "ibs_full": "الضريبة على أرباح الشركات (IBS)",
+        "irg": "الضريبة على الدخل الإجمالي (IRG)",
+        "rate_label": "المعدل"
       },
       "ia": {
         "predicted_tva": "الرسم على القيمة المضافة المتوقع",
@@ -1614,6 +1615,15 @@
         "audit_title": "تدقيق جبائي استراتيجي",
         "generated_by": "تم الإنشاء بواسطة ذكاء Dinarlytics"
       },
+      "variance_explanation": "تشير الانحرافات الإيجابية إلى سوء تقدير للأعباء أو زيادة غير متوقعة في النشاط الخاضع للضريبة.",
+      "simulator": {
+        "title": "محاكي الحسابات الجبائية 2026",
+        "result": "نتيجة المحاكاة",
+        "net_profit": "الربح الصافي الخاضع للضريبة",
+        "ca_label": "رقم الأعمال الصافي (HT)",
+        "charges_label": "الأعباء القابلة للخصم"
+      },
+      "expert_report_btn": "توليد تقرير الذكاء الاصطناعي للخبير",
       "documents": {
         "title": "الوثائق الجبائية المتوفرة",
         "subtitle": "{{country}} • {{count}} وثائق إجبارية متوفرة",
@@ -1899,7 +1909,6 @@
       }
     }
   },
-
   "analytics": {
     "financial": {
       "title": "التحليل المالي",
@@ -2062,307 +2071,307 @@
         "realized": "المحقق"
       }
     }
-    },
-    "accounting": {
-      "treasury": {
-        "title": "الخزينة والتدفقات",
-        "subtitle": "قيادة السيولة، التوقعات والإدارة البنكية",
-        "global_balance": "الرصيد الإجمالي الموحد",
-        "stats": {
-          "total_balance": "الرصيد الإجمالي",
-          "active_accounts": "{{count}} حسابات نشطة",
-          "net_cashflow": "التدفق النقدي الصافي",
-          "this_month": "هذا الشهر",
-          "inflows": "المداخيل",
-          "outflows": "المخارج",
-          "receipts": "الإيرادات",
-          "expenses": "المصاريف",
-          "pending": "في الانتظار",
-          "transactions_count": "{{count}} معاملات"
+  },
+  "accounting": {
+    "treasury": {
+      "title": "الخزينة والتدفقات",
+      "subtitle": "قيادة السيولة، التوقعات والإدارة البنكية",
+      "global_balance": "الرصيد الإجمالي الموحد",
+      "stats": {
+        "total_balance": "الرصيد الإجمالي",
+        "active_accounts": "{{count}} حسابات نشطة",
+        "net_cashflow": "التدفق النقدي الصافي",
+        "this_month": "هذا الشهر",
+        "inflows": "المداخيل",
+        "outflows": "المخارج",
+        "receipts": "الإيرادات",
+        "expenses": "المصاريف",
+        "pending": "في الانتظار",
+        "transactions_count": "{{count}} معاملات"
+      },
+      "tabs": {
+        "overview": "نظرة عامة",
+        "forecast": "التوقعات",
+        "reconciliation": "التقارب البنكي",
+        "liquidity": "السيولة",
+        "checks": "تسيير الشيكات"
+      },
+      "accounts": {
+        "title": "الحسابات البنكية",
+        "iban": "IBAN",
+        "balance": "الرصيد الحالي",
+        "last_updated": "آخر تزامن",
+        "details": "تفاصيل الحساب",
+        "prefix": "حساب"
+      },
+      "reconciliation": {
+        "title": "التقارب البنكي",
+        "subtitle": "مزامنة قيودك المحاسبية مع كشوفاتك البنكية.",
+        "kpis": {
+          "total_lines": "إجمالي الأسطر",
+          "lines_imported": "الأسطر المستوردة",
+          "matched": "متقاربة",
+          "matches": "تطابقات وجدت",
+          "unmatched": "غير متقاربة",
+          "to_process": "أسطر للمعالجة",
+          "reconciliation_rate": "معدل التقارب",
+          "progression": "التقدم الإجمالي",
+          "discrepancies": "الفوارق / النزاعات",
+          "disputes": "أسطر محل نزاع"
         },
         "tabs": {
-          "overview": "نظرة عامة",
-          "forecast": "التوقعات",
-          "reconciliation": "التقارب البنكي",
-          "liquidity": "السيولة",
-          "checks": "تسيير الشيكات"
+          "import": "استيراد الكشف",
+          "reconciliation": "التقارب",
+          "discrepancies": "الفوارق",
+          "history": "السجل"
         },
-        "accounts": {
-          "title": "الحسابات البنكية",
-          "iban": "IBAN",
-          "balance": "الرصيد الحالي",
-          "last_updated": "آخر تزامن",
-          "details": "تفاصيل الحساب",
-          "prefix": "حساب"
+        "import": {
+          "title": "استيراد الكشوفات",
+          "action": "استيراد كشف جديد"
         },
-        "reconciliation": {
-          "title": "التقارب البنكي",
-          "subtitle": "مزامنة قيودك المحاسبية مع كشوفاتك البنكية.",
-          "kpis": {
-            "total_lines": "إجمالي الأسطر",
-            "lines_imported": "الأسطر المستوردة",
-            "matched": "متقاربة",
-            "matches": "تطابقات وجدت",
-            "unmatched": "غير متقاربة",
-            "to_process": "أسطر للمعالجة",
-            "reconciliation_rate": "معدل التقارب",
-            "progression": "التقدم الإجمالي",
-            "discrepancies": "الفوارق / النزاعات",
-            "disputes": "أسطر محل نزاع"
-          },
-          "tabs": {
-            "import": "استيراد الكشف",
-            "reconciliation": "التقارب",
-            "discrepancies": "الفوارق",
-            "history": "السجل"
-          },
-          "import": {
-            "title": "استيراد الكشوفات",
-            "action": "استيراد كشف جديد"
-          },
-          "status": {
-            "rapproche": "متقارب",
-            "en_cours": "قيد المعالجة",
-            "importe": "مستورد",
-            "non_rapproche": "غير متقارب",
-            "en_attente": "في الانتظار"
-          }
+        "status": {
+          "rapproche": "متقارب",
+          "en_cours": "قيد المعالجة",
+          "importe": "مستورد",
+          "non_rapproche": "غير متقارب",
+          "en_attente": "في الانتظار"
         }
+      }
+    },
+    "fiscal": {
+      "title": "الجباية والتصريحات",
+      "subtitle": "الامتثال الضريبي، G50 والتدقيق الذكي",
+      "warning_title": "تنبيه:",
+      "warning_text": "تعتمد الحسابات على بيانات ERP ويجب تأكيدها من قبل محاسبك المعتمد.",
+      "stats": {
+        "ca_ht": "رقم الأعمال الإجمالي",
+        "ibs_estimated": "IBS المقدر",
+        "tva_to_pay": "رصيد TVA للدفع",
+        "conformity_score": "درجة الامتثال",
+        "total_charge": "العبء الإجمالي",
+        "effective_rate": "المعدل الفعلي",
+        "ibs_share": "حصة IBS",
+        "compliance": "الامتثال"
       },
-      "fiscal": {
-        "title": "الجباية والتصريحات",
-        "subtitle": "الامتثال الضريبي، G50 والتدقيق الذكي",
-        "warning_title": "تنبيه:",
-        "warning_text": "تعتمد الحسابات على بيانات ERP ويجب تأكيدها من قبل محاسبك المعتمد.",
-        "stats": {
-          "ca_ht": "رقم الأعمال الإجمالي",
-          "ibs_estimated": "IBS المقدر",
-          "tva_to_pay": "رصيد TVA للدفع",
-          "conformity_score": "درجة الامتثال",
-          "total_charge": "العبء الإجمالي",
-          "effective_rate": "المعدل الفعلي",
-          "ibs_share": "حصة IBS",
-          "compliance": "الامتثال"
-        },
-        "rates": {
-          "tva": "معدل الرسم (TVA) %",
-          "tap": "معدل الرسم (TAP) %",
-          "ibs": "معدل الضريبة (IBS) %",
-          "ibs_full": "الضريبة على أرباح الشركات (IBS)"
-        },
-        "reports": {
-          "audit_title": "التدقيق الجبائي الاستراتيجي",
-          "generated_by": "أنجز بواسطة Dinarlytics AI"
-        },
-        "documents": {
-          "title": "المستندات والحزمة الجبائية",
-          "subtitle": "تسيير الالتزامات الجبائية لـ {{country}}",
-          "frequencies": {
-            "mensuel": "شهري",
-            "trimestriel": "فصلي",
-            "annuel": "سنوي",
-            "ponctuel": "ظرفي"
-          },
-          "categories": {
-            "declaration": "تصريح",
-            "attestation": "شهادة",
-            "bilan": "ميزانية / حزمة",
-            "formulaire": "استمارة",
-            "certificat": "شهادة"
-          },
-          "status": {
-            "brouillon": "مسودة",
-            "soumis": "مرسل",
-            "valide": "مؤكد",
-            "rejete": "مرفوض"
-          }
-        }
+      "rates": {
+        "tva": "معدل الرسم (TVA) %",
+        "tap": "معدل الرسم (TAP) %",
+        "ibs": "معدل الضريبة (IBS) %",
+        "ibs_full": "الضريبة على أرباح الشركات (IBS)"
       },
       "reports": {
-        "title": "القوائم والتقارير المالية",
-        "subtitle": "الحزمة الجبائية، الميزانيات والتحليل المحاسبي",
-        "period_select": "اختر الفترة",
-        "official_report": "القائمة المالية الرسمية",
-        "audit_ready": "جاهز للتدقيق",
-        "actions": {
-          "print": "طباعة القائمة",
-          "export_xml": "تصدير XML (DGI)",
-          "export_pdf": "تصدير PDF",
-          "export_excel": "تصدير Excel",
-          "graphical_analysis": "التحليل البياني"
+        "audit_title": "التدقيق الجبائي الاستراتيجي",
+        "generated_by": "أنجز بواسطة Dinarlytics AI"
+      },
+      "documents": {
+        "title": "المستندات والحزمة الجبائية",
+        "subtitle": "تسيير الالتزامات الجبائية لـ {{country}}",
+        "frequencies": {
+          "mensuel": "شهري",
+          "trimestriel": "فصلي",
+          "annuel": "سنوي",
+          "ponctuel": "ظرفي"
         },
-        "modals": {
-          "metrics_title": "المؤشرات والمقاييس المتاحة",
-          "metrics_list": {
-            "balance_evolution": "تطور الميزانية (الأصول / الخصوم)",
-            "net_income_performance": "أداء النتيجة الصافية",
-            "operating_cash_flow": "تدفقات الخزينة التشغيلية",
-            "liquidity_solvency_ratios": "نسب السيولة والملاءة",
-            "comparative_analysis": "التحليلات المقارنة N / N-1",
-            "working_capital_monitoring": "متابعة احتياجات رأس المال العامل"
-          },
-          "graphical_analysis": {
-            "title": "الرسومات البيانية التفاعلية",
-            "desc": "الوصول إلى الرسوم البيانية التفاعلية في لوحة القيادة لتحليل بياناتك المالية."
-          },
-          "reports_analytics": {
-            "title": "التقارير والتحليلات",
-            "desc": "اطلع على التقارير المفصلة مع التحليلات البيانية والإحصائية."
-          },
-          "imprimer_desc": "اختر القائمة المحاسبية التي ترغب في طباعتها. سيتم إنشاء المستند بالتنسيق الرسمي المتوافق مع المعايير المحاسبية الجزائرية."
+        "categories": {
+          "declaration": "تصريح",
+          "attestation": "شهادة",
+          "bilan": "ميزانية / حزمة",
+          "formulaire": "استمارة",
+          "certificat": "شهادة"
         },
-        "tabs": {
-          "bilan": "الميزانية",
-          "resultat": "جدول النتائج",
-          "flux": "جدول تدفقات الخزينة",
-          "balance": "ميزان المراجعة",
-          "grand_livre": "الدفتر الكبير"
+        "status": {
+          "brouillon": "مسودة",
+          "soumis": "مرسل",
+          "valide": "مؤكد",
+          "rejete": "مرفوض"
+        }
+      }
+    },
+    "reports": {
+      "title": "القوائم والتقارير المالية",
+      "subtitle": "الحزمة الجبائية، الميزانيات والتحليل المحاسبي",
+      "period_select": "اختر الفترة",
+      "official_report": "القائمة المالية الرسمية",
+      "audit_ready": "جاهز للتدقيق",
+      "actions": {
+        "print": "طباعة القائمة",
+        "export_xml": "تصدير XML (DGI)",
+        "export_pdf": "تصدير PDF",
+        "export_excel": "تصدير Excel",
+        "graphical_analysis": "التحليل البياني"
+      },
+      "modals": {
+        "metrics_title": "المؤشرات والمقاييس المتاحة",
+        "metrics_list": {
+          "balance_evolution": "تطور الميزانية (الأصول / الخصوم)",
+          "net_income_performance": "أداء النتيجة الصافية",
+          "operating_cash_flow": "تدفقات الخزينة التشغيلية",
+          "liquidity_solvency_ratios": "نسب السيولة والملاءة",
+          "comparative_analysis": "التحليلات المقارنة N / N-1",
+          "working_capital_monitoring": "متابعة احتياجات رأس المال العامل"
         },
-        "bilan": {
-          "actif": "الأصول",
-          "passif": "الخصوم",
-          "total_da": "المجموع (دج)",
-          "actif_immobilise": "الأصول غير الجارية",
-          "subtotal_immobilise": "مجموع الأصول غير الجارية",
-          "actif_circulant": "الأصول الجارية",
-          "subtotal_circulant": "مجموع الأصول الجارية",
-          "total_actif": "مجموع الأصول",
-          "capitaux_propres": "الأموال الخاصة",
-          "subtotal_capitaux": "مجموع الأموال الخاصة",
-          "dettes_engagements": "الديون والالتزامات",
-          "subtotal_dettes": "مجموع الديون",
-          "total_passif": "مجموع الخصوم"
+        "graphical_analysis": {
+          "title": "الرسومات البيانية التفاعلية",
+          "desc": "الوصول إلى الرسوم البيانية التفاعلية في لوحة القيادة لتحليل بياناتك المالية."
         },
-        "resultat": {
-          "title": "جدول حسابات النتائج",
-          "charges_exploitation": "أعباء الاستغلال",
-          "total_charges": "مجموع الأعباء",
-          "produits_exploitation": "منتوجات الاستغلال",
-          "total_produits": "مجموع المنتوجات",
-          "net_result": "النتيجة الصافية",
-          "net_margin": "هامش الربح الصافي",
-          "net_margin_desc": "النتيجة الصافية / إجمالي رقم الأعمال"
+        "reports_analytics": {
+          "title": "التقارير والتحليلات",
+          "desc": "اطلع على التقارير المفصلة مع التحليلات البيانية والإحصائية."
         },
-        "flux": {
-          "title": "جدول تدفقات الخزينة",
-          "method_indirect": "الطريقة غير المباشرة — الفترة : {{period}}",
-          "activity": "تدفقات الأنشطة",
-          "net_result": "النتيجة الصافية للسنة المالية",
-          "depreciation": "+ مخصصات الاهتلاك",
-          "inventory_var": "- تغير في المخزون",
-          "receivables_var": "- تغير في حقوق الزبائن",
-          "payables_var": "+ تغير في ديون الموردين",
-          "net_op_flow": "صافي تدفقات الاستغلال",
-          "investment": "تدفقات الاستثمار",
-          "acquisition_fixed": "- اقتناء أصول غير جارية",
-          "disposal_fixed": "+ التنازل عن أصول غير جارية",
-          "net_inv_flow": "صافي تدفقات الاستثمار",
-          "financing": "تدفقات التمويل",
-          "capital_increase": "+ زيادة في رأس المال",
-          "new_loans": "+ قروض جديدة",
-          "loan_repayment": "- تسديد القروض",
-          "dividends": "- توزيعات الأرباح",
-          "net_fin_flow": "صافي تدفقات التمويل",
-          "opening_cash": "الخزينة الافتتاحية",
-          "net_variation": "التغير الصافي في الخزينة",
-          "closing_cash": "خزينة الإغلاق"
+        "imprimer_desc": "اختر القائمة المحاسبية التي ترغب في طباعتها. سيتم إنشاء المستند بالتنسيق الرسمي المتوافق مع المعايير المحاسبية الجزائرية."
+      },
+      "tabs": {
+        "bilan": "الميزانية",
+        "resultat": "جدول النتائج",
+        "flux": "جدول تدفقات الخزينة",
+        "balance": "ميزان المراجعة",
+        "grand_livre": "الدفتر الكبير"
+      },
+      "bilan": {
+        "actif": "الأصول",
+        "passif": "الخصوم",
+        "total_da": "المجموع (دج)",
+        "actif_immobilise": "الأصول غير الجارية",
+        "subtotal_immobilise": "مجموع الأصول غير الجارية",
+        "actif_circulant": "الأصول الجارية",
+        "subtotal_circulant": "مجموع الأصول الجارية",
+        "total_actif": "مجموع الأصول",
+        "capitaux_propres": "الأموال الخاصة",
+        "subtotal_capitaux": "مجموع الأموال الخاصة",
+        "dettes_engagements": "الديون والالتزامات",
+        "subtotal_dettes": "مجموع الديون",
+        "total_passif": "مجموع الخصوم"
+      },
+      "resultat": {
+        "title": "جدول حسابات النتائج",
+        "charges_exploitation": "أعباء الاستغلال",
+        "total_charges": "مجموع الأعباء",
+        "produits_exploitation": "منتوجات الاستغلال",
+        "total_produits": "مجموع المنتوجات",
+        "net_result": "النتيجة الصافية",
+        "net_margin": "هامش الربح الصافي",
+        "net_margin_desc": "النتيجة الصافية / إجمالي رقم الأعمال"
+      },
+      "flux": {
+        "title": "جدول تدفقات الخزينة",
+        "method_indirect": "الطريقة غير المباشرة — الفترة : {{period}}",
+        "activity": "تدفقات الأنشطة",
+        "net_result": "النتيجة الصافية للسنة المالية",
+        "depreciation": "+ مخصصات الاهتلاك",
+        "inventory_var": "- تغير في المخزون",
+        "receivables_var": "- تغير في حقوق الزبائن",
+        "payables_var": "+ تغير في ديون الموردين",
+        "net_op_flow": "صافي تدفقات الاستغلال",
+        "investment": "تدفقات الاستثمار",
+        "acquisition_fixed": "- اقتناء أصول غير جارية",
+        "disposal_fixed": "+ التنازل عن أصول غير جارية",
+        "net_inv_flow": "صافي تدفقات الاستثمار",
+        "financing": "تدفقات التمويل",
+        "capital_increase": "+ زيادة في رأس المال",
+        "new_loans": "+ قروض جديدة",
+        "loan_repayment": "- تسديد القروض",
+        "dividends": "- توزيعات الأرباح",
+        "net_fin_flow": "صافي تدفقات التمويل",
+        "opening_cash": "الخزينة الافتتاحية",
+        "net_variation": "التغير الصافي في الخزينة",
+        "closing_cash": "خزينة الإغلاق"
+      },
+      "balance": {
+        "title": "ميزان المراجعة العام",
+        "subtitle": "بيان شامل للحسابات • {{period}}",
+        "balanced": "✓ ميزان متوازن",
+        "unbalanced": "⚠ ميزان غير متوازن",
+        "account": "الحساب",
+        "label": "البيان",
+        "debit": "مدين",
+        "credit": "دائن",
+        "balance": "الرصيد الصافي",
+        "total_general": "إجمالي التدفقات"
+      },
+      "ledger": {
+        "title": "الدفتر الكبير",
+        "final_balance": "رصيد نهاية الفترة",
+        "date": "التاريخ",
+        "label": "البيان",
+        "debit": "مدين",
+        "credit": "دائن",
+        "balance": "الرصيد",
+        "creditor_short": "د",
+        "debtor_short": "م",
+        "account_abbr": "حساب",
+        "labels": {
+          "opening_balance": "الرصيد الافتتاحي",
+          "sale_invoice": "فاتورة بيع",
+          "supplier_payment": "دفع للمورد",
+          "salary_payment": "تحويل راتب",
+          "client_payment": "تسديد فاتورة"
         },
-        "balance": {
-          "title": "ميزان المراجعة العام",
-          "subtitle": "بيان شامل للحسابات • {{period}}",
-          "balanced": "✓ ميزان متوازن",
-          "unbalanced": "⚠ ميزان غير متوازن",
-          "account": "الحساب",
-          "label": "البيان",
-          "debit": "مدين",
-          "credit": "دائن",
-          "balance": "الرصيد الصافي",
-          "total_general": "إجمالي التدفقات"
-        },
-        "ledger": {
-          "title": "الدفتر الكبير",
-          "final_balance": "رصيد نهاية الفترة",
-          "date": "التاريخ",
-          "label": "البيان",
-          "debit": "مدين",
-          "credit": "دائن",
-          "balance": "الرصيد",
-          "creditor_short": "د",
-          "debtor_short": "م",
-          "account_abbr": "حساب",
-          "labels": {
-            "opening_balance": "الرصيد الافتتاحي",
-            "sale_invoice": "فاتورة بيع",
-            "supplier_payment": "دفع للمورد",
-            "salary_payment": "تحويل راتب",
-            "client_payment": "تسديد فاتورة"
-          },
-          "accounts": {
-            "bank": "بنك ستاندرد تشارترد",
-            "clients": "الزبائن المشتركون"
+        "accounts": {
+          "bank": "بنك ستاندرد تشارترد",
+          "clients": "الزبائن المشتركون"
         }
       }
     },
     "ledger": {
-        "title": "المخطط المحاسبي",
-        "subtitle": "إدارة هيكل حساباتك ومتابعة الأرصدة المحاسبية.",
-        "actions": {
-          "new_account": "حساب جديد",
-          "create_account": "إنشاء الحساب",
-          "cancel": "إلغاء"
-        },
-        "types": {
-          "actif": "أصول",
-          "passif": "خصوم",
-          "produit": "منتوج",
-          "charge": "عبء"
-        },
-        "accounts": {
-          "fixed_assets": "تثبيتات عينية",
-          "inventory": "مخزون البضائع",
-          "customers": "الزبائن",
-          "bank": "البنك",
-          "cash": "الصندوق",
-          "equity": "رأس المال",
-          "net_result": "النتيجة الصافية",
-          "sales": "المبيعات",
-          "purchases": "المشتريات",
-          "depreciation": "مخصصات الاهتلاك",
-          "ibs": "الضريبة على الأرباح (IBS)"
-        }
+      "title": "المخطط المحاسبي",
+      "subtitle": "إدارة هيكل حساباتك ومتابعة الأرصدة المحاسبية.",
+      "actions": {
+        "new_account": "حساب جديد",
+        "create_account": "إنشاء الحساب",
+        "cancel": "إلغاء"
       },
-      "consolidation": {
-        "title": "التجميع المالي",
-        "subtitle": "تجميع متعدد الفروع، استبعاد التدفقات البينية والقوائم المجمعة.",
-        "is_consolidating": "جاري التجميع...",
-        "tabs": {
-          "overview": "نظرة عامة",
-          "intercompany": "التدفقات البينية",
-          "financial_statements": "القوائم المجمعة",
-          "reports": "التقارير والتدقيق",
-          "analytics": "تحليلات الذكاء الاصطناعي"
-        },
-        "stats": {
-          "total_revenue": "رقم الأعمال المجمع",
-          "net_income": "النتيجة الصافية",
-          "total_cash": "خزينة المجموعة",
-          "total_assets": "الأصول الإجمالية",
-          "growth": "نمو المجموعة",
-          "risk_score": "درجة المخاطر",
-          "companies": "الفروع"
-        },
-        "actions": {
-          "run_consolidation": "بدء التجميع",
-          "config": "إعداد المجموعة",
-          "export_pdf": "تصدير PDF",
-          "export_excel": "تصدير Excel",
-          "print": "طباعة القوائم",
-          "add_company": "إضافة فرع",
-          "manage_currencies": "إدارة العملات"
-        }
+      "types": {
+        "actif": "أصول",
+        "passif": "خصوم",
+        "produit": "منتوج",
+        "charge": "عبء"
+      },
+      "accounts": {
+        "fixed_assets": "تثبيتات عينية",
+        "inventory": "مخزون البضائع",
+        "customers": "الزبائن",
+        "bank": "البنك",
+        "cash": "الصندوق",
+        "equity": "رأس المال",
+        "net_result": "النتيجة الصافية",
+        "sales": "المبيعات",
+        "purchases": "المشتريات",
+        "depreciation": "مخصصات الاهتلاك",
+        "ibs": "الضريبة على الأرباح (IBS)"
       }
     },
-    "access": {
+    "consolidation": {
+      "title": "التجميع المالي",
+      "subtitle": "تجميع متعدد الفروع، استبعاد التدفقات البينية والقوائم المجمعة.",
+      "is_consolidating": "جاري التجميع...",
+      "tabs": {
+        "overview": "نظرة عامة",
+        "intercompany": "التدفقات البينية",
+        "financial_statements": "القوائم المجمعة",
+        "reports": "التقارير والتدقيق",
+        "analytics": "تحليلات الذكاء الاصطناعي"
+      },
+      "stats": {
+        "total_revenue": "رقم الأعمال المجمع",
+        "net_income": "النتيجة الصافية",
+        "total_cash": "خزينة المجموعة",
+        "total_assets": "الأصول الإجمالية",
+        "growth": "نمو المجموعة",
+        "risk_score": "درجة المخاطر",
+        "companies": "الفروع"
+      },
+      "actions": {
+        "run_consolidation": "بدء التجميع",
+        "config": "إعداد المجموعة",
+        "export_pdf": "تصدير PDF",
+        "export_excel": "تصدير Excel",
+        "print": "طباعة القوائم",
+        "add_company": "إضافة فرع",
+        "manage_currencies": "إدارة العملات"
+      }
+    }
+  },
+  "access": {
     "denied": "تم رفض الوصول",
     "permission_not_granted": "ليس لديك الإذن للوصول إلى هذا القسم.",
     "permission_required": "الإذن المطلوب:",
@@ -2548,7 +2557,8 @@
       "alerts": {
         "failed_login_ip": "محاولة دخول فاشلة (IP: {{ip}})",
         "firewall_update": "تم تحديث قواعد جدار الحماية بنجاح",
-        "account_locked": "تم قفل حساب المستخدم \"{{user}}\" بعد 5 محاولات"
+        "account_locked": "تم قفل حساب المستخدم \"{{user}}\" بعد 5 محاولات",
+        "login_success_mfa": "تسجيل دخول ناجح عبر المصادقة الثنائية"
       }
     },
     "risks": {
@@ -2714,15 +2724,15 @@
       "close": "إغلاق",
       "schedule_title": "جدولة أتمتة التدقيق",
       "automation_name": "اسم الأتمتة",
-      "automation_placeholder": "مثال: التدقيق الضريبي الأسبوعي",
+      "automation_placeholder": "مثال: تدقيق الأمان الأسبوعي",
       "frequency": "التكرار",
       "frequencies": {
-        "daily": "يومي (00:00)",
-        "weekly": "أسبوعي (الاثنين)",
-        "monthly": "شهري (الأول من الشهر)"
+        "daily": "يومي",
+        "weekly": "أسبوعي",
+        "monthly": "شهري"
       },
-      "recipient": "المستلم (البريد الإلكتروني)",
-      "info_note": "سيتم إنشاء هذه التقارير وإرسالها تلقائيًا دون تدخل يدوي.",
+      "recipient": "المستلم",
+      "info_note": "سيتم إنشاء التقرير وإرساله تلقائيًا في التكرار المختار.",
       "success_save": "تم حفظ الأتمتة بنجاح!",
       "save_automation": "حفظ الأتمتة",
       "compliance_report_title": "تقرير الامتثال المفصل",
@@ -2730,7 +2740,7 @@
       "last_check_prefix": "آخر فحص",
       "last_check_suffix": "منذ دقيقتين",
       "validated_points": "نقاط التحكم التي تم التحقق منها",
-      "remediation_actions": "إجراءات المعالجة",
+      "remediation_actions": "إجراءات التصحيح",
       "remediation_warning": "تحذير: تنتهي صلاحية كلمة مرور مستخدمين في أقل من 48 ساعة. تم إرسال إشعار تلقائي.",
       "points": {
         "integrity": "سلامة القيود المحاسبية",
@@ -2738,7 +2748,33 @@
         "traceability": "تتبع تصدير البيانات",
         "archiving": "الأرشفة القانونية (10 سنوات)"
       },
-      "close_report": "إغلاق التقرير"
+      "close_report": "إغلاق التقرير",
+      "doc_type": "نوع المستند"
+    },
+    "roles": {
+      "admin": "مدير",
+      "finance_director": "المدير المالي",
+      "hr_manager": "مدير الموارد البشرية",
+      "sysadmin": "مدير النظام",
+      "unknown": "مجهول"
+    },
+    "resources": {
+      "dashboard": "لوحة القيادة",
+      "report_q3": "تقرير_الربع_الثالث.pdf",
+      "login_page": "صفحة تسجيل الدخول",
+      "employee_profile": "الملف الشخصي للموظف #452",
+      "log_files": "ملفات السجل",
+      "invoice_99": "فاتورة #F-99",
+      "backup": "نسخة احتياطية"
+    },
+    "activities": {
+      "descriptions": {
+        "login_fail": "محاولة تسجيل دخول مشبوهة",
+        "export_sensitive": "تصدير بيانات حساسة",
+        "export_finance": "تصدير التقرير المالي من قبل نادية بلقاسم",
+        "backup_success": "نسخ احتياطي تلقائي",
+        "backup_daily": "تم إجراء النسخ الاحتياطي اليومي بنجاح"
+      }
     }
   },
   "roles": {
@@ -3133,7 +3169,7 @@
       "create_account": "إنشاء الحساب"
     },
     "users": {
-        "loading": "جاري تحميل المستخدمين...",
+      "loading": "جاري تحميل المستخدمين...",
       "anniversary": "قائمة المستخدمين",
       "manage_access": "تهيئة الأدوار وصلاحيات الوصول",
       "user_count": "مستخدمين",

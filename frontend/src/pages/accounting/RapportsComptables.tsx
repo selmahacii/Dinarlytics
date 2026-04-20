@@ -56,9 +56,9 @@ const EtatsRapports: React.FC = () => {
       dettes: [
         { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), montant: 1500000 },
         { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), montant: 890000 },
-        { compte: '4457', libelle: t('accounting.fiscal.rates.tva'), montant: 399000 },
+        { compte: '4457', libelle: t('fiscal.rates.tva'), montant: 399000 },
         { compte: '444', libelle: t('accounting.ledger.accounts.ibs'), montant: 221000 },
-        { compte: '447', libelle: t('accounting.fiscal.rates.tap'), montant: 104000 },
+        { compte: '447', libelle: t('fiscal.rates.tap'), montant: 104000 },
         { compte: '42', libelle: t('common.personnel', { defaultValue: 'Personnel' }), montant: 200000 }
       ]
     }
@@ -102,9 +102,9 @@ const EtatsRapports: React.FC = () => {
     // Dettes
     { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), debit: 0, credit: 1500000 },
     { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), debit: 0, credit: 890000 },
-    { compte: '4457', libelle: t('accounting.fiscal.rates.tva'), debit: 0, credit: 399000 },
+    { compte: '4457', libelle: t('fiscal.rates.tva'), debit: 0, credit: 399000 },
     { compte: '444', libelle: t('accounting.ledger.accounts.ibs'), debit: 0, credit: 221000 },
-    { compte: '447', libelle: t('accounting.fiscal.rates.tap'), debit: 0, credit: 104000 },
+    { compte: '447', libelle: t('fiscal.rates.tap'), debit: 0, credit: 104000 },
     { compte: '42', libelle: t('common.personnel', { defaultValue: 'Personnel' }), debit: 0, credit: 200000 },
     // Produits & Charges
     { compte: '70', libelle: t('accounting.ledger.accounts.sales'), debit: 0, credit: CA_ACTUEL },
@@ -894,7 +894,7 @@ const EtatsRapports: React.FC = () => {
           { compte: '12', libelle: t('accounting.ledger.accounts.net_result'), debit: 0, credit: resultat, solde: -resultat },
           { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), debit: 0, credit: 1500000, solde: -1500000 },
           { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), debit: 0, credit: 890000, solde: -890000 },
-          { compte: '4457', libelle: t('accounting.fiscal.rates.tva'), debit: 0, credit: 285000, solde: -285000 },
+          { compte: '4457', libelle: t('fiscal.rates.tva'), debit: 0, credit: 285000, solde: -285000 },
           { compte: '70', libelle: t('accounting.ledger.accounts.sales'), debit: 0, credit: 5200000, solde: -5200000 },
           { compte: '60', libelle: t('accounting.ledger.accounts.purchases'), debit: 3100000, credit: 0, solde: 3100000 },
           { compte: '64', libelle: t('common.staff_costs', { defaultValue: 'Frais de personnel' }), debit: 680000, credit: 0, solde: 680000 }

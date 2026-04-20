@@ -228,7 +228,8 @@
       "creditor": "Créditeur",
       "debtor_short": "D",
       "creditor_short": "C"
-    }
+    },
+    "for": "Pour"
   },
   "breadcrumb": {
     "home": "Accueil",
@@ -1547,12 +1548,12 @@
       "expert_mode": "Mode Expert",
       "audit_ia_btn": "Audit IA",
       "rates": {
-         "tva": "Taux de TVA",
-         "tap": "Taux de TAP",
-         "ibs": "Taux d'IBS",
-         "ibs_full": "Impôt sur les Bénéfices (IBS)",
-         "irg": "IRG",
-         "rate_label": "Taux"
+        "tva": "Taux de TVA",
+        "tap": "Taux de TAP",
+        "ibs": "Taux d'IBS",
+        "ibs_full": "Impôt sur les Bénéfices (IBS)",
+        "irg": "IRG",
+        "rate_label": "Taux"
       },
       "ia": {
         "predicted_tva": "TVA Prédictive",
@@ -1600,6 +1601,15 @@
         "audit_title": "AUDIT FISCAL STRATÉGIQUE",
         "generated_by": "Réalisé par Dinarlytics AI"
       },
+      "variance_explanation": "Les écarts positifs signalent une sous-estimation des charges ou une augmentation imprévue de l'activité taxable.",
+      "simulator": {
+        "title": "Simulateur de Calculs Fiscaux 2026",
+        "result": "Résultat de la Simulation",
+        "net_profit": "Bénéfice Net Imposable",
+        "ca_label": "Chiffre d'Affaires HT",
+        "charges_label": "Charges Déductibles"
+      },
+      "expert_report_btn": "Générer Rapport IA Expert",
       "documents": {
         "title": "Documents Fiscaux Disponibles",
         "subtitle": "{{country}} • {{count}} documents obligatoires disponibles",
@@ -1822,484 +1832,567 @@
   },
   "treasury_legacy": {
     "treasury": {
-        "sections": {
-          "outflows_split": "Décomposition Décaissements"
-        },
-        "items": {
-          "supplier_purchases": "Achats fournisseurs",
-          "salaries_charges": "Salaires & charges",
-          "fixed_charges": "Charges fixes",
-          "other_expenses": "Autres dépenses"
-        }
+      "sections": {
+        "outflows_split": "Décomposition Décaissements"
       },
-      "ratios": {
-        "title": "Ratios Financiers Clés",
-        "current_liquidity": "Liquidité Générale",
-        "current_liquidity_desc": "Actif circulant / Dettes CT",
-        "financial_autonomy": "Autonomie Financière",
-        "financial_autonomy_desc": "Dettes / Capitaux propres",
-        "added_value": "Valeur Ajoutée",
-        "added_value_desc": "Marge brute / CA",
-        "roe": "ROE (Return on Equity)",
-        "roe_desc": "Rentabilité des capitaux propres",
-        "roa": "ROA (Return on Assets)",
-        "roa_desc": "Rentabilité de l'actif total",
-        "working_capital": "Fonds de Roulement",
-        "working_capital_desc": "Capacité de financement CT",
-        "labels": {
-          "stable_resources": "Ressources stables",
-          "stable_uses": "Emplois stables",
-          "net_result": "Résultat Net",
-          "equity": "Capitaux propres",
-          "total_assets": "Total Actif"
-        }
-      },
-      "evolution_title": "Évolution des Postes Clés",
-      "comparison_n_n1": "Comparaison N / N-1",
-      "period_n": "Exercice N",
-      "period_n1": "Exercice N-1",
-      "structure_title": "Structure du Bilan",
-      "post_weight": "Poids des Postes",
-      "actif_distribution": "RÉPARTITION DE L'ACTIF",
-      "passif_structure": "STRUCTURE DU PASSIF",
-      "fixed_assets": "Actif Immobilisé",
-      "current_assets": "Actif Circulant",
-      "equity": "Capitaux Propres",
-      "liabilities": "Dettes"
-    },
-    "ledger": {
-      "title": "Plan Comptable",
-      "subtitle": "Gérez la structure de vos comptes et suivez vos soldes comptables.",
-      "actions": {
-        "new_account": "Nouveau Compte",
-        "create_account": "Créer le compte",
-        "cancel": "Annuler"
-      },
-      "stats": {
-        "total_assets": "Total Actif",
-        "total_liabilities": "Total Passif",
-        "total_products": "Total Produits",
-        "total_charges": "Total Charges"
-      },
-      "filters": {
-        "search_placeholder": "Rechercher par code ou libellé...",
-        "all_types": "Tous les types"
-      },
-      "types": {
-        "actif": "Actif",
-        "passif": "Passif",
-        "produit": "Produit",
-        "charge": "Charge"
-      },
-      "scf_names": {
-        "immobilisations": "IMMOBILISATIONS",
-        "terrains": "Terrains",
-        "constructions": "Constructions",
-        "autres_immo": "Autres immobilisations",
-        "creances": "CRÉANCES",
-        "clients": "Clients",
-        "clients_douteux": "Clients douteux",
-        "personnel": "Personnel",
-        "dispo_fin": "DISPOSITIONS FINANCIÈRES",
-        "banque": "Banque",
-        "caisse": "Caisse",
-        "valeurs_mob": "Valeurs mobilières",
-        "capitaux_propres": "CAPITAUX PROPRES",
-        "capital_social": "Capital social",
-        "reserves": "Réserves",
-        "resultat_exercice": "Résultat exercice",
-        "dettes": "DETTES",
-        "fournisseurs": "Fournisseurs",
-        "etat": "État",
-        "ventes": "VENTES",
-        "ventes_produits": "Ventes produits",
-        "services": "Services",
-        "produits_vendus": "Produits vendus",
-        "achats": "ACHATS",
-        "achats_stock": "Achats stock",
-        "fournitures": "Fournitures",
-        "transport": "Transport"
-      },
-      "modal": {
-        "add_title": "Ajouter un nouveau compte",
-        "code_label": "Code de compte",
-        "code_placeholder": "Ex: 411001",
-        "name_label": "Libellé du compte",
-        "name_placeholder": "Ex: Client Divers",
-        "type_label": "Type de compte"
-      },
-      "accounts": {
-        "fixed_assets": "Immobilisations corporelles",
-        "inventory": "Stocks de marchandises",
-        "customers": "Clients",
-        "bank": "Banque",
-        "cash": "Caisse",
-        "equity": "Capital social",
-        "net_result": "Résultat net",
-        "sales": "Ventes",
-        "purchases": "Achats",
-        "depreciation": "Dotations aux amortissements",
-        "ibs": "Impôts sur les bénéfices (IBS)"
+      "items": {
+        "supplier_purchases": "Achats fournisseurs",
+        "salaries_charges": "Salaires & charges",
+        "fixed_charges": "Charges fixes",
+        "other_expenses": "Autres dépenses"
       }
     },
-    "consolidation": {
-      "title": "Consolidation Financière",
-      "subtitle": "Agrégation multi-filiales, éliminations inter-sociétés et états consolidés.",
-      "is_consolidating": "Consolidation en cours...",
-      "tabs": {
-        "overview": "Vue d'Ensemble",
-        "intercompany": "Flux Inter-Sociétés",
-        "financial_statements": "États Consolidés",
-        "reports": "Rapports & Audit",
-        "analytics": "Analytics IA"
+    "ratios": {
+      "title": "Ratios Financiers Clés",
+      "current_liquidity": "Liquidité Générale",
+      "current_liquidity_desc": "Actif circulant / Dettes CT",
+      "financial_autonomy": "Autonomie Financière",
+      "financial_autonomy_desc": "Dettes / Capitaux propres",
+      "added_value": "Valeur Ajoutée",
+      "added_value_desc": "Marge brute / CA",
+      "roe": "ROE (Return on Equity)",
+      "roe_desc": "Rentabilité des capitaux propres",
+      "roa": "ROA (Return on Assets)",
+      "roa_desc": "Rentabilité de l'actif total",
+      "working_capital": "Fonds de Roulement",
+      "working_capital_desc": "Capacité de financement CT",
+      "labels": {
+        "stable_resources": "Ressources stables",
+        "stable_uses": "Emplois stables",
+        "net_result": "Résultat Net",
+        "equity": "Capitaux propres",
+        "total_assets": "Total Actif"
+      }
+    },
+    "evolution_title": "Évolution des Postes Clés",
+    "comparison_n_n1": "Comparaison N / N-1",
+    "period_n": "Exercice N",
+    "period_n1": "Exercice N-1",
+    "structure_title": "Structure du Bilan",
+    "post_weight": "Poids des Postes",
+    "actif_distribution": "RÉPARTITION DE L'ACTIF",
+    "passif_structure": "STRUCTURE DU PASSIF",
+    "fixed_assets": "Actif Immobilisé",
+    "current_assets": "Actif Circulant",
+    "equity": "Capitaux Propres",
+    "liabilities": "Dettes"
+  },
+  "ledger": {
+    "title": "Plan Comptable",
+    "subtitle": "Gérez la structure de vos comptes et suivez vos soldes comptables.",
+    "actions": {
+      "new_account": "Nouveau Compte",
+      "create_account": "Créer le compte",
+      "cancel": "Annuler"
+    },
+    "stats": {
+      "total_assets": "Total Actif",
+      "total_liabilities": "Total Passif",
+      "total_products": "Total Produits",
+      "total_charges": "Total Charges"
+    },
+    "filters": {
+      "search_placeholder": "Rechercher par code ou libellé...",
+      "all_types": "Tous les types"
+    },
+    "types": {
+      "actif": "Actif",
+      "passif": "Passif",
+      "produit": "Produit",
+      "charge": "Charge"
+    },
+    "scf_names": {
+      "immobilisations": "IMMOBILISATIONS",
+      "terrains": "Terrains",
+      "constructions": "Constructions",
+      "autres_immo": "Autres immobilisations",
+      "creances": "CRÉANCES",
+      "clients": "Clients",
+      "clients_douteux": "Clients douteux",
+      "personnel": "Personnel",
+      "dispo_fin": "DISPOSITIONS FINANCIÈRES",
+      "banque": "Banque",
+      "caisse": "Caisse",
+      "valeurs_mob": "Valeurs mobilières",
+      "capitaux_propres": "CAPITAUX PROPRES",
+      "capital_social": "Capital social",
+      "reserves": "Réserves",
+      "resultat_exercice": "Résultat exercice",
+      "dettes": "DETTES",
+      "fournisseurs": "Fournisseurs",
+      "etat": "État",
+      "ventes": "VENTES",
+      "ventes_produits": "Ventes produits",
+      "services": "Services",
+      "produits_vendus": "Produits vendus",
+      "achats": "ACHATS",
+      "achats_stock": "Achats stock",
+      "fournitures": "Fournitures",
+      "transport": "Transport"
+    },
+    "modal": {
+      "add_title": "Ajouter un nouveau compte",
+      "code_label": "Code de compte",
+      "code_placeholder": "Ex: 411001",
+      "name_label": "Libellé du compte",
+      "name_placeholder": "Ex: Client Divers",
+      "type_label": "Type de compte"
+    },
+    "accounts": {
+      "fixed_assets": "Immobilisations corporelles",
+      "inventory": "Stocks de marchandises",
+      "customers": "Clients",
+      "bank": "Banque",
+      "cash": "Caisse",
+      "equity": "Capital social",
+      "net_result": "Résultat net",
+      "sales": "Ventes",
+      "purchases": "Achats",
+      "depreciation": "Dotations aux amortissements",
+      "ibs": "Impôts sur les bénéfices (IBS)"
+    }
+  },
+  "consolidation": {
+    "title": "Consolidation Financière",
+    "subtitle": "Agrégation multi-filiales, éliminations inter-sociétés et états consolidés.",
+    "is_consolidating": "Consolidation en cours...",
+    "tabs": {
+      "overview": "Vue d'Ensemble",
+      "intercompany": "Flux Inter-Sociétés",
+      "financial_statements": "États Consolidés",
+      "reports": "Rapports & Audit",
+      "analytics": "Analytics IA"
+    },
+    "stats": {
+      "total_revenue": "CA Consolidé",
+      "net_income": "Résultat Net",
+      "total_cash": "Trésorerie Groupe",
+      "total_assets": "Actif Total",
+      "growth": "Croissance Groupe",
+      "risk_score": "Score de Risque",
+      "companies": "Filiales",
+      "total_ca": "Chiffre d'Affaires Global",
+      "total_profit": "Marge Nette Groupe",
+      "total_active": "Total Assets"
+    },
+    "actions": {
+      "run_consolidation": "Lancer Consolidation",
+      "config": "Configurer Groupe",
+      "export_pdf": "Exporter PDF",
+      "export_excel": "Exporter Excel",
+      "print": "Imprimer États",
+      "add_company": "Ajouter Filiale",
+      "manage_currencies": "Gérer Devises",
+      "add": "Ajouter",
+      "currencies": "Devises"
+    },
+    "intercompany": {
+      "title": "Transactions Inter-Sociétés",
+      "subtitle": "Détection automatique et élimination des flux internes",
+      "detected": "Flux détectés",
+      "to_eliminate": "À éliminer",
+      "eliminated": "Éliminés",
+      "table": {
+        "from": "Émetteur",
+        "to": "Récepteur",
+        "type": "Type de Flux",
+        "amount": "Montant (DZD)",
+        "status": "Statut",
+        "action": "Action"
+      }
+    },
+    "statements": {
+      "balance_sheet": "Bilan Consolidé",
+      "income_statement": "Compte de Résultat Consolidé",
+      "notes": "Annexes Consolidées",
+      "assets": "Actifs du Groupe",
+      "liabilities": "Passif & Capitaux"
+    },
+    "search_placeholder": "Filtrer les entités ou transactions...",
+    "period": "Période",
+    "currency": "Devise",
+    "progress": "Progression de la consolidation",
+    "filters": {
+      "all": "Toutes les filiales",
+      "active": "Actives uniquement",
+      "inactive": "Inactives uniquement",
+      "consolidated": "Déjà consolidées",
+      "pending": "En attente"
+    },
+    "placeholders": {
+      "search": "Rechercher une filiale ou un pays..."
+    }
+  },
+  "admin": {
+    "title": "Configuration Système",
+    "subtitle": "Gérez les paramètres globaux, la fiscalité et les accès de l'organisation",
+    "warning_title": "Avertissement Important",
+    "warning_text": "Les paramètres de cette page affectent le comportement global de l'application. Toute modification des paramètres comptables ou fiscaux peut impacter vos déclarations et rapports financiers.",
+    "recommendation": "Consultez votre expert-comptable avant de modifier les paramètres 2025.",
+    "profile_title": "Profil Utilisateur",
+    "company": "Entreprise",
+    "segment": "Segment",
+    "preferences_title": "Préférences Interface",
+    "language": "Langue d'interface",
+    "language_desc": "Affecte l'ensemble de l'interface ERP",
+    "currency": "Devise par défaut",
+    "currency_desc": "Utilisée pour l'affichage des montants",
+    "roles_title": "Rôles & Permissions",
+    "btn_configure_roles": "Configurer Rôles",
+    "tax_ibs_dz": "IBS (Impôt Bénéfices)",
+    "tax_ibs_int": "Corporate Tax",
+    "tax_tva_normal": "TVA Taux Normal",
+    "tax_tva_reduced": "TVA Taux Réduit ({{rate}}%)",
+    "categories": {
+      "purchases": "Achats",
+      "billing": "Facturation",
+      "reports": "Rapports",
+      "admin": "Administration",
+      "accounting": "Comptabilité",
+      "inventory": "Inventaire"
+    },
+    "users_count": "UTILISATEURS",
+    "users_count_count": "{{count}} UTILISATEURS",
+    "accounting_params": "Paramètres Comptables",
+    "ref_system": "Système de Référence",
+    "standard": "Norme en vigueur",
+    "pca_certified": "Certifié Audit",
+    "pca_algerien": "PCA Algérien",
+    "recommendation_prefix": "Recommandation :",
+    "fiscal_year": "Exercice Fiscal {{year}}",
+    "opening": "Ouverture",
+    "closing": "Clôture",
+    "modify_btn": "Modifier",
+    "validate_btn": "Valider",
+    "cancel_btn": "Annuler",
+    "chart_of_accounts": "Plan Comptable Complet",
+    "chart_of_accounts_desc": "Accédez à la base de données optimisée des comptes PCA",
+    "open_plan": "Ouvrir le Plan",
+    "fiscal_matrix": "Matrice Fiscale 2025",
+    "edit_rates": "Editer Taux",
+    "tax_consistency": "Contrôle de Cohérence",
+    "tax_impact_msg": "Toute modification de la matrice fiscale impacte directement les audits de conformité de l'exercice 2025.",
+    "roles_modal": {
+      "title": "Configuration des Rôles et Permissions",
+      "desc": "Créez ou modifiez un rôle personnalisé en sélectionnant les permissions appropriées. Les rôles définissent les accès et actions autorisées pour chaque utilisateur au sein du système ERP.",
+      "role_name": "Nom du rôle",
+      "role_name_desc": "Choisissez un nom descriptif pour ce rôle",
+      "role_desc": "Description du rôle",
+      "role_scope_placeholder": "Périmètre d'action du rôle...",
+      "available_permissions": "Permissions disponibles",
+      "check_all_desc": "Cochez les permissions que vous souhaitez attribuer à ce rôle",
+      "save_role": "Sauvegarder Rôle"
+    },
+    "form": {
+      "new_member": "Nouveau Membre",
+      "edit_profile": "Modifier Profil",
+      "config_account": "Configuration compte",
+      "identity": "Identité",
+      "first_name": "Prénom",
+      "last_name": "Nom",
+      "email": "Adresse Email",
+      "username": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "main_role": "Rôle Principal",
+      "additional_rights": "Droits d'accès additionnels",
+      "errors": {
+        "load_failed": "Échec du chargement des données système",
+        "system_error": "Erreur Système"
+      }
+    },
+    "roles_data": {
+      "admin": {
+        "name": "Administrateur",
+        "desc": "Accès complet à toutes les fonctionnalités"
       },
+      "accountant": {
+        "name": "Comptable",
+        "desc": "Gestion des opérations comptables et factures"
+      },
+      "user": {
+        "name": "Utilisateur",
+        "desc": "Consultation des données et rapports"
+      }
+    },
+    "permissions_list": {
+      "crm": "Gestion clients",
+      "purchases": "Gestion fournisseurs",
+      "billing_create": "Création factures",
+      "billing_validate": "Validation factures",
+      "reports_view": "Consultation rapports",
+      "data_export": "Export données",
+      "system_settings": "Paramètres système",
+      "user_mgmt": "Gestion utilisateurs",
+      "accounting_entry": "Saisie écritures comptables",
+      "accounting_validate": "Validation écritures",
+      "accounting_closing": "Clôture comptable",
+      "inventory_mgmt": "Gestion stocks"
+    },
+    "actions": {
+      "new_user": "Nouveau Utilisateur",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "save_changes": "Enregistrer les modifications",
+      "create_account": "Créer le compte"
+    },
+    "users": {
+      "loading": "Chargement des utilisateurs...",
+      "anniversary": "Liste des Utilisateurs",
+      "manage_access": "Configuration des rôles et droits d'accès",
+      "user_count": "UTILISATEURS",
+      "inactif": "Inactif",
+      "perms_count": "{{count}} PERMISSIONS",
+      "delete_confirm_title": "Désactiver l'utilisateur ?",
+      "delete_confirm_desc": "Cette action restreindra l'accès pour cet utilisateur. Vous pouvez le réactiver plus tard à tout moment.",
+      "status_active": "Actif",
+      "status_inactive": "Inactif"
+    }
+  },
+  "settings": {
+    "title": "Gestion Entreprise",
+    "subtitle": "Gérez vos informations et configurations",
+    "multi_company": {
+      "title": "Gestion Multi-Entreprises",
+      "subtitle": "Gérez plusieurs entreprises dans une seule interface",
+      "active_company": "Entreprise active: {{name}}",
+      "none": "Aucune",
       "stats": {
-        "total_revenue": "CA Consolidé",
-        "net_income": "Résultat Net",
-        "total_cash": "Trésorerie Groupe",
-        "total_assets": "Actif Total",
-        "growth": "Croissance Groupe",
-        "risk_score": "Score de Risque",
-        "companies": "Filiales",
-        "total_ca": "Chiffre d'Affaires Global",
-        "total_profit": "Marge Nette Groupe",
-        "total_active": "Total Assets"
-      },
-      "actions": {
-        "run_consolidation": "Lancer Consolidation",
-        "config": "Configurer Groupe",
-        "export_pdf": "Exporter PDF",
-        "export_excel": "Exporter Excel",
-        "print": "Imprimer États",
-        "add_company": "Ajouter Filiale",
-        "manage_currencies": "Gérer Devises",
-        "add": "Ajouter",
+        "total": "Total Entreprises",
+        "active": "Actives",
+        "users": "Utilisateurs",
         "currencies": "Devises"
       },
-      "intercompany": {
-        "title": "Transactions Inter-Sociétés",
-        "subtitle": "Détection automatique et élimination des flux internes",
-        "detected": "Flux détectés",
-        "to_eliminate": "À éliminer",
-        "eliminated": "Éliminés",
-        "table": {
-          "from": "Émetteur",
-          "to": "Récepteur",
-          "type": "Type de Flux",
-          "amount": "Montant (DZD)",
-          "status": "Statut",
-          "action": "Action"
+      "tabs": {
+        "list": "Liste des Entreprises",
+        "currencies": "Devises & Taux",
+        "permissions": "Permissions"
+      },
+      "actions": {
+        "new": "Nouvelle Entreprise",
+        "switch": "Basculer Entreprise",
+        "search_placeholder": "Rechercher une entreprise..."
+      },
+      "card": {
+        "status": {
+          "active": "Actif",
+          "inactive": "Inactif"
+        },
+        "details": {
+          "siret": "SIRET:",
+          "plan": "Plan Comptable:",
+          "users": "Utilisateurs:",
+          "last_activity": "Dernière activité:"
         }
-      },
-      "statements": {
-        "balance_sheet": "Bilan Consolidé",
-        "income_statement": "Compte de Résultat Consolidé",
-        "notes": "Annexes Consolidées",
-        "assets": "Actifs du Groupe",
-        "liabilities": "Passif & Capitaux"
-      },
-      "search_placeholder": "Filtrer les entités ou transactions...",
-      "period": "Période",
-      "currency": "Devise",
-      "progress": "Progression de la consolidation",
-      "filters": {
-        "all": "Toutes les filiales",
-        "active": "Actives uniquement",
-        "inactive": "Inactives uniquement",
-        "consolidated": "Déjà consolidées",
-        "pending": "En attente"
+      }
+    },
+    "company_form": {
+      "title_new": "Nouvelle Entreprise",
+      "info_general": "Informations Générales",
+      "info_general_desc": "Renseignez les informations de base de l'entreprise",
+      "labels": {
+        "name": "Nom de l'entreprise",
+        "raison_sociale": "Raison sociale",
+        "siret": "SIRET",
+        "tva": "Numéro TVA",
+        "address": "Adresse",
+        "city": "Ville",
+        "zip": "Code postal",
+        "country": "Pays",
+        "phone": "Téléphone",
+        "email": "Email",
+        "website": "Site Web",
+        "currency": "Devise",
+        "accounting_plan": "Plan Comptable",
+        "description": "Description"
       },
       "placeholders": {
-        "search": "Rechercher une filiale ou un pays..."
-      }
-    },
-    "admin": {
-      "title": "Administration Système",
-      "subtitle": "Contrôle d'Accès",
+        "name": "Saisissez le nom de l'entreprise",
+        "raison_sociale": "Saisissez la raison sociale",
+        "siret": "12345678901234",
+        "tva": "DZ123456789",
+        "email": "contact@entreprise.dz",
+        "phone": "+213 21 00 00 00"
+      },
+      "errors": {
+        "name_required": "Le nom de l'entreprise est requis",
+        "raison_required": "La raison sociale est requise",
+        "siret_required": "Le numéro SIRET est requis",
+        "siret_format": "Le SIRET doit contenir 14 chiffres",
+        "email_required": "L'email est requis",
+        "email_format": "Format d'email invalide",
+        "phone_required": "Le téléphone est requis",
+        "address_required": "L'adresse est requise",
+        "city_required": "La ville est requise",
+        "zip_required": "Le code postal est requis"
+      },
+      "success": "Entreprise créée avec succès !"
+    }
+  },
+  "analytics": {
+    "financial": {
+      "title": "Analyse Financière",
+      "subtitle": "Analyse approfondie de la rentabilité et des performances financières",
+      "ratios": {
+        "key_title": "Ratios financiers clés",
+        "advanced_title": "Ratios avancés",
+        "dso": "DSO",
+        "dio": "DIO",
+        "dpo": "DPO",
+        "ccc": "CCC",
+        "liquidity": "Liquidité générale",
+        "margin": "Marge",
+        "roe": "ROE",
+        "roa": "ROA",
+        "ebitda": "EBITDA %",
+        "net_debt": "Net Debt/EBITDA",
+        "interest_coverage": "Couverture intérêts",
+        "autonomy": "Autonomie financière",
+        "solvency": "Solvabilité (Actifs/Dettes)",
+        "quick_liquidity": "Liquidité immédiate",
+        "days": "j",
+        "multiplier": "x"
+      },
+      "alerts": {
+        "title": "Alertes Financières Intelligentes",
+        "score": "Score: {{score}}/100 - {{status}}",
+        "none": "Aucune alerte majeure. Tous les indicateurs sont dans les normes.",
+        "priority": "Priorité:",
+        "recommendations": "Recommandations:",
+        "categories": {
+          "liquidite": "liquidité",
+          "rentabilite": "rentabilité",
+          "solvabilite": "solvabilité",
+          "efficacite": "efficacité",
+          "liquidité": "liquidité",
+          "rentabilité": "rentabilité",
+          "efficacité": "efficacité"
+        },
+        "items": {
+          "dso-critique": {
+            "title": "DSO critique — recouvrement client insuffisant",
+            "message": "Le délai de règlement client est de {{value}} jours, bien au-dessus du seuil optimal de {{threshold}} jours.",
+            "recommendations": [
+              "Mettre en place des relances automatiques à J+30, J+45 et J+60",
+              "Réviser les conditions de paiement accordées",
+              "Envisager l'escompte pour paiement anticipé"
+            ]
+          },
+          "dso-warning": {
+            "title": "DSO à surveiller",
+            "message": "Le délai de règlement client ({{value}}j) dépasse légèrement l'optimal.",
+            "recommendations": [
+              "Renforcer le suivi des relances clients"
+            ]
+          },
+          "marge-faible": {
+            "title": "Marge brute insuffisante",
+            "message": "La marge brute de {{value}}% est inférieure au seuil minimum de {{threshold}}%.",
+            "recommendations": [
+              "Revoir la politique tarifaire",
+              "Identifier et réduire les coûts directs",
+              "Négocier les achats avec les fournisseurs"
+            ]
+          },
+          "liquidite-faible": {
+            "title": "Risque de liquidité",
+            "message": "Le ratio de liquidité générale ({{value}}) est inférieur à {{threshold}}.",
+            "recommendations": [
+              "Accélérer l'encaissement des créances",
+              "Différer les investissements non critiques",
+              "Explorer les lignes de crédit disponibles"
+            ]
+          },
+          "autonomie-faible": {
+            "title": "Autonomie financière limitée",
+            "message": "L'autonomie financière de {{value}}% indique une dépendance importante à l'endettement externe.",
+            "recommendations": [
+              "Renforcer les capitaux propres",
+              "Envisager une augmentation de capital",
+              "Prioriser l'autofinancement"
+            ]
+          }
+        }
+      },
+      "breakeven": {
+        "title": "Seuil de Rentabilité & Point Mort",
+        "status_reached": "Atteint",
+        "calc_title": "📊 Calcul du Seuil",
+        "fixed_costs": "Coûts Fixes",
+        "margin_rate": "Taux Marge",
+        "breakeven_point": "Seuil de Rentabilité",
+        "safety_margin": "Marge sécurité",
+        "dead_point": "Point mort",
+        "days": "jours",
+        "currency_symbol": "دج",
+        "brute_margin": "Marge brute"
+      },
+      "simulation": {
+        "title": "📈 Simulation What-If",
+        "revenue_var": "Si CA {{var}}%",
+        "operating_leverage": "Levier Opérationnel",
+        "leverage_desc": "+10% CA → +28% résultat"
+      },
+      "sector": {
+        "title": "Comparaison Sectorielle",
+        "global_score": "Score Global",
+        "status": "Classement:",
+        "strengths": "Points Forts:",
+        "weaknesses": "Points à Améliorer:"
+      },
       "actions": {
-        "new_user": "Nouvel Utilisateur",
-        "create_account": "Créer le compte",
-        "save_changes": "Sauvegarder les modifications",
-        "cancel": "Annuler",
-        "delete": "Désactiver",
-        "edit": "Modifier",
-        "confirm": "Confirmer"
+        "simulate": "Simuler un Scénario",
+        "projections": "Voir les Prévisions"
       },
-      "users": {
-        "anniversary": "Annuaire Personnel",
-        "manage_access": "Gérez les accès et les privilèges",
-        "user_count": "Utilisateurs",
-        "inactif": "Inactif",
-        "perms_count": "+{{count}} Perms",
-        "loading": "Chargement du personnel...",
-        "delete_confirm_title": "Désactiver l'accès ?",
-        "delete_confirm_desc": "Cette action révoquera immédiatement tous les accès de l'utilisateur au système Dinarlytic."
-      },
-      "form": {
-        "new_member": "Nouveau Membre",
-        "edit_profile": "Modifier Profil",
-        "config_account": "Configuration Compte",
-        "identity": "Identité & Connexion",
-        "first_name": "Prénom",
-        "last_name": "Nom",
-        "email": "Email Professionnel",
-        "username": "Username",
-        "password": "Mot de passe temporaire",
-        "main_role": "Rôle Principal",
-        "additional_rights": "Droits d'accès additionnels",
-        "errors": {
-          "system_error": "Erreur Système",
-          "load_failed": "Erreur lors du chargement des utilisateurs",
-          "fill_fields": "Veuillez remplir tous les champs obligatoires",
-          "save_failed": "Erreur lors de la sauvegarde",
-          "delete_failed": "Erreur lors de la désactivation"
-        }
+      "modals": {
+        "simulation_title": "Simulation de Scénario Financier",
+        "simulation_desc": "Simulez l'impact de différents scénarios sur vos ratios financiers et votre rentabilité.",
+        "revenue_var_label": "Variation du CA (%)",
+        "costs_var_label": "Variation des Charges (%)",
+        "dso_var_label": "Variation DSO (jours)",
+        "dio_var_label": "Variation DIO (jours)",
+        "placeholder_ex": "Ex: +10 ou -5",
+        "run_simulation": "Lancer la Simulation",
+        "projections_title": "Prévisions Financières",
+        "projections_desc": "Prévisions financières sur 12 mois basées sur vos données actuelles et les tendances du secteur.",
+        "scenarios": {
+          "optimistic": "Scénario Optimiste",
+          "realistic": "Scénario Réaliste",
+          "pessimistic": "Scénario Pessimiste"
+        },
+        "waiting_selection": "Les prévisions seront générées après sélection du scénario"
       }
     },
-    "settings": {
-      "title": "Gestion Entreprise",
-      "subtitle": "Gérez vos informations et configurations",
-      "multi_company": {
-        "title": "Gestion Multi-Entreprises",
-        "subtitle": "Gérez plusieurs entreprises dans une seule interface",
-        "active_company": "Entreprise active: {{name}}",
-        "none": "Aucune",
-        "stats": {
-          "total": "Total Entreprises",
-          "active": "Actives",
-          "users": "Utilisateurs",
-          "currencies": "Devises"
-        },
-        "tabs": {
-          "list": "Liste des Entreprises",
-          "currencies": "Devises & Taux",
-          "permissions": "Permissions"
-        },
-        "actions": {
-          "new": "Nouvelle Entreprise",
-          "switch": "Basculer Entreprise",
-          "search_placeholder": "Rechercher une entreprise..."
-        },
-        "card": {
-          "status": {
-            "active": "Actif",
-            "inactive": "Inactif"
-          },
-          "details": {
-            "siret": "SIRET:",
-            "plan": "Plan Comptable:",
-            "users": "Utilisateurs:",
-            "last_activity": "Dernière activité:"
-          }
-        }
+    "kpis": {
+      "title": "Analyse Financière Avancée",
+      "subtitle": "KPIs, ratios financiers et indicateurs de performance",
+      "tabs": {
+        "all": "Tous les KPIs",
+        "rentability": "Rentabilité",
+        "liquidity": "Liquidité",
+        "leverage": "Endettement",
+        "efficiency": "Efficacité"
       },
-      "company_form": {
-        "title_new": "Nouvelle Entreprise",
-        "info_general": "Informations Générales",
-        "info_general_desc": "Renseignez les informations de base de l'entreprise",
-        "labels": {
-          "name": "Nom de l'entreprise",
-          "raison_sociale": "Raison sociale",
-          "siret": "SIRET",
-          "tva": "Numéro TVA",
-          "address": "Adresse",
-          "city": "Ville",
-          "zip": "Code postal",
-          "country": "Pays",
-          "phone": "Téléphone",
-          "email": "Email",
-          "website": "Site Web",
-          "currency": "Devise",
-          "accounting_plan": "Plan Comptable",
-          "description": "Description"
-        },
-        "placeholders": {
-          "name": "Saisissez le nom de l'entreprise",
-          "raison_sociale": "Saisissez la raison sociale",
-          "siret": "12345678901234",
-          "tva": "DZ123456789",
-          "email": "contact@entreprise.dz",
-          "phone": "+213 21 00 00 00"
-        },
-        "errors": {
-          "name_required": "Le nom de l'entreprise est requis",
-          "raison_required": "La raison sociale est requise",
-          "siret_required": "Le numéro SIRET est requis",
-          "siret_format": "Le SIRET doit contenir 14 chiffres",
-          "email_required": "L'email est requis",
-          "email_format": "Format d'email invalide",
-          "phone_required": "Le téléphone est requis",
-          "address_required": "L'adresse est requise",
-          "city_required": "La ville est requise",
-          "zip_required": "Le code postal est requis"
-        },
-        "success": "Entreprise créée avec succès !"
-      }
-    },
-    "analytics": {
-      "financial": {
-        "title": "Analyse Financière",
-        "subtitle": "Analyse approfondie de la rentabilité et des performances financières",
-        "ratios": {
-          "key_title": "Ratios financiers clés",
-          "advanced_title": "Ratios avancés",
-          "dso": "DSO",
-          "dio": "DIO",
-          "dpo": "DPO",
-          "ccc": "CCC",
-          "liquidity": "Liquidité générale",
-          "margin": "Marge",
-          "roe": "ROE",
-          "roa": "ROA",
-          "ebitda": "EBITDA %",
-          "net_debt": "Net Debt/EBITDA",
-          "interest_coverage": "Couverture intérêts",
-          "autonomy": "Autonomie financière",
-          "solvency": "Solvabilité (Actifs/Dettes)",
-          "quick_liquidity": "Liquidité immédiate",
-          "days": "j",
-          "multiplier": "x"
-        },
-        "alerts": {
-          "title": "Alertes Financières Intelligentes",
-          "score": "Score: {{score}}/100 - {{status}}",
-          "none": "Aucune alerte majeure. Tous les indicateurs sont dans les normes.",
-          "priority": "Priorité:",
-          "recommendations": "Recommandations:",
-          "categories": {
-            "liquidite": "liquidité",
-            "rentabilite": "rentabilité",
-            "solvabilite": "solvabilité",
-            "efficacite": "efficacité",
-            "liquidité": "liquidité",
-            "rentabilité": "rentabilité",
-            "efficacité": "efficacité"
-          },
-          "items": {
-            "dso-critique": {
-              "title": "DSO critique — recouvrement client insuffisant",
-              "message": "Le délai de règlement client est de {{value}} jours, bien au-dessus du seuil optimal de {{threshold}} jours.",
-              "recommendations": [
-                "Mettre en place des relances automatiques à J+30, J+45 et J+60",
-                "Réviser les conditions de paiement accordées",
-                "Envisager l'escompte pour paiement anticipé"
-              ]
-            },
-            "dso-warning": {
-              "title": "DSO à surveiller",
-              "message": "Le délai de règlement client ({{value}}j) dépasse légèrement l'optimal.",
-              "recommendations": [
-                "Renforcer le suivi des relances clients"
-              ]
-            },
-            "marge-faible": {
-              "title": "Marge brute insuffisante",
-              "message": "La marge brute de {{value}}% est inférieure au seuil minimum de {{threshold}}%.",
-              "recommendations": [
-                "Revoir la politique tarifaire",
-                "Identifier et réduire les coûts directs",
-                "Négocier les achats avec les fournisseurs"
-              ]
-            },
-            "liquidite-faible": {
-              "title": "Risque de liquidité",
-              "message": "Le ratio de liquidité générale ({{value}}) est inférieur à {{threshold}}.",
-              "recommendations": [
-                "Accélérer l'encaissement des créances",
-                "Différer les investissements non critiques",
-                "Explorer les lignes de crédit disponibles"
-              ]
-            },
-            "autonomie-faible": {
-              "title": "Autonomie financière limitée",
-              "message": "L'autonomie financière de {{value}}% indique une dépendance importante à l'endettement externe.",
-              "recommendations": [
-                "Renforcer les capitaux propres",
-                "Envisager une augmentation de capital",
-                "Prioriser l'autofinancement"
-              ]
-            }
-          }
-        },
-        "breakeven": {
-          "title": "Seuil de Rentabilité & Point Mort",
-          "status_reached": "Atteint",
-          "calc_title": "📊 Calcul du Seuil",
-          "fixed_costs": "Coûts Fixes",
-          "margin_rate": "Taux Marge",
-          "breakeven_point": "Seuil de Rentabilité",
-          "safety_margin": "Marge sécurité",
-          "dead_point": "Point mort",
-          "days": "jours",
-          "currency_symbol": "دج",
-          "brute_margin": "Marge brute"
-        },
-        "simulation": {
-          "title": "📈 Simulation What-If",
-          "revenue_var": "Si CA {{var}}%",
-          "operating_leverage": "Levier Opérationnel",
-          "leverage_desc": "+10% CA → +28% résultat"
-        },
-        "sector": {
-          "title": "Comparaison Sectorielle",
-          "global_score": "Score Global",
-          "status": "Classement:",
-          "strengths": "Points Forts:",
-          "weaknesses": "Points à Améliorer:"
-        },
-        "actions": {
-          "simulate": "Simuler un Scénario",
-          "projections": "Voir les Prévisions"
-        },
-        "modals": {
-          "simulation_title": "Simulation de Scénario Financier",
-          "simulation_desc": "Simulez l'impact de différents scénarios sur vos ratios financiers et votre rentabilité.",
-          "revenue_var_label": "Variation du CA (%)",
-          "costs_var_label": "Variation des Charges (%)",
-          "dso_var_label": "Variation DSO (jours)",
-          "dio_var_label": "Variation DIO (jours)",
-          "placeholder_ex": "Ex: +10 ou -5",
-          "run_simulation": "Lancer la Simulation",
-          "projections_title": "Prévisions Financières",
-          "projections_desc": "Prévisions financières sur 12 mois basées sur vos données actuelles et les tendances du secteur.",
-          "scenarios": {
-            "optimistic": "Scénario Optimiste",
-            "realistic": "Scénario Réaliste",
-            "pessimistic": "Scénario Pessimiste"
-          },
-          "waiting_selection": "Les prévisions seront générées après sélection du scénario"
-        }
+      "actions": {
+        "refresh": "Auto-refresh",
+        "report": "Générer Rapport"
       },
-      "kpis": {
-        "title": "Analyse Financière Avancée",
-        "subtitle": "KPIs, ratios financiers et indicateurs de performance",
-        "tabs": {
-          "all": "Tous les KPIs",
-          "rentability": "Rentabilité",
-          "liquidity": "Liquidité",
-          "leverage": "Endettement",
-          "efficiency": "Efficacité"
-        },
-        "actions": {
-          "refresh": "Auto-refresh",
-          "report": "Générer Rapport"
-        },
-        "sections": {
-          "main": "🎯 KPIs Financiers Principaux",
-          "revenue": "📈 Évolution des Revenus",
-          "profitability": "💰 Analyse de Rentabilité",
-          "accounting": "📚 Indicateurs Comptables",
-          "advanced": "🔍 Ratios Financiers Avancés",
-          "alerts": "⚠️ Alertes et Recommandations"
-        },
-        "benchmarks": {
-          "label": "Benchmark:",
-          "target": "Objectif:",
-          "realized": "Réalisé"
-        }
+      "sections": {
+        "main": "🎯 KPIs Financiers Principaux",
+        "revenue": "📈 Évolution des Revenus",
+        "profitability": "💰 Analyse de Rentabilité",
+        "accounting": "📚 Indicateurs Comptables",
+        "advanced": "🔍 Ratios Financiers Avancés",
+        "alerts": "⚠️ Alertes et Recommandations"
+      },
+      "benchmarks": {
+        "label": "Benchmark:",
+        "target": "Objectif:",
+        "realized": "Réalisé"
       }
-    },
-
+    }
+  },
   "access": {
     "denied": "Accès refusé",
     "permission_not_granted": "Vous n'avez pas la permission d'accéder à cette section.",
@@ -2401,7 +2494,7 @@
       "this_month": "Ce mois",
       "this_quarter": "Ce trimestre",
       "search": "Rechercher...",
-      "export": "Export",
+      "export": "Exporter",
       "print": "Imprimer"
     },
     "stats": {
@@ -2486,7 +2579,8 @@
       "alerts": {
         "failed_login_ip": "Tentative de connexion échouée (IP: {{ip}})",
         "firewall_update": "Mise à jour des règles de pare-feu effectuée",
-        "account_locked": "Compte utilisateur \"{{user}}\" verrouillé après 5 essais"
+        "account_locked": "Compte utilisateur \"{{user}}\" verrouillé après 5 essais",
+        "login_success_mfa": "Connexion réussie via 2FA"
       }
     },
     "risks": {
@@ -2640,6 +2734,65 @@
       "history_table": {
         "document": "Document",
         "date": "Date"
+      }
+    },
+    "modals": {
+      "details_title": "Détails de l'Audit",
+      "ip_address": "Adresse IP",
+      "details_label": "Détails",
+      "close": "Fermer",
+      "points": {
+        "integrity": "Intégrité des écritures comptables",
+        "encryption": "Chiffrement PII (Données Personnelles)",
+        "traceability": "Traçabilité des exports de données",
+        "archiving": "Archivage légal (10 ans)"
+      },
+      "schedule_title": "Planifier une automatisation d'audit",
+      "automation_name": "Nom de l'automatisation",
+      "automation_placeholder": "ex: Audit Hebdomadaire Sécurité",
+      "doc_type": "Type de document",
+      "frequency": "Fréquence",
+      "recipient": "Destinataire",
+      "info_note": "Le rapport sera généré et envoyé automatiquement à la fréquence choisie.",
+      "save_automation": "Sauvegarder l'automatisation",
+      "success_save": "Automatisation sauvegardée avec succès !",
+      "frequencies": {
+        "daily": "Quotidien",
+        "weekly": "Hebdomadaire",
+        "monthly": "Mensuel"
+      },
+      "compliance_report_title": "Rapport de Conformité Détaillé",
+      "compliance_score": "Score de Conformité",
+      "last_check_prefix": "Dernier contrôle",
+      "last_check_suffix": "il y a 2 minutes",
+      "validated_points": "Points de contrôle validés",
+      "remediation_actions": "Actions de remédiation",
+      "remediation_warning": "Attention : le mot de passe de 2 utilisateurs expire dans moins de 48h. Notification automatique envoyée.",
+      "close_report": "Fermer le rapport"
+    },
+    "roles": {
+      "admin": "Administrateur",
+      "finance_director": "Directeur Financier",
+      "hr_manager": "Responsable RH",
+      "sysadmin": "Administrateur Système",
+      "unknown": "Inconnu"
+    },
+    "resources": {
+      "dashboard": "Tableau de Bord",
+      "report_q3": "Rapport_Q3.pdf",
+      "login_page": "Page de Connexion",
+      "employee_profile": "Profil Employé #452",
+      "log_files": "Fichiers Journaux",
+      "invoice_99": "Facture #F-99",
+      "backup": "Sauvegarde"
+    },
+    "activities": {
+      "descriptions": {
+        "login_fail": "Tentative de connexion suspecte",
+        "export_sensitive": "Export de données sensibles",
+        "export_finance": "Export du rapport financier par Nadia Belkacem",
+        "backup_success": "Sauvegarde automatique",
+        "backup_daily": "Sauvegarde quotidienne effectuée avec succès"
       }
     }
   },
@@ -2975,133 +3128,6 @@
       "prevu": "Prévu",
       "reel": "Réalisé",
       "month": "Mois"
-    }
-  },
-  "admin": {
-    "title": "Configuration Système",
-    "subtitle": "Gérez les paramètres globaux, la fiscalité et les accès de l'organisation",
-    "warning_title": "Avertissement Important",
-    "warning_text": "Les paramètres de cette page affectent le comportement global de l'application. Toute modification des paramètres comptables ou fiscaux peut impacter vos déclarations et rapports financiers.",
-    "recommendation": "Consultez votre expert-comptable avant de modifier les paramètres 2025.",
-    "profile_title": "Profil Utilisateur",
-    "company": "Entreprise",
-    "segment": "Segment",
-    "preferences_title": "Préférences Interface",
-    "language": "Langue d'interface",
-    "language_desc": "Affecte l'ensemble de l'interface ERP",
-    "currency": "Devise par défaut",
-    "currency_desc": "Utilisée pour l'affichage des montants",
-    "roles_title": "Rôles & Permissions",
-    "btn_configure_roles": "Configurer Rôles",
-    "tax_ibs_dz": "IBS (Impôt Bénéfices)",
-    "tax_ibs_int": "Corporate Tax",
-    "tax_tva_normal": "TVA Taux Normal",
-    "tax_tva_reduced": "TVA Taux Réduit ({{rate}}%)",
-    "categories": {
-      "purchases": "Achats",
-      "billing": "Facturation",
-      "reports": "Rapports",
-      "admin": "Administration",
-      "accounting": "Comptabilité",
-      "inventory": "Inventaire"
-    },
-    "users_count": "UTILISATEURS",
-    "users_count_count": "{{count}} UTILISATEURS",
-    "accounting_params": "Paramètres Comptables",
-    "ref_system": "Système de Référence",
-    "standard": "Norme en vigueur",
-    "pca_certified": "Certifié Audit",
-    "pca_algerien": "PCA Algérien",
-    "recommendation_prefix": "Recommandation :",
-    "fiscal_year": "Exercice Fiscal {{year}}",
-    "opening": "Ouverture",
-    "closing": "Clôture",
-    "modify_btn": "Modifier",
-    "validate_btn": "Valider",
-    "cancel_btn": "Annuler",
-    "chart_of_accounts": "Plan Comptable Complet",
-    "chart_of_accounts_desc": "Accédez à la base de données optimisée des comptes PCA",
-    "open_plan": "Ouvrir le Plan",
-    "fiscal_matrix": "Matrice Fiscale 2025",
-    "edit_rates": "Editer Taux",
-    "tax_consistency": "Contrôle de Cohérence",
-    "tax_impact_msg": "Toute modification de la matrice fiscale impacte directement les audits de conformité de l'exercice 2025.",
-    "roles_modal": {
-      "title": "Configuration des Rôles et Permissions",
-      "desc": "Créez ou modifiez un rôle personnalisé en sélectionnant les permissions appropriées. Les rôles définissent les accès et actions autorisées pour chaque utilisateur au sein du système ERP.",
-      "role_name": "Nom du rôle",
-      "role_name_desc": "Choisissez un nom descriptif pour ce rôle",
-      "role_desc": "Description du rôle",
-      "role_scope_placeholder": "Périmètre d'action du rôle...",
-      "available_permissions": "Permissions disponibles",
-      "check_all_desc": "Cochez les permissions que vous souhaitez attribuer à ce rôle",
-      "save_role": "Sauvegarder Rôle"
-    },
-    "form": {
-      "new_member": "Nouveau Membre",
-      "edit_profile": "Modifier Profil",
-      "config_account": "Configuration compte",
-      "identity": "Identité",
-      "first_name": "Prénom",
-      "last_name": "Nom",
-      "email": "Adresse Email",
-      "username": "Nom d'utilisateur",
-      "password": "Mot de passe",
-      "main_role": "Rôle Principal",
-      "additional_rights": "Droits d'accès additionnels",
-      "errors": {
-        "load_failed": "Échec du chargement des données système",
-        "system_error": "Erreur Système"
-      }
-    },
-    "roles_data": {
-      "admin": {
-        "name": "Administrateur",
-        "desc": "Accès complet à toutes les fonctionnalités"
-      },
-      "accountant": {
-        "name": "Comptable",
-        "desc": "Gestion des opérations comptables et factures"
-      },
-      "user": {
-        "name": "Utilisateur",
-        "desc": "Consultation des données et rapports"
-      }
-    },
-    "permissions_list": {
-      "crm": "Gestion clients",
-      "purchases": "Gestion fournisseurs",
-      "billing_create": "Création factures",
-      "billing_validate": "Validation factures",
-      "reports_view": "Consultation rapports",
-      "data_export": "Export données",
-      "system_settings": "Paramètres système",
-      "user_mgmt": "Gestion utilisateurs",
-      "accounting_entry": "Saisie écritures comptables",
-      "accounting_validate": "Validation écritures",
-      "accounting_closing": "Clôture comptable",
-      "inventory_mgmt": "Gestion stocks"
-    },
-    "actions": {
-      "new_user": "Nouveau Utilisateur",
-      "edit": "Modifier",
-      "delete": "Supprimer",
-      "confirm": "Confirmer",
-      "cancel": "Annuler",
-      "save_changes": "Enregistrer les modifications",
-      "create_account": "Créer le compte"
-    },
-    "users": {
-      "loading": "Chargement des utilisateurs...",
-      "anniversary": "Liste des Utilisateurs",
-      "manage_access": "Configuration des rôles et droits d'accès",
-      "user_count": "UTILISATEURS",
-      "inactif": "Inactif",
-      "perms_count": "{{count}} PERMISSIONS",
-      "delete_confirm_title": "Désactiver l'utilisateur ?",
-      "delete_confirm_desc": "Cette action restreindra l'accès pour cet utilisateur. Vous pouvez le réactiver plus tard à tout moment.",
-      "status_active": "Actif",
-      "status_inactive": "Inactif"
     }
   }
 }

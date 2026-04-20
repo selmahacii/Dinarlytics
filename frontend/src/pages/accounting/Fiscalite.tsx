@@ -231,7 +231,7 @@ const Fiscalite: React.FC = () => {
 
   const handleGenererDeclaration = async () => {
     if (!selectedPeriod && declarationType !== 'irg' && declarationType !== 'tap' && declarationType !== 'g29') {
-      alert(t('accounting.fiscal.alerts.select_period'));
+      alert(t('fiscal.alerts.select_period'));
       return;
     }
 
@@ -369,8 +369,8 @@ const Fiscalite: React.FC = () => {
     const risksText = riskAnalysis.map(r => `• [${r.level.toUpperCase()}] ${r.title}: ${r.message}`).join('\n');
 
     const content = `
-${t('accounting.fiscal.reports.audit_title')} - EXERCICE 2026
-${t('accounting.fiscal.reports.generated_by')} • Rapport ID: #DZ-TAX-2026-001
+${t('fiscal.reports.audit_title')} - EXERCICE 2026
+${t('fiscal.reports.generated_by')} • Rapport ID: #DZ-TAX-2026-001
 Status: Basé sur vos transactions réelles
 ────────────────────────────────────────────────────────────
 
@@ -1415,8 +1415,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             onClick={handleGenererRapportIA}
             className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 flex items-center group"
           >
-            <SparklesIcon className="h-5 w-5 text-slate-400" />
-            Générer Rapport IA Expert
+            <SparklesIcon className="h-5 w-5 text-slate-400 mr-2" />
+            {t('fiscal.expert_report_btn')}
+            <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </div>
@@ -1425,7 +1426,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
       <Modal
         isOpen={isCalculModalOpen}
         onClose={() => setIsCalculModalOpen(false)}
-        title="Simulateur de Calculs Fiscaux 2026"
+        title={t('fiscal.simulator.title')}
         size="lg"
       >
         <div className="p-1 leading-relaxed text-slate-600">
@@ -1433,19 +1434,19 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Chiffre d'Affaires HT</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">{t('fiscal.simulator.ca_label')}</label>
                 <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue="3200000" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Charges Déductibles</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">{t('fiscal.simulator.charges_label')}</label>
                 <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue="2400000" />
               </div>
             </div>
             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-              <div className="text-xs text-slate-500 uppercase font-bold mb-4">Résultat de la Simulation</div>
+              <div className="text-xs text-slate-500 uppercase font-bold mb-4">{t('fiscal.simulator.result')}</div>
               <div className="space-y-4">
                 <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                  <span className="text-sm font-medium text-slate-600">Bénéfice Net Imposable</span>
+                  <span className="text-sm font-medium text-slate-600">{t('fiscal.simulator.net_profit')}</span>
                   <span className="text-lg font-black text-slate-900">{formatCurrency(calculsFiscaux.beneficeImposable)}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-slate-200 pb-2">

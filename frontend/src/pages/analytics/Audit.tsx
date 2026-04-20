@@ -41,8 +41,8 @@ const Audit: React.FC = () => {
   const [reportFormat, setReportFormat] = useState('PDF');
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportHistory, setReportHistory] = useState([
-    { name: 'Audit_Q3_2024_Final.pdf', date: '15 Oct 14:30', status: 'ready', size: '2.4 MB' },
-    { name: 'Securite_Incidents_Sept24.xlsx', date: '01 Oct 09:15', status: 'ready', size: '1.8 MB' },
+    { name: 'Audit_Q3_2024_Final.pdf', date: isToday ? '14:30' : '15 Oct 14:30', status: 'ready', size: '2.4 MB' },
+    { name: 'Securite_Incidents_Sept24.xlsx', date: isToday ? '09:15' : '01 Oct 09:15', status: 'ready', size: '1.8 MB' },
     { name: 'Export_Logs_Bruts.csv', date: t('common.yesterday') + ' 18:00', status: 'expired', size: '15.2 MB' },
   ]);
   const [activeTab, setActiveTab] = useState('logs');
@@ -81,18 +81,18 @@ const Audit: React.FC = () => {
 
       // Realistic Mock Logs
       let mockLogs = [
-        { id: 101, action: t('audit.analytics.metrics.logins'), user: 'Admin', resource: 'Dashboard', status: t('audit.table.success'), ip: '192.168.1.10', timestamp: isToday ? '10:42' : '15 Oct 10:42', details: t('audit.security.alerts.login_success_mfa') || 'Connexion réussie via 2FA' },
-        { id: 102, action: t('audit.analytics.metrics.exports'), user: 'Finance_Director', resource: 'Rapport_Q3.pdf', status: t('audit.table.success'), ip: '192.168.1.25', timestamp: isToday ? '09:15' : '14 Oct 09:15', details: t('audit.reports.download_trigger') || 'Téléchargement rapport complet' },
-        { id: 103, action: t('audit.table.failed_auth') || 'Échec Connexion', user: 'unknown', resource: 'Login Page', status: t('audit.table.failed'), ip: '45.33.22.11', timestamp: isToday ? '08:30' : '14 Oct 08:30', details: t('audit.security.alerts.failed_login_ip', { ip: '45.33.22.11' }) },
-        { id: 104, action: t('audit.analytics.metrics.modifications'), user: 'HR_Manager', resource: 'Profil Employé #452', status: t('audit.table.success'), ip: '192.168.1.15', timestamp: isToday ? '11:05' : '13 Oct 16:20', details: t('audit.activities.descriptions.bank_update') || 'Mise à jour des coordonnées bancaires' },
-        { id: 105, action: t('audit.analytics.metrics.deletions') || 'Suppression', user: 'SysAdmin', resource: 'Log Files', status: t('audit.table.warning'), ip: '10.0.0.5', timestamp: isToday ? '07:00' : '12 Oct 23:00', details: t('audit.activities.descriptions.log_rotation') || 'Rotation des logs système (Automatique)' },
+        { id: 101, action: t('audit.analytics.metrics.logins'), user: t('audit.roles.admin'), resource: t('audit.resources.dashboard'), status: 'success', ip: '192.168.1.10', timestamp: isToday ? '10:42' : '15 Oct 10:42', details: t('audit.security.alerts.login_success_mfa') || 'Connexion réussie via 2FA' },
+        { id: 102, action: t('audit.analytics.metrics.exports'), user: t('audit.roles.finance_director'), resource: t('audit.resources.report_q3'), status: 'success', ip: '192.168.1.25', timestamp: isToday ? '09:15' : '14 Oct 09:15', details: t('audit.reports.download_trigger') || 'Téléchargement rapport complet' },
+        { id: 103, action: t('audit.table.failed_auth') || 'Échec Connexion', user: t('audit.roles.unknown'), resource: t('audit.resources.login_page'), status: 'failed', ip: '45.33.22.11', timestamp: isToday ? '08:30' : '14 Oct 08:30', details: t('audit.security.alerts.failed_login_ip', { ip: '45.33.22.11' }) },
+        { id: 104, action: t('audit.analytics.metrics.modifications'), user: t('audit.roles.hr_manager'), resource: t('audit.resources.employee_profile'), status: 'success', ip: '192.168.1.15', timestamp: isToday ? '11:05' : '13 Oct 16:20', details: t('audit.activities.descriptions.bank_update') || 'Mise à jour des coordonnées bancaires' },
+        { id: 105, action: t('audit.analytics.metrics.deletions') || 'Suppression', user: t('audit.roles.sysadmin'), resource: t('audit.resources.log_files'), status: 'warning', ip: '10.0.0.5', timestamp: isToday ? '07:00' : '12 Oct 23:00', details: t('audit.activities.descriptions.log_rotation') || 'Rotation des logs système (Automatique)' },
       ];
 
       if (isToday) {
         mockLogs = [
-          { id: 201, action: t('audit.analytics.metrics.logins'), user: 'Admin', resource: t('audit.security.systems.waf') || 'Système', status: 'success', ip: '192.168.1.10', timestamp: '11:24', details: t('audit.activities.descriptions.session_open') || 'Session administrateur ouverte' },
-          { id: 202, action: t('audit.analytics.metrics.modifications'), user: 'Nadia Belkacem', resource: 'Facture #F-99', status: 'success', ip: '192.168.1.100', timestamp: '10:15', details: t('audit.activities.descriptions.amount_validated') || 'Montant validé' },
-          { id: 203, action: t('audit.analytics.metrics.exports'), user: t('audit.security.alert_types.system'), resource: 'Backup', status: 'warning', ip: 'localhost', timestamp: '03:00', details: t('audit.activities.descriptions.backup_warning') || 'Sauvegarde automatique terminée avec avertissements' },
+          { id: 201, action: t('audit.analytics.metrics.logins'), user: t('audit.roles.admin'), resource: t('audit.security.systems.waf') || 'Système', status: 'success', ip: '192.168.1.10', timestamp: '11:24', details: t('audit.activities.descriptions.session_open') || 'Session administrateur ouverte' },
+          { id: 202, action: t('audit.analytics.metrics.modifications'), user: 'Nadia Belkacem', resource: t('audit.resources.invoice_99'), status: 'success', ip: '192.168.1.100', timestamp: '10:15', details: t('audit.activities.descriptions.amount_validated') || 'Montant validé' },
+          { id: 203, action: t('audit.analytics.metrics.exports'), user: t('audit.security.alert_types.system'), resource: t('audit.resources.backup'), status: 'warning', ip: 'localhost', timestamp: '03:00', details: t('audit.activities.descriptions.backup_warning') || 'Sauvegarde automatique terminée avec avertissements' },
         ];
       }
 
@@ -104,8 +104,8 @@ const Audit: React.FC = () => {
         passed: 38,
         failed: isToday ? 0 : 4,
         score: isToday ? 100 : 92,
-        lastCheck: isToday ? `${t('common.today')} 09:00` : '15 Oct 09:00',
-        nextCheck: isToday ? `${t('common.tomorrow')} 09:00` : '22 Oct 09:00'
+        lastCheck: isToday ? `${t('common.today')} 09:00` : `15 Oct 09:00`,
+        nextCheck: isToday ? `${t('common.tomorrow')} 09:00` : `22 Oct 09:00`
       });
 
       // Mock Security Data
@@ -286,8 +286,8 @@ const Audit: React.FC = () => {
     {
       id: '1',
       type: 'security',
-      title: t('audit.activities.descriptions.login_fail') || 'Tentative de connexion suspecte',
-      description: t('audit.security.alerts.login_fail_ip', { ip: '197.200.15.42' }) || 'Plusieurs tentatives de connexion depuis une IP inconnue',
+      title: t('audit.activities.descriptions.login_fail'),
+      description: t('audit.security.alerts.failed_login_ip', { ip: '197.200.15.42' }),
       time: t('audit.security.time_ago_short', { min: 5 }),
       severity: 'high',
       icon: ShieldCheckIcon
@@ -295,8 +295,8 @@ const Audit: React.FC = () => {
     {
       id: '2',
       type: 'data',
-      title: t('audit.activities.descriptions.export_sensitive') || 'Export de données sensible',
-      description: t('audit.activities.descriptions.export_finance') || 'Export du rapport financier par Nadia Belkacem',
+      title: t('audit.activities.descriptions.export_sensitive'),
+      description: t('audit.activities.descriptions.export_finance'),
       time: t('audit.security.time_ago_short', { min: 15 }),
       severity: 'medium',
       icon: CircleStackIcon
@@ -304,8 +304,8 @@ const Audit: React.FC = () => {
     {
       id: '3',
       type: 'system',
-      title: t('audit.activities.descriptions.backup_success') || 'Sauvegarde automatique',
-      description: t('audit.activities.descriptions.backup_daily') || 'Sauvegarde quotidienne effectuée avec succès',
+      title: t('audit.activities.descriptions.backup_success'),
+      description: t('audit.activities.descriptions.backup_daily'),
       time: t('audit.security.time_ago_short', { min: 60 }),
       severity: 'low',
       icon: CheckCircleIcon
@@ -1237,7 +1237,7 @@ const Audit: React.FC = () => {
                             </div>
                             <div>
                               <div className="text-sm font-bold text-slate-700">{item.name}</div>
-                              <div className="text-xs text-slate-500">{item.schedule} • Pour: {item.recipients}</div>
+                              <div className="text-xs text-slate-500">{item.schedule} • {t('common.for')}: {item.recipients}</div>
                             </div>
                           </div>
                           <div className="text-right">

@@ -130,8 +130,8 @@ export function useRoleSpecificData() {
   const sensitiveData: SensitiveDataPolicy = useMemo(() => {
     const userRole = (user as any)?.role;
 
-    // Admin : accès complet
-    if (userRole === 'admin') {
+    // Admin et DG : accès complet
+    if (userRole === 'admin' || userRole === 'dg') {
       return {
         amountVisibility: 'full',
         historyVisibility: true,
