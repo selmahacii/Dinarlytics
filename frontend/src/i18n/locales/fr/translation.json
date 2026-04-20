@@ -1508,13 +1508,13 @@
     },
     "fiscal": {
       "title": "Fiscalité & Déclarations",
-      "subtitle": "Conformité fiscale, G50 et audit intelligent",
-      "warning_title": "Attention :",
+      "subtitle": "Solution professionnelle adaptée aux micro-entreprises. Gérez vos déclarations fiscales en toute conformité avec un accès administrateur complet optimisé pour SPA.",
+      "warning_title": "Attention : ",
       "warning_text": "Les calculs sont basés sur les données ERP et doivent être validés par votre comptable agréé.",
       "stats": {
         "ca_ht": "CA HT Cumulé",
         "ibs_estimated": "IBS Estimé",
-        "tva_to_pay": "Solde TVA à verser",
+        "tva_to_pay": "TVA Net à Verser",
         "conformity_score": "Score de Conformité",
         "total_charge": "Charge Totale",
         "effective_rate": "Taux Effectif",
