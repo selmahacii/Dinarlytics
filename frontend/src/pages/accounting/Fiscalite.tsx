@@ -527,7 +527,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               </div>
 
               <p className="text-slate-600 text-lg max-w-2xl leading-relaxed mb-6">
-                {t('accounting.fiscal.description', { defaultValue: 'Solution professionnelle adaptée aux micro-entreprises. Gérez vos déclarations fiscales en toute conformité avec un accès administrateur complet optimisé pour SPA.' })}
+                {t('fiscal.subtitle')}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
@@ -558,9 +558,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               </div>
 
               <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
-                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">{t('accounting.fiscal.decision_aid')}</div>
+                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">{t('fiscal.decision_aid')}</div>
                 <p className="text-xs text-slate-600 mt-1 leading-snug italic">
-                  "{t('accounting.fiscal.motto', { defaultValue: 'La trésorerie est le nerf de la guerre : surveillez-la quotidiennement et anticipez les besoins.' })}"
+                  "{t('fiscal.motto')}"
                 </p>
               </div>
             </div>
@@ -579,7 +579,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
         </div>
         <div className="hidden md:block">
           <span className="px-3 py-1 bg-slate-200 text-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-300">
-            Mise à jour 2026
+            {t('fiscal.update_status')}
           </span>
         </div>
       </div>
@@ -604,7 +604,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
               <BuildingOfficeIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">Taux: {customRates.ibs * 100}%</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">{t('fiscal.rates.rate_label')}: {customRates.ibs * 100}%</span>
           </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.ibs_estimated')}</p>
           <div className="flex items-baseline space-x-1">
@@ -617,7 +617,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
               <DocumentTextIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">TVA Net</span>
+            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">{t('fiscal.stats.tva_share')}</span>
           </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.tva_to_pay')}</p>
           <div className="flex items-baseline space-x-1">
@@ -634,7 +634,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               onClick={handleGenererRapportIA}
               className="text-[10px] font-bold text-white uppercase tracking-widest py-1.5 px-3 bg-indigo-600 rounded-full hover:bg-indigo-700 transition-colors"
             >
-              Audit IA
+              {t('fiscal.audit_ia_btn')}
             </button>
           </div>
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.conformity_score')}</p>
@@ -654,9 +654,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             </h3>
             <div className="flex space-x-2">
               <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center">
-                <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('accounting.fiscal.alerts.erp_coherence', { defaultValue: 'Cohérence ERP Totale' })}
+                <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('fiscal.alerts.erp_coherence')}
               </span>
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">{t('common.expert_mode', { defaultValue: 'Mode Expert' })}</span>
+              <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">{t('fiscal.expert_mode')}</span>
             </div>
           </div>
 
@@ -697,13 +697,13 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('fiscal.ia_predictive')}</h4>
-                <p className="text-xs text-slate-400 max-w-md">{fiscalForecast?.message || "Analyse des tendances en cours..."}</p>
+                <p className="text-xs text-slate-400 max-w-md">{fiscalForecast?.message || t('fiscal.ia.analyzing')}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">{t('accounting.fiscal.ia.predicted_tva')}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">{t('fiscal.ia.predicted_tva')}</p>
                 <p className="text-2xl font-black text-white">{formatCurrency(fiscalForecast?.predictedTVANextMonth || 0)}</p>
                 <div className="mt-1 flex items-center justify-end text-[10px] font-bold text-emerald-400">
-                  <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('accounting.fiscal.ia.confidence_score')}: {Math.round((fiscalForecast?.confidenceScore || 0) * 100)}%
+                  <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('fiscal.ia.confidence_score')}: {Math.round((fiscalForecast?.confidenceScore || 0) * 100)}%
                 </div>
               </div>
             </div>
@@ -724,7 +724,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             )) : (
               <div className="flex flex-col items-center justify-center h-full text-slate-400 italic py-10">
                 <CheckCircleIcon className="h-12 w-12 mb-2 opacity-20" />
-                <p className="text-xs">{t('accounting.fiscal.alerts.no_risk_detected', { defaultValue: 'Aucun risque critique détecté' })}</p>
+                <p className="text-xs">{t('fiscal.alerts.no_risk_detected')}</p>
               </div>
             )}
           </div>
@@ -752,43 +752,43 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               {/* Charge fiscale totale */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.charge_totale', { defaultValue: 'Charge Totale' })}</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.total_charge')}</span>
                   <CurrencyDollarIcon className="h-4 w-4 text-slate-500" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900">
                   {formatCurrency(calculsFiscaux.ibs + calculsFiscaux.tvaAVerser)}
                 </div>
-                <div className="text-xs text-slate-500 mt-1">{t('accounting.fiscal.stats.taxes_sum', { defaultValue: 'IBS + TVA + IRG + TAP' })}</div>
+                <div className="text-xs text-slate-500 mt-1">{t('fiscal.stats.total_taxes')}</div>
               </div>
 
               {/* Taux effectif d'imposition */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.taux_effectif', { defaultValue: 'Taux Effectif' })}</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.effective_rate')}</span>
                   <ChartBarIcon className="h-4 w-4 text-slate-500" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900">{fiscalKPI.tauxEffectif}%</div>
-                <div className="text-xs text-slate-500 mt-1">IBS / Bénéfice</div>
+                <div className="text-xs text-slate-500 mt-1">{t('fiscal.stats.benefit_ibs')}</div>
               </div>
 
               {/* Répartition IBS/TVA */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('accounting.fiscal.stats.ibs_share')}</span>
-                  <span className="text-xs text-slate-600 font-bold">{t('accounting.fiscal.rates.ibs_short', { defaultValue: 'IBS' })}</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.ibs_share')}</span>
+                  <span className="text-xs text-slate-600 font-bold">{t('fiscal.rates.ibs')}</span>
                 </div>
                 <div className="text-2xl font-bold text-slate-900">{fiscalKPI.partIBS}%</div>
-                <div className="text-xs text-slate-500 mt-1">{t('accounting.fiscal.stats.tva_share', { defaultValue: 'Part TVA' })}: {fiscalKPI.partTVA}%</div>
+                <div className="text-xs text-slate-500 mt-1">{t('fiscal.stats.tva_share')}: {fiscalKPI.partTVA}%</div>
               </div>
 
               {/* Score de conformité fiscale */}
               <div className="bg-white rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.conformity', { defaultValue: 'Conformité' })}</span>
+                  <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.compliance')}</span>
                   <CheckCircleIcon className="h-4 w-4 text-slate-400" />
                 </div>
                 <div className="text-2xl font-bold text-slate-900">92%</div>
-                <div className="text-xs text-slate-500 mt-1">Score global</div>
+                <div className="text-xs text-slate-500 mt-1">{t('fiscal.stats.global_score')}</div>
               </div>
             </div>
           </div>
@@ -799,34 +799,34 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">🏢</span>
-                  {t('fiscal.rates.ibs_full', { defaultValue: 'Impôt sur les Bénéfices (IBS)' })}
+                  {t('fiscal.rates.ibs_full')}
                 </h3>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{t('common.rate', { defaultValue: 'Taux' })}: 26%</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{t('fiscal.rates.rate_label')}: 26%</span>
               </div>
               <div className="space-y-3">
                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-600">Chiffre d'affaires HT:</span>
+                    <span className="text-sm text-slate-600">{t('fiscal.details.ca_ht_label')}</span>
                     <span className="font-medium text-slate-900">{formatCurrency(calculsFiscaux.chiffreAffaires)}</span>
                   </div>
                 </div>
                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-600">Charges déductibles:</span>
+                    <span className="text-sm text-slate-600">{t('fiscal.details.deductible_charges')}</span>
                     <span className="font-medium text-slate-900">-{formatCurrency(calculsFiscaux.chargesDeductibles)}</span>
                   </div>
                 </div>
                 <div className="bg-slate-900 rounded-lg p-3 border border-slate-800">
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm font-bold text-slate-400">Bénéfice imposable:</span>
+                    <span className="text-sm font-bold text-slate-400">{t('fiscal.details.taxable_profit')}</span>
                     <span className="font-bold text-white">{formatCurrency(calculsFiscaux.beneficeImposable)}</span>
                   </div>
                 </div>
                 <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-slate-400 uppercase mb-1">{t('accounting.fiscal.stats.ibs_estimated_label', { defaultValue: 'IBS ESTIMÉ (26%)' })}</div>
-                      <div className="text-sm text-slate-500">{t('accounting.fiscal.ia.base_rate_calc', { defaultValue: 'Base × Taux' })}</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">{t('fiscal.details.ibs_base_rate')}</div>
+                      <div className="text-sm text-slate-500">{t('fiscal.ia.base_rate_calc')}</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.ibs)}</div>
                   </div>
@@ -834,18 +834,18 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
 
                 {/* Acomptes IBS */}
                 <div className="mt-4 bg-slate-50 rounded-lg p-3 border border-slate-200">
-                  <div className="text-xs font-bold text-slate-900 uppercase mb-2">Acomptes IBS</div>
+                  <div className="text-xs font-bold text-slate-900 uppercase mb-2">{t('fiscal.details.ibs_installments')}</div>
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs">
-                      <span className="text-slate-600">Acomptes payés (Q1-Q3):</span>
+                      <span className="text-slate-600">{t('fiscal.details.installments_paid')}</span>
                       <span className="font-medium text-slate-900">{formatCurrency(150000)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-slate-600">Solde à payer:</span>
+                      <span className="text-slate-600">{t('fiscal.details.balance_to_pay')}</span>
                       <span className="font-bold text-slate-900">{formatCurrency(calculsFiscaux.ibs - 150000)}</span>
                     </div>
                     <div className="text-xs text-slate-500 mt-2 italic">
-                      ℹ️ Échéance solde: 31/03/2026
+                      ℹ️ {t('fiscal.details.balance_deadline')}
                     </div>
                   </div>
                 </div>
@@ -916,6 +916,10 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                       {Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100)}%
                     </span>
                   </div>
+                   <div className="flex justify-between items-center">
+                     <span className="text-xs text-slate-600">{t('fiscal.details.recovery_rate')}</span>
+                     <span className="text-sm font-bold text-slate-900">{(calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee * 100).toFixed(1)}%</span>
+                   </div>
                 </div>
               </div>
             </div>
@@ -927,61 +931,34 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="bg-white p-6 rounded-xl border border-slate-200">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center">
-                  <span className="mr-2">👥</span>
-                  Impôt sur le Revenu Global (IRG)
+                  <span className="mr-2">👤</span>
+                  {t('fiscal.details.irg_title')}
                 </h3>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Barème progressif</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{t('fiscal.details.irg_progressive')}</span>
               </div>
-              <div className="space-y-3">
-                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                  <div className="text-xs font-bold text-slate-800 uppercase mb-2">Barème IRG 2026</div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Exonéré: 0 - 30,000 DA</span>
-                      <span className="font-medium text-slate-900">0%</span>
+              <div className="space-y-4">
+                <div className="bg-white border-2 border-dashed border-slate-200 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">{t('fiscal.details.irg_schedule_2026')}</span>
+                    <span className="text-[10px] text-emerald-600 font-bold">{t('fiscal.details.irg_exempt')}</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">{t('fiscal.details.taxable_income')}</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(45000)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">30,001 - 120,000 DA</span>
-                      <span className="font-medium text-slate-900">10%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">120,001 - 360,000 DA</span>
-                      <span className="font-medium text-slate-900">20%</span>
+                    <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
+                      <span className="text-xs font-black text-slate-900 uppercase">{t('fiscal.details.irg_calculated')}</span>
+                      <div className="text-right">
+                        <div className="text-xl font-black text-indigo-600">{formatCurrency(2250)}</div>
+                        <div className="text-[10px] text-slate-400">{t('fiscal.details.irg_total_schedule')}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm text-slate-600">Revenus imposables:</span>
-                    <span className="font-medium text-slate-900">{formatCurrency(450000)}</span>
-                  </div>
-                </div>
-                <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-xs text-slate-400 uppercase mb-1">IRG CALCULÉ</div>
-                      <div className="text-sm text-slate-500">Total barème</div>
-                    </div>
-                    <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.irg)}</div>
-                  </div>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                  <div className="text-xs font-bold text-slate-800 uppercase mb-2">Détail Calcul</div>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Tranche 1 (0-30k):</span>
-                      <span className="text-slate-900">0 DA</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Tranche 2 (30k-120k):</span>
-                      <span className="text-slate-900">{formatCurrency(9000)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600">Tranche 3 (120k-360k):</span>
-                      <span className="text-slate-900">{formatCurrency(36000)}</span>
-                    </div>
-                  </div>
-                </div>
+                <button className="w-full py-2 text-xs font-bold text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                  {t('fiscal.details.calc_detail')}
+                </button>
               </div>
             </div>
 
@@ -1034,28 +1011,19 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
       {/* Documents Fiscaux Disponibles - Professional Grid */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-8">
         <div className="p-8 border-b border-slate-100 bg-slate-50/50">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-black text-slate-900 flex items-center">
-                <div className="p-2.5 bg-slate-900 rounded-xl mr-4">
-                  <DocumentTextIcon className="h-6 w-6 text-white" />
-                </div>
-                <div className="flex items-center justify-between w-full">
-                  <span>Documents Fiscaux Disponibles</span>
-                  <span className="text-xl font-bold text-slate-400 font-arabic ml-4 opacity-50">الوثائق الجبائية المتوفرة</span>
-                </div>
-              </h2>
-              <p className="text-slate-500 text-sm mt-1 ml-14">Algérie • 6 documents obligatoires disponibles</p>
-            </div>
-            <div className="relative w-full md:w-72">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                placeholder={t('common.search_placeholder', { defaultValue: 'Rechercher un document...' })}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">{t('fiscal.documents.title')}</h2>
+          <p className="text-slate-500 text-sm mt-1">{t('fiscal.documents.subtitle', { country: 'Algérie', count: 6 })}</p>
+        </div>
+
+        <div className="mb-6 relative px-8 pt-6">
+          <div className="absolute inset-y-0 left-0 pl-12 flex items-center pointer-events-none">
+            <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
           </div>
+          <input 
+            type="text"
+            className="block w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder={t('fiscal.documents.search_placeholder')}
+          />
         </div>
 
         <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1114,29 +1082,31 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <SparklesIcon className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex items-center justify-between w-full">
-                  <span>Déclarations G50 (TVA Mensuelle)</span>
+                  <span>{t('fiscal.g50.title')}</span>
                   <span className="text-xl font-bold text-slate-200 font-arabic ml-4">تصريحات G50</span>
                 </div>
               </h2>
-              <p className="text-slate-500 text-sm mt-1 ml-14">Indicateurs de Performance & Historique G50 • Algérie</p>
+              <p className="text-slate-500 text-sm mt-1 ml-14">{t('fiscal.g50.subtitle')}</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full lg:w-auto">
-              <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Conformité</p>
-                <div className="text-xl font-black text-slate-900">95%</div>
-              </div>
-              <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Délai Moyen</p>
-                <div className="text-xl font-black text-slate-900">1.8j</div>
-              </div>
-              <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">TVA Moyenne</p>
-                <div className="text-sm font-black text-slate-900">{formatCurrency(31500)}</div>
-              </div>
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Statut Q1</p>
-                <div className="text-xl font-black text-slate-900">À jour</div>
+            <div className="md:w-1/2 lg:w-1/3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.compliance')}</p>
+                  <div className="text-xl font-black text-slate-900">95%</div>
+                </div>
+                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.avg_delay')}</p>
+                  <div className="text-sm font-black text-slate-900">1.8 {t('common.days', { defaultValue: 'jours' })}</div>
+                </div>
+                <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.avg_tva')}</p>
+                  <div className="text-sm font-black text-slate-900">{formatCurrency(31500)}</div>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.q1_status')}</p>
+                  <div className="text-xl font-black text-slate-900">{t('fiscal.g50.up_to_date')}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1146,13 +1116,13 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
             <div className="flex items-center space-x-3 w-full md:w-auto">
               <select className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none h-11">
-                <option>Année 2026</option>
-                <option>Année 2024</option>
+                <option>{t('fiscal.g50.year_2026')}</option>
+                <option>{t('fiscal.g50.year_2024')}</option>
               </select>
               <select className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none h-11">
-                <option>Tous les statuts</option>
-                <option>Télédéclarées</option>
-                <option>En cours</option>
+                <option>{t('fiscal.g50.all_statuses')}</option>
+                <option>{t('fiscal.g50.filed')}</option>
+                <option>{t('fiscal.g50.in_progress')}</option>
               </select>
             </div>
             <div className="flex items-center space-x-3 w-full md:w-auto">
@@ -1169,7 +1139,19 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <table className="min-w-full divide-y divide-slate-100">
               <thead className="bg-slate-50">
                 <tr>
-                  {["Période", "N° Décl.", "CA HT", "TVA Coll.", "TVA Déd.", "IRG", "TAP", "À Verser", "Date", "Statut", ""].map((header, i) => (
+                  {[
+                    t('fiscal.g50.table.period'),
+                    t('fiscal.g50.table.num'),
+                    t('fiscal.g50.table.ca'),
+                    t('fiscal.g50.table.coll'),
+                    t('fiscal.g50.table.ded'),
+                    t('fiscal.g50.table.irg'),
+                    t('fiscal.g50.table.tap'),
+                    t('fiscal.g50.table.to_pay'),
+                    t('fiscal.g50.table.date'),
+                    t('fiscal.g50.table.status'),
+                    ""
+                  ].map((header, i) => (
                     <th key={header + i} className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
                       {header}
                     </th>
@@ -1284,13 +1266,13 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
           <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative overflow-hidden p-5 bg-white rounded-2xl border border-slate-200 group hover:border-indigo-600 transition-all duration-300">
               <div className="relative z-10">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Collectée (YTD)</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('fiscal.g50.trend.collected_ytd')}</p>
                 <div className="text-2xl font-black text-slate-900 mb-1">423 700 DA</div>
                 <div className="flex items-center text-emerald-600 text-[10px] font-black uppercase tracking-tighter">
                   <span className="flex items-center justify-center p-1 bg-emerald-50 rounded mr-2">
                     <ArrowTrendingUpIcon className="h-3 w-3" />
                   </span>
-                  +15.4% vs N-1
+                  +15.4% {t('fiscal.g50.trend.vs_last_year')}
                 </div>
               </div>
             </div>
@@ -1343,7 +1325,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="p-2 bg-slate-900 rounded-lg mr-3">
                 <ClockIcon className="h-5 w-5 text-white" />
               </div>
-              Prochaines Échéances
+              {t('nav.fiscal_calendar')}
             </h3>
             <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-widest">
               Action requise
@@ -1368,10 +1350,10 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${e.joursAvantEcheance <= 5 ? 'bg-rose-500' : 'bg-emerald-500'}`}></div>
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        {e.joursAvantEcheance > 0 ? `${e.joursAvantEcheance} jours restants` : 'Expiré'}
+                        {e.joursAvantEcheance > 0 ? `${e.joursAvantEcheance} ${t('common.days_remaining', { defaultValue: 'jours restants' })}` : t('common.expired', { defaultValue: 'Expiré' })}
                       </span>
                     </div>
-                    <button className="text-[10px] font-black text-slate-900 uppercase tracking-widest hover:text-indigo-600 transition-colors">Détails</button>
+                    <button className="text-[10px] font-black text-slate-900 uppercase tracking-widest hover:text-indigo-600 transition-colors">{t('common.details', { defaultValue: 'Détails' })}</button>
                   </div>
                 </div>
               ))}
@@ -1386,7 +1368,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="p-2 bg-slate-900 rounded-lg mr-3">
                 <ChartBarIcon className="h-5 w-5 text-white" />
               </div>
-              Écarts vs Prévisions
+              {t('fiscal.performance_indicators')}
             </h3>
           </div>
           <div className="p-6">
@@ -1415,7 +1397,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-200">
               <p className="text-xs text-slate-500 italic leading-relaxed">
                 <InformationCircleIcon className="h-4 w-4 inline mr-1 -mt-0.5" />
-                "Les écarts positifs signalent une sous-estimation des charges ou une augmentation imprévue de l'activité taxable."
+                {t('fiscal.variance_explanation')}
               </p>
             </div>
           </div>
@@ -1426,12 +1408,12 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
         <div className="absolute inset-0 opacity-[0.01]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <h3 className="text-xl font-black mb-2 text-slate-900">Besoin d'un audit fiscal complet ?</h3>
-            <p className="text-slate-500 text-sm max-w-md">Générez un rapport détaillé de votre situation fiscale 2024-2026 en un clic pour votre expert-comptable.</p>
+            <h3 className="text-xl font-black mb-2 text-slate-900">{t('fiscal.launch_audit')} ?</h3>
+            <p className="text-slate-500 text-sm max-w-md">{t('fiscal.subtitle')}</p>
           </div>
           <button
             onClick={handleGenererRapportIA}
-            className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-black transition-all shadow-sm active:scale-95 flex items-center gap-2"
+            className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-black transition-all active:scale-95 flex items-center group"
           >
             <SparklesIcon className="h-5 w-5 text-slate-400" />
             Générer Rapport IA Expert

@@ -1508,18 +1508,24 @@
     },
     "fiscal": {
       "title": "Fiscalité & Déclarations",
+      "tagline": "Conformité fiscale, G50 et audit intelligent",
       "subtitle": "Solution professionnelle adaptée aux micro-entreprises. Gérez vos déclarations fiscales en toute conformité avec un accès administrateur complet optimisé pour SPA.",
       "warning_title": "Attention : ",
       "warning_text": "Les calculs sont basés sur les données ERP et doivent être validés par votre comptable agréé.",
+      "update_status": "Mise à jour 2026",
       "stats": {
-        "ca_ht": "CA HT Cumulé",
+        "ca_ht": "Chiffre d'Affaires Cumulé",
         "ibs_estimated": "IBS Estimé",
-        "tva_to_pay": "TVA Net à Verser",
+        "tva_to_pay": "TVA Nette à Verser",
         "conformity_score": "Score de Conformité",
         "total_charge": "Charge Totale",
         "effective_rate": "Taux Effectif",
         "ibs_share": "Part IBS",
-        "compliance": "Conformité"
+        "tva_share": "Part TVA",
+        "compliance": "Conformité",
+        "total_taxes": "Somme des taxes (IBS + TVA + IRG + TAP)",
+        "benefit_ibs": "IBS / Bénéfice",
+        "global_score": "Score global"
       },
       "benefits": {
         "kpi": "Tableaux de bord KPI fiscaux",
@@ -1531,28 +1537,78 @@
       },
       "solution_enterprise": "Solution Expert-Comptable",
       "decision_aid": "Aide à la Décision",
+      "motto": "La trésorerie est le nerf de la guerre : surveillez-la quotidiennement et anticipez les besoins.",
       "control_center": "Centre de Pilotage Fiscal",
-      "rates": {
-        "tva": "Taux TVA (%)",
-        "tap": "Taux TAP (%)",
-        "ibs": "Taux IBS (%)",
-        "ibs_full": "Impôt sur les Bénéfices (IBS)"
-      },
       "ia_predictive": "IA Prédictive & Fiscalité",
       "audit_conformity": "Audit de Conformité IA",
-      "launch_audit": "Lancer un audit profond",
+      "launch_audit": "Lancer l'Audit Approfondi",
       "performance_indicators": "Indicateurs de Performance Fiscale",
       "calcul_details": "Détails des Calculs",
+      "expert_mode": "Mode Expert",
+      "audit_ia_btn": "Audit IA",
+      "rates": {
+         "tva": "Taux de TVA",
+         "tap": "Taux de TAP",
+         "ibs": "Taux d'IBS",
+         "ibs_full": "Impôt sur les Bénéfices (IBS)",
+         "irg": "IRG",
+         "rate_label": "Taux"
+      },
+      "ia": {
+        "predicted_tva": "TVA Prédictive",
+        "confidence_score": "Score de Confiance Intelligent",
+        "base_rate_calc": "Base × Taux",
+        "analyzing": "Analyse des tendances en cours..."
+      },
       "alerts": {
+        "erp_coherence": "Cohérence ERP Totale",
+        "no_risk_detected": "Aucun risque critique détecté",
         "select_period": "Veuillez sélectionner une période"
+      },
+      "details": {
+        "ca_ht_label": "Chiffre d'affaires HT:",
+        "deductible_charges": "Charges déductibles:",
+        "taxable_profit": "Bénéfice imposable:",
+        "ibs_base_rate": "IBS ESTIMÉ (Base × Taux)",
+        "ibs_installments": "Acomptes IBS",
+        "installments_paid": "Acomptes payés (Q1-Q3):",
+        "balance_to_pay": "Solde à payer:",
+        "balance_deadline": "Échéance solde: 31/03/2026",
+        "tva_title": "Taxe sur la Valeur Ajoutée (TVA)",
+        "tva_sales_base": "Base taxable ventes (HT):",
+        "tva_purchases_base": "Base taxable achats (HT):",
+        "tva_collected": "TVA collectée:",
+        "tva_deductible": "TVA déductible:",
+        "tva_net_to_pay": "TVA Nette à Verser",
+        "tva_calc_desc": "Collectée - Déductible",
+        "recovery_rate": "Taux de Récupération",
+        "irg_title": "Impôt sur le Revenu Global (IRG)",
+        "irg_progressive": "Barème progressif",
+        "irg_schedule_2026": "Barème IRG 2026",
+        "irg_exempt": "Exonéré: 0 - 30,000 DA",
+        "taxable_income": "Revenus imposables:",
+        "irg_calculated": "IRG CALCULÉ",
+        "irg_total_schedule": "Total barème",
+        "calc_detail": "Détail Calcul",
+        "tap_title": "Taxe sur l'Activité Professionnelle (TAP)",
+        "tap_calculated": "TAP CALCULÉE",
+        "monthly_payments": "Paiements Mensuels",
+        "avg_monthly_tap": "TAP mensuel moyen:",
+        "next_deadline": "Prochaine échéance:"
       },
       "reports": {
         "audit_title": "AUDIT FISCAL STRATÉGIQUE",
         "generated_by": "Réalisé par Dinarlytics AI"
       },
       "documents": {
-        "title": "Documents & Liasse Fiscale",
-        "subtitle": "Gestion des obligations fiscales pour {{country}}",
+        "title": "Documents Fiscaux Disponibles",
+        "subtitle": "{{country}} • {{count}} documents obligatoires disponibles",
+        "search_placeholder": "Rechercher un document...",
+        "obligatory": "Obligatoire",
+        "optional": "Optionnel",
+        "deadline_label": "Échéance:",
+        "for_label": "Pour:",
+        "main_title": "Documents & Liasse Fiscale",
         "frequencies": {
           "mensuel": "Mensuel",
           "trimestriel": "Trimestriel",
@@ -1599,6 +1655,39 @@
           "soumis": "Soumis",
           "valide": "Validé",
           "rejete": "Rejeté"
+        }
+      },
+      "g50": {
+        "title": "Déclarations G50 (TVA Mensuelle)",
+        "subtitle": "Indicateurs de Performance & Historique G50 • {{country}}",
+        "compliance": "Conformité",
+        "avg_delay": "Délai Moyen",
+        "avg_tva": "TVA Moyenne",
+        "q1_status": "Statut Q1",
+        "up_to_date": "À jour",
+        "year_2026": "Année 2026",
+        "year_2024": "Année 2024",
+        "all_statuses": "Tous les statuts",
+        "filed": "Télédéclarées",
+        "in_progress": "En cours",
+        "new_declaration": "Nouvelle Déclaration",
+        "table": {
+          "period": "Période",
+          "num": "N° Décl.",
+          "ca": "CA HT",
+          "coll": "TVA Coll.",
+          "ded": "TVA Déd.",
+          "irg": "IRG",
+          "tap": "TAP",
+          "to_pay": "À Verser",
+          "date": "Date",
+          "status": "Statut",
+          "score": "Score",
+          "performance": "Performance"
+        },
+        "trend": {
+          "collected_ytd": "Collectée (YTD)",
+          "vs_last_year": "vs N-1"
         }
       }
     },

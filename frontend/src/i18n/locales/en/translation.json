@@ -261,17 +261,17 @@
     "lia_train": "Model Training",
     "finance_accounting": "Finance & Accounting",
     "balance_sheet": "Financial Statements",
-    "tax_declarations": "Tax & Filings",
+    "tax_declarations": "Fiscal & Declarations",
     "journal_entry": "Journal Entry",
     "steering": "Steering & Dashboards",
     "global_view": "Overview",
     "alerts_risks": "Alerts & Risks",
     "fiscal_calendar": "Tax Calendar",
-    "operations": "Commercial Operations",
-    "client_portfolio": "Customer Portfolio",
-    "stock_articles": "Stocks & Articles",
+    "operations": "Operations",
+    "client_portfolio": "Client Portfolio",
+    "stock_articles": "Inventory & Items",
     "analytics": "Analytics & Reports",
-    "cash_flow": "Cash & Bank",
+    "cash_flow": "Treasury & Bank",
     "commercial_analysis": "Commercial Analysis",
     "performance": "Performance Matrix",
     "admin_settings": "Control & Settings",
@@ -280,8 +280,193 @@
     "settings": "Settings",
     "templates": "Document Templates",
     "eurl_adapted_menu": "ℹ️ Adapted Menu",
-    "eurl_menu_optimized": "Your menu is optimized for an EURL. Only essential features are displayed."
+    "eurl_menu_optimized": "Your menu has been optimized for EURL. Only essential features are shown."
   },
+    "fiscal": {
+      "title": "Fiscal & Declarations",
+      "tagline": "Fiscal compliance, G50 and smart audit",
+      "subtitle": "Professional solution adapted to micro-enterprises. Manage your tax declarations in full compliance with full administrator access optimized for SPA.",
+      "warning_title": "Warning: ",
+      "warning_text": "Calculations are based on ERP data and must be validated by your certified accountant.",
+      "update_status": "2026 Update",
+      "stats": {
+        "ca_ht": "Cumulative Revenue",
+        "ibs_estimated": "Estimated IBS",
+        "tva_to_pay": "Net VAT to Pay",
+        "conformity_score": "Compliance Score",
+        "total_charge": "Total Charge",
+        "effective_rate": "Effective Rate",
+        "ibs_share": "IBS Share",
+        "tva_share": "VAT Share",
+        "compliance": "Compliance",
+        "total_taxes": "Sum of taxes (IBS + VAT + IRG + TAP)",
+        "benefit_ibs": "IBS / Profit",
+        "global_score": "Global score"
+      },
+      "benefits": {
+        "kpi": "Fiscal KPI Dashboards",
+        "clients": "Collected/Deductible VAT tracking",
+        "g50": "Automated G50 Generation",
+        "profit": "Real-time IBS Estimation",
+        "bfr": "Tax Calendar Optimization",
+        "cashflow": "AI: Risk Detection"
+      },
+      "solution_enterprise": "Expert-Accountant Solution",
+      "decision_aid": "Decision Aid",
+      "motto": "Cash is the sinews of war: monitor it daily and anticipate needs.",
+      "control_center": "Fiscal Steering Center",
+      "ia_predictive": "Predictive AI & Fiscality",
+      "audit_conformity": "AI Compliance Audit",
+      "launch_audit": "Launch Deep Audit",
+      "performance_indicators": "Fiscal Performance Indicators",
+      "calcul_details": "Calculation Details",
+      "expert_mode": "Expert Mode",
+      "audit_ia_btn": "Audit IA",
+      "rates": {
+         "tva": "VAT Rate",
+         "tap": "TAP Rate",
+         "ibs": "IBS Rate",
+         "ibs_full": "Corporate Income Tax (IBS)",
+         "irg": "IRG",
+         "rate_label": "Rate"
+      },
+      "ia": {
+        "predicted_tva": "Predictive VAT",
+        "confidence_score": "Smart Confidence Score",
+        "base_rate_calc": "Base × Rate",
+        "analyzing": "Analyzing trends..."
+      },
+      "alerts": {
+        "erp_coherence": "Full ERP Coherence",
+        "no_risk_detected": "No critical risk detected",
+        "select_period": "Please select a period"
+      },
+      "details": {
+        "ca_ht_label": "Turnover (HT):",
+        "deductible_charges": "Deductible charges:",
+        "taxable_profit": "Taxable profit:",
+        "ibs_base_rate": "ESTIMATED IBS (Base × Rate)",
+        "ibs_installments": "IBS Installments",
+        "installments_paid": "Installments paid (Q1-Q3):",
+        "balance_to_pay": "Balance to pay:",
+        "balance_deadline": "Balance deadline: 31/03/2026",
+        "tva_title": "Value Added Tax (VAT)",
+        "tva_sales_base": "Sales taxable base (HT):",
+        "tva_purchases_base": "Purchases taxable base (HT):",
+        "tva_collected": "Collected VAT:",
+        "tva_deductible": "Deductible VAT:",
+        "tva_net_to_pay": "Net VAT to Pay",
+        "tva_calc_desc": "Collected - Deductible",
+        "recovery_rate": "Recovery Rate",
+        "irg_title": "Global Income Tax (IRG)",
+        "irg_progressive": "Progressive schedule",
+        "irg_schedule_2026": "2026 IRG Schedule",
+        "irg_exempt": "Exempted: 0 - 30,000 DA",
+        "taxable_income": "Taxable income:",
+        "irg_calculated": "CALCULATED IRG",
+        "irg_total_schedule": "Total schedule",
+        "calc_detail": "Calculation Detail",
+        "tap_title": "Professional Activity Tax (TAP)",
+        "tap_calculated": "CALCULATED TAP",
+        "monthly_payments": "Monthly Payments",
+        "avg_monthly_tap": "Avg monthly TAP:",
+        "next_deadline": "Next deadline:"
+      },
+      "reports": {
+        "audit_title": "STRATEGIC FISCAL AUDIT",
+        "generated_by": "Produced by Dinarlytics AI"
+      },
+      "documents": {
+        "title": "Available Fiscal Documents",
+        "subtitle": "{{country}} • {{count}} mandatory documents available",
+        "search_placeholder": "Search a document...",
+        "obligatory": "Mandatory",
+        "optional": "Optional",
+        "deadline_label": "Deadline:",
+        "for_label": "For:",
+        "main_title": "Documents & Tax Pack",
+        "frequencies": {
+          "mensuel": "Monthly",
+          "trimestriel": "Quarterly",
+          "annuel": "Annual",
+          "ponctuel": "One-off"
+        },
+        "filters": {
+          "category": "Category",
+          "all_categories": "All categories",
+          "frequency": "Frequency",
+          "all_frequencies": "All frequencies",
+          "country": "Country"
+        },
+        "categories": {
+          "declaration": "Declaration",
+          "attestation": "Attestation",
+          "bilan": "Balance Sheet/Tax Pack",
+          "formulaire": "Form",
+          "certificat": "Certificate"
+        },
+        "details": {
+          "required": "Mandatory",
+          "deadline": "Deadline",
+          "business_type": {
+            "both": "All types",
+            "entreprise": "Company",
+            "particulier": "Individual"
+          }
+        },
+        "actions": {
+          "create": "Generate",
+          "cancel": "Cancel",
+          "submit": "Submit / Validate"
+        },
+        "table": {
+          "created_title": "Recent Documents & Archives",
+          "document": "Document",
+          "date": "Creation Date",
+          "statut": "Status",
+          "actions": "Actions"
+        },
+        "status": {
+          "brouillon": "Draft",
+          "soumis": "Submitted",
+          "valide": "Validated",
+          "rejete": "Rejected"
+        }
+      },
+      "g50": {
+        "title": "G50 Declarations (Monthly VAT)",
+        "subtitle": "Performance Indicators & G50 History • {{country}}",
+        "compliance": "Compliance",
+        "avg_delay": "Avg Delay",
+        "avg_tva": "Avg VAT",
+        "q1_status": "Q1 Status",
+        "up_to_date": "Up to date",
+        "year_2026": "Year 2026",
+        "year_2024": "Year 2024",
+        "all_statuses": "All statuses",
+        "filed": "Filed online",
+        "in_progress": "In progress",
+        "new_declaration": "New Declaration",
+        "table": {
+          "period": "Period",
+          "num": "Decl. No.",
+          "ca": "Turnover HT",
+          "coll": "Coll. VAT",
+          "ded": "Ded. VAT",
+          "irg": "IRG",
+          "tap": "TAP",
+          "to_pay": "To Pay",
+          "date": "Date",
+          "status": "Status",
+          "score": "Score",
+          "performance": "Performance"
+        },
+        "trend": {
+          "collected_ytd": "Collected (YTD)",
+          "vs_last_year": "vs LY"
+        }
+      }
+    },
   "dashboard": {
     "title": "Financial Dashboard",
     "subtitle": "Real-time analysis, KPIs, and predictive scenarios",
@@ -1938,55 +2123,7 @@
           }
         }
       },
-      "fiscal": {
-        "title": "Fiscality & Declarations",
-        "subtitle": "Fiscal compliance, G50 and smart audit",
-        "warning_title": "Warning:",
-        "warning_text": "Calculations are based on ERP data and must be validated by your certified accountant.",
-        "stats": {
-          "ca_ht": "Cumulative Revenue",
-          "ibs_estimated": "Estimated IBS",
-          "tva_to_pay": "VAT Balance to pay",
-          "conformity_score": "Compliance Score",
-          "total_charge": "Total Charge",
-          "effective_rate": "Effective Rate",
-          "ibs_share": "IBS Share",
-          "compliance": "Compliance"
-        },
-        "rates": {
-          "tva": "VAT Rate (%)",
-          "tap": "TAP Rate (%)",
-          "ibs": "IBS Rate (%)",
-          "ibs_full": "Tax on Profits (IBS)"
-        },
-        "reports": {
-          "audit_title": "STRATEGIC FISCAL AUDIT",
-          "generated_by": "Produced by Dinarlytics AI"
-        },
-        "documents": {
-          "title": "Documents & Tax Pack",
-          "subtitle": "Fiscal obligations management for {{country}}",
-          "frequencies": {
-            "mensuel": "Monthly",
-            "trimestriel": "Quarterly",
-            "annuel": "Annual",
-            "ponctuel": "One-off"
-          },
-          "categories": {
-            "declaration": "Declaration",
-            "attestation": "Attestation",
-            "bilan": "Balance Sheet/Tax Pack",
-            "formulaire": "Form",
-            "certificat": "Certificate"
-          },
-          "status": {
-            "brouillon": "Draft",
-            "soumis": "Submitted",
-            "valide": "Validated",
-            "rejete": "Rejected"
-          }
-        }
-      },
+
       "reports": {
         "title": "Financial Statements & Reports",
         "subtitle": "Tax package, balance sheets and SCF analysis",

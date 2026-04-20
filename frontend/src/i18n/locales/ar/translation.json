@@ -282,6 +282,53 @@
     "eurl_adapted_menu": "ℹ️ قائمة مخصصة",
     "eurl_menu_optimized": "تم تحسين قائمتك لـ EURL. يتم عرض الميزات الأساسية فقط."
   },
+  "fiscal": {
+    "title": "الجباية والتصريحات",
+    "subtitle": "حل احترافي متكيف مع المؤسسات المصغرة. قم بتسيير تصريحاتك الجبائية بكل امتثال مع وصول كامل للمشرف محسّن لـ SPA.",
+    "warning_title": "تنبيه : ",
+    "warning_text": "تعتمد الحسابات على بيانات ERP ويجب تأكيدها من قبل محاسبك المعتمد.",
+    "stats": {
+      "ca_ht": "رقم الأعمال الصافي",
+      "ibs_estimated": "IBS المقدر",
+      "tva_to_pay": "الرسم على القيمة المضافة للدفع",
+      "conformity_score": "درجة الامتثال",
+      "total_charge": "العبء الإجمالي",
+      "effective_rate": "المعدل الفعلي",
+      "ibs_share": "حصة IBS",
+      "compliance": "الامتثال"
+    },
+    "benefits": {
+      "kpi": "لوحات قياس الأداء الجبائي",
+      "clients": "متابعة الرسم على القيمة المضافة",
+      "g50": "توليد تصريح G50 آلياً",
+      "profit": "تقدير IBS في الوقت الفعلي",
+      "bfr": "تحسين الجدول الزمني الجبائي",
+      "cashflow": "الذكاء الاصطناعي: كشف المخاطر"
+    },
+    "solution_enterprise": "حل الخبراء المحاسبين",
+    "decision_aid": "المساعدة في اتخاذ القرار",
+    "motto": "السيولة هي عصب الحرب: راقبها يومياً وتوقع الاحتياجات.",
+    "control_center": "مركز القيادة الجبائية",
+    "ia_predictive": "الذكاء الاصطناعي التوقعي والجباية",
+    "audit_conformity": "تدقيق الامتثال بالذكاء الاصطناعي",
+    "launch_audit": "إطلاق تدقيق معمق",
+    "performance_indicators": "مؤشرات الأداء الجبائي",
+    "calcul_details": "تفاصيل الحسابات",
+    "rates": {
+       "tva": "معدل الرسم (TVA)",
+       "tap": "معدل الرسم (TAP)",
+       "ibs": "معدل الضريبة (IBS)",
+       "ibs_full": "الضريبة على أرباح الشركات (IBS)"
+    },
+    "ia": {
+      "predicted_tva": "الرسم على القيمة المضافة المتوقع",
+      "confidence_score": "درجة الثقة الذكية",
+      "base_rate_calc": "القاعدة × المعدل"
+    },
+    "alerts": {
+      "erp_coherence": "توافق تام مع نظام ERP"
+    }
+  },
   "dashboard": {
     "title": "لوحة القيادة المالية",
     "subtitle": "التحليل في الوقت الفعلي، ومؤشرات الأداء الرئيسية والسيناريوهات التنبؤية",
@@ -1470,6 +1517,191 @@
           "fill_fields": "يرجى ملء جميع الحقول المطلوبة",
           "save_failed": "خطأ أثناء الحفظ",
           "delete_failed": "خطأ أثناء التعطيل"
+        }
+      }
+    },
+    "fiscal": {
+      "title": "الجباية والتصريحات",
+      "tagline": "الامتثال الجبائي، G50 والتدقيق الذكي",
+      "subtitle": "حل احترافي متكيف مع المؤسسات المصغرة. قم بتسيير تصريحاتك الجبائية بكل امتثال مع وصول كامل للمشرف محسّن لـ SPA.",
+      "warning_title": "تنبيه : ",
+      "warning_text": "تعتمد الحسابات على بيانات ERP ويجب تأكيدها من قبل محاسبك المعتمد.",
+      "update_status": "تحديث 2026",
+      "stats": {
+        "ca_ht": "رقم الأعمال الصافي",
+        "ibs_estimated": "IBS المقدر",
+        "tva_to_pay": "الرسم على القيمة المضافة للدفع",
+        "conformity_score": "درجة الامتثال",
+        "total_charge": "العبء الإجمالي",
+        "effective_rate": "المعدل الفعلي",
+        "ibs_share": "حصة IBS",
+        "tva_share": "حصة TVA",
+        "compliance": "الامتثال",
+        "total_taxes": "مجموع الضرائب (IBS + TVA + IRG + TAP)",
+        "benefit_ibs": "IBS / الربح",
+        "global_score": "النتيجة الإجمالية"
+      },
+      "benefits": {
+        "kpi": "لوحات قياس الأداء الجبائي",
+        "clients": "متابعة الرسم على القيمة المضافة",
+        "g50": "توليد تصريح G50 آلياً",
+        "profit": "تقدير IBS في الوقت الفعلي",
+        "bfr": "تحسين الجدول الزمني الجبائي",
+        "cashflow": "الذكاء الاصطناعي: كشف المخاطر"
+      },
+      "solution_enterprise": "حل الخبراء المحاسبين",
+      "decision_aid": "المساعدة في اتخاذ القرار",
+      "motto": "السيولة هي عصب الحرب: راقبها يومياً وتوقع الاحتياجات.",
+      "control_center": "مركز القيادة الجبائية",
+      "ia_predictive": "الذكاء الاصطناعي التوقعي والجباية",
+      "audit_conformity": "تدقيق الامتثال بالذكاء الاصطناعي",
+      "launch_audit": "إطلاق تدقيق معمق",
+      "performance_indicators": "مؤشرات الأداء الجبائي",
+      "calcul_details": "تفاصيل الحسابات",
+      "expert_mode": "وضع الخبير",
+      "audit_ia_btn": "تدقيق الذكاء الاصطناعي",
+      "rates": {
+         "tva": "معدل الرسم (TVA)",
+         "tap": "معدل الرسم (TAP)",
+         "ibs": "معدل الضريبة (IBS)",
+         "ibs_full": "الضريبة على أرباح الشركات (IBS)",
+         "irg": "الضريبة على الدخل الإجمالي (IRG)",
+         "rate_label": "المعدل"
+      },
+      "ia": {
+        "predicted_tva": "الرسم على القيمة المضافة المتوقع",
+        "confidence_score": "درجة الثقة الذكية",
+        "base_rate_calc": "القاعدة × المعدل",
+        "analyzing": "جاري تحليل الاتجاهات..."
+      },
+      "alerts": {
+        "erp_coherence": "توافق تام مع نظام ERP",
+        "no_risk_detected": "لم يتم اكتشاف أي مخاطر حرجة",
+        "select_period": "يرجى اختيار الفترة"
+      },
+      "details": {
+        "ca_ht_label": "رقم الأعمال الصافي:",
+        "deductible_charges": "الأعباء القابلة للخصم:",
+        "taxable_profit": "الربح الخاضع للضريبة:",
+        "ibs_base_rate": "IBS المقدر (القاعدة × المعدل)",
+        "ibs_installments": "تسبيقات IBS",
+        "installments_paid": "التسبيقات المدفوعة (Q1-Q3):",
+        "balance_to_pay": "الرصيد المتبقي للدفع:",
+        "balance_deadline": "أجل تسوية الرصيد: 31/03/2026",
+        "tva_title": "الرسم على القيمة المضافة (TVA)",
+        "tva_sales_base": "قاعدة المبيعات الخاضعة للرسم:",
+        "tva_purchases_base": "قاعدة المشتريات الخاضعة للرسم:",
+        "tva_collected": "الرسم المحصل:",
+        "tva_deductible": "الرسم القابل للخصم:",
+        "tva_net_to_pay": "الرسم الصافي للدفع",
+        "tva_calc_desc": "المحصل - القابل للخصم",
+        "recovery_rate": "معدل الاسترداد",
+        "irg_title": "الضريبة على الدخل الإجمالي (IRG)",
+        "irg_progressive": "جدول تصاعدي",
+        "irg_schedule_2026": "جدول IRG 2026",
+        "irg_exempt": "معفى: 0 - 30,000 دج",
+        "taxable_income": "الدخل الخاضع للضريبة:",
+        "irg_calculated": "IRG المحسوب",
+        "irg_total_schedule": "إجمالي الجدول",
+        "calc_detail": "تفاصيل الحساب",
+        "tap_title": "الرسم على النشاط المهني (TAP)",
+        "tap_calculated": "TAP المحسوب",
+        "monthly_payments": "المدفوعات الشهرية",
+        "avg_monthly_tap": "متوسط TAP الشهري:",
+        "next_deadline": "الاستحقاق القادم:"
+      },
+      "reports": {
+        "audit_title": "تدقيق جبائي استراتيجي",
+        "generated_by": "تم الإنشاء بواسطة ذكاء Dinarlytics"
+      },
+      "documents": {
+        "title": "الوثائق الجبائية المتوفرة",
+        "subtitle": "{{country}} • {{count}} وثائق إجبارية متوفرة",
+        "search_placeholder": "بحث عن وثيقة...",
+        "obligatory": "إجباري",
+        "optional": "اختياري",
+        "deadline_label": "الأجل:",
+        "for_label": "لـ:",
+        "main_title": "الوثائق والملفات الجبائية",
+        "frequencies": {
+          "mensuel": "شهري",
+          "trimestriel": "فصلي",
+          "annuel": "سنوي",
+          "ponctuel": "ظرفي"
+        },
+        "filters": {
+          "category": "الفئة",
+          "all_categories": "كل الفئات",
+          "frequency": "الدورية",
+          "all_frequencies": "كل الدوريات",
+          "country": "البلد"
+        },
+        "categories": {
+          "declaration": "تصريح",
+          "attestation": "شهادة",
+          "bilan": "ميزانية / ملف",
+          "formulaire": "نموذج",
+          "certificat": "شهادة"
+        },
+        "details": {
+          "required": "إلزامي",
+          "deadline": "التاريخ النهائي",
+          "business_type": {
+            "both": "كل الأنواع",
+            "entreprise": "شركة",
+            "particulier": "فرد"
+          }
+        },
+        "actions": {
+          "create": "توليد",
+          "cancel": "إلغاء",
+          "submit": "إرسال / تصديق"
+        },
+        "table": {
+          "created_title": "الوثائق الأخيرة والأرشيف",
+          "document": "الوثيقة",
+          "date": "تاريخ الإنشاء",
+          "statut": "الحالة",
+          "actions": "إجراءات"
+        },
+        "status": {
+          "brouillon": "مسودة",
+          "soumis": "تم الإرسال",
+          "valide": "مصادق",
+          "rejete": "مرفوض"
+        }
+      },
+      "g50": {
+        "title": "تصريحات G50 (TVA الشهرية)",
+        "subtitle": "مؤشرات الأداء وسجل G50 • {{country}}",
+        "compliance": "الامتثال",
+        "avg_delay": "متوسط التأخير",
+        "avg_tva": "متوسط TVA",
+        "q1_status": "حالة Q1",
+        "up_to_date": "محدث",
+        "year_2026": "سنة 2026",
+        "year_2024": "سنة 2024",
+        "all_statuses": "كل الحالات",
+        "filed": "مصرح إلكترونياً",
+        "in_progress": "قيد التنفيذ",
+        "new_declaration": "تصريح جديد",
+        "table": {
+          "period": "الفترة",
+          "num": "رقم التصريح",
+          "ca": "رقم الأعمال",
+          "coll": "TVA المحصلة",
+          "ded": "TVA المخصومة",
+          "irg": "IRG",
+          "tap": "TAP",
+          "to_pay": "للدفع",
+          "date": "التاريخ",
+          "status": "الحالة",
+          "score": "النتيجة",
+          "performance": "الأداء"
+        },
+        "trend": {
+          "collected_ytd": "المحصلة (YTD)",
+          "vs_last_year": "مقارنة بالسنة الماضية"
         }
       }
     },
