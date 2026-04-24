@@ -188,5 +188,59 @@ export const MOCK_DATA = {
     { id: 'f-001', name: 'Global Logistics Algerie', nif: '000116109000101', rc: '16/00-123456B16', ai: '16123456789', email: 'contact@global-log.dz', phone: '023 45 67 89', address: 'Zone Industrielle, Oued Smar', score: 92, status: 'actif' },
     { id: 'f-002', name: 'Industrie Plastique Nord', nif: '000216109000202', rc: '16/00-789012B16', ai: '16223344556', email: 'sales@ip-nord.dz', phone: '024 12 34 56', address: 'Z.I Rouiba, Alger', score: 85, status: 'actif' },
     { id: 'f-003', name: 'TechSolutions SARL', nif: '000316109000303', rc: '16/00-112233B16', ai: '16334455667', email: 'info@tech-sol.dz', phone: '021 98 76 54', address: 'Sidi Abdellah, Alger', score: 78, status: 'actif' }
+  ],
+
+  // --- SYSTEM & AUDIT ---
+  '/audit/logs': [
+    {
+      id: 'log-001',
+      user_id: 'MAT-001 (K. Benali)',
+      action: 'UPDATE',
+      entity_type: 'FACTURE',
+      entity_id: 'FAC-2024-001',
+      old_values: { status: 'brouillon', total: 450000 },
+      new_values: { status: 'validée', total: 450000 },
+      created_at: '2024-10-24T14:30:00Z'
+    },
+    {
+      id: 'log-002',
+      user_id: 'MAT-002 (A. Hadj)',
+      action: 'INSERT',
+      entity_type: 'PAIEMENT',
+      entity_id: 'PAY-882',
+      old_values: null,
+      new_values: { montant: 125000, methode: 'virement', banque: 'BNA' },
+      created_at: '2024-10-24T10:15:00Z'
+    },
+    {
+      id: 'log-003',
+      user_id: 'Système (Auto-Cleaner)',
+      action: 'DELETE',
+      entity_type: 'CACHE_SESSION',
+      entity_id: 'sess_992xaf',
+      old_values: { expired: true, user: 'unknown' },
+      new_values: null,
+      created_at: '2024-10-24T03:00:00Z'
+    },
+    {
+      id: 'log-004',
+      user_id: 'MAT-005 (D. Khelif)',
+      action: 'UPDATE',
+      entity_type: 'PERMISSION_ACCES',
+      entity_id: 'ROLE-EDITOR',
+      old_values: { can_delete: false },
+      new_values: { can_delete: true },
+      created_at: '2024-10-23T16:20:00Z'
+    },
+    {
+      id: 'log-005',
+      user_id: 'MAT-001 (K. Benali)',
+      action: 'INSERT',
+      entity_type: 'ARTICLE',
+      entity_id: 'ART-990',
+      old_values: null,
+      new_values: { designation: 'Laptop Pro X1', stock: 10 },
+      created_at: '2024-10-23T09:12:00Z'
+    }
   ]
 };

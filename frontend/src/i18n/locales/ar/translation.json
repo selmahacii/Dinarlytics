@@ -1,4 +1,16 @@
 {
+  "common": {
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "close": "إغلاق",
+    "add": "إضافة",
+    "edit": "تعديل",
+    "view": "عرض",
+    "loading": "جاري التحميل...",
+    "search": "بحث",
+    "actions": "إجراءات"
+  },
   "sales": {
     "title": "المبيعات والعملاء",
     "hero": {
@@ -241,6 +253,94 @@
     "reports_analytics": "التقارير والتحليلات",
     "settings": "الإعدادات"
   },
+  "audit": {
+    "title": "مستكشف التدقيق والتتبع",
+    "subtitle": "سجل غير قابل للتعديل لتعديلات النظام (Spans DB)",
+    "filter_placeholder": "تصفية حسب الإجراء أو الكيان...",
+    "table": {
+      "timestamp": "التاريخ والوقت",
+      "user": "المستخدم",
+      "action": "الإجراء",
+      "entity": "الكيان",
+      "entity_id": "معرف الكيان",
+      "details": "التفاصيل"
+    },
+    "modal": {
+      "title": "تفاصيل سجل التدقيق",
+      "old_value": "القيمة القديمة",
+      "new_value": "القيمة الجديدة"
+    }
+  },
+  "users_mgmt": {
+    "title": "إدارة المستخدمين",
+    "subtitle": "إدارة المستخدمين والأدوار والصلاحيات",
+    "description": "إدارة مستخدمي النظام وأدوارهم وصلاحياتهم ووصولهم وفقاً لاحتياجات شركتك",
+    "roles_config": "إعداد الأدوار",
+    "new_user": "مستخدم جديد",
+    "search_placeholder": "البحث عن مستخدم...",
+    "filter_role": "جميع الأدوار",
+    "filter_status": "جميع الحالات",
+    "reset": "إعادة تعيين",
+    "stats": {
+      "total": "إجمالي المستخدمين",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "معلق"
+    },
+    "table": {
+      "user": "المستخدم",
+      "role": "الدور",
+      "company": "الشركة",
+      "status": "الحالة",
+      "last_login": "آخر تسجيل دخول",
+      "actions": "الإجراءات"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "suspended": "معلق"
+    },
+    "modal_create": {
+      "title": "مستخدم جديد",
+      "fields": {
+        "nom": "اللقب",
+        "prenom": "الاسم",
+        "email": "البريد الإلكتروني",
+        "telephone": "الهاتف",
+        "role": "الدور",
+        "company": "الشركة",
+        "company_type": "نوع الشركة",
+        "access_level": "مستوى الوصول"
+      },
+      "permissions_title": "الصلاحيات",
+      "submit": "إنشاء المستخدم",
+      "submitting": "جاري الإنشاء..."
+    },
+    "modal_roles": {
+      "title": "إعداد الأدوار",
+      "role_name": "اسم الدور",
+      "permissions_title": "الصلاحيات (مجمعة)",
+      "check_all": "تحديد الكل",
+      "uncheck_all": "إلغاء تحديد الكل",
+      "assign_to": "تعيين لمستخدم..."
+    },
+    "modal_view": {
+      "title": "تفاصيل المستخدم"
+    },
+    "modal_edit": {
+      "title": "تعديل المستخدم"
+    },
+    "modal_delete": {
+      "title": "تأكيد الحذف",
+      "confirm_text": "هل أنت متأكد أنك تريد حذف المستخدم",
+      "warning_text": "هذا الإجراء غير قابل للتراجع وسيؤدي إلى حذف المستخدم نهائياً من النظام."
+    },
+    "modal_logs": {
+      "title": "سجل النشاط",
+      "clear": "مسح السجل",
+      "empty": "لا توجد أحداث حالياً."
+    }
+  },
   "quick_navigation": {
     "title": "التنقل السريع",
     "search_placeholder": "البحث عن صفحة أو وحدة...",
@@ -292,11 +392,46 @@
     "consolidation": "توحيد الحسابات",
     "client_groups": "مجموعات العملاء",
     "delivery_tracking": "تتبع التسليم",
+    "purchase_reports": "تقارير المشتريات والموردين",
+    "stock_reports": "تقارير المخزون والمنتجات",
+    "accounting_results": "المحاسبة والنتائج",
     "custom_reports": "تقارير مخصصة",
     "user_management": "إدارة المستخدمين",
     "role_management": "إدارة الأدوار الصلاحيات",
     "access_control": "التحكم في الوصول",
     "company_profile": "ملف الشركة"
+  },
+  "stocks_reports": {
+    "title": "تقرير المخزون والمنتجات",
+    "rotation_report": "تقرير دوران المنتجات",
+    "stock_state": "حالة المخزون",
+    "stock_state_desc": "نظرة عامة على الحالة الحالية لمخزونك",
+    "stock_state_indicators": {
+      "total_value": "إجمالي قيمة المخزون",
+      "turnover_rate": "معدل الدوران العالمي",
+      "active_refs": "عدد المراجع النشطة"
+    },
+    "stock_alerts": "التنبيهات والشذوذ",
+    "stock_alerts_desc": "مراقبة الشذوذ والنقص",
+    "stock_alerts_indicators": {
+      "dormant": "المنتجات الراكدة (لا توجد مبيعات > 60 يومًا)",
+      "low_stock": "المخزون أقل من الحد الأدنى",
+      "overstock": "منتجات فائضة عن الحاجة",
+      "discrepancy": "الفوارق بين المخزون النظري والفعلي"
+    },
+    "product_performance": "أداء المنتج",
+    "product_performance_desc": "تحليل أداء منتجاتك",
+    "product_performance_indicators": {
+      "margins": "الهوامش لكل منتج",
+      "profitability": "معدل الربحية لكل فئة",
+      "curve": "منحنى المبيعات التراكمية / المنتج"
+    },
+    "abc_analysis": {
+      "title": "تحليل ABC للمنتجات",
+      "cat_a_desc": "منتجات عالية القيمة (A)",
+      "cat_b_desc": "منتجات متوسطة القيمة (B)",
+      "cat_c_desc": "منتجات منخفضة القيمة (C)"
+    }
   },
   "fiscal": {
     "title": "الجباية والتصريحات",

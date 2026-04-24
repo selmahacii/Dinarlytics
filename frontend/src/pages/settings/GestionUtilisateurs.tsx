@@ -30,6 +30,7 @@ import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
 import { usePermission } from '@shared/hooks/usePermission';
 import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
+import { useTranslation } from '@shared/hooks/useTranslation';
 
 interface User {
   id: number;
@@ -67,6 +68,7 @@ const STORAGE_KEY_USERS = 'admin_users_v1';
 const GestionUtilisateurs: React.FC = () => {
   const { user } = useApp();
   const { has } = usePermission();
+  const { t } = useTranslation();
 
   // Contexte pour le contenu adaptatif
   const contentContext = {
@@ -479,137 +481,87 @@ const GestionUtilisateurs: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* En-tête avec contenu adaptatif */}
-      {(() => {
-        const pageContent = AdaptiveContentGenerator.generatePageContent('gestion-utilisateurs', contentContext);
-        return (
-          <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white rounded-lg shadow-2xl border border-slate-200 p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                  <UserGroupIcon className="h-7 w-7 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-white">{pageContent.title}</h1>
-                  <p className="text-slate-200 text-sm mt-1">{pageContent.subtitle}</p>
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <button 
-                  onClick={() => setIsRoleConfigOpen(true)}
-                  className="px-4 py-2 border border-white/30 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors flex items-center"
-                >
-                  <ShieldCheckIcon className="h-5 w-5 mr-2" />
-                  Configuration des Rôles
-                </button>
-                <button 
-                  onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors flex items-center"
-                >
-                  <UserPlusIcon className="h-5 w-5 mr-2" />
-                  Nouvel Utilisateur
-                </button>
-              </div>
+      {/* En-tête Minimaliste */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-slate-100 rounded-xl">
+              <UserGroupIcon className="h-7 w-7 text-slate-600" />
             </div>
-            {/* Description adaptative */}
-            <div className="mt-4 p-4 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20">
-              <p className="text-slate-100 text-sm">{pageContent.description}</p>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">{t('users_mgmt.title')}</h1>
+              <p className="text-slate-500 text-sm mt-0.5">{t('users_mgmt.subtitle')}</p>
             </div>
           </div>
-        );
-      })()}
-
-      {/* Contenu adaptatif - Conseils et Insights */}
-      <AdaptiveContentDisplay 
-        pageId="gestion-utilisateurs" 
-        context={contentContext}
-        showTips={true}
-        showInsights={true}
-      />
-
-      {/* En-tête original (caché maintenant) */}
-      <div className="hidden flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
-          <p className="text-gray-600 mt-2">Gérez les utilisateurs, rôles et permissions du système</p>
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => setIsRoleConfigOpen(true)}
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors flex items-center text-sm font-medium"
+            >
+              <ShieldCheckIcon className="h-5 w-5 mr-2 text-slate-400" />
+              {t('users_mgmt.roles_config')}
+            </button>
+            <button 
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors flex items-center text-sm font-medium shadow-sm"
+            >
+              <UserPlusIcon className="h-5 w-5 mr-2" />
+              {t('users_mgmt.new_user')}
+            </button>
+          </div>
         </div>
-        <div className="flex space-x-2">
-          {/* Boutons déplacés dans l'en-tête adaptatif */}
+        <div className="mt-6 pt-6 border-t border-slate-100">
+          <p className="text-slate-600 text-sm leading-relaxed max-w-3xl">
+            {t('users_mgmt.description')}
+          </p>
         </div>
       </div>
 
+      {/* Contenu Minimaliste */}
+
+
       {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-blue-100">
-              <UserGroupIcon className="h-6 w-6 text-blue-600" />
+      {/* Statistiques Minimalistes */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: t('users_mgmt.stats.total'), value: stats.total, icon: UserGroupIcon, color: 'text-slate-600', bg: 'bg-slate-100' },
+          { label: t('users_mgmt.stats.active'), value: stats.actifs, icon: CheckCircleIcon, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: t('users_mgmt.stats.inactive'), value: stats.inactifs, icon: XCircleIcon, color: 'text-slate-400', bg: 'bg-slate-50' },
+          { label: t('users_mgmt.stats.suspended'), value: stats.suspendus, icon: ExclamationTriangleIcon, color: 'text-rose-600', bg: 'bg-rose-50' }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+            <div className={`p-3 rounded-xl ${stat.bg}`}>
+              <stat.icon className={`h-6 w-6 ${stat.color}`} />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Utilisateurs</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-green-100">
-              <CheckCircleIcon className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Actifs</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.actifs}</p>
+            <div>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-2xl font-bold text-slate-900">{stat.value}</p>
             </div>
           </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-gray-100">
-              <XCircleIcon className="h-6 w-6 text-gray-600" />
-                </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Inactifs</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.inactifs}</p>
-                </div>
-              </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-red-100">
-              <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Suspendus</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.suspendus}</p>
-            </div>
-              </div>
-            </Card>
+        ))}
       </div>
 
       {/* Filtres et recherche */}
       <Card className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Rechercher un utilisateur..."
+                placeholder={t('users_mgmt.search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm"
               />
           </div>
 
             <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm"
             aria-label="Filtrer par rôle"
             >
-              <option value="all">Tous les rôles</option>
+              <option value="all">{t('users_mgmt.filter_role')}</option>
             {roles.map(role => (
               <option key={role.id} value={role.id}>{role.nom}</option>
             ))}
@@ -618,13 +570,13 @@ const GestionUtilisateurs: React.FC = () => {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm"
             aria-label="Filtrer par statut"
           >
-            <option value="all">Tous les statuts</option>
-            <option value="actif">Actif</option>
-            <option value="inactif">Inactif</option>
-            <option value="suspendu">Suspendu</option>
+            <option value="all">{t('users_mgmt.filter_status')}</option>
+            <option value="actif">{t('users_mgmt.status.active')}</option>
+            <option value="inactif">{t('users_mgmt.status.inactive')}</option>
+            <option value="suspendu">{t('users_mgmt.status.suspended')}</option>
             </select>
 
           <button
@@ -633,10 +585,10 @@ const GestionUtilisateurs: React.FC = () => {
               setFilterRole('all');
               setFilterStatus('all');
             }}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
+            className="px-4 py-2 bg-slate-50 text-slate-700 rounded-lg hover:bg-slate-100 transition-colors flex items-center justify-center text-sm font-medium"
           >
             <ArrowPathIcon className="h-4 w-4 mr-2" />
-            Réinitialiser
+            {t('users_mgmt.reset')}
           </button>
         </div>
       </Card>
@@ -645,25 +597,25 @@ const GestionUtilisateurs: React.FC = () => {
       <Card className="p-6">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Utilisateur
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {t('users_mgmt.table.user')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rôle
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {t('users_mgmt.table.role')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Entreprise
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {t('users_mgmt.table.company')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Statut
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {t('users_mgmt.table.status')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dernière connexion
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {t('users_mgmt.table.last_login')}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  {t('users_mgmt.table.actions')}
                 </th>
               </tr>
             </thead>
@@ -676,80 +628,74 @@ const GestionUtilisateurs: React.FC = () => {
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <UserIcon className="h-6 w-6 text-blue-600" />
-                </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                        <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+                          <UserIcon className="h-5 w-5 text-slate-500" />
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-semibold text-slate-900">
                             {user.prenom} {user.nom}
-                  </div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                </div>
-              </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${roleInfo.couleur}`}>
-                        {roleInfo.nom}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{user.entreprise}</span>
-                        <span className="text-xs text-gray-500">{user.companyType.toUpperCase()} · {user.accessLevel}</span>
+                          </div>
+                          <div className="text-xs text-slate-500">{user.email}</div>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.statut)}`}>
-                        <StatusIcon className="h-3 w-3 mr-1" />
-                        {user.statut.charAt(0).toUpperCase() + user.statut.slice(1)}
+                      <span className={`inline-flex px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md ${roleInfo.couleur}`}>
+                        {roleInfo.nom}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-900">{user.entreprise}</span>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{user.companyType} · {user.accessLevel}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md ${getStatusColor(user.statut)}`}>
+                        {user.statut === 'actif' ? t('users_mgmt.status.active') : user.statut === 'suspendu' ? t('users_mgmt.status.suspended') : t('users_mgmt.status.inactive')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                       {user.derniereConnexion}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-1">
                         <button
                           onClick={() => handleViewUser(user)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
                           title="Voir les détails"
-                          aria-label="Voir les détails de l'utilisateur"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => openLogs(user)}
-                          className="text-gray-600 hover:text-gray-900"
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
                           title="Journal d'activité"
-                          aria-label="Voir le journal d'activité"
                         >
                           <ClockIcon className="h-4 w-4" />
                         </button>
-                  <button
-                    onClick={() => handleEditUser(user)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                          title="Modifier l'utilisateur"
-                          aria-label="Modifier l'utilisateur"
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                  </button>
+                        <button
+                          onClick={() => handleEditUser(user)}
+                          className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+                          title="Modifier"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </button>
                         <button
                           onClick={() => toggleUserStatus(user.id)}
-                          className={user.statut === 'actif' ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'}
+                          className={`p-1.5 rounded-md transition-colors ${user.statut === 'actif' ? 'text-amber-400 hover:text-amber-600 hover:bg-amber-50' : 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
                           title={user.statut === 'actif' ? 'Désactiver' : 'Activer'}
-                          aria-label={user.statut === 'actif' ? 'Désactiver l’utilisateur' : 'Activer l’utilisateur'}
                         >
                           {user.statut === 'actif' ? <XCircleIcon className="h-4 w-4" /> : <CheckCircleIcon className="h-4 w-4" />}
-                  </button>
+                        </button>
                         <button
                           onClick={() => handleDeleteUser(user)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Supprimer l'utilisateur"
-                          aria-label="Supprimer l'utilisateur"
+                          className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                          title="Supprimer"
                         >
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
-                </div>
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -766,19 +712,18 @@ const GestionUtilisateurs: React.FC = () => {
           setIsCreateModalOpen(false);
           setErrors({});
         }}
-        title="Nouvel Utilisateur"
+        title={t('users_mgmt.modal_create.title')}
         size="lg"
       >
         <div className="space-y-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">Créer un Utilisateur</h3>
-            <p className="text-sm text-blue-700">Ajoutez un nouvel utilisateur au système</p>
+          <div className="pb-4 border-b border-slate-100">
+            <p className="text-sm text-slate-500 font-medium">{t('users_mgmt.modal_create.description')}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-900">
-                Nom <span className="text-red-500">*</span>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
+                {t('users_mgmt.modal_create.fields.nom')} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -787,14 +732,14 @@ const GestionUtilisateurs: React.FC = () => {
                   setNewUser({...newUser, nom: e.target.value});
                   if (errors.nom) setErrors({...errors, nom: ''});
                 }}
-                className={`w-full border rounded-lg px-4 py-3 text-sm transition-colors ${
+                className={`w-full border rounded-lg px-4 py-2 text-sm transition-colors ${
                   errors.nom 
-                    ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
-                    : 'border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+                    ? 'border-rose-300 bg-rose-50 focus:border-rose-500' 
+                    : 'border-slate-200 bg-white focus:border-slate-900'
                 } focus:outline-none`}
-                placeholder="Nom de famille"
+                placeholder="Nom"
               />
-              {errors.nom && <p className="text-red-600 text-xs font-medium mt-1">{errors.nom}</p>}
+              {errors.nom && <p className="text-rose-600 text-[10px] font-bold mt-1 uppercase">{errors.nom}</p>}
             </div>
 
             <div className="space-y-2">
@@ -943,15 +888,15 @@ const GestionUtilisateurs: React.FC = () => {
           </div>
 
           {/* Permissions granulaires */}
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-gray-900">Permissions</h4>
-              <span className="text-xs text-gray-500">Basées sur le rôle, modifiables</span>
+          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-sm font-bold text-slate-900 uppercase tracking-tight">{t('users_mgmt.modal_create.permissions_title')}</h4>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Basées sur le rôle</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {categories.map(cat => (
-                <div key={cat} className="border rounded-md p-3">
-                  <div className="text-xs font-semibold text-gray-700 uppercase mb-2">{cat}</div>
+                <div key={cat} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-50 pb-2">{categoryLabels[cat] || cat}</div>
                   <div className="space-y-2">
                     {AVAILABLE_PERMISSIONS.filter(p => p.category === cat && p.requiredFor.includes(newUser.companyType)).map(p => {
                       const checked = newUser.permissions.includes(p.id);
@@ -981,30 +926,30 @@ const GestionUtilisateurs: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100">
             <button
               onClick={() => {
                 setIsCreateModalOpen(false);
                 setErrors({});
               }}
-              className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+              className="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors font-semibold text-sm"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleCreateUser}
               disabled={isSubmitting}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center font-medium text-sm shadow-sm"
+              className="px-6 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center font-semibold text-sm shadow-sm"
             >
               {isSubmitting ? (
                 <>
                   <ArrowPathIcon className="h-4 w-4 animate-spin mr-2" />
-                  Création en cours...
+                  {t('users_mgmt.modal_create.submitting')}
                 </>
               ) : (
                 <>
                   <UserPlusIcon className="h-4 w-4 mr-2" />
-              Créer l'Utilisateur
+                  {t('users_mgmt.modal_create.submit')}
                 </>
               )}
             </button>
@@ -1016,20 +961,19 @@ const GestionUtilisateurs: React.FC = () => {
       <Modal
         isOpen={isRoleConfigOpen}
         onClose={() => { setIsRoleConfigOpen(false); setRoleName(''); setRolePerms([]); setAssignUserId(''); }}
-        title="Configuration des Rôles"
+        title={t('users_mgmt.modal_roles.title')}
         size="lg"
       >
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-900">Nom du rôle</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_roles.role_name')}</label>
               <input
                 type="text"
                 value={roleName}
                 onChange={(e) => setRoleName(e.target.value)}
-                className="w-full border rounded-lg px-4 py-3 text-sm"
+                className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-slate-900 outline-none"
                 placeholder="Ex: Expert-comptable"
-                aria-label="Nom du rôle"
               />
             </div>
           </div>
@@ -1046,10 +990,9 @@ const GestionUtilisateurs: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => toggleCategory(cat)}
-                      className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
-                      aria-label={`Basculer ${categoryLabels[cat] || cat}`}
+                      className="text-[10px] font-bold text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors"
                     >
-                      {isCategoryFullySelected(cat) ? 'Tout décocher' : 'Tout cocher'}
+                      {isCategoryFullySelected(cat) ? t('users_mgmt.modal_roles.uncheck_all') : t('users_mgmt.modal_roles.check_all')}
                     </button>
                   </div>
                   <div className="mt-2 space-y-2">
@@ -1077,18 +1020,17 @@ const GestionUtilisateurs: React.FC = () => {
           <div className="flex items-center justify-between pt-4 border-t">
             <button
               onClick={() => { setIsRoleConfigOpen(false); setRoleName(''); setRolePerms([]); setAssignUserId(''); }}
-              className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200"
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors text-sm font-semibold"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <div className="flex items-center space-x-3">
               <select
                 value={assignUserId}
                 onChange={(e) => setAssignUserId(e.target.value ? Number(e.target.value) : '')}
-                className="px-3 py-2 border rounded-md text-sm"
-                aria-label="Assigner à un utilisateur"
+                className="px-3 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-slate-900"
               >
-                <option value="">Assigner à un utilisateur…</option>
+                <option value="">{t('users_mgmt.modal_roles.assign_to')}</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.prenom} {u.nom} — {u.email}</option>
                 ))}
@@ -1121,9 +1063,9 @@ const GestionUtilisateurs: React.FC = () => {
                   // Reset et fermer
                   setRoleName(''); setRolePerms([]); setAssignUserId(''); setIsRoleConfigOpen(false);
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-semibold shadow-sm"
               >
-                Sauvegarder
+                {t('common.save')}
               </button>
             </div>
           </div>
@@ -1134,25 +1076,24 @@ const GestionUtilisateurs: React.FC = () => {
       <Modal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        title="Modifier l'Utilisateur"
+        title={t('users_mgmt.modal_edit.title')}
         size="lg"
       >
         {selectedUser && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">Nom</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_create.fields.nom')}</label>
                 <input
                   type="text"
                   value={selectedUser.nom}
                   onChange={(e) => setSelectedUser({ ...selectedUser, nom: e.target.value })}
-                  className="w-full border rounded-lg px-4 py-3 text-sm"
-                  placeholder="Nom de famille"
-                  aria-label="Nom"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-slate-900 outline-none"
+                  placeholder="Nom"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">Prénom</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_create.fields.prenom')}</label>
                 <input
                   type="text"
                   value={selectedUser.prenom}
@@ -1185,7 +1126,7 @@ const GestionUtilisateurs: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">Entreprise</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_create.fields.company')}</label>
                 <select
                   value={selectedUser.entreprise}
                   onChange={(e) => {
@@ -1194,8 +1135,7 @@ const GestionUtilisateurs: React.FC = () => {
                     const permissions = PermissionManager.getUserPermissions(role, comp.companyType, comp.accessLevel);
                     setSelectedUser({ ...selectedUser, entreprise: comp.name, companyType: comp.companyType, accessLevel: comp.accessLevel, permissions });
                   }}
-                  className="w-full border rounded-lg px-4 py-3 text-sm"
-                  aria-label="Entreprise d'affectation"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-slate-900 outline-none"
                 >
                   {ENTREPRISES.map(c => (
                     <option key={c.name} value={c.name}>{c.name}</option>
@@ -1203,7 +1143,7 @@ const GestionUtilisateurs: React.FC = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">Rôle</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_create.fields.role')}</label>
                 <select
                   value={selectedUser.role}
                   onChange={(e) => {
@@ -1211,8 +1151,7 @@ const GestionUtilisateurs: React.FC = () => {
                     const permissions = PermissionManager.getUserPermissions(role, selectedUser.companyType, selectedUser.accessLevel);
                     setSelectedUser({ ...selectedUser, role, permissions });
                   }}
-                  className="w-full border rounded-lg px-4 py-3 text-sm"
-                  aria-label="Rôle de l'utilisateur"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-slate-900 outline-none"
                 >
                   {getAvailableRolesFor(selectedUser.companyType, selectedUser.accessLevel).map(r => (
                     <option key={r.id} value={r.id}>{r.nom}</option>
@@ -1220,7 +1159,7 @@ const GestionUtilisateurs: React.FC = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">Type d'entreprise</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_create.fields.company_type')}</label>
                 <select
                   value={selectedUser.companyType}
                   onChange={(e) => {
@@ -1228,8 +1167,7 @@ const GestionUtilisateurs: React.FC = () => {
                     const permissions = PermissionManager.getUserPermissions(selectedUser.role, companyType, selectedUser.accessLevel);
                     setSelectedUser({ ...selectedUser, companyType, permissions });
                   }}
-                  className="w-full border rounded-lg px-4 py-3 text-sm"
-                  aria-label="Type d'entreprise"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-slate-900 outline-none"
                 >
                   {COMPANY_TYPES.map(ct => (
                     <option key={ct.id} value={ct.id}>{ct.name}</option>
@@ -1237,7 +1175,7 @@ const GestionUtilisateurs: React.FC = () => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">Niveau d'accès</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('users_mgmt.modal_create.fields.access_level')}</label>
                 <select
                   value={selectedUser.accessLevel}
                   onChange={(e) => {
@@ -1245,8 +1183,7 @@ const GestionUtilisateurs: React.FC = () => {
                     const permissions = PermissionManager.getUserPermissions(selectedUser.role, selectedUser.companyType, accessLevel);
                     setSelectedUser({ ...selectedUser, accessLevel, permissions });
                   }}
-                  className="w-full border rounded-lg px-4 py-3 text-sm"
-                  aria-label="Niveau d'accès"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm focus:border-slate-900 outline-none"
                 >
                   {ACCESS_LEVELS.map(al => (
                     <option key={al.id} value={al.id}>{al.name}</option>
@@ -1255,15 +1192,15 @@ const GestionUtilisateurs: React.FC = () => {
               </div>
             </div>
 
-            <div className="border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-gray-900">Permissions</h4>
-                <span className="text-xs text-gray-500">Actuellement {selectedUser.permissions.length}</span>
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-tight">{t('users_mgmt.modal_create.permissions_title')}</h4>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actuellement {selectedUser.permissions.length}</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {categories.map(cat => (
-                  <div key={cat} className="border rounded-md p-3">
-                    <div className="text-xs font-semibold text-gray-700 uppercase mb-2">{cat}</div>
+                  <div key={cat} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-50 pb-2">{categoryLabels[cat] || cat}</div>
                     <div className="space-y-2">
                       {AVAILABLE_PERMISSIONS.filter(p => p.category === cat && p.requiredFor.includes(selectedUser.companyType)).map(p => {
                         const checked = selectedUser.permissions.includes(p.id);
@@ -1294,7 +1231,7 @@ const GestionUtilisateurs: React.FC = () => {
             </div>
 
             <div className="flex justify-end space-x-3">
-              <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 bg-gray-100 rounded-md">Annuler</button>
+              <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors text-sm font-semibold">{t('common.cancel')}</button>
               <button
                 onClick={() => {
                   if (!selectedUser) return;
@@ -1302,9 +1239,9 @@ const GestionUtilisateurs: React.FC = () => {
                   logAction({ userId: selectedUser.id, action: 'update', actor: 'admin', details: `Mise à jour du profil (${selectedUser.role})` });
                   setIsEditModalOpen(false);
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-semibold shadow-sm"
               >
-                Enregistrer
+                {t('common.save')}
               </button>
             </div>
           </div>
@@ -1315,22 +1252,22 @@ const GestionUtilisateurs: React.FC = () => {
       <Modal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
-        title="Détails de l'Utilisateur"
+        title={t('users_mgmt.modal_view.title')}
         size="lg"
       >
         {selectedUser && (
           <div className="space-y-6">
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                <UserIcon className="h-8 w-8 text-blue-600" />
+            <div className="flex items-center space-x-4 pb-6 border-b border-slate-100">
+              <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+                <UserIcon className="h-8 w-8 text-slate-500" />
             </div>
             <div>
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="text-xl font-bold text-slate-900">
                   {selectedUser.prenom} {selectedUser.nom}
                 </h3>
-                <p className="text-gray-600">{selectedUser.email}</p>
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedUser.statut)}`}>
-                  {selectedUser.statut.charAt(0).toUpperCase() + selectedUser.statut.slice(1)}
+                <p className="text-slate-500">{selectedUser.email}</p>
+                <span className={`mt-2 inline-flex px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md ${getStatusColor(selectedUser.statut)}`}>
+                  {selectedUser.statut === 'actif' ? t('users_mgmt.status.active') : selectedUser.statut === 'suspendu' ? t('users_mgmt.status.suspended') : t('users_mgmt.status.inactive')}
                 </span>
               </div>
             </div>
@@ -1338,32 +1275,32 @@ const GestionUtilisateurs: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Téléphone</label>
-                  <p className="text-sm text-gray-900">{selectedUser.telephone}</p>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('users_mgmt.modal_create.fields.telephone')}</label>
+                  <p className="text-sm text-slate-900 font-semibold">{selectedUser.telephone}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Rôle</label>
-                  <p className="text-sm text-gray-900">{getRoleInfo(selectedUser.role).nom}</p>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('users_mgmt.modal_create.fields.role')}</label>
+                  <p className="text-sm text-slate-900 font-semibold">{getRoleInfo(selectedUser.role).nom}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Entreprise</label>
-                  <p className="text-sm text-gray-900">{selectedUser.entreprise} — {selectedUser.companyType.toUpperCase()} / {selectedUser.accessLevel}</p>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('users_mgmt.modal_create.fields.company')}</label>
+                  <p className="text-sm text-slate-900 font-semibold">{selectedUser.entreprise} — {selectedUser.companyType.toUpperCase()} / {selectedUser.accessLevel}</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Date de création</label>
-                  <p className="text-sm text-gray-900">{selectedUser.dateCreation}</p>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date de création</label>
+                  <p className="text-sm text-slate-900 font-semibold">{selectedUser.dateCreation}</p>
             </div>
             <div>
-                  <label className="text-sm font-medium text-gray-500">Dernière connexion</label>
-                  <p className="text-sm text-gray-900">{selectedUser.derniereConnexion}</p>
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('users_mgmt.table.last_login')}</label>
+                  <p className="text-sm text-slate-900 font-semibold">{selectedUser.derniereConnexion}</p>
             </div>
             <div>
-                  <label className="text-sm font-medium text-gray-500">Permissions</label>
-                  <div className="flex flex-wrap gap-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('users_mgmt.modal_create.permissions_title')}</label>
+                  <div className="flex flex-wrap gap-1 mt-1">
                     {selectedUser.permissions.map(permission => (
-                      <span key={permission} className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded">
+                      <span key={permission} className="px-2 py-1 bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-tight rounded-md border border-slate-200">
                         {permission}
                       </span>
                     ))}
@@ -1379,15 +1316,15 @@ const GestionUtilisateurs: React.FC = () => {
       <Modal
         isOpen={isLogsModalOpen}
         onClose={() => setIsLogsModalOpen(false)}
-        title="Journal d'activité"
+        title={t('users_mgmt.modal_logs.title')}
         size="lg"
       >
         <div className="space-y-4">
           {selectedUser && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div>
-                <div className="font-semibold">{selectedUser.prenom} {selectedUser.nom}</div>
-                <div className="text-xs text-gray-500">{selectedUser.email}</div>
+                <div className="font-bold text-slate-900">{selectedUser.prenom} {selectedUser.nom}</div>
+                <div className="text-xs text-slate-500 font-medium">{selectedUser.email}</div>
               </div>
               <button
                 onClick={() => {
@@ -1395,23 +1332,29 @@ const GestionUtilisateurs: React.FC = () => {
                   clearLogsForUser(selectedUser.id);
                   setLogs([]);
                 }}
-                className="px-3 py-1 text-sm bg-gray-100 rounded-md hover:bg-gray-200"
+                className="px-3 py-1.5 text-xs bg-slate-50 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors font-bold uppercase tracking-wider"
               >
-                Vider le journal
+                {t('users_mgmt.modal_logs.clear')}
               </button>
             </div>
           )}
-          <div className="border rounded-md divide-y">
+          <div className="bg-slate-50 rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
             {logs.length === 0 ? (
-              <div className="p-4 text-sm text-gray-500">Aucun évènement pour l'instant.</div>
+              <div className="p-8 text-center">
+                <ClockIcon className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 font-medium">{t('users_mgmt.modal_logs.empty')}</p>
+              </div>
             ) : (
               logs.map(l => (
-                <div key={l.id} className="p-3 flex items-start justify-between">
+                <div key={l.id} className="p-4 flex items-start justify-between bg-white hover:bg-slate-50 transition-colors">
                   <div>
-                    <div className="text-sm"><span className="font-medium">{l.action}</span> — {l.details || ''}</div>
-                    <div className="text-xs text-gray-500">{new Date(l.timestamp).toLocaleString()}</div>
+                    <div className="text-sm">
+                      <span className="font-bold text-slate-900 uppercase tracking-tight text-[10px] bg-slate-100 px-1.5 py-0.5 rounded mr-2">{l.action}</span>
+                      <span className="text-slate-700 font-medium">{l.details || ''}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-wider">{new Date(l.timestamp).toLocaleString()}</div>
                   </div>
-                  {l.actor && <div className="text-xs text-gray-500">par {l.actor}</div>}
+                  {l.actor && <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">by {l.actor}</div>}
                 </div>
               ))
             )}
@@ -1423,28 +1366,28 @@ const GestionUtilisateurs: React.FC = () => {
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirmer la suppression"
+        title={t('users_mgmt.modal_delete.title')}
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
-            Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{selectedUser?.prenom} {selectedUser?.nom}</strong> ?
+          <p className="text-slate-600">
+            {t('users_mgmt.modal_delete.confirm_text')} <strong>{selectedUser?.prenom} {selectedUser?.nom}</strong> ?
           </p>
-          <p className="text-sm text-red-600">
-            Cette action est irréversible et supprimera définitivement l'utilisateur du système.
+          <p className="text-sm text-rose-600 font-medium">
+            {t('users_mgmt.modal_delete.warning_text')}
           </p>
-          <div className="flex justify-end space-x-4 pt-4">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100">
             <button
               onClick={() => setIsDeleteModalOpen(false)}
-              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors text-sm font-semibold"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               onClick={confirmDeleteUser}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors text-sm font-semibold shadow-sm"
             >
-              Supprimer
+              {t('common.delete')}
             </button>
           </div>
         </div>

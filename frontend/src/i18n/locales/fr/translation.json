@@ -1,4 +1,16 @@
 {
+  "common": {
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "close": "Fermer",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "view": "Voir",
+    "loading": "Chargement...",
+    "search": "Rechercher",
+    "actions": "Actions"
+  },
   "sales": {
     "title": "Ventes & Clients",
     "hero": {
@@ -258,6 +270,94 @@
     "reports_analytics": "Rapports & Analytics",
     "settings": "Paramètres"
   },
+  "audit": {
+    "title": "Explorateur d'Audit & Traçabilité",
+    "subtitle": "Historique inviolable des modifications du système (Spans DB)",
+    "filter_placeholder": "Filtrer par action ou entité...",
+    "table": {
+      "timestamp": "Date & Heure",
+      "user": "Utilisateur",
+      "action": "Action",
+      "entity": "Entité",
+      "entity_id": "ID Entité",
+      "details": "Détails"
+    },
+    "modal": {
+      "title": "Détails du Log d'Audit",
+      "old_value": "Ancienne Valeur",
+      "new_value": "Nouvelle Valeur"
+    }
+  },
+  "users_mgmt": {
+    "title": "Gestion des Utilisateurs",
+    "subtitle": "Administration des utilisateurs, rôles et permissions",
+    "description": "Gérez les utilisateurs du système, leurs rôles, permissions et accès selon les besoins de votre entreprise",
+    "roles_config": "Configuration des Rôles",
+    "new_user": "Nouvel Utilisateur",
+    "search_placeholder": "Rechercher un utilisateur...",
+    "filter_role": "Tous les rôles",
+    "filter_status": "Tous les statuts",
+    "reset": "Réinitialiser",
+    "stats": {
+      "total": "Total Utilisateurs",
+      "active": "Actifs",
+      "inactive": "Inactifs",
+      "suspended": "Suspendus"
+    },
+    "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "company": "Entreprise",
+      "status": "Statut",
+      "last_login": "Dernière connexion",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "suspended": "Suspendu"
+    },
+    "modal_create": {
+      "title": "Nouvel Utilisateur",
+      "fields": {
+        "nom": "Nom",
+        "prenom": "Prénom",
+        "email": "Email",
+        "telephone": "Téléphone",
+        "role": "Rôle",
+        "company": "Entreprise",
+        "company_type": "Type d'entreprise",
+        "access_level": "Niveau d'accès"
+      },
+      "permissions_title": "Permissions",
+      "submit": "Créer l'Utilisateur",
+      "submitting": "Création en cours..."
+    },
+    "modal_roles": {
+      "title": "Configuration des Rôles",
+      "role_name": "Nom du rôle",
+      "permissions_title": "Permissions (regroupées)",
+      "check_all": "Tout cocher",
+      "uncheck_all": "Tout décocher",
+      "assign_to": "Assigner à un utilisateur..."
+    },
+    "modal_view": {
+      "title": "Détails de l'Utilisateur"
+    },
+    "modal_edit": {
+      "title": "Modifier l'Utilisateur"
+    },
+    "modal_delete": {
+      "title": "Confirmer la suppression",
+      "confirm_text": "Êtes-vous sûr de vouloir supprimer l'utilisateur",
+      "warning_text": "Cette action est irréversible et supprimera définitivement l'utilisateur du système."
+    },
+    "modal_logs": {
+      "title": "Journal d'activité",
+      "clear": "Vider le journal",
+      "empty": "Aucun évènement pour l'instant."
+    }
+  },
   "quick_navigation": {
     "title": "Navigation Rapide",
     "search_placeholder": "Rechercher une page ou un module...",
@@ -309,11 +409,46 @@
     "consolidation": "Consolidation",
     "client_groups": "Groupes Clients",
     "delivery_tracking": "Suivi Livraisons",
+    "purchase_reports": "Achats & Fournisseurs",
+    "stock_reports": "Stocks & Produits",
+    "accounting_results": "Comptabilité & Résultats",
     "custom_reports": "Rapports Personnalisés",
     "user_management": "Gestion Utilisateurs",
     "role_management": "Gestion Rôles & Accès",
     "access_control": "Contrôle Accès",
     "company_profile": "Profil Entreprise"
+  },
+  "stocks_reports": {
+    "title": "Rapport de Stocks & Produits",
+    "rotation_report": "Rapport de rotation des produits",
+    "stock_state": "État des Stocks",
+    "stock_state_desc": "Vue d'ensemble de l'état actuel de vos stocks",
+    "stock_state_indicators": {
+      "total_value": "Valeur totale du stock",
+      "turnover_rate": "Taux de rotation global",
+      "active_refs": "Nombre de références actives"
+    },
+    "stock_alerts": "Alertes & Anomalies",
+    "stock_alerts_desc": "Surveillance des anomalies et ruptures",
+    "stock_alerts_indicators": {
+      "dormant": "Produits dormants (aucune vente > 60j)",
+      "low_stock": "Stocks en dessous du seuil minimal",
+      "overstock": "Produits en surstock",
+      "discrepancy": "Écarts entre stock théorique / réel"
+    },
+    "product_performance": "Performance Produits",
+    "product_performance_desc": "Analysez la performance de vos produits",
+    "product_performance_indicators": {
+      "margins": "Marges par produit",
+      "profitability": "Taux de rentabilité par catégorie",
+      "curve": "Courbe \"Vente cumulative / produit\""
+    },
+    "abc_analysis": {
+      "title": "Analyse ABC des produits",
+      "cat_a_desc": "Produits à forte valeur (A)",
+      "cat_b_desc": "Produits à valeur moyenne (B)",
+      "cat_c_desc": "Produits à faible valeur (C)"
+    }
   },
   "dashboard": {
     "title": "Tableau de Bord Financier",

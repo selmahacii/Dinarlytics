@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../../shared/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import {
   CubeIcon,
@@ -31,6 +32,7 @@ import { useApp } from '@core/context/AppContext';
 // ...existing code...
 
 const StocksProduits: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, companyData } = useApp();
   const [selectedView, setSelectedView] = useState('etat-stocks');
@@ -141,8 +143,8 @@ Généré par Dinarlytics
                 <CubeIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Stocks & Produits</h1>
-                <p className="text-slate-300 text-lg mt-1">Gestion des inventaires et rotation des produits</p>
+                <h1 className="text-3xl font-bold">{t('nav.stock_reports')}</h1>
+                <p className="text-slate-300 text-lg mt-1">{t('stocks_reports.rotation_report')}</p>
               </div>
             </div>
           </div>
@@ -331,37 +333,36 @@ Généré par Dinarlytics
   const views = [
     {
       id: 'etat-stocks',
-      title: 'État des stocks',
+      title: t('stocks_reports.stock_state'),
       icon: CubeIcon,
-      description: 'Analysez votre stock actuel',
+      description: t('stocks_reports.stock_state_desc'),
       indicators: [
-        'Stock actuel (quantité / valeur)',
-        'Taux de rotation du stock',
-        'Produits en rupture ou excédent',
-        'Valeur totale immobilisée'
+        t('stocks_reports.stock_state_indicators.total_value'),
+        t('stocks_reports.stock_state_indicators.turnover_rate'),
+        t('stocks_reports.stock_state_indicators.active_refs')
       ]
     },
     {
-      id: 'alertes-anomalies',
-      title: 'Alertes & anomalies',
+      id: 'alertes-stocks',
+      title: t('stocks_reports.stock_alerts'),
       icon: ExclamationTriangleIcon,
-      description: 'Surveillez les anomalies de stock',
+      description: t('stocks_reports.stock_alerts_desc'),
       indicators: [
-        'Produits dormants (aucune vente > 60j)',
-        'Stocks en dessous du seuil minimal',
-        'Produits en surstock',
-        'Écarts entre stock théorique / réel'
+        t('stocks_reports.stock_alerts_indicators.dormant'),
+        t('stocks_reports.stock_alerts_indicators.low_stock'),
+        t('stocks_reports.stock_alerts_indicators.overstock'),
+        t('stocks_reports.stock_alerts_indicators.discrepancy')
       ]
     },
     {
       id: 'performance-produits',
-      title: 'Performance produits',
+      title: t('stocks_reports.product_performance'),
       icon: ArrowTrendingUpIcon,
-      description: 'Analysez la performance de vos produits',
+      description: t('stocks_reports.product_performance_desc'),
       indicators: [
-        'Marges par produit',
-        'Taux de rentabilité par catégorie',
-        'Courbe "Vente cumulative / produit"'
+        t('stocks_reports.product_performance_indicators.margins'),
+        t('stocks_reports.product_performance_indicators.profitability'),
+        t('stocks_reports.product_performance_indicators.curve')
       ]
     }
   ];
@@ -550,9 +551,9 @@ Généré par Dinarlytics
 
   // Analyse ABC des produits
   const abcAnalysis = [
-    { category: 'A', products: 25, value: 1800000, percentage: 63.2, description: 'Produits à forte valeur' },
-    { category: 'B', products: 45, value: 750000, percentage: 26.3, description: 'Produits à valeur moyenne' },
-    { category: 'C', products: 175, value: 300000, percentage: 10.5, description: 'Produits à faible valeur' }
+    { category: 'A', products: 25, value: 1800000, percentage: 63.2, description: t('stocks_reports.abc_analysis.cat_a_desc') },
+    { category: 'B', products: 45, value: 750000, percentage: 26.3, description: t('stocks_reports.abc_analysis.cat_b_desc') },
+    { category: 'C', products: 175, value: 300000, percentage: 10.5, description: t('stocks_reports.abc_analysis.cat_c_desc') }
   ];
 
   return (
@@ -563,9 +564,9 @@ Généré par Dinarlytics
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center">
               <CubeIcon className="h-8 w-8 mr-3 text-slate-600" />
-              Stocks & Produits
+              {t('nav.stock_reports')}
             </h1>
-            <p className="text-slate-600 mt-1">Gérez vos stocks et analysez vos produits</p>
+            <p className="text-slate-600 mt-1">{t('stocks_reports.rotation_report')}</p>
           </div>
           <div className="flex items-center space-x-2">
             <button className="px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors flex items-center">
@@ -1920,7 +1921,7 @@ Généré par Dinarlytics
               <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
                 <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
                   <StarIcon className="h-5 w-5 mr-2 text-slate-600" />
-                  ⭐ Matrice Performance vs Satisfaction Client
+                  ⭐ {t('stocks_reports.performance_matrix_title')}
                 </h3>
 
                 <div className="bg-white rounded-lg p-6 border border-slate-200">

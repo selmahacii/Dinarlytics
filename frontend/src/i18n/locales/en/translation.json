@@ -1,4 +1,16 @@
 {
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "close": "Close",
+    "add": "Add",
+    "edit": "Edit",
+    "view": "View",
+    "loading": "Loading...",
+    "search": "Search",
+    "actions": "Actions"
+  },
   "sales": {
     "title": "Sales & Customers",
     "hero": {
@@ -241,6 +253,94 @@
     "reports_analytics": "Reports & Analytics",
     "settings": "Settings"
   },
+  "audit": {
+    "title": "Audit & Traceability Explorer",
+    "subtitle": "Inviolable history of system modifications (Spans DB)",
+    "filter_placeholder": "Filter by action or entity...",
+    "table": {
+      "timestamp": "Date & Time",
+      "user": "User",
+      "action": "Action",
+      "entity": "Entity",
+      "entity_id": "Entity ID",
+      "details": "Details"
+    },
+    "modal": {
+      "title": "Audit Log Details",
+      "old_value": "Old Value",
+      "new_value": "New Value"
+    }
+  },
+  "users_mgmt": {
+    "title": "User Management",
+    "subtitle": "User administration, roles, and permissions",
+    "description": "Manage system users, their roles, permissions, and access based on your company's needs",
+    "roles_config": "Role Configuration",
+    "new_user": "New User",
+    "search_placeholder": "Search for a user...",
+    "filter_role": "All roles",
+    "filter_status": "All statuses",
+    "reset": "Reset",
+    "stats": {
+      "total": "Total Users",
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended"
+    },
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "company": "Company",
+      "status": "Status",
+      "last_login": "Last Login",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended"
+    },
+    "modal_create": {
+      "title": "New User",
+      "fields": {
+        "nom": "Last Name",
+        "prenom": "First Name",
+        "email": "Email",
+        "telephone": "Phone",
+        "role": "Role",
+        "company": "Company",
+        "company_type": "Company Type",
+        "access_level": "Access Level"
+      },
+      "permissions_title": "Permissions",
+      "submit": "Create User",
+      "submitting": "Creating..."
+    },
+    "modal_roles": {
+      "title": "Role Configuration",
+      "role_name": "Role Name",
+      "permissions_title": "Permissions (grouped)",
+      "check_all": "Check All",
+      "uncheck_all": "Uncheck All",
+      "assign_to": "Assign to user..."
+    },
+    "modal_view": {
+      "title": "User Details"
+    },
+    "modal_edit": {
+      "title": "Edit User"
+    },
+    "modal_delete": {
+      "title": "Confirm Deletion",
+      "confirm_text": "Are you sure you want to delete user",
+      "warning_text": "This action is irreversible and will permanently delete the user from the system."
+    },
+    "modal_logs": {
+      "title": "Activity Log",
+      "clear": "Clear Log",
+      "empty": "No events found."
+    }
+  },
   "quick_navigation": {
     "title": "Quick Navigation",
     "search_placeholder": "Search for a page or module...",
@@ -292,11 +392,46 @@
     "consolidation": "Consolidation",
     "client_groups": "Client Groups",
     "delivery_tracking": "Delivery Tracking",
+    "purchase_reports": "Purchase & Suppliers",
+    "stock_reports": "Stock & Products",
+    "accounting_results": "Accounting & Results",
     "custom_reports": "Custom Reports",
     "user_management": "User Management",
     "role_management": "Role & Access",
     "access_control": "Access Control",
     "company_profile": "Company Profile"
+  },
+  "stocks_reports": {
+    "title": "Stock & Product Report",
+    "rotation_report": "Product rotation report",
+    "stock_state": "Stock Status",
+    "stock_state_desc": "Overview of your current stock status",
+    "stock_state_indicators": {
+      "total_value": "Total stock value",
+      "turnover_rate": "Global turnover rate",
+      "active_refs": "Number of active references"
+    },
+    "stock_alerts": "Alerts & Anomalies",
+    "stock_alerts_desc": "Monitoring of anomalies and shortages",
+    "stock_alerts_indicators": {
+      "dormant": "Dormant products (no sales > 60d)",
+      "low_stock": "Stocks below minimal threshold",
+      "overstock": "Overstocked products",
+      "discrepancy": "Theoretic / actual stock discrepancies"
+    },
+    "product_performance": "Product Performance",
+    "product_performance_desc": "Analyze your products' performance",
+    "product_performance_indicators": {
+      "margins": "Margins per product",
+      "profitability": "Profitability rate per category",
+      "curve": "Cumulative sales / product curve"
+    },
+    "abc_analysis": {
+      "title": "Product ABC Analysis",
+      "cat_a_desc": "High-value products (A)",
+      "cat_b_desc": "Medium-value products (B)",
+      "cat_c_desc": "Low-value products (C)"
+    }
   },
   "fiscal": {
     "title": "Fiscal & Declarations",
