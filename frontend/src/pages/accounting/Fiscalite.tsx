@@ -27,7 +27,8 @@ import {
   PencilIcon,
   TrashIcon,
   BanknotesIcon,
-  EyeIcon as EyeIconOutline
+  EyeIcon as EyeIconOutline,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';

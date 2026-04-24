@@ -12,6 +12,7 @@ export type ProductsContextType = {
   updateProduct: (id: string, patch: Partial<Article>) => void;
   adjustStock: (id: string, delta: number) => void;
   refreshProducts: () => Promise<void>;
+  refetch: () => void;
 };
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
@@ -22,11 +23,13 @@ export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }
   const {
     data: products = [],
     isLoading: loading,
-    error: queryError
+    error: queryError,
+    refetch
   } = useQuery({
     queryKey: ['articles'],
     queryFn: articlesService.getAll,
-    staleTime: 60000,
+    staleTime: 300000, // 5 minutes
+    enabled: false, // Don't fetch automatically on mount everywhere
   });
 
   const updateMutation = useMutation({
@@ -72,7 +75,7 @@ export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }
   };
 
   const refreshProducts = async () => {
-    await queryClient.invalidateQueries({ queryKey: ['articles'] });
+    await refetch();
   };
 
   const value = useMemo<ProductsContextType>(() => ({
@@ -83,8 +86,9 @@ export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }
     setProducts,
     updateProduct,
     adjustStock,
-    refreshProducts
-  }), [products, loading, queryError]);
+    refreshProducts,
+    refetch: () => refetch()
+  }), [products, loading, queryError, refetch]);
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
 };

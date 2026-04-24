@@ -298,7 +298,22 @@
     "settings": "Paramètres",
     "templates": "Modèles de Documents",
     "eurl_adapted_menu": "ℹ️ Menu Adapté",
-    "eurl_menu_optimized": "Votre menu est optimisé pour une EURL. Seules les fonctionnalités essentielles sont affichées."
+    "eurl_menu_optimized": "Votre menu est optimisé pour une EURL. Seules les fonctionnalités essentielles sont affichées.",
+    "quotations": "Devis",
+    "hr_module": "RH & Paie",
+    "bank_reconciliation": "Rapprochement Bancaire",
+    "purchase_orders": "Bons de Commande",
+    "amortissements": "Amortissements",
+    "relances": "Relances Clients",
+    "treasury": "Trésorerie",
+    "consolidation": "Consolidation",
+    "client_groups": "Groupes Clients",
+    "delivery_tracking": "Suivi Livraisons",
+    "custom_reports": "Rapports Personnalisés",
+    "user_management": "Gestion Utilisateurs",
+    "role_management": "Gestion Rôles & Accès",
+    "access_control": "Contrôle Accès",
+    "company_profile": "Profil Entreprise"
   },
   "dashboard": {
     "title": "Tableau de Bord Financier",
@@ -2428,51 +2443,6 @@
     },
     "table": {
       "status": "Statut"
-    },
-    "advanced_analytics": {
-      "title": "Analyse Financière Avancée",
-      "subtitle": "Pilotage de la performance et prévisionnel budgétaire.",
-      "comparative_n1": "Comparatif N-1",
-      "import_btn": "Importer",
-      "export_btn": "Exporter",
-      "updating": "Actualisation des analyses...",
-      "pipeline_title": "Pipeline Commercial",
-      "view_details": "Voir détails",
-      "treasury_forecast_title": "Prévisions de Trésorerie (Rolling Forecast)",
-      "ia_trust_score": "IA Trust Score",
-      "projection_end_month": "Fin du Mois (Projection)",
-      "attention_points": "Points d'Attention",
-      "ia_report_title": "Rapport Détaillé : Prévisions de Trésorerie",
-      "ia_confidence_status": "Statut de Confiance IA",
-      "ia_reliability_high": "Fiabilité Haute",
-      "ia_analysis_desc": "L'algorithme de prédiction a analysé les 24 derniers mois de flux bancaires, la saisonnalité sectorielle et les comportements de paiement clients actuels.",
-      "projections_30d": "Projections de Flux (30 jours)",
-      "expected_inflow": "Encaissements Prévus",
-      "expected_outflow": "Décaissements Prévus",
-      "projected_net_balance": "Solde Net Projeté",
-      "risks_alerts_title": "Alertes & Risques IA",
-      "close_btn": "Fermer",
-      "print_report": "Imprimer le Rapport",
-      "periods": {
-        "7d": "7 derniers jours",
-        "30d": "30 derniers jours",
-        "90d": "Trimestre en cours",
-        "1y": "Exercice Annuel"
-      },
-      "metrics": {
-        "dso": "DSO (Délai Client)",
-        "bfr": "BFR (Besoin Fonds)",
-        "break_even": "Seuil Rentabilité",
-        "solvency": "Solvabilité"
-      },
-      "ai_insights": {
-        "churn_risk": "Risque Attrition Client",
-        "billing_anomaly": "Anomalie Débours / Facturation",
-        "retention_action": "Activer le protocole Rétention",
-        "verify_invoice": "Vérifier la facture",
-        "strategic_accounts": "{{count}} Comptes Stratégiques",
-        "recommendation": "Recommandation"
-      }
     }
   },
   "audit": {
@@ -3128,6 +3098,537 @@
       "prevu": "Prévu",
       "reel": "Réalisé",
       "month": "Mois"
+    }
+  },
+  "advanced_analytics": {
+    "title": "Analyse Financière Avancée",
+    "subtitle": "Pilotage de la performance et prévisionnel budgétaire.",
+    "comparative_n1": "Comparatif N-1",
+    "import_btn": "Importer",
+    "export_btn": "Exporter",
+    "updating": "Actualisation des analyses...",
+    "pipeline_title": "Pipeline Commercial",
+    "view_details": "Voir détails",
+    "treasury_forecast_title": "Prévisions de Trésorerie (Rolling Forecast)",
+    "ia_trust_score": "IA Trust Score",
+    "projection_end_month": "Fin du Mois (Projection)",
+    "attention_points": "Points d'Attention",
+    "ia_report_title": "Rapport Détaillé : Prévisions de Trésorerie",
+    "ia_confidence_status": "Statut de Confiance IA",
+    "ia_reliability_high": "Fiabilité Haute",
+    "ia_analysis_desc": "L'algorithme de prédiction a analysé les 24 derniers mois de flux bancaires, la saisonnalité sectorielle et les comportements de paiement clients actuels.",
+    "projections_30d": "Projections de Flux (30 jours)",
+    "expected_inflow": "Encaissements Prévus",
+    "expected_outflow": "Décaissements Prévus",
+    "projected_net_balance": "Solde Net Projeté",
+    "risks_alerts_title": "Alertes & Risques IA",
+    "close_btn": "Fermer",
+    "print_report": "Imprimer le Rapport",
+    "periods": {
+      "7d": "7 derniers jours",
+      "30d": "30 derniers jours",
+      "90d": "Trimestre en cours",
+      "1y": "Exercice Annuel"
+    },
+    "metrics": {
+      "dso": "DSO (Délai Client)",
+      "bfr": "BFR (Besoin Fonds)",
+      "break_even": "Seuil Rentabilité",
+      "solvency": "Solvabilité",
+      "days": "j",
+      "objective": "Objectif"
+    },
+    "ai_insights": {
+      "churn_risk": "Risque Attrition Client",
+      "billing_anomaly": "Anomalie Débours / Facturation",
+      "retention_action": "Activer le protocole Rétention",
+      "verify_invoice": "Vérifier la facture",
+      "strategic_accounts": "{{count}} Comptes Stratégiques",
+      "recommendation": "Recommandation"
+    },
+    "pipeline": {
+      "prospects": "Prospects",
+      "quotes": "Devis Émis",
+      "negotiation": "Négociation",
+      "invoiced": "Facturé"
+    },
+    "cohort_analysis": "Analyse de Cohortes",
+    "indicator_correlations": "Corrélations Indicateurs",
+    "correlations": {
+      "site_speed": "Vitesse Site",
+      "conv_rate": "Taux Conversion",
+      "ad_spend": "Invest. Pub",
+      "new_clients": "Nouv. Clients",
+      "discounts": "Remises %",
+      "gross_margin": "Marge Brute"
+    },
+    "forecast": {
+      "m_minus_2": "M-2",
+      "m_minus_1": "M-1",
+      "current": "Actuel",
+      "projection": "Projection",
+      "vs_m1": "vs M-1"
+    },
+    "risks_alerts": {
+      "churn_title": "Risque Attrition Client",
+      "churn_desc": "3 clients majeurs affichent un ralentissement de commandes.",
+      "finance_opp_title": "Opportunité de Financement",
+      "finance_opp_desc": "Votre score de solvabilité permet un découvert autorisé à taux préférentiel."
+    }
+  },
+  "devis": {
+    "title": "Gestion des Devis",
+    "subtitle": "Pipeline commercial — De la proposition à la facturation",
+    "create_btn": "Nouveau Devis",
+    "search_placeholder": "Rechercher par client ou numéro...",
+    "status": {
+      "draft": "Brouillon",
+      "sent": "Envoyé",
+      "accepted": "Accepté",
+      "refused": "Refusé",
+      "expired": "Expiré"
+    },
+    "filter": {
+      "all": "Tous les statuts"
+    },
+    "kpi": {
+      "total": "Total Devis",
+      "total_sub": "ce mois",
+      "pipeline": "Pipeline En Cours",
+      "pipeline_sub": "devis envoyés en attente",
+      "accepted": "Acceptés",
+      "accepted_sub": "convertibles en facture",
+      "rate": "Taux Conversion",
+      "rate_sub": "sur la période"
+    },
+    "table": {
+      "numero": "Numéro",
+      "client": "Client",
+      "date": "Date Création",
+      "expiry": "Expiration",
+      "amount": "Montant TTC",
+      "status": "Statut",
+      "actions": "Actions",
+      "ht": "HT"
+    },
+    "detail": {
+      "title": "Devis",
+      "client": "Client",
+      "dates": "Dates",
+      "expires": "Expire le",
+      "amount": "Montant TTC",
+      "status": "Statut",
+      "items": "Détail des Prestations",
+      "designation": "Désignation",
+      "qty": "Qté",
+      "unit_price": "P.U HT",
+      "tva": "TVA",
+      "total": "Total TTC",
+      "total_ht": "Total HT",
+      "tva_total": "Total TVA",
+      "total_ttc": "TOTAL TTC",
+      "notes": "Notes Commerciales"
+    },
+    "actions": {
+      "view": "Voir les détails",
+      "send": "Envoyer au client",
+      "convert": "Convertir en Facture",
+      "print": "Imprimer",
+      "download": "Télécharger",
+      "convert_to_invoice": "Convertir en Facture"
+    },
+    "create_modal": {
+      "title": "Créer un Nouveau Devis",
+      "placeholder": "Formulaire de création en cours d'intégration",
+      "desc": "Le formulaire de création de devis sera disponible dans la prochaine version."
+    }
+  },
+  "rh": {
+    "title": "Ressources Humaines & Paie",
+    "subtitle": "Gestion du personnel, bulletins de paie et conformité sociale",
+    "add_employee_btn": "Ajouter un Employé",
+    "search_placeholder": "Rechercher par nom ou poste...",
+    "status": {
+      "active": "Actif",
+      "on_leave": "En Congé",
+      "inactive": "Inactif"
+    },
+    "filter": {
+      "all_depts": "Tous les départements"
+    },
+    "departments": {
+      "direction": "Direction",
+      "finance": "Finance",
+      "commercial": "Commercial",
+      "it": "Informatique",
+      "rh": "RH",
+      "logistique": "Logistique",
+      "production": "Production"
+    },
+    "contract": {
+      "cdi": "CDI",
+      "cdd": "CDD",
+      "stage": "Stage",
+      "freelance": "Freelance"
+    },
+    "kpi": {
+      "headcount": "Effectif Total",
+      "active": "actifs",
+      "payroll": "Masse Salariale",
+      "payroll_sub": "Base + Primes (mensuel)",
+      "avg_salary": "Salaire Moyen",
+      "avg_salary_sub": "base brute",
+      "departments": "Départements",
+      "departments_sub": "unités actives"
+    },
+    "card": {
+      "base_salary": "Salaire Base",
+      "since": "Depuis le"
+    },
+    "tabs": {
+      "employees": "Employés",
+      "payroll": "Paie",
+      "holidays": "Congés",
+      "analytics": "Analytique"
+    },
+    "payroll": {
+      "monthly_run": "Traitement de la Paie — Janvier 2024",
+      "print_all": "Tout Imprimer",
+      "generate": "Générer les Bulletins",
+      "status": {
+        "pending": "En attente",
+        "paid": "Payé",
+        "processing": "En cours"
+      },
+      "table": {
+        "employee": "Employé",
+        "base": "Salaire Base",
+        "primes": "Primes",
+        "cnas": "CNAS (9%)",
+        "irg": "IRG (~12%)",
+        "net": "Net à Payer",
+        "status": "Statut"
+      }
+    },
+    "holidays": {
+      "pending": "En Attente",
+      "approved": "Approuvés",
+      "refused": "Refusés",
+      "days_label": "jours",
+      "types": {
+        "annual": "Congé Annuel",
+        "sick": "Congé Maladie",
+        "exceptional": "Congé Exceptionnel"
+      },
+      "status": {
+        "pending": "En attente",
+        "approved": "Approuvé",
+        "refused": "Refusé"
+      },
+      "table": {
+        "employee": "Employé",
+        "type": "Type",
+        "from": "Du",
+        "to": "Au",
+        "days": "Jours",
+        "status": "Statut"
+      }
+    },
+    "analytics": {
+      "by_department": "Répartition par Département",
+      "by_contract": "Répartition par Contrat",
+      "employees": "employés"
+    },
+    "detail": {
+      "position": "Poste",
+      "department": "Département",
+      "hire_date": "Date d'embauche",
+      "contract": "Type de Contrat",
+      "phone": "Téléphone",
+      "base_salary": "Salaire de Base",
+      "primes": "Primes Mensuelles",
+      "view_bulletin": "Voir Bulletin de Paie"
+    },
+    "bulletin": {
+      "title": "Bulletin de Paie",
+      "employee": "Employé",
+      "period": "Période",
+      "base_salary": "Salaire de Base",
+      "primes": "Primes",
+      "cnas": "Cotisation CNAS (9%)",
+      "caramate": "Retraite Complémentaire (2.5%)",
+      "irg": "Impôt sur le Revenu (IRG)",
+      "net": "NET À PAYER",
+      "print": "Imprimer le Bulletin"
+    }
+  },
+  "billing": {
+    "table": {
+      "month": "Mois"
+    }
+  },
+  "bc": {
+    "title": "Bons de Commande",
+    "subtitle": "Gestion des achats avec workflow d'approbation multi-niveaux",
+    "create_btn": "Nouveau Bon de Commande",
+    "search_placeholder": "Rechercher par fournisseur, numéro ou demandeur...",
+    "pending_approval_count": "BC en attente d'approbation",
+    "status": {
+      "draft": "Brouillon",
+      "pending_approval": "En attente d'approbation",
+      "approved": "Approuvé",
+      "ordered": "Commandé",
+      "received": "Réceptionné",
+      "cancelled": "Annulé"
+    },
+    "urgency": {
+      "low": "Faible",
+      "medium": "Moyen",
+      "high": "Urgent"
+    },
+    "filter": {
+      "all": "Tous les statuts"
+    },
+    "tabs": {
+      "orders": "Bons de Commande",
+      "supplier_scores": "Notation Fournisseurs",
+      "analytics": "Analytique"
+    },
+    "kpi": {
+      "total": "Total BC",
+      "total_sub": "ce mois",
+      "pending": "En Approbation",
+      "received": "Réceptionnés",
+      "received_sub": "livrés confirmés",
+      "avg_score": "Score Moyen",
+      "avg_score_sub": "notation fournisseurs"
+    },
+    "table": {
+      "numero": "Numéro",
+      "supplier": "Fournisseur",
+      "requester": "Demandeur",
+      "amount": "Montant TTC",
+      "delivery": "Livraison",
+      "urgency": "Urgence",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "scores": {
+      "title": "Notation Fournisseurs",
+      "supplier": "Fournisseur",
+      "global": "Note Globale",
+      "delivery": "Délai",
+      "quality": "Qualité",
+      "price": "Prix",
+      "orders": "Commandes",
+      "best": "Meilleur"
+    },
+    "analytics": {
+      "by_status": "Par Statut",
+      "by_department": "Par Département"
+    },
+    "detail": {
+      "title": "Bon de Commande",
+      "supplier": "Fournisseur",
+      "requester": "Demandeur",
+      "delivery": "Date Livraison",
+      "total": "Total TTC",
+      "purpose": "Motif / Justification",
+      "items": "Articles Commandés",
+      "ref": "Réf.",
+      "designation": "Désignation",
+      "qty": "Qté",
+      "unit_price": "P.U HT",
+      "tva": "TVA",
+      "total_ttc": "TOTAL TTC",
+      "workflow": "Circuit d'approbation"
+    },
+    "actions": {
+      "print": "Imprimer",
+      "approve": "Approuver",
+      "reject": "Rejeter"
+    },
+    "approval": {
+      "title": "Approbation du Bon de Commande",
+      "comment": "Commentaire",
+      "comment_placeholder": "Saisir un commentaire (optionnel)...",
+      "approved_msg": "Bon de commande approuvé !",
+      "rejected_msg": "Bon de commande rejeté."
+    }
+  },
+  "amort": {
+    "title": "Amortissements & Valorisation",
+    "subtitle": "Immobilisations, tableaux d'amortissement et valorisation FIFO/LIFO/PMP",
+    "add_btn": "Nouvelle Immobilisation",
+    "plan": {
+      "ifrs": "Plan IFRS",
+      "pca": "Plan Comptable Algérien"
+    },
+    "status": {
+      "active": "Actif",
+      "fully_depreciated": "Entièrement Amorti",
+      "disposed": "Cédé"
+    },
+    "filter": {
+      "all": "Toutes catégories"
+    },
+    "methods": {
+      "lineaire": "Linéaire",
+      "lineaire_sub": "Dotation constante",
+      "degressif": "Dégressif",
+      "degressif_sub": "Dotation décroissante",
+      "uop": "Unités Production",
+      "uop_sub": "Basé sur l'usage"
+    },
+    "kpi": {
+      "gross": "Valeur Brute",
+      "net": "Valeur Nette",
+      "cumul": "Amort. Cumulé",
+      "annual_charge": "Dotation Annuelle",
+      "active": "Actifs en Service",
+      "avg_usage": "Usure Moyenne"
+    },
+    "tabs": {
+      "assets": "Immobilisations",
+      "schedule": "Plan d'amortissement",
+      "valuation": "Valorisation Stock",
+      "analytics": "Analytique"
+    },
+    "table": {
+      "code": "Code",
+      "asset": "Immobilisation",
+      "category": "Catégorie",
+      "acq_date": "Acquisition",
+      "gross": "Valeur Brute",
+      "cumul": "Amort. Cumulé",
+      "net": "VNC",
+      "usage": "Usure",
+      "method": "Méthode",
+      "pca": "Compte PCA",
+      "status": "Statut"
+    },
+    "schedule": {
+      "year": "Exercice",
+      "start_value": "V. Début",
+      "annual": "Dotation",
+      "cumul": "Cumul",
+      "end_value": "VNC Fin",
+      "current": "Exercice en cours",
+      "select_asset": "Sélectionnez une immobilisation pour afficher le plan",
+      "go_to_assets": "Voir les immobilisations",
+      "caption": "Méthode"
+    },
+    "valo": {
+      "title": "Valorisation du Stock",
+      "subtitle": "Comparatif des méthodes de valorisation des stocks",
+      "pmp_label": "Prix Moyen Pondéré",
+      "fifo_label": "Premier Entré Premier Sorti",
+      "lifo_label": "Dernier Entré Premier Sorti",
+      "pmp_impact": "Lisse les variations de prix. Recommandé par le Plan Comptable Algérien.",
+      "fifo_impact": "Valorise au coût historique le plus ancien. Conservateur.",
+      "lifo_impact": "Valorise au coût le plus récent. Maximise le COGS.",
+      "unit_cost": "Coût Unitaire",
+      "stock_value": "Valeur Totale Stock",
+      "fiscal_impact": "Impact Fiscal",
+      "lots_detail": "Détail des Lots",
+      "lot_date": "Date Lot",
+      "lot_qty": "Quantité",
+      "lot_cost": "Coût Unit.",
+      "lot_total": "Valeur Lot",
+      "units": "unités"
+    },
+    "analytics": {
+      "by_category": "Répartition par Catégorie",
+      "depreciation_rate": "Taux d'amortissement",
+      "gross": "Brut",
+      "assets": "immobilisations",
+      "renewal_alert": "immobilisation(s) à renouveler (>80%)"
+    },
+    "detail": {
+      "category": "Catégorie",
+      "method": "Méthode",
+      "duration": "Durée de Vie",
+      "rate": "Taux",
+      "department": "Département",
+      "supplier": "Fournisseur",
+      "pca_account": "Compte PCA",
+      "residual": "Valeur Résiduelle",
+      "gross": "Valeur Brute",
+      "cumul": "Amort. Cumulé",
+      "net": "Valeur Nette",
+      "view_schedule": "Tableau d'amortissement"
+    },
+    "actions": {
+      "print": "Imprimer",
+      "export": "Exporter"
+    }
+  },
+  "relances": {
+    "title": "Relances Clients",
+    "subtitle": "Suivi et recouvrement des impayés — Automatisation des relances par niveau",
+    "create_btn": "Nouvelle Relance",
+    "search_placeholder": "Rechercher par client ou facture...",
+    "alert": {
+      "critical_count": "facture(s) en niveau 3 critique",
+      "critical_desc": "Ces dossiers nécessitent une action immédiate ou un passage en contentieux."
+    },
+    "status": {
+      "pending": "À Relancer",
+      "sent": "Relance Envoyée",
+      "responded": "Réponse Reçue",
+      "escalated": "Escaladé",
+      "resolved": "Résolu",
+      "litigation": "Contentieux"
+    },
+    "level": {
+      "1": "Relance Lvl 1",
+      "2": "Mise en Demeure",
+      "3": "Contentieux Imminent"
+    },
+    "filter": {
+      "all": "Tous les statuts"
+    },
+    "template": {
+      "tone": "Ton",
+      "delay": "Délai"
+    },
+    "kpi": {
+      "total_overdue": "Montant Impayé",
+      "count": "Dossiers Actifs",
+      "critical": "Niveau Critique",
+      "avg_days": "Retard Moyen",
+      "litigation": "En Contentieux"
+    },
+    "table": {
+      "invoice": "Facture",
+      "client": "Client",
+      "amount": "Montant",
+      "overdue": "Retard",
+      "level": "Niveau",
+      "status": "Statut",
+      "last_contact": "Dernier Contact",
+      "actions": "Actions",
+      "since": "Échu le"
+    },
+    "detail": {
+      "title": "Dossier Relance",
+      "client": "Client",
+      "amount": "Montant Impayé",
+      "overdue": "Jours de Retard",
+      "due_date": "Date Échéance",
+      "invoice_date": "Date Facture",
+      "notes": "Notes Commerciales"
+    },
+    "actions": {
+      "send": "Envoyer Relance"
+    },
+    "send": {
+      "title": "Envoyer la Relance",
+      "to": "À",
+      "email_content": "Contenu de l'email",
+      "print": "Imprimer Courrier",
+      "confirm_btn": "Envoyer par Email",
+      "sent_msg": "Relance envoyée avec succès !"
     }
   }
 }

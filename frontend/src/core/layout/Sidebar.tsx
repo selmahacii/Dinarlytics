@@ -29,7 +29,8 @@ import {
   SparklesIcon,
   ShoppingCartIcon,
   ScaleIcon,
-  DocumentChartBarIcon
+  DocumentChartBarIcon,
+  KeyIcon
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { usePermission } from '../../shared/hooks/usePermission';
@@ -68,6 +69,7 @@ const Sidebar: React.FC = () => {
     'finance-comptabilite': false,
     'pilotage-tableaux': false,
     'operations-commerciales': false,
+    'rh-paie': false,
     'analyses-rapports': false,
     'controle-reglages': false
   });
@@ -102,7 +104,10 @@ const Sidebar: React.FC = () => {
       onToggle: () => toggleMenu('finance-comptabilite'),
       subItems: [
         { path: '/comptabilite/etats', icon: DocumentTextIcon, label: t('nav.balance_sheet') },
+        has('comptabilite-read') && { path: '/comptabilite/tresorerie', icon: BanknotesIcon, label: t('nav.treasury') },
+        has('comptabilite-read') && { path: '/amortissements', icon: CalculatorIcon, label: t('nav.amortissements') },
         { path: '/fiscalite', icon: ScaleIcon, label: t('nav.tax_declarations') },
+        has('comptabilite-validate') && { path: '/consolidation', icon: BuildingOfficeIcon, label: t('nav.consolidation') },
         has('comptabilite-write') && { path: '/comptabilite/journaux', icon: ClipboardDocumentListIcon, label: t('nav.journal_entry') }
       ].filter(Boolean)
     },
@@ -132,14 +137,32 @@ const Sidebar: React.FC = () => {
       onToggle: () => toggleMenu('operations-commerciales'),
       subItems: [
         { path: '/factures-vente', icon: DocumentTextIcon, label: t('common.sales_invoices') },
+        has('facturation-create') && { path: '/devis', icon: ClipboardDocumentListIcon, label: t('nav.quotations') },
+        has('facturation-read') && { path: '/relances-clients', icon: DocumentTextIcon, label: t('nav.relances') },
         { path: '/achats-charges', icon: BanknotesIcon, label: t('common.purchase_invoices') },
+        has('fournisseurs-manage') && { path: '/bons-commande', icon: ShoppingCartIcon, label: t('nav.purchase_orders') },
         has('clients-manage') && { path: '/clients', icon: UsersIcon, label: t('nav.client_portfolio') },
+        has('clients-manage') && { path: '/clients/groupes', icon: UserGroupIcon, label: t('nav.client_groups') },
         has('fournisseurs-manage') && { path: '/fournisseurs', icon: TruckIcon, label: t('common.suppliers') },
-        has('stocks-read') && { path: '/articles', icon: CubeIcon, label: t('nav.stock_articles') }
+        has('stocks-read') && { path: '/articles', icon: CubeIcon, label: t('nav.stock_articles') },
+        has('stocks-read') && { path: '/stocks/livraisons', icon: TruckIcon, label: t('nav.delivery_tracking') }
       ].filter(Boolean)
     },
 
-    // 5. Strategic Reports
+    // 5. HR & Payroll
+    has('paie-read') && {
+      type: 'submenu',
+      id: 'rh-paie',
+      icon: UserGroupIcon,
+      label: t('nav.hr_module'),
+      isOpen: openMenus['rh-paie'],
+      onToggle: () => toggleMenu('rh-paie'),
+      subItems: [
+        { path: '/rh', icon: UserGroupIcon, label: t('nav.hr_module') },
+      ].filter(Boolean)
+    },
+
+    // 6. Strategic Reports
     has('rapports-basic') && {
       type: 'submenu',
       id: 'analyses-rapports',
@@ -150,6 +173,7 @@ const Sidebar: React.FC = () => {
       subItems: [
         has('rapports-tresorerie') && { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: t('nav.cash_flow') },
         has('rapports-ventes') && { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: t('nav.commercial_analysis') },
+        has('rapports-basic') && { path: '/rapports/analytics', icon: DocumentChartBarIcon, label: t('nav.custom_reports') },
         has('rapports-advanced') && { path: '/dashboard/analytics', icon: ChartPieIcon, label: t('nav.performance') }
       ].filter(Boolean)
     },
@@ -164,7 +188,10 @@ const Sidebar: React.FC = () => {
       onToggle: () => toggleMenu('controle-reglages'),
       subItems: [
         { path: '/audit-explorer', icon: ShieldCheckIcon, label: t('nav.audit_traceability') },
-        has('admin-users') && { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: t('nav.users') },
+        has('admin-users') && { path: '/utilisateurs', icon: UsersIcon, label: t('nav.user_management') },
+        has('admin-users') && { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: t('nav.role_management') },
+        has('admin-users') && { path: '/acces', icon: KeyIcon, label: t('nav.access_control') },
+        has('admin-settings') && { path: '/entreprise', icon: BuildingOfficeIcon, label: t('nav.company_profile') },
         { path: '/parametres', icon: CogIcon, label: t('nav.settings') }
       ].filter(Boolean)
     }

@@ -281,7 +281,22 @@
     "settings": "Settings",
     "templates": "Document Templates",
     "eurl_adapted_menu": "ℹ️ Adapted Menu",
-    "eurl_menu_optimized": "Your menu has been optimized for EURL. Only essential features are shown."
+    "eurl_menu_optimized": "Your menu has been optimized for EURL. Only essential features are shown.",
+    "quotations": "Quotations",
+    "hr_module": "HR & Payroll",
+    "bank_reconciliation": "Bank Reconciliation",
+    "purchase_orders": "Purchase Orders",
+    "amortissements": "Depreciation",
+    "relances": "Client Follow-Ups",
+    "treasury": "Treasury",
+    "consolidation": "Consolidation",
+    "client_groups": "Client Groups",
+    "delivery_tracking": "Delivery Tracking",
+    "custom_reports": "Custom Reports",
+    "user_management": "User Management",
+    "role_management": "Role & Access",
+    "access_control": "Access Control",
+    "company_profile": "Company Profile"
   },
   "fiscal": {
     "title": "Fiscal & Declarations",
@@ -2354,51 +2369,6 @@
     },
     "table": {
       "status": "Status"
-    },
-    "advanced_analytics": {
-      "title": "Advanced Financial Analytics",
-      "subtitle": "Performance steering and budget forecasting.",
-      "comparative_n1": "Year-on-Year Comparison",
-      "import_btn": "Import",
-      "export_btn": "Export",
-      "updating": "Updating analytics...",
-      "pipeline_title": "Commercial Pipeline",
-      "view_details": "View details",
-      "treasury_forecast_title": "Cash Flow Forecast (Rolling Forecast)",
-      "ia_trust_score": "IA Trust Score",
-      "projection_end_month": "Month End (Projection)",
-      "attention_points": "Attention Points",
-      "ia_report_title": "Detailed Report: Cash Flow Projections",
-      "ia_confidence_status": "IA Confidence Status",
-      "ia_reliability_high": "High Reliability",
-      "ia_analysis_desc": "The prediction algorithm analyzed the last 24 months of bank flows, sectoral seasonality and current customer payment behaviors.",
-      "projections_30d": "Cash Flow Projections (30 days)",
-      "expected_inflow": "Expected Inflows",
-      "expected_outflow": "Expected Outflows",
-      "projected_net_balance": "Projected Net Balance",
-      "risks_alerts_title": "IA Risks & Alerts",
-      "close_btn": "Close",
-      "print_report": "Print Report",
-      "periods": {
-        "7d": "Last 7 days",
-        "30d": "Last 30 days",
-        "90d": "Current Quarter",
-        "1y": "Annual Year"
-      },
-      "metrics": {
-        "dso": "DSO (Days Sales Outstanding)",
-        "bfr": "WC (Working Capital)",
-        "break_even": "Break-even Point",
-        "solvency": "Solvency"
-      },
-      "ai_insights": {
-        "churn_risk": "Client Churn Risk",
-        "billing_anomaly": "Billing Anomaly",
-        "retention_action": "Activate Retention Protocol",
-        "verify_invoice": "Verify Invoice",
-        "strategic_accounts": "{{count}} Strategic Accounts",
-        "recommendation": "Recommendation"
-      }
     }
   },
   "audit": {
@@ -3139,6 +3109,537 @@
       "delete_confirm_desc": "This action will restrict access for this user. You can reactivate them later at any time.",
       "status_active": "Active",
       "status_inactive": "Inactive"
+    }
+  },
+  "advanced_analytics": {
+    "title": "Advanced Financial Analytics",
+    "subtitle": "Performance steering and budget forecasting.",
+    "comparative_n1": "Year-on-Year Comparison",
+    "import_btn": "Import",
+    "export_btn": "Export",
+    "updating": "Updating analytics...",
+    "pipeline_title": "Commercial Pipeline",
+    "view_details": "View details",
+    "treasury_forecast_title": "Cash Flow Forecast (Rolling Forecast)",
+    "ia_trust_score": "IA Trust Score",
+    "projection_end_month": "Month End (Projection)",
+    "attention_points": "Attention Points",
+    "ia_report_title": "Detailed Report: Cash Flow Projections",
+    "ia_confidence_status": "IA Confidence Status",
+    "ia_reliability_high": "High Reliability",
+    "ia_analysis_desc": "The prediction algorithm analyzed the last 24 months of bank flows, sectoral seasonality and current customer payment behaviors.",
+    "projections_30d": "Cash Flow Projections (30 days)",
+    "expected_inflow": "Expected Inflows",
+    "expected_outflow": "Expected Outflows",
+    "projected_net_balance": "Projected Net Balance",
+    "risks_alerts_title": "IA Risks & Alerts",
+    "close_btn": "Close",
+    "print_report": "Print Report",
+    "periods": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Current Quarter",
+      "1y": "Annual Year"
+    },
+    "metrics": {
+      "dso": "DSO (Days Sales Outstanding)",
+      "bfr": "WC (Working Capital)",
+      "break_even": "Break-even Point",
+      "solvency": "Solvency",
+      "days": "d",
+      "objective": "Target"
+    },
+    "ai_insights": {
+      "churn_risk": "Client Churn Risk",
+      "billing_anomaly": "Billing Anomaly",
+      "retention_action": "Activate Retention Protocol",
+      "verify_invoice": "Verify Invoice",
+      "strategic_accounts": "{{count}} Strategic Accounts",
+      "recommendation": "Recommendation"
+    },
+    "pipeline": {
+      "prospects": "Prospects",
+      "quotes": "Quotes Issued",
+      "negotiation": "Negotiation",
+      "invoiced": "Invoiced"
+    },
+    "cohort_analysis": "Cohort Analysis",
+    "indicator_correlations": "Indicator Correlations",
+    "correlations": {
+      "site_speed": "Site Speed",
+      "conv_rate": "Conv. Rate",
+      "ad_spend": "Ad Spend",
+      "new_clients": "New Clients",
+      "discounts": "Discounts %",
+      "gross_margin": "Gross Margin"
+    },
+    "forecast": {
+      "m_minus_2": "M-2",
+      "m_minus_1": "M-1",
+      "current": "Current",
+      "projection": "Projection",
+      "vs_m1": "vs M-1"
+    },
+    "risks_alerts": {
+      "churn_title": "Customer Churn Risk",
+      "churn_desc": "3 major clients show a slowdown in orders.",
+      "finance_opp_title": "Financing Opportunity",
+      "finance_opp_desc": "Your solvency score allows an authorized overdraft at a preferential rate."
+    }
+  },
+  "devis": {
+    "title": "Quotations Management",
+    "subtitle": "Commercial pipeline — From proposal to invoicing",
+    "create_btn": "New Quote",
+    "search_placeholder": "Search by client or number...",
+    "status": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "accepted": "Accepted",
+      "refused": "Refused",
+      "expired": "Expired"
+    },
+    "filter": {
+      "all": "All statuses"
+    },
+    "kpi": {
+      "total": "Total Quotes",
+      "total_sub": "this month",
+      "pipeline": "Active Pipeline",
+      "pipeline_sub": "pending sent quotes",
+      "accepted": "Accepted",
+      "accepted_sub": "ready to invoice",
+      "rate": "Conversion Rate",
+      "rate_sub": "over the period"
+    },
+    "table": {
+      "numero": "Number",
+      "client": "Client",
+      "date": "Creation Date",
+      "expiry": "Expiry",
+      "amount": "Total (TTC)",
+      "status": "Status",
+      "actions": "Actions",
+      "ht": "HT"
+    },
+    "detail": {
+      "title": "Quote",
+      "client": "Client",
+      "dates": "Dates",
+      "expires": "Expires",
+      "amount": "Total Amount",
+      "status": "Status",
+      "items": "Line Items",
+      "designation": "Description",
+      "qty": "Qty",
+      "unit_price": "Unit Price",
+      "tva": "VAT",
+      "total": "Total",
+      "total_ht": "Subtotal",
+      "tva_total": "Total VAT",
+      "total_ttc": "GRAND TOTAL",
+      "notes": "Commercial Notes"
+    },
+    "actions": {
+      "view": "View details",
+      "send": "Send to client",
+      "convert": "Convert to Invoice",
+      "print": "Print",
+      "download": "Download",
+      "convert_to_invoice": "Convert to Invoice"
+    },
+    "create_modal": {
+      "title": "Create New Quote",
+      "placeholder": "Creation form being integrated",
+      "desc": "The quote creation form will be available in the next version."
+    }
+  },
+  "rh": {
+    "title": "Human Resources & Payroll",
+    "subtitle": "Staff management, pay slips and social compliance",
+    "add_employee_btn": "Add Employee",
+    "search_placeholder": "Search by name or position...",
+    "status": {
+      "active": "Active",
+      "on_leave": "On Leave",
+      "inactive": "Inactive"
+    },
+    "filter": {
+      "all_depts": "All departments"
+    },
+    "departments": {
+      "direction": "Executive",
+      "finance": "Finance",
+      "commercial": "Sales",
+      "it": "IT",
+      "rh": "HR",
+      "logistique": "Logistics",
+      "production": "Production"
+    },
+    "contract": {
+      "cdi": "Permanent",
+      "cdd": "Fixed-Term",
+      "stage": "Internship",
+      "freelance": "Freelance"
+    },
+    "kpi": {
+      "headcount": "Total Headcount",
+      "active": "active",
+      "payroll": "Payroll Mass",
+      "payroll_sub": "Base + Bonuses (monthly)",
+      "avg_salary": "Average Salary",
+      "avg_salary_sub": "gross base",
+      "departments": "Departments",
+      "departments_sub": "active units"
+    },
+    "card": {
+      "base_salary": "Base Salary",
+      "since": "Since"
+    },
+    "tabs": {
+      "employees": "Employees",
+      "payroll": "Payroll",
+      "holidays": "Leaves",
+      "analytics": "Analytics"
+    },
+    "payroll": {
+      "monthly_run": "Payroll Run — January 2024",
+      "print_all": "Print All",
+      "generate": "Generate Slips",
+      "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "processing": "Processing"
+      },
+      "table": {
+        "employee": "Employee",
+        "base": "Base Salary",
+        "primes": "Bonuses",
+        "cnas": "Social (9%)",
+        "irg": "Tax (~12%)",
+        "net": "Net Pay",
+        "status": "Status"
+      }
+    },
+    "holidays": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "refused": "Refused",
+      "days_label": "days",
+      "types": {
+        "annual": "Annual Leave",
+        "sick": "Sick Leave",
+        "exceptional": "Exceptional Leave"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "refused": "Refused"
+      },
+      "table": {
+        "employee": "Employee",
+        "type": "Type",
+        "from": "From",
+        "to": "To",
+        "days": "Days",
+        "status": "Status"
+      }
+    },
+    "analytics": {
+      "by_department": "By Department",
+      "by_contract": "By Contract Type",
+      "employees": "employees"
+    },
+    "detail": {
+      "position": "Position",
+      "department": "Department",
+      "hire_date": "Hire Date",
+      "contract": "Contract Type",
+      "phone": "Phone",
+      "base_salary": "Base Salary",
+      "primes": "Monthly Bonuses",
+      "view_bulletin": "View Pay Slip"
+    },
+    "bulletin": {
+      "title": "Pay Slip",
+      "employee": "Employee",
+      "period": "Period",
+      "base_salary": "Base Salary",
+      "primes": "Bonuses",
+      "cnas": "Social Security (9%)",
+      "caramate": "Pension Fund (2.5%)",
+      "irg": "Income Tax (IRG)",
+      "net": "NET PAY",
+      "print": "Print Pay Slip"
+    }
+  },
+  "billing": {
+    "table": {
+      "month": "Month"
+    }
+  },
+  "bc": {
+    "title": "Purchase Orders",
+    "subtitle": "Procurement management with multi-level approval workflow",
+    "create_btn": "New Purchase Order",
+    "search_placeholder": "Search by supplier, number or requester...",
+    "pending_approval_count": "PO pending approval",
+    "status": {
+      "draft": "Draft",
+      "pending_approval": "Pending Approval",
+      "approved": "Approved",
+      "ordered": "Ordered",
+      "received": "Received",
+      "cancelled": "Cancelled"
+    },
+    "urgency": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "Urgent"
+    },
+    "filter": {
+      "all": "All statuses"
+    },
+    "tabs": {
+      "orders": "Purchase Orders",
+      "supplier_scores": "Supplier Ratings",
+      "analytics": "Analytics"
+    },
+    "kpi": {
+      "total": "Total POs",
+      "total_sub": "this month",
+      "pending": "Pending Approval",
+      "received": "Received",
+      "received_sub": "confirmed deliveries",
+      "avg_score": "Avg. Score",
+      "avg_score_sub": "supplier rating"
+    },
+    "table": {
+      "numero": "Number",
+      "supplier": "Supplier",
+      "requester": "Requester",
+      "amount": "Total (TTC)",
+      "delivery": "Delivery",
+      "urgency": "Urgency",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "scores": {
+      "title": "Supplier Performance",
+      "supplier": "Supplier",
+      "global": "Global Score",
+      "delivery": "On-Time",
+      "quality": "Quality",
+      "price": "Price",
+      "orders": "Orders",
+      "best": "Best"
+    },
+    "analytics": {
+      "by_status": "By Status",
+      "by_department": "By Department"
+    },
+    "detail": {
+      "title": "Purchase Order",
+      "supplier": "Supplier",
+      "requester": "Requester",
+      "delivery": "Delivery Date",
+      "total": "Total",
+      "purpose": "Purpose / Justification",
+      "items": "Ordered Items",
+      "ref": "Ref",
+      "designation": "Description",
+      "qty": "Qty",
+      "unit_price": "Unit Price",
+      "tva": "VAT",
+      "total_ttc": "GRAND TOTAL",
+      "workflow": "Approval Workflow"
+    },
+    "actions": {
+      "print": "Print",
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "approval": {
+      "title": "Purchase Order Approval",
+      "comment": "Comment",
+      "comment_placeholder": "Add a comment (optional)...",
+      "approved_msg": "Purchase order approved!",
+      "rejected_msg": "Purchase order rejected."
+    }
+  },
+  "amort": {
+    "title": "Depreciation & Valuation",
+    "subtitle": "Fixed assets, depreciation schedules and FIFO/LIFO/WAC valuation",
+    "add_btn": "New Asset",
+    "plan": {
+      "ifrs": "IFRS Standard",
+      "pca": "Algerian Chart of Accounts"
+    },
+    "status": {
+      "active": "Active",
+      "fully_depreciated": "Fully Depreciated",
+      "disposed": "Disposed"
+    },
+    "filter": {
+      "all": "All categories"
+    },
+    "methods": {
+      "lineaire": "Straight-Line",
+      "lineaire_sub": "Constant charge",
+      "degressif": "Declining Balance",
+      "degressif_sub": "Decreasing charge",
+      "uop": "Units of Production",
+      "uop_sub": "Usage-based"
+    },
+    "kpi": {
+      "gross": "Gross Value",
+      "net": "Net Book Value",
+      "cumul": "Accum. Depr.",
+      "annual_charge": "Annual Charge",
+      "active": "Active Assets",
+      "avg_usage": "Avg. Wear"
+    },
+    "tabs": {
+      "assets": "Assets",
+      "schedule": "Depreciation Schedule",
+      "valuation": "Stock Valuation",
+      "analytics": "Analytics"
+    },
+    "table": {
+      "code": "Code",
+      "asset": "Asset",
+      "category": "Category",
+      "acq_date": "Acquisition",
+      "gross": "Gross",
+      "cumul": "Accum. Depr.",
+      "net": "NBV",
+      "usage": "Wear",
+      "method": "Method",
+      "pca": "Account",
+      "status": "Status"
+    },
+    "schedule": {
+      "year": "Year",
+      "start_value": "Opening",
+      "annual": "Charge",
+      "cumul": "Cumulative",
+      "end_value": "Closing NBV",
+      "current": "Current",
+      "select_asset": "Select an asset to view its depreciation schedule",
+      "go_to_assets": "Browse assets",
+      "caption": "Method"
+    },
+    "valo": {
+      "title": "Stock Valuation",
+      "subtitle": "Compare inventory valuation methods",
+      "pmp_label": "Weighted Average Cost",
+      "fifo_label": "First In First Out",
+      "lifo_label": "Last In First Out",
+      "pmp_impact": "Smooths price fluctuations. Recommended by Algerian GAAP.",
+      "fifo_impact": "Values at oldest historical cost. Conservative approach.",
+      "lifo_impact": "Values at most recent cost. Maximizes COGS.",
+      "unit_cost": "Unit Cost",
+      "stock_value": "Total Stock Value",
+      "fiscal_impact": "Fiscal Impact",
+      "lots_detail": "Batch Detail",
+      "lot_date": "Batch Date",
+      "lot_qty": "Quantity",
+      "lot_cost": "Unit Cost",
+      "lot_total": "Batch Value",
+      "units": "units"
+    },
+    "analytics": {
+      "by_category": "By Category",
+      "depreciation_rate": "Depreciation Rate",
+      "gross": "Gross",
+      "assets": "assets",
+      "renewal_alert": "asset(s) to renew (>80%)"
+    },
+    "detail": {
+      "category": "Category",
+      "method": "Method",
+      "duration": "Useful Life",
+      "rate": "Rate",
+      "department": "Department",
+      "supplier": "Supplier",
+      "pca_account": "Account Code",
+      "residual": "Residual Value",
+      "gross": "Gross Value",
+      "cumul": "Accum. Depr.",
+      "net": "Net Book Value",
+      "view_schedule": "Depreciation Schedule"
+    },
+    "actions": {
+      "print": "Print",
+      "export": "Export"
+    }
+  },
+  "relances": {
+    "title": "Client Follow-Ups",
+    "subtitle": "Overdue tracking and collection — Automated multi-level dunning",
+    "create_btn": "New Follow-Up",
+    "search_placeholder": "Search by client or invoice...",
+    "alert": {
+      "critical_count": "invoice(s) at critical level 3",
+      "critical_desc": "These cases require immediate action or legal escalation."
+    },
+    "status": {
+      "pending": "To Follow Up",
+      "sent": "Sent",
+      "responded": "Response Received",
+      "escalated": "Escalated",
+      "resolved": "Resolved",
+      "litigation": "Litigation"
+    },
+    "level": {
+      "1": "Reminder Lvl 1",
+      "2": "Formal Notice",
+      "3": "Pre-Legal"
+    },
+    "filter": {
+      "all": "All statuses"
+    },
+    "template": {
+      "tone": "Tone",
+      "delay": "Delay"
+    },
+    "kpi": {
+      "total_overdue": "Total Overdue",
+      "count": "Active Cases",
+      "critical": "Critical Level",
+      "avg_days": "Avg. Delay",
+      "litigation": "In Litigation"
+    },
+    "table": {
+      "invoice": "Invoice",
+      "client": "Client",
+      "amount": "Amount",
+      "overdue": "Overdue",
+      "level": "Level",
+      "status": "Status",
+      "last_contact": "Last Contact",
+      "actions": "Actions",
+      "since": "Due"
+    },
+    "detail": {
+      "title": "Follow-Up File",
+      "client": "Client",
+      "amount": "Overdue Amount",
+      "overdue": "Days Overdue",
+      "due_date": "Due Date",
+      "invoice_date": "Invoice Date",
+      "notes": "Notes"
+    },
+    "actions": {
+      "send": "Send Reminder"
+    },
+    "send": {
+      "title": "Send Follow-Up",
+      "to": "To",
+      "email_content": "Email Content",
+      "print": "Print Letter",
+      "confirm_btn": "Send Email",
+      "sent_msg": "Follow-up sent successfully!"
     }
   }
 }

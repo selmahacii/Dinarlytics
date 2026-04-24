@@ -94,7 +94,11 @@ const Articles: React.FC = () => {
   const [errorStats, setErrorStats] = useState<string | null>(null);
 
   // Récupérer les produits depuis le contexte
-  const { products, setProducts, updateProduct } = useProducts();
+  const { products, setProducts, updateProduct, refetch } = useProducts();
+  
+  useEffect(() => {
+    refetch();
+  }, []);
   const filteredArticles: Article[] = products.filter((article: Article) =>
     article.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
     article.codePCA.includes(searchTerm)

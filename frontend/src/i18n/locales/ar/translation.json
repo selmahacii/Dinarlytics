@@ -281,7 +281,22 @@
     "settings": "الإعدادات",
     "templates": "قوالب المستندات",
     "eurl_adapted_menu": "ℹ️ قائمة مخصصة",
-    "eurl_menu_optimized": "تم تحسين قائمتك لـ EURL. يتم عرض الميزات الأساسية فقط."
+    "eurl_menu_optimized": "تم تحسين قائمتك لـ EURL. يتم عرض الميزات الأساسية فقط.",
+    "quotations": "عروض الأسعار",
+    "hr_module": "الموارد البشرية",
+    "bank_reconciliation": "المطابقة البنكية",
+    "purchase_orders": "أوامر الشراء",
+    "amortissements": "الاستهلاك",
+    "relances": "متابعة العملاء",
+    "treasury": "الخزينة",
+    "consolidation": "توحيد الحسابات",
+    "client_groups": "مجموعات العملاء",
+    "delivery_tracking": "تتبع التسليم",
+    "custom_reports": "تقارير مخصصة",
+    "user_management": "إدارة المستخدمين",
+    "role_management": "إدارة الأدوار الصلاحيات",
+    "access_control": "التحكم في الوصول",
+    "company_profile": "ملف الشركة"
   },
   "fiscal": {
     "title": "الجباية والتصريحات",
@@ -2406,51 +2421,6 @@
     },
     "table": {
       "status": "الحالة"
-    },
-    "advanced_analytics": {
-      "title": "تحليل مالي متقدم",
-      "subtitle": "قيادة الأداء والتنبؤ بالميزانية.",
-      "comparative_n1": "مقارنة سنوية (N-1)",
-      "import_btn": "استيراد",
-      "export_btn": "تصدير",
-      "updating": "جاري تحديث التحليلات...",
-      "pipeline_title": "مراحل المبيعات",
-      "view_details": "عرض التفاصيل",
-      "treasury_forecast_title": "توقعات التدفق النقدي",
-      "ia_trust_score": "معدل ثقة الذكاء الاصطناعي",
-      "projection_end_month": "نهاية الشهر (توقعات)",
-      "attention_points": "نقاط الاهتمام",
-      "ia_report_title": "تقرير مفصل: توقعات التدفق النقدي",
-      "ia_confidence_status": "حالة ثقة الذكاء الاصطناعي",
-      "ia_reliability_high": "موثوقية عالية",
-      "ia_analysis_desc": "قام خوارزمية التنبؤ بتحليل آخر 24 شهرًا من التدفقات البنكية، والموسمية القطاعية وسلوكيات دفع العملاء الحالية.",
-      "projections_30d": "توقعات التدفقات (30 يومًا)",
-      "expected_inflow": "التحصيلات المتوقعة",
-      "expected_outflow": "المدفوعات المتوقعة",
-      "projected_net_balance": "صافي الرصيد المتوقع",
-      "risks_alerts_title": "تنبيهات ومخاطر الذكاء الاصطناعي",
-      "close_btn": "إغلاق",
-      "print_report": "طباعة التقرير",
-      "periods": {
-        "7d": "آخر 7 أيام",
-        "30d": "آخر 30 يومًا",
-        "90d": "الربع الحالي",
-        "1y": "السنة المالية"
-      },
-      "metrics": {
-        "dso": "DSO (أجل العملاء)",
-        "bfr": "BFR (حاجة رأس المال العامل)",
-        "break_even": "عتبة الربحية",
-        "solvency": "الملاءة المالية"
-      },
-      "ai_insights": {
-        "churn_risk": "مخاطر فقدان العملاء",
-        "billing_anomaly": "شذوذ في الفوترة",
-        "retention_action": "تفعيل بروتوكول الاستبقاء",
-        "verify_invoice": "التحقق من الفاتورة",
-        "strategic_accounts": "{{count}} حسابات استراتيجية",
-        "recommendation": "توصية"
-      }
     }
   },
   "audit": {
@@ -3179,6 +3149,537 @@
       "delete_confirm_desc": "هذا الإجراء سيقيد وصول هذا المستخدم. يمكنك إعادة تفعيله لاحقاً في أي وقت.",
       "status_active": "نشط",
       "status_inactive": "غير نشط"
+    }
+  },
+  "advanced_analytics": {
+    "title": "تحليل مالي متقدم",
+    "subtitle": "قيادة الأداء والتنبؤ بالميزانية.",
+    "comparative_n1": "مقارنة سنوية (N-1)",
+    "import_btn": "استيراد",
+    "export_btn": "تصدير",
+    "updating": "جاري تحديث التحليلات...",
+    "pipeline_title": "مراحل المبيعات",
+    "view_details": "عرض التفاصيل",
+    "treasury_forecast_title": "توقعات التدفق النقدي",
+    "ia_trust_score": "معدل ثقة الذكاء الاصطناعي",
+    "projection_end_month": "نهاية الشهر (توقعات)",
+    "attention_points": "نقاط الاهتمام",
+    "ia_report_title": "تقرير مفصل: توقعات التدفق النقدي",
+    "ia_confidence_status": "حالة ثقة الذكاء الاصطناعي",
+    "ia_reliability_high": "موثوقية عالية",
+    "ia_analysis_desc": "قام خوارزمية التنبؤ بتحليل آخر 24 شهرًا من التدفقات البنكية، والموسمية القطاعية وسلوكيات دفع العملاء الحالية.",
+    "projections_30d": "توقعات التدفقات (30 يومًا)",
+    "expected_inflow": "التحصيلات المتوقعة",
+    "expected_outflow": "المدفوعات المتوقعة",
+    "projected_net_balance": "صافي الرصيد المتوقع",
+    "risks_alerts_title": "تنبيهات ومخاطر الذكاء الاصطناعي",
+    "close_btn": "إغلاق",
+    "print_report": "طباعة التقرير",
+    "periods": {
+      "7d": "آخر 7 أيام",
+      "30d": "آخر 30 يومًا",
+      "90d": "الربع الحالي",
+      "1y": "السنة المالية"
+    },
+    "metrics": {
+      "dso": "DSO (أجل العملاء)",
+      "bfr": "BFR (حاجة رأس المال العامل)",
+      "break_even": "عتبة الربحية",
+      "solvency": "الملاءة المالية",
+      "days": "يوم",
+      "objective": "الهدف"
+    },
+    "ai_insights": {
+      "churn_risk": "مخاطر فقدان العملاء",
+      "billing_anomaly": "شذوذ في الفوترة",
+      "retention_action": "تفعيل بروتوكول الاستبقاء",
+      "verify_invoice": "التحقق من الفاتورة",
+      "strategic_accounts": "{{count}} حسابات استراتيجية",
+      "recommendation": "توصية"
+    },
+    "pipeline": {
+      "prospects": "العملاء المحتملون",
+      "quotes": "العروض المرسلة",
+      "negotiation": "تفاوض",
+      "invoiced": "تمت الفوترة"
+    },
+    "cohort_analysis": "تحليل المجموعات",
+    "indicator_correlations": "ارتباطات المؤشرات",
+    "correlations": {
+      "site_speed": "سرعة الموقع",
+      "conv_rate": "معدل التحويل",
+      "ad_spend": "الاستثمار الإعلاني",
+      "new_clients": "عملاء جدد",
+      "discounts": "خصومات %",
+      "gross_margin": "الهامش الإجمالي"
+    },
+    "forecast": {
+      "m_minus_2": "ش-2",
+      "m_minus_1": "ش-1",
+      "current": "حالي",
+      "projection": "توقع",
+      "vs_m1": "مقابل ش-1"
+    },
+    "risks_alerts": {
+      "churn_title": "خطر فقدان العملاء",
+      "churn_desc": "3 عملاء رئيسيين يظهرون تباطؤاً في الطلبات.",
+      "finance_opp_title": "فرصة تمويل",
+      "finance_opp_desc": "درجة ملاءتك المالية تسمح بسحب مكشوف بسعر مفضل."
+    }
+  },
+  "devis": {
+    "title": "إدارة عروض الأسعار",
+    "subtitle": "خط أنابيب المبيعات — من الاقتراح إلى الفوترة",
+    "create_btn": "عرض سعر جديد",
+    "search_placeholder": "البحث بالعميل أو الرقم...",
+    "status": {
+      "draft": "مسودة",
+      "sent": "مُرسل",
+      "accepted": "مقبول",
+      "refused": "مرفوض",
+      "expired": "منتهي"
+    },
+    "filter": {
+      "all": "جميع الحالات"
+    },
+    "kpi": {
+      "total": "إجمالي العروض",
+      "total_sub": "هذا الشهر",
+      "pipeline": "خط الأنابيب",
+      "pipeline_sub": "عروض في الانتظار",
+      "accepted": "مقبولة",
+      "accepted_sub": "قابلة للفوترة",
+      "rate": "معدل التحويل",
+      "rate_sub": "خلال الفترة"
+    },
+    "table": {
+      "numero": "الرقم",
+      "client": "العميل",
+      "date": "تاريخ الإنشاء",
+      "expiry": "تاريخ الانتهاء",
+      "amount": "المبلغ الإجمالي",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "ht": "قبل الضريبة"
+    },
+    "detail": {
+      "title": "عرض سعر",
+      "client": "العميل",
+      "dates": "التواريخ",
+      "expires": "تنتهي في",
+      "amount": "المبلغ الإجمالي",
+      "status": "الحالة",
+      "items": "تفاصيل العناصر",
+      "designation": "الوصف",
+      "qty": "الكمية",
+      "unit_price": "سعر الوحدة",
+      "tva": "ضريبة القيمة المضافة",
+      "total": "الإجمالي",
+      "total_ht": "المجموع قبل الضريبة",
+      "tva_total": "إجمالي الضريبة",
+      "total_ttc": "الإجمالي مع الضريبة",
+      "notes": "ملاحظات تجارية"
+    },
+    "actions": {
+      "view": "عرض التفاصيل",
+      "send": "إرسال للعميل",
+      "convert": "تحويل إلى فاتورة",
+      "print": "طباعة",
+      "download": "تحميل",
+      "convert_to_invoice": "تحويل إلى فاتورة"
+    },
+    "create_modal": {
+      "title": "إنشاء عرض سعر جديد",
+      "placeholder": "نموذج الإنشاء قيد الدمج",
+      "desc": "سيكون النموذج متاحاً في الإصدار القادم."
+    }
+  },
+  "rh": {
+    "title": "الموارد البشرية والرواتب",
+    "subtitle": "إدارة الموظفين وكشوف الرواتب والامتثال الاجتماعي",
+    "add_employee_btn": "إضافة موظف",
+    "search_placeholder": "البحث بالاسم أو المنصب...",
+    "status": {
+      "active": "نشط",
+      "on_leave": "في إجازة",
+      "inactive": "غير نشط"
+    },
+    "filter": {
+      "all_depts": "جميع الأقسام"
+    },
+    "departments": {
+      "direction": "الإدارة العليا",
+      "finance": "المالية",
+      "commercial": "التجاري",
+      "it": "تقنية المعلومات",
+      "rh": "الموارد البشرية",
+      "logistique": "اللوجستية",
+      "production": "الإنتاج"
+    },
+    "contract": {
+      "cdi": "دائم",
+      "cdd": "مؤقت",
+      "stage": "تدريب",
+      "freelance": "مستقل"
+    },
+    "kpi": {
+      "headcount": "إجمالي الموظفين",
+      "active": "نشطون",
+      "payroll": "كتلة الرواتب",
+      "payroll_sub": "الأساس + العلاوات (شهري)",
+      "avg_salary": "متوسط الراتب",
+      "avg_salary_sub": "الأساس الإجمالي",
+      "departments": "الأقسام",
+      "departments_sub": "وحدات نشطة"
+    },
+    "card": {
+      "base_salary": "الراتب الأساسي",
+      "since": "منذ"
+    },
+    "tabs": {
+      "employees": "الموظفون",
+      "payroll": "الرواتب",
+      "holidays": "الإجازات",
+      "analytics": "التحليلات"
+    },
+    "payroll": {
+      "monthly_run": "معالجة الرواتب — يناير 2024",
+      "print_all": "طباعة الكل",
+      "generate": "إنشاء الكشوف",
+      "status": {
+        "pending": "في الانتظار",
+        "paid": "مدفوع",
+        "processing": "قيد المعالجة"
+      },
+      "table": {
+        "employee": "الموظف",
+        "base": "الراتب الأساسي",
+        "primes": "العلاوات",
+        "cnas": "الضمان الاجتماعي (9%)",
+        "irg": "الضريبة (~12%)",
+        "net": "صافي الراتب",
+        "status": "الحالة"
+      }
+    },
+    "holidays": {
+      "pending": "قيد النظر",
+      "approved": "موافق عليه",
+      "refused": "مرفوض",
+      "days_label": "أيام",
+      "types": {
+        "annual": "إجازة سنوية",
+        "sick": "إجازة مرضية",
+        "exceptional": "إجازة استثنائية"
+      },
+      "status": {
+        "pending": "في الانتظار",
+        "approved": "موافق عليه",
+        "refused": "مرفوض"
+      },
+      "table": {
+        "employee": "الموظف",
+        "type": "النوع",
+        "from": "من",
+        "to": "إلى",
+        "days": "أيام",
+        "status": "الحالة"
+      }
+    },
+    "analytics": {
+      "by_department": "حسب القسم",
+      "by_contract": "حسب نوع العقد",
+      "employees": "موظفون"
+    },
+    "detail": {
+      "position": "المنصب",
+      "department": "القسم",
+      "hire_date": "تاريخ التوظيف",
+      "contract": "نوع العقد",
+      "phone": "الهاتف",
+      "base_salary": "الراتب الأساسي",
+      "primes": "العلاوات الشهرية",
+      "view_bulletin": "عرض كشف الراتب"
+    },
+    "bulletin": {
+      "title": "كشف الراتب",
+      "employee": "الموظف",
+      "period": "الفترة",
+      "base_salary": "الراتب الأساسي",
+      "primes": "العلاوات",
+      "cnas": "الضمان الاجتماعي (9%)",
+      "caramate": "صندوق التقاعد (2.5%)",
+      "irg": "ضريبة الدخل",
+      "net": "صافي المستحق",
+      "print": "طباعة كشف الراتب"
+    }
+  },
+  "billing": {
+    "table": {
+      "month": "الشهر"
+    }
+  },
+  "bc": {
+    "title": "أوامر الشراء",
+    "subtitle": "إدارة المشتريات مع سير عمل الموافقة متعدد المستويات",
+    "create_btn": "أمر شراء جديد",
+    "search_placeholder": "البحث بالمورد أو الرقم...",
+    "pending_approval_count": "أمر شراء في انتظار الموافقة",
+    "status": {
+      "draft": "مسودة",
+      "pending_approval": "في انتظار الموافقة",
+      "approved": "موافق عليه",
+      "ordered": "مُطلب",
+      "received": "مستلم",
+      "cancelled": "ملغى"
+    },
+    "urgency": {
+      "low": "منخفض",
+      "medium": "متوسط",
+      "high": "عاجل"
+    },
+    "filter": {
+      "all": "جميع الحالات"
+    },
+    "tabs": {
+      "orders": "أوامر الشراء",
+      "supplier_scores": "تقييم الموردين",
+      "analytics": "التحليلات"
+    },
+    "kpi": {
+      "total": "إجمالي الطلبات",
+      "total_sub": "هذا الشهر",
+      "pending": "في انتظار الموافقة",
+      "received": "مستلمة",
+      "received_sub": "توصيلات مؤكدة",
+      "avg_score": "متوسط التقييم",
+      "avg_score_sub": "تقييم الموردين"
+    },
+    "table": {
+      "numero": "الرقم",
+      "supplier": "المورد",
+      "requester": "الطالب",
+      "amount": "المبلغ الإجمالي",
+      "delivery": "التسليم",
+      "urgency": "الأولوية",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "scores": {
+      "title": "أداء الموردين",
+      "supplier": "المورد",
+      "global": "التقييم العام",
+      "delivery": "الالتزام",
+      "quality": "الجودة",
+      "price": "السعر",
+      "orders": "الطلبات",
+      "best": "الأفضل"
+    },
+    "analytics": {
+      "by_status": "حسب الحالة",
+      "by_department": "حسب القسم"
+    },
+    "detail": {
+      "title": "أمر الشراء",
+      "supplier": "المورد",
+      "requester": "الطالب",
+      "delivery": "تاريخ التسليم",
+      "total": "الإجمالي",
+      "purpose": "الغرض / التبرير",
+      "items": "العناصر المطلوبة",
+      "ref": "المرجع",
+      "designation": "الوصف",
+      "qty": "الكمية",
+      "unit_price": "سعر الوحدة",
+      "tva": "الضريبة",
+      "total_ttc": "الإجمالي الكلي",
+      "workflow": "مسار الموافقة"
+    },
+    "actions": {
+      "print": "طباعة",
+      "approve": "موافقة",
+      "reject": "رفض"
+    },
+    "approval": {
+      "title": "موافقة على أمر الشراء",
+      "comment": "تعليق",
+      "comment_placeholder": "أضف تعليقاً (اختياري)...",
+      "approved_msg": "تمت الموافقة على أمر الشراء!",
+      "rejected_msg": "تم رفض أمر الشراء."
+    }
+  },
+  "amort": {
+    "title": "الاستهلاك والتقييم",
+    "subtitle": "الأصول الثابتة وجداول الاستهلاك وتقييم FIFO/LIFO/PMP",
+    "add_btn": "أصل جديد",
+    "plan": {
+      "ifrs": "معيار IFRS",
+      "pca": "المخطط المحاسبي الجزائري"
+    },
+    "status": {
+      "active": "نشط",
+      "fully_depreciated": "مستهلك بالكامل",
+      "disposed": "مُتصرف فيه"
+    },
+    "filter": {
+      "all": "جميع الفئات"
+    },
+    "methods": {
+      "lineaire": "القسط الثابت",
+      "lineaire_sub": "رسوم ثابتة",
+      "degressif": "القسط المتناقص",
+      "degressif_sub": "رسوم متناقصة",
+      "uop": "وحدات الإنتاج",
+      "uop_sub": "مبني على الاستخدام"
+    },
+    "kpi": {
+      "gross": "القيمة الإجمالية",
+      "net": "القيمة الدفترية",
+      "cumul": "الاستهلاك المتراكم",
+      "annual_charge": "الرسوم السنوية",
+      "active": "الأصول النشطة",
+      "avg_usage": "متوسط الاستهلاك"
+    },
+    "tabs": {
+      "assets": "الأصول",
+      "schedule": "جدول الاستهلاك",
+      "valuation": "تقييم المخزون",
+      "analytics": "التحليلات"
+    },
+    "table": {
+      "code": "الرمز",
+      "asset": "الأصل",
+      "category": "الفئة",
+      "acq_date": "الاقتناء",
+      "gross": "القيمة الإجمالية",
+      "cumul": "الاستهلاك",
+      "net": "القيمة الصافية",
+      "usage": "نسبة الاستخدام",
+      "method": "الطريقة",
+      "pca": "الحساب",
+      "status": "الحالة"
+    },
+    "schedule": {
+      "year": "السنة",
+      "start_value": "القيمة الافتتاحية",
+      "annual": "القسط",
+      "cumul": "التراكم",
+      "end_value": "القيمة الختامية",
+      "current": "الحالي",
+      "select_asset": "اختر أصلاً لعرض جدول استهلاكه",
+      "go_to_assets": "عرض الأصول",
+      "caption": "الطريقة"
+    },
+    "valo": {
+      "title": "تقييم المخزون",
+      "subtitle": "مقارنة طرق التقييم",
+      "pmp_label": "المتوسط المرجح",
+      "fifo_label": "الأول في الأول خارج",
+      "lifo_label": "الأخير في الأول خارج",
+      "pmp_impact": "يلطف تقلبات الأسعار، موصى به وفق المخطط الجزائري.",
+      "fifo_impact": "تقييم بأقدم تكلفة. نهج محافظ.",
+      "lifo_impact": "تقييم بأحدث تكلفة. يزيد تكلفة المبيعات.",
+      "unit_cost": "تكلفة الوحدة",
+      "stock_value": "إجمالي قيمة المخزون",
+      "fiscal_impact": "الأثر الجبائي",
+      "lots_detail": "تفاصيل الدفعات",
+      "lot_date": "تاريخ الدفعة",
+      "lot_qty": "الكمية",
+      "lot_cost": "تكلفة الوحدة",
+      "lot_total": "قيمة الدفعة",
+      "units": "وحدات"
+    },
+    "analytics": {
+      "by_category": "حسب الفئة",
+      "depreciation_rate": "نسبة الاستهلاك",
+      "gross": "إجمالي",
+      "assets": "أصول",
+      "renewal_alert": "أصل/أصول تحتاج تجديد (>80%)"
+    },
+    "detail": {
+      "category": "الفئة",
+      "method": "الطريقة",
+      "duration": "العمر الإنتاجي",
+      "rate": "معدل الاستهلاك",
+      "department": "القسم",
+      "supplier": "المورد",
+      "pca_account": "رمز الحساب",
+      "residual": "القيمة المتبقية",
+      "gross": "القيمة الإجمالية",
+      "cumul": "الاستهلاك المتراكم",
+      "net": "القيمة الصافية",
+      "view_schedule": "جدول الاستهلاك"
+    },
+    "actions": {
+      "print": "طباعة",
+      "export": "تصدير"
+    }
+  },
+  "relances": {
+    "title": "متابعة العملاء",
+    "subtitle": "تتبع الديون المتأخرة والتحصيل — أتمتة الإشعارات متعددة المستويات",
+    "create_btn": "إشعار جديد",
+    "search_placeholder": "البحث بالعميل أو الفاتورة...",
+    "alert": {
+      "critical_count": "فاتورة/فواتير بالمستوى الحرج 3",
+      "critical_desc": "هذه الملفات تتطلب إجراءً عاجلاً أو إحالة قانونية."
+    },
+    "status": {
+      "pending": "للمتابعة",
+      "sent": "مُرسل",
+      "responded": "تم الرد",
+      "escalated": "مُصعَّد",
+      "resolved": "تم الحل",
+      "litigation": "نزاع قضائي"
+    },
+    "level": {
+      "1": "تذكير 1",
+      "2": "إنذار رسمي",
+      "3": "ما قبل التقاضي"
+    },
+    "filter": {
+      "all": "جميع الحالات"
+    },
+    "template": {
+      "tone": "الأسلوب",
+      "delay": "المدة"
+    },
+    "kpi": {
+      "total_overdue": "إجمالي المتأخرات",
+      "count": "الملفات النشطة",
+      "critical": "المستوى الحرج",
+      "avg_days": "متوسط التأخر",
+      "litigation": "في نزاع قضائي"
+    },
+    "table": {
+      "invoice": "الفاتورة",
+      "client": "العميل",
+      "amount": "المبلغ",
+      "overdue": "التأخر",
+      "level": "المستوى",
+      "status": "الحالة",
+      "last_contact": "آخر تواصل",
+      "actions": "الإجراءات",
+      "since": "استحقاق"
+    },
+    "detail": {
+      "title": "ملف المتابعة",
+      "client": "العميل",
+      "amount": "المبلغ المتأخر",
+      "overdue": "أيام التأخر",
+      "due_date": "تاريخ الاستحقاق",
+      "invoice_date": "تاريخ الفاتورة",
+      "notes": "ملاحظات"
+    },
+    "actions": {
+      "send": "إرسال إشعار"
+    },
+    "send": {
+      "title": "إرسال الإشعار",
+      "to": "إلى",
+      "email_content": "محتوى البريد",
+      "print": "طباعة الرسالة",
+      "confirm_btn": "إرسال بريد إلكتروني",
+      "sent_msg": "تم إرسال الإشعار بنجاح!"
     }
   }
 }

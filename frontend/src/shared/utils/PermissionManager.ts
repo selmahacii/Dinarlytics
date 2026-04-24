@@ -53,7 +53,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Modifier la comptabilité',
     description: 'Créer et modifier les écritures',
     category: 'comptabilite',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'intermediate'
   },
   {
@@ -69,7 +69,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Clôturer les exercices',
     description: 'Clôturer les exercices comptables',
     category: 'comptabilite',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'advanced'
   },
 
@@ -201,7 +201,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Gérer les utilisateurs',
     description: 'Créer et modifier les utilisateurs',
     category: 'administration',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'advanced'
   },
   {
@@ -209,7 +209,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Paramètres système',
     description: 'Modifier les paramètres du système',
     category: 'administration',
-    requiredFor: ['spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'advanced'
   },
   {
@@ -217,7 +217,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Sauvegardes',
     description: 'Gérer les sauvegardes',
     category: 'administration',
-    requiredFor: ['spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'advanced'
   },
 
@@ -227,7 +227,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Audit en lecture',
     description: 'Consulter les logs d\'audit',
     category: 'audit',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'intermediate'
   },
   {
@@ -235,7 +235,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Audit complet',
     description: 'Accès complet aux fonctions d\'audit',
     category: 'audit',
-    requiredFor: ['spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'advanced'
   },
 
@@ -321,7 +321,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Gestion articles',
     description: 'Créer, modifier et consulter les articles',
     category: 'articles',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'intermediate'
   },
 
@@ -347,7 +347,7 @@ export const AVAILABLE_PERMISSIONS: UserPermission[] = [
     name: 'Rapports stocks',
     description: 'Consulter les rapports de stocks',
     category: 'rapports',
-    requiredFor: ['sarl', 'spa'],
+    requiredFor: ['eurl', 'sarl', 'spa'],
     level: 'basic'
   },
   {
@@ -502,7 +502,7 @@ export const USER_ROLES: UserRole[] = [
     name: 'Directeur Ressources Humaines',
     description: 'Gestion du personnel, paie et conformité sociale',
     permissions: [
-      'dashboard-access', 'dashboard-overview',
+      'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'paie-read', 'paie-create', 'paie-validate',
       'admin-users',
       'rapports-basic', 'rapports-advanced',
@@ -518,7 +518,7 @@ export const USER_ROLES: UserRole[] = [
     name: 'Directeur Logistique',
     description: 'Gestion de la supply chain et des entrepôts multi-sites',
     permissions: [
-      'dashboard-access', 'dashboard-overview',
+      'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'stocks-read', 'stocks-move', 'stocks-inventory',
       'fournisseurs-manage',
       'rapports-stocks', 'rapports-achats',
@@ -549,7 +549,7 @@ export const USER_ROLES: UserRole[] = [
     name: 'Chef Comptable',
     description: 'Supervision de la comptabilité générale et tiers',
     permissions: [
-      'dashboard-access', 'dashboard-overview',
+      'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
       'facturation-read', 'facturation-validate',
       'paie-read', 'paie-create',
@@ -566,12 +566,12 @@ export const USER_ROLES: UserRole[] = [
     name: 'Comptable',
     description: 'Saisie comptable, pointage et déclarations',
     permissions: [
-      'dashboard-access', 'dashboard-overview',
+      'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'comptabilite-read', 'comptabilite-write',
       'facturation-read', 'facturation-validate',
       'paie-read',
       'rapports-comptabilite', 'fiscalite-declarations', 'rapports-basic',
-      'lia-access'
+      'lia-access', 'stocks-read'
     ],
     companyTypes: ['eurl', 'sarl', 'spa'],
     accessLevels: ['professional', 'enterprise']
@@ -612,7 +612,7 @@ export const USER_ROLES: UserRole[] = [
     name: 'Auditeur Interne',
     description: 'Contrôle et conformité (Lecture Seule globale)',
     permissions: [
-      'dashboard-access', 'dashboard-overview',
+      'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'audit-read', 'audit-full',
       'comptabilite-read', 'facturation-read', 'stocks-read', 'paie-read',
       'rapports-advanced', 'rapports-comptabilite',
@@ -628,7 +628,7 @@ export const USER_ROLES: UserRole[] = [
     name: 'Trésorier',
     description: 'Gestion des flux financiers et relations bancaires',
     permissions: [
-      'dashboard-access', 'dashboard-overview',
+      'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'comptabilite-read',
       'rapports-tresorerie', 'rapports-basic',
       'lia-access'

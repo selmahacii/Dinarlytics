@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { AlerteFinanciere } from '@shared/mockData/dashboardMocks';
 import {
@@ -27,6 +28,7 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
   onDeclencher
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const getStatutIcon = (statut: string) => {
@@ -70,6 +72,10 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
     return s === 'surveillance' || s === 'monitoring';
   }).length;
 
+  const handleViewAll = () => {
+    navigate('/dashboard/alertes');
+  };
+
   return (
     <div className="space-y-4">
       {/* Header avec statistiques */}
@@ -84,6 +90,15 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
               <p className="text-sm text-slate-600">{t('dashboard.widgets.alertes.subtitle')}</p>
             </div>
           </div>
+          <button 
+            onClick={handleViewAll}
+            className="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition-colors group"
+          >
+            <span>{t('audit.analytics.view_all') || 'Tout voir'}</span>
+            <div className="p-1 bg-slate-100 rounded group-hover:bg-slate-200">
+              <ExclamationTriangleIcon className="h-3 w-3" />
+            </div>
+          </button>
         </div>
 
         <div className="grid grid-cols-3 gap-3">

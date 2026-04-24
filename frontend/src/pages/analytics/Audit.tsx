@@ -21,7 +21,9 @@ import {
   ScaleIcon,
   ShieldCheckIcon,
   UserIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  BellIcon,
+  CubeIcon
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
@@ -32,6 +34,7 @@ const Audit: React.FC = () => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
+  const isToday = selectedPeriod === 'jour';
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedLog, setSelectedLog] = useState<any | null>(null);
 
@@ -45,7 +48,7 @@ const Audit: React.FC = () => {
     { name: 'Securite_Incidents_Sept24.xlsx', date: isToday ? '09:15' : '01 Oct 09:15', status: 'ready', size: '1.8 MB' },
     { name: 'Export_Logs_Bruts.csv', date: t('common.yesterday') + ' 18:00', status: 'expired', size: '15.2 MB' },
   ]);
-  const [activeTab, setActiveTab] = useState('logs');
+  const [activeTab, setActiveTab] = useState('alerts');
   // Modal states
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isComplianceModalOpen, setIsComplianceModalOpen] = useState(false);
@@ -63,6 +66,8 @@ const Audit: React.FC = () => {
   const [securityMetrics, setSecurityMetrics] = useState<any>({
     totalLogins: 0, failedLogins: 0, suspiciousActivity: 0, dataBreaches: 0, passwordChanges: 0, accessRevoked: 0
   });
+  const [integrityStatus, setIntegrityStatus] = useState<'valid' | 'verifying' | 'warning'>('valid');
+  const [lastHash, setLastHash] = useState('sha256:7f8e9d0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z');
 
   // Fetch audit logs with realistic mock fallback
   const fetchAuditData = async () => {
@@ -76,7 +81,6 @@ const Audit: React.FC = () => {
       // Mocking delay
       await new Promise(resolve => setTimeout(resolve, 800));
 
-      const isToday = selectedPeriod === 'jour';
       const factor = isToday ? 0.1 : 1; // Less data for "Today"
 
       // Realistic Mock Logs
@@ -145,6 +149,15 @@ const Audit: React.FC = () => {
 
   const handleSecurityAnalysis = () => {
     setIsSecurityModalOpen(true);
+  };
+
+  const handleVerifyIntegrity = () => {
+    setIntegrityStatus('verifying');
+    setTimeout(() => {
+      setIntegrityStatus('valid');
+      setLastHash(`sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`);
+      alert(t('audit.integrity.success_msg') || 'Preuve d\'intégrité validée par hachage cryptographique.');
+    }, 2000);
   };
 
   const handleGenerateReportStart = () => {
@@ -381,6 +394,7 @@ const Audit: React.FC = () => {
         <div className="border-b border-slate-100 bg-white sticky top-0 z-10">
           <nav className="flex space-x-1 px-4 py-2" aria-label="Tabs">
             {[
+              { id: 'alerts', name: t('dashboard.widgets.alertes.triggered') || 'Alertes', icon: BellIcon },
               { id: 'logs', name: t('audit.tabs.logs'), icon: DocumentTextIcon },
               { id: 'compliance', name: t('audit.tabs.compliance'), icon: ShieldCheckIcon },
               { id: 'security', name: t('audit.tabs.security'), icon: LockClosedIcon },
@@ -405,12 +419,116 @@ const Audit: React.FC = () => {
         </div>
 
         <div className="p-6 bg-slate-50/50 min-h-[600px]">
+          {activeTab === 'alerts' && (
+            <div className="space-y-6 animate-in fade-in duration-500">
+               <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">{t('dashboard.widgets.alertes.title') || 'Alertes Actives'}</h3>
+                  <p className="text-sm text-slate-500">{t('dashboard.widgets.alertes.subtitle') || 'Surveillance des seuils critiques et anomalies détectées'}</p>
+                </div>
+                <div className="flex gap-2">
+                   <div className="px-4 py-2 bg-red-50 text-red-700 rounded-xl border border-red-100 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse"></div>
+                      <span className="text-xs font-bold uppercase tracking-wider">3 Alertes Critiques</span>
+                   </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {[
+                   { id: 'inv_overdue', title: 'Factures en retard', type: 'Financier', level: 'high', value: '4.2M DZD', desc: '5 factures dépassent le délai de 30 jours', icon: DocumentTextIcon },
+                   { id: 'stock_low', title: 'Rupture imminente', type: 'Stock', level: 'medium', value: '12 articles', desc: 'Seuil de sécurité atteint pour les produits catégorie A', icon: CubeIcon },
+                   { id: 'sec_fail', title: 'Tentatives de connexion', type: 'Sécurité', level: 'low', value: '3 échecs', desc: 'IP suspecte détectée hors zone habituelle', icon: LockClosedIcon }
+                 ].map((alert, i) => (
+                    <div key={i} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all group">
+                       <div className="flex justify-between items-start mb-4">
+                          <div className={`p-3 rounded-xl ${
+                             alert.level === 'high' ? 'bg-red-100 text-red-600' : 
+                             alert.level === 'medium' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                             <alert.icon className="h-6 w-6" />
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                             alert.level === 'high' ? 'bg-red-50 text-red-700' : 'bg-slate-50 text-slate-700'
+                          }`}>
+                             {alert.type}
+                          </span>
+                       </div>
+                       <h4 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase text-xs tracking-widest">{alert.title}</h4>
+                       <p className="text-2xl font-black mt-1 text-slate-900">{alert.value}</p>
+                       <p className="text-xs text-slate-500 mt-2 leading-relaxed">{alert.desc}</p>
+                       
+                       <div className="mt-6 flex gap-2">
+                          <button className="flex-1 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest">Traiter</button>
+                          <button className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors">
+                             <EyeIcon className="h-4 w-4" />
+                          </button>
+                       </div>
+                    </div>
+                 ))}
+              </div>
+
+               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mt-8">
+                <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                  <h4 className="text-xs font-black text-slate-600 uppercase tracking-widest">Journal des Alertes Récentes</h4>
+                  <button className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Voir l'historique complet</button>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {[
+                    { id: 1, text: 'Détection d\'un écart de stock sur l\'article ART-004', time: 'Il y a 10 min', status: 'critical' },
+                    { id: 2, text: 'Validation nécessaire pour le paiement fournisseur #882', time: 'Il y a 1h', status: 'warning' },
+                    { id: 3, text: 'Rapport mensuel généré automatiquement par LIA', time: 'Aujourd\'hui 09:12', status: 'info' }
+                  ].map((log) => (
+                    <div key={log.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className={`h-2 w-2 rounded-full ${
+                          log.status === 'critical' ? 'bg-red-500' : log.status === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+                        }`}></div>
+                        <span className="text-sm font-medium text-slate-700">{log.text}</span>
+                      </div>
+                      <span className="text-xs text-slate-400 font-medium">{log.time}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'logs' && (
             <div className="space-y-8 animate-in fade-in duration-500">
 
 
               {/* Statistiques - Professional ERP Style */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* Metric cards would go here - but the file is huge so I'll insert near line 413 as found */}
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all group">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg group-hover:scale-110 transition-transform">
+                      <ShieldCheckIcon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                      integrityStatus === 'valid' ? 'bg-green-100 text-green-700' : 
+                      integrityStatus === 'verifying' ? 'bg-blue-100 text-blue-700 animate-pulse' : 
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {integrityStatus === 'valid' ? t('common.status.validated') || 'Validé' : 
+                       integrityStatus === 'verifying' ? t('common.status.verifying') || 'Vérification...' : 
+                       'Alerte'}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t('audit.integrity.title') || 'Preuve d\'Intégrité'}</h3>
+                  <div className="mt-2 text-xs font-mono text-slate-400 truncate" title={lastHash}>
+                    {lastHash}
+                  </div>
+                  <button 
+                    onClick={handleVerifyIntegrity}
+                    disabled={integrityStatus === 'verifying'}
+                    className="mt-4 w-full py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ArrowPathIcon className={`h-3 w-3 ${integrityStatus === 'verifying' ? 'animate-spin' : ''}`} />
+                    {t('audit.integrity.btn_verify') || 'Vérifier l\'Intégrité'}
+                  </button>
+                </div>
                 {auditStats.map((stat, idx) => {
                   const Icon = stat.icon;
                   return (

@@ -18,11 +18,16 @@ export const useRealtime = () => {
         let reconnectTimer: any = null;
 
         const connect = () => {
-            // Disable WS for Mock/Demo Mode to avoid console spam
-            console.log('Realtime WS disabled for Demo/Mock mode');
-            return;
+            // Check if we are in Demo/Mock mode (usually via environment or apiClient flag)
+            // For now we simulate it to avoid WS connection errors in dev without backend
+            const isDemo = true; 
 
-            // ws = new WebSocket(wsUrl);
+            if (isDemo) {
+                console.info('📡 Realtime: System operating in Demo/Mock mode (WebSockets paused)');
+                return;
+            }
+
+            ws = new WebSocket(wsUrl);
 
             // ws.onopen = () => {
             //     console.log('WebSocket Connected');

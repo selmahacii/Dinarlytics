@@ -54,10 +54,10 @@ const AnalyticsAvancees: React.FC = () => {
   // Hardcoded data with scaling
   const analyticsData = React.useMemo(() => ({
     funnel: [
-      { name: 'Prospects', count: Math.round(12500 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 100, color: 'bg-slate-300' },
-      { name: 'Devis Émis', count: Math.round(3200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 25.6, color: 'bg-slate-400' },
-      { name: 'Négociation', count: Math.round(1200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 9.6, color: 'bg-slate-600' },
-      { name: 'Facturé', count: Math.round(480 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 3.8, color: 'bg-slate-800' }
+      { name: t('advanced_analytics.pipeline.prospects'), count: Math.round(12500 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 100, color: 'bg-slate-300' },
+      { name: t('advanced_analytics.pipeline.quotes'), count: Math.round(3200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 25.6, color: 'bg-slate-400' },
+      { name: t('advanced_analytics.pipeline.negotiation'), count: Math.round(1200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 9.6, color: 'bg-slate-600' },
+      { name: t('advanced_analytics.pipeline.invoiced'), count: Math.round(480 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 3.8, color: 'bg-slate-800' }
     ],
     cohorts: [
       { name: 'Sept 2024', data: [100, 45, 32, 28, 25, 22] },
@@ -65,9 +65,9 @@ const AnalyticsAvancees: React.FC = () => {
       { name: 'Nov 2024', data: [100, 48, 35, 30] }
     ],
     correlations: [
-      { metric1: 'Vitesse Site', metric2: 'Taux Conversion', correlation: 0.85 },
-      { metric1: 'Invest. Pub', metric2: 'Nouv. Clients', correlation: 0.72 },
-      { metric1: 'Remises %', metric2: 'Marge Brute', correlation: -0.65 }
+      { metric1: t('advanced_analytics.correlations.site_speed'), metric2: t('advanced_analytics.correlations.conv_rate'), correlation: 0.85 },
+      { metric1: t('advanced_analytics.correlations.ad_spend'), metric2: t('advanced_analytics.correlations.new_clients'), correlation: 0.72 },
+      { metric1: t('advanced_analytics.correlations.discounts'), metric2: t('advanced_analytics.correlations.gross_margin'), correlation: -0.65 }
     ]
   }), [scaleFactor]);
 
@@ -118,11 +118,11 @@ const AnalyticsAvancees: React.FC = () => {
   const currentMetrics = React.useMemo(() => [
     {
       name: t('advanced_analytics.metrics.dso'),
-      value: kpiData ? `${kpiData.dso_days}j` : '35j',
+      value: kpiData ? `${kpiData.dso_days}${t('advanced_analytics.metrics.days')}` : `35${t('advanced_analytics.metrics.days')}`,
       diff: -2.3,
       icon: ClockIcon,
       color: 'slate',
-      target: `30j`
+      target: `30${t('advanced_analytics.metrics.days')}`
     },
     {
       name: t('advanced_analytics.metrics.bfr'),
@@ -265,7 +265,7 @@ const AnalyticsAvancees: React.FC = () => {
                 <p className="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">{grid.name}</p>
                 <h3 className="text-2xl font-black text-slate-800 tracking-tight">{grid.value}</h3>
                 <div className="mt-3 flex items-center justify-between border-t border-slate-50 pt-3">
-                  <span className="text-[10px] text-slate-400 font-semibold">Objectif: {grid.target}</span>
+                  <span className="text-[10px] text-slate-400 font-semibold">{t('advanced_analytics.metrics.objective')}: {grid.target}</span>
                   <div className="h-1.5 w-16 bg-slate-100 rounded-full overflow-hidden">
                     <div className={`h-full bg-${grid.color}-500 w-3/4`}></div>
                   </div>
@@ -325,7 +325,7 @@ const AnalyticsAvancees: React.FC = () => {
                     <div className="flex items-baseline md:flex-row flex-col">
                       <h2 className="text-4xl font-black text-slate-800 mr-3">{formatCurrency(projectionValue)}</h2>
                       <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center">
-                        <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +3.2% vs M-1
+                        <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +3.2% {t('advanced_analytics.forecast.vs_m1')}
                       </span>
                     </div>
                   </div>
@@ -333,16 +333,16 @@ const AnalyticsAvancees: React.FC = () => {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
-                    <p className="text-[10px] font-black text-slate-400 uppercase">M-2</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase">{t('advanced_analytics.forecast.m_minus_2')}</p>
                     <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[0])}</p>
                   </div>
                   <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
-                    <p className="text-[10px] font-black text-slate-400 uppercase">M-1</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase">{t('advanced_analytics.forecast.m_minus_1')}</p>
                     <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[1])}</p>
                   </div>
                   <div className="p-4 rounded-xl border-2 border-indigo-100 bg-indigo-50/30 text-center relative">
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full">Actuel</span>
-                    <p className="text-[10px] font-black text-indigo-400 uppercase">Projection</p>
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full">{t('advanced_analytics.forecast.current')}</span>
+                    <p className="text-[10px] font-black text-indigo-400 uppercase">{t('advanced_analytics.forecast.projection')}</p>
                     <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[2])}</p>
                   </div>
                 </div>
@@ -391,12 +391,12 @@ const AnalyticsAvancees: React.FC = () => {
         {/* 🟢 ADDITIONAL DATA GRIDS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-800 mb-4">Analyse de Cohortes</h3>
+            <h3 className="font-bold text-slate-800 mb-4">{t('advanced_analytics.cohort_analysis')}</h3>
             <div className="overflow-hidden rounded-xl border border-slate-100">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-500">
                   <tr>
-                    <th className="p-3 text-left font-semibold text-xs uppercase">Mois</th>
+                    <th className="p-3 text-left font-semibold text-xs uppercase">{t('billing.table.month') || 'Mois'}</th>
                     <th className="p-3 text-center font-semibold text-xs uppercase">M+1</th>
                     <th className="p-3 text-center font-semibold text-xs uppercase">M+2</th>
                     <th className="p-3 text-center font-semibold text-xs uppercase">M+3</th>
@@ -422,7 +422,7 @@ const AnalyticsAvancees: React.FC = () => {
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-800 mb-4">Corrélations Indicateurs</h3>
+            <h3 className="font-bold text-slate-800 mb-4">{t('advanced_analytics.indicator_correlations')}</h3>
             <div className="flex flex-col justify-center h-full space-y-6 pb-4">
               {analyticsData.correlations.map((corr, idx) => (
                 <div key={idx}>
@@ -496,15 +496,15 @@ const AnalyticsAvancees: React.FC = () => {
                 <div className="p-4 bg-orange-50 border border-orange-100 rounded-2xl flex gap-4">
                   <ExclamationTriangleIcon className="h-5 w-5 text-orange-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-orange-800">Risque Attrition Client</p>
-                    <p className="text-[10px] text-orange-600 mt-1">3 clients majeurs affichent un ralentissement de commandes.</p>
+                    <p className="text-xs font-bold text-orange-800">{t('advanced_analytics.risks_alerts.churn_title')}</p>
+                    <p className="text-[10px] text-orange-600 mt-1">{t('advanced_analytics.risks_alerts.churn_desc')}</p>
                   </div>
                 </div>
                 <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex gap-4">
                   <InformationCircleIcon className="h-5 w-5 text-indigo-500 flex-shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-indigo-800">Opportunité de Financement</p>
-                    <p className="text-[10px] text-indigo-600 mt-1">Votre score de solvabilité permet un découvert autorisé à taux préférentiel.</p>
+                    <p className="text-xs font-bold text-indigo-800">{t('advanced_analytics.risks_alerts.finance_opp_title')}</p>
+                    <p className="text-[10px] text-indigo-600 mt-1">{t('advanced_analytics.risks_alerts.finance_opp_desc')}</p>
                   </div>
                 </div>
               </div>

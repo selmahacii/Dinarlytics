@@ -211,8 +211,13 @@ const Inventaire: React.FC = () => {
   const [selectedReorderArticle, setSelectedReorderArticle] = useState<any>(null);
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
   const [selectedBarcodeArticle, setSelectedBarcodeArticle] = useState<any>(null);
+  const [valuationMethod, setValuationMethod] = useState<'FIFO' | 'LIFO' | 'PMP'>('PMP');
 
-  const { products } = useProducts();
+  const { products, refetch } = useProducts();
+  
+  useEffect(() => {
+    refetch();
+  }, []);
   const totalStock = products.reduce((total, article) => 
     total + (article.prixUnitaire * article.stock), 0
   );
@@ -669,6 +674,20 @@ const Inventaire: React.FC = () => {
               <option value="faible">⚠️ {t('inventory.filters.status_low')}</option>
               <option value="critique">🔴 {t('inventory.filters.status_critical')}</option>
             </select>
+
+            {/* Valuation Method */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">Valuation:</span>
+              <select
+                value={valuationMethod}
+                onChange={(e) => setValuationMethod(e.target.value as 'FIFO' | 'LIFO' | 'PMP')}
+                className="px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-sm font-medium"
+              >
+                <option value="PMP">PMP (Prix Moyen Pondéré)</option>
+                <option value="FIFO">FIFO (First-In, First-Out)</option>
+                <option value="LIFO">LIFO (Last-In, First-Out)</option>
+              </select>
+            </div>
 
             {/* Tri */}
             <div className="flex items-center space-x-2">
