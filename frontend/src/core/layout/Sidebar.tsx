@@ -128,7 +128,8 @@ const Sidebar: React.FC = () => {
     },
 
     // 4. Commercial & Supply Chain (Impact Finance)
-    has('facturation-read') && {
+    // Show if user has any permission relevant to this section
+    (has('facturation-read') || has('fournisseurs-manage') || has('stocks-read') || has('clients-manage')) && {
       type: 'submenu',
       id: 'operations-commerciales',
       icon: ShoppingCartIcon,
@@ -136,10 +137,10 @@ const Sidebar: React.FC = () => {
       isOpen: openMenus['operations-commerciales'],
       onToggle: () => toggleMenu('operations-commerciales'),
       subItems: [
-        { path: '/factures-vente', icon: DocumentTextIcon, label: t('common.sales_invoices') },
+        has('facturation-read') && { path: '/factures-vente', icon: DocumentTextIcon, label: t('common.sales_invoices') },
         has('facturation-create') && { path: '/devis', icon: ClipboardDocumentListIcon, label: t('nav.quotations') },
         has('facturation-read') && { path: '/relances-clients', icon: DocumentTextIcon, label: t('nav.relances') },
-        { path: '/achats-charges', icon: BanknotesIcon, label: t('common.purchase_invoices') },
+        has('facturation-read') && { path: '/achats-charges', icon: BanknotesIcon, label: t('common.purchase_invoices') },
         has('fournisseurs-manage') && { path: '/bons-commande', icon: ShoppingCartIcon, label: t('nav.purchase_orders') },
         has('clients-manage') && { path: '/clients', icon: UsersIcon, label: t('nav.client_portfolio') },
         has('clients-manage') && { path: '/clients/groupes', icon: UserGroupIcon, label: t('nav.client_groups') },
@@ -163,7 +164,7 @@ const Sidebar: React.FC = () => {
     },
 
     // 6. Strategic Reports
-    has('rapports-basic') && {
+    (has('rapports-basic') || has('rapports-tresorerie') || has('rapports-ventes') || has('rapports-achats') || has('rapports-stocks') || has('rapports-comptabilite') || has('rapports-fiscalite')) && {
       type: 'submenu',
       id: 'analyses-rapports',
       icon: DocumentChartBarIcon,
@@ -173,13 +174,19 @@ const Sidebar: React.FC = () => {
       subItems: [
         has('rapports-tresorerie') && { path: '/rapports/tresorerie-banque', icon: BanknotesIcon, label: t('nav.cash_flow') },
         has('rapports-ventes') && { path: '/rapports/ventes-clients', icon: ChartBarIcon, label: t('nav.commercial_analysis') },
-        has('rapports-basic') && { path: '/rapports/analytics', icon: DocumentChartBarIcon, label: t('nav.custom_reports') },
+        has('rapports-achats') && { path: '/rapports/achats-fournisseurs', icon: TruckIcon, label: t('nav.purchase_reports') },
+        has('rapports-stocks') && { path: '/rapports/stocks-produits', icon: CubeIcon, label: t('nav.stock_reports') },
+        has('rapports-comptabilite') && { path: '/rapports/comptabilite-resultats', icon: CalculatorIcon, label: t('nav.accounting_results') },
+        has('rapports-fiscalite') && { path: '/rapports/fiscalite-declarations', icon: ScaleIcon, label: t('nav.tax_declarations') },
+        has('rapports-personnalises') && { path: '/rapports/personnalises-comparatifs', icon: DocumentChartBarIcon, label: t('nav.custom_reports') },
+        has('rapports-basic') && { path: '/rapports/analytics', icon: DocumentChartBarIcon, label: t('nav.analytics') },
         has('rapports-advanced') && { path: '/dashboard/analytics', icon: ChartPieIcon, label: t('nav.performance') }
       ].filter(Boolean)
     },
 
     // 6. Security & Settings
-    has('audit-read') && {
+    // Show if user has audit access OR user management OR system settings
+    (has('audit-read') || has('admin-users') || has('admin-settings')) && {
       type: 'submenu',
       id: 'controle-reglages',
       icon: ShieldCheckIcon,
@@ -187,12 +194,12 @@ const Sidebar: React.FC = () => {
       isOpen: openMenus['controle-reglages'],
       onToggle: () => toggleMenu('controle-reglages'),
       subItems: [
-        { path: '/audit-explorer', icon: ShieldCheckIcon, label: t('nav.audit_traceability') },
+        has('audit-read') && { path: '/audit-explorer', icon: ShieldCheckIcon, label: t('nav.audit_traceability') },
         has('admin-users') && { path: '/utilisateurs', icon: UsersIcon, label: t('nav.user_management') },
         has('admin-users') && { path: '/gestion-utilisateurs-acces', icon: UserGroupIcon, label: t('nav.role_management') },
         has('admin-users') && { path: '/acces', icon: KeyIcon, label: t('nav.access_control') },
         has('admin-settings') && { path: '/entreprise', icon: BuildingOfficeIcon, label: t('nav.company_profile') },
-        { path: '/parametres', icon: CogIcon, label: t('nav.settings') }
+        has('admin-settings') && { path: '/parametres', icon: CogIcon, label: t('nav.settings') }
       ].filter(Boolean)
     }
   ] as Array<SidebarItem | false>).filter(Boolean) as SidebarItem[];
@@ -346,11 +353,13 @@ const Sidebar: React.FC = () => {
         {/* Footer / Standard Switcher - Minimalist White */}
         <div className="p-4 border-t border-slate-100 bg-white z-30">
 
-          {/* Settings Link (matches screenshot position) */}
-          <Link to="/parametres" className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors mb-2">
-            <CogIcon className="w-5 h-5 mr-3 text-slate-400" />
-            {!isSidebarCollapsed && <span className="text-sm font-medium">{t('nav.settings')}</span>}
-          </Link>
+          {/* Settings Link — only visible to users with admin-settings permission */}
+          {has('admin-settings') && (
+            <Link to="/parametres" className="flex items-center px-3 py-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors mb-2">
+              <CogIcon className="w-5 h-5 mr-3 text-slate-400" />
+              {!isSidebarCollapsed && <span className="text-sm font-medium">{t('nav.settings')}</span>}
+            </Link>
+          )}
 
           {isSidebarCollapsed && (
             <button

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
 import {
     ShieldCheckIcon,
     ArrowPathIcon,
@@ -31,10 +31,13 @@ const AuditExplorer: React.FC = () => {
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const res = await axios.get<AuditLog[]>('/api/v1/audit/logs');
-            setLogs(res.data);
+            const res = await apiClient.get<AuditLog[]>('/audit/logs');
+            // Ensure data is an array
+            const data = Array.isArray(res.data) ? res.data : (res.data as any)?.logs || [];
+            setLogs(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error('Failed to fetch logs', err);
+            setLogs([]);
         } finally {
             setLoading(false);
         }
@@ -44,9 +47,9 @@ const AuditExplorer: React.FC = () => {
         fetchLogs();
     }, []);
 
-    const filteredLogs = logs.filter(log =>
-        log.action.toLowerCase().includes(filter.toLowerCase()) ||
-        log.entity_type.toLowerCase().includes(filter.toLowerCase())
+    const filteredLogs = (Array.isArray(logs) ? logs : []).filter(log =>
+        log && log.action && log.action.toLowerCase().includes(filter.toLowerCase()) ||
+        log && log.entity_type && log.entity_type.toLowerCase().includes(filter.toLowerCase())
     );
 
     return (

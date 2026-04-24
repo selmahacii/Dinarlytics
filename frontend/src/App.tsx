@@ -99,6 +99,7 @@ function App() {
                 <Routes>
                   {/* Dashboard - Refactored Components */}
                   <Route path="/dashboard" element={<ProtectedRoute requiredPermission="dashboard-access"><DashboardRefactore isCollapsible /></ProtectedRoute>} />
+                  <Route path="/dashboard/boutique" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard/temps-reel" element={<ProtectedRoute requiredPermission="dashboard-access"><DashboardRefactore isCollapsible /></ProtectedRoute>} />
                   <Route path="/dashboard/analytics" element={<ProtectedRoute requiredPermission="rapports-basic"><AnalyticsAvancees /></ProtectedRoute>} />
                   <Route path="/dashboard/alertes" element={<ProtectedRoute requiredPermission="dashboard-alerts"><Audit /></ProtectedRoute>} />
@@ -134,6 +135,7 @@ function App() {
                   {/* Accounting */}
                   <Route path="/comptabilite/etats" element={<ProtectedRoute requiredPermission="comptabilite-read"><RapportsComptables /></ProtectedRoute>} />
                   <Route path="/comptabilite/balance" element={<ProtectedRoute requiredPermission="comptabilite-read"><RapportsComptables /></ProtectedRoute>} />
+                  <Route path="/comptabilite/journaux" element={<ProtectedRoute requiredPermission="comptabilite-write"><RapportsComptables /></ProtectedRoute>} />
                   <Route path="/comptabilite/tresorerie" element={<ProtectedRoute requiredPermission="comptabilite-read"><Tresorerie /></ProtectedRoute>} />
                   <Route path="/fiscalite" element={<ProtectedRoute requiredPermission="comptabilite-read"><Fiscalite /></ProtectedRoute>} />
                   <Route path="/consolidation" element={<ProtectedRoute requiredPermission={['comptabilite-read', 'comptabilite-validate']}><ConsolidationCompta /></ProtectedRoute>} />
@@ -142,17 +144,20 @@ function App() {
 
                   {/* AI & Audit */}
                   <Route path="/lia/chatbot" element={<ProtectedRoute requiredPermission="lia-access"><ChatbotLIA /></ProtectedRoute>} />
-                  {/* Mapped AnalysesLIA to Statistiques if missing */}
                   <Route path="/lia/analyses" element={<ProtectedRoute requiredPermission="lia-access"><Statistiques /></ProtectedRoute>} />
+                  <Route path="/entrainement-modele-ia" element={<ProtectedRoute requiredPermission="lia-train"><Statistiques /></ProtectedRoute>} />
                   <Route path="/audit-explorer" element={<ProtectedRoute requiredPermission="audit-read"><AuditExplorer /></ProtectedRoute>} />
                   <Route path="/statistiques" element={<ProtectedRoute requiredPermission="rapports-basic"><Statistiques /></ProtectedRoute>} />
 
                   {/* Reports */}
-                  <Route path="/rapports/ventes-clients" element={<ProtectedRoute requiredPermission="rapports-basic"><VentesClients /></ProtectedRoute>} />
-                  <Route path="/rapports/achats-fournisseurs" element={<ProtectedRoute requiredPermission="rapports-basic"><AchatsFournisseurs /></ProtectedRoute>} />
-                  <Route path="/rapports/stocks-produits" element={<ProtectedRoute requiredPermission="rapports-basic"><StocksProduits /></ProtectedRoute>} />
-                  <Route path="/rapports/tresorerie-banque" element={<ProtectedRoute requiredPermission="rapports-basic"><TresorerieBanque /></ProtectedRoute>} />
+                  <Route path="/rapports/ventes-clients" element={<ProtectedRoute requiredPermission="rapports-ventes"><VentesClients /></ProtectedRoute>} />
+                  <Route path="/rapports/achats-fournisseurs" element={<ProtectedRoute requiredPermission="rapports-achats"><AchatsFournisseurs /></ProtectedRoute>} />
+                  <Route path="/rapports/stocks-produits" element={<ProtectedRoute requiredPermission="rapports-stocks"><StocksProduits /></ProtectedRoute>} />
+                  <Route path="/rapports/tresorerie-banque" element={<ProtectedRoute requiredPermission="rapports-tresorerie"><TresorerieBanque /></ProtectedRoute>} />
                   <Route path="/rapports/analytics" element={<ProtectedRoute requiredPermission="rapports-basic"><RapportsAnalytics /></ProtectedRoute>} />
+                  <Route path="/rapports/comptabilite-resultats" element={<ProtectedRoute requiredPermission="rapports-comptabilite"><ComptabiliteResultats /></ProtectedRoute>} />
+                  <Route path="/rapports/fiscalite-declarations" element={<ProtectedRoute requiredPermission="fiscalite-declarations"><FiscaliteDeclarations /></ProtectedRoute>} />
+                  <Route path="/rapports/personnalises-comparatifs" element={<ProtectedRoute requiredPermission="rapports-personnalises"><PersonnalisesComparatifs /></ProtectedRoute>} />
 
                   {/* Settings & Admin */}
                   <Route path="/utilisateurs" element={<ProtectedRoute requiredPermission="admin-users"><GestionUtilisateurs /></ProtectedRoute>} />

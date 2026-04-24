@@ -32,17 +32,11 @@ import { useApp } from '@core/context/AppContext';
 import { useLocalStorage } from '@shared/hooks/useLocalStorage';
 // ...existing code...
 import { usePermission } from '@shared/hooks/usePermission';
-// import RequirePermission from '../@shared/components/Security/RequirePermission'; // Component does not exist
 
 const FiscaliteDeclarations: React.FC = () => {
   const { user, companyData, formatCurrency, currentDevise, currentCountry, fiscalRates, calculateTVA, getTVARate, fiscalDocuments } = useApp();
   const { has } = usePermission();
   const [selectedView, setSelectedView] = useState('vue-ensemble');
-  // Garde d'accès: autoriser admin même sans 'rapports-basic'
-  const isAdmin = (user?.role || '').toLowerCase() === 'admin' || has('admin');
-  if (!has('rapports-basic') && !isAdmin) {
-    return <RequirePermission permission="rapports-basic" messageOverride="Accès réservé: rapports-basic ou rôle administrateur" />;
-  }
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', type: 'info' as 'info' | 'success' | 'warning' });
 
