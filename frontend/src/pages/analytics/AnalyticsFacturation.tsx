@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   ChartBarIcon,
   ChartPieIcon,
@@ -97,10 +97,10 @@ const AnalyticsFacturation: React.FC = () => {
     }
 
     result += stringify(integerPart);
-    result += ' Dinars Algériens';
+    result += ' ' + (i18n.language === 'ar' ? 'دينار جزائري' : i18n.language === 'en' ? 'Algerian Dinars' : 'Dinars Algériens');
 
     if (decimalPart > 0) {
-      result += ' et ' + stringify(decimalPart) + ' centimes';
+      result += (i18n.language === 'ar' ? ' و ' : i18n.language === 'en' ? ' and ' : ' et ') + stringify(decimalPart) + (i18n.language === 'ar' ? ' سنتيم' : i18n.language === 'en' ? ' centimes' : ' centimes');
     }
 
     return result.charAt(0).toUpperCase() + result.slice(1);
@@ -434,10 +434,10 @@ const AnalyticsFacturation: React.FC = () => {
   };
 
   const revenueData = useMemo(() => ({
-    labels: ['Sept', 'Oct', 'Nov', 'Dec', 'Jan', 'Fev'],
+    labels: t('invoices.chart.labels', { returnObjects: true }) as string[],
     datasets: [
       {
-        label: 'CA TTC Mensuel (DZD)',
+        label: t('invoices.chart.dataset_label'),
         data: [
           12500000 * scaleFactor,
           14200000 * scaleFactor,
@@ -540,8 +540,8 @@ const AnalyticsFacturation: React.FC = () => {
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-black text-slate-800 dark:text-white">{t('invoices.evolution_chart')}</h3>
             <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-xl">
-              <button className="px-4 py-1.5 text-xs font-bold bg-white dark:bg-slate-600 rounded-lg shadow-sm">Mensuel</button>
-              <button className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700">Hebdo</button>
+              <button className="px-4 py-1.5 text-xs font-bold bg-white dark:bg-slate-600 rounded-lg shadow-sm">{t('invoices.chart.monthly')}</button>
+              <button className="px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700">{t('invoices.chart.weekly')}</button>
             </div>
           </div>
           <div className="h-[300px]">
@@ -575,7 +575,9 @@ const AnalyticsFacturation: React.FC = () => {
               <SparklesIcon className="h-5 w-5 mr-2" /> {t('invoices.ia_tip')}
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-              Le secteur <span className="underline italic">Industrie</span> porte 65% de vos revenus ce mois. Pensez à diversifier pour réduire le risque.
+              <Trans i18nKey="invoices.ia_tip_desc">
+                Le secteur <span className="underline italic">Industrie</span> porte 65% de vos revenus ce mois. Pensez à diversifier pour réduire le risque.
+              </Trans>
             </p>
           </div>
         </div>
@@ -1194,7 +1196,7 @@ const AnalyticsFacturation: React.FC = () => {
                         <td className="px-6 py-8 text-center">
                           <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase ${item.type === 'service' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                             }`}>
-                            {item.type === 'service' ? '706 - Services' : '700 - Ventes'}
+                            {item.type === 'service' ? t('invoices.detail.cpte_706_short', '706 - Services') : t('invoices.detail.cpte_700_short', '700 - Ventes')}
                           </span>
                         </td>
                         <td className="px-6 py-8 text-center text-sm font-black text-slate-500">{item.qty}</td>
