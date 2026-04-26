@@ -2524,8 +2524,50 @@
       "ttc_total": "TOTAL TTC TO PAY",
       "save": "Save Invoice",
       "accounting_simulation": "Accounting Imputation Simulation (General Ledger)"
-    }
+    },
+    "detail": {
+      "document_original": "Original Document",
+      "facture_vente_definitive": "Final Sales Invoice",
+      "issue_date": "Issue Date:",
+      "billed_to": "Billed to (Client)",
+      "nif_client": "Client NIF",
+      "rc_client": "Client RC",
+      "payment_conditions": "Payment Terms",
+      "due_date": "Due Date:",
+      "payment_mode": "Payment Mode:",
+      "currency": "Currency:",
+      "currency_val": "Algerian Dinar (DZD)",
+      "table_desc": "Item / Service Description",
+      "table_imputation": "Imputation",
+      "table_qty": "Qty",
+      "table_pu": "Unit Price (Excl. Tax)",
+      "table_total": "Total (Excl. Tax)",
+      "certified_service": "Service certified by Dinarlytics",
+      "legal_mention_title": "Legal Mention",
+      "legal_mention_sum": "Total amount in words:",
+      "fiscal_summary": "Fiscal & Accounting Summary",
+      "cpte_700": "Account 700 (Merchandise Sales)",
+      "cpte_706": "Account 706 (Service Rendering)",
+      "cpte_4457": "Account 4457 (Output VAT)",
+      "total_ht": "Total (Excl. Tax)",
+      "tva": "VAT",
+      "stamp_duty": "Stamp Duty (Cash)",
+      "net_to_pay": "Net to Pay (Incl. Tax)",
+      "audit_journal": "Audit & Traceability Journal (GRC)",
+      "digital_seal": "DINARLYTICS DIGITAL SEAL",
+      "audit_end": "End of audit journal",
+      "print_official": "Print via Official Register",
+      "export_cert": "Export Fiscal Certificate"
+    },
+    "chart": {
+      "labels": ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"],
+      "dataset_label": "Monthly Revenue (DZD)",
+      "monthly": "Monthly",
+      "weekly": "Weekly"
+    },
+    "ia_tip_desc": "The <1>Industry</1> sector accounts for 65% of your revenue this month. Consider diversifying to reduce risk."
   },
+
   "audit": {
     "title": "Audit & Security",
     "subtitle": "Advanced activity monitoring and system security",

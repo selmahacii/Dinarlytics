@@ -1123,11 +1123,11 @@ const AnalyticsFacturation: React.FC = () => {
                   {/* Info Facture */}
                   <div className="flex-1 md:text-right border-l md:border-l-0 md:border-r border-slate-100 dark:border-slate-800 px-0 md:px-12 order-first md:order-none">
                     <div className="inline-block px-4 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                      Document Original
+                      {t('invoices.detail.document_original')}
                     </div>
                     <h2 className="text-5xl font-black text-slate-900 dark:text-white mb-2">{selectedInvoice.id}</h2>
-                    <p className="text-sm font-black text-slate-500 uppercase">Facture de Vente Définitive</p>
-                    <p className="text-xs text-slate-400 font-bold mt-4 uppercase">Date d'émission : {new Date(selectedInvoice.date).toLocaleDateString('fr-FR')}</p>
+                    <p className="text-sm font-black text-slate-500 uppercase">{t('invoices.detail.facture_vente_definitive')}</p>
+                    <p className="text-xs text-slate-400 font-bold mt-4 uppercase">{t('invoices.detail.issue_date')} {new Date(selectedInvoice.date).toLocaleDateString(i18n.language)}</p>
                   </div>
                 </div>
 
@@ -1135,35 +1135,35 @@ const AnalyticsFacturation: React.FC = () => {
                 <div className="mt-12 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div>
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Facturé à (Client)</h4>
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">{t('invoices.detail.billed_to')}</h4>
                       <p className="text-2xl font-black text-slate-900 dark:text-white mb-2">{selectedInvoice.client}</p>
                       <p className="text-sm font-bold text-slate-500 leading-relaxed mb-4">{selectedInvoice.entityDetails?.adresse}</p>
                       <div className="grid grid-cols-2 gap-4 text-[10px] font-black uppercase">
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                          <span className="text-slate-400 block mb-1">NIF Client</span>
+                          <span className="text-slate-400 block mb-1">{t('invoices.detail.nif_client')}</span>
                           <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.entityDetails?.nif || 'Non communiqué'}</span>
                         </div>
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                          <span className="text-slate-400 block mb-1">RC Client</span>
+                          <span className="text-slate-400 block mb-1">{t('invoices.detail.rc_client')}</span>
                           <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.entityDetails?.rc || 'N/A'}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col justify-between">
                       <div>
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Conditions de Règlement</h4>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">{t('invoices.detail.payment_conditions')}</h4>
                         <div className="space-y-3">
                           <div className="flex justify-between text-xs font-bold">
-                            <span className="text-slate-400">Échéance :</span>
-                            <span className="text-slate-800 dark:text-slate-200">{new Date(selectedInvoice.echeance).toLocaleDateString('fr-FR')}</span>
+                            <span className="text-slate-400">{t('invoices.detail.due_date')}</span>
+                            <span className="text-slate-800 dark:text-slate-200">{new Date(selectedInvoice.echeance).toLocaleDateString(i18n.language)}</span>
                           </div>
                           <div className="flex justify-between text-xs font-bold">
-                            <span className="text-slate-400">Mode de paiement :</span>
+                            <span className="text-slate-400">{t('invoices.detail.payment_mode')}</span>
                             <span className="text-slate-800 dark:text-slate-200 uppercase">{selectedInvoice.paymentMode}</span>
                           </div>
                           <div className="flex justify-between text-xs font-bold">
-                            <span className="text-slate-400">Devise :</span>
-                            <span className="text-slate-800 dark:text-slate-200">Dinar Algérien (DZD)</span>
+                            <span className="text-slate-400">{t('invoices.detail.currency')}</span>
+                            <span className="text-slate-800 dark:text-slate-200">{t('invoices.detail.currency_val')}</span>
                           </div>
                         </div>
                       </div>
@@ -1177,11 +1177,11 @@ const AnalyticsFacturation: React.FC = () => {
                 <table className="w-full mb-12">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 text-[10px] font-black uppercase tracking-widest border-y border-slate-100 dark:border-slate-700">
-                      <th className="px-6 py-4 text-left">Désignation des Articles / Prestations</th>
-                      <th className="px-6 py-4 text-center">Imputation</th>
-                      <th className="px-6 py-4 text-center">Qté</th>
-                      <th className="px-6 py-4 text-right">Prix Unitaire HT</th>
-                      <th className="px-6 py-4 text-right">Total HT</th>
+                      <th className="px-6 py-4 text-left">{t('invoices.detail.table_desc')}</th>
+                      <th className="px-6 py-4 text-center">{t('invoices.detail.table_imputation')}</th>
+                      <th className="px-6 py-4 text-center">{t('invoices.detail.table_qty')}</th>
+                      <th className="px-6 py-4 text-right">{t('invoices.detail.table_pu')}</th>
+                      <th className="px-6 py-4 text-right">{t('invoices.detail.table_total')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -1189,7 +1189,7 @@ const AnalyticsFacturation: React.FC = () => {
                       <tr key={i} className="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
                         <td className="px-6 py-8">
                           <p className="text-sm font-black text-slate-800 dark:text-slate-100">{item.desc}</p>
-                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Service certifié par Dinarlytics</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">{t('invoices.detail.certified_service')}</p>
                         </td>
                         <td className="px-6 py-8 text-center">
                           <span className={`inline-block px-3 py-1 rounded-lg text-[10px] font-black uppercase ${item.type === 'service' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
@@ -1208,9 +1208,9 @@ const AnalyticsFacturation: React.FC = () => {
                 {/* Totaux & Lettres */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12 items-start">
                   <div className="p-8 bg-slate-50 dark:bg-slate-900/40 rounded-3xl border border-slate-100 dark:border-slate-800">
-                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">Mention Légale Arrêtée</h4>
+                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6">{t('invoices.detail.legal_mention_title')}</h4>
                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300 italic leading-relaxed">
-                      Arrêtée la présente facture à la somme de : <br />
+                      {t('invoices.detail.legal_mention_sum')} <br />
                       <span className="text-slate-900 dark:text-white font-black not-italic text-lg block mt-2">
                         {numberToWords(selectedInvoice.totalTTC).toUpperCase()}
                       </span>
@@ -1218,23 +1218,23 @@ const AnalyticsFacturation: React.FC = () => {
 
                     <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mb-4 flex items-center">
-                        <CalculatorIcon className="h-4 w-4 mr-2" /> Récapitulatif Fiscal & Comptable
+                        <CalculatorIcon className="h-4 w-4 mr-2" /> {t('invoices.detail.fiscal_summary')}
                       </h4>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center text-xs font-bold p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
-                          <span className="text-slate-500">Cpte 700 (Ventes Marchandises)</span>
+                          <span className="text-slate-500">{t('invoices.detail.cpte_700')}</span>
                           <span className="font-mono text-slate-800 dark:text-slate-200">
                             {formatCurrency(selectedInvoice.items.filter((i: InvoiceItem) => i.type === 'bien').reduce((acc: number, i: InvoiceItem) => acc + i.qty * i.pu, 0))}
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-xs font-bold p-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
-                          <span className="text-slate-500">Cpte 706 (Prestations Services)</span>
+                          <span className="text-slate-500">{t('invoices.detail.cpte_706')}</span>
                           <span className="font-mono text-slate-800 dark:text-slate-200">
                             {formatCurrency(selectedInvoice.items.filter((i: InvoiceItem) => i.type === 'service').reduce((acc: number, i: InvoiceItem) => acc + i.qty * i.pu, 0))}
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-xs font-bold p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800/30">
-                          <span className="text-emerald-600">Cpte 4457 (TVA Collectée)</span>
+                          <span className="text-emerald-600">{t('invoices.detail.cpte_4457')}</span>
                           <span className="font-mono text-emerald-700 dark:text-emerald-400">
                             {formatCurrency(selectedInvoice.totalTVA)}
                           </span>
@@ -1245,34 +1245,34 @@ const AnalyticsFacturation: React.FC = () => {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center py-2 text-sm font-bold px-6">
-                      <span className="text-slate-400 uppercase tracking-widest text-[10px]">Total Hors Taxes</span>
+                      <span className="text-slate-400 uppercase tracking-widest text-[10px]">{t('invoices.detail.total_ht')}</span>
                       <span className="text-slate-800 dark:text-slate-200 font-mono">{formatCurrency(selectedInvoice.totalHT)}</span>
                     </div>
                     <div className="flex justify-between items-center py-2 text-sm font-bold px-6 border-t border-slate-50 dark:border-slate-800">
-                      <span className="text-slate-400 uppercase tracking-widest text-[10px]">TVA ({selectedInvoice.tvaRate}%)</span>
+                      <span className="text-slate-400 uppercase tracking-widest text-[10px]">{t('invoices.detail.tva')} ({selectedInvoice.tvaRate}%)</span>
                       <span className="text-slate-800 dark:text-slate-200 font-mono">{formatCurrency(selectedInvoice.totalTVA)}</span>
                     </div>
                     {selectedInvoice.droitTimbre > 0 && (
                       <div className="flex justify-between items-center py-2 text-sm font-bold px-6 border-t border-slate-50 dark:border-slate-800">
-                        <span className="text-slate-400 uppercase tracking-widest text-[10px]">Droit de Timbre (Espèces)</span>
+                        <span className="text-slate-400 uppercase tracking-widest text-[10px]">{t('invoices.detail.stamp_duty')}</span>
                         <span className="text-slate-800 dark:text-slate-200 font-mono">{formatCurrency(selectedInvoice.droitTimbre)}</span>
                       </div>
                     )}
                     <div className="flex justify-between items-center py-6 bg-slate-900 text-white rounded-[1.5rem] px-8 shadow-xl shadow-slate-900/20">
-                      <span className="text-xs font-black uppercase tracking-[0.2em] text-white/70">Net à Payer (TTC)</span>
+                      <span className="text-xs font-black uppercase tracking-[0.2em] text-white/70">{t('invoices.detail.net_to_pay')}</span>
                       <span className="text-3xl font-black font-mono">{formatCurrency(selectedInvoice?.totalTTC || 0)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Journal d'Audit & Traçabilité */}
-                <div className="mt-16 pt-12 border-t border-slate-100 dark:border-slate-800">
+                <div className="mt-16 pt-12 border-t border-slate-100 dark:border-slate-700">
                   <div className="flex items-center justify-between mb-8">
                     <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center">
-                      <ShareIcon className="h-4 w-4 mr-2" /> Journal d'Audit & Traçabilité (GRC)
+                      <ShareIcon className="h-4 w-4 mr-2" /> {t('invoices.detail.audit_journal')}
                     </h4>
                     <div className="px-4 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 text-[10px] font-black rounded-lg border border-blue-100 dark:border-blue-800/30">
-                      SCELLÉ DIGITAL DINARLYTICS
+                      {t('invoices.detail.digital_seal')}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1289,7 +1289,7 @@ const AnalyticsFacturation: React.FC = () => {
                       </div>
                     ))}
                     <div className="flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl p-4 text-slate-300 text-[10px] font-black uppercase">
-                      Fin du journal d'audit
+                      {t('invoices.detail.audit_end')}
                     </div>
                   </div>
                 </div>
@@ -1297,10 +1297,10 @@ const AnalyticsFacturation: React.FC = () => {
                 {/* Actions de Fin de Page */}
                 <div className="mt-12 flex gap-4">
                   <button className="flex-1 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center shadow-xl">
-                    <PrinterIcon className="h-5 w-5 mr-3" /> Imprimer via Registre Officiel
+                    <PrinterIcon className="h-5 w-5 mr-3" /> {t('invoices.detail.print_official')}
                   </button>
                   <button className="flex-1 py-5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center">
-                    <DocumentArrowDownIcon className="h-5 w-5 mr-3" /> Exporter Certificat Fiscal
+                    <DocumentArrowDownIcon className="h-5 w-5 mr-3" /> {t('invoices.detail.export_cert')}
                   </button>
                 </div>
               </div>

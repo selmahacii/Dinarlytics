@@ -2601,8 +2601,50 @@
       "ttc_total": "TOTAL TTC À PAYER",
       "save": "Enregistrer la Facture",
       "accounting_simulation": "Simulation d'Imputation Comptable (Grand Livre)"
-    }
+    },
+    "detail": {
+      "document_original": "Document Original",
+      "facture_vente_definitive": "Facture de Vente Définitive",
+      "issue_date": "Date d'émission :",
+      "billed_to": "Facturé à (Client)",
+      "nif_client": "NIF Client",
+      "rc_client": "RC Client",
+      "payment_conditions": "Conditions de Règlement",
+      "due_date": "Échéance :",
+      "payment_mode": "Mode de paiement :",
+      "currency": "Devise :",
+      "currency_val": "Dinar Algérien (DZD)",
+      "table_desc": "Désignation des Articles / Prestations",
+      "table_imputation": "Imputation",
+      "table_qty": "Qté",
+      "table_pu": "Prix Unitaire HT",
+      "table_total": "Total HT",
+      "certified_service": "Service certifié par Dinarlytics",
+      "legal_mention_title": "Mention Légale Arrêtée",
+      "legal_mention_sum": "Arrêtée la présente facture à la somme de :",
+      "fiscal_summary": "Récapitulatif Fiscal & Comptable",
+      "cpte_700": "Cpte 700 (Ventes Marchandises)",
+      "cpte_706": "Cpte 706 (Prestations Services)",
+      "cpte_4457": "Cpte 4457 (TVA Collectée)",
+      "total_ht": "Total Hors Taxes",
+      "tva": "TVA",
+      "stamp_duty": "Droit de Timbre (Espèces)",
+      "net_to_pay": "Net à Payer (TTC)",
+      "audit_journal": "Journal d'Audit & Traçabilité (GRC)",
+      "digital_seal": "SCELLÉ DIGITAL DINARLYTICS",
+      "audit_end": "Fin du journal d'audit",
+      "print_official": "Imprimer via Registre Officiel",
+      "export_cert": "Exporter Certificat Fiscal"
+    },
+    "chart": {
+      "labels": ["Sept", "Oct", "Nov", "Déc", "Jan", "Fév"],
+      "dataset_label": "CA TTC Mensuel (DZD)",
+      "monthly": "Mensuel",
+      "weekly": "Hebdo"
+    },
+    "ia_tip_desc": "Le secteur <1>Industrie</1> porte 65% de vos revenus ce mois. Pensez à diversifier pour réduire le risque."
   },
+
   "audit": {
     "title": "Explorateur d'Audit & Traçabilité",
     "subtitle": "Historique inviolable des modifications du système (Spans DB)",
