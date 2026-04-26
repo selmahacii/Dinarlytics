@@ -189,7 +189,7 @@
       "annuel": "Annual",
       "annual": "Annual",
       "temps_reel": "Real-time",
-      "days_short": {
+      "days_names_short": {
         "mon": "Mon",
         "tue": "Tue",
         "wed": "Wed",
@@ -217,7 +217,8 @@
       "debtor_short": "D",
       "creditor_short": "C"
     },
-    "for": "For"
+    "for": "For",
+    "days_short": "d"
   },
   "breadcrumb": {
     "home": "Home",

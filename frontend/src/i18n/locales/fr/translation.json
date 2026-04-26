@@ -127,7 +127,7 @@
       "annuel": "Annuelle",
       "annual": "Annuelle",
       "temps_reel": "Temps réel",
-      "days_short": {
+      "days_names_short": {
         "mon": "Lun",
         "tue": "Mar",
         "wed": "Mer",
