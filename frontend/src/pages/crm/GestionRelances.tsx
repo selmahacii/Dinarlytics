@@ -67,6 +67,8 @@ const GestionRelances: React.FC = () => {
   
   const [relances, setRelances] = useState<Relance[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Relance | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   React.useEffect(() => {
     const fetchRelances = async () => {
@@ -74,7 +76,8 @@ const GestionRelances: React.FC = () => {
         const response = await apiClient.get('/relances-clients');
         setRelances(response.data);
       } catch (err) {
-        console.error("Failed to fetch relances", err);
+        console.error("Failed to fetch relances, using mock data", err);
+        setRelances(MOCK_RELANCES);
       } finally {
         setLoading(false);
       }
