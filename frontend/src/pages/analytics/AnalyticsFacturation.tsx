@@ -47,7 +47,7 @@ import {
 import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
 import { usePermission } from '@shared/hooks/usePermission';
-import { invoiceService, type Invoice, type InvoiceItem, type ClientDetails, type AuditLog } from '../../services/modules/invoiceService';
+import { invoiceService, type Invoice, type InvoiceItem, type EntityDetails, type AuditLog } from '../../services/modules/invoiceService';
 
 ChartJS.register(
   CategoryScale,
@@ -121,8 +121,9 @@ const AnalyticsFacturation: React.FC = () => {
   const [newInvoice, setNewInvoice] = useState<Partial<Invoice>>({
     id: '',
     factureId: '',
+    type: 'sale',
     client: '',
-    clientDetails: {
+    entityDetails: {
       adresse: '',
       nif: '',
       nis: '',
@@ -172,8 +173,9 @@ const AnalyticsFacturation: React.FC = () => {
       {
         id: 'F-2024-0001',
         factureId: 'FAC-2024-0001',
+        type: 'sale',
         client: 'SARL El-Mountazah Construction',
-        clientDetails: {
+        entityDetails: {
           adresse: 'Zone Industrielle Oued Smar, Alger',
           nif: '000516019012345',
           nis: '000516019012345001',
@@ -201,8 +203,9 @@ const AnalyticsFacturation: React.FC = () => {
       {
         id: 'F-2024-0002',
         factureId: 'FAC-2024-0002',
+        type: 'sale',
         client: 'EURL Kouba Telecom',
-        clientDetails: {
+        entityDetails: {
           adresse: '12 Rue des Glycines, Kouba, Alger',
           nif: '001216059045678',
           nis: '001216059045678002',
@@ -227,8 +230,9 @@ const AnalyticsFacturation: React.FC = () => {
       {
         id: 'F-2024-0003',
         factureId: 'FAC-2024-0003',
+        type: 'sale',
         client: 'Groupement Algerian Petroleum',
-        clientDetails: {
+        entityDetails: {
           adresse: 'Base de Vie, Hassi Messaoud, Ouargla',
           nif: '000030019000011',
           nis: '000030019000011003',
@@ -330,6 +334,7 @@ const AnalyticsFacturation: React.FC = () => {
       ...newInvoice as Invoice,
       id: isEditing ? (newInvoice.id || '') : `F-2024-${(invoices.length + 1).toString().padStart(4, '0')}`,
       factureId: isEditing ? (newInvoice.factureId || '') : `FAC-2024-${(invoices.length + 1).toString().padStart(4, '0')}`,
+      type: 'sale',
       items: itemsWithTotals as InvoiceItem[],
       totalHT,
       totalTVA,
@@ -361,8 +366,9 @@ const AnalyticsFacturation: React.FC = () => {
     setNewInvoice({
       id: '',
       factureId: '',
+      type: 'sale',
       client: '',
-      clientDetails: { adresse: '', nif: '', nis: '', rc: '', ai: '', rib: '' },
+      entityDetails: { adresse: '', nif: '', nis: '', rc: '', ai: '', rib: '' },
       date: new Date().toISOString().split('T')[0],
       echeance: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
       items: [{ desc: '', qty: 1, pu: 0, type: 'bien', tva_rate: 19, line_total_ht: 0, line_total_tva: 0, line_total_ttc: 0 }],
@@ -548,10 +554,10 @@ const AnalyticsFacturation: React.FC = () => {
           <h3 className="text-xl font-black text-slate-800 dark:text-white mb-6">{t('invoices.growing_sectors')}</h3>
           <div className="space-y-6">
             {[
-              { label: 'Industrie & Gaz', value: 45, color: 'bg-blue-500' },
-              { label: 'Services IT', value: 25, color: 'bg-emerald-500' },
-              { label: 'Construction', value: 20, color: 'bg-amber-500' },
-              { label: 'Autres', value: 10, color: 'bg-slate-300' }
+              { label: t('invoices.sectors.industry'), value: 45, color: 'bg-blue-500' },
+              { label: t('invoices.sectors.it'), value: 25, color: 'bg-emerald-500' },
+              { label: t('invoices.sectors.construction'), value: 20, color: 'bg-amber-500' },
+              { label: t('invoices.sectors.others'), value: 10, color: 'bg-slate-300' }
             ].map((s, i) => (
               <div key={i}>
                 <div className="flex justify-between items-center mb-2">
@@ -603,7 +609,7 @@ const AnalyticsFacturation: React.FC = () => {
                 <option value="payee">{t('invoices.status.paid')}</option>
                 <option value="en_cours">{t('invoices.pending')}</option>
                 <option value="en_retard">{t('invoices.status.overdue')}</option>
-                <option value="annulee">{t('invoices.status.cancelled')}</option>
+                <option value="annule">{t('invoices.status.cancelled')}</option>
               </select>
             </div>
           </div>
@@ -651,12 +657,12 @@ const AnalyticsFacturation: React.FC = () => {
                     <div className="flex justify-center">
                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${inv.statut === 'payee' ? 'bg-emerald-100 text-emerald-700' :
                         inv.statut === 'en_retard' ? 'bg-rose-100 text-rose-700' :
-                          inv.statut === 'annulee' ? 'bg-slate-200 text-slate-700' :
+                          inv.statut === 'annule' ? 'bg-slate-200 text-slate-700' :
                             'bg-amber-100 text-amber-700'
                         }`}>
                         {inv.statut === 'payee' ? t('invoices.status.collected') :
                           inv.statut === 'en_retard' ? t('invoices.status.critical_delay') :
-                            inv.statut === 'annulee' ? t('invoices.status.cancelled') : t('invoices.status.pending_attente')}
+                            inv.statut === 'annule' ? t('invoices.status.cancelled') : t('invoices.status.pending_attente')}
                       </span>
                     </div>
                   </td>
@@ -697,12 +703,12 @@ const AnalyticsFacturation: React.FC = () => {
         {filteredInvoices.length === 0 && (
           <div className="p-20 text-center">
             <MagnifyingGlassIcon className="h-16 w-16 text-slate-200 mx-auto mb-4" />
-            <p className="text-slate-400 font-bold">Aucune facture trouvée pour votre recherche.</p>
+            <p className="text-slate-400 font-bold">{t('invoices.table.no_results')}</p>
           </div>
         )}
 
         <div className="p-6 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
-          <span className="text-xs font-bold text-slate-500">Affichage de {filteredInvoices.length} sur {invoices.length} factures</span>
+          <span className="text-xs font-bold text-slate-500">{t('invoices.table.pagination', { count: filteredInvoices.length, total: invoices.length })}</span>
           <div className="flex gap-2">
             <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold disabled:opacity-50">{t('common.previous', "Précédent")}</button>
             <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold">{t('common.next', "Suivant")}</button>
@@ -755,8 +761,8 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails?.adresse || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), adresse: e.target.value } })}
+                      value={newInvoice.entityDetails?.adresse || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, entityDetails: { ...(newInvoice.entityDetails || {} as EntityDetails), adresse: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -764,8 +770,8 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails?.nif || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), nif: e.target.value } })}
+                      value={newInvoice.entityDetails?.nif || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, entityDetails: { ...(newInvoice.entityDetails || {} as EntityDetails), nif: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -773,8 +779,8 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails?.nis || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), nis: e.target.value } })}
+                      value={newInvoice.entityDetails?.nis || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, entityDetails: { ...(newInvoice.entityDetails || {} as EntityDetails), nis: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -782,8 +788,8 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails?.rc || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), rc: e.target.value } })}
+                      value={newInvoice.entityDetails?.rc || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, entityDetails: { ...(newInvoice.entityDetails || {} as EntityDetails), rc: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -791,8 +797,8 @@ const AnalyticsFacturation: React.FC = () => {
                     <input
                       type="text"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails?.ai || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), ai: e.target.value } })}
+                      value={newInvoice.entityDetails?.ai || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, entityDetails: { ...(newInvoice.entityDetails || {} as EntityDetails), ai: e.target.value } })}
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -801,8 +807,8 @@ const AnalyticsFacturation: React.FC = () => {
                       type="text"
                       placeholder="001 00016 0123456789 01"
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-mono text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      value={newInvoice.clientDetails?.rib || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, clientDetails: { ...(newInvoice.clientDetails || {} as ClientDetails), rib: e.target.value } })}
+                      value={newInvoice.entityDetails?.rib || ''}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, entityDetails: { ...(newInvoice.entityDetails || {} as EntityDetails), rib: e.target.value } })}
                     />
                   </div>
                   <div>
@@ -823,12 +829,12 @@ const AnalyticsFacturation: React.FC = () => {
                     <select
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
                       value={newInvoice.statut || 'en_cours'}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, statut: e.target.value })}
+                      onChange={(e) => setNewInvoice({ ...newInvoice, statut: e.target.value as any })}
                     >
                       <option value="en_cours">En attente (Pro forma)</option>
                       <option value="payee">Encaissée (Définitive)</option>
                       <option value="en_retard">Retard de paiement</option>
-                      <option value="annulee">Annulée</option>
+                      <option value="annule">Annulée</option>
                     </select>
                   </div>
                 </div>
@@ -1131,15 +1137,15 @@ const AnalyticsFacturation: React.FC = () => {
                     <div>
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Facturé à (Client)</h4>
                       <p className="text-2xl font-black text-slate-900 dark:text-white mb-2">{selectedInvoice.client}</p>
-                      <p className="text-sm font-bold text-slate-500 leading-relaxed mb-4">{selectedInvoice.clientDetails?.adresse}</p>
+                      <p className="text-sm font-bold text-slate-500 leading-relaxed mb-4">{selectedInvoice.entityDetails?.adresse}</p>
                       <div className="grid grid-cols-2 gap-4 text-[10px] font-black uppercase">
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                           <span className="text-slate-400 block mb-1">NIF Client</span>
-                          <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.clientDetails?.nif || 'Non communiqué'}</span>
+                          <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.entityDetails?.nif || 'Non communiqué'}</span>
                         </div>
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                           <span className="text-slate-400 block mb-1">RC Client</span>
-                          <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.clientDetails?.rc || 'N/A'}</span>
+                          <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.entityDetails?.rc || 'N/A'}</span>
                         </div>
                       </div>
                     </div>

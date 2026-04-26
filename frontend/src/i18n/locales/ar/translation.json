@@ -1,103 +1,11 @@
 {
   "common": {
+    "all": "الكل",
     "cancel": "إلغاء",
     "save": "حفظ",
     "delete": "حذف",
     "close": "إغلاق",
     "add": "إضافة",
-    "edit": "تعديل",
-    "view": "عرض",
-    "loading": "جاري التحميل...",
-    "search": "بحث",
-    "actions": "إجراءات"
-  },
-  "sales": {
-    "title": "المبيعات والعملاء",
-    "hero": {
-      "performance": "الأداء التجاري",
-      "audited": "مدقق",
-      "view_daily": "عرض يومي",
-      "view_monthly": "عرض شهري",
-      "daily_label": "يومي",
-      "monthly_label": "شهري"
-    },
-    "kpi": {
-      "revenue": "رقم الأعمال",
-      "invoices": "الفواتير الصادرة",
-      "avg_basket": "متوسط السلة",
-      "margin_rate": "معدل الهامش",
-      "validated_ops": "عمليات مصادق عليها",
-      "avg_unit_value": "متوسط القيمة الوحدوية",
-      "global_profitability": "الربحية الإجمالية",
-      "vs_previous": "مقارنة بالفترة السابقة"
-    },
-    "tabs": {
-      "sales_reports": "تقارير المبيعات",
-      "client_analysis": "تحليل العملاء",
-      "forecasts": "المقارنة والتوقعات"
-    },
-    "sections": {
-      "top_products": "أفضل 5 منتجات",
-      "product_performance": "الأداء حسب المنتج",
-      "categories_split": "توزيع الفئات",
-      "revenue_weight": "الوزن في إجمالي رقم الأعمال"
-    },
-    "client_metrics": {
-      "active_clients": "العملاء النشطون",
-      "new_clients": "جديد",
-      "this_month": "هذا الشهر",
-      "retention": "الولاء / الاحتفاظ",
-      "recurring_clients": "عملاء متكررون",
-      "avg_dso": "متوسط DSO",
-      "collection_delay": "مدة التحصيل",
-      "total_base": "من إجمالي {{total}}",
-      "units_sold": "تم بيع {{count}} قطعة",
-      "orders_validated": "تم تأكيد {{count}} طلبية"
-    },
-    "categories": {
-      "services": "خدمات",
-      "licences": "تراخيص",
-      "formations": "تكوين",
-      "autres": "أخرى"
-    },
-    "excel": {
-      "report_title": "DINARLYTICS — تقرير مفصل للمبيعات وتحليل العملاء",
-      "period": "الفترة: {{period}} — السنة المالية 2024",
-      "generated_by": "تم الاستخراج بواسطة: {{user}} بتاريخ {{date}} الساعة {{time}}"
-    },
-    "analysis": {
-      "excellence_ranking": "تصنيف تميز العملاء",
-      "ranking_desc": "التحليل النوعي وحجم الأعمال",
-      "export_csv": "تصدير CSV",
-      "total_sales": "إجمالي المبيعات",
-      "avg_basket": "متوسط السلة",
-      "view_details": "عرض التفاصيل الكاملة ←"
-    },
-    "forecast": {
-      "predictive_analysis": "التحليل التنبؤي بالذكاء الاصطناعي",
-      "forecast_desc": "توقعات بناءً على السجل التاريخي واتجاهات السوق",
-      "realized": "منجز",
-      "projection": "توقعات",
-      "target_objective": "الهدف المسطر",
-      "realized_amount": "المبلغ المنجز",
-      "expected_forecast": "التوقع المنتظر",
-      "variance_target": "الفارق عن الهدف",
-      "ai_recommendation": "توصية استراتيجية من الذاء الاصطناعي (LIA)",
-      "growth_trend": "يشير الاتجاه الحالي إلى نمو بنسبة {{percent}}% للربع القادم.",
-      "stock_increase": "يُنصح بزيادة المخزون في فئة '{{category}}' لتلبية الطلب المتوقع لشهر {{months}}.",
-      "generate_audit": "إنشاء تدقيق كامل بالذكاء الاصطناعي"
-    },
-    "actions": {
-      "exportable_report": "تقرير قابل للتصدير",
-      "excel_file": "ملف تحليل XL"
-    }
-  },
-  "common": {
-    "all": "الكل",
-    "cancel": "إلغاء",
-    "close": "إغلاق",
-    "save": "حفظ",
-    "delete": "حذف",
     "edit": "تعديل",
     "view": "عرض",
     "download": "تحميل",
@@ -135,6 +43,11 @@
     "total": "الإجمالي",
     "days": "أيّام",
     "edition_date": "تاريخ الإصدار",
+    "status_stable": "مستقر",
+    "status_pending": "قيد الانتظار",
+    "status_urgent": "عاجل",
+    "others": "أخرى",
+    "view_all": "عرض الكل",
     "errors": {
       "loading_failed": "فشل التحميل",
       "retry": "إعادة المحاولة",
@@ -226,6 +139,87 @@
     },
     "for": "لأجل"
   },
+  "sales": {
+    "title": "المبيعات والعملاء",
+    "hero": {
+      "performance": "الأداء التجاري",
+      "audited": "مدقق",
+      "view_daily": "عرض يومي",
+      "view_monthly": "عرض شهري",
+      "daily_label": "يومي",
+      "monthly_label": "شهري"
+    },
+    "kpi": {
+      "revenue": "رقم الأعمال",
+      "invoices": "الفواتير الصادرة",
+      "avg_basket": "متوسط السلة",
+      "margin_rate": "معدل الهامش",
+      "validated_ops": "عمليات مصادق عليها",
+      "avg_unit_value": "متوسط القيمة الوحدوية",
+      "global_profitability": "الربحية الإجمالية",
+      "vs_previous": "مقارنة بالفترة السابقة"
+    },
+    "tabs": {
+      "sales_reports": "تقارير المبيعات",
+      "client_analysis": "تحليل العملاء",
+      "forecasts": "المقارنة والتوقعات"
+    },
+    "sections": {
+      "top_products": "أفضل 5 منتجات",
+      "product_performance": "الأداء حسب المنتج",
+      "categories_split": "توزيع الفئات",
+      "revenue_weight": "الوزن في إجمالي رقم الأعمال"
+    },
+    "client_metrics": {
+      "active_clients": "العملاء النشطون",
+      "new_clients": "جديد",
+      "this_month": "هذا الشهر",
+      "retention": "الولاء / الاحتفاظ",
+      "recurring_clients": "عملاء متكررون",
+      "avg_dso": "متوسط DSO",
+      "collection_delay": "مدة التحصيل",
+      "total_base": "من إجمالي {{total}}",
+      "units_sold": "تم بيع {{count}} قطعة",
+      "orders_validated": "تم تأكيد {{count}} طلبية"
+    },
+    "categories": {
+      "services": "خدمات",
+      "licences": "تراخيص",
+      "formations": "تكوين",
+      "autres": "أخرى"
+    },
+    "excel": {
+      "report_title": "DINARLYTICS — تقرير مفصل للمبيعات وتحليل العملاء",
+      "period": "الفترة: {{period}} — السنة المالية 2024",
+      "generated_by": "تم الاستخراج بواسطة: {{user}} بتاريخ {{date}} الساعة {{time}}"
+    },
+    "analysis": {
+      "excellence_ranking": "تصنيف تميز العملاء",
+      "ranking_desc": "التحليل النوعي وحجم الأعمال",
+      "export_csv": "تصدير CSV",
+      "total_sales": "إجمالي المبيعات",
+      "avg_basket": "متوسط السلة",
+      "view_details": "عرض التفاصيل الكاملة ←"
+    },
+    "forecast": {
+      "predictive_analysis": "التحليل التنبؤي بالذكاء الاصطناعي",
+      "forecast_desc": "توقعات بناءً على السجل التاريخي واتجاهات السوق",
+      "realized": "منجز",
+      "projection": "توقعات",
+      "target_objective": "الهدف المسطر",
+      "realized_amount": "المبلغ المنجز",
+      "expected_forecast": "التوقع المنتظر",
+      "variance_target": "الفارق عن الهدف",
+      "ai_recommendation": "توصية استراتيجية من الذاء الاصطناعي (LIA)",
+      "growth_trend": "يشير الاتجاه الحالي إلى نمو بنسبة {{percent}}% للربع القادم.",
+      "stock_increase": "يُنصح بزيادة المخزون في فئة '{{category}}' لتلبية الطلب المتوقع لشهر {{months}}.",
+      "generate_audit": "إنشاء تدقيق كامل بالذكاء الاصطناعي"
+    },
+    "actions": {
+      "exportable_report": "تقرير قابل للتصدير",
+      "excel_file": "ملف تحليل XL"
+    }
+  },
   "breadcrumb": {
     "home": "الرئيسية",
     "dashboard": "لوحة التحكم",
@@ -252,24 +246,6 @@
     "performance_indicators": "مؤشرات الأداء",
     "reports_analytics": "التقارير والتحليلات",
     "settings": "الإعدادات"
-  },
-  "audit": {
-    "title": "مستكشف التدقيق والتتبع",
-    "subtitle": "سجل غير قابل للتعديل لتعديلات النظام (Spans DB)",
-    "filter_placeholder": "تصفية حسب الإجراء أو الكيان...",
-    "table": {
-      "timestamp": "التاريخ والوقت",
-      "user": "المستخدم",
-      "action": "الإجراء",
-      "entity": "الكيان",
-      "entity_id": "معرف الكيان",
-      "details": "التفاصيل"
-    },
-    "modal": {
-      "title": "تفاصيل سجل التدقيق",
-      "old_value": "القيمة القديمة",
-      "new_value": "القيمة الجديدة"
-    }
   },
   "users_mgmt": {
     "title": "إدارة المستخدمين",
@@ -2529,38 +2505,84 @@
     "view_docs": "الأذونات"
   },
   "invoices": {
+    "title": "إدارة الفواتير",
+    "subtitle": "متابعة كاملة لفواتير العملاء والتحصيلات",
+    "new_invoice": "فاتورة جديدة",
+    "global_ca": "إجمالي رقم الأعمال",
+    "total_collected": "إجمالي المحصل",
+    "recovery": "التحصيل",
+    "pending": "قيد الانتظار",
+    "active_receivables": "المستحقات النشطة",
+    "critical": "تأخيرات حرجة",
+    "payment_delays": "آجال الدفع",
+    "evolution_chart": "تطور الفوترة",
+    "growing_sectors": "القطاعات المتنامية",
+    "sectors": {
+      "industry": "الصناعة والغاز",
+      "it": "خدمات تقنية المعلومات",
+      "construction": "البناء والأشغال العمومية",
+      "others": "أخرى"
+    },
+    "ia_tip": "تحليل LIA التنبؤي",
+    "register_title": "سجل الفواتير",
+    "register_subtitle": "السجل وحالة الدفع",
+    "search_placeholder": "بحث عن فاتورة، عميل...",
+    "all_statuses": "جميع الحالات",
+    "table": {
+      "invoice_no": "رقم الفاتورة",
+      "client_dz": "العميل",
+      "dates": "التواريخ (الإصدار / الاستحقاق)",
+      "amount_ttc": "المبلغ الإجمالي",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "pagination": "عرض {{count}} من أصل {{total}} فواتير",
+      "no_results": "لم يتم العثور على أي فاتورة لبحثك."
+    },
+    "status": {
+      "collected": "مدفوعة",
+      "critical_delay": "تأخير حرج",
+      "pending_attente": "قيد الانتظار",
+      "paid": "مدفوعة",
+      "overdue": "متأخرة",
+      "cancelled": "ملغاة"
+    },
+    "actions": {
+      "view_pdf": "عرض PDF",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "details": "التفاصيل"
+    },
     "modal": {
-      "create_title": "فاتورة جديدة — الذكاء المحاسبي",
+      "create_title": "إنشاء فاتورة جديدة",
+      "edit_title": "تعديل الفاتورة {{id}}",
       "legal_info": "المعلومات القانونية والضريبية",
       "client_id_section": "تعريف العميل",
       "raison_sociale": "الاسم التجاري",
-      "address_billing": "عنوان الفواتير",
-      "nif": "الرقم التعريفي الضريبي (NIF)",
+      "address_billing": "عنوان الفوترة",
+      "nif": "الرقم التعريف الجبائي (NIF)",
       "nis": "الرقم الإحصائي (NIS)",
       "rc": "السجل التجاري (RC)",
-      "ai": "مادة الضريبة (AI)",
-      "rib": "رقم الحساب البنكي (RIB)",
+      "ai": "رقم المادة",
+      "rib": "RIB",
       "sector": "قطاع النشاط",
       "date_emission": "تاريخ الإصدار",
       "date_echeance": "تاريخ الاستحقاق",
-      "items_title": "تفاصيل المواد / الخدمات",
-      "add_item": "إضافة سطر",
-      "item_desc": "الوصف",
+      "items_title": "تفاصيل المواد والخدمات",
+      "add_item": "إضافة مادة",
+      "item_desc": "البيان",
       "item_qty": "الكمية",
-      "item_pu": "سعر الوحدة (HT)",
-      "item_tva": "الضريبة (%)",
-      "payment_config": "إعدادات الدفع",
-      "ttc_total": "الإجمالي (TTC)",
-      "save": "إنشاء الفاتورة",
+      "item_pu": "سعر الوحدة",
+      "item_tva": "الضريبة",
+      "payment_config": "طريقة الدفع",
+      "ttc_total": "الإجمالي للدفع",
+      "save": "حفظ الفاتورة",
       "accounting_simulation": "محاكاة القيود المحاسبية (الأستاذ العام)"
-    },
-    "table": {
-      "status": "الحالة"
     }
   },
   "audit": {
-    "title": "التدقيق والأمن",
-    "subtitle": "مراقبة متقدمة للأنشطة وأمن النظام",
+    "title": "مستكشف التدقيق والتتبع",
+    "subtitle": "سجل غير قابل للتعديل لتعديلات النظام (Spans DB)",
+    "filter_placeholder": "تصفية حسب الإجراء أو الكيان...",
     "tabs": {
       "logs": "سجلات التدقيق",
       "compliance": "الامتثال",
@@ -2601,14 +2623,22 @@
       "exports": "تصديرات"
     },
     "table": {
-      "timestamp": "الطابع الزمني",
+      "timestamp": "التاريخ والوقت",
       "user": "المستخدم",
       "action": "الإجراء",
+      "entity": "الكيان",
+      "entity_id": "معرف الكيان",
       "resource": "المورد",
+      "details": "التفاصيل",
       "status": "الحالة",
       "success": "نجاح",
       "warning": "تنبيه",
       "failed": "فشل"
+    },
+    "modal": {
+      "title": "تفاصيل سجل التدقيق",
+      "old_value": "القيمة القديمة",
+      "new_value": "القيمة الجديدة"
     },
     "compliance": {
       "title": "الامتثال والضوابط",
@@ -3815,6 +3845,44 @@
       "print": "طباعة الرسالة",
       "confirm_btn": "إرسال بريد إلكتروني",
       "sent_msg": "تم إرسال الإشعار بنجاح!"
+    }
+  },
+  "suppliers": {
+    "title": "المشتريات والموردون",
+    "subtitle": "الإدارة المركزية لدورة المشتريات وعلاقات الموردين والتحليلات.",
+    "tabs": {
+      "list": "سجل الموردين",
+      "orders": "المشتريات والطلبيات",
+      "analytics": "تحليل الأداء"
+    },
+    "stats": {
+      "total_purchases": "إجمالي المشتريات",
+      "debts": "ديون الموردين",
+      "total_orders": "الطلبيات الجارية",
+      "avg_score": "متوسط التقييم"
+    },
+    "actions": {
+      "new_order": "طلبية جديدة",
+      "optimization": "تحسين التكاليف",
+      "risks": "تقييم المخاطر"
+    },
+    "analytics": {
+      "commitment_evolution": "تطور المشتريات (صافي)",
+      "distribution_supplier": "توزيع الموردين"
+    },
+    "messages": {
+      "purchase_orders": "طلبيات الشراء الأخيرة",
+      "quality_score": "مؤشر الجودة"
+    },
+    "table": {
+      "reference": "المرجع",
+      "supplier": "المورد",
+      "quality": "الأولوية"
+    },
+    "status": {
+      "approved": "تمت الموافقة",
+      "pending": "قيد الانتظار",
+      "delivered": "تم الاستلام"
     }
   }
 }

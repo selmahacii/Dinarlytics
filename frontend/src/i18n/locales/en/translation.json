@@ -1,16 +1,4 @@
 {
-  "common": {
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "close": "Close",
-    "add": "Add",
-    "edit": "Edit",
-    "view": "View",
-    "loading": "Loading...",
-    "search": "Search",
-    "actions": "Actions"
-  },
   "sales": {
     "title": "Sales & Customers",
     "hero": {
@@ -113,6 +101,11 @@
     "success": "Operation successful",
     "warning": "Warning",
     "period": "Period",
+    "status_stable": "Stable",
+    "status_pending": "Pending",
+    "status_urgent": "Urgent",
+    "others": "Others",
+    "view_all": "View All",
     "confirm": "Confirm",
     "back": "Back",
     "next": "Next",
@@ -252,24 +245,6 @@
     "performance_indicators": "Performance Indicators",
     "reports_analytics": "Reports & Analytics",
     "settings": "Settings"
-  },
-  "audit": {
-    "title": "Audit & Traceability Explorer",
-    "subtitle": "Inviolable history of system modifications (Spans DB)",
-    "filter_placeholder": "Filter by action or entity...",
-    "table": {
-      "timestamp": "Date & Time",
-      "user": "User",
-      "action": "Action",
-      "entity": "Entity",
-      "entity_id": "Entity ID",
-      "details": "Details"
-    },
-    "modal": {
-      "title": "Audit Log Details",
-      "old_value": "Old Value",
-      "new_value": "New Value"
-    }
   },
   "users_mgmt": {
     "title": "User Management",
@@ -2477,38 +2452,84 @@
     "view_docs": "Permissions"
   },
   "invoices": {
+    "title": "Invoice Management",
+    "subtitle": "Complete tracking of customer billing and collections",
+    "new_invoice": "New Invoice",
+    "global_ca": "Global Revenue",
+    "total_collected": "Total Collected",
+    "recovery": "Recovery",
+    "pending": "Pending",
+    "active_receivables": "Active Receivables",
+    "critical": "Critical Delays",
+    "payment_delays": "Payment Delays",
+    "evolution_chart": "Billing Evolution",
+    "growing_sectors": "Growing Sectors",
+    "sectors": {
+      "industry": "Industry & Gas",
+      "it": "IT Services",
+      "construction": "Construction",
+      "others": "Others"
+    },
+    "ia_tip": "LIA Predictive Analysis",
+    "register_title": "Invoice Register",
+    "register_subtitle": "History and payment status",
+    "search_placeholder": "Search for an invoice, a client...",
+    "all_statuses": "All statuses",
+    "table": {
+      "invoice_no": "Invoice No.",
+      "client_dz": "Client",
+      "dates": "Dates (Issue / Due)",
+      "amount_ttc": "Amount TTC",
+      "status": "Status",
+      "actions": "Actions",
+      "pagination": "Displaying {{count}} out of {{total}} invoices",
+      "no_results": "No invoices found for your search."
+    },
+    "status": {
+      "collected": "Paid",
+      "critical_delay": "Critical Delay",
+      "pending_attente": "Pending",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "view_pdf": "View PDF",
+      "edit": "Edit",
+      "delete": "Delete",
+      "details": "Details"
+    },
     "modal": {
-      "create_title": "New Invoice — Accounting Intelligence",
-      "legal_info": "Legal & Tax Information",
-      "client_id_section": "Client Identification",
+      "create_title": "Create New Invoice",
+      "edit_title": "Edit Invoice {{id}}",
+      "legal_info": "Legal & Fiscal Information",
+      "client_id_section": "CLIENT IDENTIFICATION",
       "raison_sociale": "Company Name",
       "address_billing": "Billing Address",
-      "nif": "N.I.F (Tax ID Number)",
-      "nis": "N.I.S (Statistical ID Number)",
-      "rc": "R.C (Trade Registry)",
-      "ai": "A.I (Tax Article)",
-      "rib": "R.I.B / Bank Account",
-      "sector": "Activity Sector",
+      "nif": "NIF",
+      "nis": "NIS",
+      "rc": "RC",
+      "ai": "Tax Art.",
+      "rib": "RIB",
+      "sector": "Business Sector",
       "date_emission": "Issue Date",
       "date_echeance": "Due Date",
-      "items_title": "Item / Service Details",
-      "add_item": "Add a line",
+      "items_title": "ITEMS & SERVICES DETAILS",
+      "add_item": "Add Item",
       "item_desc": "Description",
       "item_qty": "Qty",
-      "item_pu": "U.P (Excl. Tax)",
-      "item_tva": "VAT (%)",
-      "payment_config": "Payment Configuration",
-      "ttc_total": "Total Incl. Tax",
-      "save": "Generate Invoice",
+      "item_pu": "Unit Price",
+      "item_tva": "VAT",
+      "payment_config": "PAYMENT MODE",
+      "ttc_total": "TOTAL TTC TO PAY",
+      "save": "Save Invoice",
       "accounting_simulation": "Accounting Imputation Simulation (General Ledger)"
-    },
-    "table": {
-      "status": "Status"
     }
   },
   "audit": {
     "title": "Audit & Security",
     "subtitle": "Advanced activity monitoring and system security",
+    "filter_placeholder": "Filter by action or entity...",
     "tabs": {
       "logs": "Audit Logs",
       "compliance": "Compliance",
@@ -2516,6 +2537,11 @@
       "risks": "Risks",
       "analytics": "Analytics",
       "reports": "Reports"
+    },
+    "modal": {
+      "title": "Audit Log Details",
+      "old_value": "Old Value",
+      "new_value": "New Value"
     },
     "controls": {
       "select_period": "Select audit period",
@@ -2552,6 +2578,9 @@
       "user": "User",
       "action": "Action",
       "resource": "Resource",
+      "entity": "Entity",
+      "entity_id": "Entity ID",
+      "details": "Details",
       "status": "Status",
       "success": "Success",
       "warning": "Warning",
@@ -3775,6 +3804,45 @@
       "print": "Print Letter",
       "confirm_btn": "Send Email",
       "sent_msg": "Follow-up sent successfully!"
+    }
+  },
+  "suppliers": {
+    "title": "Purchasing & Suppliers",
+    "subtitle": "Centralized management of the procurement cycle, supplier relations, and analytical insights.",
+    "tabs": {
+      "list": "Supplier Registry",
+      "orders": "Procurement & P.O.",
+      "analytics": "Performance Analysis"
+    },
+    "stats": {
+      "total_purchases": "Total Purchases",
+      "debts": "Supplier Debts",
+      "total_orders": "Ongoing Orders",
+      "avg_score": "Average Score"
+    },
+    "actions": {
+      "new_order": "New P.O.",
+      "optimization": "Cost Optimization",
+      "risks": "Risk Assessment"
+    },
+    "analytics": {
+      "commitment_evolution": "Purchase Evolution HT",
+      "distribution_supplier": "Supplier Breakdown"
+    },
+    "messages": {
+      "purchase_orders": "Recent Purchase Orders",
+      "quality_score": "Quality Score"
+    },
+    "table": {
+      "reference": "Reference",
+      "supplier": "Supplier",
+      "quality": "Urgency"
+    },
+    "status": {
+      "approved": "Approved",
+      "pending": "Pending",
+      "delivered": "Delivered",
+      "urgent": "Urgent"
     }
   }
 }

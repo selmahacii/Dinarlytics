@@ -21,6 +21,7 @@ import Inventaire from '@/pages/inventory/Inventaire';
 import GestionPaiementsClients from '@features/operations/pages/GestionPaiementsClients';
 import GestionRH from '@/pages/rh/GestionRH';
 import BonCommande from '@/pages/achats/BonCommande';
+import AchatsFournisseursPage from '@/pages/achats/AchatsFournisseursPage';
 import TableauAmortissements from '@/pages/accounting/TableauAmortissements';
 
 import AnalyticsFacturation from '@/pages/analytics/AnalyticsFacturation';
@@ -128,7 +129,7 @@ function App() {
 
                   {/* Sales & Purchases */}
                   <Route path="/factures-vente" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsFacturation /></ProtectedRoute>} />
-                  <Route path="/achats-charges" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsAchats /></ProtectedRoute>} />
+                  <Route path="/achats-charges" element={<ProtectedRoute requiredPermission="facturation-read"><AchatsFournisseursPage /></ProtectedRoute>} />
                   <Route path="/analytics-facturation" element={<ProtectedRoute requiredPermission="facturation-read"><AnalyticsFacturation /></ProtectedRoute>} />
                   <Route path="/gestion-paiements-clients" element={<ProtectedRoute requiredPermission="facturation-read"><GestionPaiementsClients /></ProtectedRoute>} />
 
@@ -151,7 +152,7 @@ function App() {
 
                   {/* Reports */}
                   <Route path="/rapports/ventes-clients" element={<ProtectedRoute requiredPermission="rapports-ventes"><VentesClients /></ProtectedRoute>} />
-                  <Route path="/rapports/achats-fournisseurs" element={<ProtectedRoute requiredPermission="rapports-achats"><AchatsFournisseurs /></ProtectedRoute>} />
+                  <Route path="/rapports/achats-fournisseurs" element={<ProtectedRoute requiredPermission="rapports-achats"><AchatsFournisseursPage /></ProtectedRoute>} />
                   <Route path="/rapports/stocks-produits" element={<ProtectedRoute requiredPermission="rapports-stocks"><StocksProduits /></ProtectedRoute>} />
                   <Route path="/rapports/tresorerie-banque" element={<ProtectedRoute requiredPermission="rapports-tresorerie"><TresorerieBanque /></ProtectedRoute>} />
                   <Route path="/rapports/analytics" element={<ProtectedRoute requiredPermission="rapports-basic"><RapportsAnalytics /></ProtectedRoute>} />
