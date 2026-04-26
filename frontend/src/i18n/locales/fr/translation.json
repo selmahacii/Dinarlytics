@@ -39,7 +39,7 @@
     "added": "ajouté",
     "at": "à",
     "days": "jours",
-    "days_short": "j",
+    "days_short": "jours",
     "total": "Total",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
@@ -765,7 +765,7 @@
         "risk_evaluation_with_period": "Évaluation des Risques Clients - {{period}}",
         "overdue_invoices": "Factures en Retard",
         "notes_distribution": "Répartition des Notes",
-        "recovery_priorities": "Priorités de Recouvrement"
+        "recovery_priorities": "Priorités de recouvrement"
       },
       "table": {
         "shipping_id": "ID Expédition",
@@ -963,7 +963,7 @@
       "action_required": "Action requise",
       "recovery_rate": "Taux de Recouvrement",
       "performance_month": "Performance (Mois)",
-      "recovery_priorities": "Priorités de Recouvrement",
+      "recovery_priorities": "Priorités de recouvrement",
       "priority": "Priorité",
       "vs_last_audit": "vs dernier audit",
       "all_reports": "Tous les rapports",
@@ -1074,7 +1074,7 @@
       "consolidated_analytics": "Analytique Consolidée",
       "treasury_management": "Trésorerie Fournisseurs",
       "cash_flow_mgmt": "Gestion des Flux de Décaissement",
-      "executive_summary": "Résumé Exécutif",
+      "executive_summary": "Résumé exécutif",
       "procurement_strategy": "Stratégie d'Approvisionnement"
     },
     "table": {
@@ -3345,14 +3345,14 @@
       "month": "Mois"
     },
     "sections": {
-      "outflows_split": "Répartition des Sorties"
+      "outflows_split": "Répartition des dépenses"
     },
     "items": {
-      "goods_sales": "Ventes de Marchandises",
-      "supplier_purchases": "Achats Fournisseurs",
-      "salaries_charges": "Salaires & Charges",
-      "fixed_charges": "Charges Fixes",
-      "other_expenses": "Autres Dépenses"
+      "goods_sales": "Ventes de marchandises",
+      "supplier_purchases": "Achats fournisseurs",
+      "salaries_charges": "Salaries & Charges",
+      "fixed_charges": "Charges fixes",
+      "other_expenses": "Autres dépenses"
     }
   },
   "advanced_analytics": {
