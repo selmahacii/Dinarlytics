@@ -460,7 +460,9 @@
       "predicted_tva": "Predictive VAT",
       "confidence_score": "Smart Confidence Score",
       "base_rate_calc": "Base × Rate",
-      "analyzing": "Analyzing trends..."
+      "analyzing": "Analyzing trends...",
+      "confidence_score_label": "Smart Confidence Score: 85%",
+      "analysis_desc": "Based on your last 10 transactions, we predict a stable VAT charge."
     },
     "alerts": {
       "erp_coherence": "Full ERP Coherence",
@@ -496,7 +498,8 @@
       "tap_calculated": "CALCULATED TAP",
       "monthly_payments": "Monthly Payments",
       "avg_monthly_tap": "Avg monthly TAP:",
-      "next_deadline": "Next deadline:"
+      "next_deadline": "Next deadline:",
+      "ibs_base_rate_ar": "Base × Rate"
     },
     "reports": {
       "audit_title": "STRATEGIC FISCAL AUDIT",
@@ -600,6 +603,17 @@
         "collected_ytd": "Collected (YTD)",
         "vs_last_year": "vs LY"
       }
+    },
+    "audit_ia": {
+      "alert_title": "Absence of supporting documents",
+      "alert_desc": "8 invoices have no scan attached. Risk of rejection in case of tax audit."
+    },
+    "calendar": {
+      "title": "Tax Calendar",
+      "action_required": "Action required",
+      "expired": "Expired",
+      "days_remaining": "{{count}} days remaining",
+      "details": "Details"
     }
   },
   "dashboard": {
@@ -1154,7 +1168,27 @@
       "exposure_label": "Exposure:",
       "index_shorthand": "INDEX",
       "units_shorthand": "UNITS",
-      "other_partners": "other partners"
+      "other_partners": "other partners",
+      "modals": {
+        "client_detail_title": "Client Details - {{name}}",
+        "payment_history_title": "Payment History - {{name}}",
+        "communication_title": "Communication - {{name}}",
+        "detail_title": "Detail: {{subject}}",
+        "new_interaction_title": "New CRM Interaction",
+        "new_relance_title": "New Follow-Up",
+        "generate_report_title": "Generate New Report",
+        "clv_analysis_title": "Customer Value Analysis (CLV)",
+        "revenue_forecast_title": "Revenue Forecast by Client",
+        "recommended_actions_title": "CRM Interactions - Recommended Actions",
+        "segmentation_title": "Client Segmentation",
+        "select_partner": "Select a partner",
+        "communication_channel": "Communication Channel",
+        "exchange_subject": "Exchange Subject",
+        "exchange_subject_placeholder": "Ex: Follow-up order #45...",
+        "details_and_actions": "Details and Follow-up Actions",
+        "interaction_placeholder": "Discussion summary and next steps...",
+        "save_interaction": "Save Interaction"
+      }
     },
     "accounting": {
       "treasury": {
@@ -2562,14 +2596,20 @@
       "export_cert": "Export Fiscal Certificate"
     },
     "chart": {
-      "labels": ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb"],
+      "labels": [
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb"
+      ],
       "dataset_label": "Monthly Revenue (DZD)",
       "monthly": "Monthly",
       "weekly": "Weekly"
     },
     "ia_tip_desc": "The <1>Industry</1> sector accounts for 65% of your revenue this month. Consider diversifying to reduce risk."
   },
-
   "audit": {
     "title": "Audit & Security",
     "subtitle": "Advanced activity monitoring and system security",
@@ -2916,6 +2956,11 @@
         "backup_success": "Automatic backup",
         "backup_daily": "Daily backup performed successfully"
       }
+    },
+    "integrity": {
+      "title": "Proof of Integrity",
+      "btn_verify": "Verify Integrity",
+      "success_msg": "Proof of integrity validated by cryptographic hash."
     }
   },
   "roles": {

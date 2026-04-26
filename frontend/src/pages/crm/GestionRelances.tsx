@@ -47,9 +47,9 @@ const MOCK_RELANCES: Relance[] = [
 ];
 
 const RELANCE_TEMPLATES = {
-  level1: { subject: 'Rappel facture impayée', tone: 'Cordial', delay: '30 jours' },
-  level2: { subject: 'Mise en demeure amiable', tone: 'Ferme', delay: '60 jours' },
-  level3: { subject: 'Dernière mise en demeure avant contentieux', tone: 'Formel/Légal', delay: '90+ jours' }
+  level1: { subject: 'relances.template.l1_subject', tone: 'relances.template.l1_tone', delay: '30' },
+  level2: { subject: 'relances.template.l2_subject', tone: 'relances.template.l2_tone', delay: '60' },
+  level3: { subject: 'relances.template.l3_subject', tone: 'relances.template.l3_tone', delay: '90+' }
 };
 
 const GestionRelances: React.FC = () => {
@@ -63,6 +63,7 @@ const GestionRelances: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<RelanceStatus | 'all'>('all');
   const [levelFilter, setLevelFilter] = useState<RelanceLevel | 0>(0);
   const [isSendOpen, setIsSendOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [emailContent, setEmailContent] = useState('');
   
   const [relances, setRelances] = useState<Relance[]>([]);
@@ -74,7 +75,7 @@ const GestionRelances: React.FC = () => {
     const fetchRelances = async () => {
       try {
         const response = await apiClient.get('/relances-clients');
-        setRelances(response.data);
+        setRelances(response.data as Relance[]);
       } catch (err) {
         console.error("Failed to fetch relances, using mock data", err);
         setRelances(MOCK_RELANCES);
@@ -117,8 +118,14 @@ const GestionRelances: React.FC = () => {
   }), [relances]);
 
   const generateEmailContent = (relance: Relance) => {
-    const tmpl = RELANCE_TEMPLATES[`level${relance.level}`];
-    return `Objet : ${tmpl.subject} — ${relance.factureNum}\n\nMadame/Monsieur,\n\nNous nous permettons de vous contacter concernant la facture ${relance.factureNum} d'un montant de ${formatCurrency(relance.montant)}, arrivée à échéance le ${relance.dateEcheance}.\n\n${relance.daysOverdue > 60 ? 'Sans retour de votre part sous 48h, nous serons contraints de transmettre ce dossier à notre service juridique.' : 'Nous vous remercions de régulariser cette situation dans les meilleurs délais.'}\n\nCordialement,\n${relance.commercial}\nDinarlytics`;
+    const urgency = relance.daysOverdue > 60 ? t('relances.send.urgency_critical') : t('relances.send.urgency_normal');
+    return t('relances.send.email_body', {
+      invoiceNum: relance.factureNum,
+      amount: formatCurrency(relance.montant),
+      dueDate: new Date(relance.dateEcheance).toLocaleDateString(),
+      urgencyNote: urgency,
+      commercial: relance.commercial
+    });
   };
 
   return (
@@ -133,7 +140,10 @@ const GestionRelances: React.FC = () => {
           <p className="text-slate-500 text-sm mt-1">{t('relances.subtitle')}</p>
         </div>
         {canSendRelance && (
-          <button className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+          <button 
+            onClick={() => setIsCreateOpen(true)}
+            className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm"
+          >
             <PlusIcon className="h-4 w-4 mr-2" />{t('relances.create_btn')}
           </button>
         )}
@@ -156,7 +166,7 @@ const GestionRelances: React.FC = () => {
           { label: t('relances.kpi.total_overdue'), value: formatCurrency(kpis.totalOverdue), color: 'text-red-700', icon: BanknotesIcon },
           { label: t('relances.kpi.count'), value: kpis.count, color: 'text-slate-800', icon: DocumentTextIcon },
           { label: t('relances.kpi.critical'), value: kpis.critical, color: 'text-red-600', icon: ExclamationTriangleIcon },
-          { label: t('relances.kpi.avg_days'), value: `${kpis.avgDays}j`, color: 'text-amber-700', icon: CalendarIcon },
+          { label: t('relances.kpi.avg_days'), value: `${kpis.avgDays} ${t('common.days_short') || 'j'}`, color: 'text-amber-700', icon: CalendarIcon },
           { label: t('relances.kpi.litigation'), value: kpis.litigation, color: 'text-red-800', icon: XCircleIcon },
         ].map((k, i) => { const Icon = k.icon; return (
           <div key={i} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
@@ -179,8 +189,8 @@ const GestionRelances: React.FC = () => {
                 <span className={`font-black text-sm ${Cfg.color}`}>{Cfg.label}</span>
                 <span className={`text-lg font-black ${Cfg.color}`}>{count}</span>
               </div>
-              <p className="text-[10px] text-slate-500">{t('relances.template.tone')}: <strong>{tmpl.tone}</strong></p>
-              <p className="text-[10px] text-slate-500">{t('relances.template.delay')}: {tmpl.delay}</p>
+              <p className="text-[10px] text-slate-500">{t('relances.template.tone')}: <strong>{t(tmpl.tone)}</strong></p>
+              <p className="text-[10px] text-slate-500">{t('relances.template.delay')}: {tmpl.delay} {t('common.days')}</p>
             </button>
           );
         })}
@@ -227,9 +237,9 @@ const GestionRelances: React.FC = () => {
                     <td className="px-4 py-3 font-bold text-red-700">{formatCurrency(r.montant)}</td>
                     <td className="px-4 py-3">
                       <div className={`font-black text-sm ${r.daysOverdue >= 60 ? 'text-red-700' : r.daysOverdue >= 30 ? 'text-orange-600' : 'text-amber-600'}`}>
-                        {r.daysOverdue}j
+                        {r.daysOverdue} {t('common.days_short') || 'j'}
                       </div>
-                      <div className="text-[10px] text-slate-400">{t('relances.table.since')} {r.dateEcheance}</div>
+                      <div className="text-[10px] text-slate-400">{t('relances.table.since')} {new Date(r.dateEcheance).toLocaleDateString()}</div>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border ${LCfg.bgCard} ${LCfg.color}`}>{LCfg.label}</span>
@@ -277,9 +287,9 @@ const GestionRelances: React.FC = () => {
               </div>
               {[
                 { label: t('relances.detail.amount'), value: formatCurrency(selected.montant), bold: true },
-                { label: t('relances.detail.overdue'), value: `${selected.daysOverdue} jours`, bold: true },
-                { label: t('relances.detail.due_date'), value: selected.dateEcheance, bold: false },
-                { label: t('relances.detail.invoice_date'), value: selected.dateFact, bold: false },
+                { label: t('relances.detail.overdue'), value: `${selected.daysOverdue} ${t('common.days')}`, bold: true },
+                { label: t('relances.detail.due_date'), value: new Date(selected.dateEcheance).toLocaleDateString(), bold: false },
+                { label: t('relances.detail.invoice_date'), value: new Date(selected.dateFact).toLocaleDateString(), bold: false },
               ].map(({ label, value, bold }, i) => (
                 <div key={i} className="bg-slate-50 rounded-xl p-3">
                   <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">{label}</p>
@@ -331,6 +341,56 @@ const GestionRelances: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Create New Follow-up Modal */}
+      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title={t('relances.create_btn')} size="lg">
+        <form className="p-4 space-y-6" onSubmit={(e) => { e.preventDefault(); alert(t('relances.send.sent_msg')); setIsCreateOpen(false); }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.client')}</label>
+              <select required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
+                <option value="">{t('crm.clients.placeholders.select_client') || 'Sélectionner un client'}</option>
+                {MOCK_RELANCES.map(r => (
+                  <option key={r.id} value={r.client}>{r.client}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.table.invoice')}</label>
+              <input type="text" placeholder="FAC-2024-XXX" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.table.level')}</label>
+              <select className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
+                <option value="1">{t('relances.level.1')}</option>
+                <option value="2">{t('relances.level.2')}</option>
+                <option value="3">{t('relances.level.3')}</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.amount')}</label>
+              <input type="number" placeholder="0.00" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.notes')}</label>
+            <textarea rows={4} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium" placeholder={t('relances.search_placeholder')} />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+            <button type="button" onClick={() => setIsCreateOpen(false)} className="px-8 py-3 bg-slate-100 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest">
+              {t('common.cancel')}
+            </button>
+            <button type="submit" className="px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">
+              {t('common.save')}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

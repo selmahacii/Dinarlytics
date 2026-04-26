@@ -48,8 +48,12 @@ class CSRFMiddleware(BaseHTTPMiddleware):
 
         if request.method in CSRFConfig.SAFE_METHODS:
             response = await call_next(request)
-            response.headers[CSRFConfig.HEADER_NAME] = csrf_token
             
+            # Ne pas mettre de cookie sur les requêtes OPTIONS (interfère avec CORS)
+            if request.method == "OPTIONS":
+                return response
+
+            response.headers[CSRFConfig.HEADER_NAME] = csrf_token
             # Determine if we should use secure cookies based on request scheme
             is_secure = request.url.scheme == "https"
             

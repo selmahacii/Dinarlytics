@@ -39,6 +39,7 @@
     "added": "ajouté",
     "at": "à",
     "days": "jours",
+    "days_short": "j",
     "total": "Total",
     "today": "Aujourd'hui",
     "yesterday": "Hier",
@@ -978,7 +979,27 @@
       "exposure_label": "Exposition:",
       "index_shorthand": "INDEX",
       "units_shorthand": "UNITS",
-      "other_partners": "autres partenaires"
+      "other_partners": "autres partenaires",
+      "modals": {
+        "client_detail_title": "Détails Client - {{name}}",
+        "payment_history_title": "Historique des Paiements - {{name}}",
+        "communication_title": "Communication - {{name}}",
+        "detail_title": "Détail : {{subject}}",
+        "new_interaction_title": "Nouvelle Interaction CRM",
+        "new_relance_title": "Nouvelle Relance",
+        "generate_report_title": "Générer un Nouveau Rapport",
+        "clv_analysis_title": "Analyse de Valeur Client (CLV)",
+        "revenue_forecast_title": "Prévisions de Revenus par Client",
+        "recommended_actions_title": "Interactions CRM - Actions Recommandées",
+        "segmentation_title": "Segmentation des Clients",
+        "select_partner": "Sélectionner un partenaire",
+        "communication_channel": "Canal de Communication",
+        "exchange_subject": "Objet de l'échange",
+        "exchange_subject_placeholder": "Ex: Suivi commande #45...",
+        "details_and_actions": "Détails et Actions à suivre",
+        "interaction_placeholder": "Résumé de la discussion et prochaines étapes...",
+        "save_interaction": "Enregistrer l'interaction"
+      }
     }
   },
   "suppliers": {
@@ -2639,14 +2660,20 @@
       "export_cert": "Exporter Certificat Fiscal"
     },
     "chart": {
-      "labels": ["Sept", "Oct", "Nov", "Déc", "Jan", "Fév"],
+      "labels": [
+        "Sept",
+        "Oct",
+        "Nov",
+        "Déc",
+        "Jan",
+        "Fév"
+      ],
       "dataset_label": "CA TTC Mensuel (DZD)",
       "monthly": "Mensuel",
       "weekly": "Hebdo"
     },
     "ia_tip_desc": "Le secteur <1>Industrie</1> porte 65% de vos revenus ce mois. Pensez à diversifier pour réduire le risque."
   },
-
   "audit": {
     "title": "Explorateur d'Audit & Traçabilité",
     "subtitle": "Historique inviolable des modifications du système (Spans DB)",
@@ -3779,66 +3806,74 @@
     "subtitle": "Suivi et recouvrement des impayés — Automatisation des relances par niveau",
     "create_btn": "Nouvelle Relance",
     "search_placeholder": "Rechercher par client ou facture...",
-
     "kpi": {
-        "total_overdue": "Total Impayés",
-        "count": "Dossiers Actifs",
-        "critical": "Niveau Critique",
-        "avg_days": "Retard Moyen",
-        "litigation": "En Contentieux"
-      },
-      "level": {
-        "1": "Niveau 1 : Rappel",
-        "2": "Niveau 2 : Amiable",
-        "3": "Niveau 3 : Juridique"
-      },
-      "status": {
-        "pending": "À envoyer",
-        "sent": "Envoyé",
-        "responded": "Répondu",
-        "escalated": "Escaladé",
-        "resolved": "Régularisé",
-        "litigation": "Contentieux"
-      },
-      "table": {
-        "invoice": "N° Facture",
-        "client": "Client",
-        "amount": "Montant",
-        "overdue": "Retard",
-        "level": "Niveau",
-        "status": "Statut",
-        "last_contact": "Dernier contact",
-        "actions": "Actions",
-        "since": "Depuis le"
-      },
-      "alert": {
-        "critical_count": "dossiers critiques identifiés",
-        "critical_desc": "Des factures dépassent les 90 jours de retard. Action urgente recommandée."
-      },
-      "template": {
-        "tone": "Ton",
-        "delay": "Délai"
-      },
-      "detail": {
-        "title": "Détails de la Relance",
-        "client": "Informations Client",
-        "amount": "Montant Impayé",
-        "overdue": "Durée du Retard",
-        "due_date": "Échéance Initiale",
-        "invoice_date": "Date de Facturation",
-        "notes": "Notes de Suivi"
-      },
-      "actions": {
-        "send": "Envoyer",
-        "details": "Détails"
-      },
-      "send": {
-        "title": "Envoyer une Relance par Email",
-        "to": "Destinataire",
-        "email_content": "Contenu de l'email",
-        "print": "Imprimer Courrier",
-        "confirm_btn": "Confirmer l'envoi",
-        "sent_msg": "Relance envoyée avec succès !"
+      "total_overdue": "Total Impayés",
+      "count": "Dossiers Actifs",
+      "critical": "Niveau Critique",
+      "avg_days": "Retard Moyen",
+      "litigation": "En Contentieux"
+    },
+    "level": {
+      "1": "Niveau 1 : Rappel",
+      "2": "Niveau 2 : Amiable",
+      "3": "Niveau 3 : Juridique"
+    },
+    "status": {
+      "pending": "À envoyer",
+      "sent": "Envoyé",
+      "responded": "Répondu",
+      "escalated": "Escaladé",
+      "resolved": "Régularisé",
+      "litigation": "Contentieux"
+    },
+    "table": {
+      "invoice": "N° Facture",
+      "client": "Client",
+      "amount": "Montant",
+      "overdue": "Retard",
+      "level": "Niveau",
+      "status": "Statut",
+      "last_contact": "Dernier contact",
+      "actions": "Actions",
+      "since": "Depuis le"
+    },
+    "alert": {
+      "critical_count": "dossiers critiques identifiés",
+      "critical_desc": "Des factures dépassent les 90 jours de retard. Action urgente recommandée."
+    },
+    "template": {
+      "tone": "Ton",
+      "delay": "Délai",
+      "l1_subject": "Rappel facture impayée",
+      "l1_tone": "Cordial",
+      "l2_subject": "Mise en demeure amiable",
+      "l2_tone": "Ferme",
+      "l3_subject": "Dernière mise en demeure avant contentieux",
+      "l3_tone": "Formel/Légal"
+    },
+    "detail": {
+      "title": "Détails de la Relance",
+      "client": "Informations Client",
+      "amount": "Montant Impayé",
+      "overdue": "Durée du Retard",
+      "due_date": "Échéance Initiale",
+      "invoice_date": "Date de Facturation",
+      "notes": "Notes de Suivi"
+    },
+    "actions": {
+      "send": "Envoyer",
+      "details": "Détails"
+    },
+    "send": {
+      "title": "Envoyer une Relance par Email",
+      "to": "Destinataire",
+      "email_content": "Contenu de l'email",
+      "print": "Imprimer Courrier",
+      "confirm_btn": "Confirmer l'envoi",
+      "sent_msg": "Relance envoyée avec succès !",
+      "email_body": "Madame/Monsieur,\n\nNous nous permettons de vous contacter concernant la facture {{invoiceNum}} d'un montant de {{amount}}, arrivée à échéance le {{dueDate}}.\n\n{{urgencyNote}}\n\nCordialement,\n{{commercial}}\nDinarlytics",
+      "urgency_normal": "Nous vous remercions de régulariser cette situation dans les meilleurs délais.",
+      "urgency_critical": "Sans retour de votre part sous 48h, nous serons contraints de transmettre ce dossier à notre service juridique."
     }
   }
 }

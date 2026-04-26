@@ -2086,7 +2086,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isClientDetailsModalOpen}
         onClose={() => setIsClientDetailsModalOpen(false)}
-        title={`Détails Client - ${selectedClient?.nom}`}
+        title={t('crm.clients.modals.client_detail_title', { name: selectedClient?.nom })}
         size="xl"
       >
         {selectedClient && (
@@ -2177,7 +2177,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isPaymentHistoryModalOpen}
         onClose={() => setIsPaymentHistoryModalOpen(false)}
-        title={`Historique des Paiements - ${selectedClient?.nom}`}
+        title={t('crm.clients.modals.payment_history_title', { name: selectedClient?.nom })}
         size="lg"
       >
         {selectedClient && (
@@ -2229,7 +2229,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isCommunicationModalOpen}
         onClose={() => setIsCommunicationModalOpen(false)}
-        title={`Communication - ${selectedClient?.nom}`}
+        title={t('crm.clients.modals.communication_title', { name: selectedClient?.nom })}
         size="lg"
       >
         {selectedClient && (
@@ -2301,7 +2301,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isCommDetailModalOpen}
         onClose={() => setIsCommDetailModalOpen(false)}
-        title={`Détail : ${selectedComm?.sujet}`}
+        title={t('crm.clients.modals.detail_title', { subject: selectedComm?.sujet })}
         size="lg"
       >
         {selectedComm && (
@@ -2356,7 +2356,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isNewCommunicationModalOpen}
         onClose={() => setIsNewCommunicationModalOpen(false)}
-        title="Nouvelle Interaction CRM"
+        title={t('crm.clients.modals.new_interaction_title')}
         size="lg"
       >
         <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsNewCommunicationModalOpen(false); }}>
@@ -2368,44 +2368,44 @@ const Clients: React.FC = () => {
                 aria-label="Sélectionner un client"
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest"
               >
-                <option value="">Sélectionner un partenaire</option>
+                <option value="">{t('crm.clients.modals.select_partner')}</option>
                 {apiClients.map((client: any) => (
                   <option key={client.id} value={client.id}>{client.name || client.nom}</option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Canal de Communication</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.modals.communication_channel')}</label>
               <select
                 required
                 aria-label="Canal"
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-[10px] font-black uppercase tracking-widest"
               >
                 <option value="email">Email</option>
-                <option value="call">Appel Téléphonique</option>
-                <option value="meeting">Réunion Physique</option>
-                <option value="reclamation">Réclamation</option>
+                <option value="call">{t('crm.clients.communication.types.call') || 'Appel Téléphonique'}</option>
+                <option value="meeting">{t('crm.clients.communication.types.meeting') || 'Réunion Physique'}</option>
+                <option value="reclamation">{t('crm.clients.communication.types.reclamation') || 'Réclamation'}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Objet de l'échange</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.modals.exchange_subject')}</label>
             <input
               type="text"
               required
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white"
-              placeholder="Ex: Suivi commande #45..."
+              placeholder={t('crm.clients.modals.exchange_subject_placeholder')}
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Détails et Actions à suivre</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('crm.clients.modals.details_and_actions')}</label>
             <textarea
               rows={4}
               required
               className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-900 dark:text-white"
-              placeholder="Résumé de la discussion et prochaines étapes..."
+              placeholder={t('crm.clients.modals.interaction_placeholder')}
             />
           </div>
 
@@ -2415,13 +2415,13 @@ const Clients: React.FC = () => {
               onClick={() => setIsNewCommunicationModalOpen(false)}
               className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest"
             >
-              Annuler
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl"
             >
-              Enregistrer Interaction
+              {t('crm.clients.modals.save_interaction')}
             </button>
           </div>
         </form>
@@ -2431,7 +2431,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isRelanceModalOpen}
         onClose={() => setIsRelanceModalOpen(false)}
-        title="Nouvelle Relance"
+        title={t('crm.clients.modals.new_relance_title')}
         size="lg"
       >
         <form className="space-y-6">
@@ -2571,7 +2571,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isNouveauRapportModalOpen}
         onClose={() => !isGeneratingRapport && setIsNouveauRapportModalOpen(false)}
-        title="Générer un Nouveau Rapport"
+        title={t('crm.clients.modals.generate_report_title')}
         size="lg"
       >
         <form className="space-y-6" onSubmit={handleGenerateRapport}>
@@ -3035,7 +3035,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isAnalyseValeurModalOpen}
         onClose={() => setIsAnalyseValeurModalOpen(false)}
-        title="Analyse de Valeur Client (CLV)"
+        title={t('crm.clients.modals.clv_analysis_title')}
         size="xl"
       >
         <div className="space-y-8">
@@ -3101,7 +3101,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isPrevisionsRevenusModalOpen}
         onClose={() => setIsPrevisionsRevenusModalOpen(false)}
-        title="Prévisions de Revenus par Client"
+        title={t('crm.clients.modals.revenue_forecast_title')}
         size="xl"
       >
         <div className="space-y-8">
@@ -3175,7 +3175,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isCrmModalOpen}
         onClose={() => setIsCrmModalOpen(false)}
-        title="Interactions CRM - Actions Recommandées"
+        title={t('crm.clients.modals.recommended_actions_title')}
         size="xl"
       >
         <div className="space-y-8">
@@ -3269,7 +3269,7 @@ const Clients: React.FC = () => {
       <Modal
         isOpen={isSegmentationModalOpen}
         onClose={() => setIsSegmentationModalOpen(false)}
-        title="Segmentation des Clients"
+        title={t('crm.clients.modals.segmentation_title')}
         size="xl"
       >
         <div className="space-y-8">

@@ -90,7 +90,7 @@
     "units": {
       "dzd": "دج",
       "da": "دج",
-      "unités": "وحدات",
+      "unitÃ©s": "وحدات",
       "units": "وحدات",
       "jours": "أيام",
       "days": "أيام",
@@ -422,7 +422,8 @@
       "total_charge": "العبء الإجمالي",
       "effective_rate": "المعدل الفعلي",
       "ibs_share": "حصة IBS",
-      "compliance": "الامتثال"
+      "compliance": "الامتثال",
+      "global_score": "الدرجة الإجمالية"
     },
     "benefits": {
       "kpi": "لوحات قياس الأداء الجبائي",
@@ -450,11 +451,66 @@
     "ia": {
       "predicted_tva": "الرسم على القيمة المضافة المتوقع",
       "confidence_score": "درجة الثقة الذكية",
-      "base_rate_calc": "القاعدة × المعدل"
+      "base_rate_calc": "القاعدة × المعدل",
+      "confidence_score_label": "درجة الثقة الذكية: 85%",
+      "analysis_desc": "بناءً على آخر 10 معاملات لك، نتوقع عبء ضريبة قيمة مضافة مستقرًا."
     },
     "alerts": {
       "erp_coherence": "توافق تام مع نظام ERP"
-    }
+    },
+    "update_status": "2026 Update",
+    "audit_ia": {
+      "title": "تدقيق الامتثال بالذكاء الاصطناعي",
+      "alert_title": "غياب المستندات الثبوتية",
+      "alert_desc": "8 فواتير ليس لها مسح ضوئي مرفق. خطر الرفض في حالة التدقيق الجبائي."
+    },
+    "documents": {
+      "search_placeholder": "البحث عن مستند...",
+      "nif_desc": "رقم التعريف الجبائي الفريد والإلزامي الممنوح من قبل المديرية العامة للضرائب (DGI) لكل شخص طبيعي أو معنوي يمارس نشاطًا اقتصاديًا في الجزائر."
+    },
+    "g50": {
+      "avg_delay_unit": "أيّام",
+      "title": "تصريحات G50",
+      "subtitle": "مؤشرات الأداء وسجل G50 • {{country}}",
+      "avg_delay": "متوسط التأخير",
+      "new_declaration": "نشرة جديدة",
+      "table": {
+        "period": "الفترة",
+        "num": "رقم التصريح",
+        "ca": "رقم الأعمال HT",
+        "coll": "VAT محصلة",
+        "ded": "VAT قابلة للخصم",
+        "irg": "IRG",
+        "tap": "TAP",
+        "to_pay": "للدفع",
+        "date": "التاريخ",
+        "status": "الحالة",
+        "score": "النتيجة",
+        "performance": "الأداء"
+      },
+      "status_filed": "Télédéclarée",
+      "score_excellent": "Excellent",
+      "score_very_good": "Très bien"
+    },
+    "details": {
+      "ca_ht_label": "Turnover (HT):",
+      "deductible_charges": "Deductible charges:",
+      "taxable_profit": "Taxable profit:",
+      "ibs_base_rate": "ESTIMATED IBS (Base × Rate)",
+      "ibs_base_rate_ar": "القاعدة × المعدل",
+      "ibs_installments": "IBS Installments",
+      "installments_paid": "Installments paid (Q1-Q3):",
+      "balance_to_pay": "Balance to pay:",
+      "balance_deadline": "Balance deadline: 31/03/2026"
+    },
+    "calendar": {
+      "title": "التقويم الضريبي",
+      "action_required": "إجراء مطلوب",
+      "expired": "منتهي الصلاحية",
+      "days_remaining": "{{count}} أيام متبقية",
+      "details": "التفاصيل"
+    },
+    "expert_mode": "Expert Mode"
   },
   "dashboard": {
     "title": "لوحة القيادة المالية",
@@ -1008,7 +1064,27 @@
       "exposure_label": "التعرض:",
       "index_shorthand": "مؤشر",
       "units_shorthand": "وحدات",
-      "other_partners": "شركاء آخرون"
+      "other_partners": "شركاء آخرون",
+      "modals": {
+        "client_detail_title": "تفاصيل العميل - {{name}}",
+        "payment_history_title": "سجل الدفع - {{name}}",
+        "communication_title": "التواصل - {{name}}",
+        "detail_title": "التفاصيل: {{subject}}",
+        "new_interaction_title": "تفاعل CRM جديد",
+        "new_relance_title": "متابعة جديدة",
+        "generate_report_title": "إنشاء تقرير جديد",
+        "clv_analysis_title": "تحليل قيمة العميل (CLV)",
+        "revenue_forecast_title": "توقعات الإيرادات حسب العميل",
+        "recommended_actions_title": "تفاعلات CRM - الإجراءات الموصى بها",
+        "segmentation_title": "تقسيم العملاء",
+        "select_partner": "اختر شريكاً",
+        "communication_channel": "قناة التواصل",
+        "exchange_subject": "موضوع التبادل",
+        "exchange_subject_placeholder": "مثال: متابعة الطلب رقم 45...",
+        "details_and_actions": "التفاصيل وإجراءات المتابعة",
+        "interaction_placeholder": "ملخص المناقشة والخطوات التالية...",
+        "save_interaction": "حفظ التفاعل"
+      }
     },
     "accounting": {
       "treasury": {
@@ -2070,9 +2146,9 @@
           "rentabilite": "ربحية",
           "solvabilite": "ملاءة",
           "efficacite": "كفاءة",
-          "liquidité": "سيولة",
-          "rentabilité": "ربحية",
-          "efficacité": "كفاءة"
+          "liquiditÃ©": "سيولة",
+          "rentabilitÃ©": "ربحية",
+          "efficacitÃ©": "كفاءة"
         },
         "items": {
           "dso-critique": {
@@ -2615,14 +2691,20 @@
       "export_cert": "تصدير الشهادة الجبائية"
     },
     "chart": {
-      "labels": ["سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر", "جانفي", "فيفري"],
+      "labels": [
+        "سبتمبر",
+        "أكتوبر",
+        "نوفمبر",
+        "ديسمبر",
+        "جانفي",
+        "فيفري"
+      ],
       "dataset_label": "إجمالي رقم الأعمال الشهري (DZD)",
       "monthly": "شهري",
       "weekly": "أسبوعي"
     },
     "ia_tip_desc": "يمثل قطاع <1>الصناعة</1> 65% من إيراداتك هذا الشهر. فكر في التنويع لتقليل المخاطر."
   },
-
   "audit": {
     "title": "مستكشف التدقيق والتتبع",
     "subtitle": "سجل غير قابل للتعديل لتعديلات النظام (Spans DB)",
@@ -2954,6 +3036,11 @@
         "backup_success": "نسخ احتياطي تلقائي",
         "backup_daily": "تم إجراء النسخ الاحتياطي اليومي بنجاح"
       }
+    },
+    "integrity": {
+      "title": "إثبات النزاهة",
+      "btn_verify": "التحقق من النزاهة",
+      "success_msg": "تم التحقق من إثبات النزاهة عبر التجزئة التشفيرية."
     }
   },
   "roles": {
@@ -2983,30 +3070,11 @@
       "status_below": "أقل من المتوسط",
       "status_poor": "ضعيف"
     },
-    "welcome": "مرحباً {{name}}! أنا ليا، مساعدتك للذكاء المالي.",
-    "role_context": "بصفتك **{{role}}**، أنا مستعدة لمرافقتك في القيادة الاستراتيجية لـ **شركتك**.",
-    "capabilities_intro": "إليك كيف يمكنني مساعدتك اليوم:",
-    "capabilities": {
-      "predictive": "**التحليل التنبؤي**: توقعات التدفق النقدي لمدة 13 أسبوعاً وتوقعات الإيرادات لمدة 12 شهراً.",
-      "simulations": "**المحاكاة الاستراتيجية**: سيناريوهات متفائلة / واقعية / متشائمة.",
-      "optimization": "**التحسين التشغيلي**: اكتشاف الأنماط الموسمية وتقييم المخاطر.",
-      "performance": "**إدارة الأداء**: تحليل مالي كامل لدورة التحويل الخاصة بك (CCC/BFR)."
-    },
-    "question": "ما هو جانب الأداء الذي ترغب في تدقيقه؟",
-    "quick_actions": {
-      "synthesis": "ملخص استراتيجي للمجموعة",
-      "sector_analysis": "تحليل الأداء القطاعي",
-      "growth_scenarios": "سيناريوهات النمو M+6",
-      "risk_report": "تقرير المخاطر العالمي"
-    },
-    "placeholders": {
-      "ask": "اطرح سؤالك المالي هنا..."
-    },
     "tooltips": {
-      "microphone": "أمر صوتي",
-      "attachment": "إرفاق مستند (FEC, G50...)",
-      "export": "تصدير المحادثة",
-      "clipboard": "نسخ إلى الحافظة"
+      "microphone": "تحكم صوتي",
+      "attachment": "إرفاق",
+      "export": "تصدير",
+      "clipboard": "نسخ"
     },
     "fallback": {
       "api_unavailable": "واجهة برمجة تطبيقات الذكاء الاصطناعي غير متوفرة. استخدام منطق المحاكاة المحلي.",
@@ -3216,7 +3284,7 @@
       "email_label": "عنوان البريد الإلكتروني",
       "email_placeholder": "your@email.com",
       "password_label": "كلمة المرور",
-      "password_placeholder": "••••••••",
+      "password_placeholder": "â¢â¢â¢â¢â¢â¢â¢â¢",
       "remember_me": "تذكرني",
       "forgot_password": "نسيت كلمة المرور؟",
       "submit_btn": "تسجيل الدخول",
@@ -3850,7 +3918,13 @@
     },
     "template": {
       "tone": "الأسلوب",
-      "delay": "المدة"
+      "delay": "المدة",
+      "l1_subject": "تذكير بفاتورة غير مدفوعة",
+      "l1_tone": "ودي",
+      "l2_subject": "إنذار رسمي بالسداد",
+      "l2_tone": "حازم",
+      "l3_subject": "إنذار نهائي قبل الإجراء القانوني",
+      "l3_tone": "رسمي/قانوني"
     },
     "kpi": {
       "total_overdue": "إجمالي المتأخرات",
@@ -3887,8 +3961,11 @@
       "to": "إلى",
       "email_content": "محتوى البريد",
       "print": "طباعة الرسالة",
-      "confirm_btn": "إرسال بريد إلكتروني",
-      "sent_msg": "تم إرسال الإشعار بنجاح!"
+      "confirm_btn": "تأكيد الإرسال",
+      "sent_msg": "تم إرسال الإشعار بنجاح!",
+      "email_body": "السيد/السيدة المحترم(ة)،\n\nنود لفت انتباهكم بخصوص الفاتورة رقم {{invoiceNum}} بمبلغ {{amount}}، والتي استحقت بتاريخ {{dueDate}}.\n\n{{urgencyNote}}\n\nمع خالص التقدير،\n{{commercial}}\nDinarlytics",
+      "urgency_normal": "نرجو منكم تسوية هذه الفاتورة في أقرب وقت ممكن.",
+      "urgency_critical": "في حالة عدم الرد خلال 48 ساعة، سنضطر إلى إحالة الملف إلى القسم القانوني."
     }
   },
   "suppliers": {

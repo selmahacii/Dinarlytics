@@ -51,22 +51,29 @@ app = FastAPI(
 )
 
 # ========== SECURITY & MIDDLEWARE STACK (Order Matters!) ==========
-# 1. TRUSTED HOST MIDDLEWARE (First - validates Host header)
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=[
-        "localhost",
-        "127.0.0.1",
-        "app.dinarlytics.com",
-        "api.dinarlytics.com",
-        "*.ngrok-free.dev",
-        "*.ngrok-free.app",
-        "yosef-untwilled-defilingly.ngrok-free.dev",
-    ],
-)
+# 1. TRUSTED HOST MIDDLEWARE (Commented out for debug)
+# app.add_middleware(
+#     TrustedHostMiddleware,
+#     allowed_hosts=[
+#         "localhost",
+#         "127.0.0.1",
+#         "app.dinarlytics.com",
+#         "api.dinarlytics.com",
+#         "*.ngrok-free.dev",
+#         "*.ngrok-free.app",
+#         "yosef-untwilled-defilingly.ngrok-free.dev",
+#     ],
+# )
 
 # 2. REQUEST ID MIDDLEWARE (For distributed tracing)
 app.add_middleware(RequestIDMiddleware)
+
+@app.middleware("http")
+async def debug_requests(request: Request, call_next):
+    logger.info(f"DEBUG: {request.method} {request.url} Origin: {request.headers.get('origin')} Host: {request.headers.get('host')}")
+    response = await call_next(request)
+    logger.info(f"DEBUG RESPONSE: {response.status_code}")
+    return response
 
 # 3. CSRF PROTECTION MIDDLEWARE
 app.add_middleware(CSRFMiddleware, secret_key=settings.SECRET_KEY)
@@ -85,16 +92,35 @@ from app.core.limiter import limiter
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
-# 7. CORS MIDDLEWARE (MUST BE LAST/OUTERMOST so it handles all error responses)
+# 7. NUCLEAR CORS MIDDLEWARE (MUST BE OUTERMOST)
+@app.middleware("http")
+async def force_cors_middleware(request: Request, call_next):
+    origin = request.headers.get("origin")
+    if request.method == "OPTIONS":
+        response = JSONResponse(content="OK")
+    else:
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            logger.error(f"Error in request: {e}")
+            response = JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
+    
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-CSRF-Token, X-Company-ID, x-company-id, ngrok-skip-browser-warning, Accept, Origin"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Expose-Headers"] = "X-CSRF-Token, Content-Disposition"
+    
+    return response
+
+# Standard CORSMiddleware (keep as fallback)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CorsPolicies.ALLOWED_ORIGINS,
-    allow_origin_regex=r"https?://.*\.ngrok-free\.(dev|app)",
-    allow_methods=CorsPolicies.ALLOWED_METHODS,
-    allow_headers=CorsPolicies.ALLOWED_HEADERS,
-    expose_headers=CorsPolicies.EXPOSED_HEADERS,
-    allow_credentials=CorsPolicies.ALLOW_CREDENTIALS,
-    max_age=CorsPolicies.MAX_AGE,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=False,
 )
 
 @app.exception_handler(RateLimitExceeded)
