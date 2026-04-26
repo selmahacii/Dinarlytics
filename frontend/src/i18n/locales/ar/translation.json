@@ -850,7 +850,8 @@
         "vip_performance_analysis": "تحليل أداء VIP",
         "risk_evaluation_with_period": "تقييم مخاطر العملاء - {{period}}",
         "overdue_invoices": "الفواتير المتأخرة",
-        "notes_distribution": "توزيع الملاحظات"
+        "notes_distribution": "توزيع الملاحظات",
+        "recovery_priorities": "أولويات التحصيل"
       },
       "table": {
         "shipping_id": "رقم الشحنة",
@@ -3271,6 +3272,16 @@
       "prevu": "متوقع",
       "reel": "محقق",
       "month": "الشهر"
+    },
+    "sections": {
+      "outflows_split": "توزيع المصاريف"
+    },
+    "items": {
+      "goods_sales": "مبيعات بضائع",
+      "supplier_purchases": "مشتريات الموردين",
+      "salaries_charges": "الرواتب والأعباء",
+      "fixed_charges": "الأعباء الثابتة",
+      "other_expenses": "مصاريف أخرى"
     }
   },
   "auth": {
@@ -4075,6 +4086,15 @@
         "confirm_btn": "تأكيد الإرسال",
         "sent_msg": "تم إرسال المطالبة بنجاح!"
       }
+    },
+    "sections": {
+      "executive_summary": "الملخص التنفيذي"
+    },
+    "optimization": {
+      "tip": "إن تجميع الطلبيات لدى Tech Solutions قد يقلل من تكاليفك اللوجستية بنسبة 12%."
+    },
+    "risks": {
+      "tip": "يظهر المورد ElectroMax تقلبًا في الأسعار بنسبة 18%. يرجى النظر في بدائل لتأمين هوامش الربح."
     }
   }
 }

@@ -764,7 +764,8 @@
         "vip_performance_analysis": "Analyse Performance VIP",
         "risk_evaluation_with_period": "Évaluation des Risques Clients - {{period}}",
         "overdue_invoices": "Factures en Retard",
-        "notes_distribution": "Répartition des Notes"
+        "notes_distribution": "Répartition des Notes",
+        "recovery_priorities": "Priorités de Recouvrement"
       },
       "table": {
         "shipping_id": "ID Expédition",
@@ -1073,7 +1074,7 @@
       "consolidated_analytics": "Analytique Consolidée",
       "treasury_management": "Trésorerie Fournisseurs",
       "cash_flow_mgmt": "Gestion des Flux de Décaissement",
-      "executive_summary": "Sommaire Exécutif IA",
+      "executive_summary": "Résumé Exécutif",
       "procurement_strategy": "Stratégie d'Approvisionnement"
     },
     "table": {
@@ -1214,6 +1215,12 @@
       "verified": "VÉRIFIÉ",
       "pending": "EN ATTENTE",
       "rejected": "REJETÉ"
+    },
+    "optimization": {
+      "tip": "Une consolidation des commandes chez Tech Solutions pourrait réduire vos coûts logistiques de 12%."
+    },
+    "risks": {
+      "tip": "Le fournisseur ElectroMax présente une volatilité des prix de 18%. Envisagez des alternatives pour sécuriser vos marges."
     }
   },
   "inventory": {
@@ -3316,7 +3323,7 @@
       "sec_forecasts": "=== PRÉVISIONS 3 MOIS ===",
       "exec_summary": "Résumé Exécutif — S1 2024",
       "detailed_flux": "Flux Mensuels Détaillés",
-      "key_indicators": "Indicateurs Financiers Clés"
+      "key_indicators": "Principaux Indicateurs Financiers"
     },
     "fields": {
       "inflows": "Encaissements",
@@ -3336,6 +3343,16 @@
       "prevu": "Prévu",
       "reel": "Réalisé",
       "month": "Mois"
+    },
+    "sections": {
+      "outflows_split": "Répartition des Sorties"
+    },
+    "items": {
+      "goods_sales": "Ventes de Marchandises",
+      "supplier_purchases": "Achats Fournisseurs",
+      "salaries_charges": "Salaires & Charges",
+      "fixed_charges": "Charges Fixes",
+      "other_expenses": "Autres Dépenses"
     }
   },
   "advanced_analytics": {

@@ -954,7 +954,8 @@
         "vip_performance_analysis": "VIP Performance Analysis",
         "risk_evaluation_with_period": "Customer Risk Evaluation - {{period}}",
         "overdue_invoices": "Overdue Invoices",
-        "notes_distribution": "Notes Distribution"
+        "notes_distribution": "Notes Distribution",
+        "recovery_priorities": "Recovery Priorities"
       },
       "table": {
         "shipping_id": "Shipping ID",
@@ -3207,6 +3208,16 @@
       "prevu": "Forecast",
       "reel": "Realized",
       "month": "Month"
+    },
+    "sections": {
+      "outflows_split": "Outflows Split"
+    },
+    "items": {
+      "goods_sales": "Goods Sales",
+      "supplier_purchases": "Supplier Purchases",
+      "salaries_charges": "Salaries & Charges",
+      "fixed_charges": "Fixed Charges",
+      "other_expenses": "Other Expenses"
     }
   },
   "auth": {
@@ -4002,6 +4013,15 @@
         "confirm_btn": "Confirm sending",
         "sent_msg": "Follow-up sent successfully!"
       }
+    },
+    "sections": {
+      "executive_summary": "Executive Summary"
+    },
+    "optimization": {
+      "tip": "Consolidating orders at Tech Solutions could reduce your logistics costs by 12%."
+    },
+    "risks": {
+      "tip": "The supplier ElectroMax shows a price volatility of 18%. Consider alternatives to secure margins."
     }
   }
 }
