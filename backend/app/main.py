@@ -89,6 +89,7 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CorsPolicies.ALLOWED_ORIGINS,
+    allow_origin_regex=r"https?://.*\.ngrok-free\.(dev|app)",
     allow_methods=CorsPolicies.ALLOWED_METHODS,
     allow_headers=CorsPolicies.ALLOWED_HEADERS,
     expose_headers=CorsPolicies.EXPOSED_HEADERS,

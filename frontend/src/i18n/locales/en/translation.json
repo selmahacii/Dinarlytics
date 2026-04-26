@@ -3887,6 +3887,75 @@
       "pending": "Pending",
       "delivered": "Delivered",
       "urgent": "Urgent"
+    },
+    "relances": {
+      "title": "Follow-up Management",
+      "subtitle": "Track unpaid invoices and automate collection",
+      "create_btn": "New Follow-up",
+      "search_placeholder": "Search for a client, an invoice...",
+      "filter": {
+        "all": "All situations"
+      },
+      "kpi": {
+        "total_overdue": "Total Overdue",
+        "count": "Active Files",
+        "critical": "Critical Level",
+        "avg_days": "Average Delay",
+        "litigation": "In Litigation"
+      },
+      "level": {
+        "1": "Level 1: Reminder",
+        "2": "Level 2: Friendly",
+        "3": "Level 3: Legal"
+      },
+      "status": {
+        "pending": "To send",
+        "sent": "Sent",
+        "responded": "Responded",
+        "escalated": "Escalated",
+        "resolved": "Resolved",
+        "litigation": "Litigation"
+      },
+      "table": {
+        "invoice": "Invoice No.",
+        "client": "Client",
+        "amount": "Amount",
+        "overdue": "Delay",
+        "level": "Level",
+        "status": "Status",
+        "last_contact": "Last contact",
+        "actions": "Actions",
+        "since": "Since"
+      },
+      "alert": {
+        "critical_count": "critical files identified",
+        "critical_desc": "Invoices are over 90 days overdue. Urgent action recommended."
+      },
+      "template": {
+        "tone": "Tone",
+        "delay": "Delay"
+      },
+      "detail": {
+        "title": "Follow-up Details",
+        "client": "Client Information",
+        "amount": "Unpaid Amount",
+        "overdue": "Delay Duration",
+        "due_date": "Original Due Date",
+        "invoice_date": "Invoicing Date",
+        "notes": "Follow-up Notes"
+      },
+      "actions": {
+        "send": "Send",
+        "details": "Details"
+      },
+      "send": {
+        "title": "Send Follow-up Email",
+        "to": "Recipient",
+        "email_content": "Email content",
+        "print": "Print Letter",
+        "confirm_btn": "Confirm sending",
+        "sent_msg": "Follow-up sent successfully!"
+      }
     }
   }
 }

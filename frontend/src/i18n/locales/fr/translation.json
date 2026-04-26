@@ -3775,81 +3775,12 @@
     }
   },
   "relances": {
-    "title": "Relances Clients",
+    "title": "Gestion des Relances",
     "subtitle": "Suivi et recouvrement des impayés — Automatisation des relances par niveau",
     "create_btn": "Nouvelle Relance",
     "search_placeholder": "Rechercher par client ou facture...",
-    "alert": {
-      "critical_count": "facture(s) en niveau 3 critique",
-      "critical_desc": "Ces dossiers nécessitent une action immédiate ou un passage en contentieux."
-    },
-    "status": {
-      "pending": "À Relancer",
-      "sent": "Relance Envoyée",
-      "responded": "Réponse Reçue",
-      "escalated": "Escaladé",
-      "resolved": "Résolu",
-      "litigation": "Contentieux"
-    },
-    "level": {
-      "1": "Relance Lvl 1",
-      "2": "Mise en Demeure",
-      "3": "Contentieux Imminent"
-    },
-    "filter": {
-      "all": "Tous les statuts"
-    },
-    "template": {
-      "tone": "Ton",
-      "delay": "Délai"
-    },
+
     "kpi": {
-      "total_overdue": "Montant Impayé",
-      "count": "Dossiers Actifs",
-      "critical": "Niveau Critique",
-      "avg_days": "Retard Moyen",
-      "litigation": "En Contentieux"
-    },
-    "table": {
-      "invoice": "Facture",
-      "client": "Client",
-      "amount": "Montant",
-      "overdue": "Retard",
-      "level": "Niveau",
-      "status": "Statut",
-      "last_contact": "Dernier Contact",
-      "actions": "Actions",
-      "since": "Échu le"
-    },
-    "detail": {
-      "title": "Dossier Relance",
-      "client": "Client",
-      "amount": "Montant Impayé",
-      "overdue": "Jours de Retard",
-      "due_date": "Date Échéance",
-      "invoice_date": "Date Facture",
-      "notes": "Notes Commerciales"
-    },
-    "actions": {
-      "send": "Envoyer Relance"
-    },
-    "send": {
-      "title": "Envoyer la Relance",
-      "to": "À",
-      "email_content": "Contenu de l'email",
-      "print": "Imprimer Courrier",
-      "confirm_btn": "Envoyer par Email",
-      "sent_msg": "Relance envoyée avec succès !"
-    },
-    "relances": {
-      "title": "Gestion des Relances",
-      "subtitle": "Suivi des factures impayées et automatisation du recouvrement",
-      "create_btn": "Nouvelle Relance",
-      "search_placeholder": "Rechercher un client, une facture...",
-      "filter": {
-        "all": "Toutes les situations"
-      },
-      "kpi": {
         "total_overdue": "Total Impayés",
         "count": "Dossiers Actifs",
         "critical": "Niveau Critique",
@@ -3908,6 +3839,6 @@
         "print": "Imprimer Courrier",
         "confirm_btn": "Confirmer l'envoi",
         "sent_msg": "Relance envoyée avec succès !"
-      }
     }
+  }
 }

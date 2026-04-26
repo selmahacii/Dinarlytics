@@ -191,8 +191,14 @@ class CorsPolicies:
     from app.core.config import settings
 
     ALLOWED_ORIGINS = list(set(settings.CORS_ORIGINS + [
+        "http://localhost:3000",
         "http://localhost:3001",
-        "https://yosef-untwilled-defilingly.ngrok-free.dev", # Allow cross-ngrok 
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:5173",
+        "https://yosef-untwilled-defilingly.ngrok-free.dev",
+        "https://yosef-untwilled-defilingly.ngrok-free.app",
     ]))
 
     ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]

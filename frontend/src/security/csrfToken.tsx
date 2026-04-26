@@ -63,6 +63,10 @@ export class CSRFTokenService {
         }
       });
 
+      if (!response.ok) {
+        console.warn(`CSRF init: Health check returned ${response.status}. Token might not be set.`);
+      }
+
       // Try to get token from header first (better for cross-domain)
       const tokenFromHeader = response.headers.get(this.HEADER_NAME);
       if (tokenFromHeader) {
@@ -78,6 +82,9 @@ export class CSRFTokenService {
       return this.getToken();
     } catch (error) {
       console.error('Erreur lors de l\'initialisation CSRF:', error);
+      if (healthUrl.includes('ngrok-free.dev')) {
+        console.info('💡 Astuce Ngrok : Si vous voyez une erreur CORS, ouvrez l\'URL de l\'API directement dans votre navigateur et cliquez sur "Visit Site" pour autoriser l\'accès.');
+      }
       return null;
     }
   }
