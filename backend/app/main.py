@@ -92,10 +92,13 @@ from app.core.limiter import limiter
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 
-# 7. NUCLEAR CORS MIDDLEWARE (MUST BE OUTERMOST)
+# 7. UNIFIED & ROBUST CORS MIDDLEWARE
+# NOTE: This must handle OPTIONS preflight explicitly to work with ngrok/CORS
 @app.middleware("http")
-async def force_cors_middleware(request: Request, call_next):
+async def unified_cors_middleware(request: Request, call_next):
     origin = request.headers.get("origin")
+    
+    # Handle Preflight
     if request.method == "OPTIONS":
         response = JSONResponse(content="OK")
     else:
@@ -105,37 +108,17 @@ async def force_cors_middleware(request: Request, call_next):
             logger.error(f"Error in request: {e}")
             response = JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
     
+    # Add CORS headers if origin is present or if it's a known allowed origin
     if origin:
         response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-CSRF-Token, X-Company-ID, x-company-id, ngrok-skip-browser-warning, Accept, Origin"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-CSRF-Token, X-Company-ID, x-company-id, ngrok-skip-browser-warning, Accept, Origin, X-Requested-With"
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Expose-Headers"] = "X-CSRF-Token, Content-Disposition"
     
     return response
 
-# Standard CORSMiddleware (keep as fallback)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-    allow_credentials=False,
-)
-
-@app.exception_handler(RateLimitExceeded)
-def rate_limit_handler(request, exc):
-    return JSONResponse(
-        status_code=429,
-        content={
-            "error": "Too Many Requests",
-            "detail": "Rate limit exceeded. Please try again later.",
-            "retry_after": exc.headers.get("Retry-After", "60"),
-        },
-        headers={"Retry-After": exc.headers.get("Retry-After", "60")},
-    )
-
-logger.info("✅ Security middleware stack configured")
+logger.info("✅ Unified Security middleware stack configured")
 
 # Sentry Integration
 import sentry_sdk
@@ -156,6 +139,18 @@ logger.info("✅ Observability and monitoring initialized")
 
 
 # ========== EXCEPTION HANDLERS ==========
+
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(request, exc):
+    return JSONResponse(
+        status_code=429,
+        content={
+            "error": "Too Many Requests",
+            "detail": "Rate limit exceeded. Please try again later.",
+            "retry_after": exc.headers.get("Retry-After", "60"),
+        },
+        headers={"Retry-After": exc.headers.get("Retry-After", "60")},
+    )
 
 
 @app.exception_handler(RequestValidationError)

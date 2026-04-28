@@ -20,7 +20,10 @@ export const aiService = {
     try {
       const res = await fetch(`${AI_API_BASE_URL}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({ message, context })
       });
       if (!res.ok) throw new Error('AI chat failed');
@@ -38,7 +41,10 @@ export const aiService = {
     try {
       const res = await fetch(`${AI_API_BASE_URL}/insights`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({ dataType, data })
       });
       if (!res.ok) throw new Error('Failed to get insights');
@@ -56,7 +62,10 @@ export const aiService = {
     try {
       const res = await fetch(`${AI_API_BASE_URL}/analyze/financials`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify(financialData)
       });
       if (!res.ok) throw new Error('Failed to analyze financials');
@@ -74,7 +83,10 @@ export const aiService = {
     try {
       const res = await fetch(`${AI_API_BASE_URL}/predict`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify(historyData)
       });
       if (!res.ok) throw new Error('Failed to generate predictions');
@@ -90,7 +102,9 @@ export const aiService = {
    */
   getContextualSuggestions: async (pageContext: string): Promise<string[]> => {
     try {
-      const res = await fetch(`${AI_API_BASE_URL}/suggestions?context=${pageContext}`);
+      const res = await fetch(`${AI_API_BASE_URL}/suggestions?context=${pageContext}`, {
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      });
       if (!res.ok) throw new Error('Failed to get suggestions');
       const data = await res.json();
       return data.suggestions || [];
@@ -107,7 +121,10 @@ export const aiService = {
     try {
       const res = await fetch(`${AI_API_BASE_URL}/related-questions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({ question })
       });
       if (!res.ok) throw new Error('Failed to get related questions');
@@ -126,7 +143,10 @@ export const aiService = {
     try {
       const res = await fetch(`${AI_API_BASE_URL}/reports/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({ reportType, data })
       });
       if (!res.ok) throw new Error('Failed to generate report');

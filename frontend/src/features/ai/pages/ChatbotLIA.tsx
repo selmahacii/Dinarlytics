@@ -108,7 +108,8 @@ const ChatbotLIA: React.FC = () => {
   // Personalized dynamic greeting using i18n
   useEffect(() => {
     if (user) {
-      const roleDisplay = user.role_display || user.role || t('common.user');
+      const roleKey = user.role?.toLowerCase() || 'dg';
+      const roleDisplay = t(`roles.${roleKey}`, { defaultValue: user.role_display || user.role || t('common.user') });
       
       const greeting = t('chatbot.welcome', { name: `${user.prenom || ''} ${user.nom || ''}` }) + 
         '\n\n' + 
@@ -295,26 +296,26 @@ const ChatbotLIA: React.FC = () => {
 
     const actions: ActionItem[] = [];
     if (dso > bm.dsoMax) {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Accélérer encaissements (DSO)', owner: companyType === 'eurl' ? 'Gérant' : 'Resp. Recouvrement', due: inDaysLocal(15), status: 'todo', note: `DSO ${dso} j > cible ${bm.dsoMax} j: relances J+7/J+15/J+30, escompte 2%, scoring clients.`, createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.dso'), owner: companyType === 'eurl' ? t('roles.gerant') : t('roles.recouvrement'), due: inDaysLocal(15), status: 'todo', note: t('chatbot.alerts.dso', { val: dso, target: bm.dsoMax }) + ': ' + t('chatbot.recs.dso'), createdAt: now, updatedAt: now });
     }
     if (dio > bm.dioMax) {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Optimiser stock (DIO)', owner: segment === 'micro' ? 'Gestionnaire Stock' : 'Supply Chain', due: inDaysLocal(30), status: 'todo', note: `DIO ${dio} j > cible ${bm.dioMax} j: ABC, seuils, liquidation lents, promo ciblée.`, createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.dio'), owner: segment === 'micro' ? t('roles.stock_manager') : t('roles.supply_chain'), due: inDaysLocal(30), status: 'todo', note: t('chatbot.alerts.dio', { val: dio, target: bm.dioMax }) + ': ' + t('chatbot.recs.dio'), createdAt: now, updatedAt: now });
     }
     if (dpo < bm.dpoMin) {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Renégocier DPO', owner: 'Achats', due: inDaysLocal(30), status: 'todo', note: `DPO ${dpo} j < ${bm.dpoMin} j: viser ${bm.dpoMin}-${Math.max(55, bm.dpoMin + 10)} j; paiements groupés.`, createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.dpo'), owner: t('roles.achats'), due: inDaysLocal(30), status: 'todo', note: t('chatbot.alerts.dpo', { val: dpo, target: bm.dpoMin }) + ': ' + t('chatbot.recs.dpo', { min: bm.dpoMin, max: Math.max(55, bm.dpoMin + 10) }), createdAt: now, updatedAt: now });
     }
     if (profitPct < bm.marginMin) {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Améliorer marge', owner: 'Commercial', due: inDaysLocal(20), status: 'todo', note: `Marge ${profitPct.toFixed(1)}% < ${bm.marginMin}%: ajuster prix/remises, mix produit, coûts variables.`, createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.margin'), owner: t('roles.commercial'), due: inDaysLocal(20), status: 'todo', note: t('chatbot.alerts.margin', { val: profitPct.toFixed(1), target: bm.marginMin }) + ': ' + t('chatbot.recs.margin'), createdAt: now, updatedAt: now });
     }
     if (companyType === 'spa' || segment === 'enterprise') {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Workflows & Audit', owner: 'Finance IT', due: inDaysLocal(45), status: 'todo', note: 'Appro. multi‑niveaux, journaux d’audit, traçabilité.', createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.audit'), owner: t('roles.finance_it'), due: inDaysLocal(45), status: 'todo', note: t('chatbot.recs.audit_desc'), createdAt: now, updatedAt: now });
     }
     if (liqQuick < bm.liqQuickMin) {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Sécuriser trésorerie', owner: companyType === 'eurl' ? 'Gérant' : 'DAF', due: inDaysLocal(10), status: 'todo', note: `Liquidité immédiate ${liqQuick.toFixed(2)} < ${bm.liqQuickMin.toFixed(2)}: prioriser encaissements, lisser décaissements, temporiser capex.`, createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.cash'), owner: companyType === 'eurl' ? t('roles.gerant') : t('roles.daf'), due: inDaysLocal(10), status: 'todo', note: t('chatbot.alerts.liq_quick', { val: liqQuick.toFixed(2), target: bm.liqQuickMin.toFixed(2) }) + ': ' + t('chatbot.recs.cash'), createdAt: now, updatedAt: now });
     }
 
     if (actions.length === 0) {
-      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: 'Maintenir le suivi mensuel', owner: user?.nom || 'Responsable', due: inDaysLocal(30), status: 'todo', note: 'Pas d’alerte majeure; maintenir les contrôles et KPIs.', createdAt: now, updatedAt: now });
+      actions.push({ id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`, title: t('chatbot.recs.titles.monitoring'), owner: user?.nom || t('common.user'), due: inDaysLocal(30), status: 'todo', note: t('chatbot.recs.monitoring_desc'), createdAt: now, updatedAt: now });
     }
 
     let added = 0;
@@ -337,11 +338,11 @@ const ChatbotLIA: React.FC = () => {
     if (!canEditPlan) return;
     const now = new Date().toISOString();
     const demo: ActionItem[] = [
-      { id: `act_${Date.now()}_a`, title: 'Accélérer encaissements (DSO)', owner: 'Resp. Recouvrement', due: inDays(15), status: 'todo', note: 'Relances J+7/J+15/J+30, escompte 2%, scoring.', createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_b`, title: 'Optimiser stock (DIO)', owner: 'Supply Chain', due: inDays(30), status: 'todo', note: 'ABC, seuils de réapprovisionnement, liquidation lents.', createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_c`, title: 'Renégocier DPO', owner: 'Achats', due: inDays(30), status: 'in-progress', note: 'Cible 45–60 jours sur top fournisseurs.', createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_d`, title: 'Marge et remises', owner: 'Commercial', due: inDays(20), status: 'todo', note: 'Limiter remises; ajuster pricing produits faibles marges.', createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_e`, title: 'Workflows & Audit', owner: 'Finance IT', due: inDays(45), status: 'todo', note: 'Approbations multi-niveaux, journaux d’audit, traçabilité.', createdAt: now, updatedAt: now }
+      { id: `act_${Date.now()}_a`, title: t('chatbot.recs.titles.dso'), owner: t('roles.recouvrement'), due: inDays(15), status: 'todo', note: t('chatbot.recs.dso'), createdAt: now, updatedAt: now },
+      { id: `act_${Date.now()}_b`, title: t('chatbot.recs.titles.dio'), owner: t('roles.supply_chain'), due: inDays(30), status: 'todo', note: t('chatbot.recs.dio'), createdAt: now, updatedAt: now },
+      { id: `act_${Date.now()}_c`, title: t('chatbot.recs.titles.dpo'), owner: t('roles.achats'), due: inDays(30), status: 'in-progress', note: t('chatbot.recs.dpo', { min: 45, max: 60 }), createdAt: now, updatedAt: now },
+      { id: `act_${Date.now()}_d`, title: t('chatbot.recs.titles.margin'), owner: t('roles.commercial'), due: inDays(20), status: 'todo', note: t('chatbot.recs.margin'), createdAt: now, updatedAt: now },
+      { id: `act_${Date.now()}_e`, title: t('chatbot.recs.titles.audit'), owner: t('roles.finance_it'), due: inDays(45), status: 'todo', note: t('chatbot.recs.audit_desc'), createdAt: now, updatedAt: now }
     ];
     setPlan(demo);
     persistPlan(demo);
@@ -392,11 +393,13 @@ const ChatbotLIA: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({
           message: userMessage,
-          company_id: (user as any)?.company_id || 'mock-company'
+          company_id: (user as any)?.company_id || 'mock-company',
+          context: { currentDevise, currentCountry, planComptable, companyType, segment, sector }
         }),
         signal: controller.signal
       });
@@ -430,23 +433,31 @@ const ChatbotLIA: React.FC = () => {
 
     // Le reste du code utilise userMessage comme 'message' (LOGIQUE LOCALE)
 
-    // Le reste du code utilise userMessage comme 'message'
-    const message = userMessage.toLowerCase();
+    // Normalisation du message pour la détection
+    const normalized = userMessage.trim().toLowerCase().replace(/[—–]/g, '-');
+    
+    const isAnalyse = normalized.includes('/analyse') || normalized.includes('audit') || normalized.includes('تحليل') || normalized.includes('خلاصة') || normalized.includes('ربحية') || normalized.includes('خزينة');
+    const isPlan = normalized.includes('/plan') || normalized.includes('خطة') || normalized.includes('إجراءات');
+    const isForecast = normalized.includes('/previsions') || normalized.includes('توقعات') || normalized.includes('forecast');
+    const isSales = normalized.includes('ventes') || normalized.includes('chiffre') || normalized.includes('ca') || normalized.includes('مبيعات') || normalized.includes('إيرادات') || normalized.includes('هامش');
+    const isCategorisation = normalized.includes('/categoriser') || normalized.includes('تصنيف') || normalized.includes('catégoriser');
+    const isScenario = normalized.includes('scénario') || normalized.includes('scenario') || normalized.includes('سيناريو') || normalized.includes('simulation');
+    const isSaisonnier = normalized.includes('/saisonnier') || normalized.includes('/seasonal') || normalized.includes('نمط') || normalized.includes('موسمي');
 
     // Prévisions trésorerie améliorées avec analyse prédictive
-    const wantsForecast =
-      message.includes('/previsions') ||
-      message.includes('/forecast') ||
-      message.includes('prévisions de cash-flow') ||
-      (message.includes('prévision') && (message.includes('trésorerie') || message.includes('tresorerie'))) ||
-      (message.includes('forecast') && message.includes('cash'));
+    const wantsForecast = isForecast ||
+      normalized.includes('prévisions de cash-flow') ||
+      normalized.includes(t('chatbot.fallback.cmd_forecast').toLowerCase()) ||
+      normalized.includes(t('chatbot.fallback.cmd_forecast_full').toLowerCase());
+
+    const message = normalized; // Pour compatibilité avec le reste du code
 
     if (wantsForecast) {
-      const revM = companyData?.revenueMonth ?? 1200000;
-      const cash0 = companyData?.cashBalance ?? Math.round(revM * 0.8);
-      const ar = companyData?.accountsReceivable ?? Math.round(revM * 1.5);
-      const ap = companyData?.accountsPayable ?? Math.round(revM * 0.8);
-      const monthlyExpenses = revM * (1 - (companyData?.profitMargin ?? 18) / 100);
+      const revM = companyData?.revenueMonth ?? 0;
+      const cash0 = companyData?.cashBalance ?? 0;
+      const ar = companyData?.accountsReceivable ?? 0;
+      const ap = companyData?.accountsPayable ?? 0;
+      const monthlyExpenses = revM * (1 - (companyData?.profitMargin ?? 15) / 100);
 
       // Utiliser la fonction prédictive améliorée
       const forecasts = forecastCashFlow(cash0, revM, monthlyExpenses, ar, ap, 13);
@@ -467,13 +478,13 @@ const ChatbotLIA: React.FC = () => {
 
       forecasts.forEach((f, idx) => {
         const date = new Date(f.date);
-        const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+        const dateStr = date.toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR', { day: '2-digit', month: 'short' });
         const confidenceLabel = getConfidenceLabel(f.confidence);
         const trendLabel = getTrendLabel(f.trend ?? 'stable');
         const isCritical = criticalWeeks.some(cw => cw.date === f.date);
         const riskLabel = isCritical ? t('chatbot.fallback.audit_forecast.alert_liquidity') : t('chatbot.fallback.audit_forecast.stable');
 
-        lines.push(`${f.period} (${dateStr}) — ${riskLabel}`);
+        lines.push(`${f.period.replace('Semaine', t('common.periods.week'))} (${dateStr}) — ${riskLabel}`);
         lines.push(`  • ${t('chatbot.fallback.audit_forecast.projections_prefix')}: ${formatCurrency(f.value)}`);
         lines.push(`  • ${t('chatbot.fallback.audit_forecast.trend_prefix')}: ${trendLabel}`);
         lines.push(`  • ${t('chatbot.fallback.audit_forecast.confidence_prefix')}: ${confidenceLabel}`);
@@ -520,13 +531,13 @@ const ChatbotLIA: React.FC = () => {
 
       const content = [
         t('chatbot.fallback.risk_audit.title'),
-        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • ${t('chatbot.fallback.risk_audit.overall_level')}: ${getRiskLabel(riskAnalysis.overallRisk).toUpperCase()} (${riskAnalysis.score}/100)`,
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || t('common.organisation')} • ${t('chatbot.fallback.risk_audit.overall_level')}: ${getRiskLabel(riskAnalysis.overallRisk).toUpperCase()} (${riskAnalysis.score}/100)`,
         '',
         '─'.repeat(50),
         '',
         t('chatbot.fallback.risk_audit.factors_title'),
         ...riskAnalysis.factors.map(factor =>
-          `• ${factor.factor.padEnd(20)} : ${getRiskLabel(factor.risk).toUpperCase()} [Impact: ${factor.impact} ${t('chatbot.fallback.risk_audit.impact_suffix')}]\n  ${factor.description}`
+          `• ${t(`chatbot.fallback.risk_audit.factors.${factor.factor.toLowerCase()}`, { defaultValue: factor.factor }).padEnd(20)} : ${getRiskLabel(factor.risk).toUpperCase()} [Impact: ${factor.impact} ${t('chatbot.fallback.risk_audit.impact_suffix')}]\n  ${factor.description}`
         ),
         '',
         t('chatbot.fallback.risk_audit.strategic_recommendation'),
@@ -542,10 +553,10 @@ const ChatbotLIA: React.FC = () => {
         timestamp: new Date(),
         data: { forecasts, riskAnalysis, alerts: criticalWeeks },
         suggestions: [
-          'Scénarios prédictifs (optimiste/réaliste/pessimiste)',
-          'Prévisions de CA (12 mois)',
-          'Détecter les patterns saisonniers',
-          'Générer un plan d\'actions'
+          t('chatbot.suggestions.details.growth_scenarios'),
+          t('chatbot.suggestions.forecasts'),
+          t('chatbot.fallback.seasonal.title'),
+          t('chatbot.auto_generate')
         ]
       };
     }
@@ -556,20 +567,22 @@ const ChatbotLIA: React.FC = () => {
       message.includes('/scenarii') ||
       message.includes('scénarios de croissance') ||
       message.includes('scenarios de croissance') ||
+      message.includes(t('chatbot.suggestions.growth_scenarios').toLowerCase()) ||
       (message.includes('scénario') && (message.includes('prédictif') || message.includes('predictif'))) ||
+      (message.includes('سيناريو') && message.includes('تنبؤي')) ||
       (message.includes('scenario') && message.includes('predictive'));
 
     if (wantsScenarios) {
-      const revM = companyData?.revenueMonth ?? 1200000;
+      const revM = companyData?.revenueMonth ?? 0;
       const revY = revM * 12;
-      const margin = companyData?.profitMargin ?? 18;
-      const cash = companyData?.cashBalance ?? Math.round(revM * 0.8);
-      const ar = companyData?.accountsReceivable ?? Math.round(revM * 1.5);
-      const dso = Math.round((ar / revM) * 30);
-      const turnover = companyData?.stockTurnover || 8;
+      const margin = companyData?.profitMargin ?? 15;
+      const cash = companyData?.cashBalance ?? 0;
+      const ar = companyData?.accountsReceivable ?? 0;
+      const dso = revM > 0 ? Math.round((ar / revM) * 30) : 0;
+      const turnover = companyData?.stockTurnover || 4.2;
       const dio = Math.round(365 / Math.max(0.1, turnover));
-      const ap = companyData?.accountsPayable ?? Math.round(revM * 0.8);
-      const dpo = Math.round((ap / Math.max(1, (revM * (1 - margin / 100)))) * 30);
+      const ap = companyData?.accountsPayable ?? 0;
+      const dpo = revM > 0 ? Math.round((ap / Math.max(1, (revM * (1 - margin / 100)))) * 30) : 0;
 
       const scenarios = generatePredictiveScenarios({
         revenue: revY,
@@ -582,7 +595,7 @@ const ChatbotLIA: React.FC = () => {
 
       const content = [
         t('chatbot.fallback.scenarios.title'),
-        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • Profil: ${companyType.toUpperCase()} • Secteur: ${sectorLabel}`,
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || t('chatbot.fallback.audit_forecast.group')} • ${t('chatbot.fallback.audit_forecast.profile')}: ${companyType.toUpperCase()} • ${t('chatbot.fallback.audit_forecast.sector')}: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
@@ -608,7 +621,7 @@ const ChatbotLIA: React.FC = () => {
             ''
           ].filter(l => l !== '').join('\n');
         }),
-        '© LIA Scenario Planning - Strategic Forecasting'
+        t('chatbot.fallback.scenarios.footer', { defaultValue: '© LIA Scenario Planning - Strategic Forecasting' })
       ].join('\n');
       return {
         id: Date.now().toString(),
@@ -617,20 +630,21 @@ const ChatbotLIA: React.FC = () => {
         timestamp: new Date(),
         data: { scenarios },
         suggestions: [
-          'Prévisions de trésorerie (13 semaines)',
-          'Prévisions de CA (12 mois)',
-          'Détecter les patterns saisonniers',
-          'Analyse de risque financier'
+          t('chatbot.suggestions.details.cash_forecast'),
+          t('chatbot.suggestions.forecasts'),
+          t('chatbot.fallback.seasonal.title'),
+          t('chatbot.suggestions.financial_analysis')
         ]
       };
     }
 
     // Prévisions de CA avec tendances
     const wantsRevenueForecast =
-      message.includes('/prevision-ca') ||
-      message.includes('/forecast-revenue') ||
-      (message.includes('prévision') && (message.includes('ca') || message.includes('chiffre'))) ||
-      (message.includes('forecast') && message.includes('revenue'));
+      normalized.includes('/prevision-ca') ||
+      normalized.includes('/forecast-revenue') ||
+      (normalized.includes('prévision') && (normalized.includes('ca') || normalized.includes('chiffre'))) ||
+      (normalized.includes('forecast') && normalized.includes('revenue')) ||
+      normalized.includes(t('chatbot.capabilities.predictive').replace(/\*\*/g, '').split(':')[0].toLowerCase().trim());
 
     if (wantsRevenueForecast) {
       const revM = companyData?.revenueMonth ?? 1200000;
@@ -661,7 +675,7 @@ const ChatbotLIA: React.FC = () => {
 
       const content = [
         t('chatbot.fallback.revenue_forecast.title'),
-        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • Profil: ${companyType.toUpperCase()} • Secteur: ${sectorLabel}`,
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || t('chatbot.fallback.audit_forecast.group')} • ${t('chatbot.fallback.audit_forecast.profile')}: ${companyType.toUpperCase()} • ${t('chatbot.fallback.audit_forecast.sector')}: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
@@ -680,7 +694,7 @@ const ChatbotLIA: React.FC = () => {
         '',
         `👉 ${t('common.tip')} : ${t('chatbot.fallback.revenue_forecast.recommendation')}`,
         '',
-        '© LIA Revenue Forecasting - Predictive Growth Analysis'
+        t('chatbot.fallback.revenue_forecast.footer', { defaultValue: '© LIA Revenue Forecasting - Predictive Growth Analysis' })
       ].join('\n');
       return {
         id: Date.now().toString(),
@@ -689,10 +703,10 @@ const ChatbotLIA: React.FC = () => {
         timestamp: new Date(),
         data: { forecasts, historicalRevenue, avgGrowth },
         suggestions: [
-          'Détecter les patterns saisonniers',
-          'Scénarios prédictifs',
-          'Prévisions de trésorerie (13 semaines)',
-          'Analyse financière complète'
+          t('chatbot.fallback.seasonal.title'),
+          t('chatbot.suggestions.growth_scenarios'),
+          t('chatbot.suggestions.details.cash_forecast'),
+          t('chatbot.suggestions.financial_analysis')
         ]
       };
     }
@@ -700,11 +714,9 @@ const ChatbotLIA: React.FC = () => {
 
 
     // Détection de patterns saisonniers
-    const wantsSeasonalPattern =
-      message.includes('/saisonnier') ||
-      message.includes('/seasonal') ||
-      (message.includes('pattern') && message.includes('saisonnier')) ||
-      (message.includes('saisonnalité') || message.includes('saisonnier'));
+    const wantsSeasonalPattern = isSaisonnier ||
+      normalized.includes(t('chatbot.fallback.seasonal.title').toLowerCase()) ||
+      normalized.includes(t('chatbot.capabilities.optimization').replace(/\*\*/g, '').split(':')[0].toLowerCase().trim());
 
     if (wantsSeasonalPattern) {
       const revM = companyData?.revenueMonth ?? 1200000;
@@ -738,7 +750,7 @@ const ChatbotLIA: React.FC = () => {
 
       const content = [
         t('chatbot.fallback.seasonal.title'),
-        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || 'Groupe'} • Période d'Analyse: 24 mois • Secteur: ${sectorLabel}`,
+        `${t('chatbot.fallback.audit_forecast.org_prefix')}: ${user?.companyName || t('chatbot.fallback.audit_forecast.group')} • ${t('chatbot.fallback.audit_forecast.analysis_period')} • ${t('chatbot.fallback.audit_forecast.sector')}: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
@@ -765,7 +777,7 @@ const ChatbotLIA: React.FC = () => {
         ]),
         '',
         '─'.repeat(50),
-        '© LIA Pattern Intelligence - Contextual Analysis'
+        t('chatbot.fallback.seasonal.footer', { defaultValue: '© LIA Pattern Intelligence - Contextual Analysis' })
       ].join('\n');
       return {
         id: Date.now().toString(),
@@ -774,49 +786,51 @@ const ChatbotLIA: React.FC = () => {
         timestamp: new Date(),
         data: { pattern, historicalRevenue },
         suggestions: [
-          'Prévisions de CA (12 mois)',
-          'Prévisions de trésorerie (13 semaines)',
-          'Scénarios prédictifs',
-          'Analyse financière complète'
+          t('chatbot.suggestions.forecasts'),
+          t('chatbot.suggestions.details.cash_forecast'),
+          t('chatbot.suggestions.growth_scenarios'),
+          t('chatbot.suggestions.financial_analysis')
         ]
       };
     }
 
     // Plan d'actions (statique/démo)
-    const wantsPlan =
-      message.includes('/plan') ||
+    const wantsPlan = isPlan ||
+      message.includes(t('chatbot.fallback.cmd_plan').toLowerCase()) ||
+      message.includes(t('chatbot.fallback.cmd_plan_full').toLowerCase()) ||
       (message.includes('plan') && message.includes('action')) ||
+      (message.includes('خطة') && message.includes('عمل')) ||
       (message.includes('plan') && message.includes('actions'));
 
     if (wantsPlan) {
       const baseTasks = [
-        { titre: 'Accélérer encaissements (DSO)', resp: companyType === 'eurl' ? 'Gérant' : 'Resp. Recouvrement', delai: 'J+15', detail: 'Relances J+7/J+15/J+30, escompte 2%, scoring clients.' },
-        { titre: 'Optimiser stock (DIO)', resp: segment === 'micro' ? 'Gestionnaire Stock' : 'Supply Chain', delai: 'J+30', detail: 'ABC, seuils de réapprovisionnement, liquidation lents.' },
-        { titre: 'Renégocier DPO', resp: 'Achats', delai: 'J+30', detail: `Cible ${Math.max(45, Math.round(bm.dpoMin))}–${Math.max(55, Math.round(bm.dpoMin) + 15)} jours sur top fournisseurs.` },
-        { titre: 'Marge et remises', resp: 'Commercial', delai: 'J+20', detail: 'Limiter remises produits faible marge; ajuster prix/mix.' }
+        { titre: t('chatbot.recs.titles.dso'), resp: companyType === 'eurl' ? t('roles.gerant') : t('roles.recouvrement'), delai: 'J+15', detail: t('chatbot.recs.dso') },
+        { titre: t('chatbot.recs.titles.dio'), resp: segment === 'micro' ? t('roles.stock_manager') : t('roles.supply_chain'), delai: 'J+30', detail: t('chatbot.recs.dio') },
+        { titre: t('chatbot.recs.titles.dpo'), resp: t('roles.achats'), delai: 'J+30', detail: t('chatbot.recs.dpo', { min: Math.max(45, Math.round(bm.dpoMin)), max: Math.max(55, Math.round(bm.dpoMin) + 15) }) },
+        { titre: t('chatbot.recs.titles.margin'), resp: t('roles.commercial'), delai: 'J+20', detail: t('chatbot.recs.margin') }
       ];
       const spaExtras = [
-        { titre: 'Workflows & Audit', resp: 'Finance IT', delai: 'J+45', detail: 'Approbations multi-niveaux, journaux d’audit, traçabilité.' },
-        { titre: 'Budget vs Réalisé', resp: 'Contrôle de Gestion', delai: 'J+40', detail: 'Écarts & révisions trimestrielles.' }
+        { titre: t('chatbot.recs.titles.audit'), resp: t('roles.finance_it'), delai: 'J+45', detail: t('chatbot.recs.audit_desc') },
+        { titre: t('chatbot.recs.titles.monitoring'), resp: t('roles.finance_it'), delai: 'J+40', detail: t('chatbot.recs.monitoring_desc') }
       ];
-      const tasks = companyType === 'spa' ? [...baseTasks, ...spaExtras] : baseTasks;
+      const tasks = companyType === 'spa' || segment === 'enterprise' ? [...baseTasks, ...spaExtras] : baseTasks;
       const content = [
-        `📋 PLAN D'ACTIONS STRATÉGIQUES — ${user?.companyName || 'Organisation'}`,
-        `Cible: Optimisation du cycle de conversion (CCC) • Secteur: ${sectorLabel}`,
+        `${t('chatbot.plan_title')} — ${user?.companyName || t('common.organisation')}`,
+        `${t('chatbot.audit.target')}: ${t('chatbot.fallback.ccc_title')} • ${t('chatbot.audit.sector')}: ${sectorLabel}`,
         '',
         '─'.repeat(50),
         '',
-        ...tasks.map((t, i) => `${i + 1}. ${t.titre.toUpperCase()}\n   Responsable: ${t.resp} | Échéance: ${t.delai}\n   Objectif: ${t.detail}`),
+        ...tasks.map((task, i) => `${i + 1}. ${task.titre.toUpperCase()}\n   ${t('chatbot.fallback.plan.owner')}: ${task.resp} | ${t('chatbot.fallback.plan.due')}: ${task.delai}\n   ${t('chatbot.fallback.plan.objective')}: ${task.detail}`),
         '',
-        '👉 Suivi recommandé: Revue hebdomadaire des indicateurs DSO/DPO/DIO.',
-        'LIA peut vous aider à suivre l\'impact de ces actions sur votre BFR.'
+        `👉 ${t('chatbot.fallback.plan.follow_up')}: ${t('chatbot.fallback.plan.follow_up_desc')}`,
+        t('chatbot.fallback.plan.lia_help')
       ].join('\n');
       return {
         id: Date.now().toString(),
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyser l\'impact sur le cash-flow', 'Audit des ratios financiers', 'Scénarios de croissance', 'Exporter le plan']
+        suggestions: [t('chatbot.suggestions.details.cash_impact'), t('chatbot.suggestions.details.financial_audit'), t('chatbot.suggestions.details.growth_scenarios'), t('chatbot.tooltips.export')]
       };
     }
 
@@ -845,53 +859,53 @@ const ChatbotLIA: React.FC = () => {
       const trendDso = comparePeriods(dso, prevDso, 'dso');
 
       const content = [
-        `ANALYSE COMPARATIVE`,
-        `${companyType.toUpperCase()} • ${segment} • ${sectorLabel}`,
+        t('chatbot.comparisons.title'),
+        `${companyType.toUpperCase()} • ${t(`segments.${segment.toLowerCase()}`, segment)} • ${sectorLabel}`,
         '',
         '─'.repeat(60),
         '',
-        'COMPARAISON MOIS/MOIS (M/M)',
+        t('chatbot.comparisons.mom'),
         '',
-        `Chiffre d'affaires:`,
-        `  Actuel: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
-        `  Précédent: ${formatCurrency ? formatCurrency(prevRevM) : `${prevRevM.toLocaleString()} DA`}`,
-        `  Variation: ${trendRev.changePercent > 0 ? '+' : ''}${trendRev.changePercent}% ${getTrendLabel(trendRev.trend)}`,
-        `  Statut: ${getStatusLabel(trendRev.status)}`,
+        t('chatbot.comparisons.revenue'),
+        `  ${t('chatbot.comparisons.current')} ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
+        `  ${t('chatbot.comparisons.prev')} ${formatCurrency ? formatCurrency(prevRevM) : `${prevRevM.toLocaleString()} DA`}`,
+        `  ${t('chatbot.comparisons.var')} ${trendRev.changePercent > 0 ? '+' : ''}${trendRev.changePercent}% ${getTrendLabel(trendRev.trend)}`,
+        `  ${t('chatbot.comparisons.status')} ${getStatusLabel(trendRev.status)}`,
         '',
-        `Marge bénéficiaire:`,
-        `  Actuel: ${margin.toFixed(1)}%`,
-        `  Précédent: ${prevMargin.toFixed(1)}%`,
-        `  Variation: ${trendMargin.changePercent > 0 ? '+' : ''}${trendMargin.changePercent}% ${getTrendLabel(trendMargin.trend)}`,
+        t('chatbot.comparisons.margin'),
+        `  ${t('chatbot.comparisons.current')} ${margin.toFixed(1)}%`,
+        `  ${t('chatbot.comparisons.prev')} ${prevMargin.toFixed(1)}%`,
+        `  ${t('chatbot.comparisons.var')} ${trendMargin.changePercent > 0 ? '+' : ''}${trendMargin.changePercent}% ${getTrendLabel(trendMargin.trend)}`,
         '',
-        `DSO (Délai de recouvrement):`,
-        `  Actuel: ${dso} jours`,
-        `  Précédent: ${prevDso} jours`,
-        `  Variation: ${trendDso.changePercent > 0 ? '+' : ''}${trendDso.changePercent}% ${getTrendLabel(trendDso.trend)}`,
-        `  Statut: ${getStatusLabel(trendDso.status)}`,
-        '',
-        '─'.repeat(60),
-        '',
-        'COMPARAISON ANNÉE/ANNÉE (Y/Y)',
-        '',
-        `Chiffre d'affaires annuel:`,
-        `  Actuel: ${formatCurrency ? formatCurrency(revY) : `${revY.toLocaleString()} DA`}`,
-        `  Précédent: ${formatCurrency ? formatCurrency(prevRevY) : `${prevRevY.toLocaleString()} DA`}`,
-        `  Variation: ${trendRevY.changePercent > 0 ? '+' : ''}${trendRevY.changePercent}% ${getTrendLabel(trendRevY.trend)}`,
+        t('chatbot.comparisons.dso'),
+        `  ${t('chatbot.comparisons.current')} ${dso} ${t('chatbot.whatif.days')}`,
+        `  ${t('chatbot.comparisons.prev')} ${prevDso} ${t('chatbot.whatif.days')}`,
+        `  ${t('chatbot.comparisons.var')} ${trendDso.changePercent > 0 ? '+' : ''}${trendDso.changePercent}% ${getTrendLabel(trendDso.trend)}`,
+        `  ${t('chatbot.comparisons.status')} ${getStatusLabel(trendDso.status)}`,
         '',
         '─'.repeat(60),
         '',
-        'INSIGHTS',
+        t('chatbot.comparisons.yoy'),
         '',
-        ...(trendRev.trend === 'up' && trendRev.changePercent > 5 ? ['• Croissance mensuelle solide détectée'] : []),
-        ...(trendMargin.status === 'critical' ? ['• Marge en baisse - Optimiser les coûts'] : []),
-        ...(trendDso.status === 'critical' ? ['• DSO en hausse - Accélérer le recouvrement'] : []),
-        ...(trendRevY.trend === 'up' ? ['• Croissance annuelle positive'] : ['• Croissance annuelle à surveiller']),
+        t('chatbot.comparisons.rev_y'),
+        `  ${t('chatbot.comparisons.current')} ${formatCurrency ? formatCurrency(revY) : `${revY.toLocaleString()} DA`}`,
+        `  ${t('chatbot.comparisons.prev')} ${formatCurrency ? formatCurrency(prevRevY) : `${prevRevY.toLocaleString()} DA`}`,
+        `  ${t('chatbot.comparisons.var')} ${trendRevY.changePercent > 0 ? '+' : ''}${trendRevY.changePercent}% ${getTrendLabel(trendRevY.trend)}`,
         '',
-        'ACTIONS PRIORITAIRES',
+        '─'.repeat(60),
         '',
-        ...(trendDso.status === 'critical' ? ['1. Relancer les clients avec DSO > 30 jours'] : []),
-        ...(trendMargin.status === 'critical' ? ['2. Réviser les prix et réduire les coûts variables'] : []),
-        ...(trendRev.status === 'critical' ? ['3. Analyser les causes de baisse du CA'] : [])
+        t('chatbot.comparisons.insights'),
+        '',
+        ...(trendRev.trend === 'up' && trendRev.changePercent > 5 ? [t('chatbot.comparisons.ins_rev_up')] : []),
+        ...(trendMargin.status === 'critical' ? [t('chatbot.comparisons.ins_mar_down')] : []),
+        ...(trendDso.status === 'critical' ? [t('chatbot.comparisons.ins_dso_up')] : []),
+        ...(trendRevY.trend === 'up' ? [t('chatbot.comparisons.ins_yoy_up')] : [t('chatbot.comparisons.ins_yoy_down')]),
+        '',
+        t('chatbot.comparisons.actions'),
+        '',
+        ...(trendDso.status === 'critical' ? [t('chatbot.comparisons.act_dso')] : []),
+        ...(trendMargin.status === 'critical' ? [t('chatbot.comparisons.act_margin')] : []),
+        ...(trendRev.status === 'critical' ? [t('chatbot.comparisons.act_rev')] : [])
       ].filter(Boolean).join('\n');
 
       return {
@@ -899,7 +913,7 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyse financière complète', 'Détecter les anomalies', 'Scénarios what-if', 'Benchmarking sectoriel']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.suggestions.growth_scenarios'), t('chatbot.quick_actions.sector_analysis')]
       };
     }
 
@@ -927,25 +941,25 @@ const ChatbotLIA: React.FC = () => {
       const anomalies = [anomalyRev, anomalyMargin].filter(Boolean) as any[];
 
       const content = [
-        `DÉTECTION D'ANOMALIES`,
-        `${companyType.toUpperCase()} • ${segment}`,
+        t('chatbot.anomalies.title'),
+        `${companyType.toUpperCase()} • ${t(`segments.${segment.toLowerCase()}`, segment)}`,
         '',
         '─'.repeat(60),
         '',
-        anomalies.length > 0 ? '[ALERTE] Anomalies détectées:' : '[OK] Aucune anomalie majeure détectée',
+        anomalies.length > 0 ? t('chatbot.anomalies.alert_yes') : t('chatbot.anomalies.alert_no'),
         '',
         ...anomalies.map((a, i) => [
-          `${i + 1}. ${a.metric.toUpperCase()} — ${a.severity === 'high' ? '[CRITIQUE]' : a.severity === 'medium' ? '[MOYEN]' : '[FAIBLE]'}`,
-          `   Valeur actuelle: ${a.value.toLocaleString()}${a.metric === 'margin' ? '%' : ' DA'}`,
-          `   Valeur attendue: ${a.expected.toLocaleString()}${a.metric === 'margin' ? '%' : ' DA'}`,
-          `   Écart: ${a.deviation > 0 ? '+' : ''}${a.deviation.toLocaleString()}${a.metric === 'margin' ? '%' : ' DA'}`,
+          `${i + 1}. ${a.metric.toUpperCase()} — ${a.severity === 'high' ? t('chatbot.anomalies.crit') : a.severity === 'medium' ? t('chatbot.anomalies.med') : t('chatbot.anomalies.low')}`,
+          `   ${t('chatbot.anomalies.current_val')} ${a.value.toLocaleString()}${a.metric === 'margin' ? '%' : ' DA'}`,
+          `   ${t('chatbot.anomalies.expected_val')} ${a.expected.toLocaleString()}${a.metric === 'margin' ? '%' : ' DA'}`,
+          `   ${t('chatbot.anomalies.deviation')} ${a.deviation > 0 ? '+' : ''}${a.deviation.toLocaleString()}${a.metric === 'margin' ? '%' : ' DA'}`,
           `   ${a.explanation}`,
-          `   Recommandation: ${a.recommendation}`,
+          `   ${t('chatbot.anomalies.reco')} ${a.recommendation}`,
           ''
         ]).flat(),
         anomalies.length === 0 ? [
-          'Toutes les métriques sont dans les limites normales.',
-          'Continuez le suivi régulier pour maintenir cette stabilité.'
+          t('chatbot.anomalies.ok_1'),
+          t('chatbot.anomalies.ok_2')
         ].join('\n') : ''
       ].filter(Boolean).join('\n');
 
@@ -954,16 +968,15 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyse financière complète', 'Comparaison périodes', 'Scénarios what-if']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.quick_actions.growth_scenarios'), t('chatbot.suggestions.details.cash_forecast')]
       };
     }
 
     // Scénarios "what-if"
-    const wantsScenario = message.includes('scénario') ||
-      message.includes('scenario') ||
+    const wantsScenario = isScenario ||
       message.includes('what-if') ||
-      message.includes('simulation') ||
-      (message.includes('si') && (message.includes('augmente') || message.includes('diminue')));
+      message.includes(t('chatbot.capabilities.simulations').replace(/\*\*/g, '').split(':')[0].toLowerCase().trim()) ||
+      message.includes(t('chatbot.quick_actions.growth_scenarios').toLowerCase());
 
     if (wantsScenario) {
       const revM = companyData?.revenueMonth ?? 1200000;
@@ -979,40 +992,40 @@ const ChatbotLIA: React.FC = () => {
       const cashImpact = (revM / 30) * 15; // Impact sur trésorerie
 
       const content = [
-        `SCÉNARIOS "WHAT-IF"`,
-        `${companyType.toUpperCase()} • ${segment}`,
+        t('chatbot.whatif.title'),
+        `${companyType.toUpperCase()} • ${t(`segments.${segment.toLowerCase()}`, segment)}`,
         '',
         '─'.repeat(60),
         '',
-        'SCÉNARIO 1: CA +10%',
-        `  CA actuel: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
-        `  CA projeté: ${formatCurrency ? formatCurrency(scenario1.projectedValue) : `${scenario1.projectedValue.toLocaleString()} DA`}`,
-        `  Impact: +${formatCurrency ? formatCurrency(scenario1.impact) : `${scenario1.impact.toLocaleString()} DA`}`,
-        `  Confiance: ${scenario1.confidence}%`,
-        `  Hypothèses:`,
+        t('chatbot.whatif.s1_title'),
+        `  ${t('chatbot.whatif.current_ca')}: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
+        `  ${t('chatbot.whatif.projected_ca')}: ${formatCurrency ? formatCurrency(scenario1.projectedValue) : `${scenario1.projectedValue.toLocaleString()} DA`}`,
+        `  ${t('chatbot.whatif.impact')}: +${formatCurrency ? formatCurrency(scenario1.impact) : `${scenario1.impact.toLocaleString()} DA`}`,
+        `  ${t('chatbot.whatif.confidence')}: ${scenario1.confidence}%`,
+        `  ${t('chatbot.whatif.assumptions')}:`,
         ...scenario1.assumptions.map(a => `    - ${a}`),
         '',
-        'SCÉNARIO 2: DSO -15 jours',
-        `  DSO actuel: ${dso} jours`,
-        `  DSO projeté: ${dso - 15} jours`,
-        `  Impact trésorerie: +${formatCurrency ? formatCurrency(cashImpact) : `${cashImpact.toLocaleString()} DA`} de cash libéré`,
-        `  Hypothèses:`,
-        `    - Relances clients J+7/J+15/J+30`,
-        `    - Escompte 2% pour paiement anticipé`,
-        `    - Scoring clients amélioré`,
+        t('chatbot.whatif.s2_title'),
+        `  ${t('chatbot.whatif.current_dso')}: ${dso} ${t('chatbot.whatif.days')}`,
+        `  ${t('chatbot.whatif.projected_dso')}: ${dso - 15} ${t('chatbot.whatif.days')}`,
+        `  ${t('chatbot.whatif.cash_impact')}: +${formatCurrency ? formatCurrency(cashImpact) : `${cashImpact.toLocaleString()} DA`} ${t('chatbot.whatif.cash_freed')}`,
+        `  ${t('chatbot.whatif.assumptions')}:`,
+        `    - ${t('chatbot.whatif.s2_h1')}`,
+        `    - ${t('chatbot.whatif.s2_h2')}`,
+        `    - ${t('chatbot.whatif.s2_h3')}`,
         '',
-        'SCÉNARIO 3: Marge +3 points',
-        `  Marge actuelle: ${margin}%`,
-        `  Marge projetée: ${margin + 3}%`,
-        `  Impact bénéfice: +${formatCurrency ? formatCurrency(revM * 0.03) : `${(revM * 0.03).toLocaleString()} DA`}/mois`,
-        `  Hypothèses:`,
-        `    - Ajustement prix produits faible marge`,
-        `    - Réduction remises excessives`,
-        `    - Optimisation mix produits`,
+        t('chatbot.whatif.s3_title'),
+        `  ${t('chatbot.whatif.current_margin')}: ${margin}%`,
+        `  ${t('chatbot.whatif.projected_margin')}: ${margin + 3}%`,
+        `  ${t('chatbot.whatif.profit_impact')}: +${formatCurrency ? formatCurrency(revM * 0.03) : `${(revM * 0.03).toLocaleString()} DA`}${t('chatbot.whatif.per_month')}`,
+        `  ${t('chatbot.whatif.assumptions')}:`,
+        `    - ${t('chatbot.whatif.s3_h1')}`,
+        `    - ${t('chatbot.whatif.s3_h2')}`,
+        `    - ${t('chatbot.whatif.s3_h3')}`,
         '',
         '─'.repeat(60),
         '',
-        'Utilisez ces scénarios pour planifier vos actions et évaluer les impacts potentiels.'
+        t('chatbot.whatif.desc')
       ].join('\n');
 
       return {
@@ -1020,7 +1033,7 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyse financière complète', 'Comparaison périodes', 'Benchmarking sectoriel']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.suggestions.growth_scenarios'), t('chatbot.quick_actions.sector_analysis')]
       };
     }
 
@@ -1042,33 +1055,33 @@ const ChatbotLIA: React.FC = () => {
       const benchDso = benchmarkAnalysis(dso, 'dso', sector, segment);
 
       const content = [
-        `BENCHMARKING SECTORIEL`,
-        `${companyType.toUpperCase()} • ${segment} • ${sectorLabel}`,
+        t('chatbot.benchmarking.title'),
+        `${companyType.toUpperCase()} • ${t(`segments.${segment.toLowerCase()}`, segment)} • ${sectorLabel}`,
         '',
         '─'.repeat(60),
         '',
-        'CHIFFRE D\'AFFAIRES',
-        `  Votre CA: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
-        `  Moyenne secteur: ${formatCurrency ? formatCurrency(benchRev.sectorAvg) : `${benchRev.sectorAvg.toLocaleString()} DA`}`,
-        `  Moyenne segment: ${formatCurrency ? formatCurrency(benchRev.segmentAvg) : `${benchRev.segmentAvg.toLocaleString()} DA`}`,
-        `  Percentile: ${benchRev.percentile}% (${getStatusLabel(benchRev.status)})`,
+        t('chatbot.benchmarking.revenue'),
+        `  ${t('chatbot.benchmarking.your_ca')}: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
+        `  ${t('chatbot.benchmarking.sector_avg')}: ${formatCurrency ? formatCurrency(benchRev.sectorAvg) : `${benchRev.sectorAvg.toLocaleString()} DA`}`,
+        `  ${t('chatbot.benchmarking.segment_avg')}: ${formatCurrency ? formatCurrency(benchRev.segmentAvg) : `${benchRev.segmentAvg.toLocaleString()} DA`}`,
+        `  ${t('chatbot.benchmarking.percentile')}: ${benchRev.percentile}% (${getStatusLabel(benchRev.status)})`,
         `  ${benchRev.recommendation}`,
         '',
-        'MARGE BÉNÉFICIAIRE',
-        `  Votre marge: ${margin}%`,
-        `  Moyenne secteur: ${benchMargin.segmentAvg.toFixed(1)}%`,
-        `  Percentile: ${benchMargin.percentile}% (${getStatusLabel(benchMargin.status)})`,
+        t('chatbot.benchmarking.margin'),
+        `  ${t('chatbot.benchmarking.your_margin')}: ${margin}%`,
+        `  ${t('chatbot.benchmarking.sector_avg')}: ${benchMargin.segmentAvg.toFixed(1)}%`,
+        `  ${t('chatbot.benchmarking.percentile')}: ${benchMargin.percentile}% (${getStatusLabel(benchMargin.status)})`,
         `  ${benchMargin.recommendation}`,
         '',
-        'DSO (DÉLAI DE RECOUVREMENT)',
-        `  Votre DSO: ${dso} jours`,
-        `  Moyenne secteur: ${benchDso.segmentAvg.toFixed(0)} jours`,
-        `  Percentile: ${benchDso.percentile}% (${getStatusLabel(benchDso.status)})`,
+        t('chatbot.benchmarking.dso'),
+        `  ${t('chatbot.benchmarking.your_dso')}: ${dso} ${t('chatbot.whatif.days')}`,
+        `  ${t('chatbot.benchmarking.sector_avg')}: ${benchDso.segmentAvg.toFixed(0)} ${t('chatbot.whatif.days')}`,
+        `  ${t('chatbot.benchmarking.percentile')}: ${benchDso.percentile}% (${getStatusLabel(benchDso.status)})`,
         `  ${benchDso.recommendation}`,
         '',
         '─'.repeat(60),
         '',
-        'Utilisez ces benchmarks pour identifier vos forces et axes d\'amélioration.'
+        t('chatbot.benchmarking.desc')
       ].join('\n');
 
       return {
@@ -1076,30 +1089,31 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyse financière complète', 'Comparaison périodes', 'Scénarios what-if']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.quick_actions.growth_scenarios'), t('chatbot.suggestions.forecasts')]
       };
     }
 
     // Analyse financière complète (améliorée)
-    const wantsFinancialAnalysis =
-      message.includes('/analyse') ||
+    const wantsFinancialAnalysis = isAnalyse ||
+      message.includes(t('chatbot.fallback.cmd_audit').toLowerCase()) ||
+      message.includes(t('chatbot.fallback.cmd_audit_full').toLowerCase()) ||
       message.includes('synthèse stratégique') ||
       message.includes('summary') ||
       message.includes('analysis') ||
-      message.includes('تقرير') ||
-      message.includes('تحليل') ||
       (message.includes('analyse') && (message.includes('financ') || message.includes('trésorerie') || message.includes('tresorerie') || message.includes('performance') || message.includes('bilan'))) ||
-      message.includes('grand livre') || message.includes('balance') || message.includes('comptable');
+      message.includes('comptable') ||
+      message.includes(t('chatbot.capabilities.performance').replace(/\*\*/g, '').split(':')[0].toLowerCase().trim()) ||
+      message.includes(t('chatbot.quick_actions.synthesis').toLowerCase());
 
     if (wantsFinancialAnalysis) {
       // Données (avec valeurs de repli)
-      const revM = companyData?.revenueMonth ?? 1200000;
-      const profitPct = companyData?.profitMargin ?? 18; // % marge
-      const cash = companyData?.cashBalance ?? Math.round(revM * 0.8);
-      const ar = companyData?.accountsReceivable ?? Math.round(revM * 1.5);
-      const ap = companyData?.accountsPayable ?? Math.round(revM * 0.8);
-      const invValue = companyData?.inventoryValue ?? Math.round(revM * 1.2);
-      const turnover = companyData?.stockTurnover || 8; // fois/an
+      const revM = companyData?.revenueMonth ?? 0;
+      const profitPct = companyData?.profitMargin ?? 15; // % marge
+      const cash = companyData?.cashBalance ?? 0;
+      const ar = companyData?.accountsReceivable ?? 0;
+      const ap = companyData?.accountsPayable ?? 0;
+      const invValue = companyData?.inventoryValue ?? 0;
+      const turnover = companyData?.stockTurnover || 4.2; // fois/an
       const cogsMonth = Math.max(1, Math.round(revM * (1 - profitPct / 100))); // approximation COGS
       const dailyRevenue = revM / 30;
       const dailyCOGS = cogsMonth / 30;
@@ -1124,18 +1138,18 @@ const ChatbotLIA: React.FC = () => {
         } as any,
         advanced: ratiosAdv,
         bm
-      });
+      }, t);
       // Ajout CCC spécifique si non déjà couvert
-      if (ccc > 60 && !alerts.some(a => a.includes('CCC'))) alerts.push(`CCC long (${ccc} j) — ${cccLabel}.`);
+      if (ccc > 60 && !alerts.some(a => a.includes('CCC'))) alerts.push(t('chatbot.alerts.ccc', { val: ccc, status: cccLabel }));
 
       // Recommandations dynamiques (sensibles au profil)
       const recs: string[] = [];
-      if (dso > 35) recs.push('Activer recouvrement cadencé (J+7/J+15/J+30), escompte 2% clients fiables, scoring risque.');
-      if (dio > 60) recs.push('Optimiser stocks: ABC, seuils de réapprovisionnement, liquidation produits lents, promo ciblée.');
-      if (dpo < bm.dpoMin) recs.push(`Renégocier délais fournisseurs (${bm.dpoMin}–${Math.max(55, bm.dpoMin + 10)} j), consolider paiements (batch), aligner conditions cadres.`);
-      if (ccc > 60) recs.push('Réduire CCC: JIT achats clés, affacturage créances, règles crédit plus serrées.');
-      if (marge < bm.marginMin) recs.push('Améliorer marge: prix/remises, mix produit, coûts variables, arrêt pertes.');
-      if (liquiditeImmediate < 1.0) recs.push('Sécuriser cash: prioriser encaissements, temporiser capex non critiques.');
+      if (dso > 35) recs.push(t('chatbot.recs.dso'));
+      if (dio > 60) recs.push(t('chatbot.recs.dio'));
+      if (dpo < bm.dpoMin) recs.push(t('chatbot.recs.dpo', { min: bm.dpoMin, max: Math.max(55, bm.dpoMin + 10) }));
+      if (ccc > 60) recs.push(t('chatbot.recs.ccc'));
+      if (marge < bm.marginMin) recs.push(t('chatbot.recs.margin'));
+      if (liquiditeImmediate < 1.0) recs.push(t('chatbot.recs.cash'));
 
       // Impacts scénarisés (approximations pédagogiques)
       const impactDSO10 = Math.round(dailyRevenue * 10); // DSO -10j
@@ -1199,83 +1213,54 @@ const ChatbotLIA: React.FC = () => {
       const isCorporate = companyType === 'spa' || segment === 'enterprise' || segment === 'large';
       const isTactical = segment !== 'micro';
 
-      const labels: Record<string, Record<'fr' | 'en' | 'ar', string>> = {
-        title: { fr: '📊 AUDIT STRATÉGIQUE ADAPTATIF', en: '📊 ADAPTIVE STRATEGIC AUDIT', ar: '📊 تدقيق استراتيجي متكيف' },
-        profile: { fr: 'Profil', en: 'Profile', ar: 'الملف' },
-        segment: { fr: 'Segment', en: 'Segment', ar: 'الفئة' },
-        sector: { fr: 'Secteur', en: 'Sector', ar: 'القطاع' },
-        sec1: { fr: '📍 1. PERFORMANCE OPÉRATIONNELLE & LIQUIDITÉ', en: '📍 1. OPERATIONAL PERFORMANCE & LIQUIDITY', ar: '📍 1. الأداء العملياتي والسيولة' },
-        revenue: { fr: 'Chiffre d\'Affaires Mensuel', en: 'Monthly Revenue', ar: 'رقم الأعمال الشهري' },
-        margin: { fr: 'Marge Brute', en: 'Gross Margin', ar: 'الهامش الإجمالي' },
-        cash: { fr: 'Trésorerie', en: 'Cash Balance', ar: 'الرصيد النقدي' },
-        liquidity: { fr: 'Liquidité Immédiate', en: 'Quick Liquidity', ar: 'السيولة الفورية' },
-        healthy: { fr: 'Saine', en: 'Healthy', ar: 'سليم' },
-        tension: { fr: 'Sous tension', en: 'Under tension', ar: 'تحت الضغط' },
-        sec2: { fr: '📍 2. CYCLE D\'EXPLOITATION & EFFICACITÉ', en: '📍 2. OPERATING CYCLE & EFFICIENCY', ar: '📍 2. دورة التشغيل والكفاءة' },
-        ccc: { fr: 'CCC (Cycle Cash)', en: 'CCC (Cash Conversion Cycle)', ar: 'دورة التحويل النقدي' },
-        status: { fr: 'Statut', en: 'Status', ar: 'الحالة' },
-        bfr: { fr: 'Besoin en Fonds de Roulement (BFR)', en: 'Working Capital Requirement (WCR)', ar: 'احتياجات رأس المال العامل' },
-        sec3: { fr: '📍 3. STRUCTURE DE CAPITAL & SOLVABILITÉ', en: '📍 3. CAPITAL STRUCTURE & SOLVENCY', ar: '📍 3. هيكل رأس المال والملائة' },
-        profitability: { fr: 'Rentabilité', en: 'Profitability', ar: 'الربحية' },
-        autonomy: { fr: 'Indépendance (Autonomie)', en: 'Financial Autonomy', ar: 'الاستقلالية المالية' },
-        leverage: { fr: 'Levier (Net Debt/EBITDA)', en: 'Leverage', ar: 'الرافعة المالية' },
-        coverage: { fr: 'Couverture Intérêts', en: 'Interest Coverage', ar: 'تغطية الفوائد' },
-        wacc: { fr: 'Coût du Capital (WACC)', en: 'Cost of Capital (WACC)', ar: 'تكلفة رأس المال' },
-        secLia: { fr: '📍 ALERTES & DIAGNOSTIC LIA', en: '📍 LIA ALERTS & DIAGNOSTICS', ar: '📍 تنبيهات وتشخيص LIA' },
-        noRisk: { fr: 'Aucun risque majeur détecté par l\'IA.', en: 'No major risks detected by AI.', ar: 'لم يتم اكتشاف مخاطر كبيرة بواسطة الذكاء الاصطناعي.' },
-        secActions: { fr: '📍 ACTIONS PRIORITAIRES & IMPACT TRÉSORERIE', en: '📍 PRIORITY ACTIONS & CASH IMPACT', ar: '📍 الإجراءات ذات الأولوية وتأثير السيولة' },
-        cashPotential: { fr: 'Potentiel de cash-flow à libérer (optimisation cycle)', en: 'Cash-flow potential to release', ar: 'إمكانية تحرير التدفق النقدي' }
-      };
-
-      const L = (key: string) => labels[key]?.[currentLang as 'fr' | 'en' | 'ar'] || labels[key]?.fr || key;
+      const companyTypeLabel = t(`company_types.${companyType}`, { defaultValue: companyType.toUpperCase() });
+      const sectorLabelLoc = t(`sectors.${sector}`, { defaultValue: sectorLabel });
 
       const content = [
-        `${L('title')} — ${user?.companyName || 'Organisation'}`,
-        `${L('profile')}: ${companyType.toUpperCase()} • ${L('segment')}: ${segment.toUpperCase()} • ${L('sector')}: ${sectorLabel}`,
+        `${t('chatbot.audit.title')} — ${user?.companyName || t('common.organisation')}`,
+        `${t('chatbot.audit.profile')}: ${companyTypeLabel} • ${t('chatbot.audit.segment')}: ${t(`segments.${segment}`)} • ${t('chatbot.audit.sector')}: ${sectorLabelLoc}`,
         '',
         '─'.repeat(50),
         '',
-        L('sec1'),
-        `• ${L('revenue')}: ${money(revM)} | ${L('margin')}: ${marge.toFixed(1)}%`,
-        `• ${L('cash')}: ${money(cash)} | ${L('liquidity')}: ${liquiditeImmediate.toFixed(2)} (${liquiditeImmediate >= 1 ? L('healthy') : L('tension')})`,
+        t('chatbot.audit.sec1'),
+        `• ${t('chatbot.audit.revenue')}: ${money(revM)} | ${t('chatbot.audit.margin')}: ${marge.toFixed(1)}%`,
+        `• ${t('chatbot.audit.cash')}: ${money(cash)} | ${t('chatbot.audit.liquidity')}: ${liquiditeImmediate.toFixed(2)} (${liquiditeImmediate >= 1 ? t('chatbot.audit.healthy') : t('chatbot.audit.tension')})`,
         '',
         ...(isTactical ? [
-          L('sec2'),
-          `• ${L('ccc')}: ${ccc} j | ${L('status')}: ${cccLabel}`,
-          `• DSO: ${dso} j [Cible: ${bm.dsoMax}] | DIO: ${dio} j [Cible: ${bm.dioMax}] | DPO: ${dpo} j [Cible: ${bm.dpoMin}]`,
-          `• ${L('bfr')}: ${money(bfr)}`,
+          t('chatbot.audit.sec2'),
+          `• ${t('chatbot.audit.ccc')}: ${ccc} j | ${t('chatbot.audit.status')}: ${cccLabel}`,
+          `• DSO: ${dso} j [${t('chatbot.audit.target')}: ${bm.dsoMax}] | DIO: ${dio} j [${t('chatbot.audit.target')}: ${bm.dioMax}] | DPO: ${dpo} j [${t('chatbot.audit.target')}: ${bm.dpoMin}]`,
+          `• ${t('chatbot.audit.bfr')}: ${money(bfr)}`,
           ''
         ] : []),
         ...(isCorporate ? [
-          L('sec3'),
-          `• ${L('profitability')}: ROE ${ratiosAdv.roePct}% | ROA ${ratiosAdv.roaPct}%`,
-          `• ${L('autonomy')}: ${ratiosAdv.autonomyPct}% | Gearing ${ratiosAdv.gearingPct ?? 0}%`,
-          `• ${L('leverage')}: ${ratiosAdv.netDebtToEbitda ?? 'N/A'}`,
-          `• ${L('coverage')}: ${ratiosAdv.interestCoverage}x${ratiosAdv.waccPct ? ` | ${L('wacc')}: ${ratiosAdv.waccPct}%` : ''}`,
+          t('chatbot.audit.sec3'),
+          `• ${t('chatbot.audit.profitability')}: ROE ${ratiosAdv.roePct}% | ROA ${ratiosAdv.roaPct}%`,
+          `• ${t('chatbot.audit.autonomy')}: ${ratiosAdv.autonomyPct}% | Gearing ${ratiosAdv.gearingPct ?? 0}%`,
+          `• ${t('chatbot.audit.leverage')}: ${ratiosAdv.netDebtToEbitda ?? 'N/A'}`,
+          `• ${t('chatbot.audit.coverage')}: ${ratiosAdv.interestCoverage}x${ratiosAdv.waccPct ? ` | ${t('chatbot.audit.wacc')}: ${ratiosAdv.waccPct}%` : ''}`,
           ''
         ] : []),
         ...(sector === 'saas' && ratiosAdv.mrr ? [
-          '📍 FOCUS SECTORIEL (SaaS)',
+          '📍 ' + t('chatbot.audit.sector_focus_saas'),
           `• MRR: ${money(ratiosAdv.mrr)} | Churn: ${ratiosAdv.churnPct}%`,
           `• LTV: ${money(ratiosAdv.ltv ?? 0)} | CAC: ${money(ratiosAdv.cac ?? 0)}`,
           ''
         ] : []),
-        L('secLia'),
+        t('chatbot.audit.secLia'),
         ...alerts.map(a => `• ${a}`),
         ...summary.anomalies.map(a => `⚠️ ${a.metric}: ${a.explanation}`),
-        ...(alerts.length === 0 && summary.anomalies.length === 0 ? [`• ${L('noRisk')}`] : []),
+        ...(alerts.length === 0 && summary.anomalies.length === 0 ? [`• ${t('chatbot.audit.noRisk')}`] : []),
         '',
-        L('secActions'),
+        t('chatbot.audit.secActions'),
         ...recs.slice(0, 2).map(r => `• ${r}`),
         ...(isCorporate ? [
-          currentLang === 'ar' ? '• مراجعة سياسة توزيع الأرباح وتحسين تكلفة رأس المال.' :
-            currentLang === 'en' ? '• Review dividend policy and optimize cost of capital.' :
-              '• Révision de la politique de dividendes et optimisation du coût du capital.'
+          t('chatbot.fallback.scenarios.prob_high') + ': ' + t('chatbot.recs.audit_desc_extra')
         ] : []),
-        ...(isTactical ? [`• ${L('cashPotential')}: ${money(impactTotal)}`] : []),
+        ...(isTactical ? [`• ${t('chatbot.audit.cashPotential')}: ${money(impactTotal)}`] : []),
         '',
         '─'.repeat(50),
-        'LIA Strategic Intelligence Hub'
+        t('chatbot.subtitle')
       ].filter(l => l !== null).join('\n');
 
       return {
@@ -1284,18 +1269,26 @@ const ChatbotLIA: React.FC = () => {
         content,
         timestamp: new Date(),
         suggestions: isCorporate
-          ? (currentLang === 'ar' ? ['تحليل ROE/ROA مفصل', 'محاكاة الرافعة المالية', 'تصدير هذا التقرير'] : currentLang === 'en' ? ['Detailed ROE/ROA analysis', 'Financial leverage simulation', 'Export this report'] : ['Analyse ROE/ROA détaillée', 'Simulation de levier financier', 'Exporter ce rapport'])
-          : (currentLang === 'ar' ? ['كيفية تقليل DSO؟', 'تحسين المخزون', 'توقعات التدفق النقدي'] : currentLang === 'en' ? ['How to reduce DSO?', 'Optimize inventory', 'Cash-flow forecasts'] : ['Comment réduire mon DSO ?', 'Optimiser mes stocks', 'Prévisions de trésorerie'])
+          ? [t('chatbot.suggestions.details.roe_analysis'), t('chatbot.suggestions.details.leverage_sim'), t('chatbot.suggestions.details.export_report')]
+          : [t('chatbot.suggestions.details.reduce_dso'), t('chatbot.suggestions.details.optimize_stock'), t('chatbot.suggestions.details.cash_forecast')]
       };
     }
 
-    if (message.includes('ventes') || message.includes('chiffre') || message.includes('ca')) {
+    if (isSales) {
+      const title = t('chatbot.suggestions.sales');
+      const caLabel = t('chatbot.audit.revenue');
+      const soldLabel = t('chatbot.labels.articles_sold');
+      const marginLabel = t('chatbot.audit.margin');
+      const remainingLabel = t('chatbot.articles_remaining', { defaultValue: t('chatbot.fallback.stock_status.remaining') });
+      const obsLabel = t('common.observation', { defaultValue: 'Observation' });
+      const obsValue = t('chatbot.sales_obs_stable', { defaultValue: 'Progression correcte des ventes; marge stable.' });
+
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Analyse des ventes\n\n- Chiffre d'affaires du jour: ${formatCurrency ? formatCurrency(dailySummary.ca.value) : `${dailySummary.ca.value.toLocaleString()} DA`} (${dailySummary.ca.change > 0 ? '+' : ''}${dailySummary.ca.change}%)\n- Articles vendus: ${dailySummary.articlesVendus.sold} (restants à facturer: ${dailySummary.articlesVendus.remaining})\n- Marge brute: ${dailySummary.margeBrute}%\n\nObservation: progression correcte des ventes; marge stable.`,
+        content: `${title}\n\n- ${caLabel}: ${formatCurrency ? formatCurrency(dailySummary.ca.value) : `${dailySummary.ca.value.toLocaleString()} DA`} (${dailySummary.ca.change > 0 ? '+' : ''}${dailySummary.ca.change}%)\n- ${soldLabel}: ${dailySummary.articlesVendus.sold} (${remainingLabel}: ${dailySummary.articlesVendus.remaining})\n- ${marginLabel}: ${dailySummary.margeBrute}%\n\n${obsLabel}: ${obsValue}`,
         timestamp: new Date(),
-        suggestions: ['Quels sont mes ratios financiers ?', 'Avez-vous des recommandations ?', 'Montrez-moi mes prévisions']
+        suggestions: [t('chatbot.quick_actions.revenue_forecast'), t('chatbot.quick_actions.audit_forecast'), t('chatbot.quick_actions.risk_report')]
       };
     }
 
@@ -1355,13 +1348,24 @@ const ChatbotLIA: React.FC = () => {
       };
     }
 
-    if (message.includes('prévision') || message.includes('tendance') || message.includes('futur')) {
+    if (message.includes('/previsions') || message.includes('prévision') || message.includes('tendance') || message.includes('futur')) {
+      const title = t('chatbot.fallback.revenue_forecast.title');
+      const caEst = t('chatbot.audit.revenue') + ' (' + t('chatbot.fallback.ratios.estimated') + ')';
+      const cashEnd = t('common.cash') + ' (' + t('chatbot.fallback.treasury.end_of_month') + ')';
+      const restock = t('chatbot.fallback.seasonal.stock_opt');
+      const restockVal = t('chatbot.fallback.seasonal.stock_desc', { count: 5, days: 10 });
+      const risk = t('chatbot.risk_high');
+      const riskVal = t('chatbot.alerts.client_risk_desc');
+      const margin = t('chatbot.audit.margin') + ' (' + t('chatbot.fallback.ratios.estimated') + ')';
+      const confidence = t('chatbot.confidence_label');
+      const confidenceVal = '85% (' + t('chatbot.fallback.ratios.last_6_months') + ')';
+
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Prévisions (IA)\n\n- CA mensuel estimé: ${formatCurrency ? formatCurrency(Math.round((companyData?.revenueMonth ?? 4200000) * 1.08)) : 'N/A'} (+8%)\n- Trésorerie fin de mois: ${formatCurrency ? formatCurrency(Math.round((companyData?.cashBalance ?? 1100000))) : 'N/A'}\n- Réapprovisionnement: 5 articles sous seuil dans ~10 jours\n- Risque client: 1 compte à surveiller (retards récurrents)\n- Marge attendue: ${(dailySummary.margeBrute + 1.2).toFixed(1)}%\n\nConfiance: 85% (6 derniers mois).`,
+        content: `${title}\n\n- ${caEst}: ${formatCurrency ? formatCurrency(Math.round((companyData?.revenueMonth ?? 4200000) * 1.08)) : 'N/A'} (+8%)\n- ${cashEnd}: ${formatCurrency ? formatCurrency(Math.round((companyData?.cashBalance ?? 1100000))) : 'N/A'}\n- ${restock}: ${restockVal}\n- ${risk}: ${riskVal}\n- ${margin}: ${(dailySummary.margeBrute + 1.2).toFixed(1)}%\n\n${confidence}: ${confidenceVal}.`,
         timestamp: new Date(),
-        suggestions: ['Quels sont mes ratios financiers ?', 'Avez-vous des recommandations ?', 'Comment vont mes ventes ?']
+        suggestions: [t('chatbot.quick_actions.revenue_forecast'), t('chatbot.quick_actions.synthesis'), t('chatbot.quick_actions.risk_report')]
       };
     }
 
@@ -1417,32 +1421,37 @@ const ChatbotLIA: React.FC = () => {
       console.error('AI service error:', error);
     }
     // Catégorisation automatique (commande spéciale)
-    const wantsCategorization = message.includes('/categoriser') ||
-      (message.includes('catégoriser') && (message.includes('dépense') || message.includes('depense')));
+    const wantsCategorization = isCategorisation ||
+      message.includes(t('chatbot.fallback.cmd_cat').toLowerCase()) ||
+      message.includes(t('chatbot.fallback.cmd_cat_full').toLowerCase()) ||
+      (message.includes('تصنيف') && message.includes('مصاريف'));
     if (wantsCategorization) {
       const categories = [
-        { name: 'Achats fournisseurs', percentage: 35, color: 'blue' },
-        { name: 'Charges fixes', percentage: 18, color: 'slate' },
-        { name: 'Personnel', percentage: 14, color: 'green' },
-        { name: 'Transport', percentage: 7, color: 'amber' },
-        { name: 'Autres charges', percentage: 10, color: 'purple' },
-        { name: 'Impôts & taxes', percentage: 6, color: 'red' }
+        { name: t('common.categories.purchases'), percentage: 35, color: 'blue' },
+        { name: t('common.categories.fixed_charges'), percentage: 18, color: 'slate' },
+        { name: t('common.categories.personnel'), percentage: 14, color: 'green' },
+        { name: t('common.categories.transport'), percentage: 7, color: 'amber' },
+        { name: t('common.categories.other_charges'), percentage: 10, color: 'purple' },
+        { name: t('common.categories.taxes'), percentage: 6, color: 'red' }
       ];
+      const companyTypeLabel = t(`company_types.${companyType}`, { defaultValue: companyType.toUpperCase() });
+      const segmentLabel = t(`segments.${segment}`);
+
       const content = [
-        `Catégorisation automatique des dépenses — Profil: ${companyType.toUpperCase()} • ${segment}`,
+        t('chatbot.fallback.categorization.title', { profile: companyTypeLabel, segment: segmentLabel }),
         '',
-        'Répartition par catégorie (basée sur vos données):',
+        t('chatbot.fallback.categorization.distribution_title'),
         ...categories.map(c => `• ${c.name}: ${c.percentage}%`),
         '',
-        'LIA peut automatiquement catégoriser vos nouvelles dépenses en fonction de leur description et montant.',
-        'Utilisez la commande "/categoriser [description]" pour tester.'
+        t('chatbot.fallback.categorization.auto_desc'),
+        t('chatbot.fallback.categorization.cmd_test')
       ].join('\n');
       return {
         id: Date.now().toString(),
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyse financière', 'Voir plan d\'actions', 'Prévisions trésorerie (13 semaines)']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.suggestions.see_plan'), t('chatbot.suggestions.cash_forecast')]
       };
     }
 
@@ -1450,23 +1459,26 @@ const ChatbotLIA: React.FC = () => {
     const wantsContextualRecommendations = message.includes('/recommandations') ||
       (message.includes('recommandation') && message.includes('contextuel'));
     if (wantsContextualRecommendations) {
-      const hour = new Date().getHours();
-      const dayOfWeek = new Date().getDay();
+      const now = new Date();
+      const hour = now.getHours();
+      const dayOfWeek = now.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       const isMorning = hour < 12;
       const isEvening = hour >= 18;
+      const statusKey = isMorning ? 'status_start' : isEvening ? 'status_end' : 'status_mid';
+      const timeStr = `${hour}h${now.getMinutes().toString().padStart(2, '0')}`;
 
       const contextualRecos = [
-        isMorning ? ' Bon matin ! C\'est le moment idéal pour planifier votre journée financière.' : '',
-        isEvening ? ' En fin de journée, pensez à faire un point sur les encaissements de la journée.' : '',
-        isWeekend ? ' Week-end: moment propice pour analyser les performances de la semaine.' : '',
-        ` Il est ${hour}h${new Date().getMinutes().toString().padStart(2, '0')} — ${isMorning ? 'début' : isEvening ? 'fin' : 'milieu'} de journée.`,
+        isMorning ? t('chatbot.fallback.contextual.morning') : '',
+        isEvening ? t('chatbot.fallback.contextual.evening') : '',
+        isWeekend ? t('chatbot.fallback.contextual.weekend') : '',
+        t('chatbot.fallback.contextual.time_status', { time: timeStr, status: t(`chatbot.fallback.contextual.${statusKey}`) }),
         '',
-        'Recommandations contextuelles:',
-        '• Vérifier les paiements en attente',
-        '• Mettre à jour les stocks critiques',
-        '• Préparer les déclarations fiscales à venir',
-        '• Analyser les tendances de la semaine'
+        t('chatbot.fallback.contextual.recos_title'),
+        `• ${t('chatbot.fallback.contextual.check_payments')}`,
+        `• ${t('chatbot.fallback.contextual.update_stock')}`,
+        `• ${t('chatbot.fallback.contextual.prepare_tax')}`,
+        `• ${t('chatbot.fallback.contextual.analyze_trends')}`
       ].filter(Boolean).join('\n');
 
       return {
@@ -1474,7 +1486,7 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content: contextualRecos,
         timestamp: new Date(),
-        suggestions: ['Analyse financière', 'Voir plan d\'actions', 'Prévisions trésorerie (13 semaines)']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.suggestions.see_plan'), t('chatbot.suggestions.cash_forecast')]
       };
     }
 
@@ -1492,28 +1504,30 @@ const ChatbotLIA: React.FC = () => {
       const tvaDeductible = (revM * 0.7) * 0.19; // Simulation sur 70% d'achats
       const tap = revM * 0.02; // Taxe sur l'activité professionnelle (2%)
 
+      const companyTypeLabel = t(`company_types.${companyType}`, { defaultValue: companyType.toUpperCase() });
+
       const content = [
-        `📑 AUDIT FISCAL PRÉVISIONNEL (G50)`,
-        `${companyType.toUpperCase()} • ${segment} • Algérie`,
+        t('chatbot.fallback.g50.title'),
+        `${companyTypeLabel} • ${t(`segments.${segment}`)} • ${t('chatbot.fallback.g50.region')}`,
         '',
         '─'.repeat(50),
         '',
-        `PROJECTIONS G50 DU MOIS COURANT (ESTIMÉ):`,
-        `  • Chiffre d'Affaires taxable: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
-        `  • TVA Collectée (19%): ${formatCurrency ? formatCurrency(tvaCollectee) : `${tvaCollectee.toLocaleString()} DA`}`,
-        `  • TVA Déductible estimée: ${formatCurrency ? formatCurrency(tvaDeductible) : `${tvaDeductible.toLocaleString()} DA`}`,
-        `  • Solde TVA à reverser: ${formatCurrency ? formatCurrency(tvaCollectee - tvaDeductible) : `${(tvaCollectee - tvaDeductible).toLocaleString()} DA`}`,
-        `  • TAP (Taxe sur Act. Prof. 2%): ${formatCurrency ? formatCurrency(tap) : `${tap.toLocaleString()} DA`}`,
+        t('chatbot.fallback.g50.projections_title'),
+        `  • ${t('chatbot.fallback.g50.taxable_revenue')}: ${formatCurrency ? formatCurrency(revM) : `${revM.toLocaleString()} DA`}`,
+        `  • ${t('chatbot.fallback.g50.tva_collected')}: ${formatCurrency ? formatCurrency(tvaCollectee) : `${tvaCollectee.toLocaleString()} DA`}`,
+        `  • ${t('chatbot.fallback.g50.tva_deductible')}: ${formatCurrency ? formatCurrency(tvaDeductible) : `${tvaDeductible.toLocaleString()} DA`}`,
+        `  • ${t('chatbot.fallback.g50.tva_balance')}: ${formatCurrency ? formatCurrency(tvaCollectee - tvaDeductible) : `${(tvaCollectee - tvaDeductible).toLocaleString()} DA`}`,
+        `  • ${t('chatbot.fallback.g50.tap')}: ${formatCurrency ? formatCurrency(tap) : `${tap.toLocaleString()} DA`}`,
         '',
-        `ÉCHÉANCES PROCHAINES:`,
-        `  • Déclaration G50: Avant le 20 du mois prochain`,
-        `  • Paiement IBS/IRG: Selon votre calendrier fiscal annuel`,
+        t('chatbot.fallback.g50.deadlines_title'),
+        `  • ${t('chatbot.fallback.g50.g50_deadline')}`,
+        `  • ${t('chatbot.fallback.g50.ibs_irg_deadline')}`,
         '',
-        `RECOMMANDATION LIA:`,
-        `Assurez-vous que toutes vos factures d'achats sont correctement catégorisées pour optimiser votre TVA déductible.`,
+        t('chatbot.fallback.g50.reco_title'),
+        t('chatbot.fallback.g50.reco_text'),
         '',
         '─'.repeat(50),
-        '© LIA Fiscal Intelligence Unit'
+        t('chatbot.fallback.g50.footer')
       ].join('\n');
 
       return {
@@ -1521,46 +1535,64 @@ const ChatbotLIA: React.FC = () => {
         type: 'lia',
         content,
         timestamp: new Date(),
-        suggestions: ['Analyse financière complète', 'Voir plan d\'actions', 'Scénarios de croissance']
+        suggestions: [t('chatbot.suggestions.financial_analysis'), t('chatbot.suggestions.see_plan'), t('chatbot.suggestions.growth_scenarios')]
       };
     }
 
     // ERP & Connectivité
     if (message.includes('erp') || message.includes('logiciel') || message.includes('source')) {
+      const title = t('chatbot.fallback.erp_title');
+      const desc = t('chatbot.fallback.erp_desc');
+      const status = t('chatbot.fallback.erp_status');
+      const lastSync = t('chatbot.fallback.erp_last_sync');
+      const question = t('chatbot.fallback.erp_question');
+
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Connectivité ERP & Sources de Données\n\nLIA est actuellement synchronisée avec votre système de gestion central (ERP). Les données de facturation, de stock et de trésorerie sont mises à jour en temps réel.\n\nStatut de la connexion: ACTIVE ✅\nDernière synchronisation: ${new Date().toLocaleTimeString('fr-FR')}\n\nSouhaitez-vous auditer une branche spécifique de vos données ERP ?`,
+        content: `${title}\n\n${desc}\n\n${status}\n${lastSync}: ${new Date().toLocaleTimeString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-FR')}\n\n${question}`,
         timestamp: new Date(),
-        suggestions: ['Audit de facturation', 'État des stocks', 'Journal des ventes']
+        suggestions: [t('chatbot.quick_actions.invoice_audit'), t('chatbot.quick_actions.stock_status'), t('chatbot.quick_actions.sales_journal')]
       };
     }
 
-    if (message.includes('facture') || message.includes('facturation')) {
+    if (message.includes('facture') || message.includes('facturation') || message.includes('invoice')) {
+      const title = t('chatbot.fallback.invoices_title');
+      const receivable = t('chatbot.fallback.invoices_receivable');
+      const monthly = t('chatbot.fallback.invoices_monthly_vol');
+      const dsoLabel = t('chatbot.fallback.invoices_dso');
+      const reco = t('chatbot.fallback.invoices_reco');
+
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Audit de Facturation & Recouvrement\n\n- Factures en attente de règlement: ${formatCurrency ? formatCurrency(companyData?.accountsReceivable ?? 4500000) : '4.500.000 DA'}\n- Volume de facturation mensuel: ${formatCurrency ? formatCurrency(companyData?.revenueMonth ?? 1200000) : '1.200.000 DA'}\n- Délai moyen de paiement client (DSO): ${Math.round(((companyData?.accountsReceivable ?? 4500000) / (companyData?.revenueMonth ?? 1200000)) * 30)} jours.\n\nLIA suggère de relancer les 5 clients majeurs ayant des factures > 30 jours.`,
+        content: `${title}\n\n- ${receivable}: ${formatCurrency ? formatCurrency(companyData?.accountsReceivable ?? 4500000) : '4.500.000 DA'}\n- ${monthly}: ${formatCurrency ? formatCurrency(companyData?.revenueMonth ?? 1200000) : '1.200.000 DA'}\n- ${dsoLabel}: ${Math.round(((companyData?.accountsReceivable ?? 4500000) / (companyData?.revenueMonth ?? 1200000)) * 30)} jours.\n\n${reco}`,
         timestamp: new Date(),
-        suggestions: ['Comment améliorer mon DSO ?', 'Voir détails facturation', 'Plan d\'actions']
+        suggestions: [t('chatbot.suggestions.details.reduce_dso'), t('chatbot.suggestions.details.see_invoice_details'), t('chatbot.plan_title')]
       };
     }
 
-    if (message.includes('stock') || message.includes('inventaire') || message.includes('article') || message.includes('produit')) {
+    if (message.includes('stock') || message.includes('inventaire') || message.includes('inventory') || message.includes('مخزون') || message.includes('مخازن')) {
       const invValue = companyData?.inventoryValue ?? 1500000;
       const turnover = companyData?.stockTurnover || 6.5;
       const dio = Math.round(365 / Math.max(0.1, turnover));
 
+      const title = t('chatbot.fallback.stock_title');
+      const valLabel = t('chatbot.fallback.stock_value');
+      const rotLabel = t('chatbot.fallback.stock_turnover');
+      const dioLabel = t('chatbot.fallback.stock_dio');
+      const reco = t('chatbot.fallback.stock_reco');
+
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Audit des Stocks & Inventaire\n\n- Valeur totale du stock: ${formatCurrency ? formatCurrency(invValue) : '1.500.000 DA'}\n- Rotation des stocks: ${turnover}x par an\n- Délai de rotation (DIO): ${dio} jours.\n\nLIA détecte 3 articles à faible rotation (dormants) et 5 articles en risque de rupture sous 10 jours.`,
+        content: `${title}\n\n- ${valLabel}: ${formatCurrency ? formatCurrency(invValue) : '1.500.000 DA'}\n- ${rotLabel}: ${turnover}x\n- ${dioLabel}: ${dio} jours.\n\n${reco}`,
         timestamp: new Date(),
-        suggestions: ['Comment optimiser mon DIO ?', 'Liste des produits dormants', 'Plan d\'actions']
+        suggestions: [t('chatbot.suggestions.details.optimize_dio'), t('chatbot.suggestions.details.see_dormant_stock'), t('chatbot.plan_title')]
       };
     }
 
-    if (message.includes('dso') || message.includes('dpo') || message.includes('ccc') || message.includes('bfr') || message.includes('cycle')) {
+    if (message.includes('dso') || message.includes('dpo') || message.includes('ccc') || message.includes('bfr') || message.includes('cycle') || message.includes('دورة') || message.includes('تحصيل') || message.includes('دفع')) {
       const revM = companyData?.revenueMonth ?? 1200000;
       const margin = companyData?.profitMargin ?? 18;
       const ar = companyData?.accountsReceivable ?? 4500000;
@@ -1574,12 +1606,19 @@ const ChatbotLIA: React.FC = () => {
       const dpo = Math.max(0, Math.round((ap / Math.max(1, cogsMonth)) * 30));
       const ccc = dso + dio - dpo;
 
+      const title = t('chatbot.fallback.ccc_title');
+      const dsoLabel = t('chatbot.fallback.ccc_dso');
+      const dioLabel = t('chatbot.fallback.ccc_dio');
+      const dpoLabel = t('chatbot.fallback.ccc_dpo');
+      const cccLabel = t('chatbot.fallback.ccc_total');
+      const note = t('chatbot.fallback.ccc_note');
+
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `Analyse du Cycle de Conversion (CCC)\n\n- DSO (Délai Client): ${dso} jours\n- DIO (Délai Stock): ${dio} jours\n- DPO (Délai Fournisseur): ${dpo} jours\n\nCYCLE DE TRÉSORERIE (CCC): ${ccc} jours.\n\nNote: Un cycle long (> 60j) pèse sur votre besoin en fonds de roulement (BFR).`,
+        content: `${title}\n\n- ${dsoLabel}: ${dso} jours\n- ${dioLabel}: ${dio} jours\n- ${dpoLabel}: ${dpo} jours\n\n${cccLabel}: ${ccc} jours.\n\n${note}`,
         timestamp: new Date(),
-        suggestions: ['Réduire le DSO', 'Négocier DPO', 'Audit complet']
+        suggestions: [t('chatbot.suggestions.details.reduce_dso'), t('chatbot.suggestions.details.negotiate_dpo'), t('chatbot.quick_actions.audit_forecast')]
       };
     }
 
@@ -1587,41 +1626,48 @@ const ChatbotLIA: React.FC = () => {
     return {
       id: Date.now().toString(),
       type: 'lia',
-      content: `Je peux analyser vos données ERP: ventes, ratios, fiscalité (G50), prévisions, trésorerie, et bien plus. Utilisez les commandes ou posez une question directe:\n\n• /analyse — Synthèse stratégique complète\n• /plan — Tableau de bord des actions\n• /previsions — Cash-flow prédictif\n• /categoriser — Audit des écritures\n\nQuelle dimension de votre ERP souhaitez-vous auditer ?`,
+      content: `${t('chatbot.fallback.default_msg')}\n\n• ${t('chatbot.fallback.cmd_audit_full')}\n• ${t('chatbot.fallback.cmd_plan_full')}\n• ${t('chatbot.fallback.cmd_forecast_full')}\n• ${t('chatbot.fallback.cmd_cat_full')}\n\n${t('chatbot.fallback.default_question')}`,
       timestamp: new Date(),
+      suggestions: [
+        t('chatbot.fallback.cmd_audit_full'),
+        t('chatbot.fallback.cmd_plan_full'),
+        t('chatbot.fallback.cmd_forecast_full'),
+        t('chatbot.fallback.cmd_cat_full')
+      ]
     };
   };
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = (overrideMessage?: string) => {
+    const msgToSend = overrideMessage || inputMessage;
+    if (!msgToSend.trim()) return;
 
     // Ajouter le message utilisateur
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputMessage,
+      content: msgToSend,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    if (!overrideMessage) setInputMessage('');
     setIsTyping(true);
     // Journaliser l'action
     try {
       const userIdNum = user ? (Number((user as any).id) || -1) : -1;
-      logAction({ userId: userIdNum, action: 'update', actor: user?.nom || 'Utilisateur', details: `Chatbot question: ${userMessage.content}` });
+      logAction({ userId: userIdNum, action: 'update', actor: user?.nom || t('common.user'), details: `Chatbot question: ${userMessage.content}` });
     } catch { }
 
     // Simuler le délai de réponse de LIA
     setTimeout(async () => {
-      const liaResponse = await generateLiaResponse(inputMessage);
+      const liaResponse = await generateLiaResponse(msgToSend);
       setMessages(prev => [...prev, liaResponse]);
       setIsTyping(false);
     }, 1500);
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setInputMessage(suggestion);
+    handleSendMessage(suggestion);
     inputRef.current?.focus();
   };
 
@@ -1720,14 +1766,14 @@ const ChatbotLIA: React.FC = () => {
                         </div>
                         <div>
                           <p className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase leading-none mb-1">
-                            Decision Intelligence Unit
+                            {t('chatbot.subtitle')}
                           </p>
-                          <h2 className="text-sm font-bold text-slate-900">LIA — Strategic Assistant</h2>
+                          <h2 className="text-sm font-bold text-slate-900">{t('chatbot.strategic_assistant')}</h2>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Session ID: 0x{message.id.slice(-4)}</span>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('chatbot.secure_session')} ID: 0x{message.id.slice(-4)}</span>
                       </div>
                     </div>
                   )}
@@ -1757,7 +1803,8 @@ const ChatbotLIA: React.FC = () => {
                                   <motion.div 
                                     key={idx}
                                     whileHover={{ y: -5, borderColor: '#6366f1' }}
-                                    className="p-5 bg-slate-50/50 border border-slate-100 rounded-2xl transition-all group/card"
+                                    onClick={() => handleSuggestionClick(title.replace(/\*\*/g, '').trim())}
+                                    className="p-5 bg-white border border-slate-200/60 rounded-2xl transition-all group/card cursor-pointer shadow-sm hover:shadow-md"
                                   >
                                     <div className="flex items-start gap-4">
                                       <div className="mt-1 p-2 bg-white rounded-lg shadow-sm group-hover/card:bg-slate-900 group-hover/card:text-white transition-colors">
@@ -2005,19 +2052,24 @@ const ChatbotLIA: React.FC = () => {
         <div className="max-w-4xl mx-auto w-full">
           {/* Suggestions rapides stylisées avec Framer Motion */}
           <div className="mb-8 flex flex-wrap gap-2.5 justify-center">
-            {['Ventes', 'Ratios', 'Recommandations', 'Prévisions'].map((suggestion, idx) => (
+            {[
+              { key: 'sales', label: t('chatbot.suggestions.sales') },
+              { key: 'ratios', label: t('chatbot.suggestions.ratios') },
+              { key: 'recommendations', label: t('chatbot.suggestions.recommendations') },
+              { key: 'forecasts', label: t('chatbot.suggestions.forecasts') }
+            ].map((suggestion, idx) => (
               <motion.button
-                key={suggestion}
+                key={suggestion.key}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 * idx }}
                 whileHover={{ y: -3, backgroundColor: '#0f172a', color: '#fff' }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleSuggestionClick(`Comment vont mes ${suggestion.toLowerCase()} ?`)}
+                onClick={() => handleSuggestionClick(t('chatbot.placeholders.ask_about', { item: suggestion.label.toLowerCase() }) || `Comment vont mes ${suggestion.label.toLowerCase()} ?`)}
                 className="group px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 border border-slate-100 rounded-2xl transition-all shadow-sm flex items-center gap-2.5"
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-300 group-hover:bg-indigo-400"></div>
-                {suggestion}
+                {suggestion.label}
               </motion.button>
             ))}
           </div>
@@ -2043,7 +2095,7 @@ const ChatbotLIA: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 disabled={!inputMessage.trim()}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-4 bg-slate-900 text-indigo-300 rounded-full hover:bg-black disabled:bg-slate-100 disabled:text-slate-300 disabled:cursor-not-allowed transition-all shadow-xl shadow-slate-200"
                 aria-label="Envoyer le message"

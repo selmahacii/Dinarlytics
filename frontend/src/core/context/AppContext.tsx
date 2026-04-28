@@ -3,6 +3,7 @@ import { User, Devise } from '@/types';
 import { getFiscalRates, getTVARatePercent, calculateTVA, FiscalRates } from '@/shared/utils/fiscalRates';
 import { getCountryFromDevise, getFiscalDocumentsByCountry, Country, FiscalDocument } from '@/shared/utils/fiscalDocuments';
 import axios from 'axios';
+import i18n from '@/i18n/config';
 
 export interface CompanyMetrics {
   clientsCount: number;
@@ -93,15 +94,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCurrentDeviseState(devise);
     localStorage.setItem('app_devise', devise);
   };
-  const [currentLang, setLang] = useState<'fr' | 'ar' | 'en'>(() => {
+  const [currentLang, setLangState] = useState<'fr' | 'ar' | 'en'>(() => {
     return (localStorage.getItem('app_lang') as 'fr' | 'ar' | 'en') || 'fr';
   });
+
+  const setLang = (lang: 'fr' | 'ar' | 'en') => {
+    setLangState(lang);
+    i18n.changeLanguage(lang);
+  };
 
   // Persist language and handle direction
   useEffect(() => {
     localStorage.setItem('app_lang', currentLang);
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    if (i18n.language !== currentLang) {
+      i18n.changeLanguage(currentLang);
+    }
   }, [currentLang]);
 
   const [loading, setLoading] = useState(false);
