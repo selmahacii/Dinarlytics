@@ -787,16 +787,16 @@ const Fournisseurs: React.FC = () => {
     return (
       <div className="space-y-8 max-w-7xl mx-auto p-8 animate-in fade-in duration-700">
         {/* En-tête Sober ERP - Ultra Premium Monochrome */}
-        <div className="bg-slate-900 text-white p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-white/5">
+        <div className="bg-slate-900 text-white p-6 sm:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-white/5">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl opacity-30"></div>
-          <div className="relative z-10 flex items-center justify-between">
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-center space-x-8">
               <div className="p-5 bg-white/5 rounded-3xl backdrop-blur-xl shadow-2xl border border-white/10">
                 <TruckIcon className="h-10 w-10 text-slate-100" />
               </div>
               <div>
                 <div className="flex items-center gap-4">
-                  <h1 className="text-4xl font-black uppercase tracking-tighter">{t('crm.suppliers.flux_title')}</h1>
+                  <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{t('crm.suppliers.flux_title')}</h1>
                   <span className="px-3 py-1 bg-white/10 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border border-white/20 text-slate-300">Procurement Module v4.0</span>
                 </div>
                 <p className="text-slate-400 text-sm font-bold mt-2 uppercase tracking-[0.1em] opacity-80">{t('crm.suppliers.subtitle')}</p>
@@ -821,7 +821,7 @@ const Fournisseurs: React.FC = () => {
             { label: t('crm.suppliers.stats.total_suppliers'), val: mockFournisseurs.length, icon: BuildingOfficeIcon, sub: t('common.entities_referenced') },
             { label: t('crm.suppliers.stats.avg_dpo'), val: "32.5j", icon: ClockIcon, sub: t('crm.suppliers.stats.debt_rotation') }
           ].map((kpi, idx) => (
-            <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-400 transition-all group">
+            <div key={idx} className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-400 transition-all group">
               <div className="flex items-center gap-4 mb-4">
                 <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl transition-colors group-hover:bg-slate-900 group-hover:text-white">
                   <kpi.icon className="h-5 w-5" />
@@ -853,7 +853,7 @@ const Fournisseurs: React.FC = () => {
         {activeTab === 'liste' && (
           <div className="space-y-8">
             {/* Engine Panel - Technical Monospace Grayscale */}
-            <div className="p-12 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden border border-white/5">
+            <div className="p-6 sm:p-12 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden border border-white/5">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div className="space-y-6">
@@ -895,7 +895,7 @@ const Fournisseurs: React.FC = () => {
 
             {/* Liste des Fournisseurs Table - Sober */}
             <Card className="p-0 border border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden shadow-sm bg-white dark:bg-slate-900">
-              <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 <div>
                   <h3 className="text-xl font-black uppercase tracking-tighter text-slate-900 dark:text-white">{t('crm.suppliers.table.supplier')}s</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{mockFournisseurs.length} {t('crm.suppliers.stats.active')}</p>
@@ -1595,12 +1595,12 @@ const Fournisseurs: React.FC = () => {
         {activeTab === 'factures' && (
           <div className="space-y-8">
             {/* Header */}
-            <div className="bg-slate-900 text-white p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+            <div className="bg-slate-900 text-white p-6 sm:p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('crm.suppliers.messages.supplier_passive')}</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.messages.passive_management')}</h2>
+                  <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.messages.passive_management')}</h2>
                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">{t('crm.suppliers.status.audit_certification')}</p>
                 </div>
                 <div className="flex gap-3">
@@ -1758,12 +1758,12 @@ const Fournisseurs: React.FC = () => {
         {activeTab === 'paiements' && (
           <div className="space-y-8">
             {/* Header */}
-            <div className="bg-slate-900 text-white p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+            <div className="bg-slate-900 text-white p-6 sm:p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('crm.suppliers.messages.treasury_header')}</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.messages.payments_schedule')}</h2>
+                  <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.messages.payments_schedule')}</h2>
                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">{t('crm.suppliers.sections.cash_flow_mgmt')}</p>
                 </div>
                 <div className="flex gap-3">
@@ -1912,12 +1912,12 @@ const Fournisseurs: React.FC = () => {
         {activeTab === 'analytics' && (
           <div className="space-y-8">
             {/* Hero Header */}
-            <div className="bg-slate-900 text-white p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+            <div className="bg-slate-900 text-white p-6 sm:p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
               <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                 <div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">{t('crm.suppliers.messages.performance_volume')}</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.sections.consolidated_analytics')}</h2>
+                  <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">{t('crm.suppliers.sections.consolidated_analytics')}</h2>
                   <p className="text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.3em] opacity-80 decoration-slate-600 underline underline-offset-8">{t('crm.suppliers.messages.performance_volume_subtitle', { count: 4 })}</p>
                 </div>
                 <button
@@ -3211,7 +3211,7 @@ const Fournisseurs: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                     <div>
                       <p className="text-xs text-slate-600">Coût actuel</p>
                       <p className="text-lg font-bold text-slate-900">{formatCurrency(opt.coutActuel)}</p>

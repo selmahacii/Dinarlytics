@@ -200,7 +200,7 @@ const TresorerieBanque: React.FC = () => {
     <div className="space-y-8">
 
       {/* ══════════════ HERO HEADER ══════════════ */}
-      <div className="bg-slate-900 text-white p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
+      <div className="bg-slate-900 text-white p-6 sm:p-12 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div>
@@ -229,7 +229,7 @@ const TresorerieBanque: React.FC = () => {
         </div>
 
         {/* Métriques synthèse */}
-        <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-white/5">
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-white/5">
           {[
             { label: t('treasury.fields.inflows'), val: fmt(TOTAL_ENC), sub: 'Jan → Jun 2024', icon: ArrowTrendingUpIcon },
             { label: t('treasury.fields.outflows'), val: fmt(TOTAL_DEC), sub: 'Jan → Jun 2024', icon: ArrowTrendingDownIcon },
@@ -270,7 +270,7 @@ const TresorerieBanque: React.FC = () => {
         <div className="space-y-8">
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-5">
             {[
               { label: t('treasury.fields.inflows'), val: fmt(TOTAL_ENC), sub: t('treasury.flux.vs_prev'), icon: ArrowTrendingUpIcon },
               { label: t('treasury.fields.outflows'), val: fmt(TOTAL_DEC), sub: t('treasury.flux.cumul_payments'), icon: ArrowTrendingDownIcon },
@@ -278,7 +278,7 @@ const TresorerieBanque: React.FC = () => {
               { label: t('treasury.fields.bank_balance'), val: fmt(SOLDE_TOTAL), sub: t('treasury.comptes.active'), icon: BanknotesIcon },
               { label: t('treasury.fields.liquidite'), val: RATIO_LIQUIDITE.toFixed(2), sub: t('treasury.status.excellent'), icon: ScaleIcon },
             ].map((kpi, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div key={idx} className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                 <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl w-fit mb-4">
                   <kpi.icon className="h-5 w-5 text-slate-900 dark:text-white" />
                 </div>
@@ -290,7 +290,7 @@ const TresorerieBanque: React.FC = () => {
           </div>
 
           {/* Graphique barres + courbe */}
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{t('treasury.flux.evolution')}</h2>
               <div className="flex gap-6">
@@ -445,7 +445,7 @@ const TresorerieBanque: React.FC = () => {
           {/* Décomposition flux */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Encaissements */}
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
               <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('treasury.flux.monthly_total')}</h3>
               <div className="space-y-4">
                 {[
@@ -470,7 +470,7 @@ const TresorerieBanque: React.FC = () => {
             </div>
 
             {/* Décaissements */}
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
               <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('treasury.sections.outflows_split')}</h3>
               <div className="space-y-4">
                 {[
@@ -497,9 +497,9 @@ const TresorerieBanque: React.FC = () => {
           </div>
 
           {/* Indicateurs de Santé Financière */}
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
             <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">{t('treasury.export.key_indicators')}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 { label: t('treasury.health.fr.label'), val: fmt(FR), status: t('treasury.status.excellent'), icon: BanknotesIcon, desc: t('treasury.health.fr.desc') },
                 { label: t('treasury.health.bfr.label'), val: fmt(BFR), status: t('treasury.status.bon'), icon: ScaleIcon, desc: t('treasury.health.bfr.desc') },
@@ -530,13 +530,13 @@ const TresorerieBanque: React.FC = () => {
         <div className="space-y-8">
 
           {/* Synthèse */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { label: t('treasury.comptes.solde_total'), val: fmt(SOLDE_TOTAL), sub: t('treasury.comptes.subtitle'), icon: BanknotesIcon },
               { label: t('treasury.fields.account'), val: bankAccounts.length.toString(), sub: `2 ${t('nav.cash_flow')} + 1 ${t('common.months_short')} + 1 ${t('common.frequencies.annual')}`, icon: BuildingLibraryIcon },
               { label: t('treasury.fields.movements'), val: bankAccounts.reduce((s, a) => s + a.mvt, 0).toString(), sub: t('treasury.comptes.movements_this_month'), icon: ArrowPathIcon },
             ].map((k, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
                 <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                   <k.icon className="h-6 w-6 text-slate-900 dark:text-white" />
                 </div>
@@ -594,7 +594,7 @@ const TresorerieBanque: React.FC = () => {
           </div>
 
           {/* Répartition */}
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800">
             <h3 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6">Répartition par Compte</h3>
             <div className="space-y-4">
               {bankAccounts.map((acc, i) => {
@@ -664,13 +664,13 @@ const TresorerieBanque: React.FC = () => {
         <div className="space-y-8">
 
           {/* Alertes KPI */}
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { label: t('treasury.previsions.alerts_crit'), val: tensions.filter(t => t.sev === 'critical').length.toString(), sub: t('common.action_required'), icon: ExclamationTriangleIcon, pulse: true },
               { label: t('treasury.previsions.warnings'), val: tensions.filter(t => t.sev === 'warning').length.toString(), sub: t('dashboard.widgets.ratios.legend.average'), icon: BellIcon, pulse: false },
               { label: t('treasury.previsions.liquid_ratio'), val: RATIO_LIQUIDITE.toFixed(2), sub: t('treasury.status.excellent'), icon: ScaleIcon, pulse: false },
             ].map((k, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-4">
                 <div className="relative">
                   <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
                     <k.icon className="h-6 w-6 text-slate-900 dark:text-white" />

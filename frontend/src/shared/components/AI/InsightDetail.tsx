@@ -87,7 +87,7 @@ const InsightDetail: React.FC<InsightDetailProps> = ({ insight, onAction }) => {
         </div>
 
         {/* Métadonnées */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500 dark:text-gray-400">Confiance:</span>
             <span className={`font-medium ${getConfidenceColor(insight.confidence)}`}>
@@ -124,7 +124,7 @@ const InsightDetail: React.FC<InsightDetailProps> = ({ insight, onAction }) => {
             Données
           </h3>
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Métrique</div>
                 <div className="font-medium text-gray-900 dark:text-gray-100">{insight.data.metric}</div>
@@ -183,7 +183,7 @@ const InsightDetail: React.FC<InsightDetailProps> = ({ insight, onAction }) => {
                     </div>
                   </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-3">{rec.description}</p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-gray-500 dark:text-gray-400">Action:</span>
                       <div className="font-medium text-gray-900 dark:text-gray-100">{rec.action}</div>

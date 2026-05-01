@@ -221,7 +221,7 @@ const Budget: React.FC = () => {
   }, [budgets]);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
       <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
@@ -252,7 +252,7 @@ const Budget: React.FC = () => {
       </div>
 
       {/* KPIs Principaux */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card title="Budget Total">
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600 mb-2">{formatCurrency(kpis.totalBudget)}</div>
@@ -357,7 +357,7 @@ const Budget: React.FC = () => {
                   <span>Nouveau Budget</span>
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {budgets.length === 0 ? (
                   <div className="col-span-full py-12 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
                     Aucun budget trouvé pour cet exercice.

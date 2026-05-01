@@ -915,7 +915,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nom de la Catégorie</label>
                   <p className="text-sm text-gray-900">{selectedCategory.nom}</p>
@@ -931,7 +931,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 <p className="text-sm text-gray-900">{selectedCategory.description}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nombre d'Articles</label>
                   <p className="text-lg font-bold text-gray-900">{selectedCategory.articles}</p>
@@ -942,7 +942,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Chiffre d'Affaires</label>
                   <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.chiffreAffaires)} دج</p>
@@ -953,7 +953,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Croissance</label>
                   <p className={`text-lg font-bold ${selectedCategory.croissance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -1003,7 +1003,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             </div>
 
             <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nom de la Catégorie</label>
                   <input
@@ -1031,7 +1031,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Couleur</label>
                   <input

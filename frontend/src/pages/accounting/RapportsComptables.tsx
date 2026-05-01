@@ -448,7 +448,7 @@ const EtatsRapports: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-6 p-6">
+      <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
         <div className="flex items-center justify-between">
@@ -493,7 +493,7 @@ const EtatsRapports: React.FC = () => {
 
       {/* Navigation des états */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 overflow-hidden">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
           {etatsDisponibles.map((etat) => {
             const Icon = etat.icon;
             return (
@@ -1057,7 +1057,7 @@ const EtatsRapports: React.FC = () => {
           <CalculatorIcon className="h-6 w-6 text-slate-600 mr-2" />
           {t('accounting.reports.ratios.title', { defaultValue: 'Ratios Financiers Clés' })}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition-all">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.ratios.current_liquidity', { defaultValue: 'Liquidité Générale' })}</p>

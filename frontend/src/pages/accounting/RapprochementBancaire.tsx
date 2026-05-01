@@ -472,7 +472,7 @@ const RapprochementBancaire: React.FC = () => {
   }, [releves]);
   
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
@@ -493,7 +493,7 @@ const RapprochementBancaire: React.FC = () => {
       </div>
       
       {/* KPIs Principaux */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card title={t('accounting.treasury.reconciliation.kpis.total_lines')}>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600 mb-2">{kpis.totalLignes || 0}</div>

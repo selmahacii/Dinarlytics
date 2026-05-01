@@ -105,9 +105,9 @@ const FiscaliteDeclarations: React.FC = () => {
   const formatDA = (n: number) => formatCurrency(n);
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto p-6">
+      <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
         {/* En-tête boutique */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-8 rounded-2xl shadow-2xl">
+        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6 sm:p-8 rounded-2xl shadow-2xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="p-4 bg-white/20 rounded-xl shadow-lg">
@@ -137,22 +137,22 @@ const FiscaliteDeclarations: React.FC = () => {
 
         {/* KPIs rapides */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 bg-white rounded-xl border-2 border-emerald-200 shadow">
+          <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-emerald-200 shadow">
             <div className="text-sm font-bold text-emerald-700 mb-1">TVA collectée (mix {mixTaux19}% / 19%)</div>
             <div className="text-3xl font-black text-slate-900">{formatDA(tvaCollectee)}</div>
             <div className="text-xs text-slate-500">HT: {formatDA(ventesHT)}</div>
           </div>
-          <div className="p-5 bg-white rounded-xl border-2 border-slate-200 shadow">
+          <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-slate-200 shadow">
             <div className="text-sm font-bold text-slate-700 mb-1">TVA déductible estimée</div>
             <div className="text-3xl font-black text-slate-900">{formatDA(tvaDeductible)}</div>
             <div className="text-xs text-slate-500">Achats estimés: {formatDA(achatsTotalTTC)}</div>
           </div>
-          <div className="p-5 bg-white rounded-xl border-2 border-red-200 shadow">
+          <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-red-200 shadow">
             <div className="text-sm font-bold text-red-700 mb-1">TVA nette ({documentCode})</div>
             <div className="text-3xl font-black text-red-700">{formatDA(tvaNette)}</div>
             <div className="text-xs text-red-600">Échéance: {prochaineDeclaration}</div>
           </div>
-          <div className="p-5 bg-white rounded-xl border-2 border-slate-300 shadow">
+          <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-slate-300 shadow">
             <div className="text-sm font-bold text-slate-700 mb-1">TAP (2% du CA HT)</div>
             <div className="text-3xl font-black text-slate-900">{formatDA(tap)}</div>
             <div className="text-xs text-slate-500">IRG salaires (estim.): {formatDA(irgSalairesEstime)}</div>
@@ -2338,7 +2338,7 @@ const FiscaliteDeclarations: React.FC = () => {
                   <BuildingOfficeIcon className="h-5 w-5 mr-2 text-emerald-600" />
                   Identification du déclarant
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase">N° d'identification fiscale (NIF)</label>
                     <div className="mt-1 p-3 bg-slate-50 rounded-lg border border-slate-200 font-mono font-bold text-slate-900">
@@ -2546,7 +2546,7 @@ const FiscaliteDeclarations: React.FC = () => {
                 
                 <div className="space-y-4">
                   {/* Récapitulatif des totaux */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-4 bg-white rounded-lg border-2 border-emerald-300 shadow-sm">
                       <div className="flex items-center justify-between mb-2">
                         <div className="text-xs font-bold text-slate-600 uppercase">Ligne 13 - TVA Collectée</div>
@@ -2610,7 +2610,7 @@ const FiscaliteDeclarations: React.FC = () => {
                   Mode de paiement
                 </h3>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 bg-emerald-50 rounded-lg border-2 border-emerald-300">
                     <div className="flex items-center space-x-2 mb-2">
                       <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
@@ -2728,7 +2728,7 @@ const FiscaliteDeclarations: React.FC = () => {
                   Récapitulatif de la déclaration
                 </h3>
 
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                   <div className="p-4 bg-white rounded-lg border-2 border-slate-200 text-center">
                     <div className="text-xs font-bold text-slate-600 uppercase mb-2">CA Total imposable</div>
                     <div className="text-xl font-black text-slate-900">6,578,947 DA</div>
@@ -2777,7 +2777,7 @@ const FiscaliteDeclarations: React.FC = () => {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-4 mt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
                   <div className="p-5 bg-white rounded-xl border-2 border-slate-200 text-center shadow-sm">
                     <div className="text-xs font-bold text-slate-600 uppercase mb-3">Fait à</div>
                     <div className="font-bold text-slate-900 text-lg">Alger</div>
@@ -2795,7 +2795,7 @@ const FiscaliteDeclarations: React.FC = () => {
                 <div className="mt-4 p-6 bg-gradient-to-br from-emerald-50 to-white rounded-xl border-2 border-emerald-300">
                   <div className="text-xs font-bold text-emerald-600 uppercase mb-3 text-center">Cachet de l'entreprise et signature du déclarant</div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Cachet de l'entreprise */}
                     <div className="p-6 bg-white rounded-lg border-2 border-slate-300 relative">
                       <div className="text-center">

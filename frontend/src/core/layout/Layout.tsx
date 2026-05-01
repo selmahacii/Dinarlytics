@@ -23,10 +23,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Main Content Area */}
         <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 w-full ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}`}>
           <Header />
-          <div className="px-6 pt-4 pb-2 bg-white border-b border-slate-200">
+          <div className="px-4 sm:px-6 pt-4 pb-2 bg-white border-b border-slate-200">
             <Breadcrumb />
           </div>
-          <main className="flex-1 p-6 overflow-y-auto bg-slate-50">
+          <main className="flex-1 p-4 sm:p-6 overflow-y-auto bg-slate-50">
             {children}
           </main>
         </div>

@@ -22,7 +22,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-slate-200 px-6 py-4 sticky top-0 z-40">
+    <header className="bg-white shadow-sm border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-40">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           {/* Mobile Menu Toggle */}
@@ -61,7 +61,7 @@ const Header: React.FC = () => {
             <LanguageSwitcher />
 
             {/* Currency Selector */}
-            <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+            <div className="hidden sm:flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
               <CurrencyDollarIcon className="h-4 w-4 text-slate-500" />
               <select
                 title="Sélectionner la devise"
@@ -79,8 +79,8 @@ const Header: React.FC = () => {
             <div className="h-8 w-px bg-slate-200 mx-2 hidden sm:block"></div>
 
             {/* User Info */}
-            <div className="flex items-center space-x-4">
-              <div className="flex flex-col items-end text-right">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="hidden sm:flex flex-col items-end text-right">
                 <span className="text-sm font-bold text-slate-800 leading-none mb-0.5">{user?.nom}</span>
                 <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">{user?.role}</span>
               </div>

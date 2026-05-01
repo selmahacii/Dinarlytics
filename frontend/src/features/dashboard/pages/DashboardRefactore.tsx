@@ -75,15 +75,15 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">{t('dashboard.title')}</h2>
-          <p className="text-slate-600 mt-1">{t('dashboard.subtitle')}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">{t('dashboard.title')}</h2>
+          <p className="text-sm sm:text-base text-slate-600 mt-1">{t('dashboard.subtitle')}</p>
         </div>
         {isCollapsible && (
           <button
             onClick={() => setIsCollapsed(true)}
-            className="px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors"
+            className="w-full sm:w-auto px-4 py-2 text-slate-600 hover:text-slate-900 font-medium transition-colors bg-white sm:bg-transparent border border-slate-200 sm:border-transparent rounded-lg"
           >
             {t('dashboard.reduce_btn')}
           </button>

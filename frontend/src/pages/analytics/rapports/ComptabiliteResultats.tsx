@@ -47,7 +47,7 @@ const ComptabiliteResultats: React.FC = () => {
   if (user && user.segment === 'micro' && user.companyType === 'eurl') {
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto p-6">
+      <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
         {/* En-tête */}
         <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
           <div className="flex items-center justify-between">
@@ -347,7 +347,7 @@ const ComptabiliteResultats: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
         <div className="flex items-center justify-between">
@@ -413,7 +413,7 @@ const ComptabiliteResultats: React.FC = () => {
           {selectedView === 'comptes-journaux' && (
             <>
               {/* KPIs principaux */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-slate-600 font-semibold flex items-center">
@@ -498,8 +498,8 @@ const ComptabiliteResultats: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                  <table className="w-full">
+                <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+                  <table className="w-full min-w-[800px]">
                     <thead className="bg-slate-700 text-white">
                       <tr>
                         <th className="px-6 py-4 text-left text-xs font-bold uppercase">Type Journal</th>
@@ -568,8 +568,8 @@ const ComptabiliteResultats: React.FC = () => {
                   ⏱️ Dernières Écritures Comptables
                 </h3>
 
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                  <table className="w-full">
+                <div className="bg-white rounded-lg border border-slate-200 overflow-x-auto">
+                  <table className="w-full min-w-[800px]">
                     <thead className="bg-slate-50 border-b border-slate-200">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-bold text-slate-700 uppercase">Date</th>
@@ -737,7 +737,7 @@ const ComptabiliteResultats: React.FC = () => {
           {selectedView === 'resultats-rentabilite' && (
             <>
               {/* Indicateurs de performance */}
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="p-5 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg border border-emerald-200">
                   <span className="text-sm text-emerald-600 font-semibold flex items-center mb-2">
                     <CurrencyDollarIcon className="h-4 w-4 mr-1" />
@@ -1384,7 +1384,7 @@ const ComptabiliteResultats: React.FC = () => {
                     </svg>
                     </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
                     <div className="text-center p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
                       <div className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">Total CA</div>
                       <div className="text-2xl font-black text-blue-900">
@@ -1605,7 +1605,7 @@ const ComptabiliteResultats: React.FC = () => {
             </div>
           </div>
 
-                  <div className="grid grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     {[
                       { critere: 'Rentabilité', score: 92, icon: ChartBarIcon, color: 'emerald' },
                       { critere: 'Liquidité', score: 88, icon: BanknotesIcon, color: 'blue' },
@@ -2180,7 +2180,7 @@ const ComptabiliteResultats: React.FC = () => {
                     </svg>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t-2 border-slate-200">
                     <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
                       <div className="text-xs font-semibold text-slate-600 mb-2">CA Total Année N</div>
                       <div className="text-2xl font-bold text-slate-900">

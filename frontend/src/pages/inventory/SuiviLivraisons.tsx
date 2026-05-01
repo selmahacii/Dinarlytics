@@ -135,9 +135,9 @@ const SuiviLivraisons: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div className="space-y-6 p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
       {/* En-tête */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
             <Link
@@ -159,8 +159,8 @@ const SuiviLivraisons: React.FC = () => {
       </div>
 
       {/* Statistiques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
               <TruckIcon className="h-6 w-6 text-slate-700 dark:text-slate-300" />
@@ -176,7 +176,7 @@ const SuiviLivraisons: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-slate-900 border border-emerald-200 dark:border-emerald-800">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-slate-900 border border-emerald-200 dark:border-emerald-800">
           <div className="flex items-center justify-between mb-4">
             <div className="bg-emerald-100 dark:bg-emerald-900/50 p-3 rounded-lg">
               <CheckCircleIcon className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
@@ -191,7 +191,7 @@ const SuiviLivraisons: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-900 border border-blue-200 dark:border-blue-800">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-900 border border-blue-200 dark:border-blue-800">
           <div className="flex items-center justify-between mb-4">
             <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-lg">
               <ClockIcon className="h-6 w-6 text-blue-700 dark:text-blue-300" />
@@ -204,7 +204,7 @@ const SuiviLivraisons: React.FC = () => {
           <div className="text-sm text-blue-600 dark:text-blue-400">{t('inventory.deliveries.status.in_transit')}</div>
         </Card>
 
-        <Card className="p-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-slate-900 border border-red-200 dark:border-red-800">
+        <Card className="p-4 sm:p-6 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-slate-900 border border-red-200 dark:border-red-800">
           <div className="flex items-center justify-between mb-4">
             <div className="bg-red-100 dark:bg-red-900/50 p-3 rounded-lg">
               <ExclamationTriangleIcon className="h-6 w-6 text-red-700 dark:text-red-300" />
@@ -221,8 +221,8 @@ const SuiviLivraisons: React.FC = () => {
       </div>
 
       {/* Statistiques secondaires */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <Card className="p-4 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('inventory.deliveries.stats.transport_fees')}</h3>
             <TruckIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
@@ -235,7 +235,7 @@ const SuiviLivraisons: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <Card className="p-4 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('inventory.deliveries.stats.on_time_rate')}</h3>
             <CheckCircleIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -248,7 +248,7 @@ const SuiviLivraisons: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <Card className="p-4 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('inventory.deliveries.stats.weight_total')}</h3>
             <TruckIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
@@ -263,14 +263,14 @@ const SuiviLivraisons: React.FC = () => {
       </div>
 
       {/* Tableau des livraisons */}
-      <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+      <Card className="p-4 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.deliveries.title')}</h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 w-full sm:w-auto">
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500"
+              className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 w-full sm:w-auto"
             >
               <option value="tous">{t('inventory.deliveries.status.all')}</option>
               <option value="livrees">{t('inventory.deliveries.status.delivered')}</option>
@@ -278,7 +278,7 @@ const SuiviLivraisons: React.FC = () => {
               <option value="en_preparation">{t('inventory.deliveries.status.preparing')}</option>
               <option value="retardees">{t('inventory.deliveries.status.delayed')}</option>
             </select>
-            <div className="relative flex-1 md:flex-initial min-w-[250px]">
+            <div className="relative w-full sm:w-auto sm:min-w-[250px]">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
                 type="text"
@@ -290,12 +290,12 @@ const SuiviLivraisons: React.FC = () => {
             </div>
             <button
               onClick={handleExport}
-              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded-lg transition-colors flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <DocumentArrowDownIcon className="h-5 w-5" />
               {t('common.export')}
             </button>
-            <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center gap-2">
+            <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
               <PrinterIcon className="h-5 w-5" />
               {t('common.report', { defaultValue: 'Rapport' })}
             </button>
@@ -388,7 +388,7 @@ const SuiviLivraisons: React.FC = () => {
               </div>
             </div>
             <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">{t('inventory.deliveries.table.client')}</label>
                   <p className="text-slate-900 dark:text-slate-100 font-semibold">{selectedLivraison.client}</p>

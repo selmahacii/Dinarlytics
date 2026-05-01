@@ -97,7 +97,7 @@ const FiscalComplianceWidget: React.FC<FiscalComplianceWidgetProps> = ({
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white bg-opacity-20 rounded-lg p-3 text-center">
             <CheckCircleIcon className="h-6 w-6 mx-auto mb-1" />
             <div className="text-2xl font-bold">{compliance.compliantItems}</div>

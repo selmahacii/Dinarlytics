@@ -533,10 +533,10 @@ const Clients: React.FC = () => {
     const pageContent = AdaptiveContentGenerator.generatePageContent('clients', contentContext);
 
     return (
-      <div className="space-y-8 max-w-7xl mx-auto p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
         {/* En-tête avec contenu adaptatif - Style Sober */}
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div className="flex items-center space-x-6">
               <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
                 <UserGroupIcon className="h-8 w-8 text-slate-700 dark:text-slate-300" />
@@ -601,7 +601,7 @@ const Clients: React.FC = () => {
         {/* Top 5 Clients par CA */}
         {/* Top 5 Clients & Zone - Style Sober */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center">
                 <ChartBarIcon className="h-6 w-6 text-slate-500 mr-3" />
@@ -633,7 +633,7 @@ const Clients: React.FC = () => {
 
           <div className="space-y-6">
             {/* Alertes (Simplifiées) */}
-            <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
               <h2 className="text-xl font-black text-slate-900 dark:text-white mb-6 flex items-center">
                 <ExclamationTriangleIcon className="h-6 w-6 text-slate-500 mr-3" />
                 {t('clients.attention_points')}
@@ -657,9 +657,9 @@ const Clients: React.FC = () => {
             </div>
 
             {/* Actions Rapides */}
-            <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-xl shadow-slate-900/20">
+            <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-900/20">
               <h3 className="text-lg font-black uppercase tracking-widest text-slate-400 mb-6">{t('clients.quick_actions')}</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   onClick={handleAdd}
                   className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700"
@@ -706,8 +706,8 @@ const Clients: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header - Sober ERP */}
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
-        <div className="flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="p-4 bg-slate-900 rounded-2xl shadow-lg shadow-slate-900/20">
               <UserGroupIcon className="h-7 w-7 text-white" />
@@ -1483,7 +1483,7 @@ const Clients: React.FC = () => {
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{t('crm.clients.index_top_20')}</span>
                       </div>
                     </div>
-                    <div className="mt-8 grid grid-cols-2 gap-4 w-full border-t border-slate-800 pt-6">
+                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full border-t border-slate-800 pt-6">
                       <div className="text-center border-r border-slate-800">
                         <p className="text-[9px] font-bold text-slate-500 uppercase mb-1">{t('crm.clients.risk_impact')}</p>
                         <p className="text-xs font-black text-slate-200 uppercase">{metriquesPortefeuille.concentration > 70 ? t('crm.clients.risk_levels.critical') : t('crm.clients.risk_levels.moderate')}</p>
@@ -1999,7 +1999,7 @@ const Clients: React.FC = () => {
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4 mb-6">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div className="p-3 bg-slate-50 dark:bg-slate-900/30 rounded-xl border border-slate-100 dark:border-slate-800">
                               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{t('crm.clients.table.period')}</p>
                               <p className="text-xs font-black text-slate-700 dark:text-slate-300">{rapport.periode}</p>
@@ -2320,7 +2320,7 @@ const Clients: React.FC = () => {
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{selectedComm.clientNom}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10">
                   <div>
                     <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Responsable</p>
                     <p className="text-sm font-bold">{selectedComm.responsable}</p>

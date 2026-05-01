@@ -35,7 +35,7 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-blue-100 rounded-lg">
             <BanknotesIcon className="h-6 w-6 text-blue-600" />
@@ -48,7 +48,7 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({
         {onAnalyseClick && (
           <button
             onClick={onAnalyseClick}
-            className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+            className="w-full sm:w-auto px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
           >
             {t('dashboard.widgets.tresorerie.analyse_lia')}
           </button>
@@ -56,7 +56,7 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({
       </div>
 
       {/* Soldes principaux */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
           <p className="text-xs text-slate-600 mb-1">{t('dashboard.widgets.tresorerie.current_balance')}</p>
           <p className="text-2xl font-bold text-blue-900">{formatCurrency(data.soldeActuel, devise)}</p>
@@ -68,7 +68,7 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({
       </div>
 
       {/* Flux cash */}
-      <div className="grid grid-cols-3 gap-3 mb-6 pb-6 border-b border-slate-200">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 pb-6 border-b border-slate-200">
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-2">
             <ArrowDownIcon className="h-4 w-4 text-green-600" />

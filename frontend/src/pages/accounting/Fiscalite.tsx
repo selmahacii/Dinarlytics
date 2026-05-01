@@ -1091,7 +1091,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             </div>
 
             <div className="md:w-1/2 lg:w-1/3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.compliance')}</p>
                   <div className="text-xl font-black text-slate-900">95%</div>
@@ -1518,7 +1518,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-500 outline-none font-bold text-slate-700"
                   />
                 ) : declarationType === 'ibs' ? (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Année Exercice</label>
                       <select
@@ -1608,7 +1608,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Numéro</p>
                   <p className="text-lg font-black text-slate-900">{declarationData.numero}</p>
@@ -1622,7 +1622,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               {declarationType === 'g50' && (
                 <div className="bg-white border text-center border-slate-200 rounded-2xl overflow-hidden mt-6">
                   <div className="p-3 bg-slate-50 border-b border-slate-200/60 font-bold text-xs text-slate-500 uppercase tracking-widest">Détails de la TVA</div>
-                  <div className="p-6 grid grid-cols-3 gap-6 divide-x divide-slate-100">
+                  <div className="p-6 grid grid-cols-1 sm:grid-cols-3 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
                     <div className="text-center px-2">
                       <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">TVA Collectée</p>
                       <p className="text-lg font-black text-slate-700">{formatCurrency(declarationData.tvaCollectee)}</p>
@@ -1642,7 +1642,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               {declarationType === 'g29' && (
                 <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden mt-6">
                   <div className="p-3 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-500 uppercase tracking-widest text-center">État des Honoraires (G29)</div>
-                  <div className="p-6 grid grid-cols-2 gap-6 divide-x divide-slate-100">
+                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
                     <div className="text-center">
                       <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Honoraires</p>
                       <p className="text-lg font-black text-slate-900">{formatCurrency(declarationData.totalHonoraires)}</p>

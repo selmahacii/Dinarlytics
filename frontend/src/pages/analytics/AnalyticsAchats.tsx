@@ -155,9 +155,9 @@ const AnalyticsAchats: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+        <div className="space-y-8 p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
             {/* Header */}
-            <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 dark:text-white flex items-center">
@@ -176,7 +176,7 @@ const AnalyticsAchats: React.FC = () => {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Achats HT</p>
                     <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(stats.totalHT)}</p>
@@ -204,7 +204,7 @@ const AnalyticsAchats: React.FC = () => {
             </div>
 
             {/* Main Table */}
-            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-4 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
                     <div className="flex gap-4 w-full md:w-auto">
                         <div className="relative flex-1 md:w-80">

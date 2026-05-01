@@ -225,7 +225,7 @@ const Statistiques: React.FC = () => {
           <ChartBarSquareIcon className="w-32 h-32 text-slate-900" />
         </div>
 
-        <div className="p-8 relative z-10">
+        <div className="p-6 sm:p-8 relative z-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
@@ -264,7 +264,7 @@ const Statistiques: React.FC = () => {
 
       {/* 🎯 Métriques Clés Reformatted */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mb-4 relative z-10" />
           <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.revenue')}</p>
@@ -275,7 +275,7 @@ const Statistiques: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-4 relative z-10" />
           <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.gross_margin')}</p>
@@ -286,7 +286,7 @@ const Statistiques: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600 mb-4 relative z-10" />
           <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.stock_rotation')}</p>
@@ -296,7 +296,7 @@ const Statistiques: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <UserGroupIcon className="h-8 w-8 text-orange-600 mb-4 relative z-10" />
           <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.active_clients')}</p>
@@ -306,7 +306,7 @@ const Statistiques: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
           <CheckCircleIcon className="h-8 w-8 text-teal-600 mb-4 relative z-10" />
           <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.loyalty')}</p>
@@ -423,7 +423,7 @@ const Statistiques: React.FC = () => {
           </div>
 
           {/* Codes Comptables */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
             <h3 className="text-lg font-bold text-slate-800 mb-4">{t('steering.dashboard.chart_accounts.title')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {['Ventes', 'Gestion', 'Stocks'].map((section) => (
@@ -527,7 +527,7 @@ const Statistiques: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
                   <p className="text-xs text-slate-500 mb-1">{t('steering.dashboard.top_clients.business_volume')}</p>
                   <p className="font-bold text-slate-800">{formatCurrency(client.ca || 0)}</p>

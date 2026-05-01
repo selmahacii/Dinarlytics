@@ -120,7 +120,7 @@ Généré par Dinarlytics
     ];
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto p-6">
+      <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
         {/* En-tête */}
         <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
           <div className="flex items-center justify-between">
@@ -137,7 +137,7 @@ Généré par Dinarlytics
         </div>
 
         {/* 4 KPIs Principaux */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 shadow-md hover:shadow-xl p-6 transition-all duration-300 group">
             <div className="flex items-center justify-between mb-3">
               <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl group-hover:scale-110 transition-transform shadow-lg">
@@ -481,7 +481,7 @@ Généré par Dinarlytics
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
    
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
         <div className="flex items-center justify-between">
@@ -667,7 +667,7 @@ Généré par Dinarlytics
         </div>
 
         {/* Statistiques de période */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-lg p-4 border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold text-slate-600">FOURNISSEURS ACTIFS</span>
@@ -706,7 +706,7 @@ Généré par Dinarlytics
         {selectedView === 'rapports-achats' && (
           <>
         {/* Indicateurs clés enrichis */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
           <div className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-slate-600 flex items-center">

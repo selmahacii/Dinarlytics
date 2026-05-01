@@ -141,7 +141,7 @@ const Devis: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center">
             <DocumentTextIcon className="h-7 w-7 text-indigo-600 mr-3" />
@@ -159,7 +159,7 @@ const Devis: React.FC = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: t('devis.kpi.total'), value: kpis.total, sub: t('devis.kpi.total_sub'), color: 'text-slate-800' },
           { label: t('devis.kpi.pipeline'), value: formatCurrency(kpis.pendingValue), sub: `${kpis.pending} ${t('devis.kpi.pipeline_sub')}`, color: 'text-blue-700' },
@@ -266,7 +266,7 @@ const Devis: React.FC = () => {
         <Modal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title={`${t('devis.detail.title')} — ${selectedDevis.numero}`} size="xl">
           <div className="space-y-6 p-2">
             {/* Header Info */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-slate-50 rounded-xl p-4">
                 <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center"><UserIcon className="h-3 w-3 mr-1"/>{t('devis.detail.client')}</p>
                 <p className="font-bold text-slate-800 text-sm">{selectedDevis.client}</p>

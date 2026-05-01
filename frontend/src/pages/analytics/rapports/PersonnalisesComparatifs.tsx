@@ -218,7 +218,7 @@ const PersonnalisesComparatifs: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête premium */}
       <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-2xl border border-slate-700 p-8 overflow-hidden">
         {/* Effets de fond */}
@@ -568,7 +568,7 @@ const PersonnalisesComparatifs: React.FC = () => {
             <>
               <div id="view-comparatifs-multi" className="h-0" />
               {/* Indicateurs comparatifs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {Object.entries(comparativeData).map(([key, data], idx) => {
                   const labels = { ca: 'CA', marge: 'Marge %', resultat: 'Résultat', charges: 'Charges' };
                   const icons = { ca: CurrencyDollarIcon, marge: ChartPieIcon, resultat: ArrowTrendingUpIcon, charges: BanknotesIcon };
@@ -792,7 +792,7 @@ const PersonnalisesComparatifs: React.FC = () => {
             <>
       <div id="view-kpi-synthetiques" className="h-0" />
               {/* KPI Cards premium */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { label: 'CA Global', value: kpiData.caGlobal, unit: 'DA', icon: CurrencyDollarIcon, color: 'emerald', evolution: kpiData.croissanceCA },
                   { label: 'Marge Brute', value: kpiData.margeBrute, unit: '%', icon: ChartPieIcon, color: 'slate', evolution: 3.2 },

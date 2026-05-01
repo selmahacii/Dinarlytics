@@ -102,7 +102,7 @@ const RatiosWidget: React.FC<RatiosWidgetProps> = ({ data, onAnalyseClick }) => 
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-purple-100 rounded-lg">
             <ChartBarIcon className="h-6 w-6 text-purple-600" />
@@ -115,7 +115,7 @@ const RatiosWidget: React.FC<RatiosWidgetProps> = ({ data, onAnalyseClick }) => 
         {onAnalyseClick && (
           <button
             onClick={onAnalyseClick}
-            className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+            className="w-full sm:w-auto px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
           >
             {t('dashboard.widgets.ratios.analyse_lia')}
           </button>

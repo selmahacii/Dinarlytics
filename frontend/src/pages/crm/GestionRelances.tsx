@@ -131,7 +131,7 @@ const GestionRelances: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center">
             <BellAlertIcon className="h-7 w-7 text-orange-500 mr-3" />
@@ -161,7 +161,7 @@ const GestionRelances: React.FC = () => {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {[
           { label: t('relances.kpi.total_overdue'), value: formatCurrency(kpis.totalOverdue), color: 'text-red-700', icon: BanknotesIcon },
           { label: t('relances.kpi.count'), value: kpis.count, color: 'text-slate-800', icon: DocumentTextIcon },
@@ -177,7 +177,7 @@ const GestionRelances: React.FC = () => {
       </div>
 
       {/* Relance Level Legend */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {([1, 2, 3] as RelanceLevel[]).map(lvl => {
           const Cfg = levelConfig[lvl];
           const tmpl = RELANCE_TEMPLATES[`level${lvl}`];
@@ -276,7 +276,7 @@ const GestionRelances: React.FC = () => {
       {selected && (
         <Modal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title={`${t('relances.detail.title')} — ${selected.factureNum}`} size="lg">
           <div className="p-2 space-y-5">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-slate-50 rounded-xl p-4 col-span-2">
                 <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 flex items-center gap-1"><UserIcon className="h-3 w-3"/>{t('relances.detail.client')}</p>
                 <p className="font-bold text-slate-800">{selected.client}</p>

@@ -437,7 +437,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
         </div>
         <div className="space-y-3">
           {displayedArticles.slice(0, 5).map((article: any, index: number) => (
-            <div key={article.id || index} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group flex items-center justify-between">
+            <div key={article.id || index} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
                 <div className={`h-12 w-12 rounded-2xl flex items-center justify-center font-black text-sm italic ${index === 0 ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-400'
                   }`}>
@@ -450,7 +450,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-12 border-l border-slate-50 pl-12">
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-6 sm:gap-12 border-t sm:border-t-0 sm:border-l border-slate-50 pt-6 sm:pt-0 sm:pl-12">
                 <div className="text-center">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Stock</p>
                   <p className="text-lg font-black font-mono text-slate-900">{article.stock}</p>
@@ -1325,7 +1325,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">ID Article</label>
                   <p className="text-sm text-gray-900">{selectedArticle.id}</p>
@@ -1343,7 +1343,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 <p className="text-sm text-gray-900">{selectedArticle.nom}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Code</label>
                   <p className="text-sm text-gray-900">{selectedArticle.code}</p>
@@ -1354,7 +1354,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Prix de Vente</label>
                   <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.prixVente)} دج</p>
@@ -1365,7 +1365,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Stock Minimum</label>
                   <p className="text-sm text-gray-900">{selectedArticle.stockMin}</p>
@@ -1376,7 +1376,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Chiffre d'Affaires</label>
                   <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.chiffreAffaires)} دج</p>
@@ -1387,7 +1387,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Taux de Rotation</label>
                   <p className="text-sm text-gray-900">{selectedArticle.tauxRotation}</p>
@@ -1435,7 +1435,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
             </div>
 
             <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nom de l'Article</label>
                   <input
@@ -1454,7 +1454,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Catégorie</label>
                   <select
@@ -1482,7 +1482,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Prix de Vente (DA)</label>
                   <input
@@ -1501,7 +1501,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Stock Minimum</label>
                   <input

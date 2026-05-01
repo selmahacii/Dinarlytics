@@ -53,7 +53,7 @@ const ScenariosWidget: React.FC<ScenariosWidgetProps> = ({
   return (
     <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-indigo-100 rounded-lg">
             <SparklesIcon className="h-6 w-6 text-indigo-600" />
@@ -66,7 +66,7 @@ const ScenariosWidget: React.FC<ScenariosWidgetProps> = ({
         {onAnalyseClick && (
           <button
             onClick={onAnalyseClick}
-            className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+            className="w-full sm:w-auto px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
           >
             {t('dashboard.widgets.scenarios.analyse_lia')}
           </button>
@@ -95,7 +95,7 @@ const ScenariosWidget: React.FC<ScenariosWidgetProps> = ({
               }`}
             >
               {/* Titre et risque */}
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold text-slate-900">{scenario.nom}</h4>
                   {isSelected && <CheckCircleIcon className="h-5 w-5 text-indigo-600" />}
@@ -106,7 +106,7 @@ const ScenariosWidget: React.FC<ScenariosWidgetProps> = ({
               </div>
 
               {/* Métriques */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <p className="text-xs text-slate-600 mb-1">{t('dashboard.widgets.scenarios.ca_label')}</p>
                   <p className="text-lg font-bold text-slate-900">{formatCurrency(scenario.ca_mois6)}</p>

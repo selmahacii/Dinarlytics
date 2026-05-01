@@ -311,9 +311,9 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
   };
 
   return (
-    <div className="space-y-8 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div className="space-y-8 p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
       {/* En-tête du tableau de bord - Professional & Clean */}
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-8 rounded-2xl shadow-sm mb-8 relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-6 sm:p-8 rounded-2xl shadow-sm mb-8 relative overflow-hidden">
         {/* Abstract Background Decoration */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-full blur-3xl -mr-20 -mt-20 opacity-60 pointer-events-none"></div>
 
@@ -323,9 +323,9 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
               <div className="p-2 bg-slate-900 dark:bg-white rounded-lg shadow-lg">
                 <ChartPieIcon className="h-6 w-6 text-white dark:text-slate-900" />
               </div>
-              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                Pilotage Stratégique
-              </h2>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                  Pilotage Stratégique
+                </h2>
             </div>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
@@ -675,7 +675,7 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
                   </div>
 
                   {/* Stats Cards */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
                       <div className="text-xs text-slate-400 font-bold uppercase mb-1">Satisfaction</div>
                       <div className="text-xl font-black text-slate-900 dark:text-white">{analysisResults.customerSatisfaction}%</div>

@@ -32,6 +32,21 @@
   [dir='rtl'] {
     font-family: 'Inter', 'Amiri', 'Tajawal', sans-serif;
   }
+
+  /* Rendre les tableaux responsives par défaut sur mobile */
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  @media (min-width: 1024px) {
+    table {
+      display: table;
+      overflow-x: visible;
+    }
+  }
 }
 
 /* Utilitaires projet (largeurs spécifiques et délais d'animation) */

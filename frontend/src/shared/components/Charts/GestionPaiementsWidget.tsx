@@ -1008,7 +1008,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
             </div>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">ID Paiement</label>
                   <p className="text-sm text-gray-900 dark:text-slate-100">{selectedPaiement.id}</p>
@@ -1036,7 +1036,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 <p className="text-sm text-gray-900 dark:text-slate-100">{selectedPaiement.fournisseur}</p>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Facture</label>
                   <p className="text-sm text-gray-900 dark:text-slate-100">{selectedPaiement.facture}</p>
@@ -1047,7 +1047,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Montant</label>
                   <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{formatCurrency(selectedPaiement.montant)} دج</p>
@@ -1062,7 +1062,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Mode de Paiement</label>
                   <p className="text-sm text-gray-900 dark:text-slate-100 flex items-center space-x-1">
@@ -1132,7 +1132,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
             </div>
             
             <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Fournisseur</label>
                   <input 
@@ -1169,7 +1169,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Montant (DA)</label>
                   <input 
@@ -1195,7 +1195,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Mode de Paiement</label>
                   <select 
@@ -1227,7 +1227,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 )}
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Référence</label>
                   <input 

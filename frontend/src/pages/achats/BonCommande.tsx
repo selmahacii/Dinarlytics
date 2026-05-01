@@ -198,7 +198,7 @@ const BonCommande: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center">
             <ShoppingCartIcon className="h-7 w-7 text-indigo-600 mr-3" />
@@ -222,7 +222,7 @@ const BonCommande: React.FC = () => {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: t('bc.kpi.total'), value: kpis.total, sub: t('bc.kpi.total_sub'), color: 'text-slate-800', icon: ShoppingCartIcon },
           { label: t('bc.kpi.pending'), value: kpis.pendingApproval, sub: formatCurrency(kpis.pendingValue), color: 'text-amber-700', icon: ClockIcon },
@@ -243,14 +243,14 @@ const BonCommande: React.FC = () => {
       {/* Tabs */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="border-b border-slate-200 bg-slate-50 px-6">
-          <nav className="flex gap-1 pt-2">
+          <nav className="flex overflow-x-auto gap-1 pt-2 no-scrollbar">
             {[
               { id: 'orders', label: t('bc.tabs.orders') },
               { id: 'scores', label: t('bc.tabs.supplier_scores') },
               { id: 'analytics', label: t('bc.tabs.analytics') }
             ].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all ${activeTab === tab.id ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${activeTab === tab.id ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
                 {tab.label}
               </button>
             ))}
@@ -389,7 +389,7 @@ const BonCommande: React.FC = () => {
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="font-bold text-slate-800 mb-4">{t('bc.analytics.by_status')}</h4>
               <div className="space-y-3">
@@ -435,7 +435,7 @@ const BonCommande: React.FC = () => {
         <Modal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title={`${t('bc.detail.title')} — ${selected.numero}`} size="xl">
           <div className="p-2 space-y-6">
             {/* Info Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { icon: BuildingOfficeIcon, label: t('bc.detail.supplier'), value: selected.fournisseur },
                 { icon: UserIcon, label: t('bc.detail.requester'), value: `${selected.demandeur} (${selected.department})` },

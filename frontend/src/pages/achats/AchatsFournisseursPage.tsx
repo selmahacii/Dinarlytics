@@ -86,7 +86,7 @@ const AchatsFournisseursPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f8fafc] pb-12 animate-in fade-in duration-500">
       {/* --- Premium Header Section --- */}
-      <div className="bg-slate-900 text-white pt-12 pb-24 px-8 relative overflow-hidden">
+      <div className="bg-slate-900 text-white pt-12 pb-24 px-4 sm:px-8 relative overflow-hidden">
         {/* Abstract Background Elements */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full -mr-64 -mt-64 blur-3xl opacity-50 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/10 rounded-full -ml-32 -mb-32 blur-3xl opacity-30 pointer-events-none"></div>
@@ -108,12 +108,12 @@ const AchatsFournisseursPage: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold hover:bg-slate-100 transition-all shadow-xl hover:scale-105 active:scale-95">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold hover:bg-slate-100 transition-all shadow-xl hover:scale-105 active:scale-95 w-full sm:w-auto">
                 <PlusIcon className="h-5 w-5" />
                 {t('suppliers.actions.new_order')}
               </button>
-              <button className="flex items-center gap-2 px-6 py-3 bg-white/10 text-white border border-white/20 rounded-2xl font-bold hover:bg-white/20 transition-all backdrop-blur-sm">
+              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 text-white border border-white/20 rounded-2xl font-bold hover:bg-white/20 transition-all backdrop-blur-sm w-full sm:w-auto">
                 <ArrowDownTrayIcon className="h-5 w-5" />
                 {t('common.export')}
               </button>
@@ -123,10 +123,10 @@ const AchatsFournisseursPage: React.FC = () => {
       </div>
 
       {/* --- Main Content Container (Pulled up) --- */}
-      <div className="max-w-7xl mx-auto px-8 -mt-16 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-16 relative z-20">
         
         {/* --- Tabs Navigation --- */}
-        <div className="bg-white/80 backdrop-blur-md p-1.5 rounded-3xl border border-white/20 shadow-xl inline-flex mb-8">
+        <div className="bg-white/80 backdrop-blur-md p-1.5 rounded-3xl border border-white/20 shadow-xl flex overflow-x-auto mb-8 no-scrollbar">
           {[
             { id: 'dashboard', label: t('nav.global_view'), icon: ChartBarIcon },
             { id: 'suppliers', label: t('suppliers.tabs.list'), icon: BuildingOfficeIcon },
@@ -138,8 +138,8 @@ const AchatsFournisseursPage: React.FC = () => {
               onClick={() => setActiveTab(tab.id as TabType)}
               className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
                 activeTab === tab.id 
-                ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' 
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                ? 'bg-slate-900 text-white shadow-lg shadow-slate-200 whitespace-nowrap' 
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50 whitespace-nowrap'
               }`}
             >
               <tab.icon className="h-4 w-4" />
@@ -152,7 +152,7 @@ const AchatsFournisseursPage: React.FC = () => {
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
             {/* KPI Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {kpis.map((kpi, idx) => (
                 <div key={idx} className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
                   <div className="flex items-center justify-between mb-4">
@@ -174,8 +174,8 @@ const AchatsFournisseursPage: React.FC = () => {
             {/* Charts & Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Chart */}
-              <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
-                <div className="flex items-center justify-between mb-8">
+              <div className="lg:col-span-2 bg-white p-4 sm:p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <h2 className="text-xl font-black text-slate-900">{t('suppliers.analytics.commitment_evolution')}</h2>
                   <div className="flex gap-2">
                     <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors"><ArrowPathIcon className="h-5 w-5 text-slate-400"/></button>
@@ -196,7 +196,7 @@ const AchatsFournisseursPage: React.FC = () => {
               {/* Insights Column */}
               <div className="space-y-6">
                 {/* Distribution Card */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm h-full flex flex-col">
+                <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] border border-slate-200 shadow-sm h-full flex flex-col">
                   <h2 className="text-xl font-black text-slate-900 mb-6 text-center">{t('suppliers.analytics.distribution_supplier')}</h2>
                   <div className="flex-1 flex items-center justify-center">
                     <div className="w-48 h-48">
@@ -225,31 +225,31 @@ const AchatsFournisseursPage: React.FC = () => {
 
             {/* Recent Orders Table */}
             <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
-              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="p-4 sm:p-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                 <h2 className="text-xl font-black text-slate-900">{t('suppliers.messages.purchase_orders')}</h2>
-                <button className="text-sm font-black text-blue-600 hover:text-blue-700 transition-colors">{t('common.view')} {t('common.all')} →</button>
+                <button className="text-xs sm:text-sm font-black text-blue-600 hover:text-blue-700 transition-colors">{t('common.view')} {t('common.all')} →</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="bg-white">
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('suppliers.table.reference')}</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('suppliers.table.supplier')}</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.date')}</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.amount')}</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.status')}</th>
-                      <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('suppliers.table.quality')}</th>
+                      <th className="px-4 sm:px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('suppliers.table.reference')}</th>
+                      <th className="px-4 sm:px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('suppliers.table.supplier')}</th>
+                      <th className="px-4 sm:px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.date')}</th>
+                      <th className="px-4 sm:px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.amount')}</th>
+                      <th className="px-4 sm:px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('common.status')}</th>
+                      <th className="px-4 sm:px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('suppliers.table.quality')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {recentOrders.map((order) => (
                       <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group cursor-pointer">
-                        <td className="px-8 py-5 font-black text-slate-900">{order.id}</td>
-                        <td className="px-8 py-5 font-bold text-slate-600">{order.supplier}</td>
-                        <td className="px-8 py-5 text-sm text-slate-400 font-medium">{order.date}</td>
-                        <td className="px-8 py-5 font-black text-slate-900">{formatCurrency(order.amount)}</td>
-                        <td className="px-8 py-5">{renderStatus(order.status)}</td>
-                        <td className="px-8 py-5">
+                        <td className="px-4 sm:px-8 py-5 font-black text-slate-900">{order.id}</td>
+                        <td className="px-4 sm:px-8 py-5 font-bold text-slate-600">{order.supplier}</td>
+                        <td className="px-4 sm:px-8 py-5 text-sm text-slate-400 font-medium">{order.date}</td>
+                        <td className="px-4 sm:px-8 py-5 font-black text-slate-900">{formatCurrency(order.amount)}</td>
+                        <td className="px-4 sm:px-8 py-5">{renderStatus(order.status)}</td>
+                        <td className="px-4 sm:px-8 py-5">
                           <div className={`w-2 h-2 rounded-full ${order.urgency === 'high' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : order.urgency === 'medium' ? 'bg-amber-400' : 'bg-slate-300'}`}></div>
                         </td>
                       </tr>
@@ -263,7 +263,7 @@ const AchatsFournisseursPage: React.FC = () => {
 
         {/* Placeholder for other tabs */}
         {activeTab === 'suppliers' && (
-          <div className="bg-white p-12 rounded-[2.5rem] border border-slate-200 shadow-sm text-center">
+          <div className="bg-white p-6 sm:p-12 rounded-[2.5rem] border border-slate-200 shadow-sm text-center">
             <BuildingOfficeIcon className="h-16 w-16 text-slate-200 mx-auto mb-4" />
             <h2 className="text-2xl font-black text-slate-900 mb-2">{t('suppliers.tabs.list')}</h2>
             <p className="text-slate-500 mb-8 max-w-md mx-auto">{t('suppliers.subtitle')}</p>
@@ -293,7 +293,7 @@ const AchatsFournisseursPage: React.FC = () => {
         {/* Analytics Tab (Simplified) */}
         {activeTab === 'analytics' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <div className="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+             <div className="bg-white p-4 sm:p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
                 <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                   <ChartBarIcon className="h-5 w-5 text-blue-600" />
                   {t('suppliers.tabs.analytics')}
@@ -307,7 +307,7 @@ const AchatsFournisseursPage: React.FC = () => {
                    />
                 </div>
              </div>
-             <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-white overflow-hidden relative">
+             <div className="bg-slate-900 p-4 sm:p-8 rounded-[2.5rem] shadow-2xl text-white overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-8 opacity-10">
                    <DocumentTextIcon className="h-32 w-32" />
                 </div>

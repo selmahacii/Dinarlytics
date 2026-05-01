@@ -70,9 +70,9 @@ const Inventaire: React.FC = () => {
     ];
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto p-6">
+      <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
         {/* En-tête */}
-        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
+        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-2xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
@@ -434,7 +434,7 @@ const Inventaire: React.FC = () => {
     }));
 
   return (
-    <div className="space-y-6 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div className="space-y-6 p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
       {/* Header simple et professionnel */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
@@ -486,7 +486,7 @@ const Inventaire: React.FC = () => {
             <>
 
               {/* Cartes de résumé professionnelles */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
                   <div className="flex items-center justify-between">
                     <div>
@@ -499,7 +499,7 @@ const Inventaire: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+                <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -513,7 +513,7 @@ const Inventaire: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+                <div className="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(totalStock)}</p>
@@ -2145,7 +2145,7 @@ const Inventaire: React.FC = () => {
               {/* Informations principales */}
               <div>
                 <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Informations générales</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
                     <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Nom de l'article</p>
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.nom}</p>
@@ -2201,7 +2201,7 @@ const Inventaire: React.FC = () => {
               {/* Informations fournisseur */}
               <div>
                 <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4">Fournisseur et logistique</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <TruckIcon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
@@ -2273,7 +2273,7 @@ const Inventaire: React.FC = () => {
               {/* Récapitulatif article */}
               <div className="bg-slate-50 dark:bg-slate-700/50 p-5 rounded-lg border border-slate-200 dark:border-slate-600">
                 <h4 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-3">{selectedReorderArticle.nom}</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-slate-600 dark:text-slate-400">Code: </span>
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedReorderArticle.codePCA}</span>
@@ -2322,7 +2322,7 @@ const Inventaire: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="order-date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                       Date de livraison souhaitée
@@ -2421,7 +2421,7 @@ const Inventaire: React.FC = () => {
               {/* Informations article */}
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 p-5 rounded-lg">
                 <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">{selectedBarcodeArticle.nom}</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-blue-700 dark:text-blue-300">Code PCA: </span>
                     <span className="font-semibold text-blue-900 dark:text-blue-100">{selectedBarcodeArticle.codePCA}</span>
@@ -2468,7 +2468,7 @@ const Inventaire: React.FC = () => {
               {/* Options de génération */}
               <div className="space-y-3">
                 <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Options d'impression</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="barcode-format" className="block text-sm text-slate-600 dark:text-slate-400 mb-2">Format</label>
                     <select id="barcode-format" className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500">

@@ -138,9 +138,9 @@ const Parametres: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12">
+    <div className="space-y-8 max-w-6xl mx-auto px-4 sm:px-6 pb-12">
       {/* ══════════════ HEADER & WARNING ══════════════ */}
-      <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-10 relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-10 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 dark:bg-slate-900/50 rounded-full -mr-32 -mt-32 blur-3xl opacity-50"></div>
         <div className="relative z-10">
           <div className="flex items-center gap-5 mb-8">
@@ -174,7 +174,7 @@ const Parametres: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ══════════════ PROFIL UTILISATEUR ══════════════ */}
         <div className="lg:col-span-1 space-y-8">
-          <Card className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
+          <Card className="p-6 sm:p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 border-b border-slate-50 dark:border-slate-800 pb-4">{t('admin.profile_title')}</h3>
             <div className="flex flex-col items-center text-center">
               <div className="h-24 w-24 bg-slate-900 rounded-[2rem] flex items-center justify-center shadow-2xl mb-6 relative group cursor-pointer">
@@ -199,7 +199,7 @@ const Parametres: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
+          <Card className="p-6 sm:p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 border-b border-slate-50 dark:border-slate-800 pb-4">{t('admin.preferences_title')}</h3>
             <div className="space-y-6">
               <div>
@@ -235,7 +235,7 @@ const Parametres: React.FC = () => {
 
         {/* ══════════════ SYSTEM CONFIGURATION & PERMISSIONS ══════════════ */}
         <div className="lg:col-span-2 space-y-8">
-          <Card className="p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm relative overflow-hidden">
+          <Card className="p-6 sm:p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm relative overflow-hidden">
             <div className="flex items-center justify-between mb-10">
               <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
                 <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-slate-600">
@@ -273,7 +273,7 @@ const Parametres: React.FC = () => {
             </div>
           </Card>
 
-          <Card className="p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
+          <Card className="p-6 sm:p-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
             <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3 mb-10">
               <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-lg text-slate-600">
                 <BookOpenIcon className="h-6 w-6" />
@@ -321,7 +321,7 @@ const Parametres: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2rem] relative overflow-hidden">
+              <div className="p-6 sm:p-8 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[2rem] relative overflow-hidden">
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
                     <CalendarIcon className="h-5 w-5 text-slate-400" />
@@ -375,7 +375,7 @@ const Parametres: React.FC = () => {
           </Card>
 
           {/* ══════════════ PARAMÈTRES FISCAUX ══════════════ */}
-          <Card className="p-10 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
+          <Card className="p-6 sm:p-10 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-[2.5rem] shadow-sm">
             <div className="flex items-center justify-between mb-10">
               <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
                 <div className="p-2 bg-white dark:bg-slate-800 rounded-lg text-slate-600 shadow-sm">

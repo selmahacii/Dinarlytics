@@ -668,7 +668,7 @@ const Tresorerie: React.FC = () => {
                             {alerte.joursAvant > 0 ? t('accounting.treasury.alerts.in_days', { count: alerte.joursAvant }) : t('accounting.treasury.alerts.today')}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 text-sm">
                           <div>
                             <span className="text-slate-600">{t('accounting.treasury.alerts.projected_balance')}:</span>
                             <span className={`font-bold ml-2 ${alerte.soldeProjete < 0 ? 'text-red-600' : 'text-slate-900'}`}>

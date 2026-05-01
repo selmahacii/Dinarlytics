@@ -138,9 +138,9 @@ const Articles: React.FC = () => {
     const rotationMoyenne = 8.5;
 
     return (
-      <div className="space-y-6 max-w-7xl mx-auto p-6">
-        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-8 rounded-2xl shadow-2xl">
-          <div className="flex items-center justify-between">
+      <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
+        <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-4 sm:p-8 rounded-2xl shadow-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
                 <TagIcon className="h-8 w-8 text-white" />
@@ -191,7 +191,7 @@ const Articles: React.FC = () => {
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border-2 border-slate-200 p-6 shadow-lg">
+          <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 sm:p-6 shadow-lg">
             <h3 className="text-lg font-bold text-slate-900 mb-3">{t('inventory.sections.quick_actions')}</h3>
             <button
               onClick={() => {
@@ -404,8 +404,8 @@ const Articles: React.FC = () => {
         </Modal>
 
         {/* Liste des Articles - Catalogue */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <Card className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
             <h2 className="text-2xl font-bold text-slate-900">{t('inventory.articles.title')}</h2>
             <div className="flex items-center space-x-3">
               <div className="relative">
@@ -414,7 +414,7 @@ const Articles: React.FC = () => {
                   placeholder={t('inventory.articles.placeholders.filter')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
                 />
                 <EyeIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -728,7 +728,7 @@ const Articles: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900 text-white rounded-[2rem] shadow-2xl border border-white/5 p-10 relative overflow-hidden">
+      <div className="bg-slate-900 text-white rounded-[2rem] shadow-2xl border border-white/5 p-6 sm:p-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex items-center gap-6">
@@ -737,21 +737,21 @@ const Articles: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-4">
-                <h1 className="text-4xl font-black uppercase tracking-tighter italic">{t('inventory.articles.intelligence_title')}</h1>
+                <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">{t('inventory.articles.intelligence_title')}</h1>
                 <span className="px-3 py-1 bg-cyan-500 text-[9px] font-black uppercase tracking-widest rounded-lg animate-pulse">Live</span>
               </div>
               <p className="text-slate-400 text-xs font-bold mt-2 uppercase tracking-[0.3em] opacity-80 italic">Optimisation des flux & Pilotage du catalogue</p>
             </div>
           </div>
-          <div className="flex items-center gap-8">
-            <div className="text-right">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+            <div className="text-left sm:text-right">
               <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">{t('articles.stats.total_valuation')}</p>
-              <p className="text-3xl font-black font-mono tracking-tighter">{formatCurrency(articleAnalytics.totalValue)}</p>
+              <p className="text-2xl sm:text-3xl font-black font-mono tracking-tighter">{formatCurrency(articleAnalytics.totalValue)}</p>
             </div>
             <div className="h-12 w-[1px] bg-white/10 hidden md:block"></div>
             <button
               onClick={handleGenererAuditIA}
-              className="px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-white/5 flex items-center gap-3"
+              className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-white/5 flex items-center justify-center gap-3"
             >
               <ChartBarIcon className="h-4 w-4" />
               {t('inventory.articles.actions.generate_audit')}
@@ -760,8 +760,8 @@ const Articles: React.FC = () => {
         </div>
       </div>
 
-      <Card className="p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-        <nav className="flex flex-wrap border-b border-slate-200 dark:border-slate-700">
+      <Card className="p-4 sm:p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <nav className="flex overflow-x-auto no-scrollbar border-b border-slate-200 dark:border-slate-700">
           {[
             { id: 'catalogue', name: t('inventory.articles.tabs.catalog'), icon: BuildingOfficeIcon },
             { id: 'categories', name: t('inventory.articles.tabs.segmentation'), icon: TagIcon },
@@ -772,7 +772,7 @@ const Articles: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center whitespace-nowrap py-5 px-8 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab.id
+              className={`flex items-center whitespace-nowrap py-5 px-4 sm:px-8 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab.id
                 ? 'text-slate-900 dark:text-white'
                 : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'
                 }`}
@@ -786,7 +786,7 @@ const Articles: React.FC = () => {
           ))}
         </nav>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {activeTab === 'catalogue' && (
             <div className="space-y-6">
               {/* Search and Actions */}
@@ -801,13 +801,13 @@ const Articles: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <button className="p-4 bg-slate-50 text-slate-600 rounded-2xl border border-slate-200 hover:bg-slate-100 transition-all">
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                  <button className="w-full sm:w-auto p-4 bg-slate-50 text-slate-600 rounded-2xl border border-slate-200 hover:bg-slate-100 transition-all flex items-center justify-center">
                     <ArrowPathIcon className="h-5 w-5" />
                   </button>
                   <button
                     onClick={handleAdd}
-                    className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-[10px] font-black uppercase tracking-widest"
+                    className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-[10px] font-black uppercase tracking-widest"
                   >
                     <PlusIcon className="h-4 w-4" />
                     {t('articles.actions.new_article')}
@@ -843,7 +843,7 @@ const Articles: React.FC = () => {
                   <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-100 dark:divide-slate-700">
                     {filteredArticles.map((article) => (
                       <tr key={article.id} className="group hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-all">
-                        <td className="px-8 py-6">
+                        <td className="px-4 sm:px-8 py-4 sm:py-6">
                           <div className="flex items-center gap-4">
                             <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl group-hover:bg-white transition-colors">
                               <CubeIcon className="h-4 w-4 text-slate-400 group-hover:text-slate-900 transition-colors" />
@@ -854,15 +854,15 @@ const Articles: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-4 sm:px-8 py-4 sm:py-6">
                           <span className="text-[10px] font-black font-mono text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                             {article.codePCA}
                           </span>
                         </td>
-                        <td className="px-8 py-6 text-right text-[11px] font-black font-mono text-slate-900 dark:text-gray-100 italic">
+                        <td className="px-4 sm:px-8 py-4 sm:py-6 text-right text-[11px] font-black font-mono text-slate-900 dark:text-gray-100 italic">
                           {formatCurrency(article.prixUnitaire)}
                         </td>
-                        <td className="px-8 py-6 text-center">
+                        <td className="px-4 sm:px-8 py-4 sm:py-6 text-center">
                           <span className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl ${article.stock > 50 ? 'bg-emerald-50 text-emerald-600' :
                             article.stock > 20 ? 'bg-amber-50 text-amber-600' :
                               'bg-red-50 text-red-600'
@@ -870,10 +870,10 @@ const Articles: React.FC = () => {
                             {article.stock} {t('common.units', { defaultValue: 'UNITS' })}
                           </span>
                         </td>
-                        <td className="px-8 py-6 text-right text-[11px] font-black font-mono text-slate-900 italic">
+                        <td className="px-4 sm:px-8 py-4 sm:py-6 text-right text-[11px] font-black font-mono text-slate-900 italic">
                           {formatCurrency(article.prixUnitaire * article.stock)}
                         </td>
-                        <td className="px-8 py-6 text-right">
+                        <td className="px-4 sm:px-8 py-4 sm:py-6 text-right">
                           <div className="flex justify-end gap-1">
                             {[
                               { icon: PencilIcon, color: 'text-slate-400 hover:text-slate-900 hover:bg-slate-100', onClick: () => handleEdit(article), title: t('common.edit', { defaultValue: 'Modifier' }) },
@@ -925,13 +925,13 @@ const Articles: React.FC = () => {
                 <div className="flex gap-4">
                   <button
                     onClick={() => setIsAddManualBarcodeModalOpen(true)}
-                    className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-200"
+                    className="w-full sm:w-auto px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-200"
                   >
                     Ajout Manuel
                   </button>
                   <button
                     onClick={() => setIsGenerateAllModalOpen(true)}
-                    className="px-10 py-5 bg-slate-900 text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 shadow-2xl shadow-slate-900/20 flex items-center gap-3"
+                    className="w-full sm:w-auto px-10 py-5 bg-slate-900 text-white rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 shadow-2xl shadow-slate-900/20 flex items-center justify-center gap-3"
                   >
                     <QrCodeIcon className="h-4 w-4" />
                     Génération Auto
@@ -940,7 +940,7 @@ const Articles: React.FC = () => {
               </div>
 
               <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-                <div className="px-10 py-8 border-b border-slate-50 flex items-center justify-between">
+                <div className="px-4 sm:px-10 py-4 sm:py-8 border-b border-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
                     <h4 className="text-xl font-black uppercase tracking-tighter italic">Codes-barres par Article</h4>
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Corrélation entre nomenclature et protocoles d'identification</p>
@@ -963,7 +963,7 @@ const Articles: React.FC = () => {
                     <tbody className="divide-y divide-slate-50">
                       {barcodeData.map((barcode, index) => (
                         <tr key={index} className="group hover:bg-slate-50/50 transition-all">
-                          <td className="px-10 py-6">
+                          <td className="px-4 sm:px-10 py-4 sm:py-6">
                             <div className="text-xs font-black uppercase tracking-tight text-slate-900 group-hover:translate-x-1 transition-transform">
                               {'article' in barcode ? barcode.article : (selectedArticle?.nom ?? '—')}
                             </div>
@@ -971,17 +971,17 @@ const Articles: React.FC = () => {
                               {'categorie' in barcode ? barcode.categorie : (selectedArticle?.categorie ?? '—')}
                             </div>
                           </td>
-                          <td className="px-10 py-6">
+                          <td className="px-4 sm:px-10 py-4 sm:py-6">
                             <span className="px-3 py-1 bg-slate-100 text-slate-900 text-[9px] font-black uppercase tracking-widest rounded-lg">
                               {barcode.type}
                             </span>
                           </td>
-                          <td className="px-10 py-6">
+                          <td className="px-4 sm:px-10 py-4 sm:py-6">
                             <span className="text-xs font-black font-mono tracking-tighter text-slate-700 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
                               {barcode.code}
                             </span>
                           </td>
-                          <td className="px-10 py-6">
+                          <td className="px-4 sm:px-10 py-4 sm:py-6">
                             <span className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl ${barcode.status === 'Actif'
                               ? 'bg-emerald-50 text-emerald-600'
                               : 'bg-red-50 text-red-600'
@@ -989,7 +989,7 @@ const Articles: React.FC = () => {
                               {barcode.status}
                             </span>
                           </td>
-                          <td className="px-10 py-6 text-right">
+                          <td className="px-4 sm:px-10 py-4 sm:py-6 text-right">
                             <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
                               {[
                                 { icon: EyeIcon, onClick: () => { setSelectedBarcodeForView(barcode); setIsBarcodeViewModalOpen(true); }, color: "hover:text-slate-900" },
@@ -1012,7 +1012,7 @@ const Articles: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                  <div className="bg-white p-6 sm:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Génération Rapide</h4>
                     <div className="space-y-3">
                       {[
@@ -1037,7 +1037,7 @@ const Articles: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                  <div className="bg-white p-6 sm:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Exportation & Impression</h4>
                     <div className="space-y-3">
                       {[
@@ -1063,7 +1063,7 @@ const Articles: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-slate-900 text-white p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                <div className="bg-slate-900 text-white p-6 sm:p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-5">
                     <DocumentTextIcon className="h-32 w-32" />
                   </div>
@@ -1078,7 +1078,7 @@ const Articles: React.FC = () => {
                           <option className="bg-slate-900">Rouleau 50x25mm</option>
                         </select>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Orientation</label>
                           <select className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-[10px] font-black uppercase tracking-widest transition-all">
@@ -1138,8 +1138,8 @@ const Articles: React.FC = () => {
         title={selectedArticle ? t('articles.modal.edit_title') : t('articles.modal.create_title')}
         size="lg"
       >
-        <form className="space-y-8 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <form className="space-y-8 p-2 sm:p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                 {t('articles.modal.article_name')}
@@ -1234,23 +1234,23 @@ const Articles: React.FC = () => {
         isPricingModalOpen && selectedArticle && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
             <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div className="p-4 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter italic">Gestion Tarification</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Pilotage des marges : {selectedArticle.nom}</p>
                 </div>
-                <button onClick={() => setIsPricingModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <button onClick={() => setIsPricingModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all self-end sm:self-auto">
                   <span className="text-2xl">&times;</span>
                 </button>
               </div>
 
-              <div className="p-10 space-y-8">
-                <div className="p-8 bg-slate-50 rounded-[2rem] flex justify-between items-center">
+              <div className="p-4 sm:p-10 space-y-8">
+                <div className="p-4 sm:p-8 bg-slate-50 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Prix Actuel de Référence</p>
-                    <p className="text-4xl font-black font-mono tracking-tighter text-slate-900">{formatCurrency(selectedArticle.prixUnitaire)}</p>
+                    <p className="text-2xl sm:text-4xl font-black font-mono tracking-tighter text-slate-900">{formatCurrency(selectedArticle.prixUnitaire)}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Stable</span>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Dernier mouvement : 15 Sep</p>
                   </div>
@@ -1268,9 +1268,9 @@ const Articles: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-                <button onClick={() => setIsPricingModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-                <button onClick={() => setIsPricingModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Appliquer le tarif</button>
+              <div className="p-4 sm:p-10 bg-slate-50/50 flex flex-col sm:flex-row justify-end gap-4">
+                <button onClick={() => setIsPricingModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 order-2 sm:order-1">Annuler</button>
+                <button onClick={() => setIsPricingModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 order-1 sm:order-2">Appliquer le tarif</button>
               </div>
             </div>
           </div>
@@ -1281,17 +1281,17 @@ const Articles: React.FC = () => {
         isBarcodeModalOpen && selectedArticle && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
             <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div className="p-4 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traçabilité Article</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Identifiants SKU & QR : {selectedArticle.nom}</p>
                 </div>
-                <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <button onClick={() => { setIsBarcodeModalOpen(false); setBarcodeGenerated(false); }} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all self-end sm:self-auto">
                   <span className="text-2xl">&times;</span>
                 </button>
               </div>
 
-              <div className="p-10">
+              <div className="p-6 sm:p-10">
                 {!barcodeGenerated ? (
                   <div className="text-center py-10">
                     <div className="h-48 w-48 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-200 mx-auto flex items-center justify-center mb-10 group hover:border-slate-900 transition-all">
@@ -1339,9 +1339,9 @@ const Articles: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex justify-center gap-4 pt-4">
-                      <button className="px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest">Imprimer</button>
-                      <button className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Télécharger</button>
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                      <button className="w-full sm:w-auto px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest">Imprimer</button>
+                      <button className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Télécharger</button>
                     </div>
                   </div>
                 )}
@@ -1356,18 +1356,18 @@ const Articles: React.FC = () => {
         isBarcodeViewModalOpen && selectedBarcodeForView && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
             <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-2xl w-full overflow-hidden border border-white/20">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div className="p-4 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter italic">Inspection Identifiant</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">{selectedBarcodeForView.article} — {selectedBarcodeForView.type}</p>
                 </div>
-                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all self-end sm:self-auto">
                   <span className="text-2xl">&times;</span>
                 </button>
               </div>
 
-              <div className="p-10 flex flex-col items-center">
-                <div className="bg-white p-12 rounded-[2rem] border border-slate-100 shadow-sm mb-10 w-full flex flex-col items-center">
+              <div className="p-4 sm:p-10 flex flex-col items-center">
+                <div className="bg-white p-6 sm:p-12 rounded-[2rem] border border-slate-100 shadow-sm mb-10 w-full flex flex-col items-center">
                   <div className="flex items-end justify-center space-x-0.5 h-24 mb-6">
                     {Array.from({ length: 45 }).map((_, i) => (
                       <div key={i} className={`bg-slate-900 w-1.5 rounded-full ${Math.random() > 0.3 ? 'h-16' : 'h-24'}`}></div>
@@ -1376,21 +1376,21 @@ const Articles: React.FC = () => {
                   <p className="text-2xl font-black font-mono tracking-[0.4em] text-slate-900">{selectedBarcodeForView.code}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 w-full">
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                  <div className="p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100">
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Date d'émission</p>
                     <p className="text-xs font-bold text-slate-900">{selectedBarcodeForView.dateCreation}</p>
                   </div>
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100">
                     <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Catégorie</p>
                     <p className="text-xs font-bold text-slate-900 uppercase">{selectedBarcodeForView.categorie}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Fermer</button>
-                <button onClick={() => alert('📥 Téléchargé !')} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Télécharger PDF</button>
+              <div className="p-4 sm:p-10 bg-slate-50/50 flex flex-col sm:flex-row justify-end gap-4">
+                <button onClick={() => setIsBarcodeViewModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 order-2 sm:order-1">Fermer</button>
+                <button onClick={() => alert('📥 Téléchargé !')} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 order-1 sm:order-2">Télécharger PDF</button>
               </div>
             </div>
           </div>
@@ -1401,18 +1401,18 @@ const Articles: React.FC = () => {
         isGenerateAllModalOpen && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
             <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div className="p-4 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter italic">Traitement de Masse</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération globale des identifiants</p>
                 </div>
-                <button onClick={() => setIsGenerateAllModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <button onClick={() => setIsGenerateAllModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all self-end sm:self-auto">
                   <span className="text-2xl">&times;</span>
                 </button>
               </div>
 
-              <div className="p-10 space-y-8">
-                <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
+              <div className="p-4 sm:p-10 space-y-8">
+                <div className="p-4 sm:p-8 bg-slate-50 rounded-[2rem] border border-slate-100">
                   <p className="text-xs font-bold text-slate-600 leading-relaxed mb-6 italic">Vous allez générer de nouveaux identifiants (EAN-13/QR) pour l'intégralité du catalogue ({products.length} articles).</p>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -1435,9 +1435,9 @@ const Articles: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-                <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-                <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Lancer l'exécution</button>
+              <div className="p-4 sm:p-10 bg-slate-50/50 flex flex-col sm:flex-row justify-end gap-4">
+                <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 order-2 sm:order-1">Annuler</button>
+                <button onClick={() => setIsGenerateAllModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 order-1 sm:order-2">Lancer l'exécution</button>
               </div>
             </div>
           </div>
@@ -1448,17 +1448,17 @@ const Articles: React.FC = () => {
         isGenerateByCategoryModalOpen && (
           <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[999] p-4">
             <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-xl w-full overflow-hidden border border-white/20">
-              <div className="p-10 border-b border-slate-50 flex justify-between items-center">
+              <div className="p-4 sm:p-10 border-b border-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tighter italic">Sélecteur Analytique</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Génération d'identifiants par segment</p>
                 </div>
-                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="h-10 w-10 flex items-center justify-center bg-slate-50 rounded-full text-slate-400 hover:bg-slate-900 hover:text-white transition-all self-end sm:self-auto">
                   <span className="text-2xl">&times;</span>
                 </button>
               </div>
 
-              <div className="p-10 space-y-4">
+              <div className="p-4 sm:p-10 space-y-4">
                 {['Matières premières', 'Produits finis', 'Fournitures', 'Accessoires', 'Marchandises'].map((cat, idx) => (
                   <label key={idx} className="flex items-center justify-between p-5 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition-all cursor-pointer group">
                     <div className="flex items-center gap-4">
@@ -1470,9 +1470,9 @@ const Articles: React.FC = () => {
                 ))}
               </div>
 
-              <div className="p-10 bg-slate-50/50 flex justify-end gap-4">
-                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Annuler</button>
-                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10">Générer les codes</button>
+              <div className="p-4 sm:p-10 bg-slate-50/50 flex flex-col sm:flex-row justify-end gap-4">
+                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 order-2 sm:order-1">Annuler</button>
+                <button onClick={() => setIsGenerateByCategoryModalOpen(false)} className="px-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 order-1 sm:order-2">Générer les codes</button>
               </div>
             </div>
           </div>

@@ -467,7 +467,7 @@ const Consolidation: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
       <div className="flex justify-between items-center">
         <div>
@@ -555,7 +555,7 @@ const Consolidation: React.FC = () => {
       </div>
 
       {/* Statistiques consolidées */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card className="p-6">
           <div className="flex items-center">
             <BuildingOfficeIcon className="h-8 w-8 text-blue-600" />

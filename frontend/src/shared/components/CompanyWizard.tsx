@@ -342,7 +342,7 @@ const CompanyWizard: React.FC<CompanyWizardProps> = ({ isOpen, onClose, onComple
           
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">Informations entreprise</h4>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-600">Nom:</span>
                 <span className="ml-2 font-medium">{companyInfo.name || 'Non renseigné'}</span>
@@ -364,7 +364,7 @@ const CompanyWizard: React.FC<CompanyWizardProps> = ({ isOpen, onClose, onComple
           
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">Modules inclus</h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {getRecommendedModules().map((moduleId, index) => {
                 const module = AVAILABLE_MODULES[moduleId as keyof typeof AVAILABLE_MODULES];
                 return (

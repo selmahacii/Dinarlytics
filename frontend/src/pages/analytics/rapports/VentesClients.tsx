@@ -183,10 +183,10 @@ const VentesClients: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-8 pb-12" id="sales-print-root">
+      <div className="space-y-8 pb-12 p-4 sm:p-6" id="sales-print-root">
 
         {/* ══════════════ HERO HEADER ══════════════ */}
-        <div className="bg-slate-900 text-white p-10 rounded-[2.5rem] border border-slate-800 shadow-xl relative overflow-hidden">
+        <div className="bg-slate-900 text-white p-6 sm:p-10 rounded-[2.5rem] border border-slate-800 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.02),transparent)]" />
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
@@ -275,7 +275,7 @@ const VentesClients: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Top Produits */}
-              <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
+              <div className="bg-white p-6 sm:p-10 rounded-[3rem] border border-slate-100 shadow-sm">
                 <div className="flex items-center justify-between mb-10">
                   <div className="flex items-center gap-3">
                     <div className="p-3 bg-slate-950 rounded-2xl">
@@ -318,7 +318,7 @@ const VentesClients: React.FC = () => {
               </div>
 
               {/* Ventes par Catégorie */}
-              <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col">
+              <div className="bg-white p-6 sm:p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col">
                 <div className="flex items-center gap-3 mb-10">
                   <div className="p-3 bg-slate-950 rounded-2xl">
                     <ChartPieIcon className="h-5 w-5 text-white" />
@@ -355,14 +355,14 @@ const VentesClients: React.FC = () => {
             </div>
 
             {/* Metrics Clients */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {[
                 { label: t("sales.client_metrics.active_clients"), val: clientMetrics.clientsActifs, sub: t("sales.client_metrics.total_base", { total: clientMetrics.totalClients }), icon: UserGroupIcon },
                 { label: t("sales.client_metrics.new_clients"), val: clientMetrics.nouveauxClients, sub: t("sales.client_metrics.this_month"), icon: StarIcon },
                 { label: t("sales.client_metrics.retention"), val: (clientMetrics.tauxFidelisation || 0).toFixed(1) + '%', sub: t("sales.client_metrics.recurring_clients"), icon: CheckCircleIcon },
                 { label: t("sales.client_metrics.avg_dso"), val: clientMetrics.dsoMoyen + 'j', sub: t("sales.client_metrics.collection_delay"), icon: CalendarIcon },
               ].map((m, i) => (
-                <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 text-center flex flex-col items-center">
+                <div key={i} className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-slate-100 text-center flex flex-col items-center">
                   <div className="p-3 bg-slate-50 rounded-2xl mb-4 group hover:bg-slate-950 transition-all cursor-pointer">
                     <m.icon className="h-5 w-5 text-slate-900 group-hover:text-white transition-colors" />
                   </div>
@@ -379,7 +379,7 @@ const VentesClients: React.FC = () => {
         {/* ══════════════ ANALYSE CLIENT ══════════════ */}
         {activeTab === 'analyse' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white p-6 sm:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-slate-950 rounded-2xl shadow-xl shadow-slate-900/10">
@@ -444,7 +444,7 @@ const VentesClients: React.FC = () => {
         {/* ══════════════ COMPARATIF & PRÉVISIONS ══════════════ */}
         {activeTab === 'previsions' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
+            <div className="bg-white p-6 sm:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm">
               <div className="flex items-center gap-3 mb-10">
                 <div className="p-3 bg-slate-950 rounded-2xl shadow-xl shadow-slate-900/10">
                   <SparklesIcon className="h-6 w-6 text-white" />
@@ -555,7 +555,7 @@ const VentesClients: React.FC = () => {
         title="Audit Stratégique Commercial (LIA)"
         size="xl"
       >
-        <div className="bg-slate-50 -m-6 p-10 min-h-[500px]">
+        <div className="bg-slate-50 -m-6 p-6 sm:p-10 min-h-[500px]">
           {isGeneratingAiAudit ? (
             <div className="flex flex-col items-center justify-center py-20 space-y-6">
               <div className="relative">

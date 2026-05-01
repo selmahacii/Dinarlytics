@@ -101,7 +101,7 @@ const GestionRH: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center">
             <UserGroupIcon className="h-7 w-7 text-indigo-600 mr-3" />
@@ -173,7 +173,7 @@ const GestionRH: React.FC = () => {
             </div>
 
             {/* Employee Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map(emp => (
                 <div key={emp.id} onClick={() => { setSelectedEmp(emp); setIsDetailOpen(true); }}
                   className="border border-slate-200 rounded-xl p-4 hover:border-slate-400 hover:shadow-sm transition-all cursor-pointer group">
@@ -265,7 +265,7 @@ const GestionRH: React.FC = () => {
         {/* Holidays Tab */}
         {activeTab === 'holidays' && (
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {[
                 { label: t('rh.holidays.pending'), count: 3, color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
                 { label: t('rh.holidays.approved'), count: 12, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },

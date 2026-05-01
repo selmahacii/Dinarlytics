@@ -101,7 +101,7 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="p-3 bg-red-50 rounded-lg border border-red-200">
             <p className="text-xs text-red-600 font-medium">{t('dashboard.widgets.alertes.triggered')}</p>
             <p className="text-2xl font-bold text-red-900">{declenchees}</p>
@@ -167,7 +167,7 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-2 ml-4">
+              <div className="flex sm:flex-row flex-col items-center gap-2 ml-2 sm:ml-4 mt-2 sm:mt-0">
                 {onTester && (
                   <button
                     onClick={(e) => {

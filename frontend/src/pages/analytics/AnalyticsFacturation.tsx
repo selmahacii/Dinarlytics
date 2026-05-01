@@ -464,7 +464,7 @@ const AnalyticsFacturation: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+    <div className="space-y-8 p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
       {/* Header Premium (Sober) */}
       <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
@@ -496,7 +496,7 @@ const AnalyticsFacturation: React.FC = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-slate-600"><CurrencyDollarIcon className="h-6 w-6" /></div>
@@ -703,7 +703,7 @@ const AnalyticsFacturation: React.FC = () => {
         </div>
 
         {filteredInvoices.length === 0 && (
-          <div className="p-20 text-center">
+          <div className="p-8 sm:p-20 text-center">
             <MagnifyingGlassIcon className="h-16 w-16 text-slate-200 mx-auto mb-4" />
             <p className="text-slate-400 font-bold">{t('invoices.table.no_results')}</p>
           </div>
@@ -733,7 +733,7 @@ const AnalyticsFacturation: React.FC = () => {
               <XMarkIcon className="h-6 w-6" />
             </button>
 
-            <div className="p-10">
+            <div className="p-6 sm:p-10">
               <div className="mb-8 border-b border-slate-100 dark:border-slate-700 pb-6">
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center">
                   <DocumentTextIcon className="h-8 w-8 text-slate-700 mr-3" />
@@ -1041,7 +1041,7 @@ const AnalyticsFacturation: React.FC = () => {
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-3 flex items-center">
                         <CalculatorIcon className="h-3 w-3 mr-2" /> Simulation d'Imputation Comptable (Grand Livre)
                       </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                           <div className="flex justify-between items-center mb-1">
                             <span className="text-[10px] font-bold text-slate-400">700 - Ventes Marchandises</span>
@@ -1100,7 +1100,7 @@ const AnalyticsFacturation: React.FC = () => {
               </button>
 
               {/* Header Document Officiel */}
-              <div className="p-12 border-b border-slate-100 dark:border-slate-700">
+              <div className="p-6 sm:p-12 border-b border-slate-100 dark:border-slate-700">
                 <div className="flex flex-col md:flex-row justify-between gap-12">
                   {/* Émetteur (Mon Entreprise) */}
                   <div className="flex-1">
@@ -1127,20 +1127,20 @@ const AnalyticsFacturation: React.FC = () => {
                     <div className="inline-block px-4 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-[0.2em] mb-4">
                       {t('invoices.detail.document_original')}
                     </div>
-                    <h2 className="text-5xl font-black text-slate-900 dark:text-white mb-2">{selectedInvoice.id}</h2>
+                    <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-2">{selectedInvoice.id}</h2>
                     <p className="text-sm font-black text-slate-500 uppercase">{t('invoices.detail.facture_vente_definitive')}</p>
                     <p className="text-xs text-slate-400 font-bold mt-4 uppercase">{t('invoices.detail.issue_date')} {new Date(selectedInvoice.date).toLocaleDateString(i18n.language)}</p>
                   </div>
                 </div>
 
                 {/* Client & Destinataire */}
-                <div className="mt-12 bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800">
+                <div className="mt-12 bg-slate-50 dark:bg-slate-900/50 p-6 sm:p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     <div>
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">{t('invoices.detail.billed_to')}</h4>
                       <p className="text-2xl font-black text-slate-900 dark:text-white mb-2">{selectedInvoice.client}</p>
                       <p className="text-sm font-bold text-slate-500 leading-relaxed mb-4">{selectedInvoice.entityDetails?.adresse}</p>
-                      <div className="grid grid-cols-2 gap-4 text-[10px] font-black uppercase">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[10px] font-black uppercase">
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                           <span className="text-slate-400 block mb-1">{t('invoices.detail.nif_client')}</span>
                           <span className="text-slate-700 dark:text-slate-200">{selectedInvoice.entityDetails?.nif || 'Non communiqué'}</span>
@@ -1175,7 +1175,7 @@ const AnalyticsFacturation: React.FC = () => {
               </div>
 
               {/* Corps de Facture */}
-              <div className="p-12">
+              <div className="p-6 sm:p-12">
                 <table className="w-full mb-12">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900 text-slate-400 text-[10px] font-black uppercase tracking-widest border-y border-slate-100 dark:border-slate-700">

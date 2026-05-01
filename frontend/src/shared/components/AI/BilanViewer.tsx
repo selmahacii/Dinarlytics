@@ -308,7 +308,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                   complets avec analyse IA et recommandations personnalisées.
                 </p>
                 
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                     <div className="font-semibold text-slate-700 dark:text-slate-300">Bilan Comptable</div>
                     <div className="text-slate-500 dark:text-slate-400 text-xs">Structure patrimoniale</div>
@@ -905,7 +905,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                               ></div>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                             <div className="text-center p-2 bg-slate-100 dark:bg-slate-900/50 rounded">
                               <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Marge commerciale</div>
                               <div className="text-sm font-bold text-slate-700 dark:text-slate-300">
@@ -932,7 +932,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                           <h3 className="text-xs font-semibold text-slate-100 uppercase tracking-wide">Cycle d'exploitation (en jours)</h3>
                         </div>
                         <div className="p-4">
-                          <div className="grid grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="text-center">
                               <div className="mb-3">
                                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-900/50 border-2 ${
@@ -1131,7 +1131,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Diagnostic rapide par catégorie */}
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="bg-slate-50 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 p-3">
                         <div className="text-xs text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wide">Liquidité</div>
                         <div className={`text-2xl font-bold ${
