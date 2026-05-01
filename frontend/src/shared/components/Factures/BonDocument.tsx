@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '@core/context/AppContext';
 import { DocumentSignature, DocumentQRMetadata } from '@/index';
 import DocumentWithSignatureDisplay from '../UI/DocumentWithSignatureDisplay';
 import { 
@@ -76,6 +77,7 @@ const BonDocument: React.FC<BonDocumentProps> = ({
   onPrint,
   onExport
 }) => {
+  const { formatCurrency } = useApp();
   const isBonCommande = type === 'bon-commande';
   const isBonLivraison = type === 'bon-livraison';
 
@@ -186,10 +188,10 @@ const BonDocument: React.FC<BonDocumentProps> = ({
                     {!isBonLivraison && (
                       <>
                         <td className="px-4 py-3 text-right">
-                          {article.prixUnitaire?.toLocaleString('fr-DZ')} DA
+                          {formatCurrency(article.prixUnitaire || 0)}
                         </td>
                         <td className="px-4 py-3 text-right font-medium">
-                          {article.total?.toLocaleString('fr-DZ')} DA
+                          {formatCurrency(article.total || 0)}
                         </td>
                       </>
                     )}
@@ -206,11 +208,11 @@ const BonDocument: React.FC<BonDocumentProps> = ({
             <div className="w-64 space-y-2 bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-700">Sous-total:</span>
-                <span className="font-medium">{montantTotal.toLocaleString('fr-DZ')} DA</span>
+                <span className="font-medium">{formatCurrency(montantTotal)}</span>
               </div>
               <div className="border-t pt-2 flex justify-between">
                 <span className="font-semibold text-gray-900">Total:</span>
-                <span className="font-bold text-lg text-blue-600">{montantTotal.toLocaleString('fr-DZ')} DA</span>
+                <span className="font-bold text-lg text-blue-600">{formatCurrency(montantTotal)}</span>
               </div>
             </div>
           </div>
@@ -282,7 +284,7 @@ const BonDocument: React.FC<BonDocumentProps> = ({
                 <CurrencyDollarIcon className="h-4 w-4 text-slate-500" />
               </div>
               <div className="text-2xl font-bold text-slate-900">
-                {Math.round(montantTotal / Math.max(articles.length, 1)).toLocaleString('fr-DZ')} DA
+                {formatCurrency(Math.round(montantTotal / Math.max(articles.length, 1)))}
               </div>
               <div className="text-xs text-slate-500 mt-1">
                 {articles.length} article{articles.length > 1 ? 's' : ''}

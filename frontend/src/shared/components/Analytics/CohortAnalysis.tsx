@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useApp } from '@core/context/AppContext';
 import {
   ChartBarIcon,
   UserGroupIcon,
@@ -40,10 +41,10 @@ interface CohortAnalysisProps {
   showGlassmorphism?: boolean;
 }
 
-const CohortAnalysis: React.FC<CohortAnalysisProps> = ({ 
   isVisible = true, 
   showGlassmorphism = true 
 }) => {
+  const { formatCurrency } = useApp();
   const [selectedCohort, setSelectedCohort] = useState<string>('all');
   const [timeRange, setTimeRange] = useState<string>('6months');
   const [isLoading, setIsLoading] = useState(false);
@@ -150,13 +151,6 @@ const CohortAnalysis: React.FC<CohortAnalysisProps> = ({
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-DZ', {
-      style: 'currency',
-      currency: 'DZD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
 
   const filteredData = selectedCohort === 'all' 
     ? cohortData 

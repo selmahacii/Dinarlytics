@@ -8,6 +8,7 @@ import {
   CalendarDaysIcon,
   BanknotesIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '@core/context/AppContext';
 import Card from '../UI/Card';
 import { FiscalComplianceChecker, ComplianceItem } from '@shared/utils/FiscalComplianceChecker';
 
@@ -20,6 +21,7 @@ const FiscalComplianceWidget: React.FC<FiscalComplianceWidgetProps> = ({
   revenue,
   companyType
 }) => {
+  const { formatCurrency } = useApp();
   const compliance = FiscalComplianceChecker.calculateCompliance(revenue, companyType);
   const calendar = FiscalComplianceChecker.generateFiscalCalendar(revenue, companyType);
   const potentialPenalties = FiscalComplianceChecker.calculatePotentialPenalties(revenue, companyType);
@@ -147,7 +149,7 @@ const FiscalComplianceWidget: React.FC<FiscalComplianceWidgetProps> = ({
             <div className="text-right">
               <div className="flex items-center justify-end text-3xl font-bold text-red-600">
                 <BanknotesIcon className="h-8 w-8 mr-2" />
-                {(potentialPenalties / 1000).toFixed(0)}K DA
+                {formatCurrency(potentialPenalties)}
               </div>
             </div>
           </div>
@@ -199,7 +201,7 @@ const FiscalComplianceWidget: React.FC<FiscalComplianceWidgetProps> = ({
                       </div>
                       {item.penalty && (
                         <div className="mt-2 text-xs font-semibold text-red-600">
-                          💸 Pénalité: {item.penalty.toLocaleString()} DA
+                          💸 Pénalité: {formatCurrency(item.penalty)}
                         </div>
                       )}
                     </div>

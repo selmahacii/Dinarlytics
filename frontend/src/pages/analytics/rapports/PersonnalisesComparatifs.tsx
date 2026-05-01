@@ -32,6 +32,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const PersonnalisesComparatifs: React.FC = () => {
+  const { user, formatCurrency, currentDevise } = useApp();
   const [selectedView, setSelectedView] = useState('kpi-synthetiques');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -373,7 +374,7 @@ const PersonnalisesComparatifs: React.FC = () => {
                           <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
                             <div className="text-center">
                               <div className="text-xs text-slate-600 mb-1">Lignes</div>
-                              <div className="font-black text-slate-900">{report.records.toLocaleString('fr-FR')}</div>
+                              <div className="font-black text-slate-900">{report.records.toLocaleString()}</div>
                             </div>
                             <div className="text-center">
                               <div className="text-xs text-slate-600 mb-1">Taille</div>
@@ -452,7 +453,7 @@ const PersonnalisesComparatifs: React.FC = () => {
                     </div>
                     <div className="text-center p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border-2 border-slate-200">
                       <div className="text-3xl font-black text-slate-900 mb-1">
-                        {savedReports.reduce((sum, r) => sum + r.records, 0).toLocaleString('fr-FR')}
+                        {savedReports.reduce((sum, r) => sum + r.records, 0).toLocaleString()}
                       </div>
                       <div className="text-xs font-bold text-slate-600">Lignes totales</div>
                     </div>
@@ -590,9 +591,9 @@ const PersonnalisesComparatifs: React.FC = () => {
                         </div>
                         <div className="text-sm text-white/90 font-bold mb-2">{labels[key as keyof typeof labels]}</div>
                         <div className="text-3xl font-black text-white mb-1">
-                          {key === 'marge' ? `${data.n.toFixed(1)}%` : `${(data.n / 1000).toFixed(0)}k`}
+                          {key === 'marge' ? `${data.n.toFixed(1)}%` : formatCurrency(data.n)}
                         </div>
-                        <div className="text-xs text-white/80">vs {key === 'marge' ? `${data.n1.toFixed(1)}%` : `${(data.n1 / 1000).toFixed(0)}k`} N-1</div>
+                        <div className="text-xs text-white/80">vs {key === 'marge' ? `${data.n1.toFixed(1)}%` : formatCurrency(data.n1)} N-1</div>
                       </div>
                     </div>
                   );
@@ -794,9 +795,9 @@ const PersonnalisesComparatifs: React.FC = () => {
               {/* KPI Cards premium */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: 'CA Global', value: kpiData.caGlobal, unit: 'DA', icon: CurrencyDollarIcon, color: 'emerald', evolution: kpiData.croissanceCA },
+                  { label: 'CA Global', value: formatCurrency(kpiData.caGlobal), unit: '', icon: CurrencyDollarIcon, color: 'emerald', evolution: kpiData.croissanceCA },
                   { label: 'Marge Brute', value: kpiData.margeBrute, unit: '%', icon: ChartPieIcon, color: 'slate', evolution: 3.2 },
-                  { label: 'Résultat Net', value: kpiData.resultatNet, unit: 'DA', icon: ArrowTrendingUpIcon, color: 'emerald', evolution: 98.0 },
+                  { label: 'Résultat Net', value: formatCurrency(kpiData.resultatNet), unit: '', icon: ArrowTrendingUpIcon, color: 'emerald', evolution: 98.0 },
                   { label: 'EBITDA', value: kpiData.ebitda, unit: '%', icon: ChartBarIcon, color: 'slate', evolution: 5.4 },
                   { label: 'Liquidité', value: kpiData.liquidite, unit: '', icon: BanknotesIcon, color: 'slate', evolution: 2.8 },
                   { label: 'Rotation Stock', value: kpiData.rotationStock, unit: 'x', icon: ArrowPathIcon, color: 'slate', evolution: -1.2 },

@@ -5,6 +5,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '@core/context/AppContext';
 
 interface Transaction {
   id: string;
@@ -36,14 +37,7 @@ interface CashFlowForecastProps {
   transactions: Transaction[];
 }
 
-const CashFlowForecast: React.FC<CashFlowForecastProps> = ({ bankAccounts, transactions }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-DZ', {
-      style: 'currency',
-      currency: 'DZD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  const { formatCurrency } = useApp();
 
   const currentBalance = useMemo(
     () => bankAccounts.reduce((sum, acc) => sum + acc.balance, 0),

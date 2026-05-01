@@ -28,10 +28,12 @@ import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@/shared/hooks/useTranslation';
 import { useTreasuryReports } from '@shared/hooks/useTreasuryReports';
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('fr-DZ', { maximumFractionDigits: 0 }).format(n) + ' DA';
-
-const fmtK = (n: number) => `${Math.round(n / 1000)}k DA`;
+const TresorerieBanque: React.FC = () => {
+  const { user, formatCurrency, currentDevise } = useApp();
+  const { t, currentLang } = useTranslation();
+  
+  const fmt = (n: number) => formatCurrency(n);
+  const fmtK = (n: number) => formatCurrency(n);
 
 // ─────────────────────────────────────────────
 // DONNÉES COHÉRENTES — exercice Jan-Jun 2024
@@ -93,9 +95,6 @@ const forecasts = [
 // ─────────────────────────────────────────────
 // COMPOSANT PRINCIPAL
 // ─────────────────────────────────────────────
-const TresorerieBanque: React.FC = () => {
-  const { user } = useApp();
-  const { t, currentLang } = useTranslation();
   const [activeTab, setActiveTab] = useState<'flux' | 'comptes' | 'previsions'>('flux');
   const [showRapport, setShowRapport] = useState(false);
 
@@ -134,8 +133,9 @@ const TresorerieBanque: React.FC = () => {
       [t('treasury.export.report_title')],
       [t('treasury.export.generated_on'), new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-DZ')],
       [],
+      const currencyLabel = currentDevise === 'DZD' ? 'DA' : currentDevise;
       [t('treasury.export.sec_flux')],
-      [t('fields.month'), `${t('treasury.fields.inflows')} (DA)`, `${t('treasury.fields.outflows')} (DA)`, `${t('treasury.fields.net_balance')} (DA)`, `${t('treasury.fields.ratio_ed')} (%)`],
+      [t('fields.month'), `${t('treasury.fields.inflows')} (${currencyLabel})`, `${t('treasury.fields.outflows')} (${currencyLabel})`, `${t('treasury.fields.net_balance')} (${currencyLabel})`, `${t('treasury.fields.ratio_ed')} (%)`],
       ...monthlyFlows.map((m, i) => [
         t(`common.months.${monthsKeys[i]}`),
         m.enc.toString(),
@@ -146,7 +146,7 @@ const TresorerieBanque: React.FC = () => {
       [t('common.total'), TOTAL_ENC.toString(), TOTAL_DEC.toString(), TOTAL_SOLDE.toString(), Math.round((TOTAL_ENC / TOTAL_DEC) * 100).toString()],
       [],
       [t('treasury.export.sec_comptes')],
-      [t('treasury.fields.account'), t('treasury.fields.number'), t('treasury.fields.type'), `${t('treasury.fields.bank_balance')} (DA)`, `${t('treasury.fields.variation')} (%)`, t('treasury.fields.movements')],
+      [t('treasury.fields.account'), t('treasury.fields.number'), t('treasury.fields.type'), `${t('treasury.fields.bank_balance')} (${currencyLabel})`, `${t('treasury.fields.variation')} (%)`, t('treasury.fields.movements')],
       ...bankAccounts.map(a => [a.name, a.no, a.type, a.solde.toString(), a.variation.toString(), a.mvt.toString()]),
       [],
       [t('treasury.export.sec_indicators')],
@@ -160,7 +160,7 @@ const TresorerieBanque: React.FC = () => {
       [t('treasury.health.caf.label'), CAF.toString()],
       [],
       [t('treasury.export.sec_forecasts')],
-      [t('fields.month'), `${t('treasury.fields.inflows')} ${t('treasury.fields.prevu')} (DA)`, `${t('treasury.fields.outflows')} ${t('treasury.fields.prevu')} (DA)`, `${t('treasury.fields.net_balance')} ${t('treasury.fields.prevu')} (DA)`, t('treasury.fields.risk'), t('treasury.fields.confidence')],
+      [t('fields.month'), `${t('treasury.fields.inflows')} ${t('treasury.fields.prevu')} (${currencyLabel})`, `${t('treasury.fields.outflows')} ${t('treasury.fields.prevu')} (${currencyLabel})`, `${t('treasury.fields.net_balance')} ${t('treasury.fields.prevu')} (${currencyLabel})`, t('treasury.fields.risk'), t('treasury.fields.confidence')],
       ...forecasts.map((f, i) => [
         t(`common.months.${monthsKeys[i + 6]}`),
         f.enc.toString(),
@@ -381,9 +381,9 @@ const TresorerieBanque: React.FC = () => {
                     return (
                       <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
                         <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{t(`common.months.${monthsKeys[i]}`)}</td>
-                        <td className="px-6 py-4 text-xs font-bold font-mono text-slate-900">+{m.enc.toLocaleString()} DA</td>
-                        <td className="px-6 py-4 text-xs font-bold font-mono text-slate-400">-{m.dec.toLocaleString()} DA</td>
-                        <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{m.solde.toLocaleString()} DA</td>
+                        <td className="px-6 py-4 text-xs font-bold font-mono text-slate-900">+{formatCurrency(m.enc)}</td>
+                        <td className="px-6 py-4 text-xs font-bold font-mono text-slate-400">-{formatCurrency(m.dec)}</td>
+                        <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{formatCurrency(m.solde)}</td>
                         <td className="px-6 py-4">
                           <span className="px-3 py-1 rounded-lg text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{ratio}%</span>
                         </td>
@@ -400,9 +400,9 @@ const TresorerieBanque: React.FC = () => {
                 <tfoot className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
                   <tr>
                     <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{t('common.total')}</td>
-                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{TOTAL_ENC.toLocaleString()} DA</td>
-                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-400">-{TOTAL_DEC.toLocaleString()} DA</td>
-                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{TOTAL_SOLDE.toLocaleString()} DA</td>
+                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{formatCurrency(TOTAL_ENC)}</td>
+                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-400">-{formatCurrency(TOTAL_DEC)}</td>
+                    <td className="px-6 py-4 text-xs font-black font-mono text-slate-900 dark:text-white">+{formatCurrency(TOTAL_SOLDE)}</td>
                     <td className="px-6 py-4 text-xs font-black text-slate-900 dark:text-white">{Math.round((TOTAL_ENC / TOTAL_DEC) * 100)}%</td>
                     <td className="px-6 py-4 text-center"><CheckCircleIcon className="h-5 w-5 text-slate-900 dark:text-white inline" /></td>
                   </tr>
@@ -458,7 +458,7 @@ const TresorerieBanque: React.FC = () => {
                       <span className="text-xs font-black text-slate-700 dark:text-slate-300">{item.label}</span>
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-black font-mono text-slate-900 dark:text-white">{item.pct}%</span>
-                        <span className="text-[10px] text-slate-400">{item.mont.toLocaleString()} DA</span>
+                        <span className="text-[10px] text-slate-400">{formatCurrency(item.mont)}</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
@@ -484,7 +484,7 @@ const TresorerieBanque: React.FC = () => {
                       <span className="text-xs font-black text-slate-700 dark:text-slate-300">{item.label}</span>
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-black font-mono text-slate-900 dark:text-white">{item.pct}%</span>
-                        <span className="text-[10px] text-slate-400">{item.mont.toLocaleString()} DA</span>
+                        <span className="text-[10px] text-slate-400">{formatCurrency(item.mont)}</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
@@ -571,7 +571,7 @@ const TresorerieBanque: React.FC = () => {
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 mb-4">
                     <p className="text-[10px] text-slate-400 mb-1">Solde actuel</p>
-                    <p className="text-2xl font-black font-mono text-slate-900 dark:text-white">{acc.solde.toLocaleString()} DA</p>
+                    <p className="text-2xl font-black font-mono text-slate-900 dark:text-white">{formatCurrency(acc.solde)}</p>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mb-3">
                     <div className="h-1.5 bg-slate-900 dark:bg-white rounded-full" style={{ width: `${pct}%` }} />
@@ -611,7 +611,7 @@ const TresorerieBanque: React.FC = () => {
                         <span className="text-[9px] font-black text-white dark:text-slate-900">{pct.toFixed(0)}%</span>
                       </div>
                     </div>
-                    <span className="text-xs font-black font-mono text-slate-900 dark:text-white w-32 text-right shrink-0">{acc.solde.toLocaleString()} DA</span>
+                    <span className="text-xs font-black font-mono text-slate-900 dark:text-white w-32 text-right shrink-0">{formatCurrency(acc.solde)}</span>
                   </div>
                 );
               })}
@@ -645,7 +645,7 @@ const TresorerieBanque: React.FC = () => {
                     <td className="px-6 py-4 text-[10px] text-slate-400">{mv.compte}</td>
                     <td className="px-6 py-4 text-right">
                       <span className={`text-xs font-black font-mono ${mv.montant > 0 ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>
-                        {mv.montant > 0 ? '+' : ''}{mv.montant.toLocaleString()} DA
+                        {mv.montant > 0 ? '+' : ''}{formatCurrency(mv.montant)}
                       </span>
                     </td>
                     <td className="px-6 py-4"><CheckCircleIcon className="h-5 w-5 text-slate-900 dark:text-white" /></td>
@@ -707,7 +707,7 @@ const TresorerieBanque: React.FC = () => {
                     </div>
                     <p className="text-xs text-slate-500 mb-3">{t.desc}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-black font-mono text-slate-900 dark:text-white">{t.montant.toLocaleString()} DA</span>
+                      <span className="text-lg font-black font-mono text-slate-900 dark:text-white">{formatCurrency(t.montant)}</span>
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg">{t.action}</span>
                     </div>
                   </div>
@@ -747,7 +747,7 @@ const TresorerieBanque: React.FC = () => {
                 </div>
                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4">
                   <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-1">{t('treasury.fields.net_balance')} {t('treasury.fields.prevu')}</p>
-                  <p className="text-xl font-black font-mono text-slate-900 dark:text-white">+{f.prevu.toLocaleString()} DA</p>
+                  <p className="text-xl font-black font-mono text-slate-900 dark:text-white">+{formatCurrency(f.prevu)}</p>
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <span className="text-[10px] text-slate-400 uppercase tracking-widest font-black">{t('treasury.fields.confidence')}</span>

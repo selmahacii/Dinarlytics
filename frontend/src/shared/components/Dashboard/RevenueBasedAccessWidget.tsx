@@ -11,6 +11,7 @@ import {
   BuildingOfficeIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '@core/context/AppContext';
 import Card from '../UI/Card';
 import { RevenueBasedAccessManager } from '@shared/utils/RevenueBasedAccessManager';
 import { getRevenueSegment, getSegmentProgress } from '@/types/revenueSegments';
@@ -28,6 +29,7 @@ const RevenueBasedAccessWidget: React.FC<RevenueBasedAccessWidgetProps> = ({
   revenue,
   currentAccessLevel
 }) => {
+  const { formatCurrency } = useApp();
   const [showDetails, setShowDetails] = useState(false);
 
   // Générer le rapport complet
@@ -72,9 +74,8 @@ const RevenueBasedAccessWidget: React.FC<RevenueBasedAccessWidgetProps> = ({
               <p className="text-gray-600">{segment.name}</p>
               <div className="flex items-center space-x-2 mt-2">
                 <span className="text-3xl font-bold text-blue-600">
-                  {(revenue / 1000000).toFixed(1)}M
+                  {formatCurrency(revenue)}
                 </span>
-                <span className="text-gray-500">DA de CA</span>
               </div>
             </div>
           </div>
@@ -115,8 +116,8 @@ const RevenueBasedAccessWidget: React.FC<RevenueBasedAccessWidgetProps> = ({
           </div>
           {config.nextMilestone && (
             <p className="text-xs text-gray-500 mt-2">
-              Prochain seuil à {(config.nextMilestone.threshold / 1000000).toFixed(0)}M DA 
-              ({(config.nextMilestone.distance / 1000000).toFixed(1)}M DA restants)
+              Prochain seuil à {formatCurrency(config.nextMilestone.threshold)} 
+              ({formatCurrency(config.nextMilestone.distance)} restants)
             </p>
           )}
         </div>
@@ -213,7 +214,7 @@ const RevenueBasedAccessWidget: React.FC<RevenueBasedAccessWidgetProps> = ({
                         {rec.savings && (
                           <div className="flex items-center text-green-600 font-semibold text-sm">
                             <CurrencyDollarIcon className="h-4 w-4 mr-1" />
-                            {(rec.savings / 1000).toFixed(0)}K DA
+                            {formatCurrency(rec.savings)}
                           </div>
                         )}
                       </div>

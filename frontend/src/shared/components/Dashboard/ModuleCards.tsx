@@ -11,6 +11,7 @@ import {
   CheckCircleIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '@core/context/AppContext';
 
 // ============================================
 // 🏦 CARD TRÉSORERIE
@@ -19,6 +20,7 @@ export const TresorerieCard: React.FC<{
   data: any;
   segment: string;
 }> = ({ data, segment }) => {
+  const { formatCurrency } = useApp();
   if (!data) return null;
 
   const previsions = data.tresorerie?.previsionsCash || [];
@@ -42,7 +44,7 @@ export const TresorerieCard: React.FC<{
       <div className="mb-4 p-3 bg-emerald-50 rounded">
         <p className="text-xs text-slate-600 mb-1">Solde Initial</p>
         <p className="text-2xl font-bold text-emerald-600">
-          {(data.tresorerie?.soldeInitial || 0).toLocaleString('fr-FR')} DA
+          {formatCurrency(data.tresorerie?.soldeInitial || 0)}
         </p>
       </div>
 
@@ -54,7 +56,7 @@ export const TresorerieCard: React.FC<{
             <div key={compte.id} className="flex justify-between text-sm">
               <span className="text-slate-700">{compte.name}</span>
               <span className="font-semibold text-slate-900">
-                {(compte.balance || 0).toLocaleString('fr-FR')} DA
+                {formatCurrency(compte.balance || 0)}
               </span>
             </div>
           ))}
@@ -77,7 +79,7 @@ export const TresorerieCard: React.FC<{
                   {prev.trend === 'up' ? '↗' : prev.trend === 'down' ? '↘' : '→'}
                 </span>
                 <span className="font-semibold text-slate-900">
-                  {(prev.solde || 0).toLocaleString('fr-FR')} DA
+                  {formatCurrency(prev.solde || 0)}
                 </span>
               </div>
             </div>
@@ -93,7 +95,7 @@ export const TresorerieCard: React.FC<{
             {rapprochement.ecarts.map((ecart: any) => (
               <div key={ecart.id} className="text-xs flex justify-between p-2 bg-yellow-50 rounded">
                 <span className="text-slate-700">{ecart.description}</span>
-                <span className="font-semibold text-yellow-700">{(ecart.montant || 0).toLocaleString('fr-FR')} DA</span>
+                <span className="font-semibold text-yellow-700">{formatCurrency(ecart.montant || 0)}</span>
               </div>
             ))}
           </div>
@@ -110,6 +112,7 @@ export const BiAnalyticsCard: React.FC<{
   data: any;
   segment: string;
 }> = ({ data, segment }) => {
+  const { formatCurrency } = useApp();
   if (!data?.analytics) return null;
 
   const predictions = data.analytics.predictions;
@@ -135,7 +138,7 @@ export const BiAnalyticsCard: React.FC<{
       <div className="mb-4 p-3 bg-blue-50 rounded">
         <p className="text-xs text-slate-600 mb-1">Prédiction Mois Prochain</p>
         <p className="text-2xl font-bold text-blue-600">
-          {(predictions.nextMonthRevenue || 0).toLocaleString('fr-FR')} DA
+          {formatCurrency(predictions.nextMonthRevenue || 0)}
         </p>
         <p className={`text-xs mt-1 ${predictions.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
           {predictions.trend === 'up' ? '↗ Tendance positive' : '↘ Tendance baisse'}
@@ -156,7 +159,7 @@ export const BiAnalyticsCard: React.FC<{
                 'bg-blue-500'
               }`}></div>
               <span className="font-semibold text-slate-900 w-24 text-right">
-                {(comp.value || 0).toLocaleString('fr-FR')}
+                {formatCurrency(comp.value || 0)}
               </span>
             </div>
           ))}
@@ -169,13 +172,13 @@ export const BiAnalyticsCard: React.FC<{
           <div className="p-2 bg-green-50 rounded">
             <p className="text-xs text-slate-600">Best Case</p>
             <p className="font-semibold text-green-700">
-              {(predictions.bestCase || 0).toLocaleString('fr-FR')} DA
+              {formatCurrency(predictions.bestCase || 0)}
             </p>
           </div>
           <div className="p-2 bg-red-50 rounded">
             <p className="text-xs text-slate-600">Worst Case</p>
             <p className="font-semibold text-red-700">
-              {(predictions.worstCase || 0).toLocaleString('fr-FR')} DA
+              {formatCurrency(predictions.worstCase || 0)}
             </p>
           </div>
         </div>
@@ -203,6 +206,7 @@ export const BiAnalyticsCard: React.FC<{
 export const WorkflowCard: React.FC<{
   data: any;
 }> = ({ data }) => {
+  const { formatCurrency } = useApp();
   if (!data?.workflows) return null;
 
   const pendingApprovals = data.pendingApprovals || [];
@@ -249,7 +253,7 @@ export const WorkflowCard: React.FC<{
               {/* Montant si applicable */}
               {wf.amount && (
                 <p className="mt-2 text-xs font-semibold text-slate-900">
-                  Montant: {(wf.amount || 0).toLocaleString('fr-FR')} DA
+                  Montant: {formatCurrency(wf.amount || 0)}
                 </p>
               )}
               
@@ -271,6 +275,7 @@ export const WorkflowCard: React.FC<{
 export const ConsolidationCard: React.FC<{
   data: any;
 }> = ({ data }) => {
+  const { formatCurrency } = useApp();
   if (!data?.consolidation) return null;
 
   const subsidiaries = data.consolidation.subsidiaries || [];
@@ -311,7 +316,7 @@ export const ConsolidationCard: React.FC<{
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <p className="text-slate-600">CA</p>
-                <p className="font-semibold text-slate-900">{(sub.revenue / 1000000).toFixed(0)}M DA</p>
+                <p className="font-semibold text-slate-900">{formatCurrency(sub.revenue)}</p>
               </div>
               <div>
                 <p className="text-slate-600">Marge</p>

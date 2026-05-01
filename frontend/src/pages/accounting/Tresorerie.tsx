@@ -204,7 +204,7 @@ const ChecksManagement: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">{check.check_number || 'N/A'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">Paiement #{check.id.substring(0, 8)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 text-right font-bold">
-                      {new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD' }).format(Number(check.amount))}
+                      {formatCurrency(Number(check.amount))}
                     </td>
                   </tr>
                 ))
@@ -353,13 +353,7 @@ const Tresorerie: React.FC = () => {
     return planifierFinancement(previsionsTresorerie, seuilMinimum);
   }, [previsionsTresorerie, totalBalance]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-DZ', {
-      style: 'currency',
-      currency: 'DZD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
+  const formatCurrency = appCtx?.formatCurrency || ((amount: number) => amount.toString());
 
   return (
     <div className="space-y-6 p-6">

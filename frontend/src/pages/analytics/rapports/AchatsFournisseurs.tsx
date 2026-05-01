@@ -27,11 +27,10 @@ import {
 import { useApp } from '@core/context/AppContext';
 import { usePurchaseReports } from '@shared/hooks/usePurchaseReports';
 
-const formatCurrency = (amount: number) => new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', minimumFractionDigits: 0 }).format(amount);
 
 const AchatsFournisseurs: React.FC = () => {
   const navigate = useNavigate();
-  const { user, companyData } = useApp();
+  const { user, companyData, formatCurrency } = useApp();
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
   const [selectedView, setSelectedView] = useState('rapports-achats');
   const [selectedFilter, setSelectedFilter] = useState('tous');
@@ -660,7 +659,7 @@ Généré par Dinarlytics
             <div className="text-right">
               <div className="text-sm text-slate-600">Total des achats</div>
               <div className="text-2xl font-bold text-emerald-600">
-                {purchaseData.totalAchats.value.toLocaleString()} DA
+                {formatCurrency(purchaseData.totalAchats.value)}
               </div>
             </div>
           </div>
@@ -719,7 +718,7 @@ Généré par Dinarlytics
               </div>
             </div>
             <div className="text-2xl font-bold text-slate-900">
-              {purchaseData.totalAchats.value.toLocaleString()} DA
+              {formatCurrency(purchaseData.totalAchats.value)}
             </div>
             <div className="text-xs text-slate-500 mt-1">
               {selectedPeriod === 'jour' ? 'vs hier' : selectedPeriod === 'semaine' ? 'vs semaine précédente' : 'vs mois précédent'}
@@ -766,7 +765,7 @@ Généré par Dinarlytics
               <InformationCircleIcon className="h-4 w-4 text-cyan-500" />
             </div>
             <div className="text-2xl font-bold text-slate-900">
-              {purchaseData.tvaDeductible.toLocaleString()} DA
+              {formatCurrency(purchaseData.tvaDeductible)}
             </div>
             <div className="text-xs text-slate-500 mt-1">crédit TVA</div>
           </div>
@@ -783,7 +782,7 @@ Généré par Dinarlytics
               </div>
             </div>
             <div className="text-2xl font-bold text-slate-900">
-              {purchaseData.economiesRealisees.toLocaleString()} DA
+              {formatCurrency(purchaseData.economiesRealisees)}
             </div>
             <div className="text-xs text-slate-500 mt-1">optimisations</div>
           </div>
@@ -856,12 +855,12 @@ Généré par Dinarlytics
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Montant total</div>
-                      <div className="font-bold text-slate-900">{supplier.amount.toLocaleString()} DA</div>
+                      <div className="font-bold text-slate-900">{formatCurrency(supplier.amount)}</div>
                       <div className="text-xs text-slate-600">{supplier.percentage}% du total</div>
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 mb-1">Économies réalisées</div>
-                      <div className="font-bold text-emerald-600">{supplier.savings.toLocaleString()} DA</div>
+                      <div className="font-bold text-emerald-600">{formatCurrency(supplier.savings)}</div>
                       <div className="text-xs text-slate-600">optimisations</div>
                     </div>
                   </div>
@@ -913,7 +912,7 @@ Généré par Dinarlytics
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="text-right">
-                        <div className="font-bold text-slate-900">{category.amount.toLocaleString()} DA</div>
+                        <div className="font-bold text-slate-900">{formatCurrency(category.amount)}</div>
                         <div className="text-sm text-slate-600">{category.percentage}%</div>
                       </div>
                       <div className="flex items-center">
@@ -1013,7 +1012,7 @@ Généré par Dinarlytics
                               <span className="font-semibold text-slate-900">{(item as any).supplier}</span>
                               <div className="flex items-center space-x-2">
                                 <span className="text-sm text-slate-600">Prix moyen:</span>
-                                <span className="font-bold text-slate-900">{(item as any).prix.toLocaleString()} DA</span>
+                                <span className="font-bold text-slate-900">{formatCurrency((item as any).prix)}</span>
                               </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -1040,7 +1039,7 @@ Généré par Dinarlytics
                               </div>
                             </div>
                             <div className="text-2xl font-bold text-emerald-600">
-                              {(item as any).economie.toLocaleString()} DA
+                              {formatCurrency((item as any).economie)}
                             </div>
                             <div className="text-sm text-slate-600">économie réalisée</div>
                           </div>
@@ -1108,7 +1107,7 @@ Généré par Dinarlytics
                   Économies réalisées
                 </span>
                 <div className="text-2xl font-bold text-emerald-600">
-                  {purchaseData.economiesRealisees.toLocaleString()} DA
+                  {formatCurrency(purchaseData.economiesRealisees)}
                 </div>
                 <div className="text-xs text-emerald-600 mt-1">optimisations</div>
               </div>
@@ -1119,7 +1118,7 @@ Généré par Dinarlytics
                   Coût d'achat moyen
                 </span>
                 <div className="text-2xl font-bold text-slate-900">
-                  {purchaseData.coutAchatMoyen.toLocaleString()} DA
+                  {formatCurrency(purchaseData.coutAchatMoyen)}
                 </div>
                 <div className="text-xs text-slate-500 mt-1">par catégorie</div>
               </div>
@@ -1156,7 +1155,7 @@ Généré par Dinarlytics
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-slate-600">Achats</span>
-                          <span className="text-sm font-medium text-slate-900">{month.achats.toLocaleString()} DA</span>
+                          <span className="text-sm font-medium text-slate-900">{formatCurrency(month.achats)}</span>
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-3">
                           <div 
@@ -1167,7 +1166,7 @@ Généré par Dinarlytics
                         
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-slate-600">Ventes</span>
-                          <span className="text-sm font-medium text-slate-900">{month.ventes.toLocaleString()} DA</span>
+                          <span className="text-sm font-medium text-slate-900">{formatCurrency(month.ventes)}</span>
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-3">
                           <div 
@@ -1386,7 +1385,7 @@ Généré par Dinarlytics
                               Achats {month.month}
                             </text>
                             <text x={x} y={y - 20} fill="#ffffff" fontSize="13" fontWeight="800" textAnchor="middle">
-                              {month.achats.toLocaleString()} DA
+                              {formatCurrency(month.achats)}
                             </text>
                           </g>
                         </g>
@@ -1428,7 +1427,7 @@ Généré par Dinarlytics
                               Ventes {month.month}
                             </text>
                             <text x={x} y={y - 20} fill="#ffffff" fontSize="13" fontWeight="800" textAnchor="middle">
-                              {month.ventes.toLocaleString()} DA
+                              {formatCurrency(month.ventes)}
                             </text>
                           </g>
                         </g>
@@ -1483,7 +1482,7 @@ Généré par Dinarlytics
                       Total Achats ({selectedPeriod === 'jour' ? '6 jours' : selectedPeriod === 'semaine' ? '6 semaines' : '6 mois'})
                             </div>
                     <div className="text-2xl font-bold text-red-700">
-                      {monthlyTrends.reduce((sum, m) => sum + m.achats, 0).toLocaleString()} DA
+                      {formatCurrency(monthlyTrends.reduce((sum, m) => sum + m.achats, 0))}
                           </div>
                               </div>
                   <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
@@ -1491,7 +1490,7 @@ Généré par Dinarlytics
                       Total Ventes ({selectedPeriod === 'jour' ? '6 jours' : selectedPeriod === 'semaine' ? '6 semaines' : '6 mois'})
                             </div>
                     <div className="text-2xl font-bold text-emerald-700">
-                      {monthlyTrends.reduce((sum, m) => sum + m.ventes, 0).toLocaleString()} DA
+                      {formatCurrency(monthlyTrends.reduce((sum, m) => sum + m.ventes, 0))}
                             </div>
                           </div>
                   <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
@@ -1581,7 +1580,7 @@ Généré par Dinarlytics
                           </div>
                           <div className="flex items-center space-x-3">
                             <span className="text-sm font-black text-slate-900">{cat.percentage}%</span>
-                            <span className="text-xs text-slate-600">({cat.amount.toLocaleString()} DA)</span>
+                            <span className="text-xs text-slate-600">({formatCurrency(cat.amount)})</span>
                           </div>
                         </div>
                       );
@@ -1620,7 +1619,7 @@ Généré par Dinarlytics
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-600">{cat.amount.toLocaleString()} DA</span>
+                          <span className="text-slate-600">{formatCurrency(cat.amount)}</span>
                           <span className="font-bold text-slate-900">{cat.percentage}% du total</span>
                   </div>
                 </div>
@@ -1657,7 +1656,7 @@ Généré par Dinarlytics
                           <span className="text-sm text-slate-600">{month.label}</span>
                           <div className="flex items-center space-x-2">
                             <span className="text-sm font-medium text-slate-900">
-                              {month.value.toLocaleString()} DA
+                              {formatCurrency(month.value)}
                             </span>
                             {monthIndex > 0 && (
                               <div className={`text-xs ${

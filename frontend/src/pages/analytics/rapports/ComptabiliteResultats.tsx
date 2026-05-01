@@ -25,10 +25,8 @@ import {
 import { useApp } from '@core/context/AppContext';
 import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
 
-const formatCurrency = (amount: number) => new Intl.NumberFormat('fr-DZ', { style: 'currency', currency: 'DZD', minimumFractionDigits: 0 }).format(amount);
-
 const ComptabiliteResultats: React.FC = () => {
-  const { user, companyData } = useApp();
+  const { user, companyData, formatCurrency, currentDevise } = useApp();
   const [selectedView, setSelectedView] = useState('comptes-journaux');
   const { data, loading, error } = useAccountingStatements('mois');
 
@@ -437,7 +435,7 @@ const ComptabiliteResultats: React.FC = () => {
                     <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-600" />
                   </div>
                   <div className="text-3xl font-black text-emerald-700">
-                    {accountingData.totalDebit.toLocaleString()} DA
+                    {formatCurrency(accountingData.totalDebit)}
                   </div>
                   <div className="text-xs text-emerald-600 mt-1">somme des débits</div>
                 </div>
@@ -451,7 +449,7 @@ const ComptabiliteResultats: React.FC = () => {
                     <ArrowTrendingDownIcon className="h-4 w-4 text-slate-600" />
                   </div>
                   <div className="text-3xl font-black text-slate-900">
-                    {accountingData.totalCredit.toLocaleString()} DA
+                    {formatCurrency(accountingData.totalCredit)}
                   </div>
                   <div className="text-xs text-slate-600 mt-1">somme des crédits</div>
                 </div>
@@ -518,10 +516,10 @@ const ComptabiliteResultats: React.FC = () => {
                           <td className="px-6 py-4 text-sm text-slate-600">{journal.compte}</td>
                           <td className="px-6 py-4 text-center font-semibold text-slate-900">{journal.nbEcritures}</td>
                           <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                            {journal.debit > 0 ? journal.debit.toLocaleString() : '-'} DA
+                            {journal.debit > 0 ? formatCurrency(journal.debit) : '-'}
                           </td>
                           <td className="px-6 py-4 text-right font-bold text-slate-700">
-                            {journal.credit > 0 ? journal.credit.toLocaleString() : '-'} DA
+                            {journal.credit > 0 ? formatCurrency(journal.credit) : '-'}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -547,10 +545,10 @@ const ComptabiliteResultats: React.FC = () => {
                           {journaux.reduce((sum, j) => sum + j.nbEcritures, 0)}
                         </td>
                         <td className="px-6 py-4 text-right font-black text-emerald-700">
-                          {journaux.reduce((sum, j) => sum + j.debit, 0).toLocaleString()} DA
+                          {formatCurrency(journaux.reduce((sum, j) => sum + j.debit, 0))}
                         </td>
                         <td className="px-6 py-4 text-right font-black text-slate-900">
-                          {journaux.reduce((sum, j) => sum + j.credit, 0).toLocaleString()} DA
+                          {formatCurrency(journaux.reduce((sum, j) => sum + j.credit, 0))}
                         </td>
                         <td className="px-6 py-4 text-center" colSpan={2}>
                           <CheckCircleIcon className="h-6 w-6 text-emerald-600 inline" />
@@ -590,10 +588,10 @@ const ComptabiliteResultats: React.FC = () => {
                           <td className="px-6 py-4 text-sm text-slate-900">{entry.libelle}</td>
                           <td className="px-6 py-4 text-sm text-slate-600 font-mono">{entry.compte}</td>
                           <td className="px-6 py-4 text-sm text-right font-bold text-emerald-600">
-                            {entry.debit > 0 ? entry.debit.toLocaleString() : '-'} DA
+                            {entry.debit > 0 ? formatCurrency(entry.debit) : '-'}
                           </td>
                           <td className="px-6 py-4 text-sm text-right font-bold text-slate-700">
-                            {entry.credit > 0 ? entry.credit.toLocaleString() : '-'} DA
+                            {entry.credit > 0 ? formatCurrency(entry.credit) : '-'}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-medium">

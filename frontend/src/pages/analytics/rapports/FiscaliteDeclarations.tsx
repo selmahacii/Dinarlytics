@@ -102,7 +102,6 @@ const FiscaliteDeclarations: React.FC = () => {
   
   const prochaineDeclaration = deadline + ' - ' + new Date().toLocaleDateString('fr-DZ', { month: '2-digit', year: 'numeric' });
 
-  const formatDA = (n: number) => formatCurrency(n);
 
     return (
       <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
@@ -139,23 +138,23 @@ const FiscaliteDeclarations: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-emerald-200 shadow">
             <div className="text-sm font-bold text-emerald-700 mb-1">TVA collectée (mix {mixTaux19}% / 19%)</div>
-            <div className="text-3xl font-black text-slate-900">{formatDA(tvaCollectee)}</div>
-            <div className="text-xs text-slate-500">HT: {formatDA(ventesHT)}</div>
+            <div className="text-3xl font-black text-slate-900">{formatCurrency(tvaCollectee)}</div>
+            <div className="text-xs text-slate-500">HT: {formatCurrency(ventesHT)}</div>
           </div>
           <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-slate-200 shadow">
             <div className="text-sm font-bold text-slate-700 mb-1">TVA déductible estimée</div>
-            <div className="text-3xl font-black text-slate-900">{formatDA(tvaDeductible)}</div>
-            <div className="text-xs text-slate-500">Achats estimés: {formatDA(achatsTotalTTC)}</div>
+            <div className="text-3xl font-black text-slate-900">{formatCurrency(tvaDeductible)}</div>
+            <div className="text-xs text-slate-500">Achats estimés: {formatCurrency(achatsTotalTTC)}</div>
           </div>
           <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-red-200 shadow">
             <div className="text-sm font-bold text-red-700 mb-1">TVA nette ({documentCode})</div>
-            <div className="text-3xl font-black text-red-700">{formatDA(tvaNette)}</div>
+            <div className="text-3xl font-black text-red-700">{formatCurrency(tvaNette)}</div>
             <div className="text-xs text-red-600">Échéance: {prochaineDeclaration}</div>
           </div>
           <div className="p-4 sm:p-5 bg-white rounded-xl border-2 border-slate-300 shadow">
             <div className="text-sm font-bold text-slate-700 mb-1">TAP (2% du CA HT)</div>
-            <div className="text-3xl font-black text-slate-900">{formatDA(tap)}</div>
-            <div className="text-xs text-slate-500">IRG salaires (estim.): {formatDA(irgSalairesEstime)}</div>
+            <div className="text-3xl font-black text-slate-900">{formatCurrency(tap)}</div>
+            <div className="text-xs text-slate-500">IRG salaires (estim.): {formatCurrency(irgSalairesEstime)}</div>
           </div>
         </div>
 
@@ -175,7 +174,7 @@ const FiscaliteDeclarations: React.FC = () => {
                 id="ventes-ttc"
                 value={ventesTTC}
                 onChange={(e) => setVentesTTC(e.target.value)}
-                placeholder={`${caMois.toLocaleString('fr-FR')} DA`}
+                placeholder={formatCurrency(caMois)}
                 title="Ventes TTC du mois"
                 aria-label="Ventes TTC du mois"
                 className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500"
@@ -188,7 +187,7 @@ const FiscaliteDeclarations: React.FC = () => {
                 id="achats-ttc"
                 value={achatsTTC}
                 onChange={(e) => setAchatsTTC(e.target.value)}
-                placeholder={`${achatsEstimes.toLocaleString('fr-FR')} DA`}
+                placeholder={formatCurrency(achatsEstimes)}
                 title="Achats TTC du mois"
                 aria-label="Achats TTC du mois"
                 className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500"
@@ -289,7 +288,7 @@ const FiscaliteDeclarations: React.FC = () => {
                       <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                         <div>
                           <div className="font-bold text-slate-900">{h.mois}</div>
-                          <div className="text-xs text-slate-600">TVA nette: {formatDA(h.tva)} • TAP: {formatDA(h.tap)}</div>
+                          <div className="text-xs text-slate-600">TVA nette: {formatCurrency(h.tva)} • TAP: {formatCurrency(h.tap)}</div>
                         </div>
                         <button
                           title="Voir détails"
@@ -333,7 +332,7 @@ const FiscaliteDeclarations: React.FC = () => {
               <label className="text-sm font-semibold text-slate-700">Masse salariale (mois)</label>
               <input
                 type="text"
-                defaultValue={(user.employees||3 * 40000).toLocaleString('fr-FR')+' DA'}
+                defaultValue={formatCurrency(user.employees||3 * 40000)}
                 title="Masse salariale"
                 aria-label="Masse salariale"
                 className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500"
@@ -373,11 +372,11 @@ const FiscaliteDeclarations: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="g50-ventes-ttc" className="text-sm font-semibold text-slate-700">Ventes TTC</label>
-                      <input id="g50-ventes-ttc" value={ventesTTC} onChange={(e)=>setVentesTTC(e.target.value)} placeholder={ventesTotalTTC.toLocaleString('fr-FR')+ ' DA'} title="Ventes TTC" aria-label="Ventes TTC" className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500"/>
+                      <input id="g50-ventes-ttc" value={ventesTTC} onChange={(e)=>setVentesTTC(e.target.value)} placeholder={formatCurrency(ventesTotalTTC)} title="Ventes TTC" aria-label="Ventes TTC" className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500"/>
                     </div>
                     <div>
                       <label htmlFor="g50-achats-ttc" className="text-sm font-semibold text-slate-700">Achats TTC</label>
-                      <input id="g50-achats-ttc" value={achatsTTC} onChange={(e)=>setAchatsTTC(e.target.value)} placeholder={achatsTotalTTC.toLocaleString('fr-FR')+ ' DA'} title="Achats TTC" aria-label="Achats TTC" className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500"/>
+                      <input id="g50-achats-ttc" value={achatsTTC} onChange={(e)=>setAchatsTTC(e.target.value)} placeholder={formatCurrency(achatsTotalTTC)} title="Achats TTC" aria-label="Achats TTC" className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-emerald-500"/>
                     </div>
                     <div className="md:col-span-2">
                       <label htmlFor="g50-mix-range" className="text-sm font-semibold text-slate-700">Mix 19% / 9%</label>
@@ -391,19 +390,19 @@ const FiscaliteDeclarations: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm text-slate-700">Base taxable ventes (HT)</span>
-                      <span className="text-sm font-bold text-slate-900">{formatDA(ventesHT)}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(ventesHT)}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm text-slate-700">TVA collectée</span>
-                      <span className="text-sm font-bold text-slate-900">{formatDA(tvaCollectee)}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(tvaCollectee)}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <span className="text-sm text-slate-700">TVA déductible</span>
-                      <span className="text-sm font-bold text-slate-900">{formatDA(tvaDeductible)}</span>
+                      <span className="text-sm font-bold text-slate-900">{formatCurrency(tvaDeductible)}</span>
                     </div>
                     <div className="flex items-center justify-between p-3 bg-slate-100 rounded-lg border-2 border-slate-200">
                       <span className="text-sm text-slate-900 font-bold">TVA nette à payer</span>
-                      <span className="text-sm font-black text-red-700">{formatDA(tvaNette)}</span>
+                      <span className="text-sm font-black text-red-700">{formatCurrency(tvaNette)}</span>
                     </div>
                   </div>
                 )}
@@ -411,7 +410,7 @@ const FiscaliteDeclarations: React.FC = () => {
                 {g50Step === 3 && (
                   <div className="space-y-3">
                     <div className="text-sm text-slate-700">Échéance {documentCode}: <span className="font-bold">{prochaineDeclaration}</span></div>
-                    <div className="text-sm text-slate-700">TAP mensuel estimé: <span className="font-bold">{formatDA(tap)}</span></div>
+                    <div className="text-sm text-slate-700">TAP mensuel estimé: <span className="font-bold">{formatCurrency(tap)}</span></div>
                     <div className="text-xs text-slate-500">Vérifiez les montants et exportez le PDF officiel.</div>
                   </div>
                 )}
@@ -456,7 +455,6 @@ const FiscaliteDeclarations: React.FC = () => {
   // INTERFACE EURL MICRO-ENTREPRISE
   // ========================================
   if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
-    const formatCurrency = (amount: number) => amount?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
     
     // Données fiscales adaptées pour EURL
     const tvaCollectee = Math.round(companyData.revenueMonth * 0.19); // TVA 19%
@@ -1137,17 +1135,17 @@ const FiscaliteDeclarations: React.FC = () => {
                         <tr key={index} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 font-bold text-slate-900">{item.impot}</td>
                           <td className="px-6 py-4 text-right font-medium text-slate-900">
-                            {item.baseImposable.toLocaleString()} DA
+                            {formatCurrency(item.baseImposable)}
                           </td>
                           <td className="px-6 py-4 text-center font-semibold text-slate-700">{item.taux}</td>
                           <td className="px-6 py-4 text-right font-bold text-red-600">
-                            {item.montantDu.toLocaleString()} DA
+                            {formatCurrency(item.montantDu)}
                           </td>
                           <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                            {item.paye.toLocaleString()} DA
+                            {formatCurrency(item.paye)}
                           </td>
                           <td className="px-6 py-4 text-right font-black text-slate-900">
-                            {item.solde.toLocaleString()} DA
+                            {formatCurrency(item.solde)}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -1164,13 +1162,13 @@ const FiscaliteDeclarations: React.FC = () => {
                       <tr>
                         <td className="px-6 py-4 font-black text-slate-900" colSpan={3}>TOTAL</td>
                         <td className="px-6 py-4 text-right font-black text-red-700">
-                          {syntheseFiscale.reduce((sum, i) => sum + i.montantDu, 0).toLocaleString()} DA
+                          {formatCurrency(syntheseFiscale.reduce((sum, i) => sum + i.montantDu, 0))}
                         </td>
                         <td className="px-6 py-4 text-right font-black text-emerald-700">
-                          {syntheseFiscale.reduce((sum, i) => sum + i.paye, 0).toLocaleString()} DA
+                          {formatCurrency(syntheseFiscale.reduce((sum, i) => sum + i.paye, 0))}
                         </td>
                         <td className="px-6 py-4 text-right font-black text-slate-900">
-                          {syntheseFiscale.reduce((sum, i) => sum + i.solde, 0).toLocaleString()} DA
+                          {formatCurrency(syntheseFiscale.reduce((sum, i) => sum + i.solde, 0))}
                         </td>
                         <td className="px-6 py-4"></td>
                       </tr>
@@ -1320,7 +1318,7 @@ const FiscaliteDeclarations: React.FC = () => {
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="text-xs font-black text-slate-900">{tax.percentage}%</span>
-                            <span className="text-xs text-slate-600">({tax.value.toLocaleString()} DA)</span>
+                            <span className="text-xs text-slate-600">({formatCurrency(tax.value)})</span>
                           </div>
                         </div>
                       ))}
@@ -1428,19 +1426,19 @@ const FiscaliteDeclarations: React.FC = () => {
                     <div className="text-center p-3 bg-slate-100 rounded-lg">
                       <div className="text-xs text-slate-600 mb-1">IBS Total</div>
                       <div className="text-lg font-bold text-slate-900">
-                        {quarterlyTaxes.reduce((sum, q) => sum + q.ibs, 0).toLocaleString()} DA
+                        {formatCurrency(quarterlyTaxes.reduce((sum, q) => sum + q.ibs, 0))}
                       </div>
                     </div>
                     <div className="text-center p-3 bg-slate-100 rounded-lg">
                       <div className="text-xs text-slate-600 mb-1">TAP Total</div>
                       <div className="text-lg font-bold text-slate-900">
-                        {quarterlyTaxes.reduce((sum, q) => sum + q.tap, 0).toLocaleString()} DA
+                        {formatCurrency(quarterlyTaxes.reduce((sum, q) => sum + q.tap, 0))}
                       </div>
                     </div>
                     <div className="text-center p-3 bg-slate-100 rounded-lg">
                       <div className="text-xs text-slate-600 mb-1">IRG Total</div>
                       <div className="text-lg font-bold text-slate-900">
-                        {quarterlyTaxes.reduce((sum, q) => sum + q.irg, 0).toLocaleString()} DA
+                        {formatCurrency(quarterlyTaxes.reduce((sum, q) => sum + q.irg, 0))}
                       </div>
                     </div>
                   </div>
@@ -1621,7 +1619,7 @@ const FiscaliteDeclarations: React.FC = () => {
                             <span className="text-sm font-bold text-slate-900">{contributor.name}</span>
                           </div>
                           <span className="text-sm font-black text-slate-900">
-                            {contributor.type === 'client' ? (contributor.tvaGeneree || 0).toLocaleString() : (contributor.tvaRecuperee || 0).toLocaleString()} DA
+                            {contributor.type === 'client' ? formatCurrency(contributor.tvaGeneree || 0) : formatCurrency(contributor.tvaRecuperee || 0)}
                           </span>
                         </div>
                         <div className="w-full">
@@ -1660,7 +1658,7 @@ const FiscaliteDeclarations: React.FC = () => {
                       <span className="text-xs font-semibold text-slate-600 uppercase">Charge Totale</span>
                       <CurrencyDollarIcon className="h-4 w-4 text-slate-500" />
                     </div>
-                    <div className="text-2xl font-bold text-slate-900">1,155,000 DA</div>
+                    <div className="text-2xl font-bold text-slate-900">{formatCurrency(1155000)}</div>
                     <div className="text-xs text-slate-500 mt-1">IBS + TVA + IRG + TAP</div>
                   </div>
 
@@ -1707,16 +1705,16 @@ const FiscaliteDeclarations: React.FC = () => {
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4 border-2 border-purple-300">
                       <div className="text-xs text-purple-600 mb-1 font-semibold uppercase">Montant dû</div>
-                      <div className="text-3xl font-black text-purple-900">45,000 DA</div>
+                      <div className="text-3xl font-black text-purple-900">{formatCurrency(45000)}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200">
                         <div className="text-xs text-emerald-600 mb-1 font-semibold">Payé</div>
-                        <div className="font-bold text-emerald-700 text-lg">20,000 DA</div>
+                        <div className="font-bold text-emerald-700 text-lg">{formatCurrency(20000)}</div>
                       </div>
                       <div className="bg-red-50 rounded-lg p-3 text-center border border-red-200">
                         <div className="text-xs text-red-600 mb-1 font-semibold">Solde</div>
-                        <div className="font-bold text-red-700 text-lg">25,000 DA</div>
+                        <div className="font-bold text-red-700 text-lg">{formatCurrency(25000)}</div>
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-3 border border-purple-200">
@@ -1764,16 +1762,16 @@ const FiscaliteDeclarations: React.FC = () => {
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4 border-2 border-red-300">
                       <div className="text-xs text-red-600 mb-1 font-semibold uppercase">Montant dû</div>
-                      <div className="text-3xl font-black text-red-900">208,000 DA</div>
+                      <div className="text-3xl font-black text-red-900">{formatCurrency(208000)}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200">
                         <div className="text-xs text-emerald-600 mb-1 font-semibold">Acomptes</div>
-                        <div className="font-bold text-emerald-700 text-lg">60,000 DA</div>
+                        <div className="font-bold text-emerald-700 text-lg">{formatCurrency(60000)}</div>
                       </div>
                       <div className="bg-red-50 rounded-lg p-3 text-center border border-red-200">
                         <div className="text-xs text-red-600 mb-1 font-semibold">Solde</div>
-                        <div className="font-bold text-red-700 text-lg">148,000 DA</div>
+                        <div className="font-bold text-red-700 text-lg">{formatCurrency(148000)}</div>
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-3 border border-red-200">
@@ -1781,7 +1779,7 @@ const FiscaliteDeclarations: React.FC = () => {
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-600">Bénéfice imposable:</span>
-                          <span className="font-medium">800,000 DA</span>
+                          <span className="font-medium">{formatCurrency(800000)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-600">Taux IBS:</span>
@@ -1789,7 +1787,7 @@ const FiscaliteDeclarations: React.FC = () => {
                         </div>
                         <div className="flex justify-between border-t border-red-200 pt-1">
                           <span className="text-red-700 font-bold">IBS calculé:</span>
-                          <span className="text-red-700 font-bold">208,000 DA</span>
+                          <span className="text-red-700 font-bold">{formatCurrency(208000)}</span>
                         </div>
                       </div>
                     </div>
@@ -1816,16 +1814,16 @@ const FiscaliteDeclarations: React.FC = () => {
                   <div className="space-y-4">
                     <div className="bg-white rounded-lg p-4 border-2 border-teal-300">
                       <div className="text-xs text-teal-600 mb-1 font-semibold uppercase">Montant Annuel</div>
-                      <div className="text-3xl font-black text-teal-900">64,000 DA</div>
+                      <div className="text-3xl font-black text-teal-900">{formatCurrency(64000)}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-emerald-50 rounded-lg p-3 text-center border border-emerald-200">
                         <div className="text-xs text-emerald-600 mb-1 font-semibold">Payé</div>
-                        <div className="font-bold text-emerald-700 text-lg">32,000 DA</div>
+                        <div className="font-bold text-emerald-700 text-lg">{formatCurrency(32000)}</div>
                       </div>
                       <div className="bg-red-50 rounded-lg p-3 text-center border border-red-200">
                         <div className="text-xs text-red-600 mb-1 font-semibold">Reste</div>
-                        <div className="font-bold text-red-700 text-lg">32,000 DA</div>
+                        <div className="font-bold text-red-700 text-lg">{formatCurrency(32000)}</div>
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-3 border border-teal-200">
@@ -1833,7 +1831,7 @@ const FiscaliteDeclarations: React.FC = () => {
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-600">TAP mensuel moyen:</span>
-                          <span className="font-medium">5,333 DA</span>
+                          <span className="font-medium">{formatCurrency(5333)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-600">Échéance:</span>

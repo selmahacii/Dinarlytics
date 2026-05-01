@@ -29,7 +29,7 @@ import { useTranslation } from '@/shared/hooks/useTranslation';
 const VentesClients: React.FC = () => {
   const navigate = useNavigate();
   const { t, currentLang } = useTranslation();
-  const { user, formatCurrency } = useApp();
+  const { user, formatCurrency, currentDevise } = useApp();
   const fmt = (n: number) => formatCurrency(n); // Defensive alias for removed helper
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
   const [activeTab, setActiveTab] = useState<'rapports' | 'analyse' | 'previsions'>('rapports');
@@ -59,6 +59,7 @@ const VentesClients: React.FC = () => {
     const { salesData, topProducts, salesByCategory, topClients, clientMetrics, forecasts } = data;
     const BOM = '\uFEFF';
     const sep = ';';
+    const currencyLabel = currentDevise === 'DZD' ? 'DA' : currentDevise;
     const rows: string[][] = [
       ['DINARLYTICS — RAPPORT DÉTAILLÉ DES VENTES & ANALYSE CLIENT'],
       [`Période : ${selectedPeriod === 'jour' ? 'Journalier' : 'Mensuel'} — Exercice 2024`],
@@ -66,27 +67,27 @@ const VentesClients: React.FC = () => {
       [],
       ['=== RÉSUMÉ DES INDICATEURS CLÉS (KPI) ==='],
       ['Indicateur', 'Valeur', 'Tendance/Information'],
-      ['Chiffre d\'Affaires (DA)', salesData.ca.value.toString(), `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% vs période précédente`],
+      [`Chiffre d'Affaires (${currencyLabel})`, salesData.ca.value.toString(), `${salesData.ca.change > 0 ? '+' : ''}${salesData.ca.change}% vs période précédente`],
       ['Marge Brute (%)', salesData.margeBrute.toString(), 'Objectif : 45%'],
-      ['Panier Moyen (DA)', salesData.panierMoyen.toString(), ''],
+      [`Panier Moyen (${currencyLabel})`, salesData.panierMoyen.toString(), ''],
       ['Nombre de Factures', salesData.facturesEmises.toString(), 'Validées'],
       ['Clients Actifs', clientMetrics.clientsActifs.toString(), `Total base : ${clientMetrics.totalClients}`],
       ['Taux de Fidélisation (%)', clientMetrics.tauxFidelisation.toString(), ''],
       [],
       ['=== ANALYSE PAR CATÉGORIE DE PRODUITS ==='],
-      ['Catégorie', 'Chiffre d\'Affaires (DA)', 'Part du CA (%)', 'Tendance'],
+      ['Catégorie', `Chiffre d'Affaires (${currencyLabel})`, 'Part du CA (%)', 'Tendance'],
       ...salesByCategory.map(cat => [cat.category, cat.amount.toString(), cat.percentage.toString(), `${cat.trend}%`]),
       [],
       ['=== TOP 5 PRODUITS (VOLUME & VALEUR) ==='],
-      ['Nom du Produit', 'Quantité', 'Ventes (DA)', 'Part (%)', 'Évolution (%)'],
+      ['Nom du Produit', 'Quantité', `Ventes (${currencyLabel})`, 'Part (%)', 'Évolution (%)'],
       ...topProducts.map(p => [p.name, p.quantity.toString(), p.sales.toString(), p.percentage.toString(), p.evolution.toString()]),
       [],
       ['=== ANALYSE QUALITATIVE TOP CLIENTS ==='],
-      ['ID Client', 'Nom / Raison Sociale', 'Ventes Totales (DA)', 'Commandes', 'Panier Moyen (DA)', 'Croissance (%)'],
+      ['ID Client', 'Nom / Raison Sociale', `Ventes Totales (${currencyLabel})`, 'Commandes', `Panier Moyen (${currencyLabel})`, 'Croissance (%)'],
       ...topClients.map(c => [c.id, c.name, c.sales.toString(), c.orders.toString(), c.avgBasket.toString(), c.trend.toString()]),
       [],
       ['=== PRÉVISIONS & OBJECTIFS TRIMESTRIELS ==='],
-      ['Mois', 'Chiffre Réel (DA)', 'Objectif (DA)', 'Prévision AI (DA)', 'Variance (%)'],
+      ['Mois', `Chiffre Réel (${currencyLabel})`, `Objectif (${currencyLabel})`, `Prévision AI (${currencyLabel})`, 'Variance (%)'],
       ...forecasts.map(f => [f.month, f.actual.toString(), f.target.toString(), f.forecast.toString(), f.variance.toString()]),
       [],
       ['DOCUMENT GÉNÉRÉ AUTOMATIQUEMENT PAR LE SYSTÈME DINARLYTICS. TOUS DROITS RÉSERVÉS.'],
@@ -132,7 +133,7 @@ const VentesClients: React.FC = () => {
       setAiAuditReport({
         score: dsoValue < 30 ? 94 : 88,
         status: dsoValue < 30 ? 'Excellence Opérationnelle' : 'Optimisation Requise',
-        summary: `Analyse croisée des cycles de vente et du comportement client. L'entreprise affiche une résilience ${caValue > 1000000 ? 'forte' : 'modérée'} avec un CA de ${caValue.toLocaleString()} DA. Le DSO moyen est de ${dsoValue} jours.`,
+        summary: `Analyse croisée des cycles de vente et du comportement client. L'entreprise affiche une résilience ${caValue > 1000000 ? 'forte' : 'modérée'} avec un CA de ${formatCurrency(caValue)}. Le DSO moyen est de ${dsoValue} jours.`,
         risks: [
           {
             level: concentration > 30 ? 'medium' : 'low',
@@ -148,7 +149,7 @@ const VentesClients: React.FC = () => {
         opportunities: [
           {
             title: 'Optimisation Trésorerie',
-            message: `Une réduction du DSO de 5 jours dégagerait environ ${Math.round(caValue / 30 * 5).toLocaleString()} DA de liquidités immédiates.`
+            message: `Une réduction du DSO de 5 jours dégagerait environ ${formatCurrency(Math.round(caValue / 30 * 5))} de liquidités immédiates.`
           },
           {
             title: 'Développement B2B',

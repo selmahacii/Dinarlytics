@@ -34,7 +34,7 @@ import { useApp } from '@core/context/AppContext';
 const StocksProduits: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, companyData } = useApp();
+  const { user, companyData, formatCurrency } = useApp();
   const [selectedView, setSelectedView] = useState('etat-stocks');
 
   // Fonction pour lancer un inventaire
@@ -109,7 +109,6 @@ Généré par Dinarlytics
   // INTERFACE EURL MICRO-ENTREPRISE
   // ========================================
   if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
-    const formatCurrency = (amount: number) => amount?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
 
     // Données adaptées pour EURL
     const valeurStock = Math.round(companyData.revenueMonth * 0.35); // 35% du CA en stock
@@ -627,7 +626,7 @@ Généré par Dinarlytics
               </div>
             </div>
             <div className="text-2xl font-bold text-slate-900">
-              {stockData.valeurTotale.toLocaleString()} DA
+              {formatCurrency(stockData.valeurTotale)}
             </div>
             <div className="text-xs text-slate-500 mt-1">stock actuel</div>
           </div>
@@ -758,7 +757,7 @@ Généré par Dinarlytics
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <div className="text-xs text-slate-500 mb-1">Valeur stock</div>
-                          <div className="font-bold text-slate-900">{product.valeur.toLocaleString()} DA</div>
+                          <div className="font-bold text-slate-900">{formatCurrency(product.valeur)}</div>
                         </div>
                         <div>
                           <div className="text-xs text-slate-500 mb-1">Rotation</div>

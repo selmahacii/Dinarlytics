@@ -1,4 +1,5 @@
 import React from 'react';
+import { useApp } from '@core/context/AppContext';
 import { ConditionalRenderer, useRevenuePermissions, AccessBadge } from '../ConditionalRenderer';
 import Card from '../UI/Card';
 import {
@@ -30,6 +31,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
   revenue,
   accessLevel
 }) => {
+  const { formatCurrency } = useApp();
   const permissions = useRevenuePermissions(revenue, accessLevel);
 
   // Widgets de base (toujours visibles)
@@ -38,7 +40,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
       id: 'ca-overview',
       title: 'Chiffre d\'Affaires',
       icon: CurrencyDollarIcon,
-      value: `${(revenue / 1000000).toFixed(1)}M DA`,
+      value: formatCurrency(revenue),
       change: '+12.5%',
       color: 'blue'
     },
@@ -67,7 +69,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
       id: 'inventory',
       title: 'Stock Valorisé',
       icon: TruckIcon,
-      value: '1.2M DA',
+      value: formatCurrency(1200000),
       change: '-5%',
       color: 'orange',
       minRevenue: 5000000
@@ -114,7 +116,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
       id: 'treasury',
       title: 'Trésorerie Groupe',
       icon: BanknotesIcon,
-      value: '45.7M DA',
+      value: formatCurrency(45700000),
       change: '+22%',
       color: 'yellow',
       minRevenue: 500000000,
@@ -158,7 +160,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
           <div className="mt-3 flex flex-wrap gap-2">
             <AccessBadge 
               type="revenue" 
-              value={`${(widget.minRevenue / 1000000).toFixed(0)}M DA`}
+              value={formatCurrency(widget.minRevenue)}
               unlocked={permissions.hasRevenueAccess(widget.minRevenue)}
             />
             {widget.segments && (
@@ -217,7 +219,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
         currentRevenue={revenue}
         requiredRevenue={5000000}
         showLocked={true}
-        lockedMessage="Gestion opérationnelle avancée disponible à partir de 5M DA de CA"
+        lockedMessage={`Gestion opérationnelle avancée disponible à partir de ${formatCurrency(5000000)} de CA`}
       >
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -241,7 +243,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
         requiredRevenue={50000000}
         requiredSegment={['medium', 'large', 'enterprise']}
         showLocked={true}
-        lockedMessage="Analytics avancées et gestion multi-départements disponibles à partir de 50M DA"
+        lockedMessage={`Analytics avancées et gestion multi-départements disponibles à partir de ${formatCurrency(50000000)}`}
       >
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -267,7 +269,7 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
         requiredAccessLevel={['enterprise']}
         currentAccessLevel={accessLevel}
         showLocked={true}
-        lockedMessage="Gestion de groupe et consolidation disponibles à partir de 500M DA avec le plan Enterprise"
+        lockedMessage={`Gestion de groupe et consolidation disponibles à partir de ${formatCurrency(500000000)} avec le plan Enterprise`}
       >
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
@@ -301,19 +303,19 @@ const AdaptiveDashboardLayout: React.FC<AdaptiveDashboardLayoutProps> = ({
           <ProgressItem 
             title="Niveau 2: Gestion Opérationnelle" 
             unlocked={revenue >= 5000000}
-            required="5M DA"
+            required={formatCurrency(5000000)}
             description="Ventes et stocks détaillés"
           />
           <ProgressItem 
             title="Niveau 3: Analytics Avancées" 
             unlocked={revenue >= 50000000}
-            required="50M DA"
+            required={formatCurrency(50000000)}
             description="Multi-départements et analytics"
           />
           <ProgressItem 
             title="Niveau 4: Gestion de Groupe" 
             unlocked={revenue >= 500000000}
-            required="500M DA + Plan Enterprise"
+            required={`${formatCurrency(500000000)} + Plan Enterprise`}
             description="Consolidation et trésorerie groupe"
           />
         </div>

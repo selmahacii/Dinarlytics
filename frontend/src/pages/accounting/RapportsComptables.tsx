@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from '@shared/hooks/useTranslation';
+import { useApp } from '@core/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import {
   DocumentTextIcon,
@@ -20,6 +21,7 @@ import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
 
 const EtatsRapports: React.FC = () => {
   const { t } = useTranslation();
+  const { formatCurrency } = useApp();
   const navigate = useNavigate();
   const [selectedPeriode, setSelectedPeriode] = useState('2026-04');
   const [selectedEtat, setSelectedEtat] = useState('bilan');
@@ -120,13 +122,6 @@ const EtatsRapports: React.FC = () => {
   const totalDebitBalance = balanceGenerale.reduce((sum, item) => sum + item.debit, 0);
   const totalCreditBalance = balanceGenerale.reduce((sum, item) => sum + item.credit, 0);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-DZ', {
-      style: 'currency',
-      currency: 'DZD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
 
   const etatsDisponibles = [
     { id: 'bilan', nom: t('accounting.reports.tabs.bilan'), icon: ScaleIcon, color: 'slate' },

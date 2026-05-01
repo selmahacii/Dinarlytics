@@ -9,7 +9,7 @@ import {
   TrophyIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
-import Card from '../UI/Card';
+import { useApp } from '@core/context/AppContext';
 import { CompanyEvolutionTracker, RevenueDataPoint } from '@shared/utils/CompanyEvolutionTracker';
 
 interface EvolutionTrackerWidgetProps {
@@ -21,6 +21,7 @@ const EvolutionTrackerWidget: React.FC<EvolutionTrackerWidgetProps> = ({
   companyName,
   currentRevenue
 }) => {
+  const { formatCurrency } = useApp();
   const [selectedPeriod, setSelectedPeriod] = useState<6 | 12>(12);
 
   // Générer le rapport d'évolution
@@ -65,12 +66,6 @@ const EvolutionTrackerWidget: React.FC<EvolutionTrackerWidgetProps> = ({
     if (metrics.trend === 'growing') return 'bg-green-50';
     if (metrics.trend === 'declining') return 'bg-red-50';
     return 'bg-gray-50';
-  };
-
-  const formatCurrency = (value: number) => {
-    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M DA`;
-    if (value >= 1000) return `${(value / 1000).toFixed(0)}K DA`;
-    return `${value} DA`;
   };
 
   const formatDate = (dateString: string) => {
