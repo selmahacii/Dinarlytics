@@ -33,7 +33,7 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
@@ -59,11 +59,11 @@ const TresorerieWidget: React.FC<TresorerieWidgetProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
           <p className="text-xs text-slate-600 mb-1">{t('dashboard.widgets.tresorerie.current_balance')}</p>
-          <p className="text-2xl font-bold text-blue-900">{formatCurrency(data.soldeActuel, devise)}</p>
+          <p className="text-xl sm:text-2xl font-bold text-blue-900">{formatCurrency(data.soldeActuel, devise)}</p>
         </div>
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-4 border border-slate-200">
           <p className="text-xs text-slate-600 mb-1">{t('dashboard.widgets.tresorerie.transit_balance')}</p>
-          <p className="text-2xl font-bold text-slate-900">{formatCurrency(data.soldeItineraire, devise)}</p>
+          <p className="text-xl sm:text-2xl font-bold text-slate-900">{formatCurrency(data.soldeItineraire, devise)}</p>
         </div>
       </div>
 

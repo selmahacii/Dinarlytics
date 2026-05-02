@@ -80,7 +80,7 @@ const Breadcrumb: React.FC = () => {
 
   return (
     <nav className="flex" aria-label="Breadcrumb">
-      <ol className="flex items-center space-x-2">
+      <ol className="flex flex-wrap items-center gap-y-2">
         {breadcrumbs.map((item, index) => (
           <li key={`${item.href}-${index}`} className="flex items-center">
             {index > 0 && (

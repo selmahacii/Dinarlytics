@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-4 sm:px-6 pt-4 pb-2 bg-white border-b border-slate-200">
             <Breadcrumb />
           </div>
-          <main className="flex-1 p-4 sm:p-6 overflow-y-auto bg-slate-50">
+          <main className="flex-1 p-3 sm:p-6 overflow-y-auto bg-slate-50">
             {children}
           </main>
         </div>

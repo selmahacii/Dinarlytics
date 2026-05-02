@@ -34,7 +34,7 @@ const Header: React.FC = () => {
           </button>
 
           <div className="flex items-center">
-            <h2 className="text-xl font-bold text-slate-800 tracking-tight">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight">
               {t('nav.global_view')}
             </h2>
           </div>
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Language Selector */}
             <LanguageSwitcher />
 

@@ -79,7 +79,7 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
   return (
     <div className="space-y-4">
       {/* Header avec statistiques */}
-      <div className="bg-white rounded-lg border border-slate-200 p-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-lg">
@@ -122,7 +122,7 @@ const AlertesFinancieres: React.FC<AlertesFinancieresProps> = ({
         {activeAlertes.map(alerte => (
           <div
             key={alerte.id}
-            className={`border rounded-lg p-4 transition-all ${getStatutBg(alerte.statut)}`}
+            className={`border rounded-lg p-3 sm:p-4 transition-all ${getStatutBg(alerte.statut)}`}
           >
             <div
               className="flex items-start justify-between cursor-pointer"
