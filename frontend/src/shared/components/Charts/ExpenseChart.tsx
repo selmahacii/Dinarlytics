@@ -7,15 +7,17 @@ import {
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import { mockDepensesCategories } from '../../data/mockData';
+import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ExpenseChart: React.FC = () => {
+  const { formatCurrency, currentDevise } = useApp();
   const data = {
     labels: mockDepensesCategories.map(d => d.categorie),
     datasets: [
       {
-        label: 'Dépenses (DZD)',
+        label: `Dépenses (${currentDevise || 'DA'})`,
         data: mockDepensesCategories.map(d => d.montant),
         backgroundColor: [
           'rgba(51, 65, 85, 0.8)', // slate-700
@@ -63,7 +65,7 @@ const ExpenseChart: React.FC = () => {
           label: function(context: any) {
             const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
             const percentage = ((context.parsed / total) * 100).toFixed(1);
-            return context.label + ': ' + context.parsed.toLocaleString('fr-FR') + ' DZD (' + percentage + '%)';
+            return context.label + ': ' + formatCurrency(context.parsed) + ' (' + percentage + '%)';
           }
         }
       }
@@ -86,9 +88,9 @@ const ExpenseChart: React.FC = () => {
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="text-center">
           <div className="text-2xl font-bold text-slate-800">
-            {mockDepensesCategories.reduce((sum, d) => sum + d.montant, 0).toLocaleString('fr-FR')}
+            {formatCurrency(mockDepensesCategories.reduce((sum, d) => sum + d.montant, 0))}
           </div>
-          <div className="text-sm text-slate-600">DZD Total</div>
+          <div className="text-sm text-slate-600">Total {currentDevise || 'DA'}</div>
         </div>
       </div>
     </div>

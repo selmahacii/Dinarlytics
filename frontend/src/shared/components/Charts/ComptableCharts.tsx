@@ -9,6 +9,7 @@ import {
   Bubble,
   Area
 } from 'react-chartjs-2';
+import { useApp } from '@core/context/AppContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -40,11 +41,12 @@ ChartJS.register(
 
 // Graphique d'évolution des indicateurs financiers
 export const EvolutionIndicateursChart: React.FC = () => {
+  const { currentDevise } = useApp();
   const data = {
     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
     datasets: [
       {
-        label: 'Chiffre d\'Affaires (M DZD)',
+        label: `Chiffre d'Affaires (M ${currentDevise || 'DA'})`,
         data: [2.1, 2.3, 2.8, 3.2, 3.5, 3.8, 4.1, 4.5, 4.2, 4.8, 5.2, 5.8],
         borderColor: 'rgba(16, 185, 129, 1)',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -54,7 +56,7 @@ export const EvolutionIndicateursChart: React.FC = () => {
         pointHoverRadius: 8
       },
       {
-        label: 'Résultat Net (M DZD)',
+        label: `Résultat Net (M ${currentDevise || 'DA'})`,
         data: [0.15, 0.18, 0.22, 0.28, 0.32, 0.35, 0.38, 0.42, 0.38, 0.45, 0.48, 0.52],
         borderColor: 'rgba(139, 92, 246, 1)',
         backgroundColor: 'rgba(139, 92, 246, 0.1)',
@@ -64,7 +66,7 @@ export const EvolutionIndicateursChart: React.FC = () => {
         pointHoverRadius: 8
       },
       {
-        label: 'Trésorerie (M DZD)',
+        label: `Trésorerie (M ${currentDevise || 'DA'})`,
         data: [0.12, 0.15, 0.18, 0.22, 0.25, 0.28, 0.32, 0.35, 0.32, 0.38, 0.42, 0.45],
         borderColor: 'rgba(59, 130, 246, 1)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -107,7 +109,7 @@ export const EvolutionIndicateursChart: React.FC = () => {
         },
         title: {
           display: true,
-          text: 'Montants (M DZD)'
+          text: `Montants (M ${currentDevise || 'DA'})`
         }
       },
       x: {
@@ -229,6 +231,7 @@ export const ComparaisonTrimestrielleChart: React.FC = () => {
     ]
   };
 
+  const { currentDevise } = useApp();
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -260,7 +263,7 @@ export const ComparaisonTrimestrielleChart: React.FC = () => {
         },
         title: {
           display: true,
-          text: 'Montants (M DZD)'
+          text: `Montants (M ${currentDevise || 'DA'})`
         }
       },
       x: {
@@ -386,6 +389,7 @@ export const FluxTresorerieChart: React.FC = () => {
     ]
   };
 
+  const { currentDevise } = useApp();
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -417,7 +421,7 @@ export const FluxTresorerieChart: React.FC = () => {
         },
         title: {
           display: true,
-          text: 'Montants (k DZD)'
+          text: `Montants (k ${currentDevise || 'DA'})`
         }
       },
       x: {
@@ -522,6 +526,7 @@ export const PrevisionsRealisationChart: React.FC = () => {
     ]
   };
 
+  const { currentDevise } = useApp();
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -553,7 +558,7 @@ export const PrevisionsRealisationChart: React.FC = () => {
         },
         title: {
           display: true,
-          text: 'Chiffre d\'Affaires (M DZD)'
+          text: `Chiffre d'Affaires (M ${currentDevise || 'DA'})`
         }
       },
       x: {
@@ -614,6 +619,7 @@ export const CorrelationIndicateursChart: React.FC = () => {
     ]
   };
 
+  const { currentDevise } = useApp();
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -641,7 +647,7 @@ export const CorrelationIndicateursChart: React.FC = () => {
       x: {
         title: {
           display: true,
-          text: 'Chiffre d\'Affaires (M DZD)'
+          text: `Chiffre d'Affaires (M ${currentDevise || 'DA'})`
         },
         grid: {
           color: 'rgba(0, 0, 0, 0.1)'

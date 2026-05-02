@@ -28,7 +28,7 @@ interface GestionPaiementsWidgetProps {
 }
 
 const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const [activeView, setActiveView] = useState<'overview' | 'nouveau' | 'programmes' | 'retard' | 'historique'>('overview');
   const [selectedStatus, setSelectedStatus] = useState<string>('tous');
   const [selectedPaiement, setSelectedPaiement] = useState<any>(null);
@@ -468,7 +468,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Montant (DA) <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Montant ({currentDevise || 'DA'}) <span className="text-red-500">*</span></label>
               <input 
                 type="number" 
                 value={nouveauPaiement.montant}
@@ -626,7 +626,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
                         <p className="text-lg font-bold text-red-600 dark:text-red-400">{formatCurrency(paiement.montant)}</p>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">دج</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">{currentDevise || 'DA'}</p>
                       </div>
                       <div className="flex flex-col space-y-2">
                         <button 
@@ -748,7 +748,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                   <div className="flex items-center space-x-4">
                     <div className="text-right">
                       <p className="text-lg font-bold text-gray-900">{formatCurrency(paiement.montant)}</p>
-                      <p className="text-xs text-gray-500">دج</p>
+                      <p className="text-xs text-gray-500">{currentDevise || 'DA'}</p>
                     </div>
                     <div className="flex flex-col space-y-2">
                       <button 
@@ -828,7 +828,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
                     <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{formatCurrency(paiement.montant)}</p>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">دج</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">{currentDevise || 'DA'}</p>
                   </div>
                   <div className="flex flex-col space-y-2">
                     <button 
@@ -878,7 +878,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-900">{formatCurrency(item.montant)}</p>
-                  <p className="text-xs text-gray-500">دج</p>
+                  <p className="text-xs text-gray-500">{currentDevise || 'DA'}</p>
                 </div>
               </div>
             ))}
@@ -892,7 +892,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
               data={{
                 labels: statistiquesData.parMode.map(item => item.mode),
                 datasets: [{
-                  label: 'Montant (DA)',
+                  label: `Montant (${currentDevise || 'DA'})`,
                   data: statistiquesData.parMode.map(item => item.montant),
                   backgroundColor: [
                     '#3B82F6', '#10B981', '#F59E0B', '#EF4444'
@@ -1050,7 +1050,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Montant</label>
-                  <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{formatCurrency(selectedPaiement.montant)} دج</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{formatCurrency(selectedPaiement.montant)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">
@@ -1171,13 +1171,13 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Montant (DA)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300">Montant ({currentDevise || 'DA'})</label>
                   <input 
                     type="number" 
                     defaultValue={selectedPaiement.montant}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     aria-label="Montant"
-                    placeholder="Montant en DA"
+                    placeholder={`Montant en ${currentDevise || 'DA'}`}
                     title="Montant"
                   />
                 </div>
@@ -1342,7 +1342,7 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                   <span className="px-2 py-1 bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-200 text-xs rounded-full">Stable</span>
                 </div>
                 <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">19.6k</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">DZD par paiement</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{currentDevise || 'DA'} par paiement</p>
                 <div className="mt-2 flex items-center">
                   <ArrowTrendingUpIcon className="h-4 w-4 text-orange-500 mr-1" />
                   <span className="text-xs text-orange-600 dark:text-orange-400">+1.2k vs mois dernier</span>
@@ -1467,21 +1467,21 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600 dark:text-slate-400">Tech Solutions SARL</span>
                       <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">275k DZD</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(275000)}</span>
                         <span className="text-xs text-blue-600 dark:text-blue-400">+12%</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600 dark:text-slate-400">Fournisseur ABC SPA</span>
                       <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">125k DZD</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(125000)}</span>
                         <span className="text-xs text-green-600 dark:text-green-400">+8%</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-600 dark:text-slate-400">Office Supplies Co</span>
                       <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">85k DZD</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(85000)}</span>
                         <span className="text-xs text-orange-600 dark:text-orange-400">-3%</span>
                       </div>
                     </div>

@@ -94,7 +94,7 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
       title: 'Équilibre des Comptes',
       status: 'success',
       message: 'Tous les comptes sont équilibrés',
-      details: 'Débit total: 2,450,000 DA | Crédit total: 2,450,000 DA',
+      details: `Débit total: ${formatCurrency(2450000)} | Crédit total: ${formatCurrency(2450000)}`,
       icon: CheckCircleIcon
     },
     {
@@ -102,7 +102,7 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
       title: 'Contrôle TVA',
       status: 'warning',
       message: 'Vérification des déclarations TVA en cours',
-      details: 'TVA à verser: 437,000 DA | Échéance: 25/02/2024',
+      details: `TVA à verser: ${formatCurrency(437000)} | Échéance: 25/02/2024`,
       icon: ExclamationTriangleIcon
     },
     {
@@ -110,7 +110,7 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
       title: 'Inventaire Stocks',
       status: 'success',
       message: 'Inventaire terminé avec succès',
-      details: 'Valeur totale: 125,000 DA | 45 articles comptés',
+      details: `Valeur totale: ${formatCurrency(125000)} | 45 articles comptés`,
       icon: CheckCircleIcon
     },
     {
@@ -118,7 +118,7 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
       title: 'Créances Clients',
       status: 'error',
       message: 'Créances douteuses détectées',
-      details: '3 créances en litige pour 15,000 DA',
+      details: `3 créances en litige pour ${formatCurrency(15000)}`,
       icon: XCircleIcon
     },
     {
@@ -126,7 +126,7 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
       title: 'Rapprochement Bancaire',
       status: 'success',
       message: 'Tous les comptes bancaires sont rapprochés',
-      details: '3 comptes vérifiés | Écarts: 0 DA',
+      details: `3 comptes vérifiés | Écarts: ${formatCurrency(0)}`,
       icon: CheckCircleIcon
     },
     {
@@ -134,7 +134,7 @@ const ClotureComptableWidget: React.FC<ClotureComptableWidgetProps> = ({ period 
       title: 'Amortissements',
       status: 'success',
       message: 'Calcul des amortissements terminé',
-      details: '12 immobilisations amorties | Total: 45,000 DA',
+      details: `12 immobilisations amorties | Total: ${formatCurrency(45000)}`,
       icon: CheckCircleIcon
     }
   ];

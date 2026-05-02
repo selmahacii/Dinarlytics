@@ -4,6 +4,7 @@ import {
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement,
 } from 'chart.js';
 import { Pie, Bar, Line, Doughnut } from 'react-chartjs-2';
+import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement
@@ -25,6 +26,7 @@ interface GroupesClientsChartProps {
 }
 
 const GroupesClientsChart: React.FC<GroupesClientsChartProps> = ({ groupes }) => {
+  const { currentDevise } = useApp();
   // Données pour le graphique en secteurs - Répartition par type
   const pieData = {
     labels: groupes.map(g => g.nom),
@@ -43,7 +45,7 @@ const GroupesClientsChart: React.FC<GroupesClientsChartProps> = ({ groupes }) =>
   const barData = {
     labels: groupes.map(g => g.nom),
     datasets: [{
-      label: 'Chiffre d\'Affaires (M DZD)',
+      label: `Chiffre d'Affaires (M ${currentDevise || 'DA'})`,
       data: groupes.map(g => g.chiffreAffaires / 1000000),
       backgroundColor: 'rgba(59, 130, 246, 0.8)',
       borderColor: 'rgba(59, 130, 246, 1)',
@@ -56,7 +58,7 @@ const GroupesClientsChart: React.FC<GroupesClientsChartProps> = ({ groupes }) =>
   const lineData = {
     labels: groupes.map(g => g.nom),
     datasets: [{
-      label: 'Solde Moyen (k DZD)',
+      label: `Solde Moyen (k ${currentDevise || 'DA'})`,
       data: groupes.map(g => g.soldeMoyen / 1000),
       borderColor: 'rgba(16, 185, 129, 1)',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',

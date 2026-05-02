@@ -26,7 +26,7 @@ interface GestionCategoriesWidgetProps {
 }
 
 const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ period = 'mois' }) => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const { currentTheme } = useTheme();
   const [activeView, setActiveView] = useState<'overview' | 'analytics' | 'performance' | 'gestion'>('overview');
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
@@ -385,7 +385,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               data={{
                 labels: categoriesData.map(c => c.nom),
                 datasets: [{
-                  label: 'Chiffre d\'Affaires (DA)',
+                  label: `Chiffre d'Affaires (${currentDevise || 'DA'})`,
                   data: categoriesData.map(c => c.chiffreAffaires),
                   backgroundColor: categoriesData.map(c => c.couleur + '80'),
                   borderColor: categoriesData.map(c => c.couleur),
@@ -622,7 +622,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             <div>
               <p className="text-sm text-violet-700 dark:text-violet-300 font-medium">Valeur Stock Total</p>
               <p className="text-2xl font-bold text-violet-900 dark:text-violet-100">{formatCurrency(statsGenerales.valeurStockTotal)}</p>
-              <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">دج</p>
+              <p className="text-xs text-violet-600 dark:text-violet-400 mt-1">{currentDevise || 'DA'}</p>
             </div>
             <div className="bg-gradient-to-br from-violet-600 to-violet-700 dark:from-violet-500 dark:to-violet-600 p-3 rounded-lg shadow-md">
               <BuildingOfficeIcon className="h-8 w-8 text-white" />
@@ -635,7 +635,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             <div>
               <p className="text-sm text-amber-700 dark:text-amber-300 font-medium">CA Total</p>
               <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">{formatCurrency(statsGenerales.chiffreAffairesTotal)}</p>
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">دج ce mois</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{currentDevise || 'DA'} ce mois</p>
             </div>
             <div className="bg-gradient-to-br from-amber-600 to-amber-700 dark:from-amber-500 dark:to-amber-600 p-3 rounded-lg shadow-md">
               <ChartBarIcon className="h-8 w-8 text-white" />
@@ -764,7 +764,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Valeur Stock</span>
               </div>
-              <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{formatCurrency(statsGenerales.valeurStockTotal)} دج</span>
+              <span className="text-sm font-bold text-violet-700 dark:text-violet-300">{formatCurrency(statsGenerales.valeurStockTotal)}</span>
             </div>
 
             <div className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700 hover:shadow-md transition-shadow">
@@ -774,7 +774,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">CA Total</span>
               </div>
-              <span className="text-sm font-bold text-amber-700 dark:text-amber-300">{formatCurrency(statsGenerales.chiffreAffairesTotal)} دج</span>
+              <span className="text-sm font-bold text-amber-700 dark:text-amber-300">{formatCurrency(statsGenerales.chiffreAffairesTotal)}</span>
             </div>
 
             <div className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
@@ -784,7 +784,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 </div>
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Marge Totale</span>
               </div>
-              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{formatCurrency(statsGenerales.margeTotal)} دج</span>
+              <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{formatCurrency(statsGenerales.margeTotal)}</span>
             </div>
           </div>
         </Card>
@@ -938,18 +938,18 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Valeur du Stock</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.valeurStock)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.valeurStock)}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Chiffre d'Affaires</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.chiffreAffaires)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.chiffreAffaires)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Marge</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.marge)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedCategory.marge)}</p>
                 </div>
               </div>
 
@@ -1241,7 +1241,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Objectif de Vente Mensuel (دج)
+                        Objectif de Vente Mensuel ({currentDevise || 'DA'})
                       </label>
                       <input
                         type="text"
@@ -1254,7 +1254,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Budget Alloué (دج)
+                        Budget Alloué ({currentDevise || 'DA'})
                       </label>
                       <input
                         type="text"

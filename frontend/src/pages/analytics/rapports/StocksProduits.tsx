@@ -65,7 +65,7 @@ RÉSUMÉ
 ------
 Rotation moyenne: ${reportData.rotationMoyenne} fois/an
 Nombre d'articles: ${reportData.nombreArticles}
-Valeur du stock: {reportData.valeurStock?.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
+Valeur du stock: ${formatCurrency(reportData.valeurStock || 0)}
 
 ANALYSE DE ROTATION
 -------------------
@@ -865,7 +865,7 @@ Généré par Dinarlytics
                         </div>
                         <div className="flex items-center space-x-3">
                           <div className="text-right">
-                            <div className="font-bold text-slate-900">{category.current.toLocaleString()} DA</div>
+                            <div className="font-bold text-slate-900">{formatCurrency(category.current)}</div>
                             <div className="text-sm text-slate-600">Actuel</div>
                           </div>
                           <div className="flex items-center">
@@ -994,7 +994,7 @@ Généré par Dinarlytics
                     <div className="text-center p-4 bg-slate-100 rounded-lg border border-slate-300">
                       <div className="text-xs font-semibold text-slate-600 mb-2">Valeur totale immobilisée</div>
                       <div className="text-2xl font-bold text-slate-900">
-                        {categoryEvolution.reduce((sum, c) => sum + c.current, 0).toLocaleString()} DA
+                        {formatCurrency(categoryEvolution.reduce((sum, c) => sum + c.current, 0))}
                       </div>
                     </div>
                     <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
@@ -1123,7 +1123,7 @@ Généré par Dinarlytics
                         </div>
 
                         <div className="mt-3 text-lg font-bold text-slate-900 text-center">
-                          {category.value.toLocaleString()} DA
+                          {formatCurrency(category.value)}
                         </div>
                       </div>
                     ))}
@@ -1236,7 +1236,7 @@ Généré par Dinarlytics
                             </div>
                             <div>
                               <div className="text-xs text-slate-500">Perte estimée</div>
-                              <div className="font-bold text-slate-900">{alert.estimatedLoss?.toLocaleString() || 'N/A'} DA</div>
+                              <div className="font-bold text-slate-900">{alert.estimatedLoss ? formatCurrency(alert.estimatedLoss) : 'N/A'}</div>
                             </div>
                           </>
                         )}
@@ -1256,7 +1256,7 @@ Généré par Dinarlytics
                             </div>
                             <div>
                               <div className="text-xs text-slate-500">Valeur immobilisée</div>
-                              <div className="font-bold text-slate-900">{alert.immobilisedValue?.toLocaleString() || 'N/A'} DA</div>
+                              <div className="font-bold text-slate-900">{alert.immobilisedValue ? formatCurrency(alert.immobilisedValue) : 'N/A'}</div>
                             </div>
                           </>
                         )}
@@ -1575,7 +1575,7 @@ Généré par Dinarlytics
                           <div>
                             <div className="flex items-center justify-between text-xs mb-1">
                               <span className="text-slate-600">CA</span>
-                              <span className="font-bold text-slate-900">{(product.revenue / 1000).toFixed(0)}k DA</span>
+                              <span className="font-bold text-slate-900">{formatCurrency(product.revenue)}</span>
                             </div>
                             <div className="w-full bg-slate-200 rounded-full h-2">
                               <div
@@ -1709,7 +1709,7 @@ Généré par Dinarlytics
                         </div>
                         <div className="text-center">
                           <div className="text-xs text-slate-500 mb-1">Chiffre d'affaires</div>
-                          <div className="text-2xl font-bold text-slate-900">{product.revenue.toLocaleString()} DA</div>
+                          <div className="text-2xl font-bold text-slate-900">{formatCurrency(product.revenue)}</div>
                         </div>
                         <div className="text-center">
                           <div className="text-xs text-slate-500 mb-1">Marge (%)</div>
@@ -1908,7 +1908,7 @@ Généré par Dinarlytics
                           {product.sales} ventes
                         </div>
                         <div className="text-xs text-slate-600 mt-1">
-                          {product.revenue.toLocaleString()} DA
+                          {formatCurrency(product.revenue)}
                         </div>
                       </div>
                     ))}

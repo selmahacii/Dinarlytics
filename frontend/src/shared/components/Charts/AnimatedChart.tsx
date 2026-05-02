@@ -396,7 +396,7 @@ const AnimatedChart: React.FC<AnimatedChartProps> = ({
 
         {/* Labels des axes */}
         <div className="absolute bottom-0 left-0 text-xs text-gray-500 dark:text-gray-400">
-          Prix ({currentDevise === 'DZD' ? 'DA' : currentDevise})
+          Prix ({currentDevise || 'DA'})
         </div>
         <div className="absolute top-0 left-0 transform -rotate-90 text-xs text-gray-500 dark:text-gray-400">
           Volume

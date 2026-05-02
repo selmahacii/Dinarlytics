@@ -25,7 +25,7 @@ interface GestionTarifsWidgetProps {
 }
 
 const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'mois' }) => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const { currentTheme } = useTheme();
   const [activeView, setActiveView] = useState<'overview' | 'historique' | 'analytics' | 'gestion'>('overview');
   const [selectedPricing, setSelectedPricing] = useState<any>(null);
@@ -193,11 +193,11 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-8 lg:border-l lg:border-slate-50 lg:pl-8">
                     <div>
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Nouveau Prix</p>
-                      <p className="text-lg font-black font-mono text-slate-900 italic">{formatCurrency(pricing.prix)} DA</p>
+                      <p className="text-lg font-black font-mono text-slate-900 italic">{formatCurrency(pricing.prix)}</p>
                     </div>
                     <div>
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ancien Prix</p>
-                      <p className="text-lg font-black font-mono text-slate-300 line-through italic">{formatCurrency(pricing.ancienPrix)} DA</p>
+                      <p className="text-lg font-black font-mono text-slate-300 line-through italic">{formatCurrency(pricing.ancienPrix)}</p>
                     </div>
                     <div className="lg:pr-8">
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Variation</p>
@@ -424,7 +424,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
               data={{
                 labels: ['Informatique', 'Mobilier', 'Téléphonie', 'Électronique', 'Accessoires'],
                 datasets: [{
-                  label: 'Impact Financier (DA)',
+                  label: `Impact Financier (${currentDevise || 'DA'})`,
                   data: [45000, -15000, -25000, 35000, 10000],
                   backgroundColor: [
                     'rgba(239, 68, 68, 0.8)',
@@ -630,11 +630,11 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Ancien Prix</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedPricing.ancienPrix)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedPricing.ancienPrix)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Nouveau Prix</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedPricing.prix)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedPricing.prix)}</p>
                 </div>
               </div>
 
@@ -708,7 +708,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
             <form className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nouveau Prix (DA)</label>
+                  <label className="block text-sm font-medium text-gray-700">Nouveau Prix ({currentDevise || 'DA'})</label>
                   <input
                     type="number"
                     defaultValue={selectedPricing.prix}
@@ -785,7 +785,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Nouveau Prix (DA)</label>
+                  <label className="block text-sm font-medium text-gray-700">Nouveau Prix ({currentDevise || 'DA'})</label>
                   <input
                     type="number"
                     placeholder="Ex: 85000"

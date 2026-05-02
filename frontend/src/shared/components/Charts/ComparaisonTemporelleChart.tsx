@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useApp } from '@core/context/AppContext';
 import {
   CalendarIcon,
   ArrowTrendingUpIcon,
@@ -22,6 +23,7 @@ interface ComparaisonTemporelleChartProps {
 }
 
 const ComparaisonTemporelleChart: React.FC<ComparaisonTemporelleChartProps> = ({ period }) => {
+  const { currentDevise } = useApp();
   const [activeView, setActiveView] = useState<'trimestrielle' | 'flux' | 'previsions'>('trimestrielle');
   const [selectedPeriod, setSelectedPeriod] = useState('12m');
   const [selectedMetric, setSelectedMetric] = useState('all');
@@ -214,11 +216,11 @@ const ComparaisonTemporelleChart: React.FC<ComparaisonTemporelleChartProps> = ({
             <div className="space-y-1 text-sm text-blue-600">
               <div className="flex justify-between">
                 <span>Actuel:</span>
-                <span className="font-medium">{(currentData.ca.current / 1000000).toFixed(1)}M DZD</span>
+                <span className="font-medium">{(currentData.ca.current / 1000000).toFixed(1)}M {currentDevise || 'DA'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Précédent:</span>
-                <span className="font-medium">{(currentData.ca.previous / 1000000).toFixed(1)}M DZD</span>
+                <span className="font-medium">{(currentData.ca.previous / 1000000).toFixed(1)}M {currentDevise || 'DA'}</span>
               </div>
             </div>
           </div>
@@ -236,11 +238,11 @@ const ComparaisonTemporelleChart: React.FC<ComparaisonTemporelleChartProps> = ({
             <div className="space-y-1 text-sm text-blue-600">
               <div className="flex justify-between">
                 <span>Actuel:</span>
-                <span className="font-medium">{(currentData.resultat.current / 1000000).toFixed(1)}M DZD</span>
+                <span className="font-medium">{(currentData.resultat.current / 1000000).toFixed(1)}M {currentDevise || 'DA'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Précédent:</span>
-                <span className="font-medium">{(currentData.resultat.previous / 1000000).toFixed(1)}M DZD</span>
+                <span className="font-medium">{(currentData.resultat.previous / 1000000).toFixed(1)}M {currentDevise || 'DA'}</span>
               </div>
             </div>
           </div>
@@ -258,11 +260,11 @@ const ComparaisonTemporelleChart: React.FC<ComparaisonTemporelleChartProps> = ({
             <div className="space-y-1 text-sm text-blue-600">
               <div className="flex justify-between">
                 <span>Actuel:</span>
-                <span className="font-medium">{(currentData.tresorerie.current / 1000000).toFixed(1)}M DZD</span>
+                <span className="font-medium">{(currentData.tresorerie.current / 1000000).toFixed(1)}M {currentDevise || 'DA'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Précédent:</span>
-                <span className="font-medium">{(currentData.tresorerie.previous / 1000000).toFixed(1)}M DZD</span>
+                <span className="font-medium">{(currentData.tresorerie.previous / 1000000).toFixed(1)}M {currentDevise || 'DA'}</span>
               </div>
             </div>
           </div>

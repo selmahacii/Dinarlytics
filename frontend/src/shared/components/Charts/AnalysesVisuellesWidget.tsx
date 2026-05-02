@@ -23,7 +23,7 @@ interface AnalysesVisuellesWidgetProps {
 }
 
 const AnalysesVisuellesWidget: React.FC<AnalysesVisuellesWidgetProps> = ({ period = 'mois' }) => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const { currentTheme } = useTheme();
   const [selectedGraph, setSelectedGraph] = useState<string>('ventes-secteur');
 
@@ -31,7 +31,7 @@ const AnalysesVisuellesWidget: React.FC<AnalysesVisuellesWidgetProps> = ({ perio
   const ventesParSecteur = {
     labels: ['Technologie', 'Industrie', 'Services', 'Commerce', 'Santé', 'Éducation'],
     datasets: [{
-      label: 'Chiffre d\'Affaires (DA)',
+      label: `Chiffre d'Affaires (${currentDevise || 'DA'})`,
       data: [850000, 720000, 450000, 380000, 280000, 150000],
       backgroundColor: [
         'rgba(59, 130, 246, 0.8)',
@@ -78,7 +78,7 @@ const AnalysesVisuellesWidget: React.FC<AnalysesVisuellesWidgetProps> = ({ perio
   const evolutionVentes = {
     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
     datasets: [{
-      label: 'Ventes (DA)',
+      label: `Ventes (${currentDevise || 'DA'})`,
       data: [2100000, 2250000, 2180000, 2400000, 2320000, 2450000],
       borderColor: '#3B82F6',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -89,7 +89,7 @@ const AnalysesVisuellesWidget: React.FC<AnalysesVisuellesWidgetProps> = ({ perio
       pointBorderWidth: 2,
       pointRadius: 6
     }, {
-      label: 'Objectif (DA)',
+      label: `Objectif (${currentDevise || 'DA'})`,
       data: [2000000, 2200000, 2200000, 2300000, 2300000, 2400000],
       borderColor: '#10B981',
       backgroundColor: 'rgba(16, 185, 129, 0.1)',

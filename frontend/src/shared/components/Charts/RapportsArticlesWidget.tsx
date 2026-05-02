@@ -40,7 +40,7 @@ interface RapportsArticlesWidgetProps {
 }
 
 const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period = 'mois', articles = [], stats }) => {
-  const { formatCurrency } = useApp();
+  const { user, companyData, formatCurrency, currentDevise } = useApp();
   const { currentTheme } = useTheme();
   const [activeView, setActiveView] = useState<'overview' | 'ventes' | 'stock' | 'performance' | 'analytique'>('overview');
   const [selectedCategory, setSelectedCategory] = useState<string>('tous');
@@ -146,7 +146,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
   const ventesParCategorie = {
     labels: ['Informatique', 'Mobilier', 'Téléphonie', 'Électronique', 'Accessoires'],
     datasets: [{
-      label: 'Chiffre d\'Affaires (DA)',
+      label: `Chiffre d'Affaires (${currentDevise || 'DA'})`,
       data: [5325000, 1060000, 1430000, 850000, 425000],
       backgroundColor: [
         'rgba(59, 130, 246, 0.8)',
@@ -181,7 +181,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
   const evolutionVentes = {
     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
     datasets: [{
-      label: 'Ventes (DA)',
+      label: 'Ventes',
       // On base les ventes sur la valeur totale pour la cohérence
       data: [
         displayedStats.totalValue * 0.7,
@@ -928,7 +928,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
               data={{
                 labels: performanceFournisseurs.map(f => f.fournisseur.split(' ')[0]),
                 datasets: [{
-                  label: 'Chiffre d\'Affaires (DA)',
+                  label: `Chiffre d'Affaires (${currentDevise || 'DA'})`,
                   data: performanceFournisseurs.map(f => f.chiffreAffaires),
                   backgroundColor: [
                     'rgba(59, 130, 246, 0.8)',
@@ -1144,7 +1144,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{formatCurrency(fournisseur.chiffreAffaires)}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">دج</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{currentDevise || 'DA'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{fournisseur.delaiMoyen} jours</div>
@@ -1270,7 +1270,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
             </div>
             <div className="flex justify-between items-center p-2">
               <span className="text-sm text-slate-600 dark:text-slate-400">Investissement</span>
-              <span className="text-base font-semibold text-slate-900 dark:text-slate-100">2.8M DA</span>
+              <span className="text-base font-semibold text-slate-900 dark:text-slate-100">{formatCurrency(2800000)}</span>
             </div>
           </div>
         </Card>
@@ -1357,7 +1357,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Prix de Vente</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.prixVente)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.prixVente)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Stock Actuel</label>
@@ -1379,11 +1379,11 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Chiffre d'Affaires</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.chiffreAffaires)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.chiffreAffaires)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Marge</label>
-                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.marge)} دج</p>
+                  <p className="text-lg font-bold text-gray-900">{formatCurrency(selectedArticle.marge)}</p>
                 </div>
               </div>
 
@@ -1484,7 +1484,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Prix de Vente (DA)</label>
+                  <label className="block text-sm font-medium text-gray-700">Prix de Vente ({currentDevise || 'DA'})</label>
                   <input
                     type="number"
                     defaultValue={selectedArticle.prixVente}
@@ -1586,7 +1586,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                     <div>
                       <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium uppercase">Chiffre d'Affaires</p>
                       <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100 mt-1">{formatCurrency(selectedFournisseur.chiffreAffaires)}</p>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400">دج</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">{currentDevise || 'DA'}</p>
                     </div>
                     <CurrencyDollarIcon className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
                   </div>
@@ -1714,7 +1714,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{commande.date}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{formatCurrency(commande.montant)} دج</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">{formatCurrency(commande.montant)}</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">

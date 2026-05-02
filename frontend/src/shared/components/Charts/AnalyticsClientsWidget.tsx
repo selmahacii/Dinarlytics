@@ -29,7 +29,7 @@ interface AnalyticsClientsWidgetProps {
 }
 
 const AnalyticsClientsWidget: React.FC<AnalyticsClientsWidgetProps> = ({ clientId }) => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const { currentTheme } = useTheme();
   const [activeView, setActiveView] = useState<'overview' | 'performance' | 'segmentation' | 'tendances'>('overview');
   const [selectedPeriod, setSelectedPeriod] = useState('mois');
@@ -238,7 +238,7 @@ const AnalyticsClientsWidget: React.FC<AnalyticsClientsWidgetProps> = ({ clientI
               data={{
                 labels: tendancesData.chiffreAffaires.map(item => item.mois),
                 datasets: [{
-                  label: 'Chiffre d\'Affaires (DA)',
+                  label: `Chiffre d'Affaires (${currentDevise || 'DA'})`,
                   data: tendancesData.chiffreAffaires.map(item => item.montant),
                   borderColor: '#3B82F6',
                   backgroundColor: 'rgba(59, 130, 246, 0.1)',

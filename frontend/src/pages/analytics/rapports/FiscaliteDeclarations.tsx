@@ -1876,17 +1876,17 @@ const FiscaliteDeclarations: React.FC = () => {
                         <tr key={index} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 font-bold text-slate-900">{item.impot}</td>
                           <td className="px-6 py-4 text-right font-medium text-slate-900">
-                            {item.baseImposable.toLocaleString()} DA
+                            {formatCurrency(item.baseImposable)}
                           </td>
                           <td className="px-6 py-4 text-center font-semibold text-slate-700">{item.taux}</td>
                           <td className="px-6 py-4 text-right font-bold text-red-600">
-                            {item.montantDu.toLocaleString()} DA
+                            {formatCurrency(item.montantDu)}
                           </td>
                           <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                            {item.paye.toLocaleString()} DA
+                            {formatCurrency(item.paye)}
                           </td>
                           <td className="px-6 py-4 text-right font-black text-slate-900">
-                            {item.solde.toLocaleString()} DA
+                            {formatCurrency(item.solde)}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -1980,7 +1980,7 @@ const FiscaliteDeclarations: React.FC = () => {
                           <td className="px-6 py-4 font-bold text-slate-900">{event.date}</td>
                           <td className="px-6 py-4 text-sm text-slate-900">{event.type}</td>
                           <td className="px-6 py-4 text-right font-bold text-slate-900">
-                            {event.montant.toLocaleString()} DA
+                            {formatCurrency(event.montant)}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${
@@ -2015,19 +2015,19 @@ const FiscaliteDeclarations: React.FC = () => {
                                 if (event.statut === 'transmise') {
                                   setModalContent({
                                     title: '✅ Déclaration Transmise',
-                                    message: `${event.type}\nDate: ${event.date}\nMontant: ${event.montant.toLocaleString()} DA\n\n✓ Déclaration validée\n✓ Paiement effectué\n📄 Reçu disponible\n\nRéférence: #${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+                                    message: `${event.type}\nDate: ${event.date}\nMontant: ${formatCurrency(event.montant)}\n\n✓ Déclaration validée\n✓ Paiement effectué\n📄 Reçu disponible\n\nRéférence: #${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
                                     type: 'success'
                                   });
                                 } else if (event.statut === 'en retard') {
                                   setModalContent({
                                     title: '⚠️ Déclaration en Retard',
-                                    message: `${event.type}\nDate limite: ${event.date}\nRetard: ${Math.abs(event.echeanceJours)} jours\nMontant: ${event.montant.toLocaleString()} DA\n\n⚠️ URGENT - Pénalités possibles\n\nAction immédiate requise !`,
+                                    message: `${event.type}\nDate limite: ${event.date}\nRetard: ${Math.abs(event.echeanceJours)} jours\nMontant: ${formatCurrency(event.montant)}\n\n⚠️ URGENT - Pénalités possibles\n\nAction immédiate requise !`,
                                     type: 'warning'
                                   });
                                 } else {
                                   setModalContent({
                                     title: '📋 Traiter la Déclaration',
-                                    message: `${event.type}\nÉchéance: ${event.date} (${event.echeanceJours} jours)\nMontant estimé: ${event.montant.toLocaleString()} DA\n\n📝 Formulaire en préparation\n⏰ Rappel activé\n\nLe formulaire sera disponible sous peu.`,
+                                    message: `${event.type}\nÉchéance: ${event.date} (${event.echeanceJours} jours)\nMontant estimé: ${formatCurrency(event.montant)}\n\n📝 Formulaire en préparation\n⏰ Rappel activé\n\nLe formulaire sera disponible sous peu.`,
                                     type: 'info'
                                   });
                                 }
@@ -2088,7 +2088,7 @@ const FiscaliteDeclarations: React.FC = () => {
                             </div>
                           </div>
                           <div className="text-sm text-slate-600 mb-2">
-                            Montant: <span className="font-bold text-slate-900">{event.montant.toLocaleString()} DA</span>
+                            Montant: <span className="font-bold text-slate-900">{formatCurrency(event.montant)}</span>
                           </div>
                           <div className="bg-slate-50 rounded p-3 text-xs">
                             <div className="flex items-center justify-between">
@@ -2102,7 +2102,7 @@ const FiscaliteDeclarations: React.FC = () => {
                                   if (event.statut === 'transmise') {
                                     setModalContent({
                                       title: '📄 Reçu de Déclaration',
-                                      message: `${event.type}\n\n✅ Statut: Validé et payé\n📅 Date: ${event.date}\n💰 Montant: ${event.montant.toLocaleString()} DA\n🔖 Référence: #${Math.random().toString(36).substr(2, 9).toUpperCase()}\n\n📥 Reçu officiel disponible au téléchargement`,
+                                      message: `${event.type}\n\n✅ Statut: Validé et payé\n📅 Date: ${event.date}\n💰 Montant: ${formatCurrency(event.montant)}\n🔖 Référence: #${Math.random().toString(36).substr(2, 9).toUpperCase()}\n\n📥 Reçu officiel disponible au téléchargement`,
                                       type: 'success'
                                     });
                                   } else if (event.statut === 'en retard') {

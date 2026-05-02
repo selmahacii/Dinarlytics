@@ -10,6 +10,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { mockVentesMensuelles } from '../../data/mockData';
+import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(
   CategoryScale,
@@ -21,11 +22,12 @@ ChartJS.register(
 );
 
 const SalesChart: React.FC = () => {
+  const { formatCurrency, currentDevise } = useApp();
   const data = {
     labels: mockVentesMensuelles.map(v => v.mois),
     datasets: [
       {
-        label: 'Ventes (DZD)',
+        label: `Ventes (${currentDevise || 'DA'})`,
         data: mockVentesMensuelles.map(v => v.montant),
         backgroundColor: [
           'rgba(59, 130, 246, 0.8)',
@@ -70,7 +72,7 @@ const SalesChart: React.FC = () => {
         displayColors: false,
         callbacks: {
           label: function(context: any) {
-            return 'Ventes: ' + context.parsed.y.toLocaleString('fr-FR') + ' DZD';
+            return 'Ventes: ' + formatCurrency(context.parsed.y);
           }
         }
       }
@@ -101,7 +103,7 @@ const SalesChart: React.FC = () => {
             weight: '500' as const,
           },
           callback: function(value: any) {
-            return value.toLocaleString('fr-FR') + ' DZD';
+            return formatCurrency(value);
           }
         }
       }

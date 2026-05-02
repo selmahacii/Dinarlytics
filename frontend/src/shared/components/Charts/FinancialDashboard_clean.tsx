@@ -16,6 +16,7 @@ import {
   ExclamationTriangleIcon,
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend,
@@ -31,8 +32,10 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   isCollapsible = false, 
   defaultCollapsed = false 
 }) => {
+  const { formatCurrency, currentDevise, setCurrentDevise } = useApp();
   const [periode, setPeriode] = useState('12mois');
-  const [devise, setDevise] = useState('DZD');
+  const devise = currentDevise;
+  const setDevise = (d: any) => setCurrentDevise(d);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [widgets, setWidgets] = useState({
     equilibre: true,
@@ -367,18 +370,8 @@ Valeurs Actuelles:
     return rates[devise] || 1;
   };
 
-  const formatCurrency = (amount: number, devise: string) => {
-    const symbol = getDeviseSymbol(devise);
-    const rate = getDeviseRate(devise);
-    const convertedAmount = amount * rate;
-    
-    if (convertedAmount >= 1000000) {
-      return `${symbol} ${(convertedAmount / 1000000).toFixed(1)}M`;
-    } else if (convertedAmount >= 1000) {
-      return `${symbol} ${(convertedAmount / 1000).toFixed(0)}K`;
-    } else {
-      return `${symbol} ${convertedAmount.toFixed(0)}`;
-    }
+  const formatCurrencyLocal = (amount: number, d: string) => {
+    return formatCurrency(amount);
   };
 
   const getPeriodData = (periode: string) => {
@@ -597,13 +590,13 @@ Valeurs Actuelles:
                   <div className="bg-slate-50 rounded-lg p-3">
                     <p className="text-xs text-slate-600 mb-1">Seuil</p>
                     <p className="text-sm font-bold text-slate-900">
-                      {alerte.unite === 'DZD' ? formatCurrency(alerte.seuil, devise) : `${alerte.seuil} ${alerte.unite}`}
+                      {alerte.unite === 'DZD' || alerte.unite === 'DA' ? formatCurrency(alerte.seuil) : `${alerte.seuil} ${alerte.unite}`}
                     </p>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-3">
                     <p className="text-xs text-slate-600 mb-1">Valeur actuelle</p>
                     <p className="text-sm font-bold text-slate-900">
-                      {alerte.unite === 'DZD' ? formatCurrency(alerte.valeurActuelle, devise) : `${alerte.valeurActuelle} ${alerte.unite}`}
+                      {alerte.unite === 'DZD' || alerte.unite === 'DA' ? formatCurrency(alerte.valeurActuelle) : `${alerte.valeurActuelle} ${alerte.unite}`}
                     </p>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-3">

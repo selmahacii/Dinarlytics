@@ -8,12 +8,14 @@ import {
   CheckCircleIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
+import { useApp } from '@core/context/AppContext';
 
 interface MetricsDashboardProps {
   groupes: any[];
 }
 
 const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
+  const { currentDevise } = useApp();
   // Calculs des métriques
   const totalClients = groupes.reduce((sum, g) => sum + g.nombreClients, 0);
   const totalCA = groupes.reduce((sum, g) => sum + g.chiffreAffaires, 0);
@@ -50,7 +52,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
     },
     {
       title: 'Chiffre d\'Affaires Total',
-      value: (totalCA / 1000000).toFixed(1) + 'M DZD',
+      value: (totalCA / 1000000).toFixed(1) + `M ${currentDevise || 'DA'}`,
       change: `+${evolutionCA}%`,
       changeType: 'positive',
       icon: BanknotesIcon,
@@ -59,7 +61,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
     },
     {
       title: 'Solde Moyen Global',
-      value: (soldeMoyenGlobal / 1000).toFixed(0) + 'k DZD',
+      value: (soldeMoyenGlobal / 1000).toFixed(0) + `k ${currentDevise || 'DA'}`,
       change: soldeMoyenGlobal >= 0 ? '+5.2%' : '-2.1%',
       changeType: soldeMoyenGlobal >= 0 ? 'positive' : 'negative',
       icon: ArrowTrendingUpIcon,
@@ -164,7 +166,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-emerald-800">
-                {(groupeMeilleurCA.chiffreAffaires / 1000000).toFixed(1)}M DZD
+                {(groupeMeilleurCA.chiffreAffaires / 1000000).toFixed(1)}M {currentDevise || 'DA'}
               </div>
               <div className="text-sm text-emerald-600">
                 {((groupeMeilleurCA.chiffreAffaires / totalCA) * 100).toFixed(1)}% du total
@@ -185,7 +187,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-emerald-800">
-                {(groupeMeilleurSolde.soldeMoyen / 1000).toFixed(0)}k DZD
+                {(groupeMeilleurSolde.soldeMoyen / 1000).toFixed(0)}k {currentDevise || 'DA'}
               </div>
               <div className="text-sm text-emerald-600">
                 Solde moyen positif
@@ -213,7 +215,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
               alerts.push({
                 type: 'warning',
                 title: 'Groupe à Surveiller',
-                content: `Le groupe "${riskGroup.nom}" présente un solde moyen négatif (${(riskGroup.soldeMoyen / 1000).toFixed(0)}k DZD). Recommandation : Suivi renforcé du recouvrement.`,
+                content: `Le groupe "${riskGroup.nom}" présente un solde moyen négatif (${(riskGroup.soldeMoyen / 1000).toFixed(0)}k ${currentDevise || 'DA'}). Recommandation : Suivi renforcé du recouvrement.`,
                 icon: ExclamationTriangleIcon,
                 colorClasses: 'bg-amber-50 text-amber-600 border-amber-200',
                 titleColor: 'text-amber-900',
@@ -226,7 +228,7 @@ const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ groupes }) => {
               alerts.push({
                 type: 'success',
                 title: 'Performance Excellente',
-                content: `Le groupe "${topGroup.nom}" génère le meilleur CA (${(topGroup.chiffreAffaires / 1000000).toFixed(1)}M DZD). Opportunité : Fidélisation prioritaire.`,
+                content: `Le groupe "${topGroup.nom}" génère le meilleur CA (${(topGroup.chiffreAffaires / 1000000).toFixed(1)}M ${currentDevise || 'DA'}). Opportunité : Fidélisation prioritaire.`,
                 icon: CheckCircleIcon,
                 colorClasses: 'bg-emerald-50 text-emerald-600 border-emerald-200',
                 titleColor: 'text-emerald-900',

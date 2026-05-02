@@ -34,9 +34,10 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   defaultCollapsed = false 
 }) => {
   const { t, i18n } = useTranslation();
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise, setCurrentDevise } = useApp();
   const [periode, setPeriode] = useState('12mois');
-  const [devise, setDevise] = useState('DZD');
+  const devise = currentDevise;
+  const setDevise = (d: any) => setCurrentDevise(d);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [widgets, setWidgets] = useState({
     equilibre: true,
@@ -398,12 +399,12 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   };
 
   // Fonctions de calcul des données basées sur les filtres
-  const getDeviseSymbol = (devise: string) => {
-    switch (devise) {
+  const getDeviseSymbol = (d: string) => {
+    switch (d) {
       case 'EUR': return '€';
       case 'USD': return '$';
-      case 'DZD': return 'DZD';
-      default: return 'DZD';
+      case 'DZD': return 'DA';
+      default: return 'DA';
     }
   };
 
@@ -416,16 +417,8 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
     }
   };
 
-  const formatCurrencyLocal = (amount: number, devise: string) => {
-    const rate = getDeviseRate(devise);
-    const convertedAmount = amount * rate;
-    const symbol = getDeviseSymbol(devise);
-    
-    if (devise === 'DZD') {
-      return `${convertedAmount.toLocaleString('fr-FR')} ${symbol}`;
-    } else {
-      return `${symbol}${convertedAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
+  const formatCurrencyLocal = (amount: number, d: string) => {
+    return formatCurrency(amount);
   };
 
   const getPeriodData = (periode: string) => {
@@ -1361,9 +1354,9 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                       <div className="absolute left-0 top-0 h-full w-0.5 bg-slate-900" style={{ left: '100%', transform: 'translateX(-1px)' }} />
                   </div>
                     <div className="flex justify-between items-center mt-1.5 text-xs">
-                      <span className="text-slate-600">Seuil: <strong className="text-slate-900">{alerte.unite === 'DZD' ? formatCurrency(alerte.seuil) : `${alerte.seuil} ${alerte.unite}`}</strong></span>
+                      <span className="text-slate-600">Seuil: <strong className="text-slate-900">{alerte.unite === 'DZD' || alerte.unite === 'DA' ? formatCurrency(alerte.seuil) : `${alerte.seuil} ${alerte.unite}`}</strong></span>
                       <span className={`font-semibold ${alerte.statut === 'Déclenchée' ? 'text-slate-900' : 'text-slate-600'}`}>
-                        Actuel: <strong>{alerte.unite === 'DZD' ? formatCurrency(alerte.valeurActuelle) : `${alerte.valeurActuelle} ${alerte.unite}`}</strong>
+                        Actuel: <strong>{alerte.unite === 'DZD' || alerte.unite === 'DA' ? formatCurrency(alerte.valeurActuelle) : `${alerte.valeurActuelle} ${alerte.unite}`}</strong>
                       </span>
                   </div>
                   </div>
@@ -2442,7 +2435,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <span className="text-xs font-semibold text-slate-700">CA Q4 Prédit</span>
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs rounded border border-slate-200">+8%</span>
           </div>
-                  <p className="text-sm font-bold text-slate-900">2.7M DZD</p>
+                  <p className="text-sm font-bold text-slate-900">2.7M {currentDevise || 'DA'}</p>
                   <p className="text-xs text-slate-600">Confiance: 89% • Basé sur tendances saisonnières</p>
             </div>
 
@@ -4056,7 +4049,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                     <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
                       <h5 className="font-semibold text-amber-900 mb-2">Impact Financier Estimé</h5>
                       <p className="text-sm text-amber-800">
-                        Retard de paiement estimé: <span className="font-semibold">+{triggerResult.depassement * 1000} DZD</span>
+                        Retard de paiement estimé: <span className="font-semibold">+{formatCurrency(triggerResult.depassement * 1000)}</span>
                       </p>
                     </div>
                     <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -4360,7 +4353,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
                           <td className="py-3 px-4 font-mono text-slate-700">FAC-{(1000 + i).toString().padStart(4, '0')}</td>
                           <td className="py-3 px-4 text-slate-700">Client {i + 1}</td>
                           <td className="py-3 px-4 text-right font-semibold text-slate-700">
-                            {(Math.random() * 50000 + 10000).toLocaleString('fr-FR')} DZD
+                            {formatCurrency(Math.random() * 50000 + 10000)}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">

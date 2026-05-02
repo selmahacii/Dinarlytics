@@ -17,7 +17,7 @@ interface ControlesClotureWidgetProps {
 }
 
 const ControlesClotureWidget: React.FC<ControlesClotureWidgetProps> = ({ period }) => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const [selectedControl, setSelectedControl] = useState<string>('equilibre');
 
   // Données des contrôles de clôture
@@ -42,7 +42,7 @@ const ControlesClotureWidget: React.FC<ControlesClotureWidgetProps> = ({ period 
         data: {
           labels: ['Débit Total', 'Crédit Total'],
           datasets: [{
-            label: 'Montants (DA)',
+            label: `Montants (${currentDevise || 'DA'})`,
             data: [2450000, 2450000],
             backgroundColor: ['#10B981', '#3B82F6'],
             borderColor: ['#059669', '#2563EB'],
@@ -105,7 +105,7 @@ const ControlesClotureWidget: React.FC<ControlesClotureWidgetProps> = ({ period 
         data: {
           labels: ['Produits Finis', 'Matières Premières', 'Marchandises'],
           datasets: [{
-            label: 'Valeur (DA)',
+            label: `Valeur (${currentDevise || 'DA'})`,
             data: [75000, 35000, 15000],
             backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6'],
             borderColor: ['#059669', '#2563EB', '#7C3AED'],
@@ -180,7 +180,7 @@ const ControlesClotureWidget: React.FC<ControlesClotureWidgetProps> = ({ period 
         data: {
           labels: ['Compte Principal', 'Compte Secondaire', 'Compte Épargne'],
           datasets: [{
-            label: 'Solde (DA)',
+            label: `Solde (${currentDevise || 'DA'})`,
             data: [300000, 120000, 30000],
             backgroundColor: ['#10B981', '#3B82F6', '#8B5CF6'],
             borderColor: ['#059669', '#2563EB', '#7C3AED'],

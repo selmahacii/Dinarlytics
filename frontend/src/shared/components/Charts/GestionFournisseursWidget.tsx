@@ -26,7 +26,7 @@ interface GestionFournisseursWidgetProps {
 }
 
 const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ period = 'mois' }) => {
-  const { formatCurrency } = useApp();
+  const { formatCurrency, currentDevise } = useApp();
   const { currentTheme } = useTheme();
   const [activeView, setActiveView] = useState<'overview' | 'liste' | 'analytics' | 'gestion'>('overview');
   const [selectedFournisseur, setSelectedFournisseur] = useState<any>(null);
@@ -747,7 +747,7 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
             <div>
               <p className="text-sm text-orange-600 font-medium">CA Total</p>
               <p className="text-2xl font-bold text-orange-800">{formatCurrency(statsGenerales.chiffreAffairesTotal)}</p>
-              <p className="text-xs text-gray-500">دج</p>
+              <p className="text-xs text-gray-500">{currentDevise || 'DA'}</p>
             </div>
             <CurrencyDollarIcon className="h-8 w-8 text-orange-600" />
           </div>
