@@ -351,16 +351,16 @@ const GestionEntreprise: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* En-tête */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{t('settings.multi_company.title')}</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">{t('settings.multi_company.subtitle')}</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 uppercase tracking-tight">{t('settings.multi_company.title')}</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm font-medium">{t('settings.multi_company.subtitle')}</p>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-            {currentTime.toLocaleString('fr-FR')}
+        <div className="text-left sm:text-right bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">
+            {currentTime.toLocaleTimeString('fr-FR')}
           </div>
-          <div className="text-sm text-slate-500 dark:text-slate-500">
+          <div className="text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-tight">
             {t('settings.multi_company.active_company', { name: entreprises.find(e => e.devise === currentDevise)?.nom || t('settings.multi_company.none') })}
           </div>
         </div>
@@ -422,8 +422,8 @@ const GestionEntreprise: React.FC = () => {
       </div>
 
       {/* Onglets */}
-      <div className="border-b border-slate-200 dark:border-slate-700">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar">
+        <nav className="-mb-px flex space-x-8 min-w-max">
           {[
             { id: 'list', name: t('settings.multi_company.tabs.list'), icon: BuildingOfficeIcon },
             { id: 'currencies', name: t('settings.multi_company.tabs.currencies'), icon: CurrencyDollarIcon },
@@ -576,20 +576,20 @@ const GestionEntreprise: React.FC = () => {
             </div>
             <div className="space-y-4">
               {devises.map((devise) => (
-                <div key={devise.code} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl hover:shadow-md transition-all">
+                <div key={devise.code} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-2xl hover:shadow-md transition-all gap-4">
                   <div className="flex items-center space-x-4">
-                    <div className={`px-4 py-2 rounded-lg text-sm font-bold ${getDeviseColor(devise.code)}`}>
+                    <div className={`px-4 py-2 rounded-lg text-sm font-black ${getDeviseColor(devise.code)}`}>
                       {devise.code}
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-slate-100">{devise.nom}</p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">Symbole: <span className="font-medium">{devise.symbole}</span></p>
+                      <p className="font-bold text-slate-900 dark:text-slate-100">{devise.nom}</p>
+                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Symbole: <span className="text-slate-900 dark:text-white">{devise.symbole}</span></p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-6">
-                    <div className="text-right bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Taux de change</p>
-                      <p className="font-bold text-slate-900 dark:text-slate-100">1 DZD = {devise.taux} {devise.code}</p>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <div className="text-left sm:text-right bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-600 min-w-[140px]">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Taux de change</p>
+                      <p className="font-black text-slate-900 dark:text-white font-mono text-sm">1 DZD = {devise.taux} {devise.code}</p>
                     </div>
                     <button
                       onClick={() => {
@@ -598,11 +598,9 @@ const GestionEntreprise: React.FC = () => {
                           handleUpdateCurrency(devise.code, parseFloat(nouveauTaux));
                         }
                       }}
-                      className="px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white rounded-lg transition-all shadow-sm font-medium flex items-center space-x-2"
+                      className="px-4 py-3 bg-slate-900 text-white rounded-xl transition-all shadow-lg font-black text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
+                      <PencilIcon className="h-4 w-4" />
                       <span>Modifier</span>
                     </button>
                   </div>
@@ -627,31 +625,28 @@ const GestionEntreprise: React.FC = () => {
             </div>
             <div className="space-y-4">
               {permissions.map((permission) => (
-                <div key={permission.id} className="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl hover:shadow-md transition-all">
+                <div key={permission.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-2xl hover:shadow-md transition-all gap-4">
                   <div className="flex items-center space-x-4">
-                    <div className="p-3 bg-slate-600 dark:bg-slate-700 rounded-lg">
+                    <div className="p-3 bg-slate-900 dark:bg-slate-800 rounded-xl shadow-lg">
                       <ShieldCheckIcon className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-slate-100">{permission.name}</p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{permission.description}</p>
+                      <p className="font-bold text-slate-900 dark:text-slate-100">{permission.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{permission.description}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="text-right bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600">
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Entreprises</p>
-                      <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <div className="text-left sm:text-right bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-600">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Entreprises</p>
+                      <p className="text-lg font-black text-slate-900 dark:text-white">
                         {entreprises.filter(e => e.permissions.includes(permission.id)).length}
                       </p>
                     </div>
                     <button 
                       onClick={() => handleConfigurePermission(permission)}
-                      className="px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white rounded-lg transition-all shadow-sm font-medium flex items-center space-x-2"
+                      className="px-4 py-3 bg-slate-900 text-white rounded-xl transition-all shadow-lg font-black text-[10px] uppercase tracking-widest flex items-center justify-center space-x-2"
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
+                      <CogIcon className="h-4 w-4" />
                       <span>Configurer</span>
                     </button>
                   </div>

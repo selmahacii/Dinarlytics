@@ -249,10 +249,10 @@ const Statistiques: React.FC = () => {
           </div>
 
           {/* Professional Disclaimer */}
-          <div className="mt-8 flex items-start space-x-3 bg-blue-50/50 border border-blue-100 rounded-lg p-3 max-w-3xl">
+          <div className="mt-8 flex items-start space-x-3 bg-blue-50/50 border border-blue-100 rounded-2xl p-4 max-w-3xl">
             <ExclamationTriangleIcon className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-blue-700">
-              <span className="font-semibold mr-1"> {t('steering.dashboard.demo_env')}</span>
+            <p className="text-[10px] font-black uppercase tracking-widest text-blue-700">
+              <span className="mr-1"> {t('steering.dashboard.demo_env')}</span>
               {t('steering.dashboard.demo_desc')}
             </p>
           </div>
@@ -263,55 +263,55 @@ const Statistiques: React.FC = () => {
       </div>
 
       {/* 🎯 Métriques Clés Reformatted */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-          <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.revenue')}</p>
-          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{formatCurrency(metriques.ventesTotal)}</h3>
-          <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+          <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mb-6 relative z-10" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.revenue')}</p>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{formatCurrency(metriques.ventesTotal)}</h3>
+          <div className="flex items-center mt-3 text-[9px] font-black text-emerald-600 bg-emerald-50 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
             <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
             <span>+{metriques.croissanceCA}%</span>
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-          <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.gross_margin')}</p>
-          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.margeBrute}%</h3>
-          <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+          <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-6 relative z-10" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.gross_margin')}</p>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{metriques.margeBrute}%</h3>
+          <div className="flex items-center mt-3 text-[9px] font-black text-emerald-600 bg-emerald-50 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
             <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
             <span>+2.1%</span>
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-          <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.stock_rotation')}</p>
-          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.rotationStock}x/{t('common.days')}</h3>
-          <div className="flex items-center mt-2 text-xs font-medium text-slate-500">
+          <ArrowTrendingUpIcon className="h-8 w-8 text-purple-600 mb-6 relative z-10" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.stock_rotation')}</p>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{metriques.rotationStock}x</h3>
+          <div className="flex items-center mt-3 text-[9px] font-black text-slate-500 uppercase tracking-widest">
             {t('steering.dashboard.metrics.target')} 8x
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-          <UserGroupIcon className="h-8 w-8 text-orange-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.active_clients')}</p>
-          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.nombreClients}</h3>
-          <div className="flex items-center mt-2 text-xs font-semibold text-emerald-600 bg-emerald-50 w-fit px-2 py-1 rounded-full">
+          <UserGroupIcon className="h-8 w-8 text-orange-600 mb-6 relative z-10" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.active_clients')}</p>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{metriques.nombreClients}</h3>
+          <div className="flex items-center mt-3 text-[9px] font-black text-emerald-600 bg-emerald-50 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
             <span>+{metriques.nouveauxClients} {t('steering.dashboard.metrics.new')}</span>
           </div>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
+        <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-          <CheckCircleIcon className="h-8 w-8 text-teal-600 mb-4 relative z-10" />
-          <p className="text-slate-500 text-sm font-medium mb-1">{t('steering.dashboard.metrics.loyalty')}</p>
-          <h3 className="text-2xl font-bold text-slate-800 tracking-tight">{metriques.tauxFidelisation}%</h3>
-          <div className="flex items-center mt-2 text-xs font-medium text-teal-700 bg-teal-50 w-fit px-2 py-1 rounded-full">
+          <CheckCircleIcon className="h-8 w-8 text-teal-600 mb-6 relative z-10" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.loyalty')}</p>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{metriques.tauxFidelisation}%</h3>
+          <div className="flex items-center mt-3 text-[9px] font-black text-teal-700 bg-teal-50 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
             {t('steering.dashboard.metrics.top_tier')}
           </div>
         </div>

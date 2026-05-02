@@ -445,18 +445,18 @@ const EtatsRapports: React.FC = () => {
     <>
       <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center justify-between">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 sm:p-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-slate-100 rounded-lg">
+            <div className="p-3 bg-slate-100 rounded-lg hidden sm:block">
               <DocumentTextIcon className="h-8 w-8 text-slate-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">{t('accounting.reports.title')}</h1>
-              <p className="text-slate-600">{t('accounting.reports.subtitle')}</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{t('accounting.reports.title')}</h1>
+              <p className="text-xs sm:text-sm text-slate-600">{t('accounting.reports.subtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <select title={t('accounting.reports.period_select')}
               value={selectedPeriode}
               onChange={(e) => setSelectedPeriode(e.target.value)}
@@ -523,12 +523,12 @@ const EtatsRapports: React.FC = () => {
                 <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">{t('accounting.reports.bilan.actif_immobilise')}</h4>
                 <div className="space-y-1">
                   {bilan.actif.immobilise.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
-                      <div className="flex flex-col">
+                    <div key={i} className="flex items-start justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0 gap-4">
+                      <div className="flex flex-col min-w-0">
                         <span className="text-xs font-mono text-slate-400">{item.compte}</span>
-                        <span className="text-sm font-bold text-slate-700">{item.libelle}</span>
+                        <span className="text-sm font-bold text-slate-700 break-words">{item.libelle}</span>
                       </div>
-                      <span className="text-base font-black text-slate-900">{formatCurrency(item.montant)}</span>
+                      <span className="text-sm sm:text-base font-black text-slate-900 whitespace-nowrap">{formatCurrency(item.montant)}</span>
                     </div>
                   ))}
                   <div className="flex items-center justify-between p-4 mt-2 bg-slate-50 rounded-xl border border-slate-100">
@@ -545,12 +545,12 @@ const EtatsRapports: React.FC = () => {
                 <h4 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em]">{t('accounting.reports.bilan.actif_circulant')}</h4>
                 <div className="space-y-1">
                   {bilan.actif.circulant.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
-                      <div className="flex flex-col">
+                    <div key={i} className="flex items-start justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0 gap-4">
+                      <div className="flex flex-col min-w-0">
                         <span className="text-xs font-mono text-slate-400">{item.compte}</span>
-                        <span className="text-sm font-bold text-slate-700">{item.libelle}</span>
+                        <span className="text-sm font-bold text-slate-700 break-words">{item.libelle}</span>
                       </div>
-                      <span className="text-base font-black text-slate-900">{formatCurrency(item.montant)}</span>
+                      <span className="text-sm sm:text-base font-black text-slate-900 whitespace-nowrap">{formatCurrency(item.montant)}</span>
                     </div>
                   ))}
                   <div className="flex items-center justify-between p-4 mt-2 bg-slate-50 rounded-xl border border-slate-100">
@@ -645,12 +645,12 @@ const EtatsRapports: React.FC = () => {
                 <h4 className="text-xs font-black text-slate-400 mb-2 uppercase tracking-[0.2em]">{t('accounting.reports.resultat.charges_exploitation')}</h4>
                 <div className="space-y-1">
                   {compteResultat.charges.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0">
-                      <div className="flex flex-col">
+                    <div key={i} className="flex items-start justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors border-b border-slate-100 last:border-0 gap-4">
+                      <div className="flex flex-col min-w-0">
                         <span className="text-xs font-mono text-slate-400">{item.compte}</span>
-                        <span className="text-sm font-bold text-slate-700">{item.libelle}</span>
+                        <span className="text-sm font-bold text-slate-700 break-words">{item.libelle}</span>
                       </div>
-                      <span className="text-base font-black text-slate-900">{formatCurrency(item.montant)}</span>
+                      <span className="text-sm sm:text-base font-black text-slate-900 whitespace-nowrap">{formatCurrency(item.montant)}</span>
                     </div>
                   ))}
                 </div>
@@ -909,15 +909,15 @@ const EtatsRapports: React.FC = () => {
                 <span className="px-3 py-1 bg-slate-800 text-slate-400 text-[10px] font-black rounded-lg uppercase tracking-widest border border-slate-700">{t('accounting.reports.audit_ready')}</span>
               </div>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto no-scrollbar">
               <table className="min-w-full divide-y divide-slate-100">
                 <thead className="bg-slate-900 border-b-2 border-slate-800">
                   <tr>
-                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.account')}</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.label')}</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.debit')}</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.credit')}</th>
-                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('accounting.reports.balance.balance')}</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{t('accounting.reports.balance.account')}</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{t('accounting.reports.balance.label')}</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{t('accounting.reports.balance.debit')}</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{t('accounting.reports.balance.credit')}</th>
+                    <th className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{t('accounting.reports.balance.balance')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-slate-50">
@@ -1008,15 +1008,15 @@ const EtatsRapports: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto no-scrollbar">
                   <table className="min-w-full divide-y divide-slate-200">
                     <thead className="bg-slate-50 border-b border-slate-200">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.date')}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.label')}</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.debit')}</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.credit')}</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">{t('accounting.reports.ledger.balance')}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{t('accounting.reports.ledger.date')}</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{t('accounting.reports.ledger.label')}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{t('accounting.reports.ledger.debit')}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{t('accounting.reports.ledger.credit')}</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{t('accounting.reports.ledger.balance')}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-slate-200">

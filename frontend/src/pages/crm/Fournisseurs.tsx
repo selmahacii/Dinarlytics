@@ -787,7 +787,7 @@ const Fournisseurs: React.FC = () => {
     return (
       <div className="space-y-8 max-w-7xl mx-auto p-8 animate-in fade-in duration-700">
         {/* En-tête Sober ERP - Ultra Premium Monochrome */}
-        <div className="bg-slate-900 text-white p-6 sm:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-white/5">
+        <div className="bg-slate-900 text-white p-6 sm:p-10 lg:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-white/5">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-48 -mt-48 blur-3xl opacity-30"></div>
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-center space-x-8">
@@ -796,7 +796,7 @@ const Fournisseurs: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-4">
-                  <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{t('crm.suppliers.flux_title')}</h1>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-tighter">{t('crm.suppliers.flux_title')}</h1>
                   <span className="px-3 py-1 bg-white/10 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] border border-white/20 text-slate-300">Procurement Module v4.0</span>
                 </div>
                 <p className="text-slate-400 text-sm font-bold mt-2 uppercase tracking-[0.1em] opacity-80">{t('crm.suppliers.subtitle')}</p>
@@ -1396,7 +1396,7 @@ const Fournisseurs: React.FC = () => {
       </div>
 
       {/* Navigation - Ultra Minimalist Monochrome */}
-      <div className="bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 w-fit flex gap-2 overflow-x-auto max-w-full">
+      <div className="bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 w-full flex gap-2 overflow-x-auto no-scrollbar">
         {[
           { id: 'liste', name: 'Répertoire', icon: UserGroupIcon },
           { id: 'commandes', name: 'Engagements BC', icon: ClipboardDocumentListIcon },

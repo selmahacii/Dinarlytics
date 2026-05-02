@@ -456,7 +456,7 @@ const Inventaire: React.FC = () => {
       {/* Navigation par onglets */}
       <Card className="p-0">
         <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30">
-          <nav className="flex space-x-4 px-6" aria-label="Tabs">
+          <nav className="flex overflow-x-auto no-scrollbar space-x-4 px-6" aria-label="Tabs">
             {[
               { id: 'stock', name: t('inventory.tabs.stock'), icon: CubeIcon },
               { id: 'movements', name: t('inventory.tabs.movements'), icon: ArrowPathIcon },

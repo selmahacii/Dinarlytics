@@ -110,7 +110,7 @@ const AnalyseFinanciere: React.FC = () => {
   );
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
+    <div className="p-4 sm:p-6 bg-slate-50 min-h-screen">
       {/* En-tête */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900 mb-1">{t('analytics.financial.title')}</h1>
@@ -123,30 +123,30 @@ const AnalyseFinanciere: React.FC = () => {
           {/* Ratios financiers clés */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">{t('analytics.financial.ratios.key_title')}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.dso')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.dso} {t('analytics.financial.ratios.days')}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.dso')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.dso} <span className="text-[10px] uppercase text-slate-400">{t('analytics.financial.ratios.days')}</span></div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.dio')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.dio} {t('analytics.financial.ratios.days')}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.dio')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.dio} <span className="text-[10px] uppercase text-slate-400">{t('analytics.financial.ratios.days')}</span></div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.dpo')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.dpo} {t('analytics.financial.ratios.days')}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.dpo')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.dpo} <span className="text-[10px] uppercase text-slate-400">{t('analytics.financial.ratios.days')}</span></div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.ccc')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.ccc} {t('analytics.financial.ratios.days')}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.ccc')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.ccc} <span className="text-[10px] uppercase text-slate-400">{t('analytics.financial.ratios.days')}</span></div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.liquidity')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.liqGen.toFixed(2)}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.liquidity')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.liqGen.toFixed(2)}</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.margin')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.marginPct.toFixed(1)}%</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.margin')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.marginPct.toFixed(1)}%</div>
               </div>
             </div>
           </Card>
@@ -154,38 +154,38 @@ const AnalyseFinanciere: React.FC = () => {
           {/* Ratios avancés */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">{t('analytics.financial.ratios.advanced_title')}</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.roe')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.roePct}%</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.roe')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.roePct}%</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.roa')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.roaPct}%</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.roa')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.roaPct}%</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.ebitda')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.ebitdaMarginPct}%</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.ebitda')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.ebitdaMarginPct}%</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.net_debt')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.netDebtToEbitda ?? '—'}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.net_debt')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.netDebtToEbitda ?? '—'}</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.interest_coverage')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.interestCoverage ?? '—'}{t('analytics.financial.ratios.multiplier')}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.interest_coverage')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.interestCoverage ?? '—'}<span className="text-[10px] uppercase text-slate-400">{t('analytics.financial.ratios.multiplier')}</span></div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.autonomy')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.autonomyPct}%</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.autonomy')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.autonomyPct}%</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.solvency')}</div>
-                <div className="text-2xl font-bold text-slate-900">{advanced.solvencyAssetsToDebt ?? '—'}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.solvency')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{advanced.solvencyAssetsToDebt ?? '—'}</div>
               </div>
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 text-center">
-                <div className="text-xs text-slate-600 mb-1">{t('analytics.financial.ratios.quick_liquidity')}</div>
-                <div className="text-2xl font-bold text-slate-900">{ratios.liqQuick.toFixed(2)}</div>
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-center transition-all hover:bg-white hover:shadow-md">
+                <div className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('analytics.financial.ratios.quick_liquidity')}</div>
+                <div className="text-xl sm:text-2xl font-black text-slate-900">{ratios.liqQuick.toFixed(2)}</div>
               </div>
               {/* Sector specifics */}
               {['saas','software'].includes(sector.toLowerCase()) && (
@@ -535,7 +535,7 @@ const AnalyseFinanciere: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
             <button className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-medium hover:bg-green-200">
               {t('analytics.financial.modals.scenarios.optimistic')}
             </button>

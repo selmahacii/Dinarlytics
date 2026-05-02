@@ -492,16 +492,16 @@ const TemplateDocument: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* En-tête */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Templates de Documents</h1>
-          <p className="text-gray-600 mt-2">Créez et gérez vos templates de documents personnalisables</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight">Templates de Documents</h1>
+          <p className="text-slate-500 mt-1 text-sm font-medium">Créez et gérez vos templates de documents personnalisables</p>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-500">
-            {currentTime.toLocaleString('fr-FR')}
+        <div className="text-left sm:text-right bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">
+            {currentTime.toLocaleTimeString('fr-FR')}
           </div>
-          <div className="text-sm text-gray-400">
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">
             {templates.length} templates disponibles
           </div>
         </div>
@@ -626,10 +626,10 @@ const TemplateDocument: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleEditTemplate(template)}
-                className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="flex-1 flex items-center justify-center px-4 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-widest shadow-md"
               >
                 <PencilIcon className="h-4 w-4 mr-2" />
                 Éditer
@@ -637,16 +637,18 @@ const TemplateDocument: React.FC = () => {
               
               <button
                 onClick={() => handlePreviewTemplate(template)}
-                className="px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                className="p-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all"
+                title="Aperçu"
               >
-                <EyeIcon className="h-4 w-4" />
+                <EyeIcon className="h-5 w-5" />
               </button>
               
               <button
                 onClick={() => handleExport('PDF')}
-                className="px-3 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200"
+                className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-all"
+                title="Exporter"
               >
-                <ArrowDownTrayIcon className="h-4 w-4" />
+                <ArrowDownTrayIcon className="h-5 w-5" />
               </button>
             </div>
           </Card>

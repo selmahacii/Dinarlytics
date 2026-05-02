@@ -533,7 +533,7 @@ const Clients: React.FC = () => {
     const pageContent = AdaptiveContentGenerator.generatePageContent('clients', contentContext);
 
     return (
-      <div className="space-y-8 max-w-7xl mx-auto p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
+      <div className="space-y-8 max-w-7xl mx-auto p-3 sm:p-6 bg-slate-50 dark:bg-slate-900 min-h-screen">
         {/* En-tête avec contenu adaptatif - Style Sober */}
         <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -560,7 +560,7 @@ const Clients: React.FC = () => {
       </div>
 
         {/* 4 KPIs Clients - Style Sober */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-slate-600"><UserGroupIcon className="h-6 w-6" /></div>
@@ -737,7 +737,7 @@ const Clients: React.FC = () => {
       {/* Navigation par onglets */}
       <Card className="p-0 rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
-          <nav className="flex overflow-x-auto px-6" aria-label="Tabs">
+          <nav className="flex overflow-x-auto no-scrollbar px-6" aria-label="Tabs">
             {[
               { id: 'liste', name: t('crm.clients.tabs.list'), icon: UserGroupIcon },
               { id: 'analytics', name: t('crm.clients.tabs.intelligence'), icon: ChartBarIcon },
@@ -765,14 +765,14 @@ const Clients: React.FC = () => {
           {activeTab === 'liste' && (
             <>
               {/* Search and Actions */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <div className="w-full sm:w-auto">
                   <input
                     type="text"
                     placeholder={t('crm.clients.filters.search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full sm:w-72 px-4 py-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-slate-400 focus:border-slate-400 placeholder-slate-400 font-medium"
+                    className="w-full sm:w-72 px-4 py-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-slate-400 focus:border-slate-400 placeholder-slate-400 font-medium transition-all"
                   />
                 </div>
 

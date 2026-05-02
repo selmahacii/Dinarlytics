@@ -337,7 +337,7 @@ const Parametres: React.FC = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                   <div>
                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2 block">{t('admin.opening')}</label>
                     <input
@@ -507,17 +507,17 @@ const Parametres: React.FC = () => {
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight mt-4 px-1">Cochez les permissions que vous souhaitez attribuer à ce rôle</p>
           </div>
 
-          <div className="flex justify-end gap-3 pt-8 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-8 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsRoleModalOpen(false)}
-              className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+              className="w-full sm:w-auto px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
-              className="px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all"
+              className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all"
             >
               {t('admin.roles_modal.save_role')}
             </button>

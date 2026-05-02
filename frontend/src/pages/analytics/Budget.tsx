@@ -223,28 +223,32 @@ const Budget: React.FC = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg shadow-lg p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-white bg-opacity-20 rounded-lg">
-              <ChartBarIcon className="h-8 w-8" />
+      <div className="bg-slate-900 text-white rounded-[2rem] shadow-2xl border border-white/5 p-6 sm:p-10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex items-center gap-6">
+            <div className="p-5 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-xl">
+              <ChartBarIcon className="h-10 w-10 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Gestion Budgétaire</h1>
-              <p className="text-purple-100">Élaboration, suivi et analyse des budgets</p>
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">Gestion Budgétaire</h1>
+                <span className="px-3 py-1 bg-purple-500 text-[9px] font-black uppercase tracking-widest rounded-lg">Pro</span>
+              </div>
+              <p className="text-slate-400 text-xs font-bold mt-2 uppercase tracking-[0.3em] opacity-80 italic">Élaboration & Pilotage Prédictif</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-purple-100 text-sm">Exercice</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1">Exercice</p>
               <select title="Sélectionner un exercice"
                 value={selectedExercice}
                 onChange={(e) => setSelectedExercice(e.target.value)}
-                className="mt-1 px-3 py-2 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white font-semibold"
+                className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-black text-[10px] uppercase tracking-widest outline-none focus:ring-2 focus:ring-purple-500 transition-all"
               >
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2026">2026</option>
+                <option value="2025" className="text-slate-900">2025</option>
+                <option value="2024" className="text-slate-900">2024</option>
+                <option value="2026" className="text-slate-900">2026</option>
               </select>
             </div>
           </div>
@@ -252,42 +256,38 @@ const Budget: React.FC = () => {
       </div>
 
       {/* KPIs Principaux */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card title="Budget Total">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600 mb-2">{formatCurrency(kpis.totalBudget)}</div>
-            <div className="text-sm text-gray-600">Exercice {selectedExercice}</div>
-          </div>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Budget Total</p>
+          <p className="text-2xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(kpis.totalBudget)}</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Exercice {selectedExercice}</p>
+        </div>
 
-        <Card title="Réalisé">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 mb-2">{formatCurrency(kpis.totalReel)}</div>
-            <div className="text-sm text-gray-600">Montant réel</div>
-          </div>
-        </Card>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Réalisé</p>
+          <p className="text-2xl font-black text-emerald-500 font-mono">{formatCurrency(kpis.totalReel)}</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Montant réel</p>
+        </div>
 
-        <Card title="Écart">
-          <div className="text-center">
-            <div className={`text-2xl font-bold mb-2 ${kpis.varianceTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {kpis.varianceTotal >= 0 ? '+' : ''}{formatCurrency(kpis.varianceTotal)}
-            </div>
-            <div className="text-sm text-gray-600">Taux réalisation: {kpis.tauxRealisation?.toFixed(1)}%</div>
-          </div>
-        </Card>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Écart</p>
+          <p className={`text-2xl font-black font-mono ${kpis.varianceTotal >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            {kpis.varianceTotal >= 0 ? '+' : ''}{formatCurrency(kpis.varianceTotal)}
+          </p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Variance absolute</p>
+        </div>
 
-        <Card title="Taux de Réalisation">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">{kpis.tauxRealisation?.toFixed(1)}%</div>
-            <div className="text-sm text-gray-600">Performance globale</div>
-          </div>
-        </Card>
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Réalisation</p>
+          <p className="text-2xl font-black text-purple-500 font-mono">{kpis.tauxRealisation?.toFixed(1)}%</p>
+          <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Performance globale</p>
+        </div>
       </div>
 
       {/* Onglets */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+      <div className="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="border-b border-slate-100 dark:border-slate-700 overflow-x-auto no-scrollbar">
+          <nav className="flex px-8" aria-label="Tabs">
             {[
               { id: 'overview', name: 'Vue d\'ensemble', icon: ChartBarIcon },
               { id: 'elaboration', name: 'Élaboration', icon: DocumentTextIcon },
@@ -301,11 +301,11 @@ const Budget: React.FC = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`${activeTab === tab.id
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2`}
+                    ? 'text-slate-900 border-slate-900 dark:text-white dark:border-white'
+                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                    } whitespace-nowrap py-6 px-6 border-b-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4" />
                   <span>{tab.name}</span>
                 </button>
               );

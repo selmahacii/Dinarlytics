@@ -90,5 +90,41 @@ export const accountingService = {
                 { type: 'Achats', montant: fluxSortants, part: 100, couleur: 'bg-slate-700' }
             ]
         };
+    },
+    getEquilibreFinancier: async (): Promise<any> => {
+        const allInvoices = await invoiceService.getAll();
+        const activeInvoices = allInvoices.filter(inv => inv.statut !== 'annule');
+
+        const sales = activeInvoices.filter(inv => inv.type === 'sale');
+        const purchases = activeInvoices.filter(inv => inv.type === 'purchase');
+
+        const clients = sales.reduce((sum, inv) => sum + (inv.totalTTC - inv.montantPaye), 0);
+        const fournisseurs = purchases.reduce((sum, inv) => sum + (inv.totalTTC - inv.montantPaye), 0);
+        const stocks = 450000; // Mock inventory value
+
+        const cashBalance = activeInvoices.reduce((sum, inv) => {
+            if (inv.type === 'sale') return sum + inv.montantPaye;
+            if (inv.type === 'purchase') return sum - inv.montantPaye;
+            return sum;
+        }, 1000000);
+
+        const actifsCirculants = cashBalance + clients + stocks;
+        const passifsCirculants = fournisseurs; // Simplified for demo
+
+        const frn = actifsCirculants - passifsCirculants;
+        const bfr = (stocks + clients) - fournisseurs;
+        const tresorerieNette = frn - bfr;
+
+        return {
+            fondsRoulementNet: frn,
+            besoinFondsRoulement: bfr,
+            tresorerieNette,
+            actifsCirculants,
+            passifsCirculants,
+            stocks,
+            clients,
+            fournisseurs,
+            dateCalcul: new Date().toISOString().split('T')[0]
+        };
     }
 };

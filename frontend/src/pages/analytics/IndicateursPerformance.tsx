@@ -408,11 +408,11 @@ const IndicateursPerformance: React.FC = () => {
           <p className="text-gray-600">{t('analytics.kpis.subtitle')}</p>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 sm:flex-none px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
             aria-label="Sélectionner la période"
             title="Sélectionner la période"
           >
@@ -424,7 +424,7 @@ const IndicateursPerformance: React.FC = () => {
           
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-colors text-sm font-medium ${
               autoRefresh 
                 ? 'bg-green-600 text-white hover:bg-green-700' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -438,7 +438,7 @@ const IndicateursPerformance: React.FC = () => {
           
           <button
             onClick={handleGenerateReport}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
             title={t('analytics.kpis.actions.report')}
             aria-label={t('analytics.kpis.actions.report')}
           >
@@ -674,14 +674,14 @@ const IndicateursPerformance: React.FC = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto no-scrollbar">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Métrique</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notre Entreprise</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Moyenne Secteur</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Métrique</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Notre Entreprise</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Moyenne Secteur</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Performance</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -768,16 +768,16 @@ const IndicateursPerformance: React.FC = () => {
         <Card title={t('analytics.kpis.sections.revenue')}>
           <div className="space-y-4">
             {financialData.chartData.revenue.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
-                <span className="text-sm font-medium text-gray-700">{item.month}</span>
-                <div className="flex items-center space-x-4">
+              <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded border border-gray-100 gap-2">
+                <span className="text-sm font-bold text-gray-700">{item.month}</span>
+                <div className="flex items-center justify-between sm:justify-end space-x-4">
                   <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">{formatCurrency(item.value)}</div>
-                    <div className="text-xs text-gray-500">Réalisé</div>
+                    <div className="text-sm font-bold text-gray-900">{formatCurrency(item.value)}</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Réalisé</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-medium text-blue-600">{formatCurrency(item.target)}</div>
-                    <div className="text-xs text-gray-500">Objectif</div>
+                    <div className="text-sm font-bold text-blue-600">{formatCurrency(item.target)}</div>
+                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Objectif</div>
                   </div>
                 </div>
               </div>

@@ -150,8 +150,8 @@ const ChecksManagement: React.FC = () => {
       )}
 
       <div className="bg-white rounded-lg shadow border border-slate-200 p-6">
-        <div className="flex justify-between items-end mb-4">
-          <div className="flex space-x-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <div>
               <label className="block text-sm font-medium text-slate-700">{t('treasury.checks.deposit_date')}</label>
               <input type="date" value={depositDate} onChange={e => setDepositDate(e.target.value)} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
@@ -356,7 +356,7 @@ const Tresorerie: React.FC = () => {
   const formatCurrency = appCtx?.formatCurrency || ((amount: number) => amount.toString());
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6">
       {/* En-tête */}
       <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
@@ -377,7 +377,7 @@ const Tresorerie: React.FC = () => {
       </div>
 
       {/* KPIs Principaux */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Solde Total */}
         <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4">
           <div className="flex items-center justify-between">
@@ -457,7 +457,7 @@ const Tresorerie: React.FC = () => {
 
       {/* Onglets Navigation */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-        <div className="flex border-b border-slate-200">
+        <div className="flex overflow-x-auto no-scrollbar border-b border-slate-200">
           <button
             onClick={() => setActiveTab('overview')}
             className={`flex-1 px-4 py-3 font-medium transition-colors text-center ${activeTab === 'overview'

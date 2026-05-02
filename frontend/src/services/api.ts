@@ -10,6 +10,7 @@ export { suppliersService } from './modules/suppliersService';
 export { invoiceService } from './modules/invoiceService';
 export { analyticService } from './modules/analyticService';
 export { auditService } from './modules/auditService';
+export { accountingService } from './modules/accountingService';
 
 import { authService } from './modules/authService';
 import { clientsService } from './modules/clientsService';
@@ -17,6 +18,7 @@ import { suppliersService } from './modules/suppliersService';
 import { invoiceService } from './modules/invoiceService';
 import { analyticService } from './modules/analyticService';
 import { auditService } from './modules/auditService';
+import { accountingService } from './modules/accountingService';
 
 // Legacy mapping for compatibility
 export {
@@ -25,7 +27,8 @@ export {
   suppliersService as suppliers,
   invoiceService as invoices,
   analyticService as analytics,
-  auditService as audits
+  auditService as audits,
+  accountingService as accounting
 };
 
 export default {
@@ -34,5 +37,6 @@ export default {
   suppliers: suppliersService,
   invoices: invoiceService,
   analytics: analyticService,
-  audits: auditService
+  audits: auditService,
+  accounting: accountingService
 };

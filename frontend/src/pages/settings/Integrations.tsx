@@ -375,65 +375,63 @@ const Integrations: React.FC = () => {
       {/* Webhooks */}
       <Card title="🔔 Webhooks">
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">Notifications en Temps Réel</h3>
-            <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Notifications en Temps Réel</h3>
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setIsWebhookModalOpen(true)}
-                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex-1 sm:flex-none flex items-center justify-center px-4 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg"
                 title="Ajouter un Webhook"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
-                Ajouter un Webhook
+                Ajouter
               </button>
               <button
                 onClick={() => setIsWebhookModalOpen(true)}
-                className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex-1 sm:flex-none flex items-center justify-center px-4 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-all font-black text-[10px] uppercase tracking-widest shadow-sm"
                 title="Configurer Webhook"
               >
                 <LinkIcon className="h-5 w-5 mr-2" />
-                Configurer Webhook
+                Configurer
               </button>
             </div>
           </div>
           {/* Example webhooks array mapping, ensure webhooks is defined in your state */}
           {(webhooks || []).map((webhook, idx) => (
-            <div key={idx} className="flex items-center space-x-4 p-4 bg-white rounded-lg shadow">
-              <div className="flex-1">
+            <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="font-semibold text-gray-900">{webhook.nom}</h4>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatutColor(webhook.statut)}`}>
+                  <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight">{webhook.nom}</h4>
+                  <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${getStatutColor(webhook.statut)}`}>
                     {webhook.statut}
                   </span>
                 </div>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <p><strong>URL:</strong> {webhook.url}</p>
-                  <p><strong>Événement:</strong> {webhook.evenement}</p>
+                <div className="space-y-1.5 text-xs text-slate-500 overflow-hidden">
+                  <p className="truncate"><strong>URL:</strong> {webhook.url}</p>
+                  <p><strong>Événement:</strong> <span className="font-mono text-[10px] bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded">{webhook.evenement}</span></p>
                   <p><strong>Dernière exécution:</strong> {webhook.derniereExecution}</p>
                 </div>
-                <div className="mt-3 flex items-center space-x-6 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircleIcon className="h-4 w-4 text-green-600" />
-                    <span className="text-green-600">{webhook.succes} succès</span>
+                <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                  <div className="flex items-center space-x-1.5">
+                    <CheckCircleIcon className="h-3.5 w-3.5 text-emerald-500" />
+                    <span className="text-emerald-600">{webhook.succes} succès</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <XMarkIcon className="h-4 w-4 text-red-600" />
-                    <span className="text-red-600">{webhook.echecs} échecs</span>
+                  <div className="flex items-center space-x-1.5">
+                    <XMarkIcon className="h-3.5 w-3.5 text-rose-500" />
+                    <span className="text-rose-600">{webhook.echecs} échecs</span>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-600">Total: {webhook.executions}</span>
-                  </div>
+                  <div className="text-slate-400">Total: {webhook.executions}</div>
                 </div>
               </div>
-              <div className="flex space-x-2">
-                <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Voir Webhook">
-                  <EyeIcon className="h-4 w-4" />
+              <div className="flex sm:flex-col justify-end gap-2 pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-50">
+                <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors" title="Voir Webhook">
+                  <EyeIcon className="h-5 w-5" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-green-600 transition-colors" title="Relancer Webhook">
-                  <ArrowPathIcon className="h-4 w-4" />
+                <button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Relancer Webhook">
+                  <ArrowPathIcon className="h-5 w-5" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Supprimer Webhook">
-                  <TrashIcon className="h-4 w-4" />
+                <button className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Supprimer Webhook">
+                  <TrashIcon className="h-5 w-5" />
                 </button>
               </div>
             </div>

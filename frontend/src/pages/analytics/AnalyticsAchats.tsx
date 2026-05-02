@@ -168,7 +168,7 @@ const AnalyticsAchats: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center shadow-xl shadow-slate-900/20"
+                        className="w-full md:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center shadow-xl shadow-slate-900/20"
                     >
                         <PlusIcon className="h-5 w-5 mr-2" /> Saisir un Achat
                     </button>
@@ -205,9 +205,9 @@ const AnalyticsAchats: React.FC = () => {
 
             {/* Main Table */}
             <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-4 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-700">
-                <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
-                    <div className="flex gap-4 w-full md:w-auto">
-                        <div className="relative flex-1 md:w-80">
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-6">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                        <div className="relative w-full sm:w-80">
                             <MagnifyingGlassIcon className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                             <input
                                 type="text"
@@ -218,7 +218,7 @@ const AnalyticsAchats: React.FC = () => {
                             />
                         </div>
                         <select aria-label="Statut"
-                            className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-slate-500 appearance-none"
+                            className="w-full sm:w-auto px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-none rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none focus:ring-2 focus:ring-slate-500 appearance-none"
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
@@ -230,16 +230,16 @@ const AnalyticsAchats: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto no-scrollbar">
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-slate-100 dark:border-slate-700 text-left">
-                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4">Référence</th>
-                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4">Fournisseur</th>
-                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4">Date</th>
-                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4">Montant TTC</th>
-                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4">Statut</th>
-                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 text-right">Actions</th>
+                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 whitespace-nowrap">Référence</th>
+                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 whitespace-nowrap">Fournisseur</th>
+                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 whitespace-nowrap">Date</th>
+                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 whitespace-nowrap">Montant TTC</th>
+                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 whitespace-nowrap">Statut</th>
+                                <th className="pb-6 text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 text-right whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
@@ -347,8 +347,8 @@ const AnalyticsAchats: React.FC = () => {
                         </div>
                         <div className="space-y-3">
                             {newPurchase.items?.map((item, idx) => (
-                                <div key={idx} className="grid grid-cols-12 gap-3 items-center">
-                                    <div className="col-span-6">
+                                <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center bg-slate-50/50 dark:bg-slate-800/30 p-4 rounded-xl md:bg-transparent md:p-0 md:rounded-none">
+                                    <div className="col-span-full md:col-span-6">
                                         <input
                                             type="text"
                                             placeholder="Description..."
@@ -357,7 +357,7 @@ const AnalyticsAchats: React.FC = () => {
                                             onChange={(e) => handleUpdateItem(idx, 'desc', e.target.value)}
                                         />
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-4 md:col-span-2">
                                         <input
                                             type="number"
                                             placeholder="Qté"
@@ -366,7 +366,7 @@ const AnalyticsAchats: React.FC = () => {
                                             onChange={(e) => handleUpdateItem(idx, 'qty', Number(e.target.value))}
                                         />
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-4 md:col-span-2">
                                         <select
                                             className="w-full p-3 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-xs font-bold font-mono"
                                             value={item.tva_rate}
@@ -377,7 +377,7 @@ const AnalyticsAchats: React.FC = () => {
                                             <option value="0">0%</option>
                                         </select>
                                     </div>
-                                    <div className="col-span-2">
+                                    <div className="col-span-3 md:col-span-2">
                                         <input
                                             type="number"
                                             placeholder="Prix U."
@@ -386,7 +386,7 @@ const AnalyticsAchats: React.FC = () => {
                                             onChange={(e) => handleUpdateItem(idx, 'pu', Number(e.target.value))}
                                         />
                                     </div>
-                                    <div className="col-span-1 text-right">
+                                    <div className="col-span-1 md:col-span-1 text-right">
                                         <button
                                             onClick={() => {
                                                 const items = [...(newPurchase.items || [])];
@@ -474,13 +474,13 @@ const AnalyticsAchats: React.FC = () => {
 
                         <div className="space-y-4">
                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Détail des lignes</h4>
-                            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+                            <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto no-scrollbar">
                                 <table className="w-full">
                                     <thead className="bg-slate-50 dark:bg-slate-900 text-left">
                                         <tr>
-                                            <th className="p-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Description</th>
-                                            <th className="p-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Qté</th>
-                                            <th className="p-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Montant HT</th>
+                                            <th className="p-4 text-[9px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">Description</th>
+                                            <th className="p-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right whitespace-nowrap">Qté</th>
+                                            <th className="p-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right whitespace-nowrap">Montant HT</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50 dark:divide-slate-700">
@@ -496,7 +496,7 @@ const AnalyticsAchats: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <div className="p-6 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl">
                                 <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Total HT</p>
                                 <p className="text-sm font-black font-mono">{formatCurrency(selectedPurchase.totalHT)}</p>

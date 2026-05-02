@@ -201,11 +201,15 @@ const EquilibreFinancier: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* En-tête de la page */}
-      <div className="bg-white border border-gray-200 p-6 rounded-lg">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">Équilibre Financier</h1>
-        <p className="text-gray-600">
-          Analyse de l'équilibre financier instantané et prévisionnel avec simulation de scénarios
-        </p>
+      <div className="bg-slate-900 text-white rounded-[2rem] shadow-2xl border border-white/5 p-6 sm:p-10 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent)]"></div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-4 mb-4">
+            <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter italic">Équilibre Financier</h1>
+            <span className="px-3 py-1 bg-blue-500 text-[9px] font-black uppercase tracking-widest rounded-lg">Live</span>
+          </div>
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] opacity-80 italic">Analyse structurelle & Simulation prédictive</p>
+        </div>
       </div>
 
       {/* Disclaimer */}
@@ -217,71 +221,45 @@ const EquilibreFinancier: React.FC = () => {
 
       {/* 1️⃣ Indicateurs de l'équilibre financier instantané */}
       <Card title="1️⃣ Indicateurs de l'Équilibre Financier Instantané (Actual)">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {/* Fonds de Roulement Net */}
-          <div className="p-6 bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gray-100 rounded-lg">
-                <CurrencyDollarIcon className="h-8 w-8 text-gray-500" />
-              </div>
-              {getTendanceIcon(equilibreActuel.fondsRoulementNet, 1000000)}
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Fonds de Roulement Net (FRN)</h3>
-            <p className="text-3xl font-semibold text-gray-900 mb-2">
-              {formatCurrency(equilibreActuel.fondsRoulementNet)}
-            </p>
-            <p className="text-sm text-gray-600 mb-3">
-              Actifs Circulants - Passifs Circulants
-            </p>
-            <div className="text-xs text-gray-500">
-              <div>Actifs Circulants: {formatCurrency(equilibreActuel.actifsCirculants)}</div>
-              <div>Passifs Circulants: {formatCurrency(equilibreActuel.passifsCirculants)}</div>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        {/* Fonds de Roulement Net */}
+        <div className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 italic">Fonds de Roulement Net (FRN)</p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-3xl font-black text-slate-900 tracking-tighter italic">{formatCurrency(equilibreActuel.fondsRoulementNet)}</div>
+            {getTendanceIcon(equilibreActuel.fondsRoulementNet, 1000000)}
           </div>
-
-          {/* Besoin en Fonds de Roulement */}
-          <div className="p-6 bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gray-100 rounded-lg">
-                <ChartBarIcon className="h-8 w-8 text-gray-500" />
-              </div>
-              {getTendanceIcon(equilibreActuel.besoinFondsRoulement, 800000)}
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Besoin en Fonds de Roulement (BFR)</h3>
-            <p className="text-3xl font-semibold text-gray-900 mb-2">
-              {formatCurrency(equilibreActuel.besoinFondsRoulement)}
-            </p>
-            <p className="text-sm text-gray-600 mb-3">
-              (Stocks + Clients) - Fournisseurs
-            </p>
-            <div className="text-xs text-gray-500">
-              <div>Stocks: {formatCurrency(equilibreActuel.stocks)}</div>
-              <div>Clients: {formatCurrency(equilibreActuel.clients)}</div>
-              <div>Fournisseurs: {formatCurrency(equilibreActuel.fournisseurs)}</div>
-            </div>
-          </div>
-
-          {/* Trésorerie Nette */}
-          <div className="p-6 bg-white border border-gray-200 rounded-lg">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gray-100 rounded-lg">
-                <CalculatorIcon className="h-8 w-8 text-gray-500" />
-              </div>
-              {getTendanceIcon(equilibreActuel.tresorerieNette, 300000)}
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Trésorerie Nette (TN)</h3>
-            <p className="text-3xl font-semibold text-gray-900 mb-2">
-              {formatCurrency(equilibreActuel.tresorerieNette)}
-            </p>
-            <p className="text-sm text-gray-600 mb-3">
-              FRN - BFR
-            </p>
-            <div className="text-xs text-gray-500">
-              <div>FRN: {formatCurrency(equilibreActuel.fondsRoulementNet)}</div>
-              <div>BFR: {formatCurrency(equilibreActuel.besoinFondsRoulement)}</div>
-            </div>
+          <div className="p-3 bg-slate-50 rounded-2xl text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <div>Actifs: {formatCurrency(equilibreActuel.actifsCirculants)}</div>
+            <div className="mt-1 border-t border-slate-200 pt-1">Passifs: {formatCurrency(equilibreActuel.passifsCirculants)}</div>
           </div>
         </div>
+
+        {/* Besoin en Fonds de Roulement */}
+        <div className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 italic">Besoin en Fonds de Roulement (BFR)</p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-3xl font-black text-slate-900 tracking-tighter italic">{formatCurrency(equilibreActuel.besoinFondsRoulement)}</div>
+            {getTendanceIcon(equilibreActuel.besoinFondsRoulement, 800000)}
+          </div>
+          <div className="p-3 bg-slate-50 rounded-2xl text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <div>Stocks/Clients: {formatCurrency(equilibreActuel.stocks + equilibreActuel.clients)}</div>
+            <div className="mt-1 border-t border-slate-200 pt-1">Fournisseurs: {formatCurrency(equilibreActuel.fournisseurs)}</div>
+          </div>
+        </div>
+
+        {/* Trésorerie Nette */}
+        <div className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 italic">Trésorerie Nette (TN)</p>
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-3xl font-black text-slate-900 tracking-tighter italic">{formatCurrency(equilibreActuel.tresorerieNette)}</div>
+            {getTendanceIcon(equilibreActuel.tresorerieNette, 300000)}
+          </div>
+          <div className="p-3 bg-slate-50 rounded-2xl text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <div>FRN - BFR</div>
+          </div>
+        </div>
+      </div>
 
         {/* Analyse de la liquidité */}
         <div className="p-6 bg-white border border-gray-200 rounded-lg">
@@ -314,12 +292,12 @@ const EquilibreFinancier: React.FC = () => {
         {/* Sélecteur de scénario */}
         <div className="mb-6">
           <h4 className="text-lg font-semibold text-gray-900 mb-4">🎯 Sélection du Scénario</h4>
-          <div className="flex space-x-4">
+          <div className="flex flex-wrap gap-3">
             {(['optimiste', 'prudent', 'pessimiste'] as const).map((scenario) => (
               <button
                 key={scenario}
                 onClick={() => setScenarioActuel(scenario)}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                className={`flex-1 min-w-[140px] px-4 py-3 rounded-lg font-bold text-xs uppercase tracking-widest transition-all ${
                   scenarioActuel === scenario
                     ? scenario === 'optimiste' 
                       ? 'bg-green-600 text-white' 
@@ -534,15 +512,15 @@ const EquilibreFinancier: React.FC = () => {
       </Card>
 
       {/* Actions rapides */}
-      <div className="flex justify-center space-x-4">
-        <button className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+      <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <button className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
           📊 Exporter l'Analyse
         </button>
-        <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-          🔄 Actualiser les Données
+        <button className="flex-1 px-6 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
+          🔄 Actualiser
         </button>
-        <button className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-          📧 Partager le Rapport
+        <button className="flex-1 px-6 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
+          📧 Partager
         </button>
       </div>
     </div>

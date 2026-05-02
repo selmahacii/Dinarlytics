@@ -293,38 +293,38 @@ const Devis: React.FC = () => {
             {/* Items */}
             <div>
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">{t('devis.detail.items')}</h4>
-              <div className="overflow-hidden rounded-xl border border-slate-200">
-                <table className="w-full text-sm">
+              <div className="overflow-x-auto no-scrollbar rounded-xl border border-slate-200">
+                <table className="min-w-full text-sm">
                   <thead className="bg-slate-50">
                     <tr>
                       {[t('devis.detail.designation'), t('devis.detail.qty'), t('devis.detail.unit_price'), t('devis.detail.tva'), t('devis.detail.total')].map((h, i) => (
-                        <th key={i} className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase">{h}</th>
+                        <th key={i} className="px-4 py-2.5 text-left text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {selectedDevis.items.map((item, i) => (
                       <tr key={i} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 font-medium text-slate-800">{item.designation}</td>
-                        <td className="px-4 py-3 text-slate-600">{item.qty}</td>
-                        <td className="px-4 py-3 text-slate-600">{formatCurrency(item.unitPrice)}</td>
-                        <td className="px-4 py-3 text-slate-600">{item.tva}%</td>
-                        <td className="px-4 py-3 font-bold text-slate-800">{formatCurrency(item.qty * item.unitPrice * (1 + item.tva / 100))}</td>
+                        <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">{item.designation}</td>
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{item.qty}</td>
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{formatCurrency(item.unitPrice)}</td>
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{item.tva}%</td>
+                        <td className="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">{formatCurrency(item.qty * item.unitPrice * (1 + item.tva / 100))}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot className="bg-slate-50 border-t border-slate-200">
                     <tr>
-                      <td colSpan={4} className="px-4 py-3 text-right text-xs font-bold text-slate-600 uppercase">{t('devis.detail.total_ht')}</td>
-                      <td className="px-4 py-3 font-bold text-slate-800">{formatCurrency(selectedDevis.montantHT)}</td>
+                      <td colSpan={4} className="px-4 py-3 text-right text-xs font-bold text-slate-600 uppercase whitespace-nowrap">{t('devis.detail.total_ht')}</td>
+                      <td className="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">{formatCurrency(selectedDevis.montantHT)}</td>
                     </tr>
                     <tr>
-                      <td colSpan={4} className="px-4 py-2 text-right text-xs font-bold text-slate-600 uppercase">{t('devis.detail.tva_total')}</td>
-                      <td className="px-4 py-2 font-bold text-slate-800">{formatCurrency(selectedDevis.montantTVA)}</td>
+                      <td colSpan={4} className="px-4 py-2 text-right text-xs font-bold text-slate-600 uppercase whitespace-nowrap">{t('devis.detail.tva_total')}</td>
+                      <td className="px-4 py-2 font-bold text-slate-800 whitespace-nowrap">{formatCurrency(selectedDevis.montantTVA)}</td>
                     </tr>
                     <tr className="bg-slate-100">
-                      <td colSpan={4} className="px-4 py-3 text-right text-xs font-black text-slate-800 uppercase">{t('devis.detail.total_ttc')}</td>
-                      <td className="px-4 py-3 font-black text-slate-900 text-lg">{formatCurrency(selectedDevis.montantTTC)}</td>
+                      <td colSpan={4} className="px-4 py-3 text-right text-xs font-black text-slate-800 uppercase whitespace-nowrap">{t('devis.detail.total_ttc')}</td>
+                      <td className="px-4 py-3 font-black text-slate-900 text-lg whitespace-nowrap">{formatCurrency(selectedDevis.montantTTC)}</td>
                     </tr>
                   </tfoot>
                 </table>

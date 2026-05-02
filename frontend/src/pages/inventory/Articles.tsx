@@ -816,7 +816,7 @@ const Articles: React.FC = () => {
               </div>
 
               {/* Articles Table */}
-              <div className="overflow-hidden bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm">
+              <div className="overflow-x-auto no-scrollbar bg-white dark:bg-slate-800 rounded-[2rem] border border-slate-100 dark:border-slate-700 shadow-sm">
                 <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700">
                   <thead className="bg-slate-50/50 dark:bg-slate-900">
                     <tr>
@@ -922,7 +922,7 @@ const Articles: React.FC = () => {
                   <h3 className="text-3xl font-black uppercase tracking-tighter italic">Traçabilité & Flux</h3>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-1">Pilotage des identifiants SKU & QR Codes dynamiques</p>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => setIsAddManualBarcodeModalOpen(true)}
                     className="w-full sm:w-auto px-8 py-4 bg-slate-50 text-slate-900 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest hover:bg-slate-200"
@@ -949,7 +949,7 @@ const Articles: React.FC = () => {
                     {barcodeData.length} Identifiants actifs
                   </div>
                 </div>
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto no-scrollbar">
                   <table className="min-w-full">
                     <thead>
                       <tr className="bg-slate-50/30">

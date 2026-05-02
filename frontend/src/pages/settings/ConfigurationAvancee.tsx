@@ -861,19 +861,19 @@ const ConfigurationAvancee: React.FC = () => {
 
       {/* Navigation par onglets */}
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
+        <div className="border-b border-gray-200 overflow-x-auto no-scrollbar">
+          <nav className="flex space-x-8 px-6 min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                className={`py-4 px-1 border-b-2 font-black text-[10px] uppercase tracking-widest flex items-center space-x-2 transition-all ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-slate-900 text-slate-900'
+                    : 'border-transparent text-slate-400 hover:text-slate-600 hover:border-slate-300'
                 }`}
               >
-                <tab.icon className="h-5 w-5" />
+                <tab.icon className="h-4 w-4" />
                 <span>{tab.nom}</span>
               </button>
             ))}
@@ -884,13 +884,13 @@ const ConfigurationAvancee: React.FC = () => {
           {/* Onglet Champs Personnalisés */}
           {activeTab === 'champs' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
                   Champs Personnalisés par Module
                 </h2>
                 <button
                   onClick={() => setIsChampModalOpen(true)}
-                  className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center px-4 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
                   Ajouter un Champ
@@ -898,18 +898,18 @@ const ConfigurationAvancee: React.FC = () => {
               </div>
 
               {/* Sélecteur de module */}
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap gap-2">
                 {modules.map((module) => (
                   <button
                     key={module.id}
                     onClick={() => setSelectedModule(module.id)}
-                    className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${
+                    className={`flex items-center px-4 py-2.5 rounded-xl border transition-all font-bold text-xs ${
                       selectedModule === module.id
-                        ? 'bg-blue-50 border-blue-500 text-blue-700'
-                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        ? 'bg-slate-900 border-slate-900 text-white shadow-md'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
-                    <module.icon className="h-5 w-5 mr-2" />
+                    <module.icon className="h-4 w-4 mr-2" />
                     {module.nom}
                   </button>
                 ))}
@@ -1112,13 +1112,13 @@ const ConfigurationAvancee: React.FC = () => {
           {/* Onglet Formules Personnalisées */}
           {activeTab === 'formules' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
                   Formules Personnalisées
                 </h2>
                 <button
                   onClick={() => setIsFormuleModalOpen(true)}
-                  className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center px-4 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
                   Ajouter une Formule
@@ -1316,13 +1316,13 @@ const ConfigurationAvancee: React.FC = () => {
           {/* Onglet Templates Documents */}
           {activeTab === 'templates' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">
                   Templates de Documents
                 </h2>
                 <button
                   onClick={() => setIsTemplateModalOpen(true)}
-                  className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  className="w-full sm:w-auto flex items-center justify-center px-4 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-widest shadow-lg"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
                   Ajouter un Template

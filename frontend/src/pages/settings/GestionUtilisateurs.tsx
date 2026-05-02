@@ -493,17 +493,17 @@ const GestionUtilisateurs: React.FC = () => {
               <p className="text-slate-500 text-sm mt-0.5">{t('users_mgmt.subtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button 
               onClick={() => setIsRoleConfigOpen(true)}
-              className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors flex items-center text-sm font-medium"
+              className="flex-1 sm:flex-none px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors flex items-center justify-center text-sm font-medium"
             >
               <ShieldCheckIcon className="h-5 w-5 mr-2 text-slate-400" />
               {t('users_mgmt.roles_config')}
             </button>
             <button 
               onClick={() => setIsCreateModalOpen(true)}
-              className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors flex items-center text-sm font-medium shadow-sm"
+              className="flex-1 sm:flex-none bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center text-sm font-medium shadow-sm"
             >
               <UserPlusIcon className="h-5 w-5 mr-2" />
               {t('users_mgmt.new_user')}
@@ -595,26 +595,26 @@ const GestionUtilisateurs: React.FC = () => {
 
       {/* Liste des utilisateurs */}
       <Card className="p-6">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto no-scrollbar">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   {t('users_mgmt.table.user')}
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   {t('users_mgmt.table.role')}
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   {t('users_mgmt.table.company')}
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   {t('users_mgmt.table.status')}
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   {t('users_mgmt.table.last_login')}
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
                   {t('users_mgmt.table.actions')}
                 </th>
               </tr>
@@ -722,7 +722,7 @@ const GestionUtilisateurs: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="block text-sm font-semibold text-gray-900">
                 {t('users_mgmt.modal_create.fields.nom')} <span className="text-rose-500">*</span>
               </label>
               <input
@@ -732,7 +732,7 @@ const GestionUtilisateurs: React.FC = () => {
                   setNewUser({...newUser, nom: e.target.value});
                   if (errors.nom) setErrors({...errors, nom: ''});
                 }}
-                className={`w-full border rounded-lg px-4 py-2 text-sm transition-colors ${
+                className={`w-full border rounded-lg px-4 py-3 text-sm transition-colors ${
                   errors.nom 
                     ? 'border-rose-300 bg-rose-50 focus:border-rose-500' 
                     : 'border-slate-200 bg-white focus:border-slate-900'

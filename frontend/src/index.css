@@ -136,6 +136,14 @@
     background-color: #f1f5f9;
     border-radius: 0.5rem;
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* Animations personnalisées */

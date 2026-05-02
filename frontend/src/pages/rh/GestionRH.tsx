@@ -139,7 +139,7 @@ const GestionRH: React.FC = () => {
       {/* Tabs */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="border-b border-slate-200 bg-slate-50 px-6">
-          <nav className="flex gap-1 pt-2">
+          <nav className="flex overflow-x-auto no-scrollbar gap-1 pt-2">
             {[
               { id: 'employees', label: t('rh.tabs.employees') },
               { id: 'payroll', label: t('rh.tabs.payroll') },
@@ -147,7 +147,7 @@ const GestionRH: React.FC = () => {
               { id: 'analytics', label: t('rh.tabs.analytics') }
             ].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-all ${activeTab === tab.id ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                className={`whitespace-nowrap px-4 py-2.5 text-sm font-semibold border-b-2 transition-all ${activeTab === tab.id ? 'border-slate-800 text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
                 {tab.label}
               </button>
             ))}
@@ -223,12 +223,12 @@ const GestionRH: React.FC = () => {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-slate-200">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto no-scrollbar rounded-xl border border-slate-200">
+              <table className="min-w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     {[t('rh.payroll.table.employee'), t('rh.payroll.table.base'), t('rh.payroll.table.primes'), t('rh.payroll.table.cnas'), t('rh.payroll.table.irg'), t('rh.payroll.table.net'), t('rh.payroll.table.status')].map((h, i) => (
-                      <th key={i} className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase">{h}</th>
+                      <th key={i} className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -239,16 +239,16 @@ const GestionRH: React.FC = () => {
                     const net = emp.salaireBase + emp.primes - cnas - irg;
                     return (
                       <tr key={emp.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <div className="font-semibold text-slate-800">{emp.prenom} {emp.nom}</div>
                           <div className="text-[11px] text-slate-400">{emp.matricule}</div>
                         </td>
-                        <td className="px-4 py-3 text-slate-600">{formatCurrency(emp.salaireBase)}</td>
-                        <td className="px-4 py-3 text-emerald-600 font-semibold">{formatCurrency(emp.primes)}</td>
-                        <td className="px-4 py-3 text-red-500">-{formatCurrency(cnas)}</td>
-                        <td className="px-4 py-3 text-red-500">-{formatCurrency(irg)}</td>
-                        <td className="px-4 py-3 font-bold text-slate-900">{formatCurrency(net)}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{formatCurrency(emp.salaireBase)}</td>
+                        <td className="px-4 py-3 text-emerald-600 font-semibold whitespace-nowrap">{formatCurrency(emp.primes)}</td>
+                        <td className="px-4 py-3 text-red-500 whitespace-nowrap">-{formatCurrency(cnas)}</td>
+                        <td className="px-4 py-3 text-red-500 whitespace-nowrap">-{formatCurrency(irg)}</td>
+                        <td className="px-4 py-3 font-bold text-slate-900 whitespace-nowrap">{formatCurrency(net)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
                             <ClockIcon className="h-3 w-3 mr-1" />{t('rh.payroll.status.pending')}
                           </span>
@@ -277,11 +277,11 @@ const GestionRH: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="overflow-hidden rounded-xl border border-slate-200">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto no-scrollbar rounded-xl border border-slate-200">
+              <table className="min-w-full text-sm">
                 <thead className="bg-slate-50"><tr>
                   {[t('rh.holidays.table.employee'), t('rh.holidays.table.type'), t('rh.holidays.table.from'), t('rh.holidays.table.to'), t('rh.holidays.table.days'), t('rh.holidays.table.status')].map((h, i) => (
-                    <th key={i} className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase">{h}</th>
+                    <th key={i} className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap">{h}</th>
                   ))}
                 </tr></thead>
                 <tbody className="divide-y divide-slate-100">
@@ -296,12 +296,12 @@ const GestionRH: React.FC = () => {
                     const statusLabels: Record<string, string> = { pending: t('rh.holidays.status.pending'), approved: t('rh.holidays.status.approved'), refused: t('rh.holidays.status.refused') };
                     return (
                       <tr key={i} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 font-semibold text-slate-800">{row.emp}</td>
-                        <td className="px-4 py-3 text-slate-600">{row.type}</td>
-                        <td className="px-4 py-3 text-slate-600">{row.from}</td>
-                        <td className="px-4 py-3 text-slate-600">{row.to}</td>
-                        <td className="px-4 py-3 font-bold text-slate-800">{row.days} {t('rh.holidays.days_label')}</td>
-                        <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[row.status]}`}>{statusLabels[row.status]}</span></td>
+                        <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">{row.emp}</td>
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.type}</td>
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.from}</td>
+                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.to}</td>
+                        <td className="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">{row.days} {t('rh.holidays.days_label')}</td>
+                        <td className="px-4 py-3 whitespace-nowrap"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[row.status]}`}>{statusLabels[row.status]}</span></td>
                       </tr>
                     );
                   })}
@@ -359,7 +359,7 @@ const GestionRH: React.FC = () => {
       {selectedEmp && (
         <Modal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} title={`${selectedEmp.prenom} ${selectedEmp.nom} — ${selectedEmp.matricule}`} size="lg">
           <div className="p-2 space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { icon: UserIcon, label: t('rh.detail.position'), value: selectedEmp.poste },
                 { icon: BuildingOfficeIcon, label: t('rh.detail.department'), value: t(`rh.departments.${selectedEmp.department}`) },
