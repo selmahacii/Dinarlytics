@@ -19,7 +19,8 @@ import {
   ChartBarIcon, 
   MagnifyingGlassIcon, 
   DocumentTextIcon,
-  SparklesIcon
+  SparklesIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardRefactoProps {
