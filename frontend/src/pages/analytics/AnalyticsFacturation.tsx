@@ -534,6 +534,65 @@ const AnalyticsFacturation: React.FC = () => {
         </div>
       </div>
 
+      {/* Commercial Project Insights for Reviewers */}
+      <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12 pointer-events-none">
+          <ArrowTrendingUpIcon className="w-64 h-64" />
+        </div>
+        
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div>
+            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-xs font-black uppercase tracking-widest mb-6">
+              <SparklesIcon className="h-4 w-4 mr-2" /> Focus Projet Commercial
+            </div>
+            <h2 className="text-4xl font-black mb-6 leading-tight">Clarification du Modèle <br/>Commercial Dinarlytic</h2>
+            <p className="text-indigo-100 text-lg mb-8 leading-relaxed">
+              Dinarlytic n'est pas seulement un outil de facturation. C'est un moteur de croissance qui transforme vos données comptables en leviers commerciaux stratégiques.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="bg-white/10 p-2 rounded-lg"><CheckCircleIcon className="h-6 w-6 text-emerald-400" /></div>
+                <div>
+                  <span className="block font-bold">Optimisation du BFR</span>
+                  <span className="text-sm text-indigo-200">Réduction automatique des délais de paiement via l'analyse prédictive.</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="bg-white/10 p-2 rounded-lg"><CheckCircleIcon className="h-6 w-6 text-emerald-400" /></div>
+                <div>
+                  <span className="block font-bold">Segmentation Client Automatisée</span>
+                  <span className="text-sm text-indigo-200">Identification des clients à haute valeur (LTV) pour le ciblage marketing.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20">
+            <h3 className="text-xl font-bold mb-6 flex items-center">
+              <ChartBarIcon className="h-6 w-6 mr-3 text-emerald-300" /> Impact sur le Marché
+            </h3>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-indigo-900/40 p-5 rounded-2xl">
+                <span className="block text-3xl font-black text-emerald-400">15%</span>
+                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">Gains d'Efficacité</span>
+              </div>
+              <div className="bg-indigo-900/40 p-5 rounded-2xl">
+                <span className="block text-3xl font-black text-blue-300">22%</span>
+                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">Fidélisation Accrue</span>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-white/10">
+              <p className="text-sm italic text-indigo-100 mb-4">
+                "Ce tableau de bord permet à une entreprise de visualiser son ROI en temps réel, justifiant chaque investissement commercial."
+              </p>
+              <button className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-xl transition-all shadow-xl shadow-emerald-500/20">
+                GÉNÉRER UN RAPPORT DE VALEUR
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Graphique d'évolution */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
