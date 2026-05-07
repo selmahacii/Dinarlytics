@@ -129,11 +129,12 @@ const forecasts = [
   const handleExportExcel = () => {
     const BOM = '\uFEFF';
     const sep = ';';
+    const currencyLabel = currentDevise === 'DZD' ? 'DA' : currentDevise;
+    
     const rows: string[][] = [
       [t('treasury.export.report_title')],
       [t('treasury.export.generated_on'), new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-DZ' : currentLang === 'en' ? 'en-US' : 'fr-DZ')],
       [],
-      const currencyLabel = currentDevise === 'DZD' ? 'DA' : currentDevise;
       [t('treasury.export.sec_flux')],
       [t('fields.month'), `${t('treasury.fields.inflows')} (${currencyLabel})`, `${t('treasury.fields.outflows')} (${currencyLabel})`, `${t('treasury.fields.net_balance')} (${currencyLabel})`, `${t('treasury.fields.ratio_ed')} (%)`],
       ...monthlyFlows.map((m, i) => [

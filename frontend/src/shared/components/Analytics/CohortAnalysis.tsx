@@ -41,6 +41,7 @@ interface CohortAnalysisProps {
   showGlassmorphism?: boolean;
 }
 
+const CohortAnalysis: React.FC<CohortAnalysisProps> = ({
   isVisible = true, 
   showGlassmorphism = true 
 }) => {

@@ -36,7 +36,7 @@ interface CashFlowForecastProps {
   bankAccounts: BankAccount[];
   transactions: Transaction[];
 }
-
+const CashFlowForecast: React.FC<CashFlowForecastProps> = ({ bankAccounts, transactions }) => {
   const { formatCurrency } = useApp();
 
   const currentBalance = useMemo(
