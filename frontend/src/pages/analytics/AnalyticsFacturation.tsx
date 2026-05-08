@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { Trans } from 'react-i18next';
+import { useTranslation } from '@/shared/hooks/useTranslation';
 import {
   ChartBarIcon,
   ChartPieIcon,
@@ -543,25 +544,25 @@ const AnalyticsFacturation: React.FC = () => {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div>
             <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-xs font-black uppercase tracking-widest mb-6">
-              <SparklesIcon className="h-4 w-4 mr-2" /> Focus Projet Commercial
+              <SparklesIcon className="h-4 w-4 mr-2" /> {t('invoices.commercial_project.focus_title')}
             </div>
-            <h2 className="text-4xl font-black mb-6 leading-tight">Clarification du Modèle <br/>Commercial Dinarlytic</h2>
+            <h2 className="text-4xl font-black mb-6 leading-tight">{t('invoices.commercial_project.model_clarification')}</h2>
             <p className="text-indigo-100 text-lg mb-8 leading-relaxed">
-              Dinarlytic n'est pas seulement un outil de facturation. C'est un moteur de croissance qui transforme vos données comptables en leviers commerciaux stratégiques.
+              {t('invoices.commercial_project.description')}
             </p>
             <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <div className="bg-white/10 p-2 rounded-lg"><CheckCircleIcon className="h-6 w-6 text-emerald-400" /></div>
                 <div>
-                  <span className="block font-bold">Optimisation du BFR</span>
-                  <span className="text-sm text-indigo-200">Réduction automatique des délais de paiement via l'analyse prédictive.</span>
+                  <span className="block font-bold">{t('invoices.commercial_project.bfr_optim')}</span>
+                  <span className="text-sm text-indigo-200">{t('invoices.commercial_project.bfr_optim_desc')}</span>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <div className="bg-white/10 p-2 rounded-lg"><CheckCircleIcon className="h-6 w-6 text-emerald-400" /></div>
                 <div>
-                  <span className="block font-bold">Segmentation Client Automatisée</span>
-                  <span className="text-sm text-indigo-200">Identification des clients à haute valeur (LTV) pour le ciblage marketing.</span>
+                  <span className="block font-bold">{t('invoices.commercial_project.client_segmentation')}</span>
+                  <span className="text-sm text-indigo-200">{t('invoices.commercial_project.client_segmentation_desc')}</span>
                 </div>
               </div>
             </div>
@@ -569,24 +570,24 @@ const AnalyticsFacturation: React.FC = () => {
           
           <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20">
             <h3 className="text-xl font-bold mb-6 flex items-center">
-              <ChartBarIcon className="h-6 w-6 mr-3 text-emerald-300" /> Impact sur le Marché
+              <ChartBarIcon className="h-6 w-6 mr-3 text-emerald-300" /> {t('invoices.commercial_project.market_impact')}
             </h3>
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-indigo-900/40 p-5 rounded-2xl">
                 <span className="block text-3xl font-black text-emerald-400">15%</span>
-                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">Gains d'Efficacité</span>
+                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">{t('invoices.commercial_project.efficiency_gains')}</span>
               </div>
               <div className="bg-indigo-900/40 p-5 rounded-2xl">
                 <span className="block text-3xl font-black text-blue-300">22%</span>
-                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">Fidélisation Accrue</span>
+                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">{t('invoices.commercial_project.loyalty_increase')}</span>
               </div>
             </div>
             <div className="mt-8 pt-8 border-t border-white/10">
               <p className="text-sm italic text-indigo-100 mb-4">
-                "Ce tableau de bord permet à une entreprise de visualiser son ROI en temps réel, justifiant chaque investissement commercial."
+                "{t('invoices.commercial_project.roi_quote')}"
               </p>
               <button className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-xl transition-all shadow-xl shadow-emerald-500/20">
-                GÉNÉRER UN RAPPORT DE VALEUR
+                {t('invoices.commercial_project.generate_report')}
               </button>
             </div>
           </div>

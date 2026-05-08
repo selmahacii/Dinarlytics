@@ -2570,6 +2570,20 @@
     "view_docs": "Permissions"
   },
   "invoices": {
+    "commercial_project": {
+      "focus_title": "Focus Projet Commercial",
+      "model_clarification": "Clarification du Modèle Commercial Dinarlytic",
+      "description": "Dinarlytic n'est pas seulement un outil de facturation. C'est un moteur de croissance qui transforme vos données comptables en leviers commerciaux stratégiques.",
+      "bfr_optim": "Optimisation du BFR",
+      "bfr_optim_desc": "Réduction automatique des délais de paiement via l'analyse prédictive.",
+      "client_segmentation": "Segmentation Client Automatisée",
+      "client_segmentation_desc": "Identification des clients à haute valeur (LTV) pour le ciblage marketing.",
+      "market_impact": "Impact sur le Marché",
+      "efficiency_gains": "Gains d'Efficacité",
+      "loyalty_increase": "Fidélisation Accrue",
+      "roi_quote": "Ce tableau de bord permet à une entreprise de visualiser son ROI en temps réel, justifiant chaque investissement commercial.",
+      "generate_report": "GÉNÉRER UN RAPPORT DE VALEUR"
+    },
     "title": "Gestion des Factures",
     "subtitle": "Suivi complet de la facturation client et des encaissements",
     "new_invoice": "Nouvelle Facture",

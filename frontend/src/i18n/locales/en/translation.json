@@ -2491,6 +2491,20 @@
     "view_docs": "Permissions"
   },
   "invoices": {
+    "commercial_project": {
+      "focus_title": "Commercial Project Focus",
+      "model_clarification": "Dinarlytic Commercial Model Clarification",
+      "description": "Dinarlytic is not just a billing tool. It is a growth engine that transforms your accounting data into strategic commercial levers.",
+      "bfr_optim": "WCR Optimization",
+      "bfr_optim_desc": "Automatic reduction of payment delays via predictive analysis.",
+      "client_segmentation": "Automated Client Segmentation",
+      "client_segmentation_desc": "Identification of high-value (LTV) clients for marketing targeting.",
+      "market_impact": "Market Impact",
+      "efficiency_gains": "Efficiency Gains",
+      "loyalty_increase": "Increased Loyalty",
+      "roi_quote": "This dashboard allows a company to visualize its ROI in real-time, justifying every commercial investment.",
+      "generate_report": "GENERATE VALUE REPORT"
+    },
     "title": "Invoice Management",
     "subtitle": "Complete tracking of customer billing and collections",
     "new_invoice": "New Invoice",
