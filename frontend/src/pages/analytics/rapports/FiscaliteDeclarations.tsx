@@ -293,7 +293,7 @@ const FiscaliteDeclarations: React.FC = () => {
                         <button
                           title="Voir détails"
                           aria-label="Voir détails déclaration"
-                          onClick={() => { setShowModal(true); setModalContent({ title: `Déclaration ${h.mois}`, message: `Statut: ${h.statut}\nTVA nette: ${formatDA(h.tva)}\nTAP: ${formatDA(h.tap)}`, type: 'info' }); setTimeout(()=>setShowModal(false), 2500); }}
+                          onClick={() => { setShowModal(true); setModalContent({ title: `Déclaration ${h.mois}`, message: `Statut: ${h.statut}\nTVA nette: ${formatCurrency(h.tva)}\nTAP: ${formatCurrency(h.tap)}`, type: 'info' }); setTimeout(()=>setShowModal(false), 2500); }}
                           className={`px-3 py-2 text-sm font-bold rounded-lg ${h.statut==='payée'?'bg-emerald-600 text-white hover:bg-emerald-700':'bg-slate-700 text-white hover:bg-slate-800'}`}
                         >
                           {h.statut}
@@ -709,14 +709,14 @@ const FiscaliteDeclarations: React.FC = () => {
     tvaCollectee: 1250000,
     tvaDeductible: 1050000,
     tvaAPayer: 200000,
-    baseTaxableVentes: 6578947, // Base HT
-    baseTaxableAchats: 5526316,
+    baseTaxableVentes: 25600000, // Base HT - Cumulative Revenue
+    baseTaxableAchats: 18526316,
     irg: 45000,
     ibs: 910000,
     tap: 200000,
-    prochaineG50: '20/10/2025',
+    prochaineG50: '20/05/2026',
     echeancesAVenir: 3,
-    derniereDeclaration: '20/09/2025'
+    derniereDeclaration: '20/04/2026'
   };
 
   // TVA mensuelle
@@ -919,6 +919,29 @@ const FiscaliteDeclarations: React.FC = () => {
         </div>
       </div>
 
+      {/* Insight Commercial / Vision */}
+      <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-5 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-700">
+        <div className="p-3 bg-indigo-100 rounded-xl shadow-inner">
+          <SparklesIcon className="h-7 w-7 text-indigo-600" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-bold text-indigo-900 flex items-center">
+              Perspective Commerciale & Fiscalité
+            </h3>
+            <span className="px-3 py-1 bg-indigo-200 text-indigo-800 text-xs font-black rounded-full uppercase tracking-wider">
+              Aide à la Décision
+            </span>
+          </div>
+          <p className="text-sm text-indigo-800 leading-relaxed italic mb-3">
+            "السيولة هي عصب الحرب: راقبها يومياً واستبق الاحتياجات."
+          </p>
+          <p className="text-sm text-indigo-800 leading-relaxed">
+            تتحول الإدارة الضريبية في دينارليتيكس من مجرد عبء إداري إلى ميزة تنافسية، حيث تسمح لك الاستشرافات المالية الدقيقة بتحسين التدفق النقدي وتجنب الغرامات، مما يعزز الثقة لدى الشركاء الماليين ويفتح آفاقاً جديدة للنمو المستدام.
+          </p>
+        </div>
+      </div>
+
       {/* Navigation des vues - Design moderne */}
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 p-2">
         <div className="flex space-x-2">
@@ -983,7 +1006,7 @@ const FiscaliteDeclarations: React.FC = () => {
                     </div>
                     <div className="text-sm text-white/90 font-bold mb-2">TVA Collectée</div>
                     <div className="text-4xl font-black text-white mb-1">
-                      {(fiscalData.tvaCollectee / 1000).toFixed(0)}k
+                      {formatCurrency(fiscalData.tvaCollectee)}
                     </div>
                     <div className="text-xs text-white/80 font-medium">Sur ventes</div>
             </div>
@@ -1002,7 +1025,7 @@ const FiscaliteDeclarations: React.FC = () => {
                     </div>
                     <div className="text-sm text-white/90 font-bold mb-2">TVA Déductible</div>
                     <div className="text-4xl font-black text-white mb-1">
-                      {(fiscalData.tvaDeductible / 1000).toFixed(0)}k
+                      {formatCurrency(fiscalData.tvaDeductible)}
                     </div>
                     <div className="text-xs text-white/80 font-medium">Sur achats</div>
             </div>
@@ -1024,7 +1047,7 @@ const FiscaliteDeclarations: React.FC = () => {
                     </div>
                     <div className="text-sm text-white/90 font-bold mb-2">TVA Nette</div>
                     <div className="text-4xl font-black text-white mb-1">
-                      {(fiscalData.tvaAPayer / 1000).toFixed(0)}k
+                      {formatCurrency(fiscalData.tvaAPayer)}
                     </div>
                     <div className="text-xs text-white/80 font-medium">À reverser</div>
             </div>
@@ -1040,7 +1063,7 @@ const FiscaliteDeclarations: React.FC = () => {
                     </div>
                     <div className="text-sm text-white/90 font-bold mb-2">IRG</div>
                     <div className="text-4xl font-black text-white mb-1">
-                      {(fiscalData.irg / 1000).toFixed(0)}k
+                      {formatCurrency(fiscalData.irg)}
                     </div>
                     <div className="text-xs text-white/80 font-medium">Retenues</div>
             </div>
@@ -1072,7 +1095,7 @@ const FiscaliteDeclarations: React.FC = () => {
                     </div>
                     <div className="text-sm text-white/90 font-bold mb-2">TAP</div>
                     <div className="text-4xl font-black text-white mb-1">
-                      {(fiscalData.tap / 1000).toFixed(0)}k
+                      {formatCurrency(fiscalData.tap)}
                     </div>
                     <div className="text-xs text-white/80 font-medium">CA (2%)</div>
           </div>
@@ -1097,6 +1120,55 @@ const FiscaliteDeclarations: React.FC = () => {
                       {fiscalData.echeancesAVenir}
                     </div>
                     <div className="text-xs text-white/80 font-medium">Dans 15 jours</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Analyse Commerciale & IBS */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                    <div className="p-2 bg-slate-800 rounded-lg mr-3">
+                      <ChartBarIcon className="h-5 w-5 text-white" />
+                    </div>
+                    Analyse Commerciale
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Revenu Cumulé</span>
+                      <span className="text-lg font-black text-slate-900">{formatCurrency(fiscalData.baseTaxableVentes)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">Taux d'imposition (IBS)</span>
+                      <span className="text-lg font-bold text-indigo-600">26%</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+                      <span className="text-slate-900 font-bold">Estimation IBS</span>
+                      <span className="text-xl font-black text-red-600">{formatCurrency(fiscalData.ibs)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
+                    <div className="p-2 bg-emerald-600 rounded-lg mr-3">
+                      <ScaleIcon className="h-5 w-5 text-white" />
+                    </div>
+                    Part TVA
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">TVA Collectée</span>
+                      <span className="text-lg font-bold text-slate-900">{formatCurrency(fiscalData.tvaCollectee)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-600">TVA Déductible</span>
+                      <span className="text-lg font-bold text-slate-900">{formatCurrency(fiscalData.tvaDeductible)}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-emerald-200">
+                      <span className="text-slate-900 font-bold">TVA Nette à Payer</span>
+                      <span className="text-xl font-black text-emerald-700">{formatCurrency(fiscalData.tvaAPayer)}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1445,7 +1517,67 @@ const FiscaliteDeclarations: React.FC = () => {
             </div>
           </div>
 
-              {/* Alertes fiscales */}
+          {/* Predictive AI & Fiscality */}
+          <div className="bg-gradient-to-br from-indigo-900 to-slate-900 rounded-2xl p-8 border border-indigo-500/30 shadow-2xl overflow-hidden relative mb-8">
+            {/* Effet décoratif AI */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
+            
+            <div className="relative flex flex-col md:flex-row items-center justify-between gap-8 text-left">
+              <div className="flex-1">
+                <div className="flex items-center space-x-4 mb-6 text-left">
+                  <div className="p-3 bg-indigo-500 rounded-xl shadow-lg">
+                    <SparklesIcon className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white">🔮 Predictive AI & Fiscality</h3>
+                    <p className="text-indigo-200 mt-1">Anticipation intelligente basée sur vos flux réels</p>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+                  <p className="text-indigo-100 text-sm italic mb-4 leading-relaxed">
+                    "Basé sur vos 10 dernières transactions, nous prévoyons une charge de TVA stable."
+                  </p>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <div className="text-xs text-indigo-300 font-bold uppercase mb-1">Predictive VAT</div>
+                      <div className="text-4xl font-black text-white">- {formatCurrency(858)}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-emerald-400 font-bold uppercase mb-1">Confidence Score</div>
+                      <div className="text-2xl font-black text-emerald-400">85%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-full md:w-80 space-y-4">
+                <button 
+                  onClick={() => handleAction('ai')}
+                  className="w-full group p-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl border-2 border-indigo-400 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 overflow-hidden relative"
+                >
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="relative flex items-center justify-center space-x-3">
+                    <SparklesIcon className="h-6 w-6 text-white animate-pulse" />
+                    <span className="text-white font-black text-lg tracking-wider">Launch Deep Audit</span>
+                  </div>
+                </button>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-center">
+                    <div className="text-xs text-slate-400 uppercase mb-1">Expert Mode</div>
+                    <div className="text-white font-black">ACTIF</div>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-center">
+                    <div className="text-xs text-slate-400 uppercase mb-1">ERP Coherence</div>
+                    <div className="text-emerald-400 font-black">FULL</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Alertes fiscales */}
               <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200">
                 <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center">
                   <BellIcon className="h-5 w-5 mr-2 text-slate-600" />
@@ -3221,13 +3353,17 @@ const FiscaliteDeclarations: React.FC = () => {
                       <div className="text-emerald-200 text-sm mt-1">Vérification de la cohérence fiscale...</div>
                       {aiAnalysisStep > 4 && (
                         <div className="mt-3 space-y-2">
-                          <div className="p-4 bg-emerald-500/20 rounded-lg border border-emerald-400/30">
-                            <div className="text-emerald-300 text-sm font-bold">✓ Aucune anomalie majeure détectée</div>
-                            <div className="text-emerald-200 text-xs mt-2">
-                              ✓ Cohérence TVA collectée/déductible: OK
-                              <br />✓ Bases imposables validées: OK
-                              <br />✓ Taux d'imposition conformes: OK
-                              <br />✓ Calendrier déclarations à jour: OK
+                          <div className="p-4 bg-red-500/20 rounded-lg border border-red-400/30">
+                            <div className="text-red-300 text-sm font-bold">⚠️ Anomalies détectées par l'audit LIA</div>
+                            <div className="text-red-200 text-xs mt-2 space-y-2">
+                              <div className="flex items-start">
+                                <span className="text-red-400 mr-2 font-black">!</span>
+                                <div><strong>Absence de pièces justificatives :</strong> 8 factures n'ont pas de scan joint. Risque de rejet en cas de contrôle fiscal.</div>
+                              </div>
+                              <div className="flex items-start">
+                                <span className="text-red-400 mr-2 font-black">!</span>
+                                <div><strong>Crédit de TVA anormalement élevé :</strong> La TVA déductible dépasse largement la TVA collectée. Cela attire l'attention de l'administration.</div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -3300,11 +3436,11 @@ const FiscaliteDeclarations: React.FC = () => {
                           </defs>
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <div className="text-6xl font-black text-white">92</div>
+                          <div className="text-6xl font-black text-white">80</div>
                           <div className="text-sm text-emerald-300 font-bold">/100</div>
                         </div>
                       </div>
-                      <div className="text-xl font-black text-emerald-400 mt-4">Excellente conformité</div>
+                      <div className="text-xl font-black text-amber-400 mt-4">Conformité à surveiller</div>
                     </div>
                   </div>
 
@@ -3321,9 +3457,9 @@ const FiscaliteDeclarations: React.FC = () => {
                     <div className="p-5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
                       <div className="text-amber-300 text-sm font-bold mb-3">💡 À améliorer</div>
                       <ul className="space-y-2 text-xs text-slate-200">
-                        <li className="flex items-start"><span className="text-amber-400 mr-2">•</span> Prévoir acompte IBS 310k DA</li>
-                        <li className="flex items-start"><span className="text-amber-400 mr-2">•</span> Récupérer TVA sur 3 factures</li>
-                        <li className="flex items-start"><span className="text-amber-400 mr-2">•</span> Anticiper pic TVA de juin</li>
+                        <li className="flex items-start"><span className="text-amber-400 mr-2">•</span> Scanner les 8 factures manquantes</li>
+                        <li className="flex items-start"><span className="text-amber-400 mr-2">•</span> Justifier le crédit de TVA élevé</li>
+                        <li className="flex items-start"><span className="text-amber-400 mr-2">•</span> Prévoir acompte IBS 910k DA</li>
                       </ul>
                     </div>
                   </div>
