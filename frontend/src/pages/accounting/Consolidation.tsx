@@ -484,6 +484,21 @@ const Consolidation: React.FC = () => {
         </div>
       </div>
 
+      {/* Insight Commercial / Vision */}
+      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-500">
+        <div className="p-2 bg-indigo-100 rounded-full">
+          <SparklesIcon className="h-6 w-6 text-indigo-600" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
+            Perspective Commerciale & Synergie
+          </h3>
+          <p className="text-sm text-indigo-800 leading-relaxed">
+            توفر لوحة التحكم الموحدة رؤية شاملة لأداء الفروع والشركات التابعة، مما يسهل اتخاذ القرارات الاستراتيجية المركزية وتحقيق التناغم بين مختلف الوحدات التجارية لتعظيم القيمة الإجمالية للمجموعة.
+          </p>
+        </div>
+      </div>
+
       {/* Barre de progression */}
       {isGenerating && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

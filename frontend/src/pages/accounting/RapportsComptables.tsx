@@ -14,7 +14,8 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   CheckCircleIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import Modal from "@shared/components/UI/Modal";
 import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
@@ -483,6 +484,21 @@ const EtatsRapports: React.FC = () => {
               {t('accounting.reports.actions.export_xml')}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Insight Commercial / Vision */}
+      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-500">
+        <div className="p-2 bg-indigo-100 rounded-full">
+          <SparklesIcon className="h-6 w-6 text-indigo-600" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
+            Perspective Commerciale & Reporting
+          </h3>
+          <p className="text-sm text-indigo-800 leading-relaxed">
+            تتحول التقارير المحاسبية في دينارليتيكس من مجرد التزام ضريبي إلى أداة استراتيجية لقياس كفاءة استخدام رأس المال وتحديد هوامش الربح الحقيقية، مما يمنح الإدارة القدرة على التخطيط المالي السليم وتحقيق نمو مستدام ومربح.
+          </p>
         </div>
       </div>
 

@@ -22,7 +22,8 @@ import {
   InformationCircleIcon,
   ScaleIcon,
   TruckIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { usePurchaseReports } from '@shared/hooks/usePurchaseReports';
@@ -132,6 +133,21 @@ Généré par Dinarlytics
                 <p className="text-slate-300 text-lg mt-1">Gestion des approvisionnements et relations fournisseurs</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Insight Commercial / Vision */}
+        <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 flex items-start space-x-4 shadow-md animate-in fade-in slide-in-from-top duration-500">
+          <div className="p-3 bg-indigo-100 rounded-xl">
+            <SparklesIcon className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-indigo-900 mb-2 flex items-center uppercase tracking-widest">
+              Perspective Commerciale & Approvisionnement
+            </h3>
+            <p className="text-sm text-indigo-800 leading-relaxed font-medium">
+              تساهم إدارة المشتريات في تقليل التكاليف التشغيلية من خلال تحليل أداء الموردين وتفاوض أفضل للشروط التجارية، مما يرفع من هامش الربح الإجمالي ويضمن استدامة سلسلة التوريد وكفاءتها.
+            </p>
           </div>
         </div>
 

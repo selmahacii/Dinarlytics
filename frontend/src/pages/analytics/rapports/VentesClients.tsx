@@ -253,6 +253,21 @@ const VentesClients: React.FC = () => {
           </div>
         </div>
 
+        {/* Insight Commercial / Vision */}
+        <div className="bg-indigo-50 border border-indigo-200 rounded-[2rem] p-6 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="p-3 bg-indigo-100 rounded-2xl">
+            <SparklesIcon className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h3 className="text-sm font-black text-indigo-900 uppercase tracking-widest mb-2 flex items-center">
+              Perspective Commerciale & Croissance
+            </h3>
+            <p className="text-sm text-indigo-800 leading-relaxed font-medium">
+              تُمكن تحليلات المبيعات في دينارليتيكس من تحديد العملاء الأكثر ربحية والمنتجات الواعدة، مما يسمح بتوجيه الموارد التسويقية والبيعية نحو الفرص ذات العائد الأعلى، وتعزيز استراتيجيات التسعير بناءً على بيانات حقيقية.
+            </p>
+          </div>
+        </div>
+
         {/* ══════════════ NAVIGATION ONGLETS ══════════════ */}
         <div className="flex gap-2 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm sticky top-4 z-20">
           {tabs.map(t => (

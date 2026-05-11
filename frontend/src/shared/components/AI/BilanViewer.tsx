@@ -13,7 +13,7 @@ import {
   ArrowPathIcon,
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
-import aiService from '@/services/aiService';
+import aiService from '@/features/ai/services/aiService';
 interface BilanComplet {
   [key: string]: any;
 }
@@ -1187,7 +1187,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                           </h3>
                         </div>
                         <ul className="space-y-2">
-                          {bilan.analyseFinanciere.alertes.map((alerte, idx) => (
+                          {bilan.analyseFinanciere.alertes.map((alerte: string, idx: number) => (
                             <li key={idx} className="text-red-800 dark:text-red-200 flex items-start text-xs leading-relaxed">
                               <div className="w-1.5 h-1.5 bg-red-600 rounded-full mr-2 mt-1.5 flex-shrink-0"></div>
                               <span>{alerte}</span>
@@ -1206,7 +1206,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                           </h3>
                         </div>
                         <ul className="space-y-2">
-                          {bilan.analyseFinanciere.pointsForts.map((point, idx) => (
+                          {bilan.analyseFinanciere.pointsForts.map((point: string, idx: number) => (
                             <li key={idx} className="text-emerald-800 dark:text-emerald-200 flex items-start text-xs leading-relaxed">
                               <ArrowTrendingUpIcon className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" />
                               <span>{point}</span>
@@ -1225,7 +1225,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                           </h3>
                         </div>
                         <ul className="space-y-2">
-                          {bilan.analyseFinanciere.pointsFaibles.map((point, idx) => (
+                          {bilan.analyseFinanciere.pointsFaibles.map((point: string, idx: number) => (
                             <li key={idx} className="text-amber-800 dark:text-amber-200 flex items-start text-xs leading-relaxed">
                               <div className="w-1.5 h-1.5 bg-amber-600 rounded-full mr-2 mt-1.5 flex-shrink-0"></div>
                               <span>{point}</span>
@@ -1246,7 +1246,7 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                           </div>
                         </div>
                         <ul className="divide-y divide-slate-200 dark:divide-slate-700">
-                          {bilan.analyseFinanciere.recommandations.map((reco, idx) => (
+                          {bilan.analyseFinanciere.recommandations.map((reco: string, idx: number) => (
                             <li key={idx} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-900/30 transition-colors">
                               <div className="flex items-start space-x-3">
                                 <span className="flex-shrink-0 w-6 h-6 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded flex items-center justify-center text-xs font-bold">
