@@ -418,10 +418,14 @@ const Tresorerie: React.FC = () => {
         </div>
         <div>
           <h3 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
-            Perspective Commerciale & Optimisation
+            {appCtx?.currentLang === 'ar' ? "المنظور التجاري والتحسين" : 
+             appCtx?.currentLang === 'en' ? "Commercial Perspective & Optimization" : 
+             "Perspective Commerciale & Optimisation"}
           </h3>
           <p className="text-sm text-indigo-800 leading-relaxed">
-            تساعد إدارة الخزينة في دينارليتيكس على تحسين الدورة النقدية (Cash Conversion Cycle) من خلال المراقبة الدقيقة للتدفقات الصادرة والواردة، مما يضمن توفر السيولة اللازمة للاستثمارات التجارية وتوسيع نطاق العمليات دون اللجوء للديون المكلفة.
+            {appCtx?.currentLang === 'ar' ? "تساعد إدارة الخزينة في دينارليتيكس على تحسين الدورة النقدية (Cash Conversion Cycle) من خلال المراقبة الدقيقة للتدفقات الصادرة والواردة، مما يضمن توفر السيولة اللازمة للاستثمارات التجارية وتوسيع نطاق العمليات دون اللجوء للديون المكلفة." :
+             appCtx?.currentLang === 'en' ? "Treasury management in Dinarlytics helps optimize the Cash Conversion Cycle (CCC) through precise monitoring of inflows and outflows, ensuring the liquidity required for business investments and operational expansion without relying on costly debt." :
+             "La gestion de trésorerie dans Dinarlytics permet d'optimiser le Cycle de Conversion du Cash (CCC) grâce à un suivi précis des flux entrants et sortants, garantissant ainsi la liquidité nécessaire aux investissements commerciaux et à l'expansion des opérations sans recourir à des dettes coûteuses."}
           </p>
         </div>
       </div>

@@ -34,7 +34,7 @@ import { useLocalStorage } from '@shared/hooks/useLocalStorage';
 import { usePermission } from '@shared/hooks/usePermission';
 
 const FiscaliteDeclarations: React.FC = () => {
-  const { user, companyData, formatCurrency, currentDevise, currentCountry, fiscalRates, calculateTVA, getTVARate, fiscalDocuments } = useApp();
+  const { user, companyData, formatCurrency, currentDevise, currentCountry, fiscalRates, calculateTVA, getTVARate, fiscalDocuments, currentLang } = useApp();
   const { has } = usePermission();
   const [selectedView, setSelectedView] = useState('vue-ensemble');
   const [showModal, setShowModal] = useState(false);
@@ -924,20 +924,28 @@ const FiscaliteDeclarations: React.FC = () => {
         <div className="p-3 bg-indigo-100 rounded-xl shadow-inner">
           <SparklesIcon className="h-7 w-7 text-indigo-600" />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 text-left">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-bold text-indigo-900 flex items-center">
-              Perspective Commerciale & Fiscalité
+              {currentLang === 'ar' ? "المنظور التجاري والتحسين" : 
+               currentLang === 'en' ? "Commercial Perspective & Optimization" : 
+               "Perspective Commerciale & Fiscalité"}
             </h3>
             <span className="px-3 py-1 bg-indigo-200 text-indigo-800 text-xs font-black rounded-full uppercase tracking-wider">
-              Aide à la Décision
+              {currentLang === 'ar' ? "المساعدة في اتخاذ القرار" : 
+               currentLang === 'en' ? "Decision Aid" : 
+               "Aide à la Décision"}
             </span>
           </div>
           <p className="text-sm text-indigo-800 leading-relaxed italic mb-3">
-            "السيولة هي عصب الحرب: راقبها يومياً واستبق الاحتياجات."
+            {currentLang === 'ar' ? '"السيولة هي عصب الحرب: راقبها يومياً واستبق الاحتياجات."' :
+             currentLang === 'en' ? '"Cash is the sinews of war: monitor it daily and anticipate needs."' :
+             '"La liquidité est le nerf de la guerre : surveillez-la quotidiennement et anticipez les besoins."'}
           </p>
           <p className="text-sm text-indigo-800 leading-relaxed">
-            تتحول الإدارة الضريبية في دينارليتيكس من مجرد عبء إداري إلى ميزة تنافسية، حيث تسمح لك الاستشرافات المالية الدقيقة بتحسين التدفق النقدي وتجنب الغرامات، مما يعزز الثقة لدى الشركاء الماليين ويفتح آفاقاً جديدة للنمو المستدام.
+            {currentLang === 'ar' ? "تتحول الإدارة الضريبية في دينارليتيكس من مجرد عبء إداري إلى ميزة تنافسية، حيث تسمح لك الاستشرافات المالية الدقيقة بتحسين التدفق النقدي وتجنب الغرامات، مما يعزز الثقة لدى الشركاء الماليين ويفتح آفاقاً جديدة للنمو المستدام." :
+             currentLang === 'en' ? "Tax management in Dinarlytics evolves from a mere administrative burden into a competitive advantage, where accurate financial forecasting allows you to optimize cash flow and avoid penalties, building trust with financial partners and opening new horizons for sustainable growth." :
+             "La gestion fiscale dans Dinarlytics passe d'un simple fardeau administratif à un avantage concurrentiel, où des prévisions financières précises vous permettent d'optimiser les flux de trésorerie et d'éviter les pénalités, renforçant ainsi la confiance des partenaires financiers et ouvrant de nouveaux horizons pour une croissance durable."}
           </p>
         </div>
       </div>
