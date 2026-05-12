@@ -14,6 +14,8 @@ import {
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
 import aiService from '@/features/ai/services/aiService';
+import { useApp } from '@/core/context/AppContext';
+
 interface BilanComplet {
   [key: string]: any;
 }
@@ -24,6 +26,7 @@ interface BilanViewerProps {
 }
 
 const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
+  const { currentLang } = useApp();
   const currentYear = new Date().getFullYear();
   const [selectedExercice, setSelectedExercice] = useState(currentYear.toString());
   const [selectedType, setSelectedType] = useState<'croissance' | 'sain' | 'difficulte'>('sain');
@@ -154,6 +157,32 @@ const BilanViewer: React.FC<BilanViewerProps> = ({ isOpen, onClose }) => {
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
                   Personnalisez les paramètres pour générer des états financiers réalistes
+                </p>
+              </div>
+            </div>
+
+            {/* Insight Commercial / Synergie */}
+            <div className="mb-8 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl p-5 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-700">
+              <div className="p-3 bg-indigo-100 dark:bg-indigo-800 rounded-xl shadow-inner">
+                <SparklesIcon className="h-7 w-7 text-indigo-600 dark:text-indigo-300" />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100 flex items-center">
+                    {currentLang === 'ar' ? "المنظور التجاري والتآزر" : 
+                     currentLang === 'en' ? "Commercial Perspective & Synergy" : 
+                     "Perspective Commerciale & Synergie"}
+                  </h3>
+                  <span className="px-3 py-1 bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-200 text-xs font-black rounded-full uppercase tracking-wider">
+                    {currentLang === 'ar' ? "رؤية المجموعة" : 
+                     currentLang === 'en' ? "Group Vision" : 
+                     "Vision Groupe"}
+                  </span>
+                </div>
+                <p className="text-sm text-indigo-800 dark:text-indigo-200 leading-relaxed">
+                  {currentLang === 'ar' ? "توفر لوحة التحكم الموحدة رؤية شاملة لأداء الفروع والشركات التابعة، مما يسهل اتخاذ القرارات الاستراتيجية المركزية وتحقيق التناغم بين مختلف الوحدات التجارية لتعظيم القيمة الإجمالية للمجموعة." :
+                   currentLang === 'en' ? "The unified dashboard provides a comprehensive view of the performance of branches and subsidiaries, facilitating centralized strategic decision-making and achieving synergy between different business units to maximize the overall value of the group." :
+                   "Le tableau de bord unifié offre une vision globale de la performance des succursales et filiales, facilitant ainsi la prise de décisions stratégiques centralisées et la réalisation d'une synergie entre les différentes unités commerciales pour maximiser la valeur globale du groupe."}
                 </p>
               </div>
             </div>

@@ -113,8 +113,12 @@ const FiscaliteDeclarations: React.FC = () => {
                 <ScaleIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-extrabold">Fiscalité Boutique</h1>
-                <p className="text-emerald-100 text-lg mt-1">Spécialisée pour {user.nom}</p>
+                <h1 className="text-3xl font-extrabold">
+                  {currentLang === 'ar' ? "الضرائب للمحلات" : currentLang === 'en' ? "Boutique Tax Management" : "Fiscalité Boutique"}
+                </h1>
+                <p className="text-emerald-100 text-lg mt-1">
+                  {currentLang === 'ar' ? `مخصصة لـ ${user.nom}` : currentLang === 'en' ? `Specialized for ${user.nom}` : `Spécialisée pour ${user.nom}`}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -491,8 +495,12 @@ const FiscaliteDeclarations: React.FC = () => {
                 <ScaleIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Fiscalité & Déclarations</h1>
-                <p className="text-slate-300 text-lg mt-1">TVA, G50, IRG et échéances fiscales</p>
+                <h1 className="text-3xl font-bold">
+                  {currentLang === 'ar' ? "الضرائب والتصريحات" : currentLang === 'en' ? "Fiscal & Declarations" : "Fiscalité & Déclarations"}
+                </h1>
+                <p className="text-slate-300 text-lg mt-1">
+                  {currentLang === 'ar' ? "TVA، G50، IRG والالتزامات الضريبية" : currentLang === 'en' ? "VAT, G50, IRG and tax deadlines" : "TVA, G50, IRG et échéances fiscales"}
+                </p>
               </div>
             </div>
           </div>
@@ -674,30 +682,30 @@ const FiscaliteDeclarations: React.FC = () => {
   const views = [
     {
       id: 'vue-ensemble',
-      title: 'Vue d\'ensemble fiscale',
+      title: currentLang === 'ar' ? "نظرة عامة ضريبية" : currentLang === 'en' ? "Fiscal Overview" : "Vue d'ensemble fiscale",
       icon: ChartPieIcon,
-      description: 'Dashboard fiscal complet',
+      description: currentLang === 'ar' ? "لوحة القيادة الضريبية الكاملة" : currentLang === 'en' ? "Complete fiscal dashboard" : "Dashboard fiscal complet",
       indicators: ['Synthèse de toutes les taxes', 'Soldes et obligations', 'Alertes et échéances']
     },
     {
       id: 'tva',
-      title: 'TVA',
+      title: currentLang === 'ar' ? "الضريبة على القيمة المضافة" : currentLang === 'en' ? "VAT" : "TVA",
       icon: DocumentTextIcon,
-      description: 'Gestion de la TVA',
+      description: currentLang === 'ar' ? "إدارة الضريبة على القيمة المضافة" : currentLang === 'en' ? "VAT Management" : "Gestion de la TVA",
       indicators: ['TVA collectée / déductible / à payer', 'Évolution mensuelle de la TVA', 'Export direct vers G50']
     },
     {
       id: 'irg-ibs-tap',
-      title: 'IRG / IBS / TAP',
+      title: currentLang === 'ar' ? "IRG / IBS / TAP" : currentLang === 'en' ? "IRG / IBS / TAP" : "IRG / IBS / TAP",
       icon: CalculatorIcon,
-      description: 'Impôts et taxes',
+      description: currentLang === 'ar' ? "الضرائب والرسوم" : currentLang === 'en' ? "Taxes and duties" : "Impôts et taxes",
       indicators: ['Calculs automatiques selon règles algériennes', 'Montant dû / payé / à venir', 'Historique de paiements fiscaux']
     },
     {
       id: 'echeancier-fiscal',
-      title: 'Échéancier fiscal & alertes',
+      title: currentLang === 'ar' ? "الجدول الضريبي والتنبيهات" : currentLang === 'en' ? "Tax Calendar & Alerts" : "Échéancier fiscal & alertes",
       icon: CalendarIcon,
-      description: 'Calendrier des obligations',
+      description: currentLang === 'ar' ? "تقويم الالتزامات" : currentLang === 'en' ? "Obligations calendar" : "Calendrier des obligations",
       indicators: ['Calendrier des déclarations', 'Alertes automatiques (G50, CNAS, CASNOS)', 'Rappels de paiements à venir']
     }
   ];
@@ -900,10 +908,59 @@ const FiscaliteDeclarations: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-4xl font-black text-white flex items-center tracking-tight">
-              Fiscalité & Déclarations
-            </h1>
-                <p className="text-emerald-200 mt-1 font-medium">Gérez vos obligations fiscales en toute simplicité</p>
-          </div>
+                  {currentLang === 'ar' ? "الضرائب والتصريحات" : 
+                   currentLang === 'en' ? "Fiscal & Declarations" : 
+                   "Fiscalité & Déclarations"}
+                </h1>
+                <p className="text-emerald-200 mt-1 font-medium">
+                  {currentLang === 'ar' ? "حل احترافي مناسب للمؤسسات الصغيرة. قم بإدارة تصريحاتك الضريبية بامتثال تام." : 
+                   currentLang === 'en' ? "Professional solution adapted to micro-enterprises. Manage your tax declarations in full compliance." : 
+                   "Gérez vos obligations fiscales en toute simplicité. Solution professionnelle adaptée aux micro-entreprises."}
+                </p>
+              </div>
+            </div>
+
+            {/* Feature Highlights - Multi-language */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-white/10 text-[10px] md:text-xs">
+              {[
+                { icon: ChartBarIcon, label: currentLang === 'ar' ? "لوحات قيادة KPIs" : currentLang === 'en' ? "Fiscal KPI Dashboards" : "Dashboards KPI Fiscaux" },
+                { icon: DocumentTextIcon, label: currentLang === 'ar' ? "تتبع TVA" : currentLang === 'en' ? "VAT tracking" : "Suivi TVA Collectée/Deductible" },
+                { icon: CalculatorIcon, label: currentLang === 'ar' ? "توليد G50 آلي" : currentLang === 'en' ? "Automated G50 Generation" : "Génération G50 Automatisée" },
+                { icon: BuildingOfficeIcon, label: currentLang === 'ar' ? "تقدير IBS" : currentLang === 'en' ? "Real-time IBS Estimation" : "Estimation IBS en Temps Réel" },
+                { icon: CalendarIcon, label: currentLang === 'ar' ? "تحسين التقويم" : currentLang === 'en' ? "Tax Calendar Optimization" : "Optimisation du Calendrier Fiscal" },
+                { icon: ExclamationTriangleIcon, label: currentLang === 'ar' ? "كشف المخاطر" : currentLang === 'en' ? "AI: Risk Detection" : "IA : Détection de Risques" },
+                { icon: UserGroupIcon, label: currentLang === 'ar' ? "حل المحاسب الخبير" : currentLang === 'en' ? "Expert-Accountant Solution" : "Solution Expert-Comptable" },
+                { icon: SparklesIcon, label: currentLang === 'ar' ? "مساعدة القرار" : currentLang === 'en' ? "Decision Aid" : "Aide à la Décision" }
+              ].map((f, i) => (
+                <div key={i} className="flex items-center space-x-2 text-white/80 hover:text-white transition-colors">
+                  <f.icon className="h-4 w-4 text-emerald-400" />
+                  <span>{f.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Warning and Update Info */}
+            <div className="mt-8 flex flex-col md:flex-row items-center justify-between text-xs space-y-4 md:space-y-0 pt-6 border-t border-white/10">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-emerald-300 font-bold bg-white/5 px-4 py-2 rounded-full border border-white/10 shadow-inner">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span>2026 Update</span>
+                </div>
+                <div className="hidden md:flex items-center space-x-4 text-white/40 text-[10px]">
+                  <span>• Pilotage & Tableaux</span>
+                  <span>• Analysis</span>
+                  <span>• Audit & Traçabilité</span>
+                </div>
+              </div>
+              <div className="text-white/60 flex items-center italic bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                <InformationCircleIcon className="h-5 w-5 mr-2 text-white/40" />
+                {currentLang === 'ar' ? "تحذير: الحسابات مبنية على بيانات ERP ويجب التحقق منها من قبل المحاسب المعتمد الخاص بك." : 
+                 currentLang === 'en' ? "Warning: Calculations are based on ERP data and must be validated by your certified accountant." : 
+                 "Attention : Les calculs sont basés sur les données de l'ERP et doivent être validés par votre expert-comptable certifié."}
+              </div>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -1012,11 +1069,15 @@ const FiscaliteDeclarations: React.FC = () => {
                         <ArrowTrendingUpIcon className="h-5 w-5 text-white" />
                       </div>
                     </div>
-                    <div className="text-sm text-white/90 font-bold mb-2">TVA Collectée</div>
+                    <div className="text-sm text-white/90 font-bold mb-2">
+                      {currentLang === 'ar' ? "الضريبة المجمعة" : currentLang === 'en' ? "Collected VAT" : "TVA Collectée"}
+                    </div>
                     <div className="text-4xl font-black text-white mb-1">
                       {formatCurrency(fiscalData.tvaCollectee)}
                     </div>
-                    <div className="text-xs text-white/80 font-medium">Sur ventes</div>
+                    <div className="text-xs text-white/80 font-medium">
+                      {currentLang === 'ar' ? "على المبيعات" : currentLang === 'en' ? "On sales" : "Sur ventes"}
+                    </div>
             </div>
           </div>
 
@@ -1031,11 +1092,15 @@ const FiscaliteDeclarations: React.FC = () => {
                         <ArrowTrendingDownIcon className="h-5 w-5 text-white" />
                       </div>
                     </div>
-                    <div className="text-sm text-white/90 font-bold mb-2">TVA Déductible</div>
+                    <div className="text-sm text-white/90 font-bold mb-2">
+                      {currentLang === 'ar' ? "الضريبة القابلة للخصم" : currentLang === 'en' ? "Deductible VAT" : "TVA Déductible"}
+                    </div>
                     <div className="text-4xl font-black text-white mb-1">
                       {formatCurrency(fiscalData.tvaDeductible)}
                     </div>
-                    <div className="text-xs text-white/80 font-medium">Sur achats</div>
+                    <div className="text-xs text-white/80 font-medium">
+                      {currentLang === 'ar' ? "على المشتريات" : currentLang === 'en' ? "On purchases" : "Sur achats"}
+                    </div>
             </div>
           </div>
 
@@ -1053,11 +1118,15 @@ const FiscaliteDeclarations: React.FC = () => {
                         <ExclamationTriangleIcon className="h-5 w-5 text-white" />
                       </div>
                     </div>
-                    <div className="text-sm text-white/90 font-bold mb-2">TVA Nette</div>
+                    <div className="text-sm text-white/90 font-bold mb-2">
+                      {currentLang === 'ar' ? "صافي الضريبة" : currentLang === 'en' ? "Net VAT" : "TVA Nette"}
+                    </div>
                     <div className="text-4xl font-black text-white mb-1">
                       {formatCurrency(fiscalData.tvaAPayer)}
                     </div>
-                    <div className="text-xs text-white/80 font-medium">À reverser</div>
+                    <div className="text-xs text-white/80 font-medium">
+                      {currentLang === 'ar' ? "للدفع" : currentLang === 'en' ? "To pay" : "À reverser"}
+                    </div>
             </div>
           </div>
 
@@ -1087,9 +1156,11 @@ const FiscaliteDeclarations: React.FC = () => {
                     </div>
                     <div className="text-sm text-white/90 font-bold mb-2">IBS</div>
                     <div className="text-4xl font-black text-white mb-1">
-                      {(fiscalData.ibs / 1000).toFixed(0)}k
+                      {formatCurrency(fiscalData.ibs)}
                     </div>
-                    <div className="text-xs text-white/80 font-medium">Bénéfices</div>
+                    <div className="text-xs text-white/80 font-medium">
+                      {currentLang === 'ar' ? "الأرباح" : currentLang === 'en' ? "Profits" : "Bénéfices"}
+                    </div>
             </div>
           </div>
 
@@ -1143,15 +1214,21 @@ const FiscaliteDeclarations: React.FC = () => {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Revenu Cumulé</span>
+                      <span className="text-slate-600">
+                        {currentLang === 'ar' ? "الإيرادات التراكمية" : currentLang === 'en' ? "Cumulative Revenue" : "Revenu Cumulé"}
+                      </span>
                       <span className="text-lg font-black text-slate-900">{formatCurrency(fiscalData.baseTaxableVentes)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">Taux d'imposition (IBS)</span>
+                      <span className="text-slate-600">
+                        {currentLang === 'ar' ? "معدل الضريبة (IBS)" : currentLang === 'en' ? "Tax Rate (IBS)" : "Taux d'imposition (IBS)"}
+                      </span>
                       <span className="text-lg font-bold text-indigo-600">26%</span>
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-                      <span className="text-slate-900 font-bold">Estimation IBS</span>
+                      <span className="text-slate-900 font-bold">
+                        {currentLang === 'ar' ? "IBS المقدر" : currentLang === 'en' ? "Estimated IBS" : "Estimation IBS"}
+                      </span>
                       <span className="text-xl font-black text-red-600">{formatCurrency(fiscalData.ibs)}</span>
                     </div>
                   </div>
@@ -1166,15 +1243,21 @@ const FiscaliteDeclarations: React.FC = () => {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">TVA Collectée</span>
+                      <span className="text-slate-600">
+                        {currentLang === 'ar' ? "الضريبة المجمعة" : currentLang === 'en' ? "Collected VAT" : "TVA Collectée"}
+                      </span>
                       <span className="text-lg font-bold text-slate-900">{formatCurrency(fiscalData.tvaCollectee)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-600">TVA Déductible</span>
+                      <span className="text-slate-600">
+                        {currentLang === 'ar' ? "الضريبة القابلة للخصم" : currentLang === 'en' ? "Deductible VAT" : "TVA Déductible"}
+                      </span>
                       <span className="text-lg font-bold text-slate-900">{formatCurrency(fiscalData.tvaDeductible)}</span>
                     </div>
                     <div className="flex justify-between items-center pt-2 border-t border-emerald-200">
-                      <span className="text-slate-900 font-bold">TVA Nette à Payer</span>
+                      <span className="text-slate-900 font-bold">
+                        {currentLang === 'ar' ? "صافي الضريبة للدفع" : currentLang === 'en' ? "Net VAT to Pay" : "TVA Nette à Payer"}
+                      </span>
                       <span className="text-xl font-black text-emerald-700">{formatCurrency(fiscalData.tvaAPayer)}</span>
                     </div>
                   </div>
@@ -3421,7 +3504,9 @@ const FiscaliteDeclarations: React.FC = () => {
                   {/* Score fiscal */}
                   <div className="p-6 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 mb-6">
                     <div className="text-center">
-                      <div className="text-sm text-emerald-300 font-bold uppercase mb-4">Score de Conformité Fiscale</div>
+                      <div className="text-sm text-emerald-300 font-bold uppercase mb-4">
+                        {currentLang === 'ar' ? "درجة الامتثال الضريبي" : currentLang === 'en' ? "Tax Compliance Score" : "Score de Conformité Fiscale"}
+                      </div>
                       <div className="relative inline-block">
                         <svg className="w-40 h-40 transform -rotate-90">
                           <circle cx="80" cy="80" r="70" fill="none" stroke="#334155" strokeWidth="14" />
