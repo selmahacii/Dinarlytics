@@ -11,7 +11,8 @@ import {
   CheckCircleIcon,
   LightBulbIcon,
   ArrowPathIcon,
-  DocumentArrowDownIcon
+  DocumentArrowDownIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import aiService from '@/features/ai/services/aiService';
 import { useApp } from '@/core/context/AppContext';

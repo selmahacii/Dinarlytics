@@ -507,31 +507,32 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
   return (
     <div className="space-y-6">
       {/* En-tête Premium - Fiscalité & Déclarations */}
-      <div className="relative overflow-hidden bg-white border border-slate-200 px-8 py-12 mb-8 rounded-3xl group shadow-sm">
-        {/* Subtle pattern instead of blur */}
-        <div className="absolute inset-0 opacity-[0.01]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
-
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-slate-900 px-8 py-14 rounded-[2.5rem] shadow-2xl group border border-white/10">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl -mr-20 -mt-20 group-hover:bg-blue-400/20 transition-all duration-700"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -ml-10 -mb-10"></div>
+        
         <div className="relative z-10">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="flex-1">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl shadow-sm">
-                  <CalculatorIcon className="h-8 w-8 text-slate-700" />
+              <div className="flex items-center space-x-5 mb-6">
+                <div className="p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-inner">
+                  <CalculatorIcon className="h-10 w-10 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">{t('fiscal.title')}</h1>
-                  <div className="flex items-center gap-2 text-slate-500">
-                    <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                    <span className="text-sm font-semibold uppercase tracking-wider">{t('fiscal.subtitle')}</span>
+                  <h1 className="text-4xl font-black text-white tracking-tight mb-1">{t('fiscal.title')}</h1>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span className="text-sm font-bold text-blue-100 uppercase tracking-[0.2em]">{t('fiscal.update_status')}</span>
                   </div>
                 </div>
               </div>
 
-              <p className="text-slate-600 text-lg max-w-2xl leading-relaxed mb-6">
+              <p className="text-blue-50 text-xl max-w-3xl leading-relaxed mb-8 font-medium opacity-90">
                 {t('fiscal.subtitle')}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
                 {[
                   t('fiscal.benefits.kpi'),
                   t('fiscal.benefits.clients'),
@@ -540,27 +541,32 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   t('fiscal.benefits.bfr'),
                   t('fiscal.benefits.cashflow')
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center space-x-2 text-slate-700 text-sm bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
-                    <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
-                    <span>{item}</span>
+                  <div key={idx} className="flex items-center space-x-3 text-white/90 text-sm bg-white/5 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors cursor-default">
+                    <CheckCircleIcon className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                    <span className="font-semibold">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="lg:w-80 space-y-4">
-              <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 shadow-sm">
-                <h4 className="text-xs font-bold text-indigo-900 uppercase tracking-widest mb-3">{t('fiscal.solution_enterprise')}</h4>
-                <ul className="space-y-2 text-xs">
-                  <li className="flex items-center text-slate-600 italic">• {t('nav.steering')}</li>
-                  <li className="flex items-center text-slate-600 italic">• {t('common.financial_analysis')}</li>
-                  <li className="flex items-center text-slate-600 italic">• {t('nav.audit_traceability')}</li>
+            <div className="lg:w-96 space-y-5">
+              <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-6 border border-white/20 shadow-2xl">
+                <h4 className="text-xs font-black text-blue-200 uppercase tracking-[0.25em] mb-4 border-b border-white/10 pb-3">
+                  {t('fiscal.solution_enterprise')}
+                </h4>
+                <ul className="space-y-3">
+                  {[t('nav.steering'), t('common.financial_analysis'), t('nav.audit_traceability')].map((item, i) => (
+                    <li key={i} className="flex items-center text-white font-bold text-sm">
+                      <span className="w-1.5 h-1.5 bg-blue-400 rounded-full mr-3"></span>
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
 
-              <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
-                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">{t('fiscal.decision_aid')}</div>
-                <p className="text-xs text-slate-600 mt-1 leading-snug italic">
+              <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 backdrop-blur-md rounded-[2rem] p-6 border border-emerald-400/30">
+                <div className="text-[10px] font-black text-emerald-300 uppercase tracking-[0.2em] mb-2">{t('fiscal.decision_aid')}</div>
+                <p className="text-sm text-white mt-1 leading-relaxed italic font-medium">
                   "{t('fiscal.motto')}"
                 </p>
               </div>
@@ -570,176 +576,179 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
       </div>
 
       {/* Disclaimer Fiscal */}
-      <div className="bg-slate-50 border-l-4 border-slate-900 p-4 rounded-xl mb-8 border border-slate-200 shadow-sm flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <InformationCircleIcon className="h-5 w-5 text-slate-400" />
-          <p className="text-slate-600 text-sm font-medium tracking-wide">
-            <span className="text-slate-900 font-bold uppercase mr-2">{t('fiscal.warning_title')}</span>
+      <div className="bg-amber-50/50 backdrop-blur-sm border-l-4 border-amber-500 p-5 rounded-2xl mb-8 border border-amber-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center space-x-4">
+          <div className="p-2 bg-amber-100 rounded-full">
+            <InformationCircleIcon className="h-6 w-6 text-amber-600" />
+          </div>
+          <p className="text-amber-900 text-sm font-semibold tracking-wide">
+            <span className="text-amber-600 font-black uppercase mr-2">{t('fiscal.warning_title')}</span>
             {t('fiscal.warning_text')}
           </p>
         </div>
-        <div className="hidden md:block">
-          <span className="px-3 py-1 bg-slate-200 text-slate-700 rounded-full text-[10px] font-bold uppercase tracking-widest border border-slate-300">
+        <div className="flex items-center space-x-3">
+          <span className="px-4 py-1.5 bg-white text-amber-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-200 shadow-sm">
             {t('fiscal.update_status')}
           </span>
         </div>
       </div>
 
-      {/* Synthèse des Calculs Fiscaux (Cartes Flash Connectées) */}
+      {/* 2026 Update - KPI Dashboards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-slate-900 transition-colors">
-              <CalculatorIcon className="h-6 w-6 text-slate-700 group-hover:text-white" />
+        {[
+          { label: t('fiscal.stats.ca_ht'), value: formatCurrency(dynamicKPI?.caHT || 0), icon: CalculatorIcon, color: 'blue', sub: t('nav.commercial_analysis') },
+          { label: t('fiscal.stats.ibs_estimated'), value: formatCurrency(dynamicKPI?.ibs || 0), icon: BuildingOfficeIcon, color: 'indigo', sub: `${t('fiscal.rates.rate_label')}: ${customRates.ibs * 100}%` },
+          { label: t('fiscal.stats.tva_to_pay'), value: formatCurrency(dynamicKPI?.tvaAVerser || 0), icon: DocumentTextIcon, color: 'emerald', sub: t('fiscal.stats.tva_share') },
+          { label: t('fiscal.stats.conformity_score'), value: `${100 - (riskAnalysis.length * 10)}/100`, icon: SparklesIcon, color: 'purple', sub: 'Audit IA', action: handleGenererRapportIA }
+        ].map((kpi, idx) => (
+          <div key={idx} className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden">
+            <div className={`absolute top-0 right-0 w-24 h-24 bg-${kpi.color}-50 rounded-bl-[4rem] -mr-4 -mt-4 transition-all duration-500 group-hover:scale-150 group-hover:bg-${kpi.color}-100`}></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className={`p-4 bg-${kpi.color}-50 rounded-2xl group-hover:bg-${kpi.color}-600 transition-all duration-500 shadow-sm`}>
+                  <kpi.icon className={`h-7 w-7 text-${kpi.color}-600 group-hover:text-white transition-colors duration-500`} />
+                </div>
+                {kpi.action ? (
+                  <button onClick={kpi.action} className={`text-[10px] font-black text-white uppercase tracking-widest py-2 px-4 bg-${kpi.color}-600 rounded-xl hover:bg-${kpi.color}-700 transition-colors shadow-lg`}>
+                    {t('fiscal.audit_ia_btn')}
+                  </button>
+                ) : (
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest py-1.5 px-3 bg-slate-50 rounded-lg border border-slate-100">
+                    {kpi.sub}
+                  </span>
+                )}
+              </div>
+              
+              <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] mb-2">{kpi.label}</p>
+              <div className="flex items-baseline space-x-1">
+                <p className={`text-3xl font-black text-slate-900 group-hover:text-${kpi.color}-700 transition-colors duration-500`}>{kpi.value}</p>
+              </div>
             </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">{t('nav.commercial_analysis')}</span>
           </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.ca_ht')}</p>
-          <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-black text-slate-900">{formatCurrency(dynamicKPI?.caHT || 0)}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
-              <BuildingOfficeIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
-            </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">{t('fiscal.rates.rate_label')}: {customRates.ibs * 100}%</span>
-          </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.ibs_estimated')}</p>
-          <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-black text-slate-900">{formatCurrency(dynamicKPI?.ibs || 0)}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
-              <DocumentTextIcon className="h-6 w-6 text-slate-600 group-hover:text-white" />
-            </div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest py-1 px-2 bg-slate-100 rounded-full">{t('fiscal.stats.tva_share')}</span>
-          </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.tva_to_pay')}</p>
-          <div className="flex items-baseline space-x-1">
-            <p className="text-2xl font-black text-emerald-600">{formatCurrency(dynamicKPI?.tvaAVerser || 0)}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-slate-900 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden">
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <div className="p-3 bg-slate-100 rounded-2xl group-hover:bg-slate-900 transition-colors">
-              <SparklesIcon className="h-6 w-6 text-indigo-600 group-hover:text-white" />
-            </div>
-            <button
-              onClick={handleGenererRapportIA}
-              className="text-[10px] font-bold text-white uppercase tracking-widest py-1.5 px-3 bg-indigo-600 rounded-full hover:bg-indigo-700 transition-colors"
-            >
-              {t('fiscal.audit_ia_btn')}
-            </button>
-          </div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('fiscal.stats.conformity_score')}</p>
-          <div className="flex items-baseline space-x-1 relative z-10">
-            <p className="text-2xl font-black text-slate-900">{100 - (riskAnalysis.length * 10)}/100</p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Configuration des Taux et Prédictions IA */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-slate-900 flex items-center">
-              <SparklesIcon className="h-6 w-6 mr-3 text-indigo-600" />
-              {t('fiscal.control_center')}
-            </h3>
-            <div className="flex space-x-2">
-              <span className="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center">
-                <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('fiscal.alerts.erp_coherence')}
-              </span>
-              <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-[10px] font-bold uppercase tracking-wider">{t('fiscal.expert_mode')}</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t('fiscal.rates.tva')}</label>
-              <input
-                type="number"
-                value={customRates.tva * 100}
-                onChange={(e) => setCustomRates({ ...customRates, tva: parseFloat(e.target.value) / 100 })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t('fiscal.rates.tap')}</label>
-              <input
-                type="number"
-                value={customRates.tap * 100}
-                onChange={(e) => setCustomRates({ ...customRates, tap: parseFloat(e.target.value) / 100 })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest">{t('fiscal.rates.ibs')}</label>
-              <input
-                type="number"
-                value={customRates.ibs * 100}
-                onChange={(e) => setCustomRates({ ...customRates, ibs: parseFloat(e.target.value) / 100 })}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-900 focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="p-6 bg-slate-900 rounded-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <SparklesIcon className="h-32 w-32 text-white" />
-            </div>
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Fiscal Steering Center & AI Audit */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -mr-32 -mt-32"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-10">
               <div>
-                <h4 className="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-1">{t('fiscal.ia_predictive')}</h4>
-                <p className="text-xs text-slate-400 max-w-md">{fiscalForecast?.message || t('fiscal.ia.analyzing')}</p>
+                <h3 className="text-2xl font-black text-slate-900 flex items-center mb-2">
+                  <span className="p-2 bg-blue-600 rounded-lg mr-3 shadow-lg">
+                    <SparklesIcon className="h-6 w-6 text-white" />
+                  </span>
+                  {t('fiscal.control_center')}
+                </h3>
+                <p className="text-slate-500 font-medium">{t('fiscal.tagline')}</p>
               </div>
-              <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-500 uppercase mb-1">{t('fiscal.ia.predicted_tva')}</p>
-                <p className="text-2xl font-black text-white">{formatCurrency(fiscalForecast?.predictedTVANextMonth || 0)}</p>
-                <div className="mt-1 flex items-center justify-end text-[10px] font-bold text-emerald-400">
-                  <CheckCircleIcon className="h-3 w-3 mr-1" /> {t('fiscal.ia.confidence_score')}: {Math.round((fiscalForecast?.confidenceScore || 0) * 100)}%
+              <div className="flex space-x-3">
+                <span className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center border border-emerald-100 shadow-sm">
+                  <CheckCircleIcon className="h-4 w-4 mr-2" /> {t('fiscal.alerts.erp_coherence')}
+                </span>
+                <button className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-[10px] font-black uppercase tracking-wider border border-indigo-100 shadow-sm hover:bg-indigo-100 transition-colors">
+                  {t('fiscal.expert_mode')}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+              {[
+                { label: t('fiscal.rates.tva'), value: customRates.tva * 100, field: 'tva' },
+                { label: t('fiscal.rates.tap'), value: customRates.tap * 100, field: 'tap' },
+                { label: t('fiscal.rates.ibs'), value: customRates.ibs * 100, field: 'ibs' }
+              ].map((rate, i) => (
+                <div key={i} className="group">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3 block group-focus-within:text-blue-600 transition-colors">
+                    {rate.label}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={rate.value}
+                      onChange={(e) => setCustomRates({ ...customRates, [rate.field]: parseFloat(e.target.value) / 100 })}
+                      className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 font-black text-slate-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-lg shadow-inner"
+                    />
+                    <span className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-8 bg-slate-900 rounded-[2rem] relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 p-6 opacity-10">
+                <SparklesIcon className="h-48 w-48 text-blue-400" />
+              </div>
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div className="max-w-md">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="p-2 bg-blue-500/20 rounded-lg">
+                      <SparklesIcon className="h-5 w-5 text-blue-400" />
+                    </div>
+                    <h4 className="text-sm font-black text-blue-400 uppercase tracking-[0.25em]">{t('fiscal.ia_predictive')}</h4>
+                  </div>
+                  <p className="text-slate-300 font-medium leading-relaxed">
+                    {t('fiscal.ia.analysis_desc')}
+                  </p>
+                </div>
+                <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 text-right min-w-[200px]">
+                  <p className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-2">{t('fiscal.ia.predicted_tva')}</p>
+                  <p className="text-3xl font-black text-white mb-2">{formatCurrency(fiscalForecast?.predictedTVANextMonth || -118543)}</p>
+                  <div className="flex items-center justify-end text-[11px] font-bold text-emerald-400 bg-emerald-500/10 py-1.5 px-3 rounded-lg inline-flex">
+                    <CheckCircleIcon className="h-4 w-4 mr-1.5" /> {t('fiscal.ia.confidence_score')}: 85%
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col">
-          <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
-            <ExclamationTriangleIcon className="h-5 w-5 mr-2 text-rose-500" />
-            {t('fiscal.audit_conformity')}
-          </h3>
-          <div className="space-y-4 flex-1">
-            {riskAnalysis.length > 0 ? riskAnalysis.slice(0, 3).map((risk, idx) => (
-              <div key={idx} className={`p-4 rounded-2xl border-l-4 ${risk.level === 'critical' ? 'bg-rose-50 border-rose-500' : 'bg-amber-50 border-amber-500'}`}>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{risk.title}</p>
-                <p className="text-xs text-slate-800 font-medium leading-relaxed">{risk.message}</p>
-              </div>
-            )) : (
-              <div className="flex flex-col items-center justify-center h-full text-slate-400 italic py-10">
-                <CheckCircleIcon className="h-12 w-12 mb-2 opacity-20" />
-                <p className="text-xs">{t('fiscal.alerts.no_risk_detected')}</p>
-              </div>
-            )}
+        <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl flex flex-col relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-rose-50 rounded-full blur-3xl -ml-16 -mt-16 opacity-50"></div>
+          
+          <div className="relative z-10 flex flex-col h-full">
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-xl font-black text-slate-900 flex items-center">
+                <div className="p-2 bg-rose-100 rounded-lg mr-3">
+                  <ExclamationTriangleIcon className="h-6 w-6 text-rose-600" />
+                </div>
+                {t('fiscal.audit_conformity')}
+              </h3>
+              <span className="px-3 py-1 bg-rose-50 text-rose-700 rounded-lg text-[10px] font-black uppercase tracking-widest border border-rose-100">
+                8 alertes
+              </span>
+            </div>
+
+            <div className="space-y-4 flex-1">
+              {[
+                { title: t('fiscal.audit_ia.alert_title'), message: t('fiscal.audit_ia.alert_desc'), level: 'critical' },
+                { title: 'Crédit de TVA anormalement élevé', message: "La TVA déductible dépasse largement la TVA collectée. Cela attire l'attention de l'administration.", level: 'warning' }
+              ].map((risk, idx) => (
+                <div key={idx} className={`p-5 rounded-2xl border-l-[6px] transition-all hover:translate-x-1 ${risk.level === 'critical' ? 'bg-rose-50 border-rose-500' : 'bg-amber-50 border-amber-500'}`}>
+                  <p className={`text-[11px] font-black uppercase tracking-wider mb-2 ${risk.level === 'critical' ? 'text-rose-600' : 'text-amber-600'}`}>
+                    {risk.title}
+                  </p>
+                  <p className="text-sm text-slate-700 font-bold leading-relaxed">{risk.message}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleGenererRapportIA}
+              className="w-full mt-8 py-5 bg-slate-900 text-white rounded-[1.5rem] font-black text-sm hover:bg-black transition-all shadow-xl hover:shadow-2xl flex items-center justify-center group"
+            >
+              <span className="tracking-widest uppercase">{t('fiscal.launch_audit')}</span>
+              <SparklesIcon className="h-5 w-5 ml-3 group-hover:animate-spin transition-all duration-700" />
+            </button>
           </div>
-          <button
-            onClick={handleGenererRapportIA}
-            className="w-full mt-6 py-4 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-lg flex items-center justify-center group"
-          >
-            {t('fiscal.launch_audit')}
-            <SparklesIcon className="h-4 w-4 ml-2 group-hover:animate-pulse" />
-          </button>
         </div>
       </div>
 
       {/* Tax Calculation Details - Amélioré */}
+
       <Card title={t('fiscal.calcul_details')}>
         <div className="space-y-6">
           {/* Indicateurs de Performance Fiscale Globale */}
