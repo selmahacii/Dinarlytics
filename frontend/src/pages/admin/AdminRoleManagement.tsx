@@ -70,23 +70,11 @@ export const AdminRoleManagement: React.FC = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      // MOCK DATA pour éviter l'erreur de chargement
-      const mockUsers: User[] = [
-        { id: '1', username: 'admin', email: 'admin@dinarlytics.com', role: 'admin', first_name: 'Super', last_name: 'Admin', is_active: true, permissions: [] },
-        { id: '2', username: 'k.bennaceur', email: 'k.bennaceur@algerietelecom.dz', role: 'manager', first_name: 'Karim', last_name: 'Bennaceur', is_active: true, permissions: ['clients-manage'] },
-        { id: '3', username: 's.hamidi', email: 's.hamidi@sonatrach.dz', role: 'comptable', first_name: 'Samia', last_name: 'Hamidi', is_active: true, permissions: ['comptabilite-read', 'facturation-read'] },
-        { id: '4', username: 'm.khelil', email: 'm.khelil@cevital.com', role: 'auditeur', first_name: 'Mourad', last_name: 'Khelil', is_active: false, permissions: ['audit-read'] },
-      ];
-      // Simulating API call failure fallback
-      try {
-        const response = await apiClient.get('/users/');
-        setUsers(response.data as User[]);
-      } catch (e) {
-        console.warn("API User Load Failed, using mock data");
-        setUsers(mockUsers);
-      }
+      const response = await apiClient.get('/users/');
+      setUsers(response.data as User[]);
     } catch (err) {
       setError(t('admin.form.errors.load_failed'));
+      setUsers([]);
     } finally {
       setLoading(false);
     }

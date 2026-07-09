@@ -49,58 +49,7 @@ interface Devis {
   commercial: string;
 }
 
-const MOCK_DEVIS: Devis[] = [
-  {
-    id: 'DEV001', numero: 'DEV-2024-001', client: 'Sonatrach EP', clientEmail: 'achats@sonatrach.dz',
-    dateCreation: '2024-01-15', dateExpiration: '2024-02-15', status: 'accepted',
-    montantHT: 850000, montantTVA: 161500, montantTTC: 1011500,
-    items: [
-      { designation: 'Licence ERP Annuelle', qty: 1, unitPrice: 650000, tva: 19 },
-      { designation: 'Formation & Déploiement', qty: 10, unitPrice: 20000, tva: 19 }
-    ],
-    notes: 'Offre valable 30 jours. Livraison sous 15 jours ouvrables.', commercial: 'Karim Benali'
-  },
-  {
-    id: 'DEV002', numero: 'DEV-2024-002', client: 'Air Algérie', clientEmail: 'dsi@airalgerie.dz',
-    dateCreation: '2024-01-20', dateExpiration: '2024-02-20', status: 'sent',
-    montantHT: 420000, montantTVA: 79800, montantTTC: 499800,
-    items: [
-      { designation: 'Module Comptabilité SPA', qty: 1, unitPrice: 320000, tva: 19 },
-      { designation: 'Support Premium 1 an', qty: 1, unitPrice: 100000, tva: 19 }
-    ],
-    notes: 'Solution adaptée au contexte SPA avec consolidation multi-entités.', commercial: 'Amira Hadj'
-  },
-  {
-    id: 'DEV003', numero: 'DEV-2024-003', client: 'SARL El Khabar', clientEmail: 'direction@elkhabar.com',
-    dateCreation: '2024-01-22', dateExpiration: '2024-02-22', status: 'draft',
-    montantHT: 185000, montantTVA: 35150, montantTTC: 220150,
-    items: [
-      { designation: 'Pack PME Professionnel', qty: 1, unitPrice: 150000, tva: 19 },
-      { designation: 'Migration Données', qty: 1, unitPrice: 35000, tva: 19 }
-    ],
-    notes: 'En attente de validation interne avant envoi.', commercial: 'Yacine Maamar'
-  },
-  {
-    id: 'DEV004', numero: 'DEV-2024-004', client: 'Groupe Cévital', clientEmail: 'procurement@cevital.com',
-    dateCreation: '2023-12-10', dateExpiration: '2024-01-10', status: 'expired',
-    montantHT: 1250000, montantTVA: 237500, montantTTC: 1487500,
-    items: [
-      { designation: 'Solution Enterprise Multi-Sites', qty: 1, unitPrice: 950000, tva: 19 },
-      { designation: 'Consolidation IFRS', qty: 1, unitPrice: 200000, tva: 19 },
-      { designation: 'Formation Direction Financière', qty: 5, unitPrice: 20000, tva: 19 }
-    ],
-    notes: 'Offre expirée - relance en cours de préparation.', commercial: 'Karim Benali'
-  },
-  {
-    id: 'DEV005', numero: 'DEV-2024-005', client: 'Pharmacie Centrale DZ', clientEmail: 'si@phcdz.dz',
-    dateCreation: '2024-01-25', dateExpiration: '2024-02-25', status: 'refused',
-    montantHT: 95000, montantTVA: 18050, montantTTC: 113050,
-    items: [
-      { designation: 'Pack Starter EURL', qty: 1, unitPrice: 95000, tva: 19 }
-    ],
-    notes: 'Client a opté pour une solution concurrente.', commercial: 'Amira Hadj'
-  }
-];
+const MOCK_DEVIS: Devis[] = [];
 
 const Devis: React.FC = () => {
   const { t } = useTranslation();

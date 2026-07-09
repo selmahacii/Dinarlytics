@@ -69,6 +69,46 @@ class BankAccount(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+class BankStatement(Base):
+    __tablename__ = "bank_statements"
     
-    # Relationship to ChartOfAccount exists via account_code 
-    # (assuming company_id matches as well)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    bank_account_id = Column(UUID(as_uuid=True), ForeignKey("bank_accounts.id"), nullable=False, index=True)
+    statement_number = Column(String(50), nullable=False)
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    starting_balance = Column(Numeric(15, 2), default=0)
+    ending_balance = Column(Numeric(15, 2), default=0)
+    import_date = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    file_format = Column(String(20), default="manuel")
+    status = Column(String(50), default="importe")  # brouillon, importe, en_cours, rapproche, cloture
+    
+    # Relationships
+    lines = relationship("BankStatementLine", back_populates="statement", cascade="all, delete-orphan")
+    bank_account = relationship("BankAccount")
+
+class BankStatementLine(Base):
+    __tablename__ = "bank_statement_lines"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    statement_id = Column(UUID(as_uuid=True), ForeignKey("bank_statements.id"), nullable=False, index=True)
+    operation_date = Column(Date, nullable=False)
+    value_date = Column(Date, nullable=True)
+    label = Column(String(500), nullable=False)
+    reference = Column(String(100), nullable=True)
+    amount = Column(Numeric(15, 2), nullable=False)
+    type = Column(String(20), nullable=False)  # debit or credit
+    balance = Column(Numeric(15, 2), default=0)
+    category = Column(String(100), nullable=True)
+    check_number = Column(String(50), nullable=True)
+    iban = Column(String(50), nullable=True)
+    bic = Column(String(20), nullable=True)
+    reconciliation_status = Column(String(50), default="non_rapproche")  # non_rapproche, rapproche, en_attente, dispute
+    reconciled_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entry_lines.id"), nullable=True)
+    confidence_score = Column(Numeric(5, 2), nullable=True)
+    
+    # Relationships
+    statement = relationship("BankStatement", back_populates="lines")
+    reconciled_entry = relationship("JournalEntryLine")

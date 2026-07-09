@@ -218,12 +218,7 @@ const Clients: React.FC = () => {
     return calculerMetriquesPortefeuille(clientsAvecDonnees);
   }, [analysesValeurClient]);
 
-  const interactionsCRMRecent = useMemo(() => [
-    { id: 'comm-001', sujet: 'Suivi Partenariat Stratégique', description: 'Discussion sur l\'extension du contrat annuel et nouveaux besoins en logistique.', type: 'appel', date: '2024-02-19T10:00:00', responsable: 'Sarah Bendali', clientNom: 'Sonatrach' },
-    { id: 'comm-002', sujet: 'Offre Promotionnelle Q1', description: 'Envoi du catalogue de saison avec remise exceptionnelle de 15%.', type: 'email', date: '2024-02-18T14:30:00', responsable: 'Mourad Sahli', clientNom: 'Cévital SPA' },
-    { id: 'comm-003', sujet: 'Réclamation Logistique', description: 'Retard de livraison sur le lot #4582. Résolution en cours avec le transporteur.', type: 'reclamation', date: '2024-02-17T09:15:00', responsable: 'Lia (AI)', clientNom: 'Djezzy' },
-    { id: 'comm-004', sujet: 'Présentation Solution ERP', description: 'Démonstration des nouveaux modules de gestion de stock.', type: 'meeting', date: '2024-02-16T11:00:00', responsable: 'Karim Brahimi', clientNom: 'Ooredoo Algérie' }
-  ], []);
+  const interactionsCRMRecent = useMemo(() => [], []);
 
   // Statistics for communications, relances, and rapports
   const communicationStats = useMemo(() => ({
@@ -234,12 +229,7 @@ const Clients: React.FC = () => {
   }), [interactionsCRM, interactionsCRMRecent]);
 
   // Reports Management State
-  const [allRapports, setAllRapports] = useState([
-    { id: 'rep-001', nom: 'Analyse des Ventes Q1', description: 'Performance détaillée des ventes par client et secteur.', type: 'ventes', format: 'pdf', status: 'termine', dateGeneration: '2024-02-15', taille: '2.4 MB', periode: 'Trimestriel', statut: 'termine' },
-    { id: 'rep-002', nom: 'Retards de Paiement Actifs', description: 'Liste des factures en souffrance et priorités de relance.', type: 'paiements', format: 'excel', status: 'termine', dateGeneration: '2024-02-18', taille: '1.1 MB', periode: 'Mensuel', statut: 'termine' },
-    { id: 'rep-003', nom: 'Efficacité CRM & Relances', description: 'Taux de succès des différentes campagnes de relance.', type: 'relances', format: 'pdf', status: 'en_cours', dateGeneration: '2024-02-19', taille: '0.8 MB', periode: 'Mensuel', statut: 'en_cours' },
-    { id: 'rep-004', nom: 'Segmentation Valeur Client', description: 'Calcul CLV et segmentation stratégique du portefeuille.', type: 'performance', format: 'pdf', status: 'termine', dateGeneration: '2024-02-10', taille: '3.5 MB', periode: 'Ponctuel', statut: 'termine' },
-  ]);
+  const [allRapports, setAllRapports] = useState<any[]>([]);
 
   const statistiquesRapports = useMemo(() => ({
     totalRapports: allRapports.length,
@@ -248,12 +238,7 @@ const Clients: React.FC = () => {
     tailleTotale: `${(allRapports.length * 1.5).toFixed(1)} MB`
   }), [allRapports]);
 
-  const metriquesRapports = [
-    { nom: 'Taux Succès Relance', valeur: 75, unite: '%', evolution: 5, icon: ChartBarIcon, trend: 'up' },
-    { nom: 'DSO Moyen Équivalent', valeur: 52, unite: 'j', evolution: -2, icon: ClockIcon, trend: 'down' },
-    { nom: 'Satisfaction Client', valeur: 4.2, unite: '/5', evolution: 0.1, icon: CheckCircleIcon, trend: 'up' },
-    { nom: 'CA Prévisionnel', valeur: 1513327, unite: 'DZD', evolution: 12, icon: BanknotesIcon, trend: 'up' },
-  ];
+  const metriquesRapports: any[] = [];
 
   // Indicateurs et États UI
   const [formData, setFormData] = useState({
@@ -690,18 +675,8 @@ const Clients: React.FC = () => {
   // INTERFACE STANDARD (autres entreprises)
   // ========================================
 
-  // Données simulées pour les fonctionnalités ERPNext
-  const clientPaymentHistory = selectedClient ? [
-    { id: 1, date: '2024-01-15', invoice: 'F-2024-001', amount: 2500, status: 'paid', method: 'Virement' },
-    { id: 2, date: '2024-01-10', invoice: 'F-2024-002', amount: 1800, status: 'overdue', method: 'Chèque' },
-    { id: 3, date: '2024-01-05', invoice: 'F-2024-003', amount: 3200, status: 'paid', method: 'Espèces' }
-  ] : [];
-
-  const clientCommunications = selectedClient ? [
-    { id: 1, date: '2024-01-15', type: 'email', subject: 'Relance facture F-2024-002', status: 'sent' },
-    { id: 2, date: '2024-01-12', type: 'call', subject: 'Appel commercial', status: 'completed' },
-    { id: 3, date: '2024-01-10', type: 'meeting', subject: 'Rendez-vous commercial', status: 'scheduled' }
-  ] : [];
+  const clientPaymentHistory: any[] = [];
+  const clientCommunications: any[] = [];
 
   return (
     <div className="space-y-6">

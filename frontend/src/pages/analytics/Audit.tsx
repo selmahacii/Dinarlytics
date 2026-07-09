@@ -43,11 +43,7 @@ const Audit: React.FC = () => {
   const [reportPeriod, setReportPeriod] = useState(t('audit.reports.periods.last_30_days'));
   const [reportFormat, setReportFormat] = useState('PDF');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [reportHistory, setReportHistory] = useState([
-    { name: 'Audit_Q3_2024_Final.pdf', date: isToday ? '14:30' : '15 Oct 14:30', status: 'ready', size: '2.4 MB' },
-    { name: 'Securite_Incidents_Sept24.xlsx', date: isToday ? '09:15' : '01 Oct 09:15', status: 'ready', size: '1.8 MB' },
-    { name: 'Export_Logs_Bruts.csv', date: t('common.yesterday') + ' 18:00', status: 'expired', size: '15.2 MB' },
-  ]);
+  const [reportHistory, setReportHistory] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('alerts');
   // Modal states
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);

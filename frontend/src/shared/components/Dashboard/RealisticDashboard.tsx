@@ -271,9 +271,9 @@ const RealisticDashboard: React.FC<RealisticDashboardProps> = ({ isVisible }) =>
 
     // Construction de l'objet d'analyse cohérent
     const contextAwareAnalysis = {
-      totalTransactions: 142, // Mocked for demo
+      totalTransactions: 0,
       totalRevenue: currentRevenue,
-      customerSatisfaction: 94.5, // Score CSAT simulé
+      customerSatisfaction: 0,
 
       // Les tendances suivent les métriques principales
       trends: {

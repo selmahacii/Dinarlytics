@@ -6,13 +6,7 @@ import {
   RatiosWidget,
   ScenariosWidget
 } from '../components';
-import {
-  ALERTES_FINANCIERES_MOCK,
-  INDICATEURS_FINANCIERS_MOCK,
-  RATIOS_FINANCIERS_MOCK,
-  SCENARIOS_MOCK,
-  AlerteFinanciere
-} from '@shared/mockData/dashboardMocks';
+import { AlerteFinanciere } from '@shared/mockData/dashboardMocks';
 
 import { Link } from 'react-router-dom';
 import { 
@@ -105,7 +99,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
 }) => {
   const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [alertes, setAlertes] = useState<AlerteFinanciere[]>(ALERTES_FINANCIERES_MOCK);
+  const [alertes, setAlertes] = useState<AlerteFinanciere[]>([]);
   const [scenarioSelectionne, setScenarioSelectionne] = useState(2); // Scénario réaliste (id=2)
   const [widgets, setWidgets] = useState({
     tresorerie: true,
@@ -178,7 +172,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
         {/* Trésorerie */}
         {widgets.tresorerie && (
           <TresorerieWidget
-            data={INDICATEURS_FINANCIERS_MOCK.tresorerie}
+            data={null}
             devise="DZD"
             onAnalyseClick={() => handleAnalyseWithLIA('tresorerie')}
           />
@@ -187,7 +181,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
         {/* Ratios */}
         {widgets.ratios && (
           <RatiosWidget
-            data={INDICATEURS_FINANCIERS_MOCK.ratios}
+            data={null}
             onAnalyseClick={() => handleAnalyseWithLIA('ratios')}
           />
         )}
@@ -196,13 +190,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
       {/* Scénarios - Full width */}
       {widgets.scenarios && (
         <ScenariosWidget
-          scenarios={SCENARIOS_MOCK.map(s => ({
-            ...s,
-            risque: s.risque as 'HAUTE' | 'MOYEN' | 'FAIBLE',
-            nom: t(`dashboard.widgets.scenarios.names.${
-              s.id === 1 ? 'pessimistic' : s.id === 2 ? 'realistic' : 'optimistic'
-            }`)
-          }))}
+          scenarios={[]}
           scenarioSelectionne={scenarioSelectionne}
           onSelectScenario={setScenarioSelectionne}
           onAnalyseClick={() => handleAnalyseWithLIA('scenarios')}

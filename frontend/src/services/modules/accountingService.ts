@@ -23,10 +23,10 @@ export const accountingService = {
             if (inv.type === 'sale') return sum + inv.montantPaye;
             if (inv.type === 'purchase') return sum - inv.montantPaye;
             return sum;
-        }, 1000000); // Base cash 1M for demo
+        }, 0);
 
         const actifCirculant = accountsReceivable + cashEquivalent;
-        const actifImmobilise = 2500000; // Mock fixed assets
+        const actifImmobilise = 0;
         const actifTotal = actifCirculant + actifImmobilise;
 
         // Liabilities & Equity (Passif)
@@ -70,8 +70,7 @@ export const accountingService = {
         const fluxEntrants = sales.reduce((sum, inv) => sum + inv.montantPaye, 0);
         const fluxSortants = purchases.reduce((sum, inv) => sum + inv.montantPaye, 0);
 
-        const baseCash = 1000000;
-        const soldeTotal = baseCash + fluxEntrants - fluxSortants;
+        const soldeTotal = fluxEntrants - fluxSortants;
 
         return {
             soldeBanque: Math.round(soldeTotal * 0.8),
@@ -100,13 +99,13 @@ export const accountingService = {
 
         const clients = sales.reduce((sum, inv) => sum + (inv.totalTTC - inv.montantPaye), 0);
         const fournisseurs = purchases.reduce((sum, inv) => sum + (inv.totalTTC - inv.montantPaye), 0);
-        const stocks = 450000; // Mock inventory value
+        const stocks = 0;
 
         const cashBalance = activeInvoices.reduce((sum, inv) => {
             if (inv.type === 'sale') return sum + inv.montantPaye;
             if (inv.type === 'purchase') return sum - inv.montantPaye;
             return sum;
-        }, 1000000);
+        }, 0);
 
         const actifsCirculants = cashBalance + clients + stocks;
         const passifsCirculants = fournisseurs; // Simplified for demo

@@ -67,23 +67,8 @@ const GestionEntreprise: React.FC = () => {
   const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // États pour les devises et taux de change
-  const [devises, setDevises] = useState([
-    { code: 'DZD', nom: 'Dinar Algérien', symbole: 'DA', taux: 1.0, isDefault: true },
-    { code: 'EUR', nom: 'Euro', symbole: '€', taux: 0.0067, isDefault: false },
-    { code: 'USD', nom: 'Dollar US', symbole: '$', taux: 0.0074, isDefault: false },
-    { code: 'MAD', nom: 'Dirham Marocain', symbole: 'MAD', taux: 0.074, isDefault: false }
-  ]);
-
-  // États pour les permissions
-  const [permissions, setPermissions] = useState([
-    { id: 'comptabilite', name: 'Comptabilité', description: 'Gestion comptable et facturation' },
-    { id: 'clients', name: 'Gestion Clients', description: 'Gestion des clients et prospects' },
-    { id: 'fournisseurs', name: 'Gestion Fournisseurs', description: 'Gestion des fournisseurs' },
-    { id: 'inventaire', name: 'Inventaire', description: 'Gestion des stocks et articles' },
-    { id: 'rapports', name: 'Rapports', description: 'Génération de rapports' },
-    { id: 'administration', name: 'Administration', description: 'Configuration et paramètres' }
-  ]);
+  const [devises, setDevises] = useState<any[]>([]);
+  const [permissions, setPermissions] = useState<any[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -92,78 +77,7 @@ const GestionEntreprise: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Données de démonstration pour les entreprises
-  const initialEntreprises = [
-    {
-      id: 1,
-      nom: 'Dinarlytic SARL',
-      raisonSociale: 'Société par Actions à Responsabilité Limitée',
-      siret: '12345678901234',
-      tvaNumber: 'DZ123456789',
-      adresse: '123 Avenue des Entrepreneurs',
-      ville: 'Alger',
-      codePostal: '16000',
-      pays: 'Algérie',
-      telephone: '+213 21 123 456',
-      email: 'contact@dinarlytic.dz',
-      siteWeb: 'www.dinarlytic.dz',
-      devise: 'DZD',
-      planComptable: 'algerien',
-      logo: '',
-      description: 'Entreprise spécialisée dans les solutions ERP',
-      createdAt: '2024-01-01',
-      isActive: true,
-      utilisateurs: 5,
-      derniereActivite: '2024-01-22',
-      permissions: ['comptabilite', 'clients', 'fournisseurs', 'inventaire', 'rapports', 'administration']
-    },
-    {
-      id: 2,
-      nom: 'TechSoft International',
-      raisonSociale: 'Société par Actions Simplifiée',
-      siret: '98765432109876',
-      tvaNumber: 'DZ987654321',
-      adresse: '456 Rue de la Technologie',
-      ville: 'Oran',
-      codePostal: '31000',
-      pays: 'Algérie',
-      telephone: '+213 41 987 654',
-      email: 'info@techsoft.dz',
-      siteWeb: 'www.techsoft.dz',
-      devise: 'EUR',
-      planComptable: 'ifrs',
-      logo: '',
-      description: 'Développement de logiciels et services IT',
-      createdAt: '2024-01-15',
-      isActive: true,
-      utilisateurs: 12,
-      derniereActivite: '2024-01-21',
-      permissions: ['comptabilite', 'clients', 'rapports']
-    },
-    {
-      id: 3,
-      nom: 'Commerce Plus',
-      raisonSociale: 'Entreprise Individuelle',
-      siret: '11111111111111',
-      tvaNumber: 'DZ111111111',
-      adresse: '789 Boulevard du Commerce',
-      ville: 'Constantine',
-      codePostal: '25000',
-      pays: 'Algérie',
-      telephone: '+213 31 555 777',
-      email: 'contact@commerceplus.dz',
-      siteWeb: 'www.commerceplus.dz',
-      devise: 'DZD',
-      planComptable: 'algerien',
-      logo: '',
-      description: 'Commerce de détail et vente en ligne',
-      createdAt: '2024-01-10',
-      isActive: false,
-      utilisateurs: 3,
-      derniereActivite: '2024-01-20',
-      permissions: ['clients', 'inventaire', 'rapports']
-    }
-  ];
+  const initialEntreprises: any[] = [];
 
   useEffect(() => {
     setEntreprises(initialEntreprises);

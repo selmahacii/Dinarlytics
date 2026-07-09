@@ -12,17 +12,7 @@ const TemplatesDocuments: React.FC = () => {
     .total-row { font-weight: bold; }
   `);
 
-    const [customHTML, setCustomHTML] = useState(`
-    <div class="header">
-      <h1>BON DE COMMANDE</h1>
-      <p>Société: Mon Entreprise</p>
-    </div>
-    <table>
-      <tr class="table-header"><th>Article</th><th>Qté</th><th>Prix</th></tr>
-      <tr><td>Laptop Dell XPS</td><td>2</td><td>120000</td></tr>
-      <tr class="total-row"><td>TOTAL</td><td></td><td>240000</td></tr>
-    </table>
-  `);
+    const [customHTML, setCustomHTML] = useState('');
 
     const handlePrint = () => {
         const printWindow = window.open('', '', 'width=800,height=600');

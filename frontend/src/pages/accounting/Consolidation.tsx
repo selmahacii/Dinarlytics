@@ -70,7 +70,6 @@ const Consolidation: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Données de démonstration pour les entreprises
   const [entreprises, setEntreprises] = useState<any[]>([]);
   const [eliminationData, setEliminationData] = useState<any[]>([]);
   const [conversionData, setConversionData] = useState<any[]>([]);

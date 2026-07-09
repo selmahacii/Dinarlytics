@@ -35,62 +35,25 @@ const TresorerieBanque: React.FC = () => {
   const fmt = (n: number) => formatCurrency(n);
   const fmtK = (n: number) => formatCurrency(n);
 
-// ─────────────────────────────────────────────
-// DONNÉES COHÉRENTES — exercice Jan-Jun 2024
-// ─────────────────────────────────────────────
-const monthlyFlows = [
-  { month: 'Jan', enc: 850_000, dec: 620_000, solde: 230_000 },
-  { month: 'Fév', enc: 920_000, dec: 680_000, solde: 240_000 },
-  { month: 'Mar', enc: 980_000, dec: 720_000, solde: 260_000 },
-  { month: 'Avr', enc: 890_000, dec: 650_000, solde: 240_000 },
-  { month: 'Mai', enc: 1_050_000, dec: 780_000, solde: 270_000 },
-  { month: 'Jun', enc: 1_100_000, dec: 820_000, solde: 280_000 },
-];
+  const { data: treasuryData } = useTreasuryReports();
 
-const TOTAL_ENC = monthlyFlows.reduce((s, m) => s + m.enc, 0); // 5 790 000
-const TOTAL_DEC = monthlyFlows.reduce((s, m) => s + m.dec, 0); // 4 270 000
-const TOTAL_SOLDE = monthlyFlows.reduce((s, m) => s + m.solde, 0); // 1 520 000
+  const monthlyFlows: any[] = treasuryData?.monthlyFlows ?? [];
+  const bankAccounts: any[] = treasuryData?.bankAccounts ?? [];
+  const recentMovements: any[] = treasuryData?.recentMovements ?? [];
+  const tensions: any[] = treasuryData?.tensions ?? [];
+  const forecasts: any[] = treasuryData?.forecasts ?? [];
 
-const SOLDE_BANQUE = 1_850_000;
-const SOLDE_CAISSE = 580_000;
-const SOLDE_EPARGNE = 850_000;
-const SOLDE_OPS = 750_000;
-const SOLDE_TOTAL = SOLDE_BANQUE + SOLDE_CAISSE + SOLDE_EPARGNE + SOLDE_OPS; // 4 030 000
-const RATIO_LIQUIDITE = 1.85;
-const DSO = 28; // Days Sales Outstanding
-const DPO = 35; // Days Payable Outstanding
-const COUVERTURE = 45; // jours de charges couvertes
-const CAF = 320_000; // Capacité d'autofinancement
-const BFR = 720_000; // Besoin en Fonds de Roulement
-const FR = 2_100_000; // Fonds de Roulement
-
-const bankAccounts = [
-  { name: 'Compte Principal BNA', no: '****7892', type: 'Courant', solde: SOLDE_BANQUE, variation: +8.5, mvt: 45, icon: BuildingLibraryIcon },
-  { name: 'Compte Opérationnel CPA', no: '****3421', type: 'Courant', solde: SOLDE_OPS, variation: -3.2, mvt: 32, icon: BuildingLibraryIcon },
-  { name: 'Caisse Principale', no: 'CAISSE-01', type: 'Caisse', solde: SOLDE_CAISSE, variation: +15.2, mvt: 68, icon: BanknotesIcon },
-  { name: 'Compte Épargne BEA', no: '****9156', type: 'Épargne', solde: SOLDE_EPARGNE, variation: +2.1, mvt: 8, icon: BuildingLibraryIcon },
-];
-
-const recentMovements = [
-  { date: '15/01/2024', type: 'Encaissement', libelle: 'Paiement Client — Ooredoo Algérie', compte: 'BNA', montant: 150_000 },
-  { date: '15/01/2024', type: 'Décaissement', libelle: 'Fournisseur — Global Logistics Algérie', compte: 'CPA', montant: -85_000 },
-  { date: '15/01/2024', type: 'Encaissement', libelle: 'Virement Client — Sonatrach', compte: 'BNA', montant: 220_000 },
-  { date: '14/01/2024', type: 'Décaissement', libelle: 'Salaires & charges sociales', compte: 'CPA', montant: -350_000 },
-  { date: '14/01/2024', type: 'Transfert', libelle: 'Transfert interne BNA → CPA', compte: 'BNA', montant: -100_000 },
-  { date: '14/01/2024', type: 'Encaissement', libelle: 'Règlement espèces — Djezzy', compte: 'Caisse', montant: 45_000 },
-];
-
-const tensions = [
-  { date: '05/02/2024', type: 'Tension de trésorerie', desc: 'Solde prévu < 100k DA', montant: 85_000, sev: 'warning', action: 'Négocier délais fournisseurs' },
-  { date: '15/02/2024', type: 'Échéance importante', desc: 'Salaires + charges sociales', montant: 420_000, sev: 'critical', action: 'Préparer virement sous 48h' },
-  { date: '20/02/2024', type: 'Pic de dépenses', desc: 'Factures fournisseurs lourdes', montant: 380_000, sev: 'warning', action: 'Surveiller les encaissements' },
-];
-
-const forecasts = [
-  { month: 'Juil', prevu: 290_000, reel: null, risque: 'Faible', confiance: 'Élevée', enc: 1_180_000, dec: 890_000 },
-  { month: 'Août', prevu: 200_000, reel: null, risque: 'Moyen', confiance: 'Moyenne', enc: 1_050_000, dec: 850_000 },
-  { month: 'Sep', prevu: 330_000, reel: null, risque: 'Faible', confiance: 'Élevée', enc: 1_250_000, dec: 920_000 },
-];
+  const TOTAL_ENC = monthlyFlows.reduce((s: number, m: any) => s + (m.enc ?? 0), 0);
+  const TOTAL_DEC = monthlyFlows.reduce((s: number, m: any) => s + (m.dec ?? 0), 0);
+  const TOTAL_SOLDE = monthlyFlows.reduce((s: number, m: any) => s + (m.solde ?? 0), 0);
+  const SOLDE_TOTAL = bankAccounts.reduce((s: number, a: any) => s + (a.solde ?? 0), 0);
+  const RATIO_LIQUIDITE: number = treasuryData?.ratioLiquidite ?? 0;
+  const DSO: number = treasuryData?.dso ?? 0;
+  const DPO: number = treasuryData?.dpo ?? 0;
+  const COUVERTURE: number = treasuryData?.couverture ?? 0;
+  const CAF: number = treasuryData?.caf ?? 0;
+  const BFR: number = treasuryData?.bfr ?? 0;
+  const FR: number = treasuryData?.fr ?? 0;
 
 // ─────────────────────────────────────────────
 // COMPOSANT PRINCIPAL

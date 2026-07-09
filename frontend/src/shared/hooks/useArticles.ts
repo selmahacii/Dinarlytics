@@ -43,7 +43,6 @@ export const useArticles = () => {
   const [error, setError] = useState<string | null>(null);
   const [errorStats, setErrorStats] = useState<string | null>(null);
 
-  // Fetch articles list
   const fetchArticles = async (params?: {
     skip?: number;
     limit?: number;
@@ -54,125 +53,62 @@ export const useArticles = () => {
   }) => {
     setLoading(true);
     setError(null);
-
-    // MOCK DATA - Algerian Articles
-    const mockArticles: Article[] = [
-      {
-        id: 'art-001',
-        name: 'Service Conseil Premium',
-        description: 'Accompagnement stratégique pour PME',
-        category: 'Services',
-        unit_price: 150000,
-        cost_price: 85000,
-        tax_rate: 19,
-        stock_quantity: 100,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'art-002',
-        name: 'Licence Logiciel Dinarlytics',
-        description: 'Solution ERP Cloud pour entreprises algériennes',
-        category: 'Licences',
-        unit_price: 45000,
-        cost_price: 15000,
-        tax_rate: 19,
-        stock_quantity: 500,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'art-003',
-        name: 'Audit Sécurité V2',
-        description: 'Audit complet des infrastructures IT',
-        category: 'Services',
-        unit_price: 225000,
-        cost_price: 120000,
-        tax_rate: 19,
-        stock_quantity: 50,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ];
-
-    setTimeout(() => {
-      setArticles(mockArticles);
-      setLoading(false);
-    }, 800);
-
-    /* Real API Call Commented
     try {
       const response = await axios.get<Article[]>('/api/v1/articles/', { params });
       setArticles(response.data);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Erreur lors du chargement des articles');
+      setArticles([]);
     } finally {
       setLoading(false);
     }
-    */
   };
 
-  // Fetch article statistics
   const fetchStats = async () => {
     setLoadingStats(true);
     setErrorStats(null);
-
-    // MOCK STATS
-    const mockStats: ArticleStats = {
-      total_articles: 45,
-      active_articles: 42,
-      low_stock_count: 5,
-      out_of_stock_count: 2,
-      total_inventory_value: 12500000,
-      categories: [
-        { name: 'Services', count: 15 },
-        { name: 'Licences', count: 12 },
-        { name: 'Formations', count: 10 },
-        { name: 'Audit', count: 8 }
-      ],
-      top_selling: [
-        { id: 'art-001', name: 'Service Conseil Premium', quantity: 145 },
-        { id: 'art-002', name: 'Licence Logiciel Dinarlytics', quantity: 89 }
-      ]
-    };
-
-    setTimeout(() => {
-      setStats(mockStats);
-      setLoadingStats(false);
-    }, 1000);
-
-    /* Real API Call Commented
     try {
       const response = await axios.get<ArticleStats>('/api/v1/articles/stats');
       setStats(response.data);
     } catch (err: any) {
       setErrorStats(err.response?.data?.detail || 'Erreur lors du chargement des statistiques');
+      setStats(null);
     } finally {
       setLoadingStats(false);
     }
-    */
   };
 
-  // Create/Update/Delete - Simulated for frontend logic
   const createArticle = async (articleData: Partial<Article>): Promise<Article | null> => {
-    const newArticle = { ...articleData, id: `art-${Date.now()}` } as Article;
-    setArticles(prev => [...prev, newArticle]);
-    return newArticle;
+    try {
+      const response = await axios.post<Article>('/api/v1/articles/', articleData);
+      setArticles(prev => [...prev, response.data]);
+      return response.data;
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Erreur lors de la création');
+      return null;
+    }
   };
 
   const updateArticle = async (articleId: string, articleData: Partial<Article>): Promise<Article | null> => {
-    setArticles(prev => prev.map(a => a.id === articleId ? { ...a, ...articleData } : a));
-    return { id: articleId, ...articleData } as Article;
+    try {
+      const response = await axios.put<Article>(`/api/v1/articles/${articleId}`, articleData);
+      setArticles(prev => prev.map(a => a.id === articleId ? response.data : a));
+      return response.data;
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Erreur lors de la mise à jour');
+      return null;
+    }
   };
 
   const deleteArticle = async (articleId: string): Promise<void> => {
-    setArticles(prev => prev.filter(a => a.id !== articleId));
+    try {
+      await axios.delete(`/api/v1/articles/${articleId}`);
+      setArticles(prev => prev.filter(a => a.id !== articleId));
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Erreur lors de la suppression');
+    }
   };
 
-  // Initial fetch on mount
   useEffect(() => {
     fetchArticles();
     fetchStats();

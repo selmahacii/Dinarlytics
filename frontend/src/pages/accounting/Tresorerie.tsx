@@ -64,7 +64,7 @@ const ChecksManagement: React.FC = () => {
   const [checks, setChecks] = useState<any[]>([]);
   const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
   const [depositDate, setDepositDate] = useState(new Date().toISOString().split('T')[0]);
-  const [bankAccount, setBankAccount] = useState('512001'); // BNA par défaut
+  const [bankAccount, setBankAccount] = useState('512001');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -314,10 +314,10 @@ const Tresorerie: React.FC = () => {
 
   // Générer les échéances automatiques
   const echeancesAutomatiques = useMemo(() => {
-    const caMensuel = company?.revenueMonth || 2500000;
+    const caMensuel = company?.revenueMonth || 0;
     const chargesMensuelles = caMensuel * 0.7;
-    const dso = 45; // Estimation
-    const dpo = 30; // Estimation
+    const dso = 0;
+    const dpo = 0;
 
     return genererEcheancesAutomatiques({
       caMensuel,
@@ -380,25 +380,6 @@ const Tresorerie: React.FC = () => {
         </div>
       </div>
 
-      {/* Insight Commercial / Vision */}
-      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-500">
-        <div className="p-2 bg-indigo-100 rounded-full">
-          <SparklesIcon className="h-6 w-6 text-indigo-600" />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
-            {appCtx?.currentLang === 'ar' ? "المنظور التجاري والتحسين" : 
-             appCtx?.currentLang === 'en' ? "Commercial Perspective & Optimization" : 
-             "Perspective Commerciale & Optimisation"}
-          </h3>
-          <p className="text-sm text-indigo-800 leading-relaxed">
-            {appCtx?.currentLang === 'ar' ? "تساعد إدارة الخزينة في دينارليتيكس على تحسين الدورة النقدية (Cash Conversion Cycle) من خلال المراقبة الدقيقة للتدفقات الصادرة والواردة، مما يضمن توفر السيولة اللازمة للاستثمارات التجارية وتوسيع نطاق العمليات دون اللجوء للديون المكلفة." :
-             appCtx?.currentLang === 'en' ? "Treasury management in Dinarlytics helps optimize the Cash Conversion Cycle (CCC) through precise monitoring of inflows and outflows, ensuring the liquidity required for business investments and operational expansion without relying on costly debt." :
-             "La gestion de trésorerie dans Dinarlytics permet d'optimiser le Cycle de Conversion du Cash (CCC) grâce à un suivi précis des flux entrants et sortants, garantissant ainsi la liquidité nécessaire aux investissements commerciaux et à l'expansion des opérations sans recourir à des dettes coûteuses."}
-          </p>
-        </div>
-      </div>
-
       {/* KPIs Principaux */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Solde Total */}
@@ -407,7 +388,7 @@ const Tresorerie: React.FC = () => {
             <div>
               <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">{t('accounting.treasury.stats.total_balance')}</p>
               <p className="text-2xl font-bold text-blue-600 mt-2">{formatCurrency(totalBalance)}</p>
-              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.active_accounts', { count: 3 })}</p>
+              <p className="text-xs text-slate-500 mt-1">{t('accounting.treasury.stats.active_accounts', { count: visibleAccounts.length })}</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <BanknotesIcon className="h-6 w-6 text-blue-600" />
@@ -739,8 +720,8 @@ const Tresorerie: React.FC = () => {
                   <div className="mt-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
                     <p className="text-sm font-semibold text-amber-900 mb-1">{t('accounting.treasury.metrics.low_point')}</p>
                     <p className="text-sm text-amber-800">
-                      {t('accounting.treasury.metrics.on_date', { 
-                        amount: formatCurrency(metriquesTresorerie.pointBas.solde), 
+                      {t('accounting.treasury.metrics.on_date', {
+                        amount: formatCurrency(metriquesTresorerie.pointBas.solde),
                         date: new Date(metriquesTresorerie.pointBas.date).toLocaleDateString('fr-FR')
                       })}
                     </p>
@@ -971,6 +952,3 @@ const Tresorerie: React.FC = () => {
 };
 
 export default Tresorerie;
-
-
-

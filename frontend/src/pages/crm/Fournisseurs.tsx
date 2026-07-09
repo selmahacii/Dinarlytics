@@ -542,13 +542,7 @@ const Fournisseurs: React.FC = () => {
   const [isNouvelleCommandeModalOpen, setIsNouvelleCommandeModalOpen] = useState(false);
   const [isFactureModalOpen, setIsFactureModalOpen] = useState(false);
 
-  // State for Orders (Commandes) to make the tab functional
-  const [commandes, setCommandes] = useState([
-    { id: 'CMD-2024-042', name: 'ABC Corp SPA', val: 1450000, status: 'TRANSIT', date: '12/02/2024' },
-    { id: 'CMD-2024-043', name: 'Tech Solutions', val: 890000, status: 'APPROBATION', date: '14/02/2024' },
-    { id: 'CMD-2024-044', name: 'Global Logistics', val: 450000, status: 'LIVRÉE', date: '10/02/2024' },
-    { id: 'CMD-2024-045', name: 'Office Supplies', val: 125000, status: 'INSTANCE', date: '08/02/2024' }
-  ]);
+  const [commandes, setCommandes] = useState<any[]>([]);
 
   const handleCreateCommande = (newCommande: any) => {
     setCommandes([...commandes, { ...newCommande, id: `CMD-2024-${Math.floor(Math.random() * 1000)}` }]);

@@ -53,57 +53,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   const [showReportModal, setShowReportModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
-  // État des alertes intelligentes - Utilisant des clés pour la traduction
-  const [alertes, setAlertes] = useState([
-    {
-      id: 'ventes',
-      id_key: 'sales_threshold',
-      statut: 'Déclenchée',
-      seuil: 2000000,
-      valeurActuelle: 2450000,
-      unite: 'DZD',
-      frequence: 'quotidienne',
-      derniereAlerte: '2024-01-15 14:30',
-      destinataires: ['admin@entreprise.dz', 'comptable@entreprise.dz'],
-      active: true
-    },
-    {
-      id: 'liquidite',
-      id_key: 'liquidity_ratio',
-      statut: 'Surveillance',
-      seuil: 1.5,
-      valeurActuelle: 1.8,
-      unite: '',
-      frequence: 'hebdomadaire',
-      derniereAlerte: null,
-      destinataires: ['admin@entreprise.dz'],
-      active: true
-    },
-    {
-      id: 'stock',
-      id_key: 'out_of_stock',
-      statut: 'Déclenchée',
-      seuil: 10,
-      valeurActuelle: 5,
-      unite: 'unités',
-      frequence: 'temps_reel',
-      derniereAlerte: '2024-01-15 09:15',
-      destinataires: ['stock@entreprise.dz', 'achats@entreprise.dz'],
-      active: true
-    },
-    {
-      id: 'factures',
-      id_key: 'overdue_invoices',
-      statut: 'Déclenchée',
-      seuil: 30,
-      valeurActuelle: 45,
-      unite: 'jours',
-      frequence: 'quotidienne',
-      derniereAlerte: '2024-01-15 08:00',
-      destinataires: ['comptable@entreprise.dz', 'commercial@entreprise.dz'],
-      active: true
-    }
-  ]);
+  const [alertes, setAlertes] = useState<any[]>([]);
 
   // États pour la gestion des alertes
   const [showModifyModal, setShowModifyModal] = useState(false);

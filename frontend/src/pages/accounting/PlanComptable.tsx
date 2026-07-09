@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useTranslation } from '@shared/hooks/useTranslation';
-import { 
-  BookOpenIcon, 
-  PlusIcon, 
-  PencilIcon, 
-  TrashIcon, 
+import {
+  BookOpenIcon,
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
   MagnifyingGlassIcon,
   DocumentTextIcon,
   CalculatorIcon,
@@ -24,114 +24,40 @@ const PlanComptable: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
 
-  // Plan comptable simplifié
-  const chartOfAccounts = [
-    {
-      id: '1',
-      code: '20',
-      name: t('accounting.ledger.scf_names.immobilisations'),
-      type: t('accounting.ledger.types.actif'),
-      subAccounts: [
-        { code: '201', name: t('accounting.ledger.scf_names.terrains'), balance: 150000 },
-        { code: '211', name: t('accounting.ledger.scf_names.constructions'), balance: 450000 },
-        { code: '218', name: t('accounting.ledger.scf_names.autres_immo'), balance: 125000 }
-      ]
-    },
-    {
-      id: '2',
-      code: '40',
-      name: t('accounting.ledger.scf_names.creances'),
-      type: t('accounting.ledger.types.actif'),
-      subAccounts: [
-        { code: '411', name: t('accounting.ledger.scf_names.clients'), balance: 125000 },
-        { code: '416', name: t('accounting.ledger.scf_names.clients_douteux'), balance: 5000 },
-        { code: '421', name: t('accounting.ledger.scf_names.personnel'), balance: 2500 }
-      ]
-    },
-    {
-      id: '3',
-      code: '50',
-      name: t('accounting.ledger.scf_names.dispo_fin'),
-      type: t('accounting.ledger.types.actif'),
-      subAccounts: [
-        { code: '512', name: t('accounting.ledger.scf_names.banque'), balance: 450000 },
-        { code: '531', name: t('accounting.ledger.scf_names.caisse'), balance: 5000 },
-        { code: '542', name: t('accounting.ledger.scf_names.valeurs_mob'), balance: 75000 }
-      ]
-    },
-    {
-      id: '4',
-      code: '10',
-      name: t('accounting.ledger.scf_names.capitaux_propres'),
-      type: t('accounting.ledger.types.passif'),
-      subAccounts: [
-        { code: '101', name: t('accounting.ledger.scf_names.capital_social'), balance: 500000 },
-        { code: '106', name: t('accounting.ledger.scf_names.reserves'), balance: 125000 },
-        { code: '120', name: t('accounting.ledger.scf_names.resultat_exercice'), balance: 85000 }
-      ]
-    },
-    {
-      id: '5',
-      code: '40',
-      name: t('accounting.ledger.scf_names.dettes'),
-      type: t('accounting.ledger.types.passif'),
-      subAccounts: [
-        { code: '401', name: t('accounting.ledger.scf_names.fournisseurs'), balance: 85000 },
-        { code: '421', name: t('accounting.ledger.scf_names.personnel'), balance: 45000 },
-        { code: '444', name: t('accounting.ledger.scf_names.etat'), balance: 25000 }
-      ]
-    },
-    {
-      id: '6',
-      code: '70',
-      name: t('accounting.ledger.scf_names.ventes'),
-      type: t('accounting.ledger.types.produit'),
-      subAccounts: [
-        { code: '701', name: t('accounting.ledger.scf_names.ventes_produits'), balance: 2450000 },
-        { code: '706', name: t('accounting.ledger.scf_names.services'), balance: 125000 },
-        { code: '707', name: t('accounting.ledger.scf_names.produits_vendus'), balance: 1800000 }
-      ]
-    },
-    {
-      id: '7',
-      code: '60',
-      name: t('accounting.ledger.scf_names.achats'),
-      type: t('accounting.ledger.types.charge'),
-      subAccounts: [
-        { code: '601', name: t('accounting.ledger.scf_names.achats_stock'), balance: 850000 },
-        { code: '602', name: t('accounting.ledger.scf_names.fournitures'), balance: 125000 },
-        { code: '606', name: t('accounting.ledger.scf_names.transport'), balance: 180000 }
-      ]
-    }
-  ];
+  const chartOfAccounts: {
+    id: string;
+    code: string;
+    name: string;
+    type: string;
+    subAccounts: { code: string; name: string; balance: number }[];
+  }[] = [];
 
-  // Statistiques
   const statistics = [
     {
       title: t('accounting.ledger.stats.total_assets'),
-      value: formatCurrency(1250000),
-      change: '+8.5%',
+      value: formatCurrency(0),
+      change: '0%',
       icon: BuildingOfficeIcon,
       color: 'green'
     },
     {
       title: t('accounting.ledger.stats.total_liabilities'),
-      value: formatCurrency(780000),
-      change: '+5.2%',
+      value: formatCurrency(0),
+      change: '0%',
       icon: BanknotesIcon,
       color: 'red'
     },
     {
       title: t('accounting.ledger.stats.total_products'),
-      value: formatCurrency(2575000),
-      change: '+12.4%',
+      value: formatCurrency(0),
+      change: '0%',
       icon: ArrowTrendingUpIcon,
       color: 'blue'
     },
     {
       title: t('accounting.ledger.stats.total_charges'),
-      value: formatCurrency(1155000),
-      change: '+7.8%',
+      value: formatCurrency(0),
+      change: '0%',
       icon: ArrowTrendingDownIcon,
       color: 'orange'
     }
@@ -140,7 +66,7 @@ const PlanComptable: React.FC = () => {
   const filteredAccounts = chartOfAccounts.filter(account => {
     const matchesSearch = account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          account.code.includes(searchTerm) ||
-                         account.subAccounts.some(sub => 
+                         account.subAccounts.some(sub =>
                            sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            sub.code.includes(searchTerm)
                          );
@@ -166,7 +92,7 @@ const PlanComptable: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">{t('accounting.ledger.title')}</h1>
           <p className="text-gray-600">{t('accounting.ledger.subtitle')}</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsAddAccountModalOpen(true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
         >
@@ -251,7 +177,7 @@ const PlanComptable: React.FC = () => {
                 </button>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {account.subAccounts.map((subAccount) => (
                 <div key={subAccount.code} className="p-4 bg-gray-50 rounded-lg">
@@ -317,5 +243,3 @@ const PlanComptable: React.FC = () => {
 };
 
 export default PlanComptable;
-
-

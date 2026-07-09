@@ -40,36 +40,10 @@ const AchatsFournisseursPage: React.FC = () => {
   // Data Fetching (Mocked or Hooks)
   const { suppliers, loading: suppliersLoading } = useSuppliers();
   
-  // Mock Data for Dashboard
-  const kpis = [
-    { label: t('suppliers.stats.total_purchases'), value: 35094, trend: '+12.5%', icon: ShoppingCartIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: t('suppliers.stats.debts'), value: 9045, trend: '-2.1%', icon: BanknotesIcon, color: 'text-amber-600', bg: 'bg-amber-50' },
-    { label: t('suppliers.stats.total_orders'), value: 0, trend: '+3', icon: TruckIcon, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: t('suppliers.messages.quality_score'), value: '4.2/5', trend: t('common.status_stable'), icon: StarIcon, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-  ];
-
-  const evolutionData = {
-    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
-    datasets: [
-      { label: `${t('common.purchase_invoices')} 2024`, data: [650000, 820000, 750000, 910000, 1100000, 950000], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', fill: true },
-      { label: `${t('common.purchase_invoices')} 2023`, data: [580000, 610000, 690000, 720000, 850000, 800000], borderColor: '#94a3b8', backgroundColor: 'transparent', borderDash: [5, 5], fill: false },
-    ]
-  };
-
-  const distributionData = {
-    labels: ['Tech Solutions', 'Global Log', 'Office Co', t('common.others')],
-    datasets: [{
-      data: [45, 25, 15, 15],
-      backgroundColor: ['#1e293b', '#334155', '#475569', '#94a3b8'],
-      borderWidth: 0,
-    }]
-  };
-
-  const recentOrders = [
-    { id: 'BC-2024-042', supplier: 'Tech Solutions SARL', date: '12/04/2024', amount: 1049, status: 'approved', urgency: 'high' },
-    { id: 'BC-2024-043', supplier: 'Global Logistics', date: '14/04/2024', amount: 644, status: 'pending', urgency: 'medium' },
-    { id: 'BC-2024-044', supplier: 'Office Supplies Co', date: '15/04/2024', amount: 90, status: 'received', urgency: 'low' },
-  ];
+  const kpis: any[] = [];
+  const evolutionData = { labels: [], datasets: [] };
+  const distributionData = { labels: [], datasets: [] };
+  const recentOrders: any[] = [];
 
   // Helper for Status Tags
   const renderStatus = (status: string) => {

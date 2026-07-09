@@ -127,19 +127,11 @@ const TableauAmortissements: React.FC = () => {
     uop:        { label: t('amort.methods.uop'),        sub: t('amort.methods.uop_sub') }
   };
 
-  // FIFO/LIFO/PMP mock stock lots for demo
-  const stockLots = [
-    { date: '2023-11-01', qty: 200, unitCost: 4500, method: 'fifo' },
-    { date: '2023-12-15', qty: 150, unitCost: 4800, method: 'fifo' },
-    { date: '2024-01-10', qty: 300, unitCost: 5100, method: 'fifo' },
-  ];
-  const pmpCost = Math.round(stockLots.reduce((a, l) => a + l.qty * l.unitCost, 0) / stockLots.reduce((a, l) => a + l.qty, 0));
-  const fifoCost = stockLots[0].unitCost;
-  const lifoCost = stockLots[stockLots.length - 1].unitCost;
+  const stockLots: { date: string; qty: number; unitCost: number; method: string }[] = [];
   const valoResults: Record<ValoMethod, { label: string; unitCost: number; totalValue: number; impact: string }> = {
-    pmp:  { label: t('amort.valo.pmp_label'),  unitCost: pmpCost,  totalValue: pmpCost * 650,  impact: t('amort.valo.pmp_impact') },
-    fifo: { label: t('amort.valo.fifo_label'), unitCost: fifoCost, totalValue: fifoCost * 650, impact: t('amort.valo.fifo_impact') },
-    lifo: { label: t('amort.valo.lifo_label'), unitCost: lifoCost, totalValue: lifoCost * 650, impact: t('amort.valo.lifo_impact') },
+    pmp:  { label: t('amort.valo.pmp_label'),  unitCost: 0, totalValue: 0, impact: t('amort.valo.pmp_impact') },
+    fifo: { label: t('amort.valo.fifo_label'), unitCost: 0, totalValue: 0, impact: t('amort.valo.fifo_impact') },
+    lifo: { label: t('amort.valo.lifo_label'), unitCost: 0, totalValue: 0, impact: t('amort.valo.lifo_impact') },
   };
 
   const selectedValo = valoResults[methodeValo];

@@ -11,6 +11,7 @@ from app.modules.finance.router_treasury import router as treasury_router
 from app.modules.finance.router_depreciation import router as depreciation_router
 from app.modules.finance.router_consolidation import router as consolidation_router
 from app.modules.finance.router_hr import router as hr_router
+from app.modules.finance.router_reconciliation import router as reconciliation_router
 from app.modules.operations.router_invoices import router as invoices_router
 from app.modules.operations.router_payments import router as payments_router
 from app.modules.operations.router_collections import router as collections_router
@@ -37,6 +38,7 @@ api_router.include_router(budgets_router)
 api_router.include_router(fiscality_router)
 api_router.include_router(analytics_router)
 api_router.include_router(treasury_router)
+api_router.include_router(reconciliation_router)
 api_router.include_router(depreciation_router)
 api_router.include_router(consolidation_router)
 api_router.include_router(invoices_router)

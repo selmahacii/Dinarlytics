@@ -232,7 +232,7 @@ export const genererDeclarationG50 = (
     tapBase: donnees.chiffreAffairesHT,
     tapTaux: 1, // 1% par défaut selon Loi de Finances récente (Algérie)
     tapMontant: Math.round(donnees.chiffreAffairesHT * 0.01),
-    irgSalaires: (donnees.chiffreAffairesHT > 0) ? Math.round(donnees.chiffreAffairesHT * 0.05) : 0, // Mock
+    irgSalaires: 0,
     irgHonoraires: 0,
     ibsAcompte: 0,
     ventesTauxNormal: {
