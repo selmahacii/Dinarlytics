@@ -29,7 +29,66 @@ import { useApp } from '@core/context/AppContext';
 
 const TemplateDocument: React.FC = () => {
   const { formatCurrency } = useApp();
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<any[]>([
+    {
+      id: 1,
+      name: 'Facture Standard - Algérie SCF',
+      category: 'Facturation',
+      description: 'Template conforme au format SCF algérien avec TVA et NIF.',
+      content: `<div class="p-8 max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div class="flex justify-between items-start mb-8">
+          <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-2">{{NOM_ENTREPRISE}}</h1>
+            <p class="text-sm text-slate-500">{{ADRESSE_ENTREPRISE}}</p>
+            <p class="text-xs text-slate-400">SIRET: {{SIRET}} | TVA: {{TVA_NUMBER}}</p>
+          </div>
+          <div class="text-right">
+            <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider">Facture</span>
+            <p class="text-lg font-black text-slate-800 mt-2">{{NUMERO_FACTURE}}</p>
+            <p class="text-xs text-slate-400">Date: {{DATE_FACTURE}}</p>
+          </div>
+        </div>
+        <div class="border-t border-b border-slate-100 py-4 mb-8">
+          <p class="text-xs font-bold text-slate-400 uppercase mb-2">Facturé à :</p>
+          <p class="font-bold text-slate-800">{{NOM_CLIENT}}</p>
+          <p class="text-sm text-slate-500">{{ADRESSE_CLIENT}}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs font-bold text-slate-400 uppercase">Montant Total TTC</p>
+          <p class="text-3xl font-black text-indigo-600 mt-1">{{MONTANT_TOTAL}}</p>
+        </div>
+      </div>`,
+      css: '.template { font-family: Arial, sans-serif; color: #1e293b; }',
+      createdAt: '2024-01-01',
+      lastModified: '2024-01-01',
+      usageCount: 15,
+      isActive: true
+    },
+    {
+      id: 2,
+      name: 'Bon de Commande Fournisseur',
+      category: 'Commercial',
+      description: 'Bon de commande standard pour l\'approvisionnement.',
+      content: `<div class="p-8 max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div class="flex justify-between items-start mb-8">
+          <div>
+            <h1 class="text-2xl font-black text-slate-800">BON DE COMMANDE</h1>
+            <p class="text-xs text-slate-400">Date: {{DATE_FACTURE}}</p>
+          </div>
+          <p class="text-lg font-bold text-slate-600">{{NOM_ENTREPRISE}}</p>
+        </div>
+        <div class="border-t border-slate-100 pt-4">
+          <p class="text-xs font-bold text-slate-400 uppercase mb-1">Fournisseur :</p>
+          <p class="font-bold text-slate-800">{{NOM_CLIENT}}</p>
+        </div>
+      </div>`,
+      css: '.template { font-family: sans-serif; }',
+      createdAt: '2024-01-10',
+      lastModified: '2024-01-10',
+      usageCount: 8,
+      isActive: true
+    }
+  ]);
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -73,321 +132,11 @@ const TemplateDocument: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Données de démonstration pour les templates
-  const initialTemplates = [
-    {
-      id: 1,
-      name: 'Facture Standard',
-      category: 'Facturation',
-      description: 'Template de facture avec en-tête personnalisé',
-      content: `
-        <div class="invoice-template">
-          <div class="header">
-            <h1>{{NOM_ENTREPRISE}}</h1>
-            <p>{{ADRESSE_ENTREPRISE}}</p>
-            <p>SIRET: {{SIRET}} | TVA: {{TVA_NUMBER}}</p>
-          </div>
-          <div class="client-info">
-            <h3>Facturé à:</h3>
-            <p><strong>{{NOM_CLIENT}}</strong></p>
-            <p>{{ADRESSE_CLIENT}}</p>
-            <p>Tél: {{TELEPHONE_CLIENT}}</p>
-            <p>Email: {{EMAIL_CLIENT}}</p>
-          </div>
-          <div class="invoice-details">
-            <h3>Facture #{{NUMERO_FACTURE}}</h3>
-            <p>Date: {{DATE_FACTURE}}</p>
-          </div>
-          <div class="amount">
-            <h2>Total: {{MONTANT_TOTAL}}</h2>
-          </div>
-          <div class="signature">
-            <p>Signature: {{SIGNATURE}}</p>
-            <p>Date: {{DATE_CREATION}}</p>
-          </div>
-        </div>
-      `,
-      css: `
-        .invoice-template {
-          font-family: Arial, sans-serif;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        .header {
-          text-align: center;
-          border-bottom: 2px solid #333;
-          padding-bottom: 20px;
-          margin-bottom: 30px;
-        }
-        .client-info {
-          background: #f5f5f5;
-          padding: 15px;
-          margin-bottom: 20px;
-        }
-        .invoice-details {
-          text-align: right;
-          margin-bottom: 20px;
-        }
-        .amount {
-          text-align: right;
-          font-size: 24px;
-          font-weight: bold;
-          color: #2c5aa0;
-          margin: 30px 0;
-        }
-        .signature {
-          margin-top: 50px;
-          text-align: right;
-        }
-      `,
-      createdAt: '2024-01-15',
-      lastModified: '2024-01-20',
-      usageCount: 45,
-      isActive: true
-    },
-    {
-      id: 2,
-      name: 'Devis Commercial',
-      category: 'Commercial',
-      description: 'Template de devis avec tableau de produits',
-      content: `
-        <div class="quote-template">
-          <div class="header">
-            <h1>{{NOM_ENTREPRISE}}</h1>
-            <h2>DEVIS</h2>
-          </div>
-          <div class="client-section">
-            <h3>Client: {{NOM_CLIENT}}</h3>
-            <p>{{ADRESSE_CLIENT}}</p>
-          </div>
-          <div class="quote-details">
-            <p><strong>Devis #{{NUMERO_FACTURE}}</strong></p>
-            <p>Date: {{DATE_FACTURE}}</p>
-            <p>Validité: 30 jours</p>
-          </div>
-          <div class="products-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Quantité</th>
-                  <th>Prix unitaire</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Produit/Service</td>
-                  <td>1</td>
-                  <td>{{MONTANT_TOTAL}}</td>
-                  <td>{{MONTANT_TOTAL}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="total-section">
-            <h3>Total TTC: {{MONTANT_TOTAL}}</h3>
-          </div>
-        </div>
-      `,
-      css: `
-        .quote-template {
-          font-family: Arial, sans-serif;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        .header {
-          text-align: center;
-          border-bottom: 3px solid #2c5aa0;
-          padding-bottom: 20px;
-          margin-bottom: 30px;
-        }
-        .header h2 {
-          color: #2c5aa0;
-          font-size: 28px;
-        }
-        .products-table {
-          margin: 30px 0;
-        }
-        .products-table table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .products-table th,
-        .products-table td {
-          border: 1px solid #ddd;
-          padding: 12px;
-          text-align: left;
-        }
-        .products-table th {
-          background-color: #f5f5f5;
-          font-weight: bold;
-        }
-        .total-section {
-          text-align: right;
-          font-size: 20px;
-          font-weight: bold;
-          color: #2c5aa0;
-          margin-top: 30px;
-        }
-      `,
-      createdAt: '2024-01-10',
-      lastModified: '2024-01-18',
-      usageCount: 23,
-      isActive: true
-    },
-    {
-      id: 3,
-      name: 'Lettre de Relance',
-      category: 'Commercial',
-      description: 'Template de relance pour factures impayées',
-      content: `
-        <div class="reminder-letter">
-          <div class="header">
-            <h1>{{NOM_ENTREPRISE}}</h1>
-            <p>{{ADRESSE_ENTREPRISE}}</p>
-          </div>
-          <div class="date">
-            <p>{{DATE_CREATION}}</p>
-          </div>
-          <div class="client-address">
-            <p>{{NOM_CLIENT}}</p>
-            <p>{{ADRESSE_CLIENT}}</p>
-          </div>
-          <div class="subject">
-            <h3>Objet: Relance facture {{NUMERO_FACTURE}}</h3>
-          </div>
-          <div class="content">
-            <p>Madame, Monsieur,</p>
-            <p>Nous vous informons que la facture {{NUMERO_FACTURE}} d'un montant de {{MONTANT_TOTAL}} 
-            émise le {{DATE_FACTURE}} n'a pas encore été réglée.</p>
-            <p>Nous vous remercions de bien vouloir procéder au règlement dans les plus brefs délais.</p>
-            <p>Cordialement,</p>
-            <p>{{NOM_ENTREPRISE}}</p>
-          </div>
-        </div>
-      `,
-      css: `
-        .reminder-letter {
-          font-family: Arial, sans-serif;
-          max-width: 600px;
-          margin: 0 auto;
-          padding: 20px;
-          line-height: 1.6;
-        }
-        .header {
-          text-align: center;
-          border-bottom: 1px solid #ccc;
-          padding-bottom: 15px;
-          margin-bottom: 20px;
-        }
-        .client-address {
-          margin-bottom: 20px;
-        }
-        .subject {
-          font-weight: bold;
-          margin-bottom: 20px;
-          color: #d32f2f;
-        }
-        .content p {
-          margin-bottom: 15px;
-        }
-      `,
-      createdAt: '2024-01-05',
-      lastModified: '2024-01-12',
-      usageCount: 12,
-      isActive: true
-    },
-    {
-      id: 4,
-      name: 'Contrat de Service',
-      category: 'Juridique',
-      description: 'Template de contrat de prestation de service',
-      content: `
-        <div class="contract-template">
-          <div class="header">
-            <h1>CONTRAT DE PRESTATION DE SERVICE</h1>
-          </div>
-          <div class="parties">
-            <h3>Entre les soussignés :</h3>
-            <p><strong>{{NOM_ENTREPRISE}}</strong>, société au capital de X DA, 
-            immatriculée au RCS sous le numéro {{SIRET}}, 
-            dont le siège social est situé {{ADRESSE_ENTREPRISE}}</p>
-            <p>ET</p>
-            <p><strong>{{NOM_CLIENT}}</strong>, {{ADRESSE_CLIENT}}</p>
-          </div>
-          <div class="object">
-            <h3>Objet du contrat :</h3>
-            <p>Le présent contrat a pour objet la réalisation de [DÉCRIRE LES PRESTATIONS] 
-            pour un montant total de {{MONTANT_TOTAL}}.</p>
-          </div>
-          <div class="terms">
-            <h3>Modalités :</h3>
-            <p>Date de début : {{DATE_CREATION}}</p>
-            <p>Date de fin : [DATE_FIN]</p>
-            <p>Paiement : [MODALITÉS_PAIEMENT]</p>
-          </div>
-          <div class="signatures">
-            <div class="signature-block">
-              <p>Le Prestataire</p>
-              <p>{{NOM_ENTREPRISE}}</p>
-              <p>Signature : {{SIGNATURE}}</p>
-            </div>
-            <div class="signature-block">
-              <p>Le Client</p>
-              <p>{{NOM_CLIENT}}</p>
-              <p>Signature : _________________</p>
-            </div>
-          </div>
-        </div>
-      `,
-      css: `
-        .contract-template {
-          font-family: Arial, sans-serif;
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-          line-height: 1.6;
-        }
-        .header {
-          text-align: center;
-          border-bottom: 2px solid #333;
-          padding-bottom: 20px;
-          margin-bottom: 30px;
-        }
-        .parties, .object, .terms {
-          margin-bottom: 25px;
-        }
-        .signatures {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 50px;
-        }
-        .signature-block {
-          width: 45%;
-          text-align: center;
-          border-top: 1px solid #ccc;
-          padding-top: 20px;
-        }
-      `,
-      createdAt: '2024-01-08',
-      lastModified: '2024-01-15',
-      usageCount: 8,
-      isActive: true
-    }
-  ];
-
-  useEffect(() => {
-    setTemplates(initialTemplates);
-  }, []);
-
   const categories = [
-    { id: 'all', name: 'Tous', count: initialTemplates.length },
-    { id: 'Facturation', name: 'Facturation', count: 1 },
-    { id: 'Commercial', name: 'Commercial', count: 2 },
-    { id: 'Juridique', name: 'Juridique', count: 1 }
+    { id: 'all', name: 'Tous', count: templates.length },
+    { id: 'Facturation', name: 'Facturation', count: templates.filter(t => t.category === 'Facturation').length },
+    { id: 'Commercial', name: 'Commercial', count: templates.filter(t => t.category === 'Commercial').length },
+    { id: 'Juridique', name: 'Juridique', count: templates.filter(t => t.category === 'Juridique').length }
   ];
 
   const filteredTemplates = templates.filter(template => {
