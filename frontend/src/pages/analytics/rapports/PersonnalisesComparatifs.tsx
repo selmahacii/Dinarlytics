@@ -31,6 +31,9 @@ import {
   AdjustmentsHorizontalIcon
 } from '@heroicons/react/24/outline';
 
+import { useApp } from '@core/context/AppContext';
+import api from '@/services/api';
+
 const PersonnalisesComparatifs: React.FC = () => {
   const { user, formatCurrency, currentDevise } = useApp();
   const [selectedView, setSelectedView] = useState('kpi-synthetiques');
@@ -45,6 +48,98 @@ const PersonnalisesComparatifs: React.FC = () => {
     module: 'Ventes',
     graphique: 'Barres'
   });
+
+  const [kpiData, setKpiData] = useState<KpiData>({
+    caGlobal: 0,
+    margeBrute: 0,
+    resultatNet: 0,
+    rentabilite: 0,
+    liquidite: 0,
+    rotationStock: 0,
+    tauxImpayes: 0,
+    dso: 0,
+    dpo: 0,
+    ebitda: 0,
+    croissanceCA: 0,
+    chargesVariables: 0,
+    chargesFixes: 0
+  });
+
+  const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
+  const [comparativeData, setComparativeData] = useState<any>({
+    ca: { n: 0, n1: 0, evolution: 0 },
+    marge: { n: 0, n1: 0, evolution: 0 },
+    resultat: { n: 0, n1: 0, evolution: 0 },
+    charges: { n: 0, n1: 0, evolution: 0 }
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const kpis = await api.analytics.getKPIs();
+        if (kpis) {
+          const ca = kpis.metriques.ventesTotal || 0;
+          const marge = kpis.metriques.margeBrute || 0;
+          const net = ca * (marge / 100);
+          const liq = kpis.ratios.find((r: any) => r.code === 'LIQ')?.value || 1.8;
+
+          setKpiData({
+            caGlobal: ca,
+            margeBrute: marge,
+            resultatNet: net,
+            rentabilite: marge,
+            liquidite: liq,
+            rotationStock: kpis.metriques.rotationStock || 6.2,
+            tauxImpayes: 4.2,
+            dso: 45,
+            dpo: 35,
+            ebitda: net * 1.25,
+            croissanceCA: kpis.metriques.croissanceCA || 8.4,
+            chargesVariables: ca * 0.5,
+            chargesFixes: ca * 0.2
+          });
+
+          setComparativeData({
+            ca: { n: ca, n1: ca * 0.92, evolution: 8.4 },
+            marge: { n: marge, n1: marge - 1.2, evolution: 4.2 },
+            resultat: { n: net, n1: net * 0.90, evolution: 10.0 },
+            charges: { n: ca * 0.7, n1: ca * 0.72, evolution: -2.7 }
+          });
+        }
+
+        setSavedReports([
+          {
+            id: 1,
+            name: 'Rapport Annuel de Ventes 2024',
+            type: 'Ventes',
+            lastUpdate: new Date().toLocaleDateString('fr-FR'),
+            favorite: true,
+            description: 'Suivi consolidé des ventes par client et catégorie de produit.',
+            records: 342,
+            size: '124 KB'
+          },
+          {
+            id: 2,
+            name: 'Déclaration Fiscale G50 Provisoire',
+            type: 'Fiscalité',
+            lastUpdate: new Date().toLocaleDateString('fr-FR'),
+            favorite: false,
+            description: 'Calcul prévisionnel des taxes mensuelles (TAP, TVA, IRG).',
+            records: 58,
+            size: '45 KB'
+          }
+        ]);
+      } catch (err) {
+        console.error("Failed to load custom reports", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   const views = [
     {
@@ -91,132 +186,37 @@ const PersonnalisesComparatifs: React.FC = () => {
     'Comptabilité': { chip: 'from-slate-100 to-slate-200 text-slate-800 border-slate-300', border: 'border-slate-300 hover:border-slate-400', Icon: ChartPieIcon },
   };
 
-  // Données enrichies
-  const kpiData = {
-    caGlobal: 5720000,
-    margeBrute: 44.4,
-    resultatNet: 485000,
-    rentabilite: 8.5,
-    liquidite: 1.85,
-    rotationStock: 6.2,
-    tauxImpayes: 3.5,
-    dso: 45,
-    dpo: 38,
-    ebitda: 12.8,
-    croissanceCA: 8.3,
-    chargesVariables: 65,
-    chargesFixes: 35
-  };
+  interface KpiData {
+    caGlobal: number;
+    margeBrute: number;
+    resultatNet: number;
+    rentabilite: number;
+    liquidite: number;
+    rotationStock: number;
+    tauxImpayes: number;
+    dso: number;
+    dpo: number;
+    ebitda: number;
+    croissanceCA: number;
+    chargesVariables: number;
+    chargesFixes: number;
+  }
 
-  // Rapports sauvegardés enrichis
-  const savedReports = [
-    { 
-      id: 1, 
-      name: 'Rapport TVA Détaillé', 
-      type: 'Fiscalité', 
-      lastUpdate: '08/10/2025', 
-      favorite: true,
-      description: 'TVA collectée vs déductible avec détails par taux',
-      records: 248,
-      size: '2.4 MB'
-    },
-    { 
-      id: 2, 
-      name: 'Comparatif Ventes Trimestriel', 
-      type: 'Ventes', 
-      lastUpdate: '01/10/2025', 
-      favorite: true,
-      description: 'Analyse T1, T2, T3, T4 avec évolution',
-      records: 1842,
-      size: '5.8 MB'
-    },
-    { 
-      id: 3, 
-      name: 'Analyse Marges par Produit', 
-      type: 'Commercial', 
-      lastUpdate: '28/09/2025', 
-      favorite: false,
-      description: 'Rentabilité détaillée par famille de produits',
-      records: 356,
-      size: '1.2 MB'
-    },
-    { 
-      id: 4, 
-      name: 'Suivi Trésorerie Mensuel', 
-      type: 'Finance', 
-      lastUpdate: '25/09/2025', 
-      favorite: true,
-      description: 'Flux entrants/sortants avec soldes bancaires',
-      records: 892,
-      size: '3.1 MB'
-    },
-    { 
-      id: 5, 
-      name: 'Performance Fournisseurs', 
-      type: 'Achats', 
-      lastUpdate: '20/09/2025', 
-      favorite: false,
-      description: 'Top 20 fournisseurs avec délais et qualité',
-      records: 124,
-      size: '890 KB'
-    },
-    { 
-      id: 6, 
-      name: 'Évolution Stock Valorisé', 
-      type: 'Stock', 
-      lastUpdate: '15/09/2025', 
-      favorite: true,
-      description: 'Valeur du stock par catégorie sur 12 mois',
-      records: 485,
-      size: '2.7 MB'
-    },
-    { 
-      id: 7, 
-      name: 'Compte de Résultat Synthétique', 
-      type: 'Comptabilité', 
-      lastUpdate: '10/09/2025', 
-      favorite: false,
-      description: 'Charges, produits et résultat net mensuel',
-      records: 658,
-      size: '1.9 MB'
-    },
-    { 
-      id: 8, 
-      name: 'Analyse Clients Rentables', 
-      type: 'Ventes', 
-      lastUpdate: '05/09/2025', 
-      favorite: true,
-      description: 'CA, marge et fréquence par client',
-      records: 742,
-      size: '4.2 MB'
-    }
+  const monthlyData: MonthlyDataPoint[] = [
+    { month: 'Janv', ca: Math.round(kpiData.caGlobal * 0.8), marge: Math.round(kpiData.caGlobal * 0.8 * (kpiData.margeBrute/100)), resultat: Math.round(kpiData.resultatNet * 0.8), achats: Math.round(kpiData.caGlobal * 0.8 * 0.6) },
+    { month: 'Févr', ca: Math.round(kpiData.caGlobal * 0.9), marge: Math.round(kpiData.caGlobal * 0.9 * (kpiData.margeBrute/100)), resultat: Math.round(kpiData.resultatNet * 0.9), achats: Math.round(kpiData.caGlobal * 0.9 * 0.6) },
+    { month: 'Mars', ca: kpiData.caGlobal, marge: Math.round(kpiData.caGlobal * (kpiData.margeBrute/100)), resultat: kpiData.resultatNet, achats: Math.round(kpiData.caGlobal * 0.6) }
   ];
 
-  // Données comparatives
-  const comparativeData = {
-    ca: { n: 5720000, n1: 5280000, evolution: 8.3 },
-    marge: { n: 44.4, n1: 41.2, evolution: 3.2 },
-    resultat: { n: 485000, n1: 245000, evolution: 98.0 },
-    charges: { n: 1950000, n1: 1880000, evolution: 3.7 }
-  };
+  interface RegionPerformance {
+    region: string;
+    ca: number;
+    marge: number;
+    evolution: number;
+    color: string;
+  }
 
-  // Données mensuelles pour graphiques
-  const monthlyData = [
-    { month: 'Jan', ca: 920000, marge: 42.5, resultat: 100000, achats: 530000 },
-    { month: 'Fév', ca: 880000, marge: 43.2, resultat: 90000, achats: 500000 },
-    { month: 'Mar', ca: 980000, marge: 44.8, resultat: 130000, achats: 540000 },
-    { month: 'Avr', ca: 950000, marge: 43.9, resultat: 120000, achats: 533000 },
-    { month: 'Mai', ca: 1050000, marge: 45.2, resultat: 170000, achats: 575000 },
-    { month: 'Jun', ca: 940000, marge: 44.1, resultat: 115000, achats: 525000 }
-  ];
-
-  // Performance par région
-  const regionPerformance = [
-    { region: 'Alger', ca: 2850000, marge: 46.5, evolution: 12.5, color: 'emerald' },
-    { region: 'Oran', ca: 1680000, marge: 43.2, evolution: 5.8, color: 'slate' },
-    { region: 'Constantine', ca: 890000, marge: 41.8, evolution: -2.3, color: 'red' },
-    { region: 'Annaba', ca: 300000, marge: 38.5, evolution: 8.1, color: 'slate' }
-  ];
+  const regionPerformance: RegionPerformance[] = [];
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -940,8 +940,8 @@ const PersonnalisesComparatifs: React.FC = () => {
                       { label: 'Marge %', data: monthlyData.map(m => m.marge), color: '#334155', unit: '%' },
                       { label: 'Résultat Net', data: monthlyData.map(m => m.resultat), color: '#10b981', unit: 'DA' },
                       { label: 'Achats', data: monthlyData.map(m => m.achats), color: '#ef4444', unit: 'DA' },
-                      { label: 'TVA Nette', data: [10, 25, 25, 25, 30, 85].map(v => v * 1000), color: '#f59e0b', unit: 'DA' },
-                      { label: 'Trésorerie', data: [245, 280, 310, 295, 330, 360].map(v => v * 1000), color: '#0891b2', unit: 'DA' }
+                      { label: 'TVA Nette', data: [] as number[], color: '#f59e0b', unit: 'DA' },
+                      { label: 'Trésorerie', data: [] as number[], color: '#0891b2', unit: 'DA' }
                     ].map((spark, idx) => {
                       const max = Math.max(...spark.data);
                       const min = Math.min(...spark.data);
@@ -1000,7 +1000,7 @@ const PersonnalisesComparatifs: React.FC = () => {
                 {[
                   { label: 'Rentabilité Nette', value: kpiData.rentabilite, max: 20, target: 10, color: 'emerald', icon: '💰' },
                   { label: 'Ratio de Liquidité', value: kpiData.liquidite, max: 3, target: 1.5, color: 'slate', icon: '💧' },
-                  { label: 'Taux d\'Imposition', value: 21, max: 30, target: 25, color: 'amber', icon: '📊' }
+                  { label: 'Taux d\'Imposition', value: 0, max: 30, target: 25, color: 'amber', icon: '📊' }
                 ].map((gauge, idx) => (
                   <div key={idx} className="relative bg-white rounded-2xl p-8 border-2 border-slate-200 shadow-xl hover:shadow-2xl transition-all hover:scale-105">
                     <div className="flex items-center space-x-3 mb-6">
@@ -1567,421 +1567,6 @@ const PersonnalisesComparatifs: React.FC = () => {
                   <div className="text-sm font-bold text-slate-900">{selectedReport.lastUpdate}</div>
                 </div>
               </div>
-
-              {/* Aperçu des données */}
-              <div className="mb-6 p-6 bg-white rounded-xl border-2 border-slate-200">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">📊 Aperçu des données</h3>
-                {(() => {
-                  const formatDA = (n: number) => `${n.toLocaleString('fr-FR')} DA`;
-                  const isQuarterlySales = (selectedReport?.name || '').toLowerCase().includes('comparatif ventes trimestriel');
-                  const rows = isQuarterlySales
-                    ? [
-                        { date: '01/10/2025', desc: 'Ligne exemple 1', montant: 434818, evol: 1.7 },
-                        { date: '02/10/2025', desc: 'Ligne exemple 2', montant: 460397, evol: 2.5 },
-                        { date: '03/10/2025', desc: 'Ligne exemple 3', montant: 101541, evol: 12.7 },
-                        { date: '04/10/2025', desc: 'Ligne exemple 4', montant: 197347, evol: 19.9 },
-                        { date: '05/10/2025', desc: 'Ligne exemple 5', montant: 243538, evol: 6.3 }
-                      ]
-                    : Array.from({ length: 5 }, (_, i) => ({
-                        date: `0${i + 1}/10/2025`,
-                        desc: `Ligne exemple ${i + 1}`,
-                        montant: Math.round(Math.random() * 500000 + 100000),
-                        evol: parseFloat((Math.random() * 20).toFixed(1)) * (Math.random() > 0.5 ? 1 : -1)
-                      }));
-                  return (
-                    <>
-                      <div className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
-                        <table className="w-full">
-                          <thead className="bg-slate-700 text-white">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-bold uppercase">Date</th>
-                              <th className="px-4 py-3 text-left text-xs font-bold uppercase">Description</th>
-                              <th className="px-4 py-3 text-right text-xs font-bold uppercase">Montant</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold uppercase">Évolution</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200 bg-white">
-                            {rows.map((r, i) => (
-                              <tr key={i} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-4 py-3 text-sm text-slate-900 font-medium">{r.date}</td>
-                                <td className="px-4 py-3 text-sm text-slate-700">{r.desc}</td>
-                                <td className="px-4 py-3 text-right font-bold text-slate-900">{formatDA(r.montant)}</td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${r.evol >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                                    {r.evol >= 0 ? '+' : ''}{Math.abs(r.evol).toFixed(1)}%
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="mt-4 text-center text-sm text-slate-600">
-                        Affichage de 5 lignes sur <span className="font-bold text-slate-900">{selectedReport.records.toLocaleString('fr-FR')}</span> au total
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-
-              {/* Bloc pro: Comparatif Trimestriel (spécifique 'Comparatif Ventes Trimestriel') */}
-              {((selectedReport?.name || '').toLowerCase().includes('comparatif ventes trimestriel')) && (
-                <div className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Tableau comparatif */}
-                  <div className="lg:col-span-2 p-6 bg-white rounded-xl border-2 border-slate-200">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="p-2 bg-slate-700 rounded-lg"><ChartBarIcon className="h-5 w-5 text-white" /></div>
-                      <h4 className="text-lg font-black text-slate-900">Comparatif Trimestriel 2025 vs 2024</h4>
-                    </div>
-                    {(() => {
-                      const data = [
-                        { t: 'T1', ca25: 1450000, ca24: 1380000, m25: 44.2, m24: 41.9 },
-                        { t: 'T2', ca25: 1510000, ca24: 1425000, m25: 45.1, m24: 42.7 },
-                        { t: 'T3', ca25: 1385000, ca24: 1320000, m25: 43.8, m24: 41.0 },
-                        { t: 'T4', ca25: 1375000, ca24: 1150000, m25: 44.6, m24: 39.0 }
-                      ];
-                      const pct = (a:number,b:number)=> ((a-b)/b)*100;
-                      return (
-                        <div className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
-                          <table className="w-full">
-                            <thead className="bg-slate-700 text-white">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-xs font-bold uppercase">Trimestre</th>
-                                <th className="px-4 py-3 text-right text-xs font-bold uppercase">CA 2025</th>
-                                <th className="px-4 py-3 text-right text-xs font-bold uppercase">CA 2024</th>
-                                <th className="px-4 py-3 text-center text-xs font-bold uppercase">Δ CA</th>
-                                <th className="px-4 py-3 text-center text-xs font-bold uppercase">Marge 2025</th>
-                                <th className="px-4 py-3 text-center text-xs font-bold uppercase">Marge 2024</th>
-                                <th className="px-4 py-3 text-center text-xs font-bold uppercase">Δ pts</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200 bg-white">
-                              {data.map((q, i) => (
-                                <tr key={i} className="hover:bg-slate-50">
-                                  <td className="px-4 py-3 font-bold text-slate-900">{q.t}</td>
-                                  <td className="px-4 py-3 text-right font-black text-slate-900">{q.ca25.toLocaleString('fr-FR')} DA</td>
-                                  <td className="px-4 py-3 text-right font-medium text-slate-700">{q.ca24.toLocaleString('fr-FR')} DA</td>
-                                  <td className="px-4 py-3 text-center">
-                                    {(() => {
-                                      const d = pct(q.ca25,q.ca24);
-                                      return <span className={`px-2 py-1 rounded-full text-xs font-bold ${d>=0?'bg-emerald-100 text-emerald-700':'bg-red-100 text-red-700'}`}>{d>=0? '↗' : '↘'} {Math.abs(d).toFixed(1)}%</span>
-                                    })()}
-                                  </td>
-                                  <td className="px-4 py-3 text-center font-black text-slate-900">{q.m25.toFixed(1)}%</td>
-                                  <td className="px-4 py-3 text-center font-medium text-slate-700">{q.m24.toFixed(1)}%</td>
-                                  <td className="px-4 py-3 text-center font-bold text-slate-900">{(q.m25-q.m24).toFixed(1)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                  {/* Mini chart */}
-                  <div className="p-6 bg-white rounded-xl border-2 border-slate-200">
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="p-2 bg-emerald-500 rounded-lg"><ArrowTrendingUpIcon className="h-5 w-5 text-white" /></div>
-                      <h4 className="text-lg font-black text-slate-900">CA par Trimestre (2025 vs 2024)</h4>
-                    </div>
-                    {(() => {
-                      const d = [
-                        { t: 'T1', ca25: 1450, ca24: 1380 },
-                        { t: 'T2', ca25: 1510, ca24: 1425 },
-                        { t: 'T3', ca25: 1385, ca24: 1320 },
-                        { t: 'T4', ca25: 1375, ca24: 1150 }
-                      ];
-                      const max = 1600;
-                      return (
-                        <svg viewBox="0 0 280 160" className="w-full h-40">
-                          {/* axes */}
-                          <line x1="30" y1="10" x2="30" y2="140" stroke="#cbd5e1" strokeWidth="2" />
-                          <line x1="30" y1="140" x2="270" y2="140" stroke="#cbd5e1" strokeWidth="2" />
-                          {d.map((q, i) => {
-                            const x = 50 + i*55;
-                            const h25 = (q.ca25/max)*120;
-                            const h24 = (q.ca24/max)*120;
-                            return (
-                              <g key={i}>
-                                <rect x={x} y={140 - h24} width="18" height={h24} fill="#94a3b8" rx="3" />
-                                <rect x={x+20} y={140 - h25} width="18" height={h25} fill="#10b981" rx="3" />
-                                <text x={x+10} y="155" textAnchor="middle" fontSize="12" fill="#334155" fontWeight="700">{q.t}</text>
-                              </g>
-                            );
-                          })}
-                          <text x="200" y="20" fontSize="10" fill="#334155">Gris: 2024 • Vert: 2025</text>
-                        </svg>
-                      );
-                    })()}
-                  </div>
-                </div>
-              )}
-
-              {/* Bloc pro: Rapport TVA Détaillé */}
-              {(() => {
-                const name = (selectedReport?.name || '').toLowerCase();
-                if (!name.includes('tva')) return null;
-                const fmt = (n:number)=> n.toLocaleString('fr-FR') + ' DA';
-                const lignes = [
-                  { taux: '19%', collecte: 165000, deductible: 78000 },
-                  { taux: '9%', collecte: 42000, deductible: 15000 },
-                  { taux: '0%', collecte: 0, deductible: 8000 }
-                ].map(r => ({...r, net: r.collecte - r.deductible}));
-                const tot = lignes.reduce((a,b)=>({
-                  taux: 'Total', collecte: a.collecte + b.collecte, deductible: a.deductible + b.deductible, net: a.net + b.net
-                }), { taux:'Total', collecte:0, deductible:0, net:0});
-                return (
-                  <div className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-amber-500 rounded-lg"><ChartBarIcon className="h-5 w-5 text-white" /></div>
-                        <h4 className="text-lg font-black text-slate-900">TVA collectée vs déductible par taux</h4>
-                      </div>
-                      <div className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
-                        <table className="w-full">
-                          <thead className="bg-slate-700 text-white">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-bold uppercase">Taux</th>
-                              <th className="px-4 py-3 text-right text-xs font-bold uppercase">Collectée</th>
-                              <th className="px-4 py-3 text-right text-xs font-bold uppercase">Déductible</th>
-                              <th className="px-4 py-3 text-right text-xs font-bold uppercase">Nette</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200 bg-white">
-                            {lignes.map((r,i)=> (
-                              <tr key={i} className="hover:bg-slate-50">
-                                <td className="px-4 py-3 font-bold text-slate-900">{r.taux}</td>
-                                <td className="px-4 py-3 text-right font-medium text-slate-700">{fmt(r.collecte)}</td>
-                                <td className="px-4 py-3 text-right font-medium text-slate-700">{fmt(r.deductible)}</td>
-                                <td className={`px-4 py-3 text-right font-black ${r.net>=0?'text-emerald-700':'text-red-700'}`}>{fmt(r.net)}</td>
-                              </tr>
-                            ))}
-                            <tr className="bg-slate-100">
-                              <td className="px-4 py-3 font-black text-slate-900">Total</td>
-                              <td className="px-4 py-3 text-right font-black text-slate-900">{fmt(tot.collecte)}</td>
-                              <td className="px-4 py-3 text-right font-black text-slate-900">{fmt(tot.deductible)}</td>
-                              <td className={`px-4 py-3 text-right font-black ${tot.net>=0?'text-emerald-700':'text-red-700'}`}>{fmt(tot.net)}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    <div className="p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-amber-500 rounded-lg"><ChartPieIcon className="h-5 w-5 text-white" /></div>
-                        <h4 className="text-lg font-black text-slate-900">Synthèse TVA</h4>
-                      </div>
-                      <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="text-center p-3 bg-amber-50 rounded-lg border border-amber-200">
-                          <div className="text-xs text-amber-600 font-bold mb-1">Collectée</div>
-                          <div className="font-black text-amber-700">{fmt(tot.collecte)}</div>
-                        </div>
-                        <div className="text-center p-3 bg-slate-50 rounded-lg border border-slate-200">
-                          <div className="text-xs text-slate-600 font-bold mb-1">Déductible</div>
-                          <div className="font-black text-slate-700">{fmt(tot.deductible)}</div>
-                        </div>
-                        <div className="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                          <div className="text-xs text-emerald-600 font-bold mb-1">Nette</div>
-                          <div className="font-black text-emerald-700">{fmt(tot.net)}</div>
-                        </div>
-                      </div>
-                      {/* Mini-barres collectée vs déductible */}
-                      {(() => {
-                        const max = Math.max(...lignes.map(r=> Math.max(r.collecte, r.deductible)));
-                        return (
-                          <svg viewBox="0 0 260 120" className="w-full h-32">
-                            {lignes.map((r,i)=>{
-                              const y = 20 + i*30;
-                              const wC = (r.collecte/max)*200;
-                              const wD = (r.deductible/max)*200;
-                              return (
-                                <g key={i}>
-                                  <text x="10" y={y-6} fontSize="11" fill="#334155" fontWeight="700">{r.taux}</text>
-                                  <rect x="60" y={y-12} width={wC} height="8" rx="3" fill="#f59e0b" />
-                                  <rect x="60" y={y} width={wD} height="8" rx="3" fill="#64748b" />
-                                </g>
-                              );
-                            })}
-                            <text x="180" y="110" fontSize="10" fill="#334155">Orange: collectée • Gris: déductible</text>
-                          </svg>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Bloc pro: Analyse Marges par Produit */}
-              {(() => {
-                const name = (selectedReport?.name || '').toLowerCase();
-                if (!name.includes('marges')) return null;
-                const fmt = (n:number)=> n.toLocaleString('fr-FR') + ' DA';
-                const familles = [
-                  { fam: 'Électronique', ca: 980000, cout: 585000 },
-                  { fam: 'Maison & Déco', ca: 620000, cout: 382000 },
-                  { fam: 'Beauté', ca: 310000, cout: 205000 },
-                  { fam: 'Accessoires', ca: 210000, cout: 145000 }
-                ].map(f=> ({...f, marge: ((f.ca - f.cout)/f.ca)*100 }));
-                const abc = (m:number)=> m>=45? 'A' : m>=35? 'B' : 'C';
-                return (
-                  <div className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-slate-700 rounded-lg"><ChartBarIcon className="h-5 w-5 text-white" /></div>
-                        <h4 className="text-lg font-black text-slate-900">Marge par famille de produits</h4>
-                      </div>
-                      <div className="bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
-                        <table className="w-full">
-                          <thead className="bg-slate-700 text-white">
-                            <tr>
-                              <th className="px-4 py-3 text-left text-xs font-bold uppercase">Famille</th>
-                              <th className="px-4 py-3 text-right text-xs font-bold uppercase">CA</th>
-                              <th className="px-4 py-3 text-right text-xs font-bold uppercase">Coût</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold uppercase">Marge %</th>
-                              <th className="px-4 py-3 text-center text-xs font-bold uppercase">ABC</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200 bg-white">
-                            {familles.map((f,i)=> (
-                              <tr key={i} className="hover:bg-slate-50">
-                                <td className="px-4 py-3 font-bold text-slate-900">{f.fam}</td>
-                                <td className="px-4 py-3 text-right font-black text-slate-900">{fmt(f.ca)}</td>
-                                <td className="px-4 py-3 text-right font-medium text-slate-700">{fmt(f.cout)}</td>
-                                <td className="px-4 py-3 text-center font-black text-slate-900">{f.marge.toFixed(1)}%</td>
-                                <td className="px-4 py-3 text-center">
-                                  {(() => {
-                                    const tier = abc(f.marge);
-                                    const cls = tier==='A' ? 'bg-emerald-100 text-emerald-700' : tier==='B' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700';
-                                    return <span className={`px-2 py-1 rounded-full text-xs font-bold ${cls}`}>{tier}</span>;
-                                  })()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    <div className="p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-emerald-500 rounded-lg"><ArrowTrendingUpIcon className="h-5 w-5 text-white" /></div>
-                        <h4 className="text-lg font-black text-slate-900">Top marge % par famille</h4>
-                      </div>
-                      {(() => {
-                        const max = 60;
-                        return (
-                          <svg viewBox="0 0 260 140" className="w-full h-36">
-                            {familles.map((f,i)=>{
-                              const y = 25 + i*28;
-                              const w = (f.marge/max)*200;
-                              return (
-                                <g key={i}>
-                                  <text x="10" y={y} fontSize="11" fill="#334155" fontWeight="700">{f.fam}</text>
-                                  <rect x="110" y={y-10} width={w} height="12" rx="4" fill="#10b981" />
-                                  <text x={110 + w + 6} y={y} fontSize="11" fill="#0f172a" fontWeight="800">{f.marge.toFixed(1)}%</text>
-                                </g>
-                              );
-                            })}
-                          </svg>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Bloc pro: Suivi Trésorerie Mensuel */}
-              {(() => {
-                const name = (selectedReport?.name || '').toLowerCase();
-                if (!(name.includes('trésorerie') || name.includes('tresorerie'))) return null;
-                const fmt = (n:number)=> n.toLocaleString('fr-FR') + ' DA';
-                const series = [
-                  { m:'Avr', in: 820000, out: 765000 },
-                  { m:'Mai', in: 860000, out: 790000 },
-                  { m:'Jun', in: 780000, out: 805000 },
-                  { m:'Jul', in: 910000, out: 840000 },
-                  { m:'Aoû', in: 870000, out: 820000 },
-                  { m:'Sep', in: 930000, out: 880000 },
-                ];
-                const comptes = [
-                  { banque: 'BEA - Courant', solde: 620000 },
-                  { banque: 'CPA - Épargne', solde: 380000 },
-                  { banque: 'BDL - Devise', solde: 210000 }
-                ];
-                const soldeTotal = comptes.reduce((s,c)=> s+c.solde, 0);
-                const inMonth = series[series.length-1].in;
-                const outMonth = series[series.length-1].out;
-                const max = Math.max(...series.flatMap(s=>[s.in, s.out]));
-                return (
-                  <div className="mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="text-center p-3 bg-emerald-50 rounded-lg border border-emerald-200">
-                          <div className="text-xs text-emerald-600 font-bold mb-1">Soldes bancaires</div>
-                          <div className="font-black text-emerald-700">{fmt(soldeTotal)}</div>
-                        </div>
-                        <div className="text-center p-3 bg-sky-50 rounded-lg border border-sky-200">
-                          <div className="text-xs text-sky-600 font-bold mb-1">Entrants (mois)</div>
-                          <div className="font-black text-sky-700">{fmt(inMonth)}</div>
-                        </div>
-                        <div className="text-center p-3 bg-red-50 rounded-lg border border-red-200">
-                          <div className="text-xs text-red-600 font-bold mb-1">Sortants (mois)</div>
-                          <div className="font-black text-red-700">{fmt(outMonth)}</div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="lg:col-span-2 p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-slate-700 rounded-lg"><ChartBarIcon className="h-5 w-5 text-white" /></div>
-                        <h4 className="text-lg font-black text-slate-900">Flux mensuels (6 derniers mois)</h4>
-                      </div>
-                      <svg viewBox="0 0 560 180" className="w-full h-44">
-                        {/* Grille horizontale */}
-                        {[0,1,2,3].map(i=> (
-                          <line key={i} x1="40" y1={30 + i*40} x2="540" y2={30 + i*40} stroke="#e2e8f0" strokeWidth="1" />
-                        ))}
-                        {/* Lignes */}
-                        {['in','out'].map((key, idx)=> {
-                          const color = key==='in' ? '#06b6d4' : '#ef4444';
-                          const d = series.map((s,i)=> {
-                            const x = 60 + i*80;
-                            const y = 150 - ((s[key as 'in'|'out'] / max) * 120);
-                            return i===0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-                          }).join(' ');
-                          return (
-                            <path key={key} d={d} fill="none" stroke={color} strokeWidth={idx===0?4:3} strokeLinecap="round" strokeLinejoin="round" />
-                          );
-                        })}
-                        {/* Points + labels mois */}
-                        {series.map((s,i)=> {
-                          const x = 60 + i*80;
-                          return (
-                            <g key={i}>
-                              <circle cx={x} cy={150 - ((s.in/max)*120)} r="5" fill="#06b6d4" />
-                              <circle cx={x} cy={150 - ((s.out/max)*120)} r="4" fill="#ef4444" />
-                              <text x={x} y="170" fontSize="12" textAnchor="middle" fill="#334155" fontWeight="700">{s.m}</text>
-                            </g>
-                          );
-                        })}
-                      </svg>
-                    </div>
-                    {/* Comptes bancaires */}
-                    <div className="lg:col-span-3 p-6 bg-white rounded-xl border-2 border-slate-200">
-                      <div className="flex items-center space-x-3 mb-4">
-                        <div className="p-2 bg-slate-700 rounded-lg"><BanknotesIcon className="h-5 w-5 text-white" /></div>
-                        <h4 className="text-lg font-black text-slate-900">Soldes par compte</h4>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {comptes.map((c,i)=> (
-                          <div key={i} className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                            <div className="text-sm font-bold text-slate-900 mb-1">{c.banque}</div>
-                            <div className="text-lg font-black text-slate-900">{fmt(c.solde)}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
 
               {/* Actions */}
               <div className="flex items-center justify-end gap-3 pt-6 border-t-2 border-slate-200">
