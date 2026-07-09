@@ -32,20 +32,18 @@ const EquilibreFinancier: React.FC = () => {
   useEffect(() => {
     const fetchEquilibreFinancier = async () => {
       try {
-        // Essayer de charger depuis l'API via api.ts
         const data = await api.accounting.getEquilibreFinancier();
         if (data) {
           setEquilibreActuel(data);
         } else {
-          // Fallback: calculer depuis companyData
-          const actifsCirculants = (companyData?.cashBalance || 400000) + (companyData?.accountsReceivable || 650000) + (companyData?.inventoryValue || 450000);
-          const passifsCirculants = companyData?.accountsPayable || 850000;
-          const stocks = companyData?.inventoryValue || 450000;
-          const clients = companyData?.accountsReceivable || 650000;
-          const fournisseurs = companyData?.accountsPayable || 250000;
+          const actifsCirculants = (companyData?.cashBalance || 0) + (companyData?.accountsReceivable || 0) + (companyData?.inventoryValue || 0);
+          const passifsCirculants = companyData?.accountsPayable || 0;
+          const stocks = companyData?.inventoryValue || 0;
+          const clients = companyData?.accountsReceivable || 0;
+          const fournisseurs = companyData?.accountsPayable || 0;
           const frn = actifsCirculants - passifsCirculants;
           const bfr = (stocks + clients) - fournisseurs;
-          
+
           const calculated: EquilibreFinancierActuel = {
             fondsRoulementNet: frn,
             besoinFondsRoulement: bfr,
@@ -61,16 +59,15 @@ const EquilibreFinancier: React.FC = () => {
         }
       } catch (error) {
         console.error('Erreur lors du chargement de l\'équilibre financier:', error);
-        // Données par défaut en cas d'erreur
         setEquilibreActuel({
-          fondsRoulementNet: 1250000,
-          besoinFondsRoulement: 850000,
-          tresorerieNette: 400000,
-          actifsCirculants: 2100000,
-          passifsCirculants: 850000,
-          stocks: 450000,
-          clients: 650000,
-          fournisseurs: 250000,
+          fondsRoulementNet: 0,
+          besoinFondsRoulement: 0,
+          tresorerieNette: 0,
+          actifsCirculants: 0,
+          passifsCirculants: 0,
+          stocks: 0,
+          clients: 0,
+          fournisseurs: 0,
           dateCalcul: new Date().toISOString().split('T')[0]
         });
       } finally {
@@ -82,78 +79,80 @@ const EquilibreFinancier: React.FC = () => {
   }, [companyData]);
 
   // Données prévisionnelles par scénario
-  const equilibrePrevisionnel: Record<string, EquilibreFinancierPrevisionnel> = {
+  // Données prévisionnelles par scénario
+  const equilibrePrevisionnel: Record<string, EquilibreFinancierPrevisionnel> = equilibreActuel ? {
     optimiste: {
-      frnPrevisionnel: 1500000,
-      bfrPrevisionnel: 750000,
-      tnPrevisionnelle: 750000,
-      capaciteAutofinancement: 1200000,
+      frnPrevisionnel: Math.round(equilibreActuel.fondsRoulementNet * 1.15),
+      bfrPrevisionnel: Math.round(equilibreActuel.besoinFondsRoulement * 0.90),
+      tnPrevisionnelle: Math.round((equilibreActuel.fondsRoulementNet * 1.15) - (equilibreActuel.besoinFondsRoulement * 0.90)),
+      capaciteAutofinancement: Math.round(equilibreActuel.fondsRoulementNet * 0.25),
       indiceIndependanceFinanciere: 0.75,
       scenario: 'optimiste',
-      periode: 'Q1-Q4 2024',
+      periode: '3 mois',
       facteursVariation: {
-        hausseVentes: 25,
+        hausseVentes: 15,
         variationPrixMatierePremiere: -5,
-        delaiClients: 30,
-        delaiFournisseurs: 45
+        delaiClients: -5,
+        delaiFournisseurs: 5
       }
     },
     prudent: {
-      frnPrevisionnel: 1300000,
-      bfrPrevisionnel: 900000,
-      tnPrevisionnelle: 400000,
-      capaciteAutofinancement: 950000,
+      frnPrevisionnel: Math.round(equilibreActuel.fondsRoulementNet * 1.02),
+      bfrPrevisionnel: Math.round(equilibreActuel.besoinFondsRoulement * 1.05),
+      tnPrevisionnelle: Math.round((equilibreActuel.fondsRoulementNet * 1.02) - (equilibreActuel.besoinFondsRoulement * 1.05)),
+      capaciteAutofinancement: Math.round(equilibreActuel.fondsRoulementNet * 0.15),
       indiceIndependanceFinanciere: 0.65,
       scenario: 'prudent',
-      periode: 'Q1-Q4 2024',
+      periode: '3 mois',
       facteursVariation: {
-        hausseVentes: 12,
-        variationPrixMatierePremiere: 3,
-        delaiClients: 35,
-        delaiFournisseurs: 40
+        hausseVentes: 5,
+        variationPrixMatierePremiere: 2,
+        delaiClients: 0,
+        delaiFournisseurs: 2
       }
     },
     pessimiste: {
-      frnPrevisionnel: 1000000,
-      bfrPrevisionnel: 1200000,
-      tnPrevisionnelle: -200000,
-      capaciteAutofinancement: 600000,
+      frnPrevisionnel: Math.round(equilibreActuel.fondsRoulementNet * 0.90),
+      bfrPrevisionnel: Math.round(equilibreActuel.besoinFondsRoulement * 1.20),
+      tnPrevisionnelle: Math.round((equilibreActuel.fondsRoulementNet * 0.90) - (equilibreActuel.besoinFondsRoulement * 1.20)),
+      capaciteAutofinancement: Math.round(equilibreActuel.fondsRoulementNet * 0.05),
       indiceIndependanceFinanciere: 0.45,
       scenario: 'pessimiste',
-      periode: 'Q1-Q4 2024',
+      periode: '3 mois',
       facteursVariation: {
-        hausseVentes: -5,
+        hausseVentes: -10,
         variationPrixMatierePremiere: 15,
-        delaiClients: 45,
-        delaiFournisseurs: 30
+        delaiClients: 10,
+        delaiFournisseurs: -5
       }
     }
+  } : {
+    optimiste: { frnPrevisionnel: 0, bfrPrevisionnel: 0, tnPrevisionnelle: 0, capaciteAutofinancement: 0, indiceIndependanceFinanciere: 0, scenario: 'optimiste', periode: '', facteursVariation: { hausseVentes: 0, variationPrixMatierePremiere: 0, delaiClients: 0, delaiFournisseurs: 0 } },
+    prudent: { frnPrevisionnel: 0, bfrPrevisionnel: 0, tnPrevisionnelle: 0, capaciteAutofinancement: 0, indiceIndependanceFinanciere: 0, scenario: 'prudent', periode: '', facteursVariation: { hausseVentes: 0, variationPrixMatierePremiere: 0, delaiClients: 0, delaiFournisseurs: 0 } },
+    pessimiste: { frnPrevisionnel: 0, bfrPrevisionnel: 0, tnPrevisionnelle: 0, capaciteAutofinancement: 0, indiceIndependanceFinanciere: 0, scenario: 'pessimiste', periode: '', facteursVariation: { hausseVentes: 0, variationPrixMatierePremiere: 0, delaiClients: 0, delaiFournisseurs: 0 } }
   };
 
   // Scénarios de risque
-  const scenariosRisque: ScenarioRisque[] = [
+  const scenariosRisque: ScenarioRisque[] = equilibreActuel ? [
     {
-      nom: 'Hausse des taux d\'intérêt',
-      type: 'prudent',
-      probabilite: 0.3,
-      impact: 0.15,
-      mesuresMitigation: ['Renégociation des dettes', 'Optimisation des délais de paiement', 'Diversification des sources de financement']
+      id: 'bfr_increase',
+      titre: 'Allongement du délai de paiement clients (+15 jours)',
+      description: 'Entraîne une hausse mécanique du BFR et réduit la trésorerie disponible.',
+      impactTresorerie: Math.round(- (equilibreActuel.clients || 0) * 0.15),
+      probabilite: 'Moyenne',
+      gravite: 'Moyenne',
+      actionsCorrectrices: ['Relance systématique à J+5', 'Mise en place d\'escomptes pour paiement rapide']
     },
     {
-      nom: 'Ralentissement économique',
-      type: 'pessimiste',
-      probabilite: 0.2,
-      impact: 0.25,
-      mesuresMitigation: ['Réduction des coûts fixes', 'Accélération du recouvrement', 'Renforcement de la trésorerie']
-    },
-    {
-      nom: 'Croissance accélérée',
-      type: 'optimiste',
-      probabilite: 0.4,
-      impact: 0.2,
-      mesuresMitigation: ['Augmentation des capacités', 'Investissement en R&D', 'Expansion géographique']
+      id: 'supplier_squeeze',
+      titre: 'Réduction des délais fournisseurs (-10 jours)',
+      description: 'Les fournisseurs exigent des règlements plus rapides, impactant la trésorerie nette.',
+      impactTresorerie: Math.round(- (equilibreActuel.fournisseurs || 0) * 0.10),
+      probabilite: 'Faible',
+      gravite: 'Élevée',
+      actionsCorrectrices: ['Négociation d\'étalements de paiement', 'Diversification des sources d\'approvisionnement']
     }
-  ];
+  ] : [];
 
   const getScenarioColor = (scenario: string) => {
     switch (scenario) {
@@ -215,7 +214,7 @@ const EquilibreFinancier: React.FC = () => {
       {/* Disclaimer */}
       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
         <p className="text-yellow-800 text-sm font-medium">
-          {t('disclaimer')} - Les données présentées sont des simulations pour démonstration
+          {t('disclaimer')}
         </p>
       </div>
 
@@ -470,13 +469,8 @@ const EquilibreFinancier: React.FC = () => {
               <ChartPieIcon className="h-5 w-5 text-green-600 mr-2" />
               <h5 className="font-medium text-green-900">Rentabilité</h5>
             </div>
-            <div className="text-2xl font-bold text-green-600 mb-1">18.5%</div>
+            <div className="text-2xl font-bold text-green-600 mb-1">0%</div>
             <div className="text-xs text-green-700">ROE</div>
-            <div className="mt-2">
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                ✅ Excellente
-              </span>
-            </div>
           </div>
 
           {/* Alerte Endettement */}
@@ -485,13 +479,8 @@ const EquilibreFinancier: React.FC = () => {
               <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 mr-2" />
               <h5 className="font-medium text-amber-900">Endettement</h5>
             </div>
-            <div className="text-2xl font-bold text-amber-600 mb-1">0.45</div>
+            <div className="text-2xl font-bold text-amber-600 mb-1">0</div>
             <div className="text-xs text-amber-700">Ratio Dette</div>
-            <div className="mt-2">
-              <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
-                ⚠️ À surveiller
-              </span>
-            </div>
           </div>
 
           {/* Alerte Exploitation */}
@@ -500,13 +489,8 @@ const EquilibreFinancier: React.FC = () => {
               <ArrowTrendingUpIcon className="h-5 w-5 text-purple-600 mr-2" />
               <h5 className="font-medium text-purple-900">Exploitation</h5>
             </div>
-            <div className="text-2xl font-bold text-purple-600 mb-1">28.7%</div>
+            <div className="text-2xl font-bold text-purple-600 mb-1">0%</div>
             <div className="text-xs text-purple-700">Marge Op.</div>
-            <div className="mt-2">
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                ✅ Excellente
-              </span>
-            </div>
           </div>
         </div>
       </Card>
