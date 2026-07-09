@@ -87,22 +87,29 @@ export const AdminRoleManagement: React.FC = () => {
     }
 
     try {
-      // Mock save
-      const newUser = {
-        id: editingUser ? editingUser.id : Math.random().toString(),
-        ...formData,
-        role: formData.role_name,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        is_active: formData.is_active
-      } as User;
-
       if (editingUser) {
-        setUsers(users.map(u => u.id === editingUser.id ? newUser : u));
+        await apiClient.put(`/users/${editingUser.id}`, {
+          username: formData.username,
+          email: formData.email,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          role_name: formData.role_name,
+          permissions: formData.permissions,
+          is_active: formData.is_active
+        });
       } else {
-        setUsers([...users, newUser]);
+        await apiClient.post('/users/', {
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          role_name: formData.role_name,
+          permissions: formData.permissions
+        });
       }
 
+      await loadUsers();
       setShowUserForm(false);
       setEditingUser(null);
       resetForm();
@@ -127,8 +134,8 @@ export const AdminRoleManagement: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // Mock delete
-      setUsers(users.map(u => u.id === userId ? { ...u, is_active: false } : u));
+      await apiClient.put(`/users/${userId}`, { is_active: false });
+      await loadUsers();
       setShowDeleteConfirm(null);
     } catch (err) {
       setError('Erreur lors de la désactivation');
