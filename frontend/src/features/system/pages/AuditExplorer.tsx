@@ -42,49 +42,15 @@ const AuditExplorer: React.FC = () => {
         setLoading(true);
         try {
             const res = await apiClient.get<AuditLog[]>('/audit/logs');
-            // Ensure data is an array
             const data = Array.isArray(res.data) ? res.data : (res.data as any)?.logs || [];
-            setLogs(Array.isArray(data) && data.length > 0 ? data : getLocalMockLogs());
+            setLogs(data);
         } catch (err) {
-            console.error('Failed to fetch logs, using local mocks', err);
-            setLogs(getLocalMockLogs());
+            console.error('Failed to fetch logs', err);
+            setLogs([]);
         } finally {
             setLoading(false);
         }
     };
-
-    const getLocalMockLogs = (): AuditLog[] => [
-        {
-            id: '1',
-            user_id: 'MAT-001 (Admin)',
-            action: 'UPDATE',
-            entity_type: 'FACTURE',
-            entity_id: 'FAC-2024-001',
-            old_values: { status: 'pending' },
-            new_values: { status: 'paid' },
-            created_at: new Date().toISOString()
-        },
-        {
-            id: '2',
-            user_id: 'MAT-002 (DAF)',
-            action: 'INSERT',
-            entity_type: 'PAIEMENT',
-            entity_id: 'PAY-772',
-            old_values: null,
-            new_values: { amount: 50000 },
-            created_at: new Date(Date.now() - 3600000).toISOString()
-        },
-        {
-            id: '3',
-            user_id: 'Système',
-            action: 'DELETE',
-            entity_type: 'TEMP_CACHE',
-            entity_id: 'tmp_992',
-            old_values: { size: '12MB' },
-            new_values: null,
-            created_at: new Date(Date.now() - 86400000).toISOString()
-        }
-    ];
 
     useEffect(() => {
         fetchLogs();
