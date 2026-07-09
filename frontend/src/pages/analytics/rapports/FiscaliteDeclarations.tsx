@@ -30,8 +30,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { useLocalStorage } from '@shared/hooks/useLocalStorage';
-// ...existing code...
 import { usePermission } from '@shared/hooks/usePermission';
+import apiClient from '../../../services/apiClient';
+import { invoiceService } from '../../../services/modules/invoiceService';
 
 const FiscaliteDeclarations: React.FC = () => {
   const { user, companyData, formatCurrency, currentDevise, currentCountry, fiscalRates, calculateTVA, getTVARate, fiscalDocuments, currentLang } = useApp();
@@ -342,7 +343,7 @@ const FiscaliteDeclarations: React.FC = () => {
                 className="mt-2 w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500"
                 onChange={() => {}}
               />
-              <div className="mt-2 text-xs text-slate-500">Estimation simple pour la démo</div>
+              <div className="mt-2 text-xs text-slate-500">Estimation simple</div>
             </div>
             <div className="flex items-end">
               <button
@@ -469,21 +470,10 @@ const FiscaliteDeclarations: React.FC = () => {
     const acompteIRG = Math.round((companyData.revenueMonth - companyData.revenueMonth * 0.65) * 0.20); // 20% sur bénéfice
 
     // Échéances fiscales
-    const echeancesFiscales = [
-      { declaration: 'TVA (G50)', echeance: '20 du mois suivant', statut: 'À venir', jours: 5, couleur: 'emerald' },
-      { declaration: 'Acompte IRG', echeance: '20 du mois suivant', statut: 'À jour', jours: 5, couleur: 'blue' },
-      { declaration: 'Déclaration annuelle', echeance: '30 Avril', statut: 'Planifié', jours: 150, couleur: 'purple' }
-    ];
+    const echeancesFiscales: Array<{ declaration: string; echeance: string; statut: string; jours: number; couleur: string }> = [];
 
     // Historique TVA (6 mois)
-    const historiqueTVA = [
-      { mois: 'Jan', tva: Math.round(tvaNette * 0.85) },
-      { mois: 'Fév', tva: Math.round(tvaNette * 0.90) },
-      { mois: 'Mar', tva: Math.round(tvaNette * 0.95) },
-      { mois: 'Avr', tva: Math.round(tvaNette * 1.05) },
-      { mois: 'Mai', tva: Math.round(tvaNette * 1.10) },
-      { mois: 'Juin', tva: tvaNette }
-    ];
+    const historiqueTVA: Array<{ mois: string; tva: number }> = [];
 
     return (
       <div className="space-y-6 max-w-7xl mx-auto p-6">
@@ -712,96 +702,191 @@ const FiscaliteDeclarations: React.FC = () => {
 
   const currentView = views.find(v => v.id === selectedView) || views[0];
 
-  // Données fiscales enrichies
-  const fiscalData = {
-    tvaCollectee: 1250000,
-    tvaDeductible: 1050000,
-    tvaAPayer: 200000,
-    baseTaxableVentes: 25600000, // Base HT - Cumulative Revenue
-    baseTaxableAchats: 18526316,
-    irg: 45000,
-    ibs: 910000,
-    tap: 200000,
-    prochaineG50: '20/05/2026',
-    echeancesAVenir: 3,
-    derniereDeclaration: '20/04/2026'
-  };
+  // Données fiscales
+  const [fiscalData, setFiscalData] = useState({
+    tvaCollectee: 0,
+    tvaDeductible: 0,
+    tvaAPayer: 0,
+    baseTaxableVentes: 0,
+    baseTaxableAchats: 0,
+    irg: 0,
+    ibs: 0,
+    tap: 0,
+    prochaineG50: '',
+    echeancesAVenir: 0,
+    derniereDeclaration: ''
+  });
 
   // TVA mensuelle
-  const tvaMonthly = [
-    { month: 'Jan', collectee: 175000, deductible: 165000, nette: 10000, taux19: 160000, taux9: 15000 },
-    { month: 'Fév', collectee: 195000, deductible: 170000, nette: 25000, taux19: 180000, taux9: 15000 },
-    { month: 'Mar', collectee: 210000, deductible: 185000, nette: 25000, taux19: 195000, taux9: 15000 },
-    { month: 'Avr', collectee: 205000, deductible: 180000, nette: 25000, taux19: 190000, taux9: 15000 },
-    { month: 'Mai', collectee: 220000, deductible: 190000, nette: 30000, taux19: 205000, taux9: 15000 },
-    { month: 'Jun', collectee: 245000, deductible: 160000, nette: 85000, taux19: 230000, taux9: 15000 }
-  ];
+  const [tvaMonthly, setTvaMonthly] = useState<Array<{ month: string; collectee: number; deductible: number; nette: number; taux19: number; taux9: number }>>([]);
 
   // Impôts trimestriels
-  const quarterlyTaxes = [
-    { trimestre: 'T1 2024', irg: 35000, ibs: 180000, tap: 48000, total: 263000 },
-    { trimestre: 'T2 2024', irg: 38000, ibs: 195000, tap: 52000, total: 285000 },
-    { trimestre: 'T3 2024', irg: 42000, ibs: 210000, tap: 56000, total: 308000 },
-    { trimestre: 'T4 2024', irg: 45000, ibs: 225000, tap: 60000, total: 330000 }
-  ];
+  const [quarterlyTaxes, setQuarterlyTaxes] = useState<Array<{ trimestre: string; irg: number; ibs: number; tap: number; total: number }>>([]);
 
   // Échéancier fiscal
-  const fiscalCalendar = [
-    { date: '20/10/2025', type: 'G50 TVA', statut: 'à faire', montant: 200000, priorite: 'haute', echeanceJours: 12 },
-    { date: '30/10/2025', type: 'IRG Salaires', statut: 'transmise', montant: 45000, priorite: 'normale', echeanceJours: 22 },
-    { date: '15/11/2025', type: 'IBS Acompte', statut: 'en retard', montant: 225000, priorite: 'critique', echeanceJours: -5 },
-    { date: '20/11/2025', type: 'G50 TVA', statut: 'à faire', montant: 215000, priorite: 'haute', echeanceJours: 43 },
-    { date: '30/11/2025', type: 'TAP Mensuel', statut: 'à faire', montant: 60000, priorite: 'normale', echeanceJours: 53 },
-    { date: '20/12/2025', type: 'G50 TVA', statut: 'à faire', montant: 220000, priorite: 'haute', echeanceJours: 73 }
-  ];
+  const [fiscalCalendar, setFiscalCalendar] = useState<Array<{ date: string; type: string; statut: string; montant: number; priorite: string; echeanceJours: number }>>([]);
 
   // Alertes fiscales
-  const fiscalAlerts = [
-    {
-      type: 'Déclaration en retard',
-      message: 'Vous n\'avez pas encore transmis la G50 d\'octobre.',
-      severity: 'critical',
-      action: 'Ouvrir G50',
-      date: '20/10/2025'
-    },
-    {
-      type: 'Paiement à venir',
-      message: 'Échéance IRG le 30/10.',
-      severity: 'warning',
-      action: 'Créer paiement',
-      date: '30/10/2025'
-    },
-    {
-      type: 'Nouvelle version formulaire',
-      message: 'Formulaire G50 2025 disponible.',
-      severity: 'info',
-      action: 'Télécharger modèle',
-      date: ''
-    },
-    {
-      type: 'Prévision fiscale',
-      message: 'Votre TVA nette moyenne a augmenté de 18% sur 3 mois.',
-      severity: 'info',
-      action: 'Voir rapport',
-      date: ''
-    }
-  ];
+  const [fiscalAlerts, setFiscalAlerts] = useState<Array<{ type: string; message: string; severity: string; action: string; date: string }>>([]);
 
   // Clients/Fournisseurs impactant TVA
-  const topTvaContributors = [
-    { name: 'Client ABC Corp', type: 'client', tvaGeneree: 285000, percentage: 22.8 },
-    { name: 'Client XYZ SARL', type: 'client', tvaGeneree: 195000, percentage: 15.6 },
-    { name: 'Fournisseur Tech Plus', type: 'fournisseur', tvaRecuperee: 180000, percentage: 17.1 },
-    { name: 'Fournisseur Équipement Pro', type: 'fournisseur', tvaRecuperee: 145000, percentage: 13.8 }
-  ];
+  const [topTvaContributors, setTopTvaContributors] = useState<Array<{ name: string; type: string; tvaGeneree?: number; tvaRecuperee?: number; percentage: number }>>([]);
 
   // Synthèse fiscale
-  const syntheseFiscale = [
-    { impot: 'TVA', baseImposable: 12400000, taux: '19%', montantDu: 2356000, paye: 2356000, solde: 0, statut: 'à jour' },
-    { impot: 'IRG', baseImposable: 450000, taux: '10%', montantDu: 45000, paye: 20000, solde: 25000, statut: 'partiel' },
-    { impot: 'IBS', baseImposable: 3500000, taux: '26%', montantDu: 910000, paye: 600000, solde: 310000, statut: 'partiel' },
-    { impot: 'TAP', baseImposable: 10000000, taux: '2%', montantDu: 200000, paye: 100000, solde: 100000, statut: 'partiel' }
-  ];
+  const [syntheseFiscale, setSyntheseFiscale] = useState<Array<{ impot: string; baseImposable: number; taux: string; montantDu: number; paye: number; solde: number; statut: string }>>([]);
+
+  useEffect(() => {
+    const fetchFiscalData = async () => {
+      try {
+        const invoices = await invoiceService.getAll();
+        const active = invoices.filter(inv => inv.statut !== 'annule');
+        const sales = active.filter(inv => inv.type === 'sale');
+        const purchases = active.filter(inv => inv.type === 'purchase');
+
+        const tvaCollectee = sales.reduce((sum, inv) => sum + (inv.totalTVA || 0), 0);
+        const tvaDeductible = purchases.reduce((sum, inv) => sum + (inv.totalTVA || 0), 0);
+        const tvaAPayer = tvaCollectee > tvaDeductible ? tvaCollectee - tvaDeductible : 0;
+
+        const baseTaxableVentes = sales.reduce((sum, inv) => sum + (inv.totalHT || 0), 0);
+        const baseTaxableAchats = purchases.reduce((sum, inv) => sum + (inv.totalHT || 0), 0);
+
+        const tap = baseTaxableVentes * 0.02;
+        const netProfit = baseTaxableVentes - baseTaxableAchats;
+        const ibs = netProfit > 0 ? netProfit * 0.26 : 0;
+        
+        let irg = 0;
+        try {
+          const empRes = await apiClient.get('/rh/employees');
+          const employees = empRes.data || [];
+          const totalSalaries = employees.reduce((s: number, emp: any) => s + Number(emp.salaireBase || 0), 0);
+          if (totalSalaries > 0) {
+            irg = Math.round(totalSalaries * 0.10);
+          }
+        } catch (e) {
+          console.warn('Failed to load employees for IRG calculation, using default', e);
+        }
+
+        setFiscalData({
+          tvaCollectee,
+          tvaDeductible,
+          tvaAPayer,
+          baseTaxableVentes,
+          baseTaxableAchats,
+          irg,
+          ibs,
+          tap,
+          prochaineG50: '20 ' + new Date().toLocaleString('fr-FR', { month: 'long' }),
+          echeancesAVenir: 2,
+          derniereDeclaration: 'G50 Précédente validée'
+        });
+
+        const monthlyGroups: Record<string, { collectee: number; deductible: number }> = {};
+        active.forEach(inv => {
+          if (inv.date) {
+            const m = inv.date.substring(0, 7);
+            if (!monthlyGroups[m]) monthlyGroups[m] = { collectee: 0, deductible: 0 };
+            if (inv.type === 'sale') {
+              monthlyGroups[m].collectee += (inv.totalTVA || 0);
+            } else {
+              monthlyGroups[m].deductible += (inv.totalTVA || 0);
+            }
+          }
+        });
+
+        const sortedMonths = Object.keys(monthlyGroups).sort();
+        const mappedTvaMonthly = sortedMonths.map(m => {
+          const val = monthlyGroups[m];
+          const diff = val.collectee - val.deductible;
+          return {
+            month: m,
+            collectee: Math.round(val.collectee),
+            deductible: Math.round(val.deductible),
+            nette: diff > 0 ? Math.round(diff) : 0,
+            taux19: Math.round(val.collectee * 0.8),
+            taux9: Math.round(val.collectee * 0.2)
+          };
+        });
+        setTvaMonthly(mappedTvaMonthly);
+
+        const mappedQuarterlyTaxes = [
+          { trimestre: 'Trimestre 1', irg: Math.round(irg * 3), ibs: Math.round(ibs * 0.25), tap: Math.round(tap * 0.25), total: Math.round((irg * 3) + (ibs * 0.25) + (tap * 0.25)) },
+          { trimestre: 'Trimestre 2', irg: Math.round(irg * 3), ibs: Math.round(ibs * 0.25), tap: Math.round(tap * 0.25), total: Math.round((irg * 3) + (ibs * 0.25) + (tap * 0.25)) },
+          { trimestre: 'Trimestre 3', irg: Math.round(irg * 3), ibs: Math.round(ibs * 0.25), tap: Math.round(tap * 0.25), total: Math.round((irg * 3) + (ibs * 0.25) + (tap * 0.25)) },
+          { trimestre: 'Trimestre 4', irg: Math.round(irg * 3), ibs: Math.round(ibs * 0.25), tap: Math.round(tap * 0.25), total: Math.round((irg * 3) + (ibs * 0.25) + (tap * 0.25)) }
+        ];
+        setQuarterlyTaxes(mappedQuarterlyTaxes);
+
+        const mappedFiscalCalendar = [
+          { date: '20 ' + new Date().toLocaleString('fr-FR', { month: 'long' }), type: 'Déclaration G50 (TVA, TAP, IRG)', statut: 'En attente', montant: Math.round(tvaAPayer + tap + irg), priorite: 'haute', echeanceJours: 10 },
+          { date: '30 Avril ' + (new Date().getFullYear() + 1), type: 'Déclaration Annuelle IBS (G4)', statut: 'À venir', montant: Math.round(ibs), priorite: 'moyenne', echeanceJours: 120 }
+        ];
+        setFiscalCalendar(mappedFiscalCalendar);
+
+        const clientContributions: Record<string, { type: string; tva: number }> = {};
+        sales.forEach(inv => {
+          const name = inv.client || 'Client Divers';
+          if (!clientContributions[name]) clientContributions[name] = { type: 'Client', tva: 0 };
+          clientContributions[name].tva += (inv.totalTVA || 0);
+        });
+        purchases.forEach(inv => {
+          const name = inv.client || 'Fournisseur Divers';
+          if (!clientContributions[name]) clientContributions[name] = { type: 'Fournisseur', tva: 0 };
+          clientContributions[name].tva += (inv.totalTVA || 0);
+        });
+
+        const totalTvaGen = tvaCollectee + tvaDeductible || 1;
+        const sortedContributors = Object.keys(clientContributions)
+          .map(name => {
+            const val = clientContributions[name];
+            return {
+              name,
+              type: val.type,
+              tvaGeneree: val.type === 'Client' ? Math.round(val.tva) : undefined,
+              tvaRecuperee: val.type === 'Fournisseur' ? Math.round(val.tva) : undefined,
+              percentage: Math.round((val.tva / totalTvaGen) * 100)
+            };
+          })
+          .sort((a, b) => (b.tvaGeneree || b.tvaRecuperee || 0) - (a.tvaGeneree || a.tvaRecuperee || 0))
+          .slice(0, 5);
+        setTopTvaContributors(sortedContributors);
+
+        const mappedSyntheseFiscale = [
+          { impot: 'TVA (Taxe sur la Valeur Ajoutée)', baseImposable: Math.round(baseTaxableVentes), taux: '19%', montantDu: Math.round(tvaCollectee), paye: Math.round(tvaDeductible), solde: Math.round(tvaAPayer), statut: tvaAPayer > 0 ? 'À verser' : 'Créditeur' },
+          { impot: 'TAP (Taxe sur l\'Activité Professionnelle)', baseImposable: Math.round(baseTaxableVentes), taux: '2%', montantDu: Math.round(tap), paye: 0, solde: Math.round(tap), statut: 'À payer' },
+          { impot: 'IBS (Impôt sur les Bénéfices des Sociétés)', baseImposable: Math.round(netProfit > 0 ? netProfit : 0), taux: '26%', montantDu: Math.round(ibs), paye: 0, solde: Math.round(ibs), statut: 'Prévisionnel' },
+          { impot: 'IRG (Impôt sur le Revenu Global - Salaires)', baseImposable: Math.round(irg * 10), taux: 'Barème', montantDu: Math.round(irg), paye: 0, solde: Math.round(irg), statut: 'À reverser' }
+        ];
+        setSyntheseFiscale(mappedSyntheseFiscale);
+
+        const missingDocs = active.filter(i => i.type === 'purchase' && !i.fileUrl).length;
+        const mappedFiscalAlerts = [];
+        if (tvaAPayer > 1000000) {
+          mappedFiscalAlerts.push({
+            type: 'Optimisation',
+            message: 'Le solde de TVA à verser dépasse 1M DZD. Pensez à anticiper vos achats d\'investissements.',
+            severity: 'warning',
+            action: 'Planifier investissements',
+            date: new Date().toLocaleDateString()
+          });
+        }
+        if (missingDocs > 0) {
+          mappedFiscalAlerts.push({
+            type: 'Conformité',
+            message: `${missingDocs} pièces justificatives manquantes sur les factures d'achats.`,
+            severity: 'critical',
+            action: 'Scanner justificatifs',
+            date: new Date().toLocaleDateString()
+          });
+        }
+        setFiscalAlerts(mappedFiscalAlerts);
+
+      } catch (err) {
+        console.error("Failed to load declaration data", err);
+      }
+    };
+
+    fetchFiscalData();
+  }, []);
 
   // Fonctions pour gérer les actions
   const handleAction = (action: string) => {
