@@ -14,7 +14,6 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   ClockIcon,
-  SparklesIcon,
   ChartPieIcon,
   TableCellsIcon,
   MagnifyingGlassIcon,
@@ -158,7 +157,7 @@ const Consolidation: React.FC = () => {
       description: 'Situation patrimoniale consolidée du groupe',
       icon: BuildingOfficeIcon,
       category: 'États Financiers',
-      lastGenerated: '2024-01-20',
+      lastGenerated: '',
       status: t('consolidation.reports_list.available')
     },
     {
@@ -167,7 +166,7 @@ const Consolidation: React.FC = () => {
       description: 'Résultat consolidé du groupe',
       icon: ChartBarIcon,
       category: 'États Financiers',
-      lastGenerated: '2024-01-20',
+      lastGenerated: '',
       status: t('consolidation.reports_list.available')
     },
     {
@@ -176,7 +175,7 @@ const Consolidation: React.FC = () => {
       description: 'Mouvements de liquidités consolidés',
       icon: BanknotesIcon,
       category: 'États Financiers',
-      lastGenerated: '2024-01-20',
+      lastGenerated: '',
       status: t('consolidation.reports_list.available')
     },
     {
@@ -185,7 +184,7 @@ const Consolidation: React.FC = () => {
       description: 'Comparaison des performances par entreprise',
       icon: ChartPieIcon,
       category: 'Analyse',
-      lastGenerated: '2024-01-19',
+      lastGenerated: '',
       status: t('consolidation.reports_list.available')
     },
     {
@@ -194,7 +193,7 @@ const Consolidation: React.FC = () => {
       description: 'Transactions inter-entreprises éliminées',
       icon: MinusIcon,
       category: 'Consolidation',
-      lastGenerated: '2024-01-20',
+      lastGenerated: '',
       status: t('consolidation.reports_list.available')
     },
     {
@@ -203,7 +202,7 @@ const Consolidation: React.FC = () => {
       description: 'Détail des conversions de devises',
       icon: CurrencyDollarIcon,
       category: 'Consolidation',
-      lastGenerated: '2024-01-20',
+      lastGenerated: '',
       status: t('consolidation.reports_list.available')
     }
   ];
@@ -212,7 +211,6 @@ const Consolidation: React.FC = () => {
     setIsConsolidating(true);
     setConsolidationProgress(0);
     
-    // Simulation de consolidation avec progression
     const steps = [
       { progress: 20, message: 'Conversion des devises...' },
       { progress: 40, message: 'Détection des transactions inter-sociétés...' },
@@ -266,7 +264,7 @@ const Consolidation: React.FC = () => {
     
     // Convertir au format existant pour compatibilité
     const newData = {
-      ...calculateConsolidation(),
+      ...calculateConsolidation(entreprises),
       eliminations: donneesConsolidees.eliminations,
       transactionsInterSocietes: donneesConsolidees.transactionsInterSocietes,
       totalEliminations: donneesConsolidees.totalEliminations,
@@ -373,21 +371,6 @@ const Consolidation: React.FC = () => {
           <div className="text-sm text-gray-400">
             {t('consolidation.period')}: {selectedPeriod} | {t('consolidation.currency')}: {deviseReference}
           </div>
-        </div>
-      </div>
-
-      {/* Insight Commercial / Vision */}
-      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-500">
-        <div className="p-2 bg-indigo-100 rounded-full">
-          <SparklesIcon className="h-6 w-6 text-indigo-600" />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
-            Perspective Commerciale & Synergie
-          </h3>
-          <p className="text-sm text-indigo-800 leading-relaxed">
-            توفر لوحة التحكم الموحدة رؤية شاملة لأداء الفروع والشركات التابعة، مما يسهل اتخاذ القرارات الاستراتيجية المركزية وتحقيق التناغم بين مختلف الوحدات التجارية لتعظيم القيمة الإجمالية للمجموعة.
-          </p>
         </div>
       </div>
 

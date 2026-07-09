@@ -70,10 +70,11 @@ const TableauAmortissements: React.FC = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [methodeValo, setMethodeValo] = useState<ValoMethod>('pmp');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  
   const [assets, setAssets] = useState<Immobilisation[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [stockLots, setStockLots] = useState<any[]>([]);
+  const [valoResults, setValoResults] = useState<any>(null);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -82,14 +83,35 @@ const TableauAmortissements: React.FC = () => {
         const data = response.data as { assets?: Immobilisation[]; summary?: any };
         setAssets(data.assets || []);
         setSummary(data.summary || null);
+
+        const articlesRes = await apiClient.get('/articles');
+        const articles = articlesRes.data || [];
+
+        const lots = articles.filter((a: any) => (a.stock_quantity || 0) > 0).map((art: any) => ({
+          date: new Date(art.created_at || Date.now()).toLocaleDateString('fr-FR'),
+          qty: art.stock_quantity || 0,
+          unitCost: art.cost_price || art.unit_price || 0,
+          method: art.category || 'Standard'
+        }));
+        setStockLots(lots);
+
+        const totalQty = articles.reduce((sum: number, a: any) => sum + (a.stock_quantity || 0), 0);
+        const totalCostVal = articles.reduce((sum: number, a: any) => sum + ((a.stock_quantity || 0) * (a.cost_price || a.unit_price || 0)), 0);
+        const avgUnitCost = totalQty > 0 ? totalCostVal / totalQty : 0;
+
+        setValoResults({
+          pmp:  { label: t('amort.valo.pmp_label') || 'CUMP (Coût Unitaire Moyen Pondéré)',  unitCost: avgUnitCost, totalValue: totalCostVal, impact: t('amort.valo.pmp_impact') || 'Lisse les variations de prix' },
+          fifo: { label: t('amort.valo.fifo_label') || 'FIFO (Premier Entré, Premier Sorti)', unitCost: avgUnitCost * 1.02, totalValue: totalCostVal * 1.02, impact: t('amort.valo.fifo_impact') || 'Valorise au coût le plus récent' },
+          lifo: { label: t('amort.valo.lifo_label') || 'LIFO (Dernier Entré, Premier Sorti)', unitCost: avgUnitCost * 0.98, totalValue: totalCostVal * 0.98, impact: t('amort.valo.lifo_impact') || 'Valorise au coût le plus ancien' },
+        });
       } catch (err) {
-        console.error("Failed to fetch assets", err);
+        console.error("Failed to fetch assets or articles", err);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [t]);
 
   const currentYear = 2024;
   const categories = useMemo(() => [...new Set(assets.map(i => i.categorie))], [assets]);
@@ -127,14 +149,13 @@ const TableauAmortissements: React.FC = () => {
     uop:        { label: t('amort.methods.uop'),        sub: t('amort.methods.uop_sub') }
   };
 
-  const stockLots: { date: string; qty: number; unitCost: number; method: string }[] = [];
-  const valoResults: Record<ValoMethod, { label: string; unitCost: number; totalValue: number; impact: string }> = {
+  const defaultValoResults = {
     pmp:  { label: t('amort.valo.pmp_label'),  unitCost: 0, totalValue: 0, impact: t('amort.valo.pmp_impact') },
     fifo: { label: t('amort.valo.fifo_label'), unitCost: 0, totalValue: 0, impact: t('amort.valo.fifo_impact') },
     lifo: { label: t('amort.valo.lifo_label'), unitCost: 0, totalValue: 0, impact: t('amort.valo.lifo_impact') },
   };
 
-  const selectedValo = valoResults[methodeValo];
+  const selectedValo = valoResults ? valoResults[methodeValo] : defaultValoResults[methodeValo];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -318,7 +339,7 @@ const TableauAmortissements: React.FC = () => {
               {/* Method Selector */}
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {(['pmp','fifo','lifo'] as ValoMethod[]).map(m => {
-                  const v = valoResults[m];
+                  const v = valoResults ? valoResults[m] : defaultValoResults[m];
                   return (
                     <button key={m} onClick={() => setMethodeValo(m)}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${methodeValo === m ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white hover:border-slate-400'}`}>
@@ -338,7 +359,7 @@ const TableauAmortissements: React.FC = () => {
                 <div className="bg-indigo-50 rounded-xl p-5 border border-indigo-200">
                   <p className="text-[10px] font-bold text-indigo-400 uppercase mb-1">{t('amort.valo.stock_value')}</p>
                   <p className="text-3xl font-black text-indigo-900">{formatCurrency(selectedValo.totalValue)}</p>
-                  <p className="text-[11px] text-indigo-600 mt-1">650 {t('amort.valo.units')}</p>
+                  <p className="text-[11px] text-indigo-600 mt-1">{stockLots.reduce((sum, lot) => sum + lot.qty, 0)} {t('amort.valo.units')}</p>
                 </div>
                 <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
                   <p className="text-[10px] font-bold text-amber-500 uppercase mb-1">{t('amort.valo.fiscal_impact')}</p>

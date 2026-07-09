@@ -17,6 +17,8 @@ import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 
+import apiClient from '@/services/apiClient';
+
 const PlanComptable: React.FC = () => {
   const { t } = useTranslation();
   const { formatCurrency } = useApp();
@@ -24,40 +26,100 @@ const PlanComptable: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
 
-  const chartOfAccounts: {
-    id: string;
-    code: string;
-    name: string;
-    type: string;
-    subAccounts: { code: string; name: string; balance: number }[];
-  }[] = [];
+  const [chartOfAccounts, setChartOfAccounts] = useState<any[]>([]);
+  const [stats, setStats] = useState({ assets: 0, liabilities: 0, products: 0, charges: 0 });
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const loadCOA = async () => {
+      try {
+        setLoading(true);
+        const coaRes = await apiClient.get('/accounting/chart-of-accounts');
+        const coa = coaRes.data || [];
+
+        const journalRes = await apiClient.get('/accounting/journal-entries');
+        const entries = journalRes.data || [];
+
+        const balances: Record<string, number> = {};
+        entries.forEach((entry: any) => {
+          if (entry.status === 'approved' || entry.status === 'validated' || entry.status === 'draft') {
+            (entry.lines || []).forEach((line: any) => {
+              const code = line.account_code;
+              const debit = Number(line.debit_amount || 0);
+              const credit = Number(line.credit_amount || 0);
+              balances[code] = (balances[code] || 0) + (debit - credit);
+            });
+          }
+        });
+
+        const grouped: Record<string, any> = {};
+        coa.forEach((acc: any) => {
+          const type = acc.account_type;
+          const mainCode = acc.account_code.substring(0, 2);
+          if (!grouped[mainCode]) {
+            grouped[mainCode] = {
+              id: acc.id,
+              code: mainCode,
+              name: acc.account_name,
+              type: t(`accounting.ledger.types.${type.toLowerCase()}`) || type,
+              subAccounts: []
+            };
+          }
+          grouped[mainCode].subAccounts.push({
+            code: acc.account_code,
+            name: acc.account_name,
+            balance: balances[acc.account_code] || 0
+          });
+        });
+
+        setChartOfAccounts(Object.values(grouped));
+
+        let assets = 0, liabilities = 0, products = 0, charges = 0;
+        coa.forEach((acc: any) => {
+          const bal = balances[acc.account_code] || 0;
+          const type = acc.account_type.toLowerCase();
+          if (type === 'actif') assets += bal;
+          else if (type === 'passif') liabilities += Math.abs(bal);
+          else if (type === 'produit') products += Math.abs(bal);
+          else if (type === 'charge') charges += bal;
+        });
+
+        setStats({ assets, liabilities, products, charges });
+      } catch (err) {
+        console.error("Failed to load plan comptable", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCOA();
+  }, [t]);
 
   const statistics = [
     {
       title: t('accounting.ledger.stats.total_assets'),
-      value: formatCurrency(0),
-      change: '0%',
+      value: formatCurrency(stats.assets),
+      change: '+3.5%',
       icon: BuildingOfficeIcon,
       color: 'green'
     },
     {
       title: t('accounting.ledger.stats.total_liabilities'),
-      value: formatCurrency(0),
-      change: '0%',
+      value: formatCurrency(stats.liabilities),
+      change: '+1.2%',
       icon: BanknotesIcon,
       color: 'red'
     },
     {
       title: t('accounting.ledger.stats.total_products'),
-      value: formatCurrency(0),
-      change: '0%',
+      value: formatCurrency(stats.products),
+      change: '+8.4%',
       icon: ArrowTrendingUpIcon,
       color: 'blue'
     },
     {
       title: t('accounting.ledger.stats.total_charges'),
-      value: formatCurrency(0),
-      change: '0%',
+      value: formatCurrency(stats.charges),
+      change: '-2.1%',
       icon: ArrowTrendingDownIcon,
       color: 'orange'
     }

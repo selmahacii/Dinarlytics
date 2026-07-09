@@ -18,6 +18,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
+import apiClient from '@/services/apiClient';
 import CashFlowForecast from '@shared/components/Treasury/CashFlowForecast';
 // import BankReconciliation from '@shared/components/Treasury/BankReconciliation';
 // import LiquidityDashboard from '@shared/components/Treasury/LiquidityDashboard';
@@ -74,14 +75,8 @@ const ChecksManagement: React.FC = () => {
 
   const fetchChecks = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/payments/checks-in-safe', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setChecks(data);
-      }
+      const response = await apiClient.get('/payments/checks-in-safe');
+      setChecks(response.data);
     } catch (error) {
       console.error("Erreur chargement chèques", error);
     }
@@ -91,26 +86,16 @@ const ChecksManagement: React.FC = () => {
     if (selectedChecks.length === 0) return;
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/payments/deposit-checks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          payment_ids: selectedChecks,
-          bank_account_code: bankAccount,
-          deposit_date: depositDate
-        })
+      const response = await apiClient.post('/payments/deposit-checks', {
+        payment_ids: selectedChecks,
+        bank_account_code: bankAccount,
+        deposit_date: depositDate
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setSuccessMessage(t('treasury.checks.success_deposit', { no: result.slip_number, amount: result.total_amount }));
-        setSelectedChecks([]);
-        fetchChecks(); // Refresh list
-      }
+      const result = response.data;
+      setSuccessMessage(t('treasury.checks.success_deposit', { no: result.slip_number, amount: result.total_amount }));
+      setSelectedChecks([]);
+      fetchChecks();
     } catch (error) {
       console.error("Erreur remise chèque", error);
     } finally {
