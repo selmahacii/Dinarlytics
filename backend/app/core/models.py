@@ -6,7 +6,7 @@ from app.modules.operations.models_procurement import DeliveryNote, DeliveryNote
 from app.modules.system.models_notifications import AlertDefinition, AlertTrigger, UserNotification
 from app.modules.system.models_audit import AuditLog
 from app.modules.intelligence.models import AIModel, AIPrediction, AITrainingLog, AIFeatureStore, AIDriftMonitoring
-from app.modules.finance.models_financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction
+from app.modules.finance.models_financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction, Immobilisation, Employee
 
 __all__ = [
     "User", "Company", "Role", "UserRole", "UserSession", "InvoiceStatus", "PaymentMode", "DocumentType", "AccessLevel",
@@ -17,5 +17,5 @@ __all__ = [
     "AlertDefinition", "AlertTrigger", "UserNotification",
     "AuditLog",
     "AIModel", "AIPrediction", "AITrainingLog", "AIFeatureStore", "AIDriftMonitoring",
-    "FinancialStatement", "Payment", "Budget", "BudgetItem", "CollectionAction"
+    "FinancialStatement", "Payment", "Budget", "BudgetItem", "CollectionAction", "Immobilisation", "Employee"
 ]

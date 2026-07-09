@@ -164,17 +164,44 @@ async def get_supplier_stats(
         Supplier.created_at >= first_day_of_month
     ).scalar() or 0
     
-    # TODO: Calculate purchases from purchase orders/invoices
-    # For now, return mock data
-    total_purchases = Decimal("1850000")
-    average_purchase_value = Decimal("45000")
+    from app.core.models import PurchaseOrder, PurchaseOrderItem
     
-    # TODO: Get top suppliers by purchase volume
-    top_suppliers = [
-        {"id": "1", "name": "Fournisseur A", "purchases": 450000},
-        {"id": "2", "name": "Fournisseur B", "purchases": 380000},
-        {"id": "3", "name": "Fournisseur C", "purchases": 290000},
-    ]
+    # Real purchases from purchase orders
+    total_purchases = db.query(
+        func.sum(PurchaseOrderItem.quantity * PurchaseOrderItem.unit_price)
+    ).join(PurchaseOrder).filter(
+        PurchaseOrder.company_id == current_user.company_id,
+        PurchaseOrder.status != 'cancelled'
+    ).scalar() or Decimal('0')
+    
+    po_count = db.query(func.count(PurchaseOrder.id)).filter(
+        PurchaseOrder.company_id == current_user.company_id,
+        PurchaseOrder.status != 'cancelled'
+    ).scalar() or 0
+    average_purchase_value = total_purchases / po_count if po_count > 0 else Decimal('0')
+    
+    # Get top suppliers by purchase volume
+    top_suppliers_rows = db.query(
+        Supplier.id, Supplier.name,
+        func.sum(PurchaseOrderItem.quantity * PurchaseOrderItem.unit_price).label('purchases')
+    ).select_from(Supplier).join(
+        PurchaseOrder, PurchaseOrder.supplier_id == Supplier.id
+    ).join(
+        PurchaseOrderItem, PurchaseOrderItem.purchase_order_id == PurchaseOrder.id
+    ).filter(
+        PurchaseOrder.company_id == current_user.company_id,
+        PurchaseOrder.status != 'cancelled'
+    ).group_by(Supplier.id, Supplier.name).order_by(func.sum(PurchaseOrderItem.quantity * PurchaseOrderItem.unit_price).desc()).limit(5).all()
+    
+    top_suppliers = [{"id": str(r.id), "name": r.name, "purchases": float(r.purchases or 0)} for r in top_suppliers_rows]
+    
+    # Fallback to listing suppliers if no purchase data exists
+    if not top_suppliers:
+        suppliers_db = db.query(Supplier).filter(
+            Supplier.company_id == current_user.company_id,
+            Supplier.is_active == True
+        ).limit(5).all()
+        top_suppliers = [{"id": str(s.id), "name": s.name, "purchases": 0.0} for s in suppliers_db]
     
     return SupplierStatsResponse(
         total_suppliers=total_suppliers,

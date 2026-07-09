@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from decimal import Decimal
 from typing import Dict, Any, List
-from app.core.models import Invoice, Payment, FinancialStatement, AIModel, AIPrediction
+from app.core.models import Invoice, Payment, FinancialStatement, AIModel, AIPrediction, AlertDefinition, JournalEntry, JournalEntryLine, Article
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
+import datetime as dt
 
 class AnalyticService:
     """
@@ -17,7 +18,7 @@ class AnalyticService:
         # Get latest stats
         sales_total = db.query(func.sum(Invoice.total_ttc)).filter(
             Invoice.company_id == company_id, 
-            Invoice.statut != 'annulee'
+            Invoice.status != 'annulee'
         ).scalar() or Decimal('0')
         
         payments_total = db.query(func.sum(Payment.amount)).filter(
@@ -65,50 +66,156 @@ class AnalyticService:
         # This prevents various frontend components from having different chart logic
         # Aggregate by month
         results = db.query(
-            func.to_char(Invoice.date_emission, 'YYYY-MM').label('month'),
-            func.sum(Invoice.total_ht).label('revenue_ht')
+            func.to_char(Invoice.invoice_date, 'YYYY-MM').label('month'),
+            func.sum(Invoice.total_htt).label('revenue_ht')
         ).filter(
             Invoice.company_id == company_id,
-            Invoice.statut != 'annulee'
+            Invoice.status != 'annulee'
         ).group_by('month').order_by('month').limit(periods).all()
         
         return [{"period": r.month, "value": float(r.revenue_ht)} for r in results]
 
     @staticmethod
     def get_smart_alerts(db: Session, company_id: Any) -> List[Dict[str, Any]]:
-        """Detection of financial anomalies or risks."""
-        alerts = []
-        
-        # Get latest statement for comparison
-        statement = db.query(FinancialStatement).filter(
-            FinancialStatement.company_id == company_id
-        ).order_by(FinancialStatement.exercice.desc()).first()
-        
-        # 1. DSO Alert (Delay of Payment)
-        # Simplified logic: If AR > 50% of annual revenue
-        health = AnalyticService.get_financial_health_kpis(db, company_id)
-        if health["accounts_receivable"] > (health["total_sales"] * 0.5):
-            alerts.append({
-                "type": "danger",
-                "title": "Risque de Liquidit????",
-                "message": "Vos cr????ances clients d????passent 50% de votre CA annuel. Action requise sur le recouvrement.",
-                "code": "HIGH_AR"
-            })
-            
-        # 2. Anomaly Detection: Suspect Expense Variation
-        if statement:
+        """Detection of financial anomalies or risks using AlertDefinition DB table."""
+        # Seed defaults if none exist
+        count = db.query(AlertDefinition).filter(AlertDefinition.company_id == company_id).count()
+        if count == 0:
+            defaults = [
+                {
+                    "alert_code": "sales_threshold",
+                    "alert_name": "Seuil de Ventes",
+                    "alert_type": "financial",
+                    "threshold_value": Decimal("2000000.00"),
+                    "comparison_operator": ">",
+                    "severity_level": "critical",
+                    "enabled": True
+                },
+                {
+                    "alert_code": "liquidity_ratio",
+                    "alert_name": "Ratio de Liquidité",
+                    "alert_type": "financial",
+                    "threshold_value": Decimal("1.50"),
+                    "comparison_operator": "<",
+                    "severity_level": "medium",
+                    "enabled": True
+                },
+                {
+                    "alert_code": "out_of_stock",
+                    "alert_name": "Rupture de Stock",
+                    "alert_type": "operational",
+                    "threshold_value": Decimal("10.00"),
+                    "comparison_operator": "<=",
+                    "severity_level": "high",
+                    "enabled": True
+                },
+                {
+                    "alert_code": "overdue_invoices",
+                    "alert_name": "Factures en Retard",
+                    "alert_type": "compliance",
+                    "threshold_value": Decimal("30.00"),
+                    "comparison_operator": ">",
+                    "severity_level": "critical",
+                    "enabled": True
+                }
+            ]
+            for d in defaults:
+                db.add(AlertDefinition(
+                    company_id=company_id,
+                    alert_code=d["alert_code"],
+                    alert_name=d["alert_name"],
+                    alert_type=d["alert_type"],
+                    threshold_value=d["threshold_value"],
+                    comparison_operator=d["comparison_operator"],
+                    severity_level=d["severity_level"],
+                    enabled=d["enabled"]
+                ))
+            db.commit()
 
-            # Check if current operating expenses are > 50% above historical average (if multiple statements exist)
-            all_statements = db.query(FinancialStatement).filter(FinancialStatement.company_id == company_id).all()
-            if len(all_statements) > 1:
-                avg_expenses = sum([s.operating_expenses for s in all_statements]) / len(all_statements)
-                if statement.operating_expenses > (avg_expenses * Decimal('1.5')):
-                    alerts.append({
-                        "type": "warning",
-                        "title": "Anomalie de Charge D????tect????e",
-                        "message": f"Vos charges d'exploitation ce mois-ci sont 50% sup????rieures ???? votre moyenne habituelle. Suspicion de doublon ou hausse anormale.",
-                        "code": "EXPENSE_ANOMALY"
-                    })
+        definitions = db.query(AlertDefinition).filter(AlertDefinition.company_id == company_id).all()
+        alerts = []
+
+        # Gather dynamic values
+        today = dt.date.today()
+        start_of_month = dt.date(today.year, today.month, 1)
+        
+        # 1. Sales this month
+        sales_val = db.query(func.sum(Invoice.total_htt)).filter(
+            Invoice.company_id == company_id,
+            Invoice.type == 'sale',
+            Invoice.invoice_date >= start_of_month,
+            Invoice.status != 'annulee'
+        ).scalar() or Decimal('0')
+        sales_this_month = float(sales_val)
+
+        # 2. Liquidity ratio
+        current_assets = db.query(func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount))\
+            .join(JournalEntry).filter(
+                JournalEntry.company_id == company_id,
+                JournalEntry.status == 'approved',
+                (JournalEntryLine.account_code.like('3%') | JournalEntryLine.account_code.like('5%'))
+            ).scalar() or Decimal('0')
+        c4_balances_r = db.query(
+            func.sum(JournalEntryLine.credit_amount - JournalEntryLine.debit_amount)
+        ).join(JournalEntry).filter(
+            JournalEntry.company_id == company_id,
+            JournalEntry.status == 'approved',
+            JournalEntryLine.account_code.like('4%')
+        ).scalar() or Decimal('0')
+        current_liabilities = max(Decimal('0'), c4_balances_r)
+        liquidity_ratio = float(current_assets / max(current_liabilities, Decimal('1')))
+
+        # 3. Out of stock
+        low_stock_count = db.query(func.count(Article.id)).filter(
+            Article.company_id == company_id,
+            Article.stock_quantity <= Article.min_stock_level
+        ).scalar() or 0
+
+        # 4. Overdue invoices (past due date and unpaid)
+        overdue_count = db.query(func.count(Invoice.id)).filter(
+            Invoice.company_id == company_id,
+            Invoice.type == 'sale',
+            Invoice.payment_status != 'paid',
+            Invoice.due_date < today
+        ).scalar() or 0
+
+        for d in definitions:
+            valeur_actuelle = 0.0
+            triggered = False
+            unite = ""
+
+            if d.alert_code == "sales_threshold":
+                valeur_actuelle = sales_this_month
+                triggered = valeur_actuelle > float(d.threshold_value)
+                unite = "DZD"
+            elif d.alert_code == "liquidity_ratio":
+                valeur_actuelle = liquidity_ratio
+                triggered = valeur_actuelle < float(d.threshold_value)
+                unite = ""
+            elif d.alert_code == "out_of_stock":
+                valeur_actuelle = float(low_stock_count)
+                triggered = valeur_actuelle > 0
+                unite = "unités"
+            elif d.alert_code == "overdue_invoices":
+                valeur_actuelle = float(overdue_count)
+                triggered = valeur_actuelle > 0
+                unite = "jours" # To align with default frontend mock days overdue labels
+
+            status_str = "triggered" if triggered else "monitoring"
+
+            alerts.append({
+                "id": d.alert_code,
+                "nom": d.alert_name,
+                "description": f"Alerte dynamique basée sur le seuil de {float(d.threshold_value)}",
+                "statut": status_str,
+                "seuil": float(d.threshold_value),
+                "valeurActuelle": valeur_actuelle,
+                "unite": unite,
+                "frequence": "quotidienne",
+                "derniereAlerte": today.strftime("%Y-%m-%d %H:%M") if triggered else None,
+                "destinataires": ["comptable@entreprise.dz", "admin@entreprise.dz"],
+                "active": d.enabled
+            })
 
         return alerts
 

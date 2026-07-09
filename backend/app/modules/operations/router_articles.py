@@ -190,12 +190,24 @@ async def get_article_stats(
         for cat, count in categories_query
     ]
     
-    # TODO: Get top selling articles from sales data
-    top_selling = [
-        {"id": "1", "name": "Article A", "quantity": 150},
-        {"id": "2", "name": "Article B", "quantity": 120},
-        {"id": "3", "name": "Article C", "quantity": 95},
-    ]
+    from app.core.models import InvoiceItem, Invoice
+    top_selling_rows = db.query(
+        Article.id, Article.name,
+        func.sum(InvoiceItem.quantity).label('total_qty')
+    ).join(InvoiceItem, InvoiceItem.article_id == Article.id).join(Invoice, Invoice.id == InvoiceItem.invoice_id).filter(
+        Article.company_id == current_user.company_id,
+        Invoice.status != 'annulee'
+    ).group_by(Article.id, Article.name).order_by(func.sum(InvoiceItem.quantity).desc()).limit(5).all()
+    
+    top_selling = [{"id": str(r.id), "name": r.name, "quantity": float(r.total_qty or 0)} for r in top_selling_rows]
+    
+    # Fallback to top stocked articles if no sales data
+    if not top_selling:
+        top_stocked = db.query(Article).filter(
+            Article.company_id == current_user.company_id,
+            Article.is_active == True
+        ).order_by(Article.stock_quantity.desc()).limit(5).all()
+        top_selling = [{"id": str(a.id), "name": a.name, "quantity": float(a.stock_quantity or 0)} for a in top_stocked]
     
     return ArticleStatsResponse(
         total_articles=total_articles,

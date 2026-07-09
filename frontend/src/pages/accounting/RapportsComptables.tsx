@@ -19,110 +19,119 @@ import {
 } from '@heroicons/react/24/outline';
 import Modal from "@shared/components/UI/Modal";
 import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
+import apiClient from '@/services/apiClient';
 
 const EtatsRapports: React.FC = () => {
   const { t } = useTranslation();
   const { formatCurrency } = useApp();
   const navigate = useNavigate();
-  const [selectedPeriode, setSelectedPeriode] = useState('2026-04');
+  const [selectedPeriode, setSelectedPeriode] = useState('2024');
   const [selectedEtat, setSelectedEtat] = useState('bilan');
   const [isAnalyseGraphiqueModalOpen, setIsAnalyseGraphiqueModalOpen] = useState(false);
   const [isImprimerModalOpen, setIsImprimerModalOpen] = useState(false);
   const [etatAImprimer, setEtatAImprimer] = useState('bilan');
   const { data: dynamicData, loading } = useAccountingStatements('2024');
 
-  // Coherence metrics
-  const CA_ACTUEL = 5200000;
-  const CA_ANTERIEUR = 4850000;
-  const RESULTAT_BRUT = 850000;
-  const IBS_ANNUEL = 221000;
-  const RESULTAT_NET = 629000;
+  const [bilan, setBilan] = useState<any>({
+    actif: { immobilise: [], circulant: [] },
+    passif: { capitaux: [], dettes: [] },
+    total_actif: 0,
+    total_passif: 0
+  });
+  const [compteResultat, setCompteResultat] = useState<any>({
+    produits: [],
+    charges: [],
+    total_produits: 0,
+    total_charges: 0,
+    resultat: 0
+  });
+  const [balanceGenerale, setBalanceGenerale] = useState<any[]>([]);
+  const [rawEcritures, setRawEcritures] = useState<any[]>([]);
+  const [loadingReport, setLoadingReport] = useState(false);
 
-  const bilan = {
-    actif: {
-      immobilise: [
-        { compte: '21', libelle: t('accounting.ledger.accounts.fixed_assets'), montant: 2500000 },
-        { compte: '28', libelle: t('accounting.ledger.accounts.depreciation'), montant: -450000 }
-      ],
-      circulant: [
-        { compte: '31', libelle: t('accounting.ledger.accounts.inventory'), montant: 850000 },
-        { compte: '411', libelle: t('accounting.ledger.accounts.customers'), montant: 1250000 },
-        { compte: '512', libelle: t('accounting.ledger.accounts.bank'), montant: 668000 },
-        { compte: '53', libelle: t('accounting.ledger.accounts.cash'), montant: 125000 }
-      ]
-    },
-    passif: {
-      capitaux: [
-        { compte: '10', libelle: t('accounting.ledger.accounts.equity'), montant: 1000000 },
-        { compte: '12', libelle: t('accounting.ledger.accounts.net_result'), montant: RESULTAT_NET }
-      ],
-      dettes: [
-        { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), montant: 1500000 },
-        { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), montant: 890000 },
-        { compte: '4457', libelle: t('fiscal.rates.tva'), montant: 399000 },
-        { compte: '444', libelle: t('accounting.ledger.accounts.ibs'), montant: 221000 },
-        { compte: '447', libelle: t('fiscal.rates.tap'), montant: 104000 },
-        { compte: '42', libelle: t('common.personnel', { defaultValue: 'Personnel' }), montant: 200000 }
-      ]
-    }
+  // Group ecritures to grand livre
+  const groupEcrituresToGrandLivre = (ecritures: any[]) => {
+    const groups: Record<string, { compte: string; nom: string; ecritures: any[] }> = {};
+    const sorted = [...ecritures].sort((a, b) => a.date.localeCompare(b.date));
+    
+    sorted.forEach(eq => {
+      const parts = eq.compte.split(' - ');
+      const code = parts[0] || '';
+      const name = parts[1] || `Compte ${code}`;
+      
+      if (!groups[code]) {
+        groups[code] = {
+          compte: code,
+          nom: name,
+          ecritures: []
+        };
+      }
+      
+      const lastSolde = groups[code].ecritures.length > 0 
+        ? groups[code].ecritures[groups[code].ecritures.length - 1].solde 
+        : 0;
+        
+      const debit = Number(eq.debit);
+      const credit = Number(eq.credit);
+      const isAssetOrExpense = ['2', '3', '5', '6'].includes(code[0]);
+      const change = isAssetOrExpense ? (debit - credit) : (credit - debit);
+      const newSolde = lastSolde + change;
+      
+      groups[code].ecritures.push({
+        date: eq.date.split('T')[0],
+        libelle: eq.libelle,
+        debit,
+        credit,
+        solde: newSolde
+      });
+    });
+    
+    return Object.values(groups).sort((a, b) => a.compte.localeCompare(b.compte));
   };
 
-  const compteResultat = {
-    produits: [
-      { compte: '70', libelle: t('accounting.ledger.accounts.sales'), montant: CA_ACTUEL },
-      { compte: '76', libelle: t('common.financial_products', { defaultValue: 'Produits financiers' }), montant: 45000 }
-    ],
-    charges: [
-      { compte: '60', libelle: t('accounting.ledger.accounts.purchases'), montant: 3100000 },
-      { compte: '63', libelle: t('common.services', { defaultValue: 'Services' }), montant: 420000 },
-      { compte: '64', libelle: t('common.staff_costs', { defaultValue: 'Frais de personnel' }), montant: 680000 },
-      { compte: '66', libelle: t('common.financial_charges', { defaultValue: 'Charges financières' }), montant: 95000 },
-      { compte: '68', libelle: t('accounting.ledger.accounts.depreciation'), montant: 100000 },
-      { compte: '69', libelle: t('accounting.ledger.accounts.ibs'), montant: IBS_ANNUEL }
-    ]
-  };
+  useEffect(() => {
+    const fetchReportData = async () => {
+      setLoadingReport(true);
+      try {
+        const params = { periode: selectedPeriode };
+        const [bilanRes, crRes, balanceRes, ecrituresRes] = await Promise.all([
+          apiClient.get('/accounting-reports/bilan', { params }),
+          apiClient.get('/accounting-reports/compte-resultat', { params }),
+          apiClient.get('/accounting-reports/balance', { params }),
+          apiClient.get('/accounting-reports/ecritures', { params })
+        ]);
+        
+        if (bilanRes.data) setBilan(bilanRes.data);
+        if (crRes.data) setCompteResultat(crRes.data);
+        if (balanceRes.data) setBalanceGenerale(balanceRes.data.items || []);
+        if (ecrituresRes.data) setRawEcritures(ecrituresRes.data);
+      } catch (err) {
+        console.error("Error fetching accounting reports:", err);
+      } finally {
+        setLoadingReport(false);
+      }
+    };
+    fetchReportData();
+  }, [selectedPeriode]);
 
-  const totalActif = dynamicData?.actifTotal || 4943000;
-  const totalPassif = dynamicData?.passifTotal || 4943000;
-  const totalProduits = dynamicData?.produits || 5245000;
-  const totalCharges = dynamicData?.charges || 4616000;
-  const resultat = dynamicData?.resultatNet || 629000;
+  const grandLivreData = useMemo(() => {
+    return groupEcrituresToGrandLivre(rawEcritures);
+  }, [rawEcritures]);
 
-  // Données de la Balance Générale (tous les comptes avec soldes débiteurs et créditeurs)
+  const totalActif = Number(bilan?.total_actif || 0);
+  const totalPassif = Number(bilan?.total_passif || 0);
+  const totalProduits = Number(compteResultat?.total_produits || 0);
+  const totalCharges = Number(compteResultat?.total_charges || 0);
+  const resultat = Number(compteResultat?.resultat || 0);
 
-  const balanceGenerale = [
-    // Actif Immobilisé
-    { compte: '21', libelle: t('accounting.ledger.accounts.fixed_assets'), debit: 2500000, credit: 0 },
-    { compte: '28', libelle: t('accounting.ledger.accounts.depreciation'), debit: 0, credit: 450000 },
-    // Actif Circulant
-    { compte: '31', libelle: t('accounting.ledger.accounts.inventory'), debit: 850000, credit: 0 },
-    { compte: '411', libelle: t('accounting.ledger.accounts.customers'), debit: 1250000, credit: 0 },
-    { compte: '512', libelle: t('accounting.ledger.accounts.bank'), debit: 668000, credit: 0 },
-    { compte: '53', libelle: t('accounting.ledger.accounts.cash'), debit: 125000, credit: 0 },
-    // Passif - Capitaux
-    { compte: '10', libelle: t('accounting.ledger.accounts.equity'), debit: 0, credit: 1000000 },
-    { compte: '12', libelle: t('accounting.ledger.accounts.net_result'), debit: 0, credit: RESULTAT_NET },
-    // Dettes
-    { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), debit: 0, credit: 1500000 },
-    { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), debit: 0, credit: 890000 },
-    { compte: '4457', libelle: t('fiscal.rates.tva'), debit: 0, credit: 399000 },
-    { compte: '444', libelle: t('accounting.ledger.accounts.ibs'), debit: 0, credit: 221000 },
-    { compte: '447', libelle: t('fiscal.rates.tap'), debit: 0, credit: 104000 },
-    { compte: '42', libelle: t('common.personnel', { defaultValue: 'Personnel' }), debit: 0, credit: 200000 },
-    // Produits & Charges
-    { compte: '70', libelle: t('accounting.ledger.accounts.sales'), debit: 0, credit: CA_ACTUEL },
-    { compte: '76', libelle: t('common.financial_products', { defaultValue: 'Prod. Financiers' }), debit: 0, credit: 45000 },
-    { compte: '60', libelle: t('accounting.ledger.accounts.purchases'), debit: 3100000, credit: 0 },
-    { compte: '63', libelle: t('common.services', { defaultValue: 'Services' }), debit: 420000, credit: 0 },
-    { compte: '64', libelle: t('common.staff_costs', { defaultValue: 'Personnel' }), debit: 680000, credit: 0 },
-    { compte: '66', libelle: t('common.financial_charges', { defaultValue: 'Charges Fin.' }), debit: 95000, credit: 0 },
-    { compte: '68', libelle: t('accounting.ledger.accounts.depreciation'), debit: 100000, credit: 0 },
-    { compte: '69', libelle: t('accounting.ledger.accounts.ibs'), debit: 221000, credit: 0 }
-  ].sort((a, b) => a.compte.localeCompare(b.compte));
+  const CA_ACTUEL = totalProduits;
+  const CA_ANTERIEUR = 0;
+  const RESULTAT_BRUT = totalProduits - totalCharges;
+  const IBS_ANNUEL = Number(compteResultat.charges.find((c: any) => c.compte === '444' || c.compte === '69')?.montant || 0);
+  const RESULTAT_NET = resultat;
 
-  const totalDebitBalance = balanceGenerale.reduce((sum, item) => sum + item.debit, 0);
-  const totalCreditBalance = balanceGenerale.reduce((sum, item) => sum + item.credit, 0);
-
+  const totalDebitBalance = balanceGenerale.reduce((sum, item) => sum + Number(item.debit), 0);
+  const totalCreditBalance = balanceGenerale.reduce((sum, item) => sum + Number(item.credit), 0);
 
   const etatsDisponibles = [
     { id: 'bilan', nom: t('accounting.reports.tabs.bilan'), icon: ScaleIcon, color: 'slate' },

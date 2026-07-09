@@ -277,7 +277,8 @@ async def login(
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "roles": roles
+            "roles": roles,
+            "company_id": str(user.company_id)
         },
         expires_in=1800  # 30 minutes
     )

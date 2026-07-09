@@ -35,14 +35,7 @@ interface Immobilisation {
   comptePCA: string; compteIFRS: string;
 }
 
-const MOCK_IMMOS: Immobilisation[] = [
-  { id: 'IMM001', code: 'VEH-001', designation: 'Véhicule Utilitaire Renault Master', categorie: 'Véhicules', dateAcquisition: '2021-03-15', dureeVie: 5, valeurAcquisition: 3500000, methode: 'lineaire', tauxAmort: 20, valeurResiduelle: 350000, departement: 'Logistique', fournisseur: 'Auto Pro Algérie', status: 'active', comptePCA: '2340', compteIFRS: 'IAS16' },
-  { id: 'IMM002', code: 'INF-001', designation: 'Serveur Dell PowerEdge R750', categorie: 'Matériel Informatique', dateAcquisition: '2022-01-10', dureeVie: 5, valeurAcquisition: 850000, methode: 'degressif', tauxAmort: 40, valeurResiduelle: 85000, departement: 'IT', fournisseur: 'Tech Solutions SARL', status: 'active', comptePCA: '2340', compteIFRS: 'IAS16' },
-  { id: 'IMM003', code: 'MOB-001', designation: 'Mobilier Bureau Direction', categorie: 'Mobilier', dateAcquisition: '2020-07-01', dureeVie: 10, valeurAcquisition: 450000, methode: 'lineaire', tauxAmort: 10, valeurResiduelle: 45000, departement: 'Direction', fournisseur: 'Artiburo SARL', status: 'active', comptePCA: '2340', compteIFRS: 'IAS16' },
-  { id: 'IMM004', code: 'MAC-001', designation: 'Machine de Production CNC', categorie: 'Machines & Équipements', dateAcquisition: '2019-11-20', dureeVie: 10, valeurAcquisition: 12500000, methode: 'lineaire', tauxAmort: 10, valeurResiduelle: 1250000, departement: 'Production', fournisseur: 'Fournisseur Industriel SPA', status: 'active', comptePCA: '2350', compteIFRS: 'IAS16' },
-  { id: 'IMM005', code: 'LOG-001', designation: 'Licence ERP Sage 100', categorie: 'Logiciels', dateAcquisition: '2020-01-01', dureeVie: 5, valeurAcquisition: 280000, methode: 'lineaire', tauxAmort: 20, valeurResiduelle: 0, departement: 'Finance', fournisseur: 'Sage Algérie', status: 'fully_depreciated', comptePCA: '2082', compteIFRS: 'IAS38' },
-  { id: 'IMM006', code: 'BAT-001', designation: 'Aménagement Bureaux Siège Social', categorie: 'Aménagements', dateAcquisition: '2018-06-01', dureeVie: 20, valeurAcquisition: 8500000, methode: 'lineaire', tauxAmort: 5, valeurResiduelle: 850000, departement: 'Direction', fournisseur: 'Construction Pro', status: 'active', comptePCA: '2313', compteIFRS: 'IAS16' },
-];
+
 
 const calculateDepreciation = (immo: Immobilisation, year: number): { amortCumul: number; amortAnnuel: number; valeurNette: number } => {
   const yearsElapsed = year;

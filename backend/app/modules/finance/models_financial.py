@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Numeric, Date, Enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Numeric, Date, Enum, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
@@ -95,3 +95,45 @@ class CollectionAction(Base):
     status = Column(String(50), default="completed") # sent, failed, pending
     notes = Column(String(500))
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))
+
+class Immobilisation(Base):
+    __tablename__ = "immobilisations"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    code = Column(String(50), nullable=False)
+    designation = Column(String(255), nullable=False)
+    categorie = Column(String(100), nullable=False)
+    date_acquisition = Column(Date, nullable=False)
+    duree_vie = Column(Integer, nullable=False)
+    valeur_acquisition = Column(Numeric(15, 2), nullable=False)
+    valeur_residuelle = Column(Numeric(15, 2), default=0)
+    methode = Column(String(50), default="lineaire")  # 'lineaire', 'degressif', 'uop'
+    taux_amort = Column(Numeric(5, 2), nullable=False)
+    departement = Column(String(100))
+    fournisseur = Column(String(255))
+    status = Column(String(50), default="active")  # 'active', 'fully_depreciated', 'disposed'
+    compte_pca = Column(String(50))
+    compte_ifrs = Column(String(50))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+class Employee(Base):
+    __tablename__ = "employees"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    matricule = Column(String(50), nullable=False)
+    nom = Column(String(100), nullable=False)
+    prenom = Column(String(100), nullable=False)
+    poste = Column(String(100), nullable=False)
+    department = Column(String(100), nullable=False)
+    contract_type = Column(String(50), nullable=False) # cdi, cdd, stage, freelance
+    date_embauche = Column(Date, nullable=False)
+    salaire_base = Column(Numeric(15, 2), nullable=False)
+    primes = Column(Numeric(15, 2), default=0)
+    email = Column(String(255))
+    telephone = Column(String(50))
+    status = Column(String(50), default="actif") # actif, conge, inactif
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+

@@ -36,15 +36,7 @@ interface Relance {
   level: RelanceLevel; status: RelanceStatus; lastContact: string | null;
   commercial: string; notes: string;
 }
-
-const MOCK_RELANCES: Relance[] = [
-  { id: 'R001', factureNum: 'FAC-2023-098', client: 'Sonatrach EP', clientEmail: 'comptabilite@sonatrach.dz', clientPhone: '021-XX-XX-XX', montant: 850000, dateFact: '2023-11-15', dateEcheance: '2023-12-15', daysOverdue: 47, level: 2, status: 'sent', lastContact: '2024-01-10', commercial: 'Karim Benali', notes: 'En attente de visa DG pour paiement' },
-  { id: 'R002', factureNum: 'FAC-2023-112', client: 'SARL El Khabar', clientEmail: 'direction@elkhabar.com', clientPhone: '021-YY-YY-YY', montant: 185000, dateFact: '2023-12-01', dateEcheance: '2023-12-31', daysOverdue: 31, level: 1, status: 'pending', lastContact: null, commercial: 'Amira Hadj', notes: 'Première relance à envoyer' },
-  { id: 'R003', factureNum: 'FAC-2023-065', client: 'Pharmacie Centrale DZ', clientEmail: 'si@phcdz.dz', clientPhone: '023-ZZ-ZZ-ZZ', montant: 95000, dateFact: '2023-10-20', dateEcheance: '2023-11-20', daysOverdue: 72, level: 3, status: 'escalated', lastContact: '2024-01-05', commercial: 'Yacine Maamar', notes: 'Dossier transmis au service juridique' },
-  { id: 'R004', factureNum: 'FAC-2024-008', client: 'Groupe Cévital', clientEmail: 'procurement@cevital.com', clientPhone: '024-AA-AA-AA', montant: 1250000, dateFact: '2024-01-05', dateEcheance: '2024-01-20', daysOverdue: 11, level: 1, status: 'sent', lastContact: '2024-01-22', commercial: 'Karim Benali', notes: 'Contact DG établi, paiement promis 30/01' },
-  { id: 'R005', factureNum: 'FAC-2023-145', client: 'Air Algérie', clientEmail: 'dsi@airalgerie.dz', clientPhone: '021-BB-BB-BB', montant: 420000, dateFact: '2023-12-10', dateEcheance: '2024-01-10', daysOverdue: 21, level: 1, status: 'responded', lastContact: '2024-01-15', commercial: 'Amira Hadj', notes: 'Promesse de paiement reçue pour le 05/02' },
-  { id: 'R006', factureNum: 'FAC-2023-055', client: 'EURL Boulangerie Nord', clientEmail: 'contact@boulangerienord.dz', clientPhone: '025-CC-CC-CC', montant: 42000, dateFact: '2023-10-01', dateEcheance: '2023-10-31', daysOverdue: 92, level: 3, status: 'litigation', lastContact: '2023-12-20', commercial: 'Yacine Maamar', notes: 'Mise en demeure envoyée. Passage en contentieux.' },
-];
+// Mock relances removed, using dynamic invoices.
 
 const RELANCE_TEMPLATES = {
   level1: { subject: 'relances.template.l1_subject', tone: 'relances.template.l1_tone', delay: '30' },
@@ -71,14 +63,56 @@ const GestionRelances: React.FC = () => {
   const [selected, setSelected] = useState<Relance | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchRelances = async () => {
       try {
-        const response = await apiClient.get('/relances-clients');
-        setRelances(response.data as Relance[]);
+        const response = await apiClient.get('/invoices');
+        const invoices = Array.isArray(response.data) ? response.data : [];
+        const today = new Date();
+        
+        const mapped = invoices
+          .filter((inv: any) => inv.statut !== 'payee' && inv.statut !== 'annulee' && inv.date_echeance)
+          .map((inv: any) => {
+            const dueDate = new Date(inv.date_echeance);
+            const timeDiff = today.getTime() - dueDate.getTime();
+            const daysOverdue = Math.max(0, Math.floor(timeDiff / (1000 * 3600 * 24)));
+            
+            let level: RelanceLevel = 1;
+            if (daysOverdue > 60) {
+              level = 3;
+            } else if (daysOverdue > 30) {
+              level = 2;
+            }
+            
+            let status: RelanceStatus = 'pending';
+            if (daysOverdue > 60) {
+              status = 'escalated';
+            } else if (daysOverdue > 30) {
+              status = 'sent';
+            }
+            
+            return {
+              id: inv.id,
+              factureNum: inv.numero,
+              client: inv.client_name || 'Client Inconnu',
+              clientEmail: 'comptabilite@client.dz',
+              clientPhone: '021-00-00-00',
+              montant: Number(inv.total_ttc),
+              dateFact: inv.date_emission,
+              dateEcheance: inv.date_echeance,
+              daysOverdue,
+              level,
+              status,
+              lastContact: null,
+              commercial: 'Administrateur',
+              notes: daysOverdue > 0 ? `Retard de paiement de ${daysOverdue} jours.` : 'Première relance à planifier.'
+            };
+          });
+          
+        setRelances(mapped);
       } catch (err) {
-        console.error("Failed to fetch relances, using mock data", err);
-        setRelances(MOCK_RELANCES);
+        console.error("Failed to fetch invoices for relances", err);
+        setRelances([]);
       } finally {
         setLoading(false);
       }

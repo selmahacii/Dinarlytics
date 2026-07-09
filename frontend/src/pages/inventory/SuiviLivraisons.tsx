@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import apiClient from '@/services/apiClient';
 import {
   TruckIcon,
   CheckCircleIcon,
@@ -27,9 +28,40 @@ const SuiviLivraisons: React.FC = () => {
   const [selectedLivraison, setSelectedLivraison] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  // TODO: Replace with API hook for deliveries
-  // For now, using empty array - should call useDeliveries() hook
-  const livraisons: any[] = [];
+  const [livraisons, setLivraisons] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLivraisons = async () => {
+      try {
+        const response = await apiClient.get('/procurement/deliveries');
+        const mapped = (Array.isArray(response.data) ? response.data : []).map((dn: any) => ({
+          id: dn.id,
+          numero: dn.delivery_number,
+          client: dn.client_name || 'Client Inconnu',
+          dateCommande: dn.created_at ? dn.created_at.split('T')[0] : dn.delivery_date,
+          dateLivraisonPrevue: dn.delivery_date,
+          dateLivraisonReelle: dn.delivery_date,
+          transporteur: 'Transporteur Standard',
+          statut: dn.statut || 'livree',
+          fraisTransport: 0,
+          details: dn.notes || 'Livraison de marchandises',
+          destination: 'Alger',
+          items: (dn.items || []).map((item: any) => ({
+            name: item.article_name || item.description || 'Article',
+            quantity: item.quantity,
+            barcode: item.barcode
+          }))
+        }));
+        setLivraisons(mapped);
+      } catch (err) {
+        console.error('Failed to fetch deliveries', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLivraisons();
+  }, []);
 
   // Calcul des statistiques
   const stats = useMemo(() => {

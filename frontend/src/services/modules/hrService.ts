@@ -1,5 +1,4 @@
 import apiClient from '../apiClient';
-import { MOCK_DATA } from '../mockData';
 
 export interface Employee {
   id: string;
@@ -19,31 +18,18 @@ export interface Employee {
 
 export const hrService = {
     getAllEmployees: async () => {
-        try {
-            const response = await apiClient.get<Employee[]>('/rh/employees');
-            return response.data;
-        } catch (e) {
-            console.warn('API HR failed, using demo data', e);
-            return MOCK_DATA['/rh/employees'] as Employee[];
-        }
+        const response = await apiClient.get<Employee[]>('/rh/employees');
+        return response.data;
     },
 
     getEmployeeById: async (id: string) => {
-        try {
-            const response = await apiClient.get<Employee>(`/rh/employees/${id}`);
-            return response.data;
-        } catch (e) {
-            const employees = MOCK_DATA['/rh/employees'] as Employee[];
-            return employees.find(emp => emp.id === id) || null;
-        }
+        const response = await apiClient.get<Employee>(`/rh/employees/${id}`);
+        return response.data;
     },
 
     updateEmployee: async (id: string, data: Partial<Employee>) => {
-        try {
-            const response = await apiClient.put<Employee>(`/rh/employees/${id}`, data);
-            return response.data;
-        } catch (e) {
-            return { id, ...data } as Employee;
-        }
+        const response = await apiClient.put<Employee>(`/rh/employees/${id}`, data);
+        return response.data;
     }
 };
+

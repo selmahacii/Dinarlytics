@@ -152,14 +152,32 @@ async def get_client_stats(
         extract('year', Client.created_at) == current_year
     ).scalar() or 0
     
-    total_revenue = Decimal("5250000")  # Placeholder
-    avg_order_value = Decimal("35000")   # Placeholder
+    from app.core.models import Invoice
+    from sqlalchemy import desc
     
-    top_clients = [
-        {"id": "C001", "name": "Entreprise Alpha", "revenue": 850000},
-        {"id": "C002", "name": "Société Beta", "revenue": 720000},
-        {"id": "C003", "name": "Groupe Gamma", "revenue": 650000},
-    ]
+    # Real revenue from invoices
+    total_revenue = db.query(func.sum(Invoice.total_ttc)).filter(
+        Invoice.company_id == current_user.company_id,
+        Invoice.status != 'annulee'
+    ).scalar() or Decimal('0')
+    
+    # Avg order value
+    invoice_count = db.query(func.count(Invoice.id)).filter(
+        Invoice.company_id == current_user.company_id,
+        Invoice.status != 'annulee'
+    ).scalar() or 0
+    avg_order_value = total_revenue / invoice_count if invoice_count > 0 else Decimal('0')
+    
+    # Top clients by revenue
+    top_client_rows = db.query(
+        Client.id, Client.name,
+        func.sum(Invoice.total_ttc).label('revenue')
+    ).join(Invoice, Invoice.client_id == Client.id).filter(
+        Invoice.company_id == current_user.company_id,
+        Invoice.status != 'annulee'
+    ).group_by(Client.id, Client.name).order_by(desc('revenue')).limit(5).all()
+    
+    top_clients = [{"id": str(r.id), "name": r.name, "revenue": float(r.revenue or 0)} for r in top_client_rows]
     
     return ClientStatsResponse(
         total_clients=total,

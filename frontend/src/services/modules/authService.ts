@@ -279,85 +279,57 @@ const DEMO_USERS = [
  */
 export const authService = {
     login: async (email: string, password: string): Promise<LoginResponse> => {
-        // Mock API call simulation
-        // const response = await apiClient.post<LoginResponse>('/auth/login', { email, password });
+        // Call backend API /auth/login with username as email (or email directly)
+        const response = await apiClient.post<any>('/auth/login', { username: email, password });
+        const data = response.data;
 
-        await new Promise(resolve => setTimeout(resolve, 600));
-
-        // 1. Try to find in DEMO_USERS first
+        // Find demo user mapping for local UI segment/company config consistency
         const demoUser = DEMO_USERS.find(u => u.email === email);
+        let companyType = 'eurl';
+        let segment = 'micro';
+        let accessLevel = 'starter';
         if (demoUser) {
-            // Realistic mapping: segment -> accessLevel for PermissionManager compatibility
-            let accessLevel = 'starter';
+            companyType = demoUser.companyType;
+            segment = demoUser.segment;
             if (demoUser.segment === 'enterprise' || demoUser.segment === 'large') accessLevel = 'enterprise';
             else if (demoUser.segment === 'medium' || demoUser.segment === 'small') accessLevel = 'professional';
-
-            const mockUser: User = {
-                id: demoUser.id,
-                email: demoUser.email,
-                username: demoUser.email.split('@')[0],
-                first_name: demoUser.prenom,
-                last_name: demoUser.nom,
-                nom: demoUser.nom,
-                prenom: demoUser.prenom,
-                role: demoUser.role,
-                role_display: demoUser.role_display,
-                company_id: 'mock-company-' + demoUser.companyType,
-                companyType: demoUser.companyType,
-                segment: demoUser.segment,
-                accessLevel: accessLevel
-            };
-
-            const mockResponse: LoginResponse = {
-                access_token: `mock-jwt-token-${demoUser.role}-${Date.now()}`,
-                token_type: 'bearer',
-                user: mockUser
-            };
-
-            saveSession(mockResponse);
-            return mockResponse;
-        }
-
-        // 2. Fallback to generic pattern matching (Legacy)
-        let role = 'utilisateur';
-        let companyType = 'eurl';
-        let companyId = 'mock-company-micro';
-        let accessLevel = 'starter';
-
-        if (email.includes('admin') || email.includes('daf')) {
-            role = 'admin';
+        } else if (email.includes('admin') || email.includes('daf')) {
             companyType = 'spa';
-            companyId = 'mock-company-spa';
+            segment = 'enterprise';
             accessLevel = 'enterprise';
         } else if (email.includes('manager') || email.includes('dg')) {
-            role = 'manager';
             companyType = 'sarl';
-            companyId = 'mock-company-sme';
+            segment = 'medium';
             accessLevel = 'professional';
         }
 
-        const mockUser: User = {
-            id: `mock-user-${role}`,
-            email: email,
-            username: email.split('@')[0],
-            first_name: role.charAt(0).toUpperCase() + role.slice(1),
-            last_name: 'Demo',
-            nom: 'Demo',
-            prenom: role.charAt(0).toUpperCase() + role.slice(1),
-            role: role,
-            company_id: companyId,
+        const roles = data.user.roles || [];
+        const primaryRole = roles[0] || 'utilisateur';
+
+        const mappedUser: User = {
+            id: data.user.user_id,
+            email: data.user.email,
+            username: data.user.username,
+            first_name: data.user.first_name,
+            last_name: data.user.last_name,
+            nom: data.user.last_name,
+            prenom: data.user.first_name,
+            role: primaryRole,
+            role_display: primaryRole === 'admin' ? 'Administrateur' : primaryRole === 'comptable' ? 'Comptable' : 'Utilisateur',
+            company_id: data.user.company_id || 'default-company-id',
             companyType: companyType,
+            segment: segment,
             accessLevel: accessLevel
         };
 
-        const mockResponse: LoginResponse = {
-            access_token: `mock-jwt-token-${role}-123456`,
-            token_type: 'bearer',
-            user: mockUser
+        const loginResp: LoginResponse = {
+            access_token: data.access_token,
+            token_type: data.token_type || 'bearer',
+            user: mappedUser
         };
 
-        saveSession(mockResponse);
-        return mockResponse;
+        saveSession(loginResp);
+        return loginResp;
     },
 
     logout: () => {

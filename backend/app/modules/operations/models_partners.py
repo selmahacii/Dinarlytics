@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Enum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Enum, Numeric, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, validates
 from datetime import datetime, timezone
@@ -76,23 +76,30 @@ class Client(Base):
     email = Column(String(255))
     phone = Column(String(20))
     address = Column(String(500))
+    city = Column(String(255))
+    postal_code = Column(String(50))
+    country = Column(String(255), default="Algerie")
+    credit_limit = Column(Numeric(15, 2), default=0)
+    payment_terms = Column(Integer, default=30)
     state = Column(Enum(Wilaya), nullable=True, index=True) # Wilaya code
     tax_number = Column(String(50), unique=True)
+    tax_id = Column(String(50), unique=True)
     is_active = Column(Boolean, default=True, index=True)
     sector = Column(String(100), nullable=True, index=True)
     size = Column(String(50), nullable=True, index=True) # micro, small, medium, large
     risk_category = Column(String(50), default="faible", index=True) # faible, moyen, élevé
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
-    @validates('tax_number')
-    def validate_nif(self, key, tax_number):
-        if tax_number:
+    @validates('tax_number', 'tax_id')
+    def validate_nif(self, key, tax_val):
+        if tax_val:
             # Suppression des espaces eventuels
-            clean_nif = tax_number.strip().replace(" ", "")
-            if len(clean_nif) != 15 or not clean_nif.isdigit():
-                raise ValueError(f"Le NIF doit contenir exactement 15 chiffres (Format Algerie). Recu: {tax_number}")
+            clean_nif = tax_val.strip().replace(" ", "")
+            if len(clean_nif) != 15 and len(clean_nif) != 20 or not clean_nif.isdigit():
+                raise ValueError(f"Le NIF doit contenir 15 ou 20 chiffres. Recu: {tax_val}")
             return clean_nif
-        return tax_number
+        return tax_val
 
     def __repr__(self):
         return f"<Client(name={self.name})>"
@@ -106,21 +113,27 @@ class Supplier(Base):
     email = Column(String(255))
     phone = Column(String(20))
     address = Column(String(500))
+    city = Column(String(255))
+    postal_code = Column(String(50))
+    country = Column(String(255), default="Algerie")
+    payment_terms = Column(Integer, default=30)
     state = Column(Enum(Wilaya), nullable=True, index=True) # Wilaya code
     tax_number = Column(String(50), unique=True)
+    tax_id = Column(String(50), unique=True)
     barcode = Column(String(64), unique=True, index=True)
     qr_code_url = Column(String(255), unique=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
-    @validates('tax_number')
-    def validate_nif(self, key, tax_number):
-        if tax_number:
-            clean_nif = tax_number.strip().replace(" ", "")
-            if len(clean_nif) != 15 or not clean_nif.isdigit():
-                raise ValueError(f"Le NIF fournisseur doit contenir exactement 15 chiffres. Recu: {tax_number}")
+    @validates('tax_number', 'tax_id')
+    def validate_nif(self, key, tax_val):
+        if tax_val:
+            clean_nif = tax_val.strip().replace(" ", "")
+            if len(clean_nif) != 15 and len(clean_nif) != 20 or not clean_nif.isdigit():
+                raise ValueError(f"Le NIF fournisseur doit contenir 15 ou 20 chiffres. Recu: {tax_val}")
             return clean_nif
-        return tax_number
+        return tax_val
 
     def __repr__(self):
         return f"<Supplier(name={self.name})>"

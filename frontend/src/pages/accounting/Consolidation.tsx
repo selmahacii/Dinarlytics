@@ -42,6 +42,7 @@ import {
   type TransactionInterSocietes,
   type DonneesConsolidees
 } from '@shared/utils/consolidation';
+import apiClient from '@/services/apiClient';
 
 const Consolidation: React.FC = () => {
   const { formatCurrency } = useApp();
@@ -70,122 +71,33 @@ const Consolidation: React.FC = () => {
   }, []);
 
   // Données de démonstration pour les entreprises
-  const entreprises = [
-    {
-      id: 1,
-      nom: 'Dinarlytic SARL',
-      pays: 'Algérie',
-      devise: 'DZD',
-      tauxChange: 1.0,
-      chiffreAffaires: 2500000,
-      benefice: 450000,
-      actif: 3200000,
-      passif: 1800000,
-      tresorerie: 850000,
-      isActive: true,
-      status: 'consolidated',
-      lastUpdate: '2024-01-20',
-      details: {
-        cash: 850000,
-        receivables: 650000,
-        inventory: 400000,
-        fixedAssets: 1300000,
-        payables: 500000,
-        longTermDebt: 1300000
-      }
-    },
-    {
-      id: 2,
-      nom: 'TechSoft International',
-      pays: 'France',
-      devise: 'EUR',
-      tauxChange: 0.0067,
-      chiffreAffaires: 1800000,
-      benefice: 320000,
-      actif: 2400000,
-      passif: 1200000,
-      tresorerie: 650000,
-      isActive: true,
-      status: 'consolidated',
-      lastUpdate: '2024-01-20',
-      details: {
-        cash: 650000,
-        receivables: 450000,
-        inventory: 200000,
-        fixedAssets: 1100000,
-        payables: 350000,
-        longTermDebt: 850000
-      }
-    },
-    {
-      id: 3,
-      nom: 'Commerce Plus',
-      pays: 'Algérie',
-      devise: 'DZD',
-      tauxChange: 1.0,
-      chiffreAffaires: 1200000,
-      benefice: 180000,
-      actif: 1500000,
-      passif: 800000,
-      tresorerie: 350000,
-      isActive: true,
-      status: 'consolidated',
-      lastUpdate: '2024-01-20',
-      details: {
-        cash: 350000,
-        receivables: 250000,
-        inventory: 150000,
-        fixedAssets: 750000,
-        payables: 200000,
-        longTermDebt: 600000
-      }
-    },
-    {
-      id: 4,
-      nom: 'Dinarlytic Maroc',
-      pays: 'Maroc',
-      devise: 'MAD',
-      tauxChange: 0.055,
-      chiffreAffaires: 800000,
-      benefice: 120000,
-      actif: 1000000,
-      passif: 500000,
-      tresorerie: 200000,
-      isActive: false,
-      status: 'pending',
-      lastUpdate: '2023-12-31',
-      details: {
-        cash: 200000,
-        receivables: 150000,
-        inventory: 100000,
-        fixedAssets: 550000,
-        payables: 150000,
-        longTermDebt: 350000
-      }
-    }
-  ];
+  const [entreprises, setEntreprises] = useState<any[]>([]);
+  const [eliminationData, setEliminationData] = useState<any[]>([]);
+  const [conversionData, setConversionData] = useState<any[]>([]);
+  const [consolidatedData, setConsolidatedData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   // Devise de référence
   const deviseReference = 'DZD';
 
   // Données consolidées calculées
-  const calculateConsolidation = () => {
+  const calculateConsolidation = (ents: any[]) => {
     const consolidated = {
       totalChiffreAffaires: 0,
       totalBenefice: 0,
       totalActif: 0,
       totalPassif: 0,
       totalTresorerie: 0,
-      nombreEntreprises: entreprises.length,
+      nombreEntreprises: ents.length,
       deviseReference: deviseReference,
       dateConsolidation: new Date().toISOString().split('T')[0],
-      entreprises: entreprises.map(entreprise => ({
+      entreprises: ents.map(entreprise => ({
         ...entreprise,
-        chiffreAffairesConverti: entreprise.chiffreAffaires * entreprise.tauxChange,
-        beneficeConverti: entreprise.benefice * entreprise.tauxChange,
-        actifConverti: entreprise.actif * entreprise.tauxChange,
-        passifConverti: entreprise.passif * entreprise.tauxChange,
-        tresorerieConvertie: entreprise.tresorerie * entreprise.tauxChange
+        chiffreAffairesConverti: entreprise.chiffreAffaires * (entreprise.tauxChange || 1.0),
+        beneficeConverti: entreprise.benefice * (entreprise.tauxChange || 1.0),
+        actifConverti: entreprise.actif * (entreprise.tauxChange || 1.0),
+        passifConverti: entreprise.passif * (entreprise.tauxChange || 1.0),
+        tresorerieConvertie: entreprise.tresorerie * (entreprise.tauxChange || 1.0)
       }))
     };
 
@@ -199,7 +111,45 @@ const Consolidation: React.FC = () => {
     return consolidated;
   };
 
-  const [consolidatedData, setConsolidatedData] = useState(calculateConsolidation());
+  useEffect(() => {
+    const fetchConsolidation = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/consolidation');
+        const ents = response.data.entreprises || [];
+        const txs = response.data.transactions || [];
+        
+        const mappedEnts = ents.map((e: any) => ({
+          ...e,
+          isActive: e.statut === 'consolidated'
+        }));
+        
+        setEntreprises(mappedEnts);
+        setEliminationData(txs);
+        
+        // Map conversionData
+        const convs = mappedEnts.map((e: any) => ({
+          entreprise: e.nom,
+          deviseOrigine: e.devise,
+          deviseReference: 'DZD',
+          tauxChange: e.tauxChange,
+          montantOrigine: e.chiffreAffaires,
+          montantConverti: e.chiffreAffaires * (e.tauxChange || 1.0),
+          ecartConversion: 0
+        }));
+        setConversionData(convs);
+        
+        // Calculate initial consolidation
+        const cons = calculateConsolidation(mappedEnts);
+        setConsolidatedData(cons);
+      } catch (err) {
+        console.error("Failed to load consolidation data", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchConsolidation();
+  }, []);
 
   // Types de rapports consolidés
   const reportTypes = [
@@ -256,71 +206,6 @@ const Consolidation: React.FC = () => {
       category: 'Consolidation',
       lastGenerated: '2024-01-20',
       status: t('consolidation.reports_list.available')
-    }
-  ];
-
-  // Données d'élimination inter-entreprises
-  const eliminationData = [
-    {
-      id: 1,
-      entrepriseDebit: 'Dinarlytic SARL',
-      entrepriseCredit: 'TechSoft International',
-      montant: 150000,
-      devise: 'DZD',
-      description: 'Vente de services inter-entreprises',
-      type: 'Vente',
-      statut: 'Éliminé'
-    },
-    {
-      id: 2,
-      entrepriseDebit: 'TechSoft International',
-      entrepriseCredit: 'Commerce Plus',
-      montant: 75000,
-      devise: 'EUR',
-      description: 'Prestation de conseil',
-      type: 'Prestation',
-      statut: 'Éliminé'
-    },
-    {
-      id: 3,
-      entrepriseDebit: 'Commerce Plus',
-      entrepriseCredit: 'Dinarlytic SARL',
-      montant: 45000,
-      devise: 'DZD',
-      description: 'Location de matériel',
-      type: 'Location',
-      statut: 'Éliminé'
-    }
-  ];
-
-  // Données de conversion des devises
-  const conversionData = [
-    {
-      entreprise: 'TechSoft International',
-      deviseOrigine: 'EUR',
-      deviseReference: 'DZD',
-      tauxChange: 0.0067,
-      montantOrigine: 1800000,
-      montantConverti: 268656716,
-      ecartConversion: 0
-    },
-    {
-      entreprise: 'Dinarlytic SARL',
-      deviseOrigine: 'DZD',
-      deviseReference: 'DZD',
-      tauxChange: 1.0,
-      montantOrigine: 2500000,
-      montantConverti: 2500000,
-      ecartConversion: 0
-    },
-    {
-      entreprise: 'Commerce Plus',
-      deviseOrigine: 'DZD',
-      deviseReference: 'DZD',
-      tauxChange: 1.0,
-      montantOrigine: 1200000,
-      montantConverti: 1200000,
-      ecartConversion: 0
     }
   ];
 
@@ -465,6 +350,14 @@ const Consolidation: React.FC = () => {
                          (filterStatus === 'pending' && entreprise.status === 'pending');
     return matchesSearch && matchesFilter;
   });
+
+  if (loading || !consolidatedData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-4 sm:p-6">

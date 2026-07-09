@@ -292,25 +292,27 @@ const AnalyticsFacturation: React.FC = () => {
     });
   }, [scaleFactor]);
 
-  // State for invoices (persistent in localStorage for demo)
-  const [invoices, setInvoices] = useState<Invoice[]>(() => {
-    const saved = localStorage.getItem('demo_invoices');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error("Error parsing saved invoices", e);
-      }
+  // State for invoices (loaded dynamically from backend)
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchInvoices = async () => {
+    try {
+      setLoading(true);
+      const data = await invoiceService.getAll('sale');
+      setInvoices(data);
+    } catch (e) {
+      console.error("Failed to load invoices", e);
+    } finally {
+      setLoading(false);
     }
-    return getInitialInvoices;
-  });
+  };
 
-  // Sync with localStorage
   React.useEffect(() => {
-    localStorage.setItem('demo_invoices', JSON.stringify(invoices));
-  }, [invoices]);
+    fetchInvoices();
+  }, []);
 
-  const handleSaveInvoice = () => {
+  const handleSaveInvoice = async () => {
     const itemsWithTotals = (newInvoice.items || []).map(item => {
       const line_total_ht = item.qty * item.pu;
       const tva_rate = item.tva_rate || 19;
@@ -331,10 +333,8 @@ const AnalyticsFacturation: React.FC = () => {
     const droitTimbre = newInvoice.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
     const totalTTC = rawTotal + droitTimbre;
 
-    const invoiceToSave: Invoice = {
-      ...newInvoice as Invoice,
-      id: isEditing ? (newInvoice.id || '') : `F-2024-${(invoices.length + 1).toString().padStart(4, '0')}`,
-      factureId: isEditing ? (newInvoice.factureId || '') : `FAC-2024-${(invoices.length + 1).toString().padStart(4, '0')}`,
+    const invoiceToSave: Partial<Invoice> = {
+      ...newInvoice,
       type: 'sale',
       items: itemsWithTotals as InvoiceItem[],
       totalHT,
@@ -352,10 +352,15 @@ const AnalyticsFacturation: React.FC = () => {
       ]
     };
 
-    if (isEditing) {
-      setInvoices(invoices.map(inv => inv.id === invoiceToSave.id ? invoiceToSave : inv));
-    } else {
-      setInvoices([invoiceToSave, ...invoices]);
+    try {
+      if (isEditing && newInvoice.id) {
+        await invoiceService.update(newInvoice.id, invoiceToSave);
+      } else {
+        await invoiceService.create(invoiceToSave);
+      }
+      await fetchInvoices();
+    } catch (e) {
+      console.error("Failed to save invoice", e);
     }
 
     setIsCreateModalOpen(false);
@@ -387,9 +392,14 @@ const AnalyticsFacturation: React.FC = () => {
     setIsCreateModalOpen(true);
   };
 
-  const handleDeleteInvoice = (id: string) => {
+  const handleDeleteInvoice = async (id: string) => {
     if (window.confirm(t('common.confirm_delete', "Êtes-vous sûr de vouloir supprimer cette facture ?"))) {
-      setInvoices(invoices.filter(inv => inv.id !== id));
+      try {
+        await invoiceService.cancel(id);
+        await fetchInvoices();
+      } catch (e) {
+        console.error("Failed to delete/cancel invoice", e);
+      }
     }
   };
 

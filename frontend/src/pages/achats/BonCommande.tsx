@@ -39,89 +39,31 @@ interface BonCommande {
   approvals: ApprovalStep[]; urgency: 'low' | 'medium' | 'high';
 }
 
-const MOCK_BC: BonCommande[] = [
-  {
-    id: 'BC001', numero: 'BC-2024-001', fournisseur: 'Tech Solutions SARL', fournisseurScore: 4.2,
-    dateCreation: '2024-01-18', dateLivraison: '2024-02-05', status: 'approved',
-    montantHT: 425000, montantTTC: 505750, demandeur: 'Karim Benali', department: 'IT',
-    motif: 'Renouvellement parc informatique Q1 2024', urgency: 'medium',
-    items: [
-      { ref: 'IT-001', designation: 'Ordinateur Portable Dell XPS 15', qty: 3, unitPrice: 95000, tva: 19 },
-      { ref: 'IT-002', designation: 'Écran 27" 4K Samsung', qty: 5, unitPrice: 45000, tva: 19 },
-      { ref: 'IT-003', designation: 'Clavier + Souris Logitech Pro', qty: 8, unitPrice: 8750, tva: 19 },
-    ],
-    approvals: [
-      { role: 'Responsable IT', status: 'approved', date: '2024-01-19', comment: 'Besoin validé.' },
-      { role: 'DAF', status: 'approved', date: '2024-01-20', comment: 'Budget disponible Q1.' },
-      { role: 'DG', status: 'approved', date: '2024-01-21' }
-    ]
-  },
-  {
-    id: 'BC002', numero: 'BC-2024-002', fournisseur: 'Office Supplies Co EURL', fournisseurScore: 3.8,
-    dateCreation: '2024-01-20', dateLivraison: '2024-01-28', status: 'pending_approval',
-    montantHT: 85000, montantTTC: 101150, demandeur: 'Sara Bouzid', department: 'Finance',
-    motif: 'Fournitures bureau et consommables – Urgent', urgency: 'high',
-    items: [
-      { ref: 'OFF-201', designation: 'Ramettes A4 80g (carton)', qty: 10, unitPrice: 3500, tva: 19 },
-      { ref: 'OFF-045', designation: 'Cartouches imprimante HP', qty: 12, unitPrice: 4500, tva: 19 },
-      { ref: 'OFF-112', designation: 'Classeurs et fournitures bureau', qty: 1, unitPrice: 20000, tva: 19 }
-    ],
-    approvals: [
-      { role: 'Chef Comptable', status: 'approved', date: '2024-01-21', comment: 'Nécessaire.' },
-      { role: 'DAF', status: 'pending' },
-      { role: 'DG', status: 'pending' }
-    ]
-  },
-  {
-    id: 'BC003', numero: 'BC-2024-003', fournisseur: 'Fournisseur Industriel SPA', fournisseurScore: 4.7,
-    dateCreation: '2024-01-15', dateLivraison: '2024-01-22', status: 'received',
-    montantHT: 650000, montantTTC: 773500, demandeur: 'Tahar Rouabah', department: 'Logistique',
-    motif: 'Réapprovisionnement stock stratégique', urgency: 'high',
-    items: [
-      { ref: 'MAT-500', designation: 'Matière Première Grade A', qty: 500, unitPrice: 1100, tva: 9 },
-      { ref: 'MAT-501', designation: 'Emballages Protection', qty: 1000, unitPrice: 150, tva: 19 },
-    ],
-    approvals: [
-      { role: 'Responsable Logistique', status: 'approved', date: '2024-01-15' },
-      { role: 'DAF', status: 'approved', date: '2024-01-16', comment: 'Priorité absolue.' },
-      { role: 'DG', status: 'approved', date: '2024-01-16' }
-    ]
-  },
-  {
-    id: 'BC004', numero: 'BC-2024-004', fournisseur: 'Software License Corp', fournisseurScore: 4.5,
-    dateCreation: '2024-01-10', dateLivraison: '2024-01-15', status: 'cancelled',
-    montantHT: 280000, montantTTC: 333200, demandeur: 'Djamel Khelif', department: 'IT',
-    motif: 'Licences logicielles annuelles – annulé car solution interne retenue', urgency: 'low',
-    items: [
-      { ref: 'SW-001', designation: 'Suite Design Adobe CC (10 postes)', qty: 10, unitPrice: 28000, tva: 19 }
-    ],
-    approvals: [
-      { role: 'Responsable IT', status: 'rejected', date: '2024-01-12', comment: 'Solution alternative développée en interne.' }
-    ]
-  },
-  {
-    id: 'BC005', numero: 'BC-2024-005', fournisseur: 'Logistics Pro EURL', fournisseurScore: 3.5,
-    dateCreation: '2024-01-22', dateLivraison: '2024-02-10', status: 'draft',
-    montantHT: 195000, montantTTC: 232050, demandeur: 'Leila Achour', department: 'Production',
-    motif: 'Équipement ligne de production N°3', urgency: 'medium',
-    items: [
-      { ref: 'PROD-88', designation: 'Composants Mécaniques Série B', qty: 50, unitPrice: 3900, tva: 19 }
-    ],
-    approvals: [
-      { role: 'Directeur Production', status: 'pending' },
-      { role: 'DAF', status: 'pending' },
-      { role: 'DG', status: 'pending' }
-    ]
-  }
-];
-
-const MOCK_FOURNISSEURS_SCORES = [
-  { name: 'Fournisseur Industriel SPA', score: 4.7, delai: '100%', qualite: '98%', prix: '3/5', commandes: 28 },
-  { name: 'Tech Solutions SARL', score: 4.2, delai: '95%', qualite: '94%', prix: '4/5', commandes: 15 },
-  { name: 'Software License Corp', score: 4.5, delai: '98%', qualite: '99%', prix: '2/5', commandes: 8 },
-  { name: 'Office Supplies Co EURL', score: 3.8, delai: '89%', qualite: '90%', prix: '5/5', commandes: 42 },
-  { name: 'Logistics Pro EURL', score: 3.5, delai: '82%', qualite: '87%', prix: '4/5', commandes: 19 }
-];
+const mapPOFromBackend = (po: any): BonCommande => ({
+  id: po.id,
+  numero: po.order_number,
+  fournisseur: po.supplier_name || 'Fournisseur inconnu',
+  fournisseurScore: 4.5,
+  dateCreation: po.created_at ? po.created_at.split('T')[0] : po.order_date,
+  dateLivraison: po.order_date,
+  status: po.status as BCStatus,
+  montantHT: po.total_ht,
+  montantTTC: po.total_ttc,
+  items: (po.items || []).map((item: any) => ({
+    ref: item.barcode || 'REF',
+    designation: item.article_name || item.description || 'Article',
+    qty: item.quantity,
+    unitPrice: item.unit_price,
+    tva: 19
+  })),
+  demandeur: 'Administrateur',
+  department: 'Finance',
+  motif: po.notes || 'Achat de fournitures',
+  approvals: [
+    { role: 'DAF', status: po.status === 'draft' ? 'pending' : 'approved', date: po.order_date }
+  ],
+  urgency: 'medium'
+});
 
 const BonCommande: React.FC = () => {
   const { t } = useTranslation();
@@ -139,23 +81,56 @@ const BonCommande: React.FC = () => {
   const [approvalComment, setApprovalComment] = useState('');
   
   const [orders, setOrders] = useState<BonCommande[]>([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [selected, setSelected] = useState<BonCommande | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
-    const fetchOrders = async () => {
+    const loadData = async () => {
       try {
-        const response = await apiClient.get('/bons-commande');
-        setOrders(response.data as BonCommande[]);
+        const [ordersRes, suppliersRes] = await Promise.all([
+          apiClient.get('/procurement/purchase-orders'),
+          apiClient.get('/suppliers')
+        ]);
+        setOrders((Array.isArray(ordersRes.data) ? ordersRes.data : []).map(mapPOFromBackend));
+        setSuppliers(Array.isArray(suppliersRes.data) ? suppliersRes.data : []);
       } catch (err) {
-        console.error("Failed to fetch BC", err);
+        console.error("Failed to fetch data", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrders();
+    loadData();
   }, []);
+
+  const handleApprove = async () => {
+    if (!selected) return;
+    try {
+      await apiClient.put(`/procurement/purchase-orders/${selected.id}`, { status: 'approved', notes: approvalComment });
+      const response = await apiClient.get('/procurement/purchase-orders');
+      setOrders((Array.isArray(response.data) ? response.data : []).map(mapPOFromBackend));
+      setIsApprovalOpen(false);
+      setApprovalComment('');
+      setSelected(null);
+    } catch (err) {
+      console.error("Failed to approve PO", err);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!selected) return;
+    try {
+      await apiClient.put(`/procurement/purchase-orders/${selected.id}`, { status: 'cancelled', notes: approvalComment });
+      const response = await apiClient.get('/procurement/purchase-orders');
+      setOrders((Array.isArray(response.data) ? response.data : []).map(mapPOFromBackend));
+      setIsApprovalOpen(false);
+      setApprovalComment('');
+      setSelected(null);
+    } catch (err) {
+      console.error("Failed to reject PO", err);
+    }
+  };
 
   const statusConfig: Record<BCStatus, { label: string; color: string; icon: React.ComponentType<any> }> = {
     draft:            { label: t('bc.status.draft'),            color: 'bg-slate-100 text-slate-600',     icon: PencilSquareIcon },
@@ -180,14 +155,27 @@ const BonCommande: React.FC = () => {
     return matchSearch && matchStatus;
   }), [search, statusFilter, orders]);
 
+  const suppliersScores = useMemo(() => {
+    return suppliers.map(s => ({
+      name: s.name,
+      score: s.is_active ? 4.5 : 3.0,
+      delai: s.is_active ? '95%' : '70%',
+      qualite: s.is_active ? '98%' : '80%',
+      prix: '4/5',
+      commandes: orders.filter(o => o.fournisseur === s.name).length
+    }));
+  }, [suppliers, orders]);
+
   const kpis = useMemo(() => ({
     total: orders.length,
     totalValue: orders.reduce((a, b) => a + b.montantTTC, 0),
     pendingApproval: orders.filter(b => b.status === 'pending_approval').length,
     pendingValue: orders.filter(b => b.status === 'pending_approval').reduce((a, b) => a + b.montantTTC, 0),
     received: orders.filter(b => b.status === 'received').length,
-    avgScore: Math.round(MOCK_FOURNISSEURS_SCORES.reduce((a, f) => a + f.score, 0) / MOCK_FOURNISSEURS_SCORES.length * 10) / 10,
-  }), [orders]);
+    avgScore: suppliersScores.length > 0 
+      ? Math.round(suppliersScores.reduce((a, f) => a + f.score, 0) / suppliersScores.length * 10) / 10 
+      : 4.5,
+  }), [orders, suppliersScores]);
 
   const renderStars = (score: number) => {
     return Array(5).fill(0).map((_, i) => (
@@ -356,7 +344,7 @@ const BonCommande: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {MOCK_FOURNISSEURS_SCORES.sort((a, b) => b.score - a.score).map((f, i) => (
+                  {suppliersScores.sort((a, b) => b.score - a.score).map((f, i) => (
                     <tr key={i} className="hover:bg-slate-50">
                       <td className="px-4 py-4">
                         <div className="font-semibold text-slate-800">{f.name}</div>
@@ -394,7 +382,7 @@ const BonCommande: React.FC = () => {
               <h4 className="font-bold text-slate-800 mb-4">{t('bc.analytics.by_status')}</h4>
               <div className="space-y-3">
                 {(['draft','pending_approval','approved','received','cancelled'] as BCStatus[]).map(s => {
-                  const count = MOCK_BC.filter(b => b.status === s).length;
+                  const count = orders.filter(b => b.status === s).length;
                   const Cfg = statusConfig[s];
                   return (
                     <div key={s}>
@@ -402,7 +390,7 @@ const BonCommande: React.FC = () => {
                         <span className="text-slate-700">{Cfg.label}</span>
                         <span className={`px-2 py-0.5 rounded-full ${Cfg.color}`}>{count}</span>
                       </div>
-                      <div className="h-1.5 bg-slate-100 rounded-full"><div className="h-full bg-slate-600 rounded-full" style={{width: `${(count/MOCK_BC.length)*100}%`}}/></div>
+                      <div className="h-1.5 bg-slate-100 rounded-full"><div className="h-full bg-slate-600 rounded-full" style={{width: `${orders.length > 0 ? (count/orders.length)*100 : 0}%`}}/></div>
                     </div>
                   );
                 })}
@@ -412,15 +400,15 @@ const BonCommande: React.FC = () => {
               <h4 className="font-bold text-slate-800 mb-4">{t('bc.analytics.by_department')}</h4>
               <div className="space-y-3">
                 {['IT','Finance','Logistique','Production'].map(dept => {
-                  const val = MOCK_BC.filter(b => b.department === dept).reduce((a, b) => a + b.montantTTC, 0);
-                  const total = MOCK_BC.reduce((a, b) => a + b.montantTTC, 0);
+                  const val = orders.filter(b => b.department === dept).reduce((a, b) => a + b.montantTTC, 0);
+                  const total = orders.reduce((a, b) => a + b.montantTTC, 0);
                   return (
                     <div key={dept}>
                       <div className="flex justify-between text-xs font-semibold mb-1">
                         <span className="text-slate-700">{dept}</span>
                         <span className="text-slate-800">{formatCurrency(val)}</span>
                       </div>
-                      <div className="h-1.5 bg-slate-100 rounded-full"><div className="h-full bg-indigo-500 rounded-full" style={{width: `${(val/total)*100}%`}}/></div>
+                      <div className="h-1.5 bg-slate-100 rounded-full"><div className="h-full bg-indigo-500 rounded-full" style={{width: `${total > 0 ? (val/total)*100 : 0}%`}}/></div>
                     </div>
                   );
                 })}
@@ -538,11 +526,11 @@ const BonCommande: React.FC = () => {
                 placeholder={t('bc.approval.comment_placeholder')} />
             </div>
             <div className="flex gap-3">
-              <button onClick={() => { alert(t('bc.approval.rejected_msg')); setIsApprovalOpen(false); }}
+              <button onClick={handleReject}
                 className="flex-1 py-2.5 text-sm font-bold border-2 border-red-200 text-red-600 rounded-xl hover:bg-red-50 transition-colors">
                 <XCircleIcon className="h-4 w-4 inline mr-1"/>{t('bc.actions.reject')}
               </button>
-              <button onClick={() => { alert(t('bc.approval.approved_msg')); setIsApprovalOpen(false); }}
+              <button onClick={handleApprove}
                 className="flex-1 py-2.5 text-sm font-bold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
                 <CheckCircleIcon className="h-4 w-4 inline mr-1"/>{t('bc.actions.approve')}
               </button>

@@ -232,9 +232,7 @@ const Tresorerie: React.FC = () => {
         const [accountsData, transactionsData] = await Promise.all([
           treasuryService.getAccounts(),
           treasuryService.getTransactions({ limit: 10 })
-        ]);
-
-        if (accountsData && accountsData.length > 0) {
+        ]);        if (accountsData) {
           setBankAccounts(accountsData.map(acc => ({
             id: acc.id,
             name: acc.bank_name,
@@ -244,16 +242,9 @@ const Tresorerie: React.FC = () => {
             lastUpdated: new Date().toISOString().split('T')[0],
             currency: acc.currency
           })));
-        } else {
-          // Mock data if empty
-          setBankAccounts([
-            { id: '1', name: 'Compte Principal', bank: 'BNA', iban: 'DZ61 0010 0000 0000 1234 5678', balance: 1250000, lastUpdated: '2026-05-11', currency: 'DZD' },
-            { id: '2', name: 'Compte Secondaire', bank: 'BADR', iban: 'DZ61 0030 0000 0000 8765 4321', balance: 450000, lastUpdated: '2026-05-11', currency: 'DZD' },
-            { id: '3', name: 'Caisse Cash', bank: 'Siège Social', iban: 'N/A', balance: 120000, lastUpdated: '2026-05-11', currency: 'DZD' },
-          ]);
         }
 
-        if (transactionsData && transactionsData.length > 0) {
+        if (transactionsData) {
           setTransactions(transactionsData.map(tx => ({
             id: tx.id,
             date: tx.date,
@@ -264,33 +255,11 @@ const Tresorerie: React.FC = () => {
             bank: t('accounting.treasury.accounts.prefix') + ' ' + tx.account_code,
             reference: tx.reference
           })));
-        } else {
-          // Mock transactions if empty
-          setTransactions([
-            { id: 'tx1', date: '2026-05-10', description: 'Vente Client #4582', type: 'inflow', amount: 45000, status: 'cleared', reference: 'FAC-2026-012' },
-            { id: 'tx2', date: '2026-05-08', description: 'Loyer Bureau Mai', type: 'outflow', amount: 12000, status: 'cleared', reference: 'QUT-05-2026' },
-            { id: 'tx3', date: '2026-05-05', description: 'Achat Stock - Fournisseur ABC', type: 'outflow', amount: 120000, status: 'cleared', reference: 'BC-2026-045' },
-            { id: 'tx4', date: '2026-05-04', description: 'Vente Client #4581', type: 'inflow', amount: 32500, status: 'cleared', reference: 'FAC-2026-011' },
-            { id: 'tx5', date: '2026-05-01', description: 'Salaires Avril', type: 'outflow', amount: 85000, status: 'cleared', reference: 'PAY-04-2026' },
-            { id: 'tx6', date: '2026-04-28', description: 'Vente Client #4580', type: 'inflow', amount: 15000, status: 'pending', reference: 'FAC-2026-010' },
-          ]);
         }
       } catch (error) {
-        console.error("Error fetching treasury data, using mock data:", error);
-        // Fallback to mock data on error
-        setBankAccounts([
-          { id: '1', name: 'Compte Principal', bank: 'BNA', iban: 'DZ61 0010 0000 0000 1234 5678', balance: 1250000, lastUpdated: '2026-05-11', currency: 'DZD' },
-          { id: '2', name: 'Compte Secondaire', bank: 'BADR', iban: 'DZ61 0030 0000 0000 8765 4321', balance: 450000, lastUpdated: '2026-05-11', currency: 'DZD' },
-          { id: '3', name: 'Caisse Cash', bank: 'Siège Social', iban: 'N/A', balance: 120000, lastUpdated: '2026-05-11', currency: 'DZD' },
-        ]);
-        setTransactions([
-          { id: 'tx1', date: '2026-05-10', description: 'Vente Client #4582', type: 'inflow', amount: 45000, status: 'cleared', reference: 'FAC-2026-012' },
-          { id: 'tx2', date: '2026-05-08', description: 'Loyer Bureau Mai', type: 'outflow', amount: 12000, status: 'cleared', reference: 'QUT-05-2026' },
-          { id: 'tx3', date: '2026-05-05', description: 'Achat Stock - Fournisseur ABC', type: 'outflow', amount: 120000, status: 'cleared', reference: 'BC-2026-045' },
-          { id: 'tx4', date: '2026-05-04', description: 'Vente Client #4581', type: 'inflow', amount: 32500, status: 'cleared', reference: 'FAC-2026-011' },
-          { id: 'tx5', date: '2026-05-01', description: 'Salaires Avril', type: 'outflow', amount: 85000, status: 'cleared', reference: 'PAY-04-2026' },
-          { id: 'tx6', date: '2026-04-28', description: 'Vente Client #4580', type: 'inflow', amount: 15000, status: 'pending', reference: 'FAC-2026-010' },
-        ]);
+        console.error("Error fetching treasury data:", error);
+        setBankAccounts([]);
+        setTransactions([]);
       } finally {
         setLoading(false);
       }

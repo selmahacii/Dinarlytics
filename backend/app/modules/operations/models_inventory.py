@@ -15,6 +15,7 @@ class Invoice(Base):
     invoice_date = Column(Date, nullable=False, index=True)
     due_date = Column(Date)
     client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"))
+    type = Column(String(20), default="sale", nullable=False, index=True)
     total_htt = Column(Numeric(15, 2), default=0)  # Hors Taxes
     total_tva = Column(Numeric(15, 2), default=0)  # TVA
     total_ttc = Column(Numeric(15, 2), default=0)  # Total TTC
@@ -61,6 +62,8 @@ class Article(Base):
     barcode = Column(String(64), unique=True, index=True)
     qr_code_url = Column(String(255), unique=True)
     stock_quantity = Column(Numeric(10, 3), default=0)
+    min_stock_level = Column(Numeric(10, 3), default=10)
+    category = Column(String(100), default="General", index=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     

@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { setupCSRFInterceptor } from '@security/csrfToken';
-import { MOCK_DATA } from './mockData';
 
 // ✅ Force Mock Mode for Demo/Stability if needed
-const IS_DEMO_MODE = true; // Can be linked to process.env.VITE_DEMO_MODE
+const IS_DEMO_MODE = false; // Can be linked to process.env.VITE_DEMO_MODE
 
 /**
  * Clean & Unified Axios Client
@@ -58,23 +57,6 @@ apiClient.interceptors.response.use(
         const { config, response } = error;
         const url = config?.url || '';
 
-        // ✅ MOCK FALLBACK LOGIC
-        // If API fails (Network Error or 404/500/502/503/504) AND we are in Demo Mode
-        const shouldMock = IS_DEMO_MODE || !response || (response.status >= 500) || (response.status === 404);
-
-        if (shouldMock) {
-            const mockKey = Object.keys(MOCK_DATA).find(key => url.includes(key));
-            if (mockKey) {
-                console.warn(`⚠️ [MOCK MODE] Falling back to mock data for: ${url}`);
-                return {
-                    data: (MOCK_DATA as any)[mockKey],
-                    status: 200,
-                    statusText: 'OK (Mock)',
-                    headers: {},
-                    config
-                };
-            }
-        }
 
         console.error('[API Response Error Details]', {
             url: error.config?.url,

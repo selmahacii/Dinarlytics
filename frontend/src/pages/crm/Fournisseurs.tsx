@@ -447,50 +447,62 @@ const Fournisseurs: React.FC = () => {
   } = useSuppliers();
 
   // Local state for suppliers to allow immediate UI updates (Demo Mode)
-  const [fournisseursList, setFournisseursList] = useState<any[]>([
-    { id: 'f-001', nom: 'Global Logistics Algerie', nif: '000116109000101', email: 'contact@global-log.dz', telephone: '023 45 67 89', adresse: 'Zone Industrielle, Oued Smar', balance: 450000, total_purchases: 2850000, status: 'actif' },
-    { id: 'f-002', nom: 'Industrie Plastique Nord', nif: '000216109000202', email: 'sales@ip-nord.dz', telephone: '024 12 34 56', adresse: 'Z.I Rouiba, Alger', balance: 0, total_purchases: 1920000, status: 'actif' },
-    { id: 'f-003', nom: 'Tech Solutions Import', nif: '000316109000303', email: 'info@tech-sol.dz', telephone: '021 98 76 54', adresse: 'Sidi Abdellah, Alger', balance: 125000, total_purchases: 850000, status: 'actif' },
-    { id: 'f-004', nom: 'Papeterie Centrale SPA', nif: '000416109000404', email: 'order@papeterie.dz', telephone: '025 55 44 33', adresse: 'Bordj El Kiffan, Alger', balance: 0, total_purchases: 320000, status: 'actif' }
-  ]);
+  // Local state for suppliers to allow immediate UI updates
+  const [fournisseursList, setFournisseursList] = useState<any[]>([]);
 
-  // Sync API data if available and list is empty (initial load)
+  // Sync API data if available
   useEffect(() => {
-    if (apiFournisseurs && apiFournisseurs.length > 0 && fournisseursList.length === 0) {
-      setFournisseursList(apiFournisseurs);
+    if (apiFournisseurs) {
+      const mapped = apiFournisseurs.map((f: any) => ({
+        id: f.id,
+        nom: f.nom || f.name,
+        nif: f.nif || f.tax_id,
+        email: f.email,
+        telephone: f.telephone || f.phone,
+        adresse: f.adresse || f.address,
+        balance: f.balance || 0,
+        total_purchases: f.total_purchases || 0,
+        status: f.status || 'actif'
+      }));
+      setFournisseursList(mapped);
     }
   }, [apiFournisseurs]);
 
   const mockFournisseurs = fournisseursList;
 
-  const handleFournisseurSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFournisseurSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newFournisseur = {
-      id: selectedFournisseur?.id || `f-${Date.now()}`,
-      nom: formData.get('nom') as string,
-      nif: formData.get('nif') as string,
+    const apiData = {
+      name: formData.get('nom') as string,
+      tax_id: formData.get('nif') as string,
       email: formData.get('email') as string,
-      telephone: formData.get('telephone') as string,
-      adresse: formData.get('adresse') as string,
-      balance: selectedFournisseur?.balance || 0,
-      total_purchases: selectedFournisseur?.total_purchases || 0,
-      status: 'actif'
+      phone: formData.get('telephone') as string,
+      address: formData.get('adresse') as string
     };
 
-    if (selectedFournisseur) {
-      setFournisseursList(fournisseursList.map(f => f.id === selectedFournisseur.id ? { ...f, ...newFournisseur } : f));
-      alert(t('crm.suppliers.messages.supplier_success_updated'));
-    } else {
-      setFournisseursList([...fournisseursList, newFournisseur]);
-      alert(t('crm.suppliers.messages.supplier_success_created'));
+    try {
+      if (selectedFournisseur) {
+        await updateSupplier(selectedFournisseur.id, apiData);
+        alert(t('crm.suppliers.messages.supplier_success_updated'));
+      } else {
+        await createSupplier(apiData);
+        alert(t('crm.suppliers.messages.supplier_success_created'));
+      }
+    } catch (err) {
+      console.error("Failed to submit supplier", err);
     }
     setIsModalOpen(false);
+    setSelectedFournisseur(null);
   };
 
-  const handleLocalDelete = (id: string) => {
+  const handleLocalDelete = async (id: string) => {
     if (confirm(t('crm.suppliers.messages.confirm_delete'))) {
-      setFournisseursList(fournisseursList.filter(f => f.id !== id));
+      try {
+        await deleteSupplier(id);
+      } catch (err) {
+        console.error("Failed to delete supplier", err);
+      }
     }
   };
 

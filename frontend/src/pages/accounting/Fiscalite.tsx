@@ -58,6 +58,7 @@ import G50OfficialDocument from '@shared/components/Documents/G50OfficialDocumen
 import G29OfficialDocument from '@shared/components/Documents/G29OfficialDocument';
 import { fiscalService } from '../../services/modules/fiscalService';
 import { invoiceService } from '../../services/modules/invoiceService';
+import apiClient from '@/services/apiClient';
 
 const Fiscalite: React.FC = () => {
   const { formatCurrency, user, currentDevise, currentCountry, planComptable, fiscalRates, tvaRate, calculateTVA, getTVARate, fiscalDocuments } = useApp();
@@ -157,19 +158,20 @@ const Fiscalite: React.FC = () => {
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
 
   // Recalculer les calculs fiscaux selon la devise actuelle (Moteurs de secours)
-  const baseChiffreAffaires = 5200000;
-  const baseCharges = 3100000;
+  const [dynamicKPI, setDynamicKPI] = useState<any>(null);
+  const [fiscalForecast, setFiscalForecast] = useState<any>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const calculsFiscaux = {
-    chiffreAffaires: baseChiffreAffaires,
-    chargesDeductibles: baseCharges,
-    beneficeImposable: 850000,
-    ibs: 221000,
-    tvaCollectee: 988000,
-    tvaDeductible: 589000,
-    tvaAVerser: 399000,
-    irg: 45000,
-    tap: 104000
+    chiffreAffaires: dynamicKPI?.caHT ?? 0,
+    chargesDeductibles: dynamicKPI?.chargesHT ?? 0,
+    beneficeImposable: dynamicKPI?.benefice ?? 0,
+    ibs: dynamicKPI?.ibs ?? 0,
+    tvaCollectee: dynamicKPI?.tvaColl ?? 0,
+    tvaDeductible: dynamicKPI?.tvaDed ?? 0,
+    tvaAVerser: dynamicKPI?.tvaAVerser ?? 0,
+    irg: dynamicKPI?.irg ?? 0,
+    tap: dynamicKPI?.tap ?? 0
   };
 
   // Taux personnalisables
@@ -178,11 +180,6 @@ const Fiscalite: React.FC = () => {
     tap: 0.02,
     ibs: 0.26
   });
-
-  // Données dynamiques
-  const [dynamicKPI, setDynamicKPI] = useState<any>(null);
-  const [fiscalForecast, setFiscalForecast] = useState<any>(null);
-  const [isExporting, setIsExporting] = useState(false);
 
   // Initialiser les données
   React.useEffect(() => {
@@ -201,6 +198,18 @@ const Fiscalite: React.FC = () => {
       const ibs = benefice > 0 ? benefice * customRates.ibs : 0;
       const tvaAVerser = tvaColl - tvaDed;
 
+      let irg = 45000;
+      try {
+        const empRes = await apiClient.get('/rh/employees');
+        const employees = empRes.data || [];
+        const totalSalaries = employees.reduce((s: number, emp: any) => s + Number(emp.salaireBase || 0), 0);
+        if (totalSalaries > 0) {
+          irg = Math.round(totalSalaries * 0.10);
+        }
+      } catch (e) {
+        console.warn('Failed to load employees for IRG calculation, using default', e);
+      }
+
       setDynamicKPI({
         caHT,
         chargesHT,
@@ -210,7 +219,8 @@ const Fiscalite: React.FC = () => {
         tvaDed,
         tvaAVerser: tvaAVerser > 0 ? tvaAVerser : 0,
         creditTva: tvaAVerser < 0 ? Math.abs(tvaAVerser) : 0,
-        tap: caHT * customRates.tap
+        tap: caHT * customRates.tap,
+        irg
       });
 
       const risks = await fiscalService.getRiskAnalysis();
@@ -222,6 +232,7 @@ const Fiscalite: React.FC = () => {
 
     loadDynamicData();
   }, [customRates]);
+
 
   // Initialiser le calendrier fiscal
   React.useEffect(() => {

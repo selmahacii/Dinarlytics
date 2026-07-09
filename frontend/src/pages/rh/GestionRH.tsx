@@ -46,11 +46,7 @@ interface Bulletin {
   status: PayStatus;
 }
 
-const MOCK_BULLETINS: Bulletin[] = [
-  { mois: 'Janvier 2024', salaireBase: 280000, primes: 45000, cotisationsCnas: 32250, cotisationsCaramate: 8250, impotIrg: 41200, netAPayer: 243300, status: 'paid' },
-  { mois: 'Décembre 2023', salaireBase: 280000, primes: 55000, cotisationsCnas: 33750, cotisationsCaramate: 8750, impotIrg: 43800, netAPayer: 248700, status: 'paid' },
-  { mois: 'Novembre 2023', salaireBase: 280000, primes: 40000, cotisationsCnas: 31500, cotisationsCaramate: 8000, impotIrg: 40100, netAPayer: 240400, status: 'paid' },
-];
+// Bulletin period defaults to current month dynamically
 
 const GestionRH: React.FC = () => {
   const { t } = useTranslation();
@@ -93,8 +89,8 @@ const GestionRH: React.FC = () => {
     total: employees.length,
     actifs: employees.filter(e => e.status === 'actif').length,
     masseSalariale: employees.reduce((a, e) => a + e.salaireBase + e.primes, 0),
-    avgSalary: Math.round(employees.reduce((a, e) => a + e.salaireBase, 0) / employees.length),
-  }), []);
+    avgSalary: employees.length > 0 ? Math.round(employees.reduce((a, e) => a + e.salaireBase, 0) / employees.length) : 0,
+  }), [employees]);
 
   const departments = [...new Set(employees.map(e => e.department))];
 
@@ -408,7 +404,7 @@ const GestionRH: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-slate-400 text-xs uppercase font-bold mb-1">{t('rh.bulletin.period')}</p>
-                  <p className="text-lg font-bold">{MOCK_BULLETINS[0].mois}</p>
+                  <p className="text-lg font-bold">{new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</p>
                 </div>
               </div>
             </div>
