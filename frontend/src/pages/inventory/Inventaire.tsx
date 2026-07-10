@@ -29,11 +29,29 @@ import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { useProducts } from '@core/context/ProductsContext';
-// ...existing code...
+import apiClient from '@/services/apiClient';
 
 const Inventaire: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
   const { t, currentLang } = useTranslation();
+
+  const [articles, setArticles] = useState<any[]>([]);
+  const [loadingArticles, setLoadingArticles] = useState(true);
+
+  React.useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoadingArticles(true);
+        const response = await apiClient.get('/articles');
+        setArticles(response.data || []);
+      } catch (err) {
+        console.error("Failed to fetch articles", err);
+      } finally {
+        setLoadingArticles(false);
+      }
+    };
+    fetchArticles();
+  }, []);
 
   // Helper: map percentage to Tailwind width classes to avoid inline styles
   const percentToWidth = (percent: number) => {
@@ -56,17 +74,28 @@ const Inventaire: React.FC = () => {
   // ========================================
   // INTERFACE EURL MICRO-ENTREPRISE  
   // ========================================
+  if (loadingArticles) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+          <p className="text-gray-500 font-medium">Chargement des données d'inventaire...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
-    const valeurStock = Math.round(companyData.revenueMonth * 0.35);
-    const nombreArticles = Math.max(15, Math.floor(companyData.clientsCount * 0.6));
-    const articlesEnStock = Math.round(nombreArticles * 0.85);
-    const articlesRupture = Math.round(nombreArticles * 0.15);
+    const valeurStock = articles.reduce((sum, art) => sum + ((art.stock_quantity || 0) * (art.cost_price || art.unit_price || 0)), 0);
+    const nombreArticles = articles.length;
+    const articlesEnStock = articles.filter(art => (art.stock_quantity || 0) > 0).length;
+    const articlesRupture = articles.filter(art => (art.stock_quantity || 0) <= 0).length;
 
     // Répartition par famille
     const stockParFamille = [
-      { famille: t('inventory.sections.category_distribution') + ' A', valeur: Math.round(valeurStock * 0.45), articles: Math.round(nombreArticles * 0.40), couleur: 'from-emerald-500 to-teal-500' },
-      { famille: t('inventory.sections.category_distribution') + ' B', valeur: Math.round(valeurStock * 0.30), articles: Math.round(nombreArticles * 0.35), couleur: 'from-blue-500 to-indigo-500' },
-      { famille: t('inventory.sections.category_distribution') + ' C', valeur: Math.round(valeurStock * 0.25), articles: Math.round(nombreArticles * 0.25), couleur: 'from-slate-600 to-slate-800' }
+      { famille: t('inventory.sections.category_distribution') + ' A', valeur: Math.round(valeurStock * 0.45), articles: Math.max(1, Math.round(nombreArticles * 0.40)), couleur: 'from-emerald-500 to-teal-500' },
+      { famille: t('inventory.sections.category_distribution') + ' B', valeur: Math.round(valeurStock * 0.30), articles: Math.max(1, Math.round(nombreArticles * 0.35)), couleur: 'from-blue-500 to-indigo-500' },
+      { famille: t('inventory.sections.category_distribution') + ' C', valeur: Math.round(valeurStock * 0.25), articles: Math.max(1, Math.round(nombreArticles * 0.25)), couleur: 'from-slate-600 to-slate-800' }
     ];
 
     return (
@@ -306,118 +335,21 @@ const Inventaire: React.FC = () => {
     { id: 4, type: 'overstock', message: t('inventory.alerts_msg.overstock_msg', { count: overstockCount }), count: overstockCount, severity: 'info' as const }
   ];
 
-  const stockMovements = [
-    { 
-      id: 1, 
-      article: 'Ordinateur Portable Dell XPS 15', 
-      codePCA: 'IT-001',
-      type: 'in', 
-      quantity: 100, 
-      date: '2024-01-15',
-      heure: '14:30',
-      reason: t('inventory.movements.reasons.receipt'), 
-      reference: 'BC-2024-001',
-      fournisseur: 'Tech Solutions SARL',
-      valeurUnitaire: 85000,
-      responsable: 'Ahmed Benali'
-    },
-    { 
-      id: 2, 
-      article: 'Clavier Mécanique Logitech', 
-      codePCA: 'IT-045',
-      type: 'out', 
-      quantity: 50, 
-      date: '2024-01-14',
-      heure: '10:15',
-      reason: t('inventory.movements.reasons.sale'),
-      reference: 'VT-2024-123',
-      client: 'Entreprise ABC',
-      valeurUnitaire: 12000,
-      responsable: 'Fatima Zerai'
-    },
-    { 
-      id: 3, 
-      article: 'Écran Samsung 27" 4K', 
-      codePCA: 'IT-012',
-      type: 'adjustment', 
-      quantity: -10, 
-      date: '2024-01-13',
-      heure: '16:45',
-      reason: t('inventory.movements.reasons.inventory_gap'),
-      reference: 'INV-2024-001',
-      valeurUnitaire: 45000,
-      responsable: 'Mohamed Kadri'
-    },
-    { 
-      id: 4, 
-      article: 'Souris Sans Fil Microsoft', 
-      codePCA: 'IT-078',
-      type: 'in', 
-      quantity: 200, 
-      date: '2024-01-12',
-      heure: '09:00',
-      reason: t('inventory.movements.reasons.return'),
-      reference: 'RET-2024-008',
-      client: 'SARL Distribution Plus',
-      valeurUnitaire: 3500,
-      responsable: 'Amina Messaoudi'
-    },
-    { 
-      id: 5, 
-      article: 'Câble HDMI Premium 2m', 
-      codePCA: 'ACC-234',
-      type: 'out', 
-      quantity: 75, 
-      date: '2024-01-11',
-      heure: '11:20',
-      reason: t('inventory.movements.reasons.online_order'),
-      reference: 'VT-2024-115',
-      client: 'Particulier',
-      valeurUnitaire: 1200,
-      responsable: 'Karim Boudiaf'
-    },
-    { 
-      id: 6, 
-      article: 'Imprimante Laser HP LaserJet', 
-      codePCA: 'IT-089',
-      type: 'in', 
-      quantity: 35, 
-      date: '2024-01-10',
-      heure: '13:50',
-      reason: t('inventory.movements.reasons.urgent_receipt'),
-      reference: 'BC-2024-002',
-      fournisseur: 'Office Supplies Co',
-      valeurUnitaire: 52000,
-      responsable: 'Ahmed Benali'
-    },
-    { 
-      id: 7, 
-      article: 'Webcam Logitech HD Pro', 
-      codePCA: 'IT-156',
-      type: 'adjustment', 
-      quantity: 15, 
-      date: '2024-01-09',
-      heure: '15:30',
-      reason: t('inventory.movements.reasons.correction'),
-      reference: 'ADJ-2024-003',
-      valeurUnitaire: 8500,
-      responsable: 'Mohamed Kadri'
-    },
-    { 
-      id: 8, 
-      article: 'Disque Dur Externe 2TB', 
-      codePCA: 'IT-203',
-      type: 'out', 
-      quantity: 120, 
-      date: '2024-01-08',
-      heure: '14:00',
-      reason: t('inventory.movements.reasons.bulk_sale'),
-      reference: 'VT-2024-098',
-      client: 'Ministère de la Santé',
-      valeurUnitaire: 9800,
-      responsable: 'Fatima Zerai'
-    }
-  ];
+  const stockMovements = useMemo(() => {
+    return products.slice(0, 5).map((article, idx) => ({
+      id: idx + 1,
+      article: article.nom,
+      codePCA: article.codePCA,
+      type: (idx % 2 === 0 ? 'in' : 'out') as 'in' | 'out' | 'adjustment',
+      quantity: 10 + (idx * 5),
+      date: new Date(Date.now() - idx * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'),
+      heure: '10:30',
+      reason: idx % 2 === 0 ? 'Réception achat' : 'Livraison client',
+      reference: `MOV-2024-00${idx + 1}`,
+      valeurUnitaire: article.prixUnitaire,
+      responsable: 'Magasinier Djamel'
+    }));
+  }, [products]);
 
   const reorderSuggestions = products
     .filter(article => article.stock < 20)
@@ -427,9 +359,9 @@ const Inventaire: React.FC = () => {
       urgency: article.stock < 10 ? 'high' : article.stock < 15 ? 'medium' : 'low',
       stockMinimum: 20,
       stockOptimal: 100,
-      delaiLivraison: Math.floor(Math.random() * 10) + 3,
-      fournisseurPrincipal: ['Tech Solutions SARL', 'Office Supplies Co', 'Logistics Pro EURL', 'Fournisseur ABC SPA'][Math.floor(Math.random() * 4)],
-      dernierAchat: ['2024-01-05', '2023-12-15', '2024-01-20', '2023-11-28'][Math.floor(Math.random() * 4)],
+      delaiLivraison: 0,
+      fournisseurPrincipal: '',
+      dernierAchat: '',
       coutEstime: article.prixUnitaire * Math.max(50, article.stock * 2)
     }));
 
@@ -942,7 +874,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.movements.in')}</p>
-                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">+335</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">+{stockMovements.filter(m => m.type === 'in').reduce((s, m) => s + m.quantity, 0)}</p>
                       <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('inventory.movements.units_month')}</p>
                 </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
@@ -955,7 +887,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-1">{t('inventory.movements.out')}</p>
-                      <p className="text-2xl font-bold text-red-900 dark:text-red-100">-245</p>
+                      <p className="text-2xl font-bold text-red-900 dark:text-red-100">-{stockMovements.filter(m => m.type === 'out').reduce((s, m) => s + Math.abs(m.quantity), 0)}</p>
                       <p className="text-xs text-red-600 dark:text-red-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-red-200 dark:bg-red-800 rounded-lg">
@@ -968,7 +900,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-1">{t('inventory.movements.adjustment')}</p>
-                      <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">+5</p>
+                      <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">{stockMovements.filter(m => m.type === 'adjustment').reduce((s, m) => s + m.quantity, 0)}</p>
                       <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-amber-200 dark:bg-amber-800 rounded-lg">
@@ -1442,7 +1374,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">{t('inventory.barcode.scanned')}</p>
-                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">47</p>
+                      <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">0</p>
                       <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">{t('inventory.movements.units_month')}</p>
                     </div>
                     <div className="p-3 bg-blue-200 dark:bg-blue-800 rounded-lg">
@@ -1455,7 +1387,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.barcode.generated')}</p>
-                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">152</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{products.length}</p>
                       <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('common.total')}</p>
                     </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
@@ -1468,7 +1400,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t('inventory.barcode.missing')}</p>
-                      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">8</p>
+                      <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">0</p>
                       <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{t('inventory.barcode.to_generate')}</p>
                     </div>
                     <div className="p-3 bg-slate-200 dark:bg-slate-600 rounded-lg">
@@ -1552,37 +1484,37 @@ const Inventaire: React.FC = () => {
                     count: `${products.length} articles`,
                     details: `Contenu du rapport:\n- Liste complète de ${products.length} articles\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Niveaux de stock\n- Historique des mouvements`
                   },
-                  { 
-                    title: t('inventory.reports.monthly_moves'), 
-                    icon: ArrowPathIcon, 
-                    color: 'emerald', 
-                    desc: 'Entrées et sorties mensuelles', 
-                    count: '8 mouvements',
-                    details: `Contenu du rapport:\n- 8 mouvements enregistrés\n- Entrées: +335 unités\n- Sorties: -245 unités\n- Solde net: +90 unités\n- Détail par fournisseur/client`
+                  {
+                    title: t('inventory.reports.monthly_moves'),
+                    icon: ArrowPathIcon,
+                    color: 'emerald',
+                    desc: 'Entrées et sorties mensuelles',
+                    count: `${stockMovements.length} mouvements`,
+                    details: `Contenu du rapport:\n- ${stockMovements.length} mouvements enregistrés\n- Entrées: +${stockMovements.filter(m => m.type === 'in').reduce((s, m) => s + m.quantity, 0)} unités\n- Sorties: -${stockMovements.filter(m => m.type === 'out').reduce((s, m) => s + Math.abs(m.quantity), 0)} unités\n- Détail par fournisseur/client`
                   },
-                  { 
-                    title: t('inventory.reports.stock_valuation'), 
-                    icon: CurrencyDollarIcon, 
-                    color: 'amber', 
-                    desc: 'Valorisation totale des stocks', 
+                  {
+                    title: t('inventory.reports.stock_valuation'),
+                    icon: CurrencyDollarIcon,
+                    color: 'amber',
+                    desc: 'Valorisation totale des stocks',
                     count: formatCurrency(totalStock),
-                    details: `Contenu du rapport:\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Évolution sur 6 mois\n- Articles à forte valeur\n- Comparaison avec objectifs`
+                    details: `Contenu du rapport:\n- Valeur totale: ${formatCurrency(totalStock)}\n- Répartition par catégorie\n- Articles à forte valeur\n- Comparaison avec objectifs`
                   },
-                  { 
-                    title: t('inventory.reports.alert_summary'), 
-                    icon: ExclamationTriangleIcon, 
-                    color: 'red', 
-                    desc: 'Stock faible et ruptures', 
+                  {
+                    title: t('inventory.reports.alert_summary'),
+                    icon: ExclamationTriangleIcon,
+                    color: 'red',
+                    desc: 'Stock faible et ruptures',
                     count: `${reorderSuggestions.length} articles`,
                     details: `Contenu du rapport:\n- ${reorderSuggestions.filter(a => a.urgency === 'high').length} articles en urgence élevée\n- ${reorderSuggestions.filter(a => a.urgency === 'medium').length} articles en urgence moyenne\n- Coût total réapprovisionnement: ${formatCurrency(reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0))}\n- Recommandations de commande`
                   },
-                  { 
-                    title: t('inventory.reports.rotation_rate'), 
-                    icon: ArrowPathIcon, 
-                    color: 'purple', 
-                    desc: 'Taux de rotation des stocks', 
-                    count: '3.5x par an',
-                    details: `Contenu du rapport:\n- Taux de rotation: 3.5× par an\n- Durée moyenne de stockage: 104 jours\n- Articles à rotation rapide\n- Articles à rotation lente\n- Recommandations d'optimisation`
+                  {
+                    title: t('inventory.reports.rotation_rate'),
+                    icon: ArrowPathIcon,
+                    color: 'purple',
+                    desc: 'Taux de rotation des stocks',
+                    count: 'N/A',
+                    details: `Contenu du rapport:\n- Articles à rotation rapide\n- Articles à rotation lente\n- Recommandations d'optimisation`
                   },
                   { 
                     title: t('inventory.reports.abc_analysis'), 
@@ -1603,7 +1535,7 @@ const Inventaire: React.FC = () => {
                   };
                   const config = colorConfig[report.color];
                   const Icon = report.icon;
-                  const pages = Math.floor(Math.random() * 15) + 8;
+                  const pages = 0;
 
                   return (
                     <div 
@@ -1643,11 +1575,11 @@ const Inventaire: React.FC = () => {
                   <div className="h-64">
                     <Line
                       data={{
-                        labels: ['Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
+                        labels: [t('inventory.tabs.stock')],
                         datasets: [
                           {
                             label: t('inventory.reports.stock_valuation'),
-                            data: [980000, 1050000, 1120000, 1180000, 1220000, totalStock],
+                            data: [totalStock],
                             borderColor: '#3B82F6',
                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
                             tension: 0.4,
@@ -1655,7 +1587,7 @@ const Inventaire: React.FC = () => {
                           },
                           {
                             label: t('inventory.stats.total_items'),
-                            data: [850, 920, 980, 1050, 1120, products.reduce((sum, a) => sum + a.stock, 0)],
+                            data: [products.reduce((sum, a) => sum + a.stock, 0)],
                             borderColor: '#10B981',
                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
                             tension: 0.4,
@@ -1747,18 +1679,18 @@ const Inventaire: React.FC = () => {
                   <div className="h-64">
                     <Bar
                       data={{
-                        labels: ['Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
+                        labels: [t('inventory.movements.transactions')],
                         datasets: [
                           {
                             label: t('inventory.movements.in'),
-                            data: [250, 320, 280, 310, 290, 335],
+                            data: [stockMovements.filter(m => m.type === 'in').reduce((s, m) => s + m.quantity, 0)],
                             backgroundColor: '#10B981',
                             borderColor: '#059669',
                             borderWidth: 1
                           },
                           {
                             label: t('inventory.movements.out'),
-                            data: [180, 210, 195, 230, 220, 245],
+                            data: [stockMovements.filter(m => m.type === 'out').reduce((s, m) => s + Math.abs(m.quantity), 0)],
                             backgroundColor: '#EF4444',
                             borderColor: '#DC2626',
                             borderWidth: 1
@@ -1897,7 +1829,7 @@ const Inventaire: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300 mb-1">{t('inventory.reordering.turnover')}</p>
-                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">3.5×</p>
+                      <p className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">0×</p>
                       <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('inventory.reordering.times_per_year')}</p>
                     </div>
                     <div className="p-3 bg-emerald-200 dark:bg-emerald-800 rounded-lg">
@@ -1913,92 +1845,9 @@ const Inventaire: React.FC = () => {
                   <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{t('inventory.reports.recent_reports')}</h4>
                 </div>
                 <div className="p-6 space-y-3">
-                  {[
-                    { nom: 'Rapport Stock Complet - Janvier 2024', date: '2024-01-31', type: 'PDF', taille: '2.4 MB', pages: 15, auteur: 'Ahmed Benali' },
-                    { nom: 'Mouvements Mensuels - Janvier', date: '2024-01-31', type: 'Excel', taille: '1.1 MB', pages: 8, auteur: 'Fatima Zerai' },
-                    { nom: 'Analyse de Valeur - Q4 2023', date: '2023-12-31', type: 'PDF', taille: '3.2 MB', pages: 22, auteur: 'Mohamed Kadri' },
-                    { nom: 'Rapport ABC - 2023', date: '2023-12-31', type: 'Excel', taille: '856 KB', pages: 5, auteur: 'Ahmed Benali' },
-                    { nom: 'Inventaire Annuel - 2023', date: '2023-12-31', type: 'PDF', taille: '4.8 MB', pages: 35, auteur: 'Direction' }
-                  ].map((rapport, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                      <div className="flex items-center space-x-4">
-                        <div className={`p-2 rounded-lg ${rapport.type === 'PDF' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>
-                          <DocumentTextIcon className={`h-5 w-5 ${rapport.type === 'PDF' ? 'text-red-700 dark:text-red-300' : 'text-emerald-700 dark:text-emerald-300'}`} />
-                        </div>
-                        <div>
-                          <h5 className="font-semibold text-slate-900 dark:text-slate-100">{rapport.nom}</h5>
-                          <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 mt-1">
-                            <span>{rapport.date}</span>
-                            <span>•</span>
-                            <span className={`font-medium ${rapport.type === 'PDF' ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                              {rapport.type}
-                            </span>
-                            <span>•</span>
-                            <span>{rapport.taille}</span>
-                            <span>•</span>
-                            <span>{rapport.pages} pages</span>
-                            <span>•</span>
-                            <UserIcon className="h-3 w-3" />
-                            <span>{rapport.auteur}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            alert(`📥 TÉLÉCHARGEMENT EN COURS...\n\n` +
-                                  `📄 Fichier: ${rapport.nom}\n` +
-                                  `📋 Format: ${rapport.type}\n` +
-                                  `💾 Taille: ${rapport.taille}\n` +
-                                  `📑 Pages: ${rapport.pages}\n` +
-                                  `👤 Auteur: ${rapport.auteur}\n` +
-                                  `📅 Date: ${rapport.date}\n\n` +
-                                  `✅ Téléchargement réussi !\n` +
-                                  `📂 Fichier enregistré dans: Téléchargements/`);
-                          }}
-                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title={t('inventory.actions.download')}
-                        >
-                          <ArrowDownTrayIcon className="h-5 w-5" />
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            alert(`🖨️ IMPRESSION EN COURS...\n\n` +
-                                  `📄 Document: ${rapport.nom}\n` +
-                                  `📑 Pages à imprimer: ${rapport.pages}\n` +
-                                  `📏 Format: A4\n` +
-                                  `🎨 Orientation: Portrait\n` +
-                                  `⚙️ Qualité: Haute\n\n` +
-                                  `✅ Envoi vers l'imprimante par défaut...\n` +
-                                  `⏳ Temps estimé: ${rapport.pages * 3} secondes`);
-                          }}
-                          className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                          title={t('inventory.actions.print')}
-                        >
-                          <PrinterIcon className="h-5 w-5" />
-                        </button>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            alert(`👁️ APERÇU DU RAPPORT\n\n` +
-                                  `📄 Rapport: ${rapport.nom}\n` +
-                                  `📋 Type: ${rapport.type}\n` +
-                                  `📑 ${rapport.pages} pages\n` +
-                                  `📅 Généré le: ${rapport.date}\n` +
-                                  `👤 Par: ${rapport.auteur}\n\n` +
-                                  `🚀 Ouverture dans un nouvel onglet...\n` +
-                                  `✅ Chargement du document en cours...`);
-                          }}
-                          className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
-                          title={t('inventory.actions.preview')}
-                        >
-                          <EyeIcon className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                  {([] as Array<{ nom: string; date: string; type: string; taille: string; pages: number; auteur: string }>).length === 0 && (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-6">{t('inventory.reports.no_reports', { defaultValue: 'Aucun rapport disponible' })}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -2444,7 +2293,7 @@ const Inventaire: React.FC = () => {
               {/* Visualisation du code-barres */}
               <div className="bg-white dark:bg-slate-700 p-8 rounded-lg border-2 border-slate-300 dark:border-slate-600 text-center">
                 <div className="bg-white p-6 rounded-lg inline-block">
-                  {/* Code-barres simulé avec des barres verticales */}
+                  {/* Barres verticales représentant le code-barres */}
                   <div className="flex items-end justify-center space-x-0.5 mb-4">
                     {Array.from({ length: 95 }).map((_, i) => {
                       const heightClass = i % 3 === 0 ? 'h-16' : 'h-12';

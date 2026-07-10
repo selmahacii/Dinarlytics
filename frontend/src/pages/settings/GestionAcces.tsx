@@ -17,13 +17,14 @@ import {
   ArrowPathIcon,
   CurrencyDollarIcon,
   ClockIcon,
-  UserGroupIcon,
-  SparklesIcon
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
 import { COMPANY_TYPES, ACCESS_LEVELS, COMPANY_SIZES, AVAILABLE_MODULES } from "@/types/CompanyTypes";
 import Modal from '@shared/components/UI/Modal';
 import Card from '@shared/components/UI/Card';
 import CompanyWizard from '@shared/components/CompanyWizard';
+import apiClient from '@/services/apiClient';
+import { useEffect } from 'react';
 
 interface Company {
   id: number;
@@ -41,50 +42,41 @@ interface Company {
 }
 
 const GestionAcces: React.FC = () => {
-  const [companies, setCompanies] = useState<Company[]>([
-    {
-      id: 1,
-      name: 'Dinarlytic SARL',
-      type: 'sarl',
-      size: 'medium',
-      accessLevel: 'professional',
-      users: 8,
-      maxUsers: 10,
-      status: 'active',
-      createdAt: '2024-01-15',
-      lastActivity: '2024-09-22',
-      revenue: 15000000,
-      employees: 25
-    },
-    {
-      id: 2,
-      name: 'TechStart EURL',
-      type: 'eurl',
-      size: 'micro',
-      accessLevel: 'starter',
-      users: 2,
-      maxUsers: 2,
-      status: 'trial',
-      createdAt: '2024-08-10',
-      lastActivity: '2024-09-21',
-      revenue: 2500000,
-      employees: 3
-    },
-    {
-      id: 3,
-      name: 'Groupe Industriel SPA',
-      type: 'spa',
-      size: 'large',
-      accessLevel: 'enterprise',
-      users: 45,
-      maxUsers: 100,
-      status: 'active',
-      createdAt: '2024-03-20',
-      lastActivity: '2024-09-22',
-      revenue: 500000000,
-      employees: 150
-    }
-  ]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCompanyData = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/auth/me');
+        const userData = response.data;
+        if (userData) {
+          setCompanies([
+            {
+              id: 1,
+              name: userData.company_name || 'Ma Société',
+              type: userData.company_type || 'sarl',
+              size: userData.segment || 'small',
+              accessLevel: userData.segment === 'micro' ? 'micro' : 'small',
+              users: 1,
+              maxUsers: 5,
+              status: 'active',
+              createdAt: '2024-01-01',
+              lastActivity: new Date().toLocaleDateString('fr-FR'),
+              revenue: 12000000,
+              employees: 5
+            }
+          ]);
+        }
+      } catch (err) {
+        console.error("Failed to load access company list", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadCompanyData();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -183,6 +175,14 @@ const GestionAcces: React.FC = () => {
     return 'text-green-600';
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* En-tête */}
@@ -192,13 +192,6 @@ const GestionAcces: React.FC = () => {
           <p className="text-gray-600 mt-2">Gérez les accès différenciés selon le type et la taille d'entreprise</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-0">
-          <a
-            href="/gestion-acces-avancee"
-            className="flex-1 sm:flex-none bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors flex items-center justify-center font-medium shadow-lg text-sm"
-          >
-            <SparklesIcon className="h-5 w-5 mr-2" />
-            Démo Interactive
-          </a>
           <button
             onClick={() => setIsWizardOpen(true)}
             className="flex-1 sm:flex-none bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center text-sm font-medium"

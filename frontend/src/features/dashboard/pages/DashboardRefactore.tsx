@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import {
   TresorerieWidget,
@@ -7,6 +7,7 @@ import {
   ScenariosWidget
 } from '../components';
 import { AlerteFinanciere } from '@shared/mockData/dashboardMocks';
+import apiClient from '@/services/apiClient';
 
 import { Link } from 'react-router-dom';
 import { 
@@ -57,7 +58,7 @@ const ReviewerGuide: React.FC = () => {
               CLIQUEZ ICI
             </div>
           </Link>
-
+ 
           <Link 
             to="/audit-explorer" 
             className="flex items-center justify-between bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 p-4 rounded-xl transition-all group"
@@ -73,7 +74,7 @@ const ReviewerGuide: React.FC = () => {
               EXPLORER
             </div>
           </Link>
-
+ 
           <Link 
             to="/rapports/analytics" 
             className="flex items-center justify-between bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 p-4 rounded-xl transition-all group"
@@ -93,14 +94,86 @@ const ReviewerGuide: React.FC = () => {
   );
 };
 
+import { useApp } from '@core/context/AppContext';
+
 const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
   isCollapsible = false,
   defaultCollapsed = false
 }) => {
   const { t } = useTranslation();
+  const { companyData, currentDevise } = useApp();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [alertes, setAlertes] = useState<AlerteFinanciere[]>([]);
   const [scenarioSelectionne, setScenarioSelectionne] = useState(2); // Scénario réaliste (id=2)
+
+  const tresorerieData = {
+    soldeActuel: companyData?.cashBalance || 0,
+    soldeItineraire: Math.round((companyData?.cashBalance || 0) * 0.15),
+    entrees30j: companyData?.revenueMonth || 0,
+    sorties30j: companyData?.totalPayables || 0,
+    fluxNetMensuel: (companyData?.revenueMonth || 0) - (companyData?.totalPayables || 0)
+  };
+
+  const ratiosData = {
+    liquidite: companyData?.cashBalance && companyData?.totalPayables ? Number((companyData.cashBalance / Math.max(1, companyData.totalPayables)).toFixed(2)) : 1.8,
+    autonomieFinanciere: 0.65,
+    endettement: 0.35,
+    solvabilite: companyData?.totalReceivables && companyData?.totalPayables ? Number((companyData.totalReceivables / Math.max(1, companyData.totalPayables)).toFixed(2)) : 2.1
+  };
+
+  const baseRevenue = companyData?.revenueMonth || 5000000;
+  const scenariosData = [
+    {
+      id: 1,
+      nom: 'Prudent',
+      ca_mois6: Math.round(baseRevenue * 0.9 * 6),
+      profit_mois6: Math.round(baseRevenue * 0.9 * 6 * 0.15),
+      tresorerie_mois6: Math.round((companyData?.cashBalance || 20000000) + (baseRevenue * 0.9 * 6 * 0.05)),
+      risque: 'FAIBLE' as const
+    },
+    {
+      id: 2,
+      nom: 'Réaliste',
+      ca_mois6: Math.round(baseRevenue * 6),
+      profit_mois6: Math.round(baseRevenue * 6 * 0.20),
+      tresorerie_mois6: Math.round((companyData?.cashBalance || 20000000) + (baseRevenue * 6 * 0.10)),
+      risque: 'MOYEN' as const
+    },
+    {
+      id: 3,
+      nom: 'Optimiste',
+      ca_mois6: Math.round(baseRevenue * 1.25 * 6),
+      profit_mois6: Math.round(baseRevenue * 1.25 * 6 * 0.25),
+      tresorerie_mois6: Math.round((companyData?.cashBalance || 20000000) + (baseRevenue * 1.25 * 6 * 0.18)),
+      risque: 'HAUTE' as const
+    }
+  ];
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        const response = await apiClient.get('/analytics/alerts');
+        const data = response.data || [];
+        const mapped = data.map((item: any) => ({
+          id: item.alert_code || 'alert',
+          nom: item.alert_name || 'Alerte',
+          description: `Déclenchée si la valeur ${item.comparison_operator || ''} ${item.threshold_value || 0}`,
+          statut: item.enabled ? 'Surveillance' : 'Inactive',
+          seuil: item.threshold_value || 0,
+          valeurActuelle: 0,
+          unite: item.alert_code === 'liquidity_ratio' ? 'ratio' : 'DA',
+          frequence: 'temps_reel',
+          derniereAlerte: null,
+          destinataires: ['Admin'],
+          active: item.enabled || false
+        }));
+        setAlertes(mapped);
+      } catch (err) {
+        console.error("Failed to load alerts", err);
+      }
+    };
+    fetchAlerts();
+  }, []);
   const [widgets, setWidgets] = useState({
     tresorerie: true,
     alertes: true,
@@ -172,8 +245,8 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
         {/* Trésorerie */}
         {widgets.tresorerie && (
           <TresorerieWidget
-            data={null}
-            devise="DZD"
+            data={tresorerieData}
+            devise={currentDevise}
             onAnalyseClick={() => handleAnalyseWithLIA('tresorerie')}
           />
         )}
@@ -181,7 +254,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
         {/* Ratios */}
         {widgets.ratios && (
           <RatiosWidget
-            data={null}
+            data={ratiosData}
             onAnalyseClick={() => handleAnalyseWithLIA('ratios')}
           />
         )}
@@ -190,7 +263,7 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
       {/* Scénarios - Full width */}
       {widgets.scenarios && (
         <ScenariosWidget
-          scenarios={[]}
+          scenarios={scenariosData}
           scenarioSelectionne={scenarioSelectionne}
           onSelectScenario={setScenarioSelectionne}
           onAnalyseClick={() => handleAnalyseWithLIA('scenarios')}

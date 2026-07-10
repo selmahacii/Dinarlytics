@@ -16,7 +16,6 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
   ClockIcon,
-  StarIcon,
   XCircleIcon,
   ArrowPathIcon,
   SparklesIcon,
@@ -47,17 +46,7 @@ import Tooltip from '@shared/components/UI/Tooltip';
 import apiClient from '@/services/apiClient';
 import { useArticles } from '@shared/hooks/useArticles';
 
-// Données de codes-barres initiales
-const initialBarcodesData = [
-  { id: 1, article: 'Emballage C', type: 'EAN-13', code: '6011234567890', status: 'Actif', dateCreation: '15/09/2025', categorie: 'Fournitures' },
-  { id: 2, article: 'Matière première A', type: 'EAN-13', code: '6011234567891', status: 'Actif', dateCreation: '12/09/2025', categorie: 'Matières premières' },
-  { id: 3, article: 'Produit fini B', type: 'EAN-13', code: '3551234567892', status: 'Actif', dateCreation: '10/09/2025', categorie: 'Produits finis' },
-  { id: 4, article: 'Emballage C', type: 'QR Code', code: 'QR-602100-001', status: 'Actif', dateCreation: '15/09/2025', categorie: 'Fournitures' },
-  { id: 5, article: 'Matière première A', type: 'Code-128', code: 'C128-601100', status: 'Actif', dateCreation: '12/09/2025', categorie: 'Matières premières' },
-  { id: 6, article: 'Produit fini B', type: 'QR Code', code: 'QR-355000-001', status: 'Inactif', dateCreation: '08/09/2025', categorie: 'Produits finis' },
-  { id: 7, article: 'Accessoire D', type: 'EAN-13', code: '7781234567893', status: 'Actif', dateCreation: '05/09/2025', categorie: 'Accessoires' },
-  { id: 8, article: 'Fourniture E', type: 'Code-128', code: 'C128-778900', status: 'Actif', dateCreation: '03/09/2025', categorie: 'Fournitures' }
-];
+const initialBarcodesData: Array<{ id: number; article: string; type: string; code: string; status: string; dateCreation: string; categorie: string }> = [];
 
 const Articles: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
@@ -109,13 +98,17 @@ const Articles: React.FC = () => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const response = await apiClient.get('/documents/articles/stats');
-        setArticlesStats(response.data as { total: number; active: number; rotation: number; topSellers?: any[] });
+        const response = await apiClient.get('/articles/stats');
+        const data = response.data;
+        setArticlesStats({
+          total: data.total_articles || 0,
+          active: data.active_articles || 0,
+          rotation: 8.5
+        });
         setErrorStats(null);
       } catch (err) {
         console.error('Error fetching article stats:', err);
         setErrorStats('Erreur lors du chargement des statistiques');
-        // Set default stats if API fails
         setArticlesStats({
           total: products.length,
           active: Math.round(products.length * 0.85),
@@ -588,17 +581,12 @@ const Articles: React.FC = () => {
 
 
   // Données ERPNext pour les articles
-  const articleCategories = [
-    { id: 1, name: 'Matières Premières', code: 'MP', count: 45, value: 125000 },
-    { id: 2, name: 'Produits Finis', code: 'PF', count: 32, value: 280000 },
-    { id: 3, name: 'Marchandises', code: 'M', count: 28, value: 95000 },
-    { id: 4, name: 'Fournitures', code: 'F', count: 15, value: 35000 }
-  ];
+  const articleCategories: Array<{ id: number; name: string; code: string; count: number; value: number }> = [];
 
   // Fonctions de gestion des codes-barres
   const handleDeleteBarcode = (barcode: any) => {
     if (!("id" in barcode)) {
-      return; // Exemple/démo sans ID: ignorer l'action destructive
+      return;
     }
     if (confirm(`Êtes-vous sûr de vouloir supprimer le code "${barcode.code}" ?\n\nArticle: ${barcode.article}\n\nCette action est irréversible.`)) {
       setBarcodes(barcodes.filter(b => b.id !== barcode.id));
@@ -610,7 +598,7 @@ const Articles: React.FC = () => {
 
   const handleUpdateBarcodeStatus = (barcode: any) => {
     if (!("id" in barcode)) {
-      return; // Exemple/démo sans ID: ignorer l'action de statut
+      return;
     }
     const newStatus = barcode.status === 'Actif' ? 'Inactif' : 'Actif';
     setBarcodes(barcodes.map(b =>
@@ -638,22 +626,6 @@ const Articles: React.FC = () => {
 
   const handleDownloadPDF = () => {
     alert('📄 Génération du PDF en cours...\n\n' + barcodes.length + ' codes-barres inclus\nFichier: codes_barres_catalogue.pdf\n\n✅ PDF prêt pour le téléchargement !');
-  };
-
-  // Exemples de démo pour codes-barres
-  const demoExamples = [
-    { article: 'Laptop Dell XPS 15', type: 'EAN-13', code: '9876543210987', categorie: 'Électronique' },
-    { article: 'Chaise de Bureau Ergonomique', type: 'Code-128', code: 'CB-CHAIR-2025', categorie: 'Mobilier' },
-    { article: 'Smartphone Samsung Galaxy', type: 'QR Code', code: 'QR-SAMSUNG-S24', categorie: 'Téléphonie' },
-    { article: 'Clavier Mécanique RGB', type: 'EAN-13', code: '5432109876543', categorie: 'Accessoires' }
-  ];
-
-  const handleLoadDemoExample = (index: number) => {
-    const example = demoExamples[index];
-    setNewBarcode({
-      ...example,
-      status: 'Actif'
-    });
   };
 
   const handleAddManualBarcode = () => {
@@ -720,11 +692,7 @@ const Articles: React.FC = () => {
   };
 
   // Derive barcode data for display
-  const barcodeData = selectedArticle ? barcodes.filter(b => b.article === selectedArticle.nom) : [
-    { article: 'Article A', categorie: 'Cat A', type: 'EAN-13', code: '1234567890123', status: 'Actif' },
-    { article: 'Article A', categorie: 'Cat A', type: 'Code-128', code: 'ABC123456', status: 'Actif' },
-    { article: 'Article A', categorie: 'Cat A', type: 'QR Code', code: 'QR-ABC-123', status: 'Inactif' }
-  ];
+  const barcodeData = selectedArticle ? barcodes.filter(b => b.article === selectedArticle.nom) : [];
 
   return (
     <div className="space-y-6">
@@ -1583,14 +1551,6 @@ const Articles: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2"><StarIcon className="h-4 w-4" /> Exemples de Préréglages</p>
-                    <div className="flex flex-wrap gap-2">
-                      {demoExamples.slice(0, 3).map((ex, i) => (
-                        <button key={i} onClick={() => handleLoadDemoExample(i)} className="px-4 py-2 bg-white border border-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest hover:border-slate-900 transition-all">{ex.article}</button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
 
                 <div className="bg-slate-50 p-8 rounded-[2.5rem] flex flex-col justify-between border border-slate-100">

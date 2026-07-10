@@ -28,6 +28,7 @@ import {
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
+import apiClient from '@/services/apiClient';
 
 const GestionEntreprise: React.FC = () => {
   const { t } = useTranslation();
@@ -77,10 +78,38 @@ const GestionEntreprise: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const initialEntreprises: any[] = [];
-
   useEffect(() => {
-    setEntreprises(initialEntreprises);
+    const loadEntreprises = async () => {
+      try {
+        const response = await apiClient.get('/auth/me');
+        const userData = response.data;
+        if (userData) {
+          setEntreprises([
+            {
+              id: userData.company_id || '1',
+              nom: userData.company_name || 'Ma Société',
+              raisonSociale: userData.company_name || 'Ma Société SARL',
+              siret: '12345678901234',
+              tvaNumber: 'DZ123456789',
+              adresse: '123 Boulevard des Martyrs',
+              ville: 'Alger',
+              codePostal: '16000',
+              pays: 'Algérie',
+              telephone: '+213 21 00 00 00',
+              email: 'contact@societe.dz',
+              siteWeb: 'www.societe.dz',
+              devise: 'DZD',
+              planComptable: 'algerien',
+              logo: '',
+              description: 'Entreprise principale'
+            }
+          ]);
+        }
+      } catch (err) {
+        console.error("Failed to load user companies", err);
+      }
+    };
+    loadEntreprises();
   }, []);
 
   const filteredEntreprises = entreprises.filter(entreprise =>

@@ -28,6 +28,7 @@ import { logAction, getLogsForUser, clearLogsForUser, ActivityLogEntry } from '@
 import Modal from '@shared/components/UI/Modal';
 import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
+import apiClient from '@/services/apiClient';
 import { usePermission } from '@shared/hooks/usePermission';
 import { AdaptiveContentDisplay, AdaptiveContentGenerator } from '@shared/utils/AdaptiveContent';
 import { useTranslation } from '@shared/hooks/useTranslation';
@@ -57,11 +58,8 @@ interface Role {
   couleur: string;
 }
 
-const ENTREPRISES = [
-  { name: 'Dinarlytic SARL', companyType: 'sarl', accessLevel: 'professional' },
-  { name: 'El Amel EURL', companyType: 'eurl', accessLevel: 'starter' },
-  { name: 'Nord Holding SPA', companyType: 'spa', accessLevel: 'enterprise' }
-];
+const ENTREPRISES: { name: string; companyType: string; accessLevel: string }[] = [];
+const DEFAULT_ENTREPRISE = { name: '', companyType: '', accessLevel: '' };
 
 const STORAGE_KEY_USERS = 'admin_users_v1';
 
@@ -79,83 +77,7 @@ const GestionUtilisateurs: React.FC = () => {
     hasPermission: has
   };
 
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      nom: 'Benali',
-      prenom: 'Ahmed',
-      email: 'ahmed.benali@dinarlytic.dz',
-      telephone: '+213 21 123 456',
-      role: 'admin',
-      statut: 'actif',
-      dateCreation: '2024-01-15',
-      derniereConnexion: '2024-09-22',
-      permissions: PermissionManager.getUserPermissions('admin', 'sarl', 'professional'),
-      entreprise: 'Dinarlytic SARL',
-      companyType: 'sarl',
-      accessLevel: 'professional'
-    },
-    {
-      id: 2,
-      nom: 'Kadri',
-      prenom: 'Fatima',
-      email: 'fatima.kadri@dinarlytic.dz',
-      telephone: '+213 21 234 567',
-      role: 'comptable',
-      statut: 'actif',
-      dateCreation: '2024-02-10',
-      derniereConnexion: '2024-09-21',
-      permissions: PermissionManager.getUserPermissions('comptable', 'sarl', 'professional'),
-      entreprise: 'Dinarlytic SARL',
-      companyType: 'sarl',
-      accessLevel: 'professional'
-    },
-    {
-      id: 3,
-      nom: 'Mansouri',
-      prenom: 'Omar',
-      email: 'omar.mansouri@dinarlytic.dz',
-      telephone: '+213 21 345 678',
-      role: 'utilisateur',
-      statut: 'inactif',
-      dateCreation: '2024-03-05',
-      derniereConnexion: '2024-09-15',
-      permissions: PermissionManager.getUserPermissions('utilisateur', 'sarl', 'professional'),
-      entreprise: 'Dinarlytic SARL',
-      companyType: 'sarl',
-      accessLevel: 'professional'
-    },
-    {
-      id: 4,
-      nom: 'Boumediene',
-      prenom: 'Aicha',
-      email: 'aicha.boumediene@dinarlytic.dz',
-      telephone: '+213 21 456 789',
-      role: 'manager',
-      statut: 'actif',
-      dateCreation: '2024-04-12',
-      derniereConnexion: '2024-09-22',
-      permissions: PermissionManager.getUserPermissions('manager', 'sarl', 'professional'),
-      entreprise: 'Dinarlytic SARL',
-      companyType: 'sarl',
-      accessLevel: 'professional'
-    },
-    {
-      id: 5,
-      nom: 'Taleb',
-      prenom: 'Karim',
-      email: 'karim.taleb@dinarlytic.dz',
-      telephone: '+213 21 567 890',
-      role: 'auditeur',
-      statut: 'suspendu',
-      dateCreation: '2024-05-20',
-      derniereConnexion: '2024-09-10',
-      permissions: PermissionManager.getUserPermissions('auditeur', 'sarl', 'professional'),
-      entreprise: 'Dinarlytic SARL',
-      companyType: 'sarl',
-      accessLevel: 'professional'
-    }
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const [roles] = useState<Role[]>([
     {
@@ -213,10 +135,10 @@ const GestionUtilisateurs: React.FC = () => {
     email: '',
     telephone: '',
     role: 'utilisateur',
-    entreprise: ENTREPRISES[0].name,
-    companyType: ENTREPRISES[0].companyType,
-    accessLevel: ENTREPRISES[0].accessLevel,
-    permissions: PermissionManager.getUserPermissions('utilisateur', ENTREPRISES[0].companyType, ENTREPRISES[0].accessLevel)
+    entreprise: (ENTREPRISES[0] || DEFAULT_ENTREPRISE).name,
+    companyType: (ENTREPRISES[0] || DEFAULT_ENTREPRISE).companyType,
+    accessLevel: (ENTREPRISES[0] || DEFAULT_ENTREPRISE).accessLevel,
+    permissions: PermissionManager.getUserPermissions('utilisateur', (ENTREPRISES[0] || DEFAULT_ENTREPRISE).companyType, (ENTREPRISES[0] || DEFAULT_ENTREPRISE).accessLevel)
   });
 
   // Rôles personnalisés (persistés)
@@ -301,26 +223,39 @@ const GestionUtilisateurs: React.FC = () => {
     }
   };
 
-  // Charger/Sauvegarder les utilisateurs
-  useEffect(() => {
+  const [loading, setLoading] = useState(true);
+
+  const fetchUsers = async () => {
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY_USERS);
-      if (raw) {
-        const parsed = JSON.parse(raw) as User[];
-        if (Array.isArray(parsed) && parsed.length) setUsers(parsed);
-      }
-    } catch {
-      // ignore
+      setLoading(true);
+      const response = await apiClient.get('/users/');
+      const data = response.data || [];
+      const mapped = data.map((u: any) => ({
+        id: u.id,
+        nom: u.last_name || '',
+        prenom: u.first_name || u.username || '',
+        email: u.email || '',
+        telephone: '',
+        role: u.role || 'utilisateur',
+        statut: u.is_active ? 'actif' : 'inactif',
+        dateCreation: '2024-01-01',
+        derniereConnexion: 'Jamais',
+        permissions: u.permissions || [],
+        entreprise: user?.company_name || 'Ma Société',
+        companyType: user?.companyType || 'sarl',
+        accessLevel: user?.accessLevel || 'enterprise'
+      }));
+      setUsers(mapped);
+    } catch (err) {
+      console.error("Failed to load users", err);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(users));
-    } catch {
-      // ignore
-    }
-  }, [users]);
+    fetchUsers();
+  }, []);
 
   // Filtrage des utilisateurs
   const filteredUsers = useMemo(() => {
@@ -349,7 +284,6 @@ const GestionUtilisateurs: React.FC = () => {
     setIsSubmitting(true);
     setErrors({});
 
-    // Validation
     const newErrors: {[key: string]: string} = {};
     if (!newUser.nom.trim()) newErrors.nom = 'Le nom est requis';
     if (!newUser.prenom.trim()) newErrors.prenom = 'Le prénom est requis';
@@ -362,31 +296,17 @@ const GestionUtilisateurs: React.FC = () => {
       return;
     }
 
-    // Simulation de création
-    setTimeout(() => {
-      const computedPerms = PermissionManager.getUserPermissions(
-        newUser.role,
-        newUser.companyType,
-        newUser.accessLevel
-      );
-      const user: User = {
-        id: Date.now(),
-        nom: newUser.nom,
-        prenom: newUser.prenom,
+    try {
+      await apiClient.post('/users/', {
+        username: newUser.email,
         email: newUser.email,
-        telephone: newUser.telephone,
-        role: newUser.role,
-        statut: 'actif',
-        dateCreation: new Date().toISOString().split('T')[0],
-        derniereConnexion: 'Jamais',
-        permissions: newUser.permissions && newUser.permissions.length ? newUser.permissions : computedPerms,
-        entreprise: newUser.entreprise,
-        companyType: newUser.companyType,
-        accessLevel: newUser.accessLevel
-      };
-
-      setUsers([user, ...users]);
-      logAction({ userId: user.id, action: 'create', actor: 'admin', details: `Création de ${user.prenom} ${user.nom} (${user.role})` });
+        password: 'TemporaryPassword123!',
+        first_name: newUser.prenom,
+        last_name: newUser.nom,
+        role_name: newUser.role,
+        permissions: newUser.permissions
+      });
+      await fetchUsers();
       setIsCreateModalOpen(false);
       setNewUser({
         nom: '',
@@ -394,13 +314,16 @@ const GestionUtilisateurs: React.FC = () => {
         email: '',
         telephone: '',
         role: 'utilisateur',
-        entreprise: ENTREPRISES[0].name,
-        companyType: ENTREPRISES[0].companyType,
-        accessLevel: ENTREPRISES[0].accessLevel,
-        permissions: PermissionManager.getUserPermissions('utilisateur', ENTREPRISES[0].companyType, ENTREPRISES[0].accessLevel)
+        entreprise: (ENTREPRISES[0] || DEFAULT_ENTREPRISE).name,
+        companyType: (ENTREPRISES[0] || DEFAULT_ENTREPRISE).companyType,
+        accessLevel: (ENTREPRISES[0] || DEFAULT_ENTREPRISE).accessLevel,
+        permissions: PermissionManager.getUserPermissions('utilisateur', (ENTREPRISES[0] || DEFAULT_ENTREPRISE).companyType, (ENTREPRISES[0] || DEFAULT_ENTREPRISE).accessLevel)
       });
+    } catch (err) {
+      console.error("Failed to create user", err);
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const handleEditUser = (user: User) => {
@@ -418,25 +341,30 @@ const GestionUtilisateurs: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteUser = () => {
+  const confirmDeleteUser = async () => {
     if (selectedUser) {
-      setUsers(users.filter(u => u.id !== selectedUser.id));
-      logAction({ userId: selectedUser.id, action: 'delete', actor: 'admin', details: `Suppression de ${selectedUser.prenom} ${selectedUser.nom}` });
-      setIsDeleteModalOpen(false);
-      setSelectedUser(null);
+      try {
+        await apiClient.put(`/users/${selectedUser.id}`, { is_active: false });
+        await fetchUsers();
+        setIsDeleteModalOpen(false);
+        setSelectedUser(null);
+      } catch (err) {
+        console.error("Failed to deactivate/delete user", err);
+      }
     }
   };
 
-  const toggleUserStatus = (userId: number) => {
-    setUsers(users.map(user => {
-      if (user.id === userId) {
-        const newStatus: User['statut'] = user.statut === 'actif' ? 'inactif' : 'actif';
-        const updated = { ...user, statut: newStatus };
-        logAction({ userId, action: 'status-change', actor: 'admin', details: `Statut: ${user.statut} -> ${newStatus}` });
-        return updated;
+  const toggleUserStatus = async (userId: any) => {
+    const targetUser = users.find(u => u.id === userId);
+    if (targetUser) {
+      try {
+        const nextStatus = targetUser.statut === 'actif' ? false : true;
+        await apiClient.put(`/users/${userId}`, { is_active: nextStatus });
+        await fetchUsers();
+      } catch (err) {
+        console.error("Failed to toggle status", err);
       }
-      return user;
-    }));
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -478,6 +406,14 @@ const GestionUtilisateurs: React.FC = () => {
     setLogs(getLogsForUser(user.id));
     setIsLogsModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -825,7 +761,7 @@ const GestionUtilisateurs: React.FC = () => {
               <select
                 value={newUser.entreprise}
                 onChange={(e) => {
-                  const selected = ENTREPRISES.find(c => c.name === e.target.value) || ENTREPRISES[0];
+                  const selected = ENTREPRISES.find(c => c.name === e.target.value) || DEFAULT_ENTREPRISE;
                   const companyType = selected.companyType;
                   const accessLevel = selected.accessLevel;
                   const role = newUser.role;
@@ -1130,7 +1066,7 @@ const GestionUtilisateurs: React.FC = () => {
                 <select
                   value={selectedUser.entreprise}
                   onChange={(e) => {
-                    const comp = ENTREPRISES.find(c => c.name === e.target.value) || ENTREPRISES[0];
+                    const comp = ENTREPRISES.find(c => c.name === e.target.value) || DEFAULT_ENTREPRISE;
                     const role = selectedUser.role;
                     const permissions = PermissionManager.getUserPermissions(role, comp.companyType, comp.accessLevel);
                     setSelectedUser({ ...selectedUser, entreprise: comp.name, companyType: comp.companyType, accessLevel: comp.accessLevel, permissions });
@@ -1233,11 +1169,20 @@ const GestionUtilisateurs: React.FC = () => {
             <div className="flex justify-end space-x-3">
               <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors text-sm font-semibold">{t('common.cancel')}</button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (!selectedUser) return;
-                  setUsers(prev => prev.map(u => (u.id === selectedUser.id ? selectedUser : u)));
-                  logAction({ userId: selectedUser.id, action: 'update', actor: 'admin', details: `Mise à jour du profil (${selectedUser.role})` });
-                  setIsEditModalOpen(false);
+                  try {
+                    await apiClient.put(`/users/${selectedUser.id}`, {
+                      first_name: selectedUser.prenom,
+                      last_name: selectedUser.nom,
+                      role_name: selectedUser.role,
+                      permissions: selectedUser.permissions
+                    });
+                    await fetchUsers();
+                    setIsEditModalOpen(false);
+                  } catch (err) {
+                    console.error("Failed to update user", err);
+                  }
                 }}
                 className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-semibold shadow-sm"
               >

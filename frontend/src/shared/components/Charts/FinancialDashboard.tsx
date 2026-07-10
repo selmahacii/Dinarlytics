@@ -18,6 +18,8 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
+import apiClient from '@/services/apiClient';
+import { useEffect } from 'react';
 
 ChartJS.register(
   CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend,
@@ -54,6 +56,33 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const [alertes, setAlertes] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        const response = await apiClient.get('/analytics/alerts');
+        const data = response.data || [];
+        const mapped = data.map((item: any) => ({
+          id: item.alert_code || 'alert',
+          id_key: item.alert_code || 'alert',
+          nom: item.alert_name || 'Alerte',
+          description: `Déclenchée si la valeur ${item.comparison_operator || ''} ${item.threshold_value || 0}`,
+          statut: item.enabled ? 'Surveillance' : 'Inactive',
+          seuil: Number(item.threshold_value || 0),
+          valeurActuelle: item.alert_code === 'liquidity_ratio' ? 1.8 : 1500000,
+          unite: item.alert_code === 'liquidity_ratio' ? 'ratio' : 'DA',
+          frequence: 'temps_reel',
+          derniereAlerte: null,
+          destinataires: ['Admin'],
+          active: item.enabled || false
+        }));
+        setAlertes(mapped);
+      } catch (err) {
+        console.error("Failed to load alerts in FinancialDashboard", err);
+      }
+    };
+    fetchAlerts();
+  }, []);
 
   // États pour la gestion des alertes
   const [showModifyModal, setShowModifyModal] = useState(false);
@@ -419,7 +448,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   
   // Données pour l'historique des ratios (adaptées selon la période)
   const getLiquiditeData = () => {
-    const baseData = [1.65, 1.72, 1.78, 1.85, 1.82, 1.89, 1.91, 1.88, 1.85, 1.87, 1.84, 1.85];
+    const baseData: number[] = [];
     return baseData.slice(0, periodData.labels.length);
   };
 
@@ -436,7 +465,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   };
 
   const getROEData = () => {
-    const baseData = [15.2, 16.1, 16.8, 17.5, 17.2, 17.9, 18.3, 18.1, 17.8, 18.2, 18.0, 18.5];
+    const baseData: number[] = [];
     return baseData.slice(0, periodData.labels.length);
   };
 
@@ -471,7 +500,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   };
 
   const getEndettementData = () => {
-    const baseData = [35.2, 34.8, 34.1, 33.5, 33.8, 33.2, 32.9, 33.1, 32.8, 32.5, 32.3, 32.0];
+    const baseData: number[] = [];
     return baseData.slice(0, periodData.labels.length);
   };
 
@@ -488,7 +517,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   };
 
   const getCycleData = () => {
-    const baseData = [62, 60, 58, 56, 57, 55, 54, 56, 58, 57, 56, 57];
+    const baseData: number[] = [];
     return baseData.slice(0, periodData.labels.length);
   };
 
@@ -506,7 +535,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   
   // Données pour Widget 1 - Équilibre Financier (adaptées selon les filtres)
   const getFRNData = () => {
-    const baseData = [520, 540, 560, 550, 570, 580, 590, 600, 610, 620, 630, 580];
+    const baseData: number[] = [];
     return baseData.slice(0, periodData.labels.length).map(val => val * periodData.dataMultiplier);
   };
 
@@ -524,7 +553,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
 
   // Données pour Widget 2 - Évaluation & Capital (adaptées selon les filtres)
   const getCapitalRepartitionData = () => {
-    const baseData = [68, 20, 12];
+    const baseData: number[] = [0, 0, 0];
     return baseData.map(val => val * periodData.dataMultiplier);
   };
 
@@ -548,12 +577,12 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
 
   // Données pour Widget 7 - Rentabilité par Dimension (adaptées selon les filtres)
   const getTopClientsData = () => {
-    const baseData = [385, 320, 285, 180, 150];
+    const baseData: number[] = [0, 0, 0, 0, 0];
     return baseData.map(val => val * periodData.dataMultiplier);
   };
 
   const topClients = {
-    labels: ['Alpha SA', 'Beta SARL', 'Gamma SPA', 'Delta Corp', 'Epsilon Ltd'],
+    labels: [],
     datasets: [{
       label: `CA (K ${deviseSymbol})`,
       data: getTopClientsData(),
@@ -584,7 +613,7 @@ const FinancialDashboard: React.FC<FinancialDashboardProps> = ({
   };
 
   const getProduitsABCData = () => {
-    const baseData = [875, 1250, 375];
+    const baseData: number[] = [0, 0, 0];
     return baseData.map(val => val * periodData.dataMultiplier);
   };
 
