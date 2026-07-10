@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import aiService from '@features/ai/services/aiService';
+import apiClient from '@/services/apiClient';
 import { computeRatios } from '@shared/utils/ratios';
 import { getBenchmarks } from '@shared/utils/benchmarks';
 import { generateRatioAlerts } from '@shared/utils/ratioAlerts';
@@ -101,6 +102,18 @@ const ChatbotLIA: React.FC = () => {
 
   const getStatusLabel = (status: 'good' | 'warning' | 'critical' | 'excellent' | 'average' | 'below' | 'poor'): string => {
     return t(`chatbot.status_${status}`).toUpperCase();
+  };
+
+  // Historique de CA réel (facturation par mois), utilisé par les prévisions
+  // et la détection saisonnière au lieu de données simulées.
+  const fetchHistoricalRevenue = async (periods: number): Promise<number[]> => {
+    try {
+      const response = await apiClient.get<Array<{ period: string; value: number }>>('/analytics/revenue-chart', { params: { periods } });
+      return (response.data || []).map(p => p.value);
+    } catch (err) {
+      console.error('Failed to fetch revenue history', err);
+      return [];
+    }
   };
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -276,8 +289,8 @@ const ChatbotLIA: React.FC = () => {
     if (!canEditPlan) return { ok: false, reason: 'Permission requise: rapports-create' } as const;
     const existingTitles = new Set(plan.map(p => p.title));
     // Estimations basées sur companyData et benchmarks
-    const revM = companyData?.revenueMonth ?? 1200000;
-    const profitPct = companyData?.profitMargin ?? 18;
+    const revM = companyData?.revenueMonth ?? 0;
+    const profitPct = companyData?.profitMargin ?? 0;
     const cash = companyData?.cashBalance ?? Math.round(revM * 0.8);
     const ar = companyData?.accountsReceivable ?? Math.round(revM * 1.5);
     const ap = companyData?.accountsPayable ?? Math.round(revM * 0.8);
@@ -336,8 +349,8 @@ const ChatbotLIA: React.FC = () => {
 
   // Données contextuelles pour les réponses (ancrage sur l'entreprise)
   const dailySummary = (() => {
-    const monthRevenue = companyData?.revenueMonth ?? 2500000;
-    const invoices = companyData?.invoicesCount ?? 125;
+    const monthRevenue = companyData?.revenueMonth ?? 0;
+    const invoices = companyData?.invoicesCount ?? 0;
     const avgInvoice = companyData?.averageInvoice || (invoices > 0 ? monthRevenue / invoices : 0);
     // Approximation quotidienne
     const caJour = Math.round(monthRevenue / 30);
@@ -346,9 +359,9 @@ const ChatbotLIA: React.FC = () => {
     const remaining = Math.max(0, Math.round(invoices - soldToday));
     const encIn = Math.round((companyData?.cashBalance ?? monthRevenue) * 0.12);
     const encOut = Math.round(encIn * 0.7);
-    const margeBrute = Math.round((companyData?.profitMargin ?? 18) * 10) / 10;
+    const margeBrute = Math.round((companyData?.profitMargin ?? 0) * 10) / 10;
     return {
-      ca: { value: caJour, change: Math.round((companyData?.revenueGrowth ?? 8) * 10) / 10, trend: (companyData?.revenueGrowth ?? 0) >= 0 ? 'up' : 'down' },
+      ca: { value: caJour, change: Math.round((companyData?.revenueGrowth ?? 0) * 10) / 10, trend: (companyData?.revenueGrowth ?? 0) >= 0 ? 'up' : 'down' },
       achats: { value: achatsJour, change: -4, trend: 'down' },
       articlesVendus: { sold: soldToday, remaining },
       encaissements: { in: encIn, out: encOut },
@@ -436,7 +449,7 @@ const ChatbotLIA: React.FC = () => {
       const cash0 = companyData?.cashBalance ?? 0;
       const ar = companyData?.accountsReceivable ?? 0;
       const ap = companyData?.accountsPayable ?? 0;
-      const monthlyExpenses = revM * (1 - (companyData?.profitMargin ?? 15) / 100);
+      const monthlyExpenses = revM * (1 - (companyData?.profitMargin ?? 0) / 100);
 
       // Utiliser la fonction prédictive améliorée
       const forecasts = forecastCashFlow(cash0, revM, monthlyExpenses, ar, ap, 13);
@@ -503,7 +516,7 @@ const ChatbotLIA: React.FC = () => {
           cash: cash0,
           revenue: revM,
           dso: Math.round((ar / revM) * 30),
-          margin: companyData?.profitMargin ?? 18
+          margin: companyData?.profitMargin ?? 0
         },
         { cash: forecasts }
       );
@@ -554,7 +567,7 @@ const ChatbotLIA: React.FC = () => {
     if (wantsScenarios) {
       const revM = companyData?.revenueMonth ?? 0;
       const revY = revM * 12;
-      const margin = companyData?.profitMargin ?? 15;
+      const margin = companyData?.profitMargin ?? 0;
       const cash = companyData?.cashBalance ?? 0;
       const ar = companyData?.accountsReceivable ?? 0;
       const dso = revM > 0 ? Math.round((ar / revM) * 30) : 0;
@@ -626,13 +639,17 @@ const ChatbotLIA: React.FC = () => {
       normalized.includes(t('chatbot.capabilities.predictive').replace(/\*\*/g, '').split(':')[0].toLowerCase().trim());
 
     if (wantsRevenueForecast) {
-      const revM = companyData?.revenueMonth ?? 1200000;
-      // Générer des données historiques simulées (12 derniers mois)
-      const historicalRevenue: number[] = [];
-      for (let i = 11; i >= 0; i--) {
-        const monthFactor = 1 + (Math.random() - 0.5) * 0.1; // Variation de ±5%
-        const trendFactor = 1 + (11 - i) * 0.01; // Légère tendance à la hausse
-        historicalRevenue.push(revM * monthFactor * trendFactor);
+      // Historique réel du CA facturé (12 derniers mois), pas de données simulées.
+      const historicalRevenue = await fetchHistoricalRevenue(12);
+
+      if (historicalRevenue.length < 3) {
+        return {
+          id: Date.now().toString(),
+          type: 'lia',
+          content: t('chatbot.fallback.revenue_forecast.error_min_data'),
+          timestamp: new Date(),
+          suggestions: [t('chatbot.quick_actions.risk_report'), t('chatbot.quick_actions.synthesis')]
+        };
       }
 
       const forecasts = forecastRevenue(historicalRevenue, 12);
@@ -698,17 +715,9 @@ const ChatbotLIA: React.FC = () => {
       normalized.includes(t('chatbot.capabilities.optimization').replace(/\*\*/g, '').split(':')[0].toLowerCase().trim());
 
     if (wantsSeasonalPattern) {
-      const revM = companyData?.revenueMonth ?? 1200000;
-      // Générer des données historiques simulées (24 mois pour meilleure détection)
-      const historicalRevenue: number[] = [];
-      const seasonalFactors = [0.85, 0.9, 1.0, 1.05, 1.1, 1.15, 1.1, 1.0, 0.95, 1.05, 1.1, 1.05]; // Pattern saisonnier simulé
-
-      for (let i = 23; i >= 0; i--) {
-        const monthIndex = i % 12;
-        const seasonalFactor = seasonalFactors[monthIndex];
-        const trendFactor = 1 + (23 - i) * 0.005; // Légère tendance
-        historicalRevenue.push(revM * seasonalFactor * trendFactor);
-      }
+      // Historique réel du CA facturé (24 mois si disponible), pour une
+      // vraie détection de saisonnalité plutôt qu'un motif inventé.
+      const historicalRevenue = await fetchHistoricalRevenue(24);
 
       const pattern = detectSeasonalPattern(historicalRevenue, 'monthly');
 
@@ -821,7 +830,7 @@ const ChatbotLIA: React.FC = () => {
       message.includes('yoy') || message.includes('mom');
 
     if (wantsComparison) {
-      const revM = companyData?.revenueMonth ?? 1200000;
+      const revM = companyData?.revenueMonth ?? 0;
       const prevRevM = revM * 0.92; // Simulation: -8% mois précédent
       const revY = revM * 12;
       const prevRevY = revY * 0.88; // Simulation: -12% année précédente
@@ -829,7 +838,7 @@ const ChatbotLIA: React.FC = () => {
       const trendRev = comparePeriods(revM, prevRevM, 'revenue');
       const trendRevY = comparePeriods(revY, prevRevY, 'revenue');
 
-      const margin = companyData?.profitMargin ?? 18;
+      const margin = companyData?.profitMargin ?? 0;
       const prevMargin = margin - 1.5; // Simulation
       const trendMargin = comparePeriods(margin, prevMargin, 'margin');
 
@@ -906,14 +915,14 @@ const ChatbotLIA: React.FC = () => {
       message.includes('audit de risque');
 
     if (wantsAnomalies) {
-      const revM = companyData?.revenueMonth ?? 1200000;
+      const revM = companyData?.revenueMonth ?? 0;
       const historicalRev = [
         revM * 0.95, revM * 0.98, revM * 1.02, revM * 0.97, revM * 1.05, revM
       ]; // Simulation historique
 
       const anomalyRev = detectAnomalies(revM, historicalRev, 'revenue');
 
-      const margin = companyData?.profitMargin ?? 18;
+      const margin = companyData?.profitMargin ?? 0;
       const historicalMargin = [18.5, 19, 18.2, 17.8, 18.5, margin];
       const anomalyMargin = detectAnomalies(margin, historicalMargin, 'margin');
 
@@ -958,8 +967,8 @@ const ChatbotLIA: React.FC = () => {
       message.includes(t('chatbot.quick_actions.growth_scenarios').toLowerCase());
 
     if (wantsScenario) {
-      const revM = companyData?.revenueMonth ?? 1200000;
-      const margin = companyData?.profitMargin ?? 18;
+      const revM = companyData?.revenueMonth ?? 0;
+      const margin = companyData?.profitMargin ?? 0;
 
       // Scénario 1: CA +10%
       const scenario1 = analyzeScenario(revM, 10, 'revenue', [
@@ -1025,8 +1034,8 @@ const ChatbotLIA: React.FC = () => {
       message.includes('moyenne secteur');
 
     if (wantsBenchmark) {
-      const revM = companyData?.revenueMonth ?? 1200000;
-      const margin = companyData?.profitMargin ?? 18;
+      const revM = companyData?.revenueMonth ?? 0;
+      const margin = companyData?.profitMargin ?? 0;
       const dso = Math.max(0, Math.round(((companyData?.accountsReceivable ?? revM * 1.5) / Math.max(1, revM)) * 30));
 
       const benchRev = benchmarkAnalysis(revM, 'revenue', sector, segment);
@@ -1087,7 +1096,7 @@ const ChatbotLIA: React.FC = () => {
     if (wantsFinancialAnalysis) {
       // Données (avec valeurs de repli)
       const revM = companyData?.revenueMonth ?? 0;
-      const profitPct = companyData?.profitMargin ?? 15; // % marge
+      const profitPct = companyData?.profitMargin ?? 0; // % marge
       const cash = companyData?.cashBalance ?? 0;
       const ar = companyData?.accountsReceivable ?? 0;
       const ap = companyData?.accountsPayable ?? 0;
@@ -1331,18 +1340,24 @@ const ChatbotLIA: React.FC = () => {
       const title = t('chatbot.fallback.revenue_forecast.title');
       const caEst = t('chatbot.audit.revenue') + ' (' + t('chatbot.fallback.ratios.estimated') + ')';
       const cashEnd = t('common.cash') + ' (' + t('chatbot.fallback.treasury.end_of_month') + ')';
-      const restock = t('chatbot.fallback.seasonal.stock_opt');
-      const restockVal = t('chatbot.fallback.seasonal.stock_desc', { count: 5, days: 10 });
-      const risk = t('chatbot.risk_high');
-      const riskVal = t('chatbot.alerts.client_risk_desc');
       const margin = t('chatbot.audit.margin') + ' (' + t('chatbot.fallback.ratios.estimated') + ')';
       const confidence = t('chatbot.confidence_label');
-      const confidenceVal = '85% (' + t('chatbot.fallback.ratios.last_6_months') + ')';
+
+      // Prévision réelle basée sur l'historique de facturation, pas une
+      // croissance/marge/confiance fixées arbitrairement (+8%, 85%, +1.2pt).
+      const historicalRevenue = await fetchHistoricalRevenue(12);
+      const forecasts = historicalRevenue.length >= 3 ? forecastRevenue(historicalRevenue, 1) : [];
+      const nextMonth = forecasts[0];
+      const marginPct = companyData?.profitMargin ?? 0;
+
+      const caLine = nextMonth
+        ? `${formatCurrency ? formatCurrency(Math.round(nextMonth.value)) : nextMonth.value} [${getConfidenceLabel(nextMonth.confidence)}]`
+        : t('chatbot.fallback.revenue_forecast.error_min_data');
 
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `${title}\n\n- ${caEst}: ${formatCurrency ? formatCurrency(Math.round((companyData?.revenueMonth ?? 4200000) * 1.08)) : 'N/A'} (+8%)\n- ${cashEnd}: ${formatCurrency ? formatCurrency(Math.round((companyData?.cashBalance ?? 1100000))) : 'N/A'}\n- ${restock}: ${restockVal}\n- ${risk}: ${riskVal}\n- ${margin}: ${(dailySummary.margeBrute + 1.2).toFixed(1)}%\n\n${confidence}: ${confidenceVal}.`,
+        content: `${title}\n\n- ${caEst}: ${caLine}\n- ${cashEnd}: ${formatCurrency ? formatCurrency(Math.round((companyData?.cashBalance ?? 0))) : 'N/A'}\n- ${margin}: ${marginPct.toFixed(1)}%\n\n${confidence}: ${nextMonth ? getConfidenceLabel(nextMonth.confidence) : t('chatbot.fallback.revenue_forecast.error_min_data')}`,
         timestamp: new Date(),
         suggestions: [t('chatbot.quick_actions.revenue_forecast'), t('chatbot.quick_actions.synthesis'), t('chatbot.quick_actions.risk_report')]
       };
@@ -1405,26 +1420,63 @@ const ChatbotLIA: React.FC = () => {
       message.includes(t('chatbot.fallback.cmd_cat_full').toLowerCase()) ||
       (message.includes('تصنيف') && message.includes('مصاريف'));
     if (wantsCategorization) {
-      const categories = [
-        { name: t('common.categories.purchases'), percentage: 35, color: 'blue' },
-        { name: t('common.categories.fixed_charges'), percentage: 18, color: 'slate' },
-        { name: t('common.categories.personnel'), percentage: 14, color: 'green' },
-        { name: t('common.categories.transport'), percentage: 7, color: 'amber' },
-        { name: t('common.categories.other_charges'), percentage: 10, color: 'purple' },
-        { name: t('common.categories.taxes'), percentage: 6, color: 'red' }
-      ];
+      // Répartition réelle des charges (classe 6) par sous-compte, calculée
+      // depuis les écritures de journal — plus une distribution fixe.
+      const CATEGORY_LABELS: Record<string, string> = {
+        '60': t('common.categories.purchases'),
+        '61': t('common.categories.fixed_charges'),
+        '62': t('common.categories.other_charges'),
+        '63': t('common.categories.taxes'),
+        '64': t('common.categories.personnel'),
+        '65': t('common.categories.other_charges'),
+        '66': t('common.categories.other_charges'),
+        '68': t('common.categories.fixed_charges')
+      };
+
+      let categories: { name: string; percentage: number }[] = [];
+      try {
+        const [journalRes] = await Promise.all([
+          apiClient.get<any[]>('/accounting/journal-entries')
+        ]);
+        const entries = journalRes.data || [];
+        const totals: Record<string, number> = {};
+        let grandTotal = 0;
+        entries.forEach((entry: any) => {
+          if (entry.status !== 'approved' && entry.status !== 'validated') return;
+          (entry.lines || []).forEach((line: any) => {
+            const code = (line.account_code || '').toString();
+            if (!code.startsWith('6')) return;
+            const subclass = code.slice(0, 2);
+            const amount = Number(line.debit_amount || 0) - Number(line.credit_amount || 0);
+            if (amount <= 0) return;
+            totals[subclass] = (totals[subclass] || 0) + amount;
+            grandTotal += amount;
+          });
+        });
+        if (grandTotal > 0) {
+          categories = Object.entries(totals)
+            .map(([subclass, amount]) => ({
+              name: CATEGORY_LABELS[subclass] || `Classe ${subclass}`,
+              percentage: Math.round((amount / grandTotal) * 1000) / 10
+            }))
+            .sort((a, b) => b.percentage - a.percentage);
+        }
+      } catch (err) {
+        console.error('Failed to compute expense categorization', err);
+      }
+
       const companyTypeLabel = t(`company_types.${companyType}`, { defaultValue: companyType.toUpperCase() });
       const segmentLabel = t(`segments.${segment}`);
 
-      const content = [
+      const content = categories.length > 0 ? [
         t('chatbot.fallback.categorization.title', { profile: companyTypeLabel, segment: segmentLabel }),
         '',
         t('chatbot.fallback.categorization.distribution_title'),
         ...categories.map(c => `• ${c.name}: ${c.percentage}%`),
         '',
         t('chatbot.fallback.categorization.auto_desc'),
-        t('chatbot.fallback.categorization.cmd_test')
-      ].join('\n');
+      ].join('\n') : t('chatbot.fallback.categorization.error_min_data', { defaultValue: "Pas assez d'écritures de charges validées pour établir une répartition." });
+
       return {
         id: Date.now().toString(),
         type: 'lia',
@@ -1478,7 +1530,7 @@ const ChatbotLIA: React.FC = () => {
       message.includes('taxe');
 
     if (wantsFiscal) {
-      const revM = companyData?.revenueMonth ?? 1200000;
+      const revM = companyData?.revenueMonth ?? 0;
       const tvaCollectee = revM * 0.19; // Simulation 19%
       const tvaDeductible = (revM * 0.7) * 0.19; // Simulation sur 70% d'achats
       const tap = revM * 0.02; // Taxe sur l'activité professionnelle (2%)
@@ -1541,18 +1593,21 @@ const ChatbotLIA: React.FC = () => {
       const monthly = t('chatbot.fallback.invoices_monthly_vol');
       const dsoLabel = t('chatbot.fallback.invoices_dso');
       const reco = t('chatbot.fallback.invoices_reco');
+      const arVal = companyData?.accountsReceivable ?? 0;
+      const revMVal = companyData?.revenueMonth ?? 0;
+      const dsoVal = revMVal > 0 ? Math.round((arVal / revMVal) * 30) : null;
 
       return {
         id: Date.now().toString(),
         type: 'lia',
-        content: `${title}\n\n- ${receivable}: ${formatCurrency ? formatCurrency(companyData?.accountsReceivable ?? 4500000) : '4.500.000 DA'}\n- ${monthly}: ${formatCurrency ? formatCurrency(companyData?.revenueMonth ?? 1200000) : '1.200.000 DA'}\n- ${dsoLabel}: ${Math.round(((companyData?.accountsReceivable ?? 4500000) / (companyData?.revenueMonth ?? 1200000)) * 30)} jours.\n\n${reco}`,
+        content: `${title}\n\n- ${receivable}: ${formatCurrency ? formatCurrency(arVal) : '0 DA'}\n- ${monthly}: ${formatCurrency ? formatCurrency(revMVal) : '0 DA'}\n- ${dsoLabel}: ${dsoVal !== null ? `${dsoVal} jours` : 'N/A'}.\n\n${reco}`,
         timestamp: new Date(),
         suggestions: [t('chatbot.suggestions.details.reduce_dso'), t('chatbot.suggestions.details.see_invoice_details'), t('chatbot.plan_title')]
       };
     }
 
     if (message.includes('stock') || message.includes('inventaire') || message.includes('inventory') || message.includes('مخزون') || message.includes('مخازن')) {
-      const invValue = companyData?.inventoryValue ?? 1500000;
+      const invValue = companyData?.inventoryValue ?? 0;
       const turnover = companyData?.stockTurnover || 6.5;
       const dio = Math.round(365 / Math.max(0.1, turnover));
 
@@ -1572,11 +1627,11 @@ const ChatbotLIA: React.FC = () => {
     }
 
     if (message.includes('dso') || message.includes('dpo') || message.includes('ccc') || message.includes('bfr') || message.includes('cycle') || message.includes('دورة') || message.includes('تحصيل') || message.includes('دفع')) {
-      const revM = companyData?.revenueMonth ?? 1200000;
-      const margin = companyData?.profitMargin ?? 18;
-      const ar = companyData?.accountsReceivable ?? 4500000;
-      const ap = companyData?.accountsPayable ?? 900000;
-      const invValue = companyData?.inventoryValue ?? 1500000;
+      const revM = companyData?.revenueMonth ?? 0;
+      const margin = companyData?.profitMargin ?? 0;
+      const ar = companyData?.accountsReceivable ?? 0;
+      const ap = companyData?.accountsPayable ?? 0;
+      const invValue = companyData?.inventoryValue ?? 0;
       const cogsMonth = Math.max(1, Math.round(revM * (1 - margin / 100)));
       const turnover = companyData?.stockTurnover || 6.5;
 
