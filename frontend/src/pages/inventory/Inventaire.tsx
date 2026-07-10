@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowPathIcon, 
   MagnifyingGlassIcon, 
@@ -34,6 +35,7 @@ import apiClient from '@/services/apiClient';
 const Inventaire: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
   const { t, currentLang } = useTranslation();
+  const navigate = useNavigate();
 
   const [articles, setArticles] = useState<any[]>([]);
   const [loadingArticles, setLoadingArticles] = useState(true);
@@ -42,7 +44,7 @@ const Inventaire: React.FC = () => {
     const fetchArticles = async () => {
       try {
         setLoadingArticles(true);
-        const response = await apiClient.get('/articles');
+        const response = await apiClient.get<any[]>('/articles');
         setArticles(response.data || []);
       } catch (err) {
         console.error("Failed to fetch articles", err);
@@ -335,21 +337,13 @@ const Inventaire: React.FC = () => {
     { id: 4, type: 'overstock', message: t('inventory.alerts_msg.overstock_msg', { count: overstockCount }), count: overstockCount, severity: 'info' as const }
   ];
 
-  const stockMovements = useMemo(() => {
-    return products.slice(0, 5).map((article, idx) => ({
-      id: idx + 1,
-      article: article.nom,
-      codePCA: article.codePCA,
-      type: (idx % 2 === 0 ? 'in' : 'out') as 'in' | 'out' | 'adjustment',
-      quantity: 10 + (idx * 5),
-      date: new Date(Date.now() - idx * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'),
-      heure: '10:30',
-      reason: idx % 2 === 0 ? 'Réception achat' : 'Livraison client',
-      reference: `MOV-2024-00${idx + 1}`,
-      valeurUnitaire: article.prixUnitaire,
-      responsable: 'Magasinier Djamel'
-    }));
-  }, [products]);
+  // Aucun historique de mouvements de stock n'est encore suivi côté backend
+  // (pas de table dédiée) : on n'invente pas de mouvements fictifs.
+  const stockMovements: Array<{
+    id: number; article: string; codePCA: string; type: 'in' | 'out' | 'adjustment';
+    quantity: number; date: string; heure: string; reason: string; reference: string;
+    valeurUnitaire: number; responsable: string; fournisseur?: string; client?: string;
+  }> = [];
 
   const reorderSuggestions = products
     .filter(article => article.stock < 20)
@@ -727,14 +721,14 @@ const Inventaire: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center space-x-2">
                           <button 
-                            onClick={() => alert(`Détails de: ${article.nom}`)}
+                            onClick={() => navigate(`/articles?id=${article.id}`)}
                             className="p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
                             title={t('inventory.actions.view_details')}
                           >
                             <EyeIcon className="h-4 w-4" />
                           </button>
                           <button 
-                            onClick={() => alert(`Modifier: ${article.nom}`)}
+                            onClick={() => navigate(`/articles?id=${article.id}`)}
                             className="p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded transition-colors"
                             title={t('inventory.actions.edit')}
                           >
@@ -816,14 +810,14 @@ const Inventaire: React.FC = () => {
 
                   <div className="flex space-x-2">
                     <button 
-                      onClick={() => alert(`Détails de: ${article.nom}`)}
+                      onClick={() => navigate(`/articles?id=${article.id}`)}
                       className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                     >
                       <EyeIcon className="h-4 w-4 mr-1" />
                       {t('inventory.actions.view_details')}
                     </button>
                     <button 
-                      onClick={() => alert(`Modifier: ${article.nom}`)}
+                      onClick={() => navigate(`/articles?id=${article.id}`)}
                       className="flex-1 flex items-center justify-center px-3 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-sm font-medium transition-colors"
                     >
                       <PencilIcon className="h-4 w-4 mr-1" />
@@ -930,10 +924,15 @@ const Inventaire: React.FC = () => {
                 </div>
                 
                 <div className="space-y-0">
+                  {stockMovements.length === 0 && (
+                    <div className="p-10 text-center text-slate-400 text-sm">
+                      {t('inventory.movements.not_available', { defaultValue: "Le suivi des mouvements de stock n'est pas encore disponible." })}
+                    </div>
+                  )}
                   {stockMovements.map((movement, index) => {
                     const isLast = index === stockMovements.length - 1;
-                    const TypeIcon = movement.type === 'in' ? ArrowDownTrayIcon : 
-                                     movement.type === 'out' ? ArrowUpTrayIcon : 
+                    const TypeIcon = movement.type === 'in' ? ArrowDownTrayIcon :
+                                     movement.type === 'out' ? ArrowUpTrayIcon :
                                      AdjustmentsHorizontalIcon;
                     
                     const typeConfig: Record<string, {
