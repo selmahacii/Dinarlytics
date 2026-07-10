@@ -78,29 +78,69 @@ export const analyticService = {
 
     getKPIs: async (size?: string) => {
         try {
-            const response = await apiClient.get('/analytics/dashboard');
-            const data = response.data;
+            const now = new Date();
+            const [dashboardRes, clientStatsRes, journalRes, coaRes, g50Res] = await Promise.all([
+                apiClient.get<any>('/analytics/dashboard'),
+                apiClient.get<any>('/clients/stats').catch(() => ({ data: null as any })),
+                apiClient.get<any[]>('/accounting/journal-entries').catch(() => ({ data: [] as any[] })),
+                apiClient.get<any[]>('/accounting/chart-of-accounts').catch(() => ({ data: [] as any[] })),
+                apiClient.get<any>('/fiscality/g50-summary', { params: { month: now.getMonth() + 1, year: now.getFullYear() } }).catch(() => ({ data: null as any }))
+            ]);
+
+            const data = dashboardRes.data;
             const ca = data.ca_mois_courant || 0;
             const profit = data.profit_mois_courant || 0;
             const marge = ca > 0 ? Math.round((profit / ca) * 100) : 0;
-            
+
+            const clientStats = clientStatsRes.data;
+            const entries = journalRes.data || [];
+            const validees = entries.filter((e: any) => e.status === 'approved' || e.status === 'validated').length;
+            const enAttente = entries.filter((e: any) => e.status === 'draft' || e.status === 'pending').length;
+
+            // Bilan réel : agrégation des soldes du plan comptable par classe.
+            const coa = coaRes.data || [];
+            const balances: Record<string, number> = {};
+            entries.forEach((entry: any) => {
+                if (entry.status !== 'approved' && entry.status !== 'validated') return;
+                (entry.lines || []).forEach((line: any) => {
+                    const code = line.account_code;
+                    balances[code] = (balances[code] || 0) + (Number(line.debit_amount || 0) - Number(line.credit_amount || 0));
+                });
+            });
+            let actif = 0, passif = 0, capitauxPropres = 0;
+            coa.forEach((acc: any) => {
+                const bal = balances[acc.account_code] || 0;
+                const type = (acc.account_type || '').toLowerCase();
+                if (type === 'actif') actif += bal;
+                else if (type === 'passif') passif += Math.abs(bal);
+                else if (type === 'capitaux' || type === 'equity') capitauxPropres += Math.abs(bal);
+            });
+
+            const g50 = g50Res.data;
+
             return {
                 metriques: {
                     ventesTotal: ca,
-                    croissanceCA: 8.4,
+                    beneficeMensuel: profit,
                     margeBrute: marge,
-                    rotationStock: 6.2,
-                    nombreClients: 15,
-                    nouveauxClients: 2,
-                    tauxFidelisation: 93
+                    nombreClients: clientStats?.total_clients || 0,
+                    nouveauxClients: clientStats?.new_clients_this_month || 0,
+                    tauxFidelisation: clientStats?.total_clients > 0
+                        ? Math.round((clientStats.active_clients / clientStats.total_clients) * 100)
+                        : 0
                 },
-                ecrituresComptables: { total: 120, validees: 98, enAttente: 22, evolution: 4.2, parJour: 5 },
-                tva: { aVerser: 124000, collectee: 450000, deductible: 326000, taux: 19, evolution: 1.5 },
+                ecrituresComptables: { total: entries.length, validees, enAttente },
+                tva: g50 ? {
+                    aVerser: g50.tva_to_pay || 0,
+                    collectee: g50.tva_collected || 0,
+                    deductible: g50.tva_deductible || 0,
+                    taux: 19
+                } : { aVerser: 0, collectee: 0, deductible: 0, taux: 19 },
                 indicateursTVA: [],
-                bilans: { actif: ca * 1.5, passif: ca * 0.8, capitauxPropres: ca * 0.7, evolution: 3.1, dateDernier: new Date().toISOString().split('T')[0] },
+                bilans: { actif, passif, capitauxPropres, dateDernier: new Date().toISOString().split('T')[0] },
                 ratios: [
-                    { code: 'LIQ', name: 'Liquidité Générale', value: data.ratios?.liquidite || 1.8, status: 'normal' },
-                    { code: 'AUT', name: 'Autonomie Financière', value: data.ratios?.autonomie_financiere || 65, status: 'good' }
+                    { code: 'LIQ', name: 'Liquidité Générale', value: data.ratios?.liquidite || 0, status: 'normal' },
+                    { code: 'AUT', name: 'Autonomie Financière', value: data.ratios?.autonomie_financiere || 0, status: 'good' }
                 ],
                 ratiosFinanciers: [],
                 journaux: []

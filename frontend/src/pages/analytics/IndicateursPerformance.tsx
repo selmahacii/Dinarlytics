@@ -88,6 +88,7 @@ const IndicateursPerformance: React.FC = () => {
   const [financialIndicators, setFinancialIndicators] = useState<any>(null);
   const [loadingIndicators, setLoadingIndicators] = useState(true);
   const [indicatorsError, setIndicatorsError] = useState<string | null>(null);
+  const [revenueChart, setRevenueChart] = useState<Array<{ period: string; value: number }>>([]);
 
   // Load KPIs and financial indicators from backend
   useEffect(() => {
@@ -106,228 +107,146 @@ const IndicateursPerformance: React.FC = () => {
       })
       .catch(() => setIndicatorsError('Erreur lors du chargement des indicateurs financiers'))
       .finally(() => setLoadingIndicators(false));
+
+    api.analytics.getRevenueChart?.(6)
+      .then((data: any) => setRevenueChart(Array.isArray(data) ? data : []))
+      .catch(() => setRevenueChart([]));
   }, []);
+
+  // Indicateurs financiers réels, dérivés de kpiComptables (bilan agrégé
+  // depuis les écritures de journal) et financialIndicators (marge nette,
+  // solvabilité — calculés côté backend). Pas de valeurs fixes : quand une
+  // donnée n'est pas disponible (ex. EBIT/charges d'intérêts non suivis),
+  // le ratio est affiché comme non disponible plutôt qu'inventé.
+  const bilans = kpiComptables?.bilans || { actif: 0, passif: 0, capitauxPropres: 0 };
+  const caAnnuel = (kpiComptables?.metriques?.ventesTotal || 0) * 12;
+  const beneficeAnnuel = (kpiComptables?.metriques?.beneficeMensuel || 0) * 12;
+  const netMarginPct = financialIndicators?.margin_net_pct ?? (kpiComptables?.metriques?.margeBrute || 0);
+  const roe = bilans.capitauxPropres > 0 ? (beneficeAnnuel / bilans.capitauxPropres) * 100 : null;
+  const roa = bilans.actif > 0 ? (beneficeAnnuel / bilans.actif) * 100 : null;
+  const currentRatio = bilans.passif > 0 ? bilans.actif / bilans.passif : null;
+  const debtRatio = bilans.actif > 0 ? bilans.passif / bilans.actif : null;
+  const assetTurnover = bilans.actif > 0 ? caAnnuel / bilans.actif : null;
+  const debtToEquity = bilans.capitauxPropres > 0 ? bilans.passif / bilans.capitauxPropres : null;
+  const solvencyPct = financialIndicators?.solvency_ratio != null ? financialIndicators.solvency_ratio * 100 : null;
+
+  const statusFor = (value: number | null, benchmark: number, higherIsBetter = true) => {
+    if (value == null) return 'default';
+    const ratio = higherIsBetter ? value / benchmark : benchmark / Math.max(value, 0.01);
+    if (ratio >= 1.2) return 'excellent';
+    if (ratio >= 1.0) return 'good';
+    if (ratio >= 0.7) return 'warning';
+    return 'critical';
+  };
+
+  // Alertes générées à partir des ratios réels comparés à des seuils de
+  // référence, plutôt qu'un texte fixe citant des chiffres inventés.
+  const alertsList: Array<{ id: number; type: 'warning' | 'success' | 'info' | 'critical'; title: string; message: string; action: string; priority: 'high' | 'medium' | 'low' }> = [
+    ...(debtRatio != null && debtRatio > 0.6 ? [{
+      id: 1, type: 'warning' as const, title: 'Endettement élevé',
+      message: `Le ratio d'endettement (${debtRatio.toFixed(2)}x) dépasse le seuil recommandé de 0.5x.`,
+      action: 'Revoir la structure de financement', priority: 'medium' as const
+    }] : []),
+    ...(roe != null && roe >= 15 ? [{
+      id: 2, type: 'success' as const, title: 'ROE solide',
+      message: `Le ROE de ${roe.toFixed(1)}% dépasse la référence de 15%.`,
+      action: 'Maintenir cette performance', priority: 'low' as const
+    }] : []),
+    ...(currentRatio != null && currentRatio < 1 ? [{
+      id: 3, type: 'warning' as const, title: 'Liquidité tendue',
+      message: `Le ratio de liquidité courante (${currentRatio.toFixed(2)}x) est inférieur à 1 : l'actif circulant ne couvre pas le passif circulant.`,
+      action: 'Surveiller la trésorerie de près', priority: 'medium' as const
+    }] : []),
+    ...(netMarginPct < 5 ? [{
+      id: 4, type: 'warning' as const, title: 'Marge nette faible',
+      message: `La marge nette (${netMarginPct.toFixed(1)}%) est sous le seuil de vigilance de 5%.`,
+      action: 'Analyser la structure de coûts', priority: 'medium' as const
+    }] : [])
+  ];
 
   // Données financières enrichies
   const financialData = {
-    // KPIs Financiers Principaux
+    // KPIs Financiers Principaux — calculés à partir du bilan réel
     mainKPIs: [
       {
-        id: 'roe',
-        title: 'ROE (Return on Equity)',
-        value: 18.5,
-        unit: '%',
-        change: 2.3,
-        trend: 'up',
-        benchmark: 15.0,
-        status: 'excellent',
-        description: 'Rendement des capitaux propres',
-        formula: 'Bénéfice Net / Capitaux Propres',
-        category: 'rentability'
+        id: 'roe', title: 'ROE (Return on Equity)', value: roe, unit: '%',
+        benchmark: 15.0, status: statusFor(roe, 15.0),
+        description: 'Rendement des capitaux propres', formula: 'Bénéfice Net / Capitaux Propres', category: 'rentability'
       },
       {
-        id: 'roa',
-        title: 'ROA (Return on Assets)',
-        value: 12.8,
-        unit: '%',
-        change: 1.7,
-        trend: 'up',
-        benchmark: 10.0,
-        status: 'good',
-        description: 'Rendement des actifs',
-        formula: 'Bénéfice Net / Actif Total',
-        category: 'rentability'
+        id: 'roa', title: 'ROA (Return on Assets)', value: roa, unit: '%',
+        benchmark: 10.0, status: statusFor(roa, 10.0),
+        description: 'Rendement des actifs', formula: 'Bénéfice Net / Actif Total', category: 'rentability'
       },
       {
-        id: 'current_ratio',
-        title: 'Ratio de Liquidité Courante',
-        value: 2.1,
-        unit: 'x',
-        change: 0.2,
-        trend: 'up',
-        benchmark: 2.0,
-        status: 'excellent',
-        description: 'Capacité à honorer les dettes à court terme',
-        formula: 'Actif Circulant / Passif Circulant',
-        category: 'liquidity'
+        id: 'current_ratio', title: 'Ratio de Liquidité Courante', value: currentRatio, unit: 'x',
+        benchmark: 2.0, status: statusFor(currentRatio, 2.0),
+        description: 'Capacité à honorer les dettes à court terme', formula: 'Actif Circulant / Passif Circulant', category: 'liquidity'
       },
       {
-        id: 'debt_ratio',
-        title: 'Ratio d\'Endettement',
-        value: 0.45,
-        unit: 'x',
-        change: -0.08,
-        trend: 'up',
-        benchmark: 0.5,
-        status: 'good',
-        description: 'Niveau d\'endettement',
-        formula: 'Dette Totale / Actif Total',
-        category: 'leverage'
+        id: 'debt_ratio', title: 'Ratio d\'Endettement', value: debtRatio, unit: 'x',
+        benchmark: 0.5, status: statusFor(debtRatio, 0.5, false),
+        description: 'Niveau d\'endettement', formula: 'Dette Totale / Actif Total', category: 'leverage'
       },
       {
-        id: 'net_margin',
-        title: 'Marge Nette',
-        value: 15.2,
-        unit: '%',
-        change: 1.8,
-        trend: 'up',
-        benchmark: 12.0,
-        status: 'excellent',
-        description: 'Rentabilité nette',
-        formula: 'Bénéfice Net / Chiffre d\'Affaires',
-        category: 'rentability'
+        id: 'net_margin', title: 'Marge Nette', value: netMarginPct, unit: '%',
+        benchmark: 12.0, status: statusFor(netMarginPct, 12.0),
+        description: 'Rentabilité nette', formula: 'Bénéfice Net / Chiffre d\'Affaires', category: 'rentability'
       },
       {
-        id: 'asset_turnover',
-        title: 'Rotation des Actifs',
-        value: 1.8,
-        unit: 'x',
-        change: 0.1,
-        trend: 'up',
-        benchmark: 1.5,
-        status: 'good',
-        description: 'Efficacité d\'utilisation des actifs',
-        formula: 'Chiffre d\'Affaires / Actif Total',
-        category: 'efficiency'
+        id: 'asset_turnover', title: 'Rotation des Actifs', value: assetTurnover, unit: 'x',
+        benchmark: 1.5, status: statusFor(assetTurnover, 1.5),
+        description: 'Efficacité d\'utilisation des actifs', formula: 'Chiffre d\'Affaires / Actif Total', category: 'efficiency'
       }
     ],
 
-    // Ratios Financiers Avancés
+    // Ratios Financiers Avancés — seuls ceux calculables avec les données
+    // disponibles (pas d'EBIT/charges financières distinctes en base).
     advancedRatios: [
       {
-        id: 'quick_ratio',
-        title: 'Ratio de Liquidité Immédiate',
-        value: 1.4,
-        unit: 'x',
-        change: 0.1,
-        trend: 'up',
-        benchmark: 1.0,
-        status: 'good',
-        description: 'Liquidité sans les stocks',
-        formula: '(Actif Circulant - Stocks) / Passif Circulant'
+        id: 'debt_to_equity', title: 'Ratio Dette/Capitaux Propres', value: debtToEquity, unit: 'x',
+        benchmark: 0.7, status: statusFor(debtToEquity, 0.7, false),
+        description: 'Structure financière', formula: 'Dette Totale / Capitaux Propres'
       },
       {
-        id: 'cash_ratio',
-        title: 'Ratio de Trésorerie',
-        value: 0.8,
-        unit: 'x',
-        change: 0.2,
-        trend: 'up',
-        benchmark: 0.5,
-        status: 'excellent',
-        description: 'Capacité de paiement immédiate',
-        formula: 'Trésorerie / Passif Circulant'
+        id: 'solvency', title: 'Solvabilité', value: solvencyPct, unit: '%',
+        benchmark: 30.0, status: statusFor(solvencyPct, 30.0),
+        description: 'Capitaux propres / Actif total', formula: 'Capitaux Propres / Actif Total'
       },
       {
-        id: 'debt_to_equity',
-        title: 'Ratio Dette/Capitaux Propres',
-        value: 0.6,
-        unit: 'x',
-        change: -0.1,
-        trend: 'up',
-        benchmark: 0.7,
-        status: 'good',
-        description: 'Structure financière',
-        formula: 'Dette Totale / Capitaux Propres'
-      },
-      {
-        id: 'interest_coverage',
-        title: 'Couverture des Intérêts',
-        value: 8.5,
-        unit: 'x',
-        change: 1.2,
-        trend: 'up',
-        benchmark: 5.0,
-        status: 'excellent',
-        description: 'Capacité à payer les intérêts',
-        formula: 'EBIT / Charges d\'Intérêts'
-      },
-      {
-        id: 'gross_margin',
-        title: 'Marge Brute',
-        value: 42.3,
-        unit: '%',
-        change: 2.1,
-        trend: 'up',
-        benchmark: 35.0,
-        status: 'excellent',
-        description: 'Rentabilité avant charges',
-        formula: 'Marge Brute / Chiffre d\'Affaires'
-      },
-      {
-        id: 'operating_margin',
-        title: 'Marge Opérationnelle',
-        value: 28.7,
-        unit: '%',
-        change: 1.5,
-        trend: 'up',
-        benchmark: 20.0,
-        status: 'excellent',
-        description: 'Rentabilité opérationnelle',
-        formula: 'EBIT / Chiffre d\'Affaires'
+        id: 'net_margin_2', title: 'Marge Nette', value: netMarginPct, unit: '%',
+        benchmark: 12.0, status: statusFor(netMarginPct, 12.0),
+        description: 'Rentabilité nette réelle', formula: 'Résultat Net / Chiffre d\'Affaires'
       }
     ],
 
-    // Données pour graphiques
+    // Données pour graphiques — CA réel des 6 derniers mois facturés
     chartData: {
-      revenue: [
-        { month: 'Jan', value: 280000, target: 300000 },
-        { month: 'Fév', value: 320000, target: 310000 },
-        { month: 'Mar', value: 350000, target: 320000 },
-        { month: 'Avr', value: 380000, target: 330000 },
-        { month: 'Mai', value: 420000, target: 340000 },
-        { month: 'Jun', value: 450000, target: 350000 }
-      ],
+      revenue: revenueChart.map(p => ({ month: p.period, value: p.value })),
       profitability: [
-        { metric: 'Marge Brute', value: 42.3, benchmark: 35.0 },
-        { metric: 'Marge Opérationnelle', value: 28.7, benchmark: 20.0 },
-        { metric: 'Marge Nette', value: 15.2, benchmark: 12.0 }
+        { metric: 'Marge Nette', value: netMarginPct, benchmark: 12.0 }
       ],
       liquidity: [
-        { metric: 'Ratio Courant', value: 2.1, benchmark: 2.0 },
-        { metric: 'Ratio Immédiat', value: 1.4, benchmark: 1.0 },
-        { metric: 'Ratio Trésorerie', value: 0.8, benchmark: 0.5 }
+        { metric: 'Ratio Courant', value: currentRatio ?? 0, benchmark: 2.0 }
       ]
     },
 
-    // Alertes et recommandations
-    alerts: [
-      {
-        id: 1,
-        type: 'warning',
-        title: 'Ratio de Rotation des Stocks',
-        message: 'Le ratio de rotation des stocks (6.2x) est en dessous de la moyenne du secteur (8.0x)',
-        action: 'Optimiser la gestion des stocks',
-        priority: 'medium'
-      },
-      {
-        id: 2,
-        type: 'success',
-        title: 'ROE Excellent',
-        message: 'Le ROE de 18.5% dépasse largement la moyenne du secteur (12%)',
-        action: 'Maintenir cette performance',
-        priority: 'low'
-      },
-      {
-        id: 3,
-        type: 'info',
-        title: 'Opportunité d\'Investissement',
-        message: 'La trésorerie excédentaire pourrait être investie pour améliorer le ROA',
-        action: 'Analyser les opportunités d\'investissement',
-        priority: 'medium'
-      }
-    ],
+    // Alertes générées à partir des ratios réels comparés à des seuils de
+    // référence, plutôt qu'un texte fixe citant des chiffres inventés.
+    alerts: alertsList,
 
-    // Benchmarking sectoriel
+    // Benchmarking sectoriel : les valeurs "secteur"/"marché" sont des
+    // références statiques (comme les benchmarks utilisés ailleurs dans
+    // l'app) ; la colonne "company" est désormais la vraie valeur calculée.
     benchmarking: {
-      sector: 'Services Financiers',
-      companySize: 'PME (10-50 employés)',
+      sector: t('analytics.performance.benchmark.sector_generic', { defaultValue: 'Secteur général' }),
+      companySize: '',
       region: 'Algérie',
       comparisons: [
-        { metric: 'ROE', company: 18.5, sector: 12.0, market: 15.0 },
-        { metric: 'ROA', company: 12.8, sector: 8.5, market: 10.0 },
-        { metric: 'Marge Nette', company: 15.2, sector: 10.0, market: 12.0 },
-        { metric: 'Ratio Liquidité', company: 2.1, sector: 1.8, market: 2.0 }
+        { metric: 'ROE', company: roe ?? 0, sector: 12.0, market: 15.0 },
+        { metric: 'ROA', company: roa ?? 0, sector: 8.5, market: 10.0 },
+        { metric: 'Marge Nette', company: netMarginPct, sector: 10.0, market: 12.0 },
+        { metric: 'Ratio Liquidité', company: currentRatio ?? 0, sector: 1.8, market: 2.0 }
       ]
     }
   };
@@ -452,9 +371,8 @@ const IndicateursPerformance: React.FC = () => {
       <Card title={t('analytics.kpis.sections.main')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {financialData.mainKPIs.map((kpi) => {
-            const TrendIcon = getTrendIcon(kpi.trend);
             return (
-              <div 
+              <div
                 key={kpi.id}
                 className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => handleKPIDetails(kpi)}
@@ -463,20 +381,14 @@ const IndicateursPerformance: React.FC = () => {
                   <div className={`p-3 rounded-lg ${getStatusColor(kpi.status)}`}>
                     <ChartBarIcon className="h-6 w-6" />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <TrendIcon className={`h-4 w-4 ${kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'}`} />
-                    <span className={`text-sm font-medium ${kpi.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                      {kpi.change > 0 ? '+' : ''}{kpi.change}{kpi.unit}
-                    </span>
-                  </div>
                 </div>
-                
+
                 <h3 className="text-sm font-medium text-gray-600 mb-2">{kpi.title}</h3>
                 <p className="text-3xl font-bold text-gray-900 mb-2">
-                  {kpi.value}{kpi.unit}
+                  {kpi.value != null ? `${kpi.value.toFixed(1)}${kpi.unit}` : '—'}
                 </p>
                 <p className="text-sm text-gray-500 mb-3">{kpi.description}</p>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Benchmark: {kpi.benchmark}{kpi.unit}</span>
                   <button className="text-blue-600 hover:text-blue-800 text-sm">
@@ -577,9 +489,8 @@ const IndicateursPerformance: React.FC = () => {
       <Card title={t('analytics.kpis.sections.advanced')}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {financialData.advancedRatios.map((ratio) => {
-            const TrendIcon = getTrendIcon(ratio.trend);
             return (
-              <div 
+              <div
                 key={ratio.id}
                 className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => handleKPIDetails(ratio)}
@@ -588,20 +499,14 @@ const IndicateursPerformance: React.FC = () => {
                   <div className={`p-3 rounded-lg ${getStatusColor(ratio.status)}`}>
                     <ScaleIcon className="h-6 w-6" />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <TrendIcon className={`h-4 w-4 ${ratio.trend === 'up' ? 'text-green-600' : 'text-red-600'}`} />
-                    <span className={`text-sm font-medium ${ratio.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-                      {ratio.change > 0 ? '+' : ''}{ratio.change}{ratio.unit}
-                    </span>
-                  </div>
                 </div>
-                
+
                 <h3 className="text-sm font-medium text-gray-600 mb-2">{ratio.title}</h3>
                 <p className="text-2xl font-bold text-gray-900 mb-2">
-                  {ratio.value}{ratio.unit}
+                  {ratio.value != null ? `${ratio.value.toFixed(1)}${ratio.unit}` : '—'}
                 </p>
                 <p className="text-sm text-gray-500 mb-3">{ratio.description}</p>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Benchmark: {ratio.benchmark}{ratio.unit}</span>
                   <button className="text-blue-600 hover:text-blue-800 text-sm">
@@ -767,18 +672,15 @@ const IndicateursPerformance: React.FC = () => {
         {/* Graphique des Revenus */}
         <Card title={t('analytics.kpis.sections.revenue')}>
           <div className="space-y-4">
+            {financialData.chartData.revenue.length === 0 && (
+              <div className="text-center text-sm text-gray-400 py-6">{t('common.no_data', { defaultValue: 'Aucune donnée' })}</div>
+            )}
             {financialData.chartData.revenue.map((item, index) => (
               <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 rounded border border-gray-100 gap-2">
                 <span className="text-sm font-bold text-gray-700">{item.month}</span>
-                <div className="flex items-center justify-between sm:justify-end space-x-4">
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-gray-900">{formatCurrency(item.value)}</div>
-                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Réalisé</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-blue-600">{formatCurrency(item.target)}</div>
-                    <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Objectif</div>
-                  </div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-gray-900">{formatCurrency(item.value)}</div>
+                  <div className="text-[10px] text-gray-500 uppercase font-bold tracking-tighter">Réalisé</div>
                 </div>
               </div>
             ))}
