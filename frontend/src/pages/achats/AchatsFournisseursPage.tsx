@@ -21,6 +21,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
+import { useNavigate } from 'react-router-dom';
 import apiClient from '../../services/apiClient';
 import { useEffect } from 'react';
 import Card from '@shared/components/UI/Card';
@@ -28,6 +29,7 @@ import LineChart from '@shared/components/Charts/LineChart';
 import BarChart from '@shared/components/Charts/BarChart';
 import DoughnutChart from '@shared/components/Charts/DoughnutChart';
 import { useSuppliers } from '@shared/hooks/useSuppliers';
+import { usePermission } from '@shared/hooks/usePermission';
 import Modal from '@shared/components/UI/Modal';
 
 // --- Types ---
@@ -36,12 +38,14 @@ type TabType = 'dashboard' | 'suppliers' | 'orders' | 'analytics';
 const AchatsFournisseursPage: React.FC = () => {
   const { formatCurrency, user } = useApp();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { has } = usePermission();
+  const canManage = has('fournisseurs-manage');
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // Data Fetching (Mocked or Hooks)
+
   const { suppliers, loading: suppliersLoading } = useSuppliers();
-  
+
   const [stats, setStats] = useState<any>(null);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
 
@@ -55,7 +59,7 @@ const AchatsFournisseursPage: React.FC = () => {
       }
 
       try {
-        const ordersRes = await apiClient.get('/procurement/purchase-orders');
+        const ordersRes = await apiClient.get<any[]>('/procurement/purchase-orders');
         const mappedOrders = ordersRes.data.map((po: any) => ({
           id: po.order_number || po.id,
           supplier: po.supplier_name || 'Inconnu',
@@ -78,38 +82,36 @@ const AchatsFournisseursPage: React.FC = () => {
     const totalPurchasesVal = stats?.total_purchases ? Number(stats.total_purchases) : 0;
     const avgPurchaseVal = stats?.average_purchase_value ? Number(stats.average_purchase_value) : 0;
 
+    // Pas de comparaison de période disponible : aucune tendance affichée
+    // plutôt qu'un pourcentage inventé.
     return [
       {
         label: t('suppliers.analytics.total_suppliers') || 'Fournisseurs',
         value: totalSuppliersVal,
         icon: BuildingOfficeIcon,
         bg: 'bg-blue-50 dark:bg-blue-950/30',
-        color: 'text-blue-600 dark:text-blue-400',
-        trend: '+4%'
+        color: 'text-blue-600 dark:text-blue-400'
       },
       {
         label: t('suppliers.analytics.active_suppliers') || 'Actifs',
         value: activeSuppliersVal,
         icon: CheckCircleIcon,
         bg: 'bg-emerald-50 dark:bg-emerald-950/30',
-        color: 'text-emerald-600 dark:text-emerald-400',
-        trend: '+2%'
+        color: 'text-emerald-600 dark:text-emerald-400'
       },
       {
         label: t('suppliers.analytics.total_purchases') || 'Total Achats',
         value: totalPurchasesVal,
         icon: CurrencyDollarIcon,
         bg: 'bg-indigo-50 dark:bg-indigo-950/30',
-        color: 'text-indigo-600 dark:text-indigo-400',
-        trend: '+12%'
+        color: 'text-indigo-600 dark:text-indigo-400'
       },
       {
         label: t('suppliers.analytics.average_purchase') || 'Panier Moyen',
         value: avgPurchaseVal,
         icon: BanknotesIcon,
         bg: 'bg-slate-50 dark:bg-slate-950/30',
-        color: 'text-slate-600 dark:text-slate-400',
-        trend: '-1.5%'
+        color: 'text-slate-600 dark:text-slate-400'
       }
     ];
   }, [stats, suppliers, t]);
@@ -142,18 +144,25 @@ const AchatsFournisseursPage: React.FC = () => {
     };
   }, [stats]);
 
+  // Répartition trimestrielle réelle des commandes fournisseurs, calculée
+  // depuis les commandes effectivement chargées plutôt qu'une courbe inventée.
   const evolutionData = useMemo(() => {
-    const tot = Number(stats?.total_purchases || 1200000);
-    const step = tot / 4;
+    const quarterTotals = [0, 0, 0, 0];
+    recentOrders.forEach(order => {
+      const date = order.date ? new Date(order.date) : null;
+      if (!date || isNaN(date.getTime())) return;
+      const quarter = Math.floor(date.getMonth() / 3);
+      quarterTotals[quarter] += Number(order.amount) || 0;
+    });
     return {
       labels: ['T1', 'T2', 'T3', 'T4'],
       datasets: [{
-        data: [step * 0.8, step * 1.1, step * 0.9, step * 1.2],
+        data: quarterTotals,
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.1)'
       }]
     };
-  }, [stats]);
+  }, [recentOrders]);
 
   // Helper for Status Tags
   const renderStatus = (status: string) => {
@@ -193,11 +202,28 @@ const AchatsFournisseursPage: React.FC = () => {
             </div>
             
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold hover:bg-slate-100 transition-all shadow-xl hover:scale-105 active:scale-95 w-full sm:w-auto">
-                <PlusIcon className="h-5 w-5" />
-                {t('suppliers.actions.new_order')}
-              </button>
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 text-white border border-white/20 rounded-2xl font-bold hover:bg-white/20 transition-all backdrop-blur-sm w-full sm:w-auto">
+              {canManage && (
+                <button
+                  onClick={() => navigate('/bons-commande')}
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-2xl font-bold hover:bg-slate-100 transition-all shadow-xl hover:scale-105 active:scale-95 w-full sm:w-auto"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                  {t('suppliers.actions.new_order')}
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  const rows = recentOrders.map(o => `${o.id},${o.supplier},${o.date},${o.amount},${o.status}`);
+                  const csv = ['Reference,Fournisseur,Date,Montant,Statut', ...rows].join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `commandes-fournisseurs-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-white/10 text-white border border-white/20 rounded-2xl font-bold hover:bg-white/20 transition-all backdrop-blur-sm w-full sm:w-auto">
                 <ArrowDownTrayIcon className="h-5 w-5" />
                 {t('common.export')}
               </button>
@@ -243,9 +269,6 @@ const AchatsFournisseursPage: React.FC = () => {
                     <div className={`p-3 ${kpi.bg} rounded-2xl group-hover:scale-110 transition-transform`}>
                       <kpi.icon className={`h-6 w-6 ${kpi.color}`} />
                     </div>
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg ${kpi.trend.startsWith('+') ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                      {kpi.trend}
-                    </span>
                   </div>
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{kpi.label}</h3>
                   <p className="text-2xl font-black text-slate-900">
@@ -293,7 +316,7 @@ const AchatsFournisseursPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="mt-6 space-y-2">
-                    {distributionData.labels.map((l, i) => (
+                    {distributionData.labels.map((l: string, i: number) => (
                       <div key={i} className="flex items-center justify-between text-xs">
                         <span className="flex items-center gap-2 font-bold text-slate-600">
                           <div className="w-2 h-2 rounded-full" style={{ backgroundColor: distributionData.datasets[0].backgroundColor[i] }}></div>
@@ -383,12 +406,16 @@ const AchatsFournisseursPage: React.FC = () => {
                   {t('suppliers.tabs.analytics')}
                 </h3>
                 <div className="h-64">
-                   <BarChart 
-                    data={[450, 320, 210, 150]} 
-                    labels={['IT', 'Bureautique', 'Logistique', 'Marketing']}
-                    backgroundColor="#0f172a"
-                    title={t('suppliers.tabs.analytics')}
-                   />
+                   {distributionData.labels[0] === 'Aucun' ? (
+                     <div className="h-full flex items-center justify-center text-sm text-slate-400">{t('common.no_data', { defaultValue: 'Aucune donnée' })}</div>
+                   ) : (
+                     <BarChart
+                      data={distributionData.datasets[0].data}
+                      labels={distributionData.labels}
+                      backgroundColor="#0f172a"
+                      title={t('suppliers.tabs.analytics')}
+                     />
+                   )}
                 </div>
              </div>
              <div className="bg-slate-900 p-4 sm:p-8 rounded-[2.5rem] shadow-2xl text-white overflow-hidden relative">
@@ -400,14 +427,39 @@ const AchatsFournisseursPage: React.FC = () => {
                    {t('suppliers.sections.executive_summary')}
                 </h3>
                 <div className="space-y-4 relative z-10">
-                   <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">{t('suppliers.actions.optimization')}</p>
-                      <p className="text-sm">Une consolidation des commandes chez <span className="text-blue-400 font-bold">Tech Solutions</span> pourrait réduire vos coûts logistiques de <span className="text-emerald-400 font-black">12%</span>.</p>
-                   </div>
-                   <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">{t('suppliers.actions.risks')}</p>
-                      <p className="text-sm">Le fournisseur <span className="text-amber-400 font-bold">ElectroMax</span> présente une volatilité des prix de <span className="text-rose-400 font-black">18%</span>. Envisagez un contrat cadre.</p>
-                   </div>
+                   {(() => {
+                     const top = stats?.top_suppliers || [];
+                     const totalSpend = Number(stats?.total_purchases || 0);
+                     if (top.length === 0 || totalSpend <= 0) {
+                       return (
+                         <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                           <p className="text-sm text-slate-300">{t('common.no_data', { defaultValue: 'Pas encore assez de données pour générer une synthèse.' })}</p>
+                         </div>
+                       );
+                     }
+                     const leader = top[0];
+                     const leaderShare = Math.round((Number(leader.total_spent || 0) / totalSpend) * 100);
+                     return (
+                       <>
+                         <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                            <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">{t('suppliers.actions.optimization')}</p>
+                            <p className="text-sm">
+                              {leaderShare >= 40 ? (
+                                <>Le fournisseur <span className="text-blue-400 font-bold">{leader.supplier_name}</span> concentre <span className="text-emerald-400 font-black">{leaderShare}%</span> de vos achats — une consolidation ou une négociation de volume pourrait être envisagée.</>
+                              ) : (
+                                <>Votre portefeuille fournisseurs est réparti sur {top.length} partenaire(s), le principal représentant {leaderShare}% des achats.</>
+                              )}
+                            </p>
+                         </div>
+                         {leaderShare >= 40 && (
+                           <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                              <p className="text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">{t('suppliers.actions.risks')}</p>
+                              <p className="text-sm">Dépendance forte envers <span className="text-amber-400 font-bold">{leader.supplier_name}</span> ({leaderShare}% des achats) : un contrat cadre ou une diversification limiterait le risque fournisseur.</p>
+                           </div>
+                         )}
+                       </>
+                     );
+                   })()}
                 </div>
              </div>
           </div>
