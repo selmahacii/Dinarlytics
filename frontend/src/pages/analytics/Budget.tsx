@@ -125,18 +125,28 @@ const Budget: React.FC = () => {
     const ecartTotal = totalReel - totalBudget;
     const tauxRealisation = totalBudget !== 0 ? (totalReel / totalBudget) * 100 : 0;
 
+    // Écarts calculés par ligne budgétaire réelle : favorable si le réel
+    // dépasse le budget pour une recette, ou reste sous le budget pour une
+    // dépense ; défavorable dans le cas contraire.
+    const lineEcarts = items.map((l: any) => {
+      const isRecette = l.type === 'recette' || l.category === 'ventes';
+      const budgeted = l.budgeted_amount || 0;
+      const actual = l.actual_amount || 0;
+      const diff = actual - budgeted;
+      const favorable = isRecette ? diff >= 0 : diff <= 0;
+      return { ...l, diff, favorable, isRecette };
+    }).filter((l: any) => l.diff !== 0);
+
     return {
       totalBudget,
       totalReel,
       ecartTotal,
       varianceTotal: ecartTotal,
       tauxRealisation,
-      nombreEcart: 0,
-      nombreEcartFavorable: 0,
-      nombreEcartDefavorable: 0,
-      namebreEcart: 0,
-      namebreEcartFavorable: 0,
-      namebreEcartDefavorable: 0
+      nombreEcart: lineEcarts.length,
+      nombreEcartFavorable: lineEcarts.filter((l: any) => l.favorable).length,
+      nombreEcartDefavorable: lineEcarts.filter((l: any) => !l.favorable).length,
+      lineEcarts
     };
   }, [budgets]);
 
@@ -217,6 +227,30 @@ const Budget: React.FC = () => {
           borderWidth: 2
         }
       ]
+    };
+  }, [budgets]);
+
+  // Distribution réelle des postes budgétaires par catégorie
+  const chartDataDistribution = useMemo(() => {
+    const budgetActif = budgets.find(b => b.status === 'en_cours' || b.status === 'approuvé' || b.status === 'active');
+    if (!budgetActif) return null;
+    const items = budgetActif.items || [];
+    if (items.length === 0) return null;
+
+    const totals: Record<string, number> = {};
+    items.forEach((l: any) => {
+      const cat = l.category || 'Autre';
+      totals[cat] = (totals[cat] || 0) + Math.abs(l.budgeted_amount || 0);
+    });
+    const labels = Object.keys(totals);
+    const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+    return {
+      labels,
+      datasets: [{
+        data: labels.map(l => totals[l]),
+        backgroundColor: labels.map((_, i) => palette[i % palette.length])
+      }]
     };
   }, [budgets]);
 
@@ -339,9 +373,18 @@ const Budget: React.FC = () => {
                 <Card title="Distribution">
                   <div className="space-y-4">
                     <p className="text-sm text-gray-500 italic text-center">Analyse de la répartition des postes budgétaires</p>
-                    <div className="h-64 flex items-center justify-center bg-slate-50 rounded-lg border border-dashed border-slate-300">
-                      <ChartPieIcon className="h-12 w-12 text-slate-300" />
-                    </div>
+                    {chartDataDistribution ? (
+                      <div className="h-64">
+                        <Doughnut
+                          data={chartDataDistribution}
+                          options={{ responsive: true, maintainAspectRatio: false }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-64 flex items-center justify-center bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                        <ChartPieIcon className="h-12 w-12 text-slate-300" />
+                      </div>
+                    )}
                   </div>
                 </Card>
               </div>
@@ -352,10 +395,12 @@ const Budget: React.FC = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Budgets de l'exercice</h3>
-                <button onClick={handleCreerBudget} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center space-x-2">
-                  <PlusIcon className="h-5 w-5" />
-                  <span>Nouveau Budget</span>
-                </button>
+                {has('comptabilite-write') && (
+                  <button onClick={handleCreerBudget} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center space-x-2">
+                    <PlusIcon className="h-5 w-5" />
+                    <span>Nouveau Budget</span>
+                  </button>
+                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {budgets.length === 0 ? (
@@ -384,15 +429,62 @@ const Budget: React.FC = () => {
           )}
 
           {activeTab === 'suivi' && (
-            <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-              L'outil de suivi détaillé est en cours de synchronisation avec la comptabilité réelle.
-            </div>
+            suiviBudget ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="month"
+                    value={selectedPeriod}
+                    onChange={(e) => setSelectedPeriod(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <span className="text-sm text-gray-500">Budget: {suiviBudget.budget.name}</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <p className="text-xs text-gray-500 uppercase font-bold">Budget période</p>
+                    <p className="text-xl font-black">{formatCurrency(suiviBudget.totalBudget)}</p>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <p className="text-xs text-gray-500 uppercase font-bold">Réel période</p>
+                    <p className="text-xl font-black">{formatCurrency(suiviBudget.totalReel)}</p>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <p className="text-xs text-gray-500 uppercase font-bold">Taux de réalisation</p>
+                    <p className="text-xl font-black">{suiviBudget.tauxRealisation.toFixed(1)}%</p>
+                  </div>
+                </div>
+                {suiviBudget.lignes.length === 0 && (
+                  <div className="py-8 text-center text-gray-400 text-sm">Aucune ligne budgétaire pour cette période.</div>
+                )}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                Aucun budget actif à suivre pour cet exercice.
+              </div>
+            )
           )}
 
           {activeTab === 'ecarts' && (
-            <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-              Aucun écart critique détecté sur la période sélectionnée.
-            </div>
+            kpis.lineEcarts && kpis.lineEcarts.length > 0 ? (
+              <div className="space-y-2">
+                {kpis.lineEcarts.map((l: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
+                    <div>
+                      <p className="font-semibold text-gray-900">{l.category || l.name || 'Ligne budgétaire'}</p>
+                      <p className="text-xs text-gray-400">{l.isRecette ? 'Recette' : 'Dépense'}</p>
+                    </div>
+                    <span className={`font-black font-mono ${l.favorable ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {l.diff >= 0 ? '+' : ''}{formatCurrency(l.diff)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                Aucun écart entre budget et réel sur les lignes du budget actif.
+              </div>
+            )
           )}
 
           {activeTab === 'previsions' && (
