@@ -76,8 +76,51 @@ PERMISSION_CATEGORIES = {
 # ========== ROLE DEFINITIONS (Hierarchical & Professional) ==========
 
 ROLE_PERMISSIONS = {
+    # The five role names below are the ones actually seeded into the
+    # `roles` table (see app.core.config.ROLES / seed_all.py) and are what
+    # ends up in TokenData.roles at runtime. require_permission() checks
+    # against these keys, so they must stay in sync with the seeded roles
+    # or every granular permission check silently denies real users.
+    'admin': list(sum(PERMISSION_CATEGORIES.values(), [])),
+
+    'comptable': [
+        'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
+        'facturation-read', 'facturation-create', 'facturation-validate',
+        'stocks-read', 'stocks-move',
+        'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+        'audit-read',
+        'lia-access', 'lia-chatbot', 'lia-analyses'
+    ],
+
+    'analyste_financier': [
+        'comptabilite-read',
+        'facturation-read',
+        'stocks-read',
+        'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+        'audit-read',
+        'lia-access', 'lia-analyses'
+    ],
+
+    'manager': [
+        'clients-manage', 'fournisseurs-manage', 'articles-manage',
+        'facturation-read', 'facturation-create',
+        'stocks-read', 'stocks-move',
+        'rapports-basic', 'rapports-advanced', 'export-data',
+        'lia-access', 'lia-chatbot'
+    ],
+
+    'employee': [
+        'facturation-read',
+        'stocks-read',
+        'rapports-basic',
+        'lia-access'
+    ],
+
+    # Legacy/aspirational role names kept for forward-compatibility with a
+    # richer role hierarchy that isn't seeded yet (not currently assignable
+    # to a real user, since seed_all.py only creates the five roles above).
     'directeur': list(sum(PERMISSION_CATEGORIES.values(), [])),
-    
+
     'expert-comptable': list(sum(PERMISSION_CATEGORIES.values(), [])), # All access except user management of other admins
     
     'comptable-senior': [
@@ -88,15 +131,7 @@ ROLE_PERMISSIONS = {
         'audit-read', 'audit-full',
         'lia-access', 'lia-chatbot', 'lia-analyses', 'lia-train'
     ],
-    
-    'comptable': [
-        'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
-        'facturation-read', 'facturation-create', 'facturation-validate',
-        'stocks-read', 'stocks-move',
-        'rapports-basic', 'rapports-advanced', 'export-data',
-        'lia-access', 'lia-chatbot', 'lia-analyses'
-    ],
-    
+
     'gestionnaire-ventes': [
         'clients-manage',
         'facturation-read', 'facturation-create',
