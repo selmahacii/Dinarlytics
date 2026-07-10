@@ -26,6 +26,8 @@ export interface Client {
   isExonereTVA?: boolean;
   numAttestationExo?: string;
   notes?: string;
+  caTotal?: number;
+  dernierAchat?: string;
 }
 
 export interface Fournisseur {

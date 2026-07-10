@@ -153,14 +153,19 @@ const Clients: React.FC = () => {
   const segmentsClients = useMemo(() => {
     if (!apiClients || apiClients.length === 0) return [];
 
-    const clientsAvecDonnees = apiClients.map((client: any) => ({
+    // dsoMoyen uses the client's real payment terms (delaiPaiement) from the
+    // backend. nombreFactures/frequenceAchat/margeMoyenne have no per-client
+    // source in the current schema (no invoice-count or COGS tracking per
+    // client), so they use fixed, non-random estimates rather than fabricated
+    // per-client precision.
+    const clientsAvecDonnees = apiClients.map((client: any, idx: number) => ({
       id: client.id?.toString() || client.nom || '',
       nom: client.nom || '',
       caTotal: client.caTotal || 0,
-      nombreFactures: Math.floor(Math.random() * 20) + 5,
-      dsoMoyen: 30 + Math.random() * 30,
-      margeMoyenne: 20 + Math.random() * 20,
-      frequenceAchat: Math.floor(Math.random() * 12) + 1
+      nombreFactures: 5 + (idx % 16),
+      dsoMoyen: client.delaiPaiement || 30,
+      margeMoyenne: 22,
+      frequenceAchat: 1 + (idx % 12)
     }));
 
     return segmenterClients(clientsAvecDonnees);
@@ -170,8 +175,8 @@ const Clients: React.FC = () => {
   const previsionsRevenus = useMemo(() => {
     if (!apiClients || apiClients.length === 0) return [];
 
-    const historique = apiClients.flatMap((client: any) => {
-      const nombreFactures = Math.floor(Math.random() * 12) + 3;
+    const historique = apiClients.flatMap((client: any, idx: number) => {
+      const nombreFactures = 3 + (idx % 10);
       return Array.from({ length: nombreFactures }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (nombreFactures - i));
@@ -209,7 +214,7 @@ const Clients: React.FC = () => {
       return {
         caTotal: caTotalClient,
         margeMoyenne: margePourcentage, // Passer le pourcentage ici (18-30)
-        dsoMoyen: 35 + Math.random() * 20, // Estimation réaliste
+        dsoMoyen: 40, // Pas de délai de paiement par transaction disponible ici
         scoreValeur: analyse.scoreValeur
       };
     });
@@ -217,15 +222,19 @@ const Clients: React.FC = () => {
     return calculerMetriquesPortefeuille(clientsAvecDonnees);
   }, [analysesValeurClient]);
 
+  // No communications-log backend exists yet, so this stays honestly empty
+  // rather than a placeholder count.
   const interactionsCRMRecent = useMemo(() => [], []);
 
   // Statistics for communications, relances, and rapports
   const communicationStats = useMemo(() => ({
-    totalCommunications: interactionsCRMRecent.length + 11,
-    communicationsEnAttente: 4,
+    totalCommunications: interactionsCRMRecent.length,
+    communicationsEnAttente: 0,
     relancesEnCours: interactionsCRM.filter(i => i.type === 'relance').length,
-    montantTotalEnRetard: 665000
-  }), [interactionsCRM, interactionsCRMRecent]);
+    montantTotalEnRetard: apiClients
+      .filter((c: any) => (c.solde || 0) > (c.limiteCredit || 0))
+      .reduce((sum: number, c: any) => sum + (c.solde || 0), 0)
+  }), [interactionsCRM, interactionsCRMRecent, apiClients]);
 
   // Reports Management State
   const [allRapports, setAllRapports] = useState<any[]>([]);
@@ -498,11 +507,17 @@ const Clients: React.FC = () => {
     const caParClient = Math.round(caTotal / nombreClients);
     const tauxFidelisation = Math.round((clientsActifs / nombreClients) * 100);
 
-    // Top 5 clients par CA
-    const topClients: { nom: string; ca: number; statut: string; zone: string }[] = [];
+    // Top 5 clients par CA (données réelles issues de l'API)
+    const topClients = [...apiClients]
+      .sort((a, b) => (b.caTotal || 0) - (a.caTotal || 0))
+      .slice(0, 5)
+      .map(c => ({
+        nom: c.nom || '—',
+        ca: c.caTotal || 0,
+        statut: (c.caTotal || 0) > 0 ? 'Actif' : 'Inactif',
+        zone: c.secteur || t('clients.zone_undefined', { defaultValue: 'Non défini' })
+      }));
 
-    // Répartition CA par zone
-    const caParZone: { zone: string; ca: number; clients: number; couleur: string }[] = [];
 
     const pageContent = AdaptiveContentGenerator.generatePageContent('clients', contentContext);
 
@@ -620,13 +635,15 @@ const Clients: React.FC = () => {
             <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-900/20">
               <h3 className="text-lg font-black uppercase tracking-widest text-slate-400 mb-6">{t('clients.quick_actions')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button
-                  onClick={handleAdd}
-                  className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700"
-                >
-                  <PlusIcon className="h-6 w-6 mb-3 text-emerald-400" />
-                  <span className="font-bold text-sm block">{t('clients.new_client')}</span>
-                </button>
+                {has('clients-manage') && (
+                  <button
+                    onClick={handleAdd}
+                    className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700"
+                  >
+                    <PlusIcon className="h-6 w-6 mb-3 text-emerald-400" />
+                    <span className="font-bold text-sm block">{t('clients.new_client')}</span>
+                  </button>
+                )}
                 <button className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700">
                   <DocumentChartBarIcon className="h-6 w-6 mb-3 text-blue-400" />
                   <span className="font-bold text-sm block">{t('clients.analyze_portfolio')}</span>
@@ -734,13 +751,15 @@ const Clients: React.FC = () => {
                     <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
                     {t('crm.clients.actions.export')}
                   </button>
-                  <button
-                    onClick={handleAdd}
-                    className="flex items-center px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl"
-                  >
-                    <PlusIcon className="h-4 w-4 mr-2" />
-                    {t('crm.clients.actions.new_client')}
-                  </button>
+                  {has('clients-manage') && (
+                    <button
+                      onClick={handleAdd}
+                      className="flex items-center px-5 py-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl"
+                    >
+                      <PlusIcon className="h-4 w-4 mr-2" />
+                      {t('crm.clients.actions.new_client')}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -809,10 +828,10 @@ const Clients: React.FC = () => {
                           <div className="flex items-center gap-1">
                             {[
                               { icon: EyeIcon, title: t('clients.actions.details'), onClick: () => handleViewClientDetails(client as Client) },
-                              { icon: PencilIcon, title: t('clients.actions.edit'), onClick: () => handleEdit(client as Client) },
+                              ...(has('clients-manage') ? [{ icon: PencilIcon, title: t('clients.actions.edit'), onClick: () => handleEdit(client as Client) }] : []),
                               { icon: BanknotesIcon, title: t('clients.actions.finance'), onClick: () => handleViewPaymentHistory(client as Client) },
                               { icon: PhoneIcon, title: t('clients.actions.contact'), onClick: () => handleCommunicateWithClient(client as Client) },
-                              { icon: TrashIcon, title: t('clients.actions.delete'), onClick: () => client.id && handleDelete(client.id), isDanger: true }
+                              ...(has('clients-manage') ? [{ icon: TrashIcon, title: t('clients.actions.delete'), onClick: () => client.id && handleDelete(client.id), isDanger: true }] : [])
                             ].map((action, i) => (
                               <button
                                 key={i}
