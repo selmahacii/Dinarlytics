@@ -30,6 +30,15 @@ export const hrService = {
     updateEmployee: async (id: string, data: Partial<Employee>) => {
         const response = await apiClient.put<Employee>(`/rh/employees/${id}`, data);
         return response.data;
+    },
+
+    createEmployee: async (data: Partial<Employee>) => {
+        const response = await apiClient.post<Employee>('/rh/employees', data);
+        return response.data;
+    },
+
+    deleteEmployee: async (id: string) => {
+        await apiClient.delete(`/rh/employees/${id}`);
     }
 };
 

@@ -22,11 +22,27 @@ export const useEmployees = () => {
     },
   });
 
+  const createEmployeeMutation = useMutation({
+    mutationFn: (data: Partial<Employee>) => hrService.createEmployee(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+  });
+
+  const deleteEmployeeMutation = useMutation({
+    mutationFn: (id: string) => hrService.deleteEmployee(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+  });
+
   return {
     employees,
     loading,
     error: error ? (error as Error).message : null,
     refresh: refetch,
-    updateEmployee: (id: string, data: Partial<Employee>) => updateEmployeeMutation.mutateAsync({ id, data })
+    updateEmployee: (id: string, data: Partial<Employee>) => updateEmployeeMutation.mutateAsync({ id, data }),
+    createEmployee: (data: Partial<Employee>) => createEmployeeMutation.mutateAsync(data),
+    deleteEmployee: (id: string) => deleteEmployeeMutation.mutateAsync(id)
   };
 };

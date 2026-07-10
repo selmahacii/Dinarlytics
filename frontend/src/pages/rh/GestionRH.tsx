@@ -29,6 +29,7 @@ import { useTranslation } from '@shared/hooks/useTranslation';
 import { useApp } from '@core/context/AppContext';
 import Modal from '@shared/components/UI/Modal';
 import { useEmployees } from '@shared/hooks/useEmployees';
+import { usePermission } from '@shared/hooks/usePermission';
 import { Employee } from '@/services/modules/hrService';
 
 type ContractType = 'cdi' | 'cdd' | 'stage' | 'freelance';
@@ -51,13 +52,41 @@ interface Bulletin {
 const GestionRH: React.FC = () => {
   const { t } = useTranslation();
   const { formatCurrency } = useApp();
-  const { employees, loading, error } = useEmployees();
+  const { employees, loading, error, createEmployee } = useEmployees();
+  const { has } = usePermission();
+  const canManageEmployees = has('admin-users');
   const [activeTab, setActiveTab] = useState<'employees' | 'payroll' | 'holidays' | 'analytics'>('employees');
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState<Department | 'all'>('all');
   const [selectedEmp, setSelectedEmp] = useState<Employee | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isBulletinOpen, setIsBulletinOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [newEmp, setNewEmp] = useState({
+    matricule: '', nom: '', prenom: '', poste: '', department: 'commercial' as Department,
+    contractType: 'cdi' as ContractType, dateEmbauche: new Date().toISOString().slice(0, 10),
+    salaireBase: 0, primes: 0, email: '', telephone: ''
+  });
+
+  const resetCreateForm = () => {
+    setNewEmp({ matricule: '', nom: '', prenom: '', poste: '', department: 'commercial', contractType: 'cdi', dateEmbauche: new Date().toISOString().slice(0, 10), salaireBase: 0, primes: 0, email: '', telephone: '' });
+    setCreateError(null);
+  };
+
+  const handleCreateEmployee = async () => {
+    if (!newEmp.matricule || !newEmp.nom || !newEmp.prenom || !newEmp.poste) {
+      setCreateError(t('rh.create.validation_error') || 'Matricule, nom, prénom et poste requis');
+      return;
+    }
+    try {
+      await createEmployee({ ...newEmp, status: 'actif' });
+      resetCreateForm();
+      setIsCreateOpen(false);
+    } catch (err: any) {
+      setCreateError(err?.response?.data?.detail || err.message || 'Erreur lors de la création');
+    }
+  };
 
   const deptColors: Record<Department, string> = {
     direction: 'bg-slate-800 text-white', finance: 'bg-blue-100 text-blue-800',
@@ -105,9 +134,11 @@ const GestionRH: React.FC = () => {
           </h1>
           <p className="text-slate-500 text-sm mt-1">{t('rh.subtitle')}</p>
         </div>
-        <button className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
-          <PlusIcon className="h-4 w-4 mr-2" />{t('rh.add_employee_btn')}
-        </button>
+        {canManageEmployees && (
+          <button onClick={() => setIsCreateOpen(true)} className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+            <PlusIcon className="h-4 w-4 mr-2" />{t('rh.add_employee_btn')}
+          </button>
+        )}
       </div>
 
       {/* KPIs */}
@@ -261,42 +292,10 @@ const GestionRH: React.FC = () => {
         {/* Holidays Tab */}
         {activeTab === 'holidays' && (
           <div className="p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {[
-                { label: t('rh.holidays.pending'), count: 0, color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-                { label: t('rh.holidays.approved'), count: 0, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-                { label: t('rh.holidays.refused'), count: 0, color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
-              ].map((item, i) => (
-                <div key={i} className={`p-4 rounded-xl border ${item.bg} flex items-center justify-between`}>
-                  <span className="text-sm font-semibold text-slate-700">{item.label}</span>
-                  <span className={`text-3xl font-black ${item.color}`}>{item.count}</span>
-                </div>
-              ))}
-            </div>
-            <div className="overflow-x-auto no-scrollbar rounded-xl border border-slate-200">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50"><tr>
-                  {[t('rh.holidays.table.employee'), t('rh.holidays.table.type'), t('rh.holidays.table.from'), t('rh.holidays.table.to'), t('rh.holidays.table.days'), t('rh.holidays.table.status')].map((h, i) => (
-                    <th key={i} className="px-4 py-3 text-left text-[10px] font-bold text-slate-500 uppercase whitespace-nowrap">{h}</th>
-                  ))}
-                </tr></thead>
-                <tbody className="divide-y divide-slate-100">
-                  {([] as { emp: string; type: string; from: string; to: string; days: number; status: string }[]).map((row, i) => {
-                    const statusColors: Record<string, string> = { pending: 'bg-amber-100 text-amber-700', approved: 'bg-emerald-100 text-emerald-700', refused: 'bg-red-100 text-red-700' };
-                    const statusLabels: Record<string, string> = { pending: t('rh.holidays.status.pending'), approved: t('rh.holidays.status.approved'), refused: t('rh.holidays.status.refused') };
-                    return (
-                      <tr key={i} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">{row.emp}</td>
-                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.type}</td>
-                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.from}</td>
-                        <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{row.to}</td>
-                        <td className="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">{row.days} {t('rh.holidays.days_label')}</td>
-                        <td className="px-4 py-3 whitespace-nowrap"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${statusColors[row.status]}`}>{statusLabels[row.status]}</span></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center">
+              <CalendarIcon className="h-10 w-10 mx-auto text-slate-300 mb-3" />
+              <p className="font-semibold text-slate-700">{t('rh.holidays.not_available_title') || 'Gestion des congés à venir'}</p>
+              <p className="text-sm text-slate-500 mt-1">{t('rh.holidays.not_available_desc') || "Cette fonctionnalité n'est pas encore connectée au backend."}</p>
             </div>
           </div>
         )}
@@ -434,6 +433,62 @@ const GestionRH: React.FC = () => {
           </div>
         </Modal>
       )}
+
+      {/* Create Employee Modal */}
+      <Modal isOpen={isCreateOpen} onClose={() => { setIsCreateOpen(false); resetCreateForm(); }} title={t('rh.add_employee_btn')} size="lg">
+        <div className="p-2 space-y-4">
+          {createError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">{createError}</div>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input type="text" placeholder={t('rh.detail.position') as string + ' — Matricule'} value={newEmp.matricule}
+              onChange={e => setNewEmp({ ...newEmp, matricule: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="text" placeholder="Nom" value={newEmp.nom}
+              onChange={e => setNewEmp({ ...newEmp, nom: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="text" placeholder="Prénom" value={newEmp.prenom}
+              onChange={e => setNewEmp({ ...newEmp, prenom: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="text" placeholder={t('rh.detail.position') as string} value={newEmp.poste}
+              onChange={e => setNewEmp({ ...newEmp, poste: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <select value={newEmp.department} onChange={e => setNewEmp({ ...newEmp, department: e.target.value as Department })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2">
+              {Object.keys(deptColors).map(d => <option key={d} value={d}>{t(`rh.departments.${d}`)}</option>)}
+            </select>
+            <select value={newEmp.contractType} onChange={e => setNewEmp({ ...newEmp, contractType: e.target.value as ContractType })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2">
+              {Object.keys(contractColors).map(c => <option key={c} value={c}>{t(`rh.contract.${c}`)}</option>)}
+            </select>
+            <input type="date" value={newEmp.dateEmbauche}
+              onChange={e => setNewEmp({ ...newEmp, dateEmbauche: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="number" min={0} placeholder={t('rh.detail.base_salary') as string} value={newEmp.salaireBase}
+              onChange={e => setNewEmp({ ...newEmp, salaireBase: Number(e.target.value) })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="number" min={0} placeholder={t('rh.detail.primes') as string} value={newEmp.primes}
+              onChange={e => setNewEmp({ ...newEmp, primes: Number(e.target.value) })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="email" placeholder="Email" value={newEmp.email}
+              onChange={e => setNewEmp({ ...newEmp, email: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+            <input type="text" placeholder={t('rh.detail.phone') as string} value={newEmp.telephone}
+              onChange={e => setNewEmp({ ...newEmp, telephone: e.target.value })}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-2" />
+          </div>
+          <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+            <button onClick={() => { setIsCreateOpen(false); resetCreateForm(); }}
+              className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+              {t('common.cancel')}
+            </button>
+            <button onClick={handleCreateEmployee}
+              className="px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors">
+              {t('rh.add_employee_btn')}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
