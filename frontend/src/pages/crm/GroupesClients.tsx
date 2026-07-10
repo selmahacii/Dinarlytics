@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon, UserGroupIcon, BuildingOfficeIcon, BanknotesIcon, ChartBarIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, BuildingOfficeIcon, BanknotesIcon, ChartBarIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
-import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { clientsService } from '@/services/modules/clientsService';
@@ -30,20 +29,23 @@ interface GroupeClient {
 const GroupesClients: React.FC = () => {
   const { formatCurrency } = useApp();
   const { t } = useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedGroupe, setSelectedGroupe] = useState<GroupeClient | null>(null);
   const [activeTab, setActiveTab] = useState<'groupes' | 'clients' | 'analytics'>('analytics');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
 
   const [groupesData, setGroupesData] = useState<any>(null);
+  const [rawClients, setRawClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const data = await clientsService.getGroups();
-        setGroupesData(data);
+        const [groups, clients] = await Promise.all([
+          clientsService.getGroups(),
+          clientsService.getAll()
+        ]);
+        setGroupesData(groups);
+        setRawClients(clients);
       } catch (error) {
         console.error("Error fetching client groups:", error);
       } finally {
@@ -53,59 +55,64 @@ const GroupesClients: React.FC = () => {
     fetchGroups();
   }, []);
 
-  // Map backend groups to frontend GroupeClient interface
+  const riskLabel = (r: string | undefined): 'faible' | 'moyen' | 'élevé' =>
+    r === 'eleve' || r === 'élevé' ? 'élevé' : r === 'moyen' ? 'moyen' : 'faible';
+
+  const toGroupClient = (c: any) => ({
+    id: c.id || c.nom,
+    nom: c.nom || '',
+    secteur: c.secteur || 'Non défini',
+    chiffreAffaires: c.ca || 0,
+    solde: c.solde || 0,
+    risque: riskLabel(c.risque)
+  });
+
+  // Map backend groups to frontend GroupeClient interface, with real
+  // per-client data (chiffre d'affaires, solde, liste des clients) sourced
+  // from the actual client list rather than hardcoded zeros/empty arrays.
   const groupesClients: GroupeClient[] = React.useMemo(() => {
     if (!groupesData) return [];
 
     const result: GroupeClient[] = [];
 
-    // Secteurs
+    const buildGroup = (
+      idPrefix: string, name: string, type: GroupeClient['type'], couleur: string,
+      matches: (c: any) => boolean
+    ) => {
+      const clients = rawClients.filter(matches).map(toGroupClient);
+      const chiffreAffaires = clients.reduce((sum, c) => sum + c.chiffreAffaires, 0);
+      const soldeMoyen = clients.length > 0 ? clients.reduce((sum, c) => sum + c.solde, 0) / clients.length : 0;
+      result.push({
+        id: idPrefix,
+        nom: name,
+        description: `${type === 'secteur' ? 'Groupe sectoriel' : type === 'taille' ? "Taille d'entreprise" : 'Niveau de risque'}: ${name}`,
+        type,
+        couleur,
+        nombreClients: clients.length,
+        chiffreAffaires,
+        soldeMoyen,
+        clients
+      });
+    };
+
     groupesData.secteurs?.forEach((s: any, idx: number) => {
-      result.push({
-        id: `secteur-${idx}`,
-        nom: s.name,
-        description: `Groupe sectoriel: ${s.name}`,
-        type: 'secteur',
-        couleur: ['blue', 'indigo', 'purple', 'green', 'indigo'][idx % 5],
-        nombreClients: s.count,
-        chiffreAffaires: 0,
-        soldeMoyen: 0,
-        clients: []
-      });
+      buildGroup(`secteur-${idx}`, s.name, 'secteur', ['blue', 'indigo', 'purple', 'green', 'indigo'][idx % 5],
+        (c: any) => (c.secteur || 'Non défini') === s.name);
     });
 
-    // Tailles
     groupesData.tailles?.forEach((s: any, idx: number) => {
-      result.push({
-        id: `taille-${idx}`,
-        nom: s.name,
-        description: `Taille d'entreprise: ${s.name}`,
-        type: 'taille',
-        couleur: ['green', 'blue', 'purple', 'indigo'][idx % 4],
-        nombreClients: s.count,
-        chiffreAffaires: 0,
-        soldeMoyen: 0,
-        clients: []
-      });
+      buildGroup(`taille-${idx}`, s.name, 'taille', ['green', 'blue', 'purple', 'indigo'][idx % 4],
+        (c: any) => (c.taille || 'Non défini') === s.name);
     });
 
-    // Risques (matching enum risque: 'faible' | 'moyen' | 'élevé')
     groupesData.risques?.forEach((s: any, idx: number) => {
-      result.push({
-        id: `risque-${idx}`,
-        nom: s.name.charAt(0).toUpperCase() + s.name.slice(1),
-        description: `Niveau de risque: ${s.name}`,
-        type: 'risque',
-        couleur: s.name === 'élevé' ? 'red' : s.name === 'moyen' ? 'orange' : 'green',
-        nombreClients: s.count,
-        chiffreAffaires: 0,
-        soldeMoyen: 0,
-        clients: []
-      });
+      const label = s.name.charAt(0).toUpperCase() + s.name.slice(1);
+      buildGroup(`risque-${idx}`, label, 'risque', s.name === 'élevé' ? 'red' : s.name === 'moyen' ? 'orange' : 'green',
+        (c: any) => riskLabel(c.risque) === s.name);
     });
 
     return result;
-  }, [groupesData]);
+  }, [groupesData, rawClients]);
 
   // Filtrage des groupes
   const filteredGroupes = groupesClients.filter((groupe: GroupeClient) => {
@@ -114,9 +121,6 @@ const GroupesClients: React.FC = () => {
     const matchesType = selectedType === 'all' || groupe.type === selectedType;
     return matchesSearch && matchesType;
   });
-
-  // Récupération des clients (placeholder for now as the endpoint doesn't return full lists)
-  const allClients: any[] = [];
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -137,16 +141,6 @@ const GroupesClients: React.FC = () => {
       indigo: 'bg-indigo-100 text-indigo-800 border-indigo-200'
     };
     return classes[couleur as keyof typeof classes] || classes.blue;
-  };
-
-  const handleEdit = (groupe: GroupeClient) => {
-    setSelectedGroupe(groupe);
-    setIsModalOpen(true);
-  };
-
-  const handleAdd = () => {
-    setSelectedGroupe(null);
-    setIsModalOpen(true);
   };
 
   return (
@@ -279,14 +273,6 @@ const GroupesClients: React.FC = () => {
                       </select>
                     </div>
                   </div>
-
-                  <button
-                    onClick={handleAdd}
-                    className="flex items-center px-4 py-2 bg-gradient-to-r from-slate-700 to-slate-800 text-white rounded-lg hover:from-slate-800 hover:to-slate-900 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <PlusIcon className="h-5 w-5 mr-2" />
-                    {t('crm.groups.actions.new_group')}
-                  </button>
                 </div>
 
                 {filteredGroupes.length > 0 ? (
@@ -302,17 +288,6 @@ const GroupesClients: React.FC = () => {
                               <h3 className="font-semibold text-gray-900">{groupe.nom}</h3>
                               <p className="text-sm text-gray-500">{groupe.description}</p>
                             </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleEdit(groupe)}
-                              className="text-slate-600 hover:text-slate-800"
-                            >
-                              <PencilIcon className="h-4 w-4" />
-                            </button>
-                            <button className="text-red-600 hover:text-red-900">
-                              <TrashIcon className="h-4 w-4" />
-                            </button>
                           </div>
                         </div>
 
@@ -438,89 +413,6 @@ const GroupesClients: React.FC = () => {
               </Card>
             </>
           )}
-
-          {/* Modal pour ajouter/modifier un groupe */}
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            title={selectedGroupe ? t('crm.groups.modals.edit_title') : t('crm.groups.modals.create_title')}
-            size="lg"
-          >
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('crm.groups.modals.name')}
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={selectedGroupe?.nom || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Ex: PME Industrielles"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('crm.groups.modals.type')}
-                  </label>
-                  <select
-                    defaultValue={selectedGroupe?.type || 'secteur'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="secteur">{t('crm.groups.placeholders.type_sector')}</option>
-                    <option value="taille">{t('crm.groups.placeholders.type_size')}</option>
-                    <option value="risque">{t('crm.groups.placeholders.type_risk')}</option>
-                    <option value="geographique">{t('crm.groups.placeholders.type_geo')}</option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('crm.groups.modals.description')}
-                  </label>
-                  <textarea
-                    defaultValue={selectedGroupe?.description || ''}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Description détaillée du groupe"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t('crm.groups.modals.color')}
-                  </label>
-                  <select
-                    defaultValue={selectedGroupe?.couleur || 'blue'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="blue">{t('crm.groups.colors.blue')}</option>
-                    <option value="purple">{t('crm.groups.colors.purple')}</option>
-                    <option value="green">{t('crm.groups.colors.green')}</option>
-                    <option value="red">{t('crm.groups.colors.red')}</option>
-                    <option value="indigo">{t('crm.groups.colors.indigo')}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {selectedGroupe ? t('common.save') : t('common.create')}
-                </button>
-              </div>
-            </form>
-          </Modal>
         </>
       )}
     </div>
