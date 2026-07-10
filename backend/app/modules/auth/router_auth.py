@@ -187,28 +187,28 @@ async def register(
 @router.post("/login", response_model=LoginResponse)
 @limiter.limit("5/minute")
 async def login(
-    request: LoginRequest,
-    req: Request,
+    request: Request,
+    login_data: LoginRequest,
     db: Session = Depends(get_db)
 ):
     """Login user and return JWT tokens"""
     
     # Get IP and user-agent
-    ip_address = req.client.host if req.client else "unknown"
-    user_agent = req.headers.get("User-Agent", "unknown")
+    ip_address = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("User-Agent", "unknown")
     
     # Check login attempts
-    if not SessionManager.record_login_attempt(request.username, success=False):
+    if not SessionManager.record_login_attempt(login_data.username, success=False):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many login attempts. Please try again later."
         )
     
     # Find user
-    user = db.query(User).filter(User.username == request.username).first()
+    user = db.query(User).filter(User.username == login_data.username).first()
     
-    if not user or not PasswordManager.verify_password(request.password, user.password_hash):
-        logger.warning(f"Failed login attempt for user: {request.username}")
+    if not user or not PasswordManager.verify_password(login_data.password, user.password_hash):
+        logger.warning(f"Failed login attempt for user: {login_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password"
