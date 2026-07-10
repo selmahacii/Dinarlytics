@@ -22,25 +22,13 @@ import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { usePermission } from '@shared/hooks/usePermission';
 import Modal from '@shared/components/UI/Modal';
+import apiClient from '@/services/apiClient';
 import { analyticService, FinancialKPIs, RollingForecast } from '@/services/modules/analyticService';
 
 const AnalyticsAvancees: React.FC = () => {
   const { formatCurrency } = useApp();
   const { t } = useTranslation();
   const { user } = usePermission();
-
-  // Facteur d'échelle basé sur le segment
-  const scaleFactor = React.useMemo(() => {
-    if (!user?.segment) return 1;
-    switch (user.segment) {
-      case 'micro': return 0.2;
-      case 'small': return 0.6;
-      case 'medium': return 1.2;
-      case 'large': return 8.0;
-      case 'enterprise': return 25.0;
-      default: return 1;
-    }
-  }, [user]);
 
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [loading, setLoading] = useState(true);
@@ -50,26 +38,20 @@ const AnalyticsAvancees: React.FC = () => {
   const [forecastData, setForecastData] = useState<any>(null);
   const [sizeMetrics, setSizeMetrics] = useState<any>(null);
   const [isTreasuryReportOpen, setIsTreasuryReportOpen] = useState(false);
+  const [pipelineCounts, setPipelineCounts] = useState({ clients: 0, devis: 0, devisEnvoyes: 0, factures: 0 });
 
-  // Hardcoded data with scaling
-  const analyticsData = React.useMemo(() => ({
-    funnel: [
-      { name: t('advanced_analytics.pipeline.prospects'), count: Math.round(12500 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 100, color: 'bg-slate-300' },
-      { name: t('advanced_analytics.pipeline.quotes'), count: Math.round(3200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 25.6, color: 'bg-slate-400' },
-      { name: t('advanced_analytics.pipeline.negotiation'), count: Math.round(1200 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 9.6, color: 'bg-slate-600' },
-      { name: t('advanced_analytics.pipeline.invoiced'), count: Math.round(480 * (scaleFactor > 5 ? 10 : scaleFactor < 0.5 ? 0.2 : 1)), percentage: 3.8, color: 'bg-slate-800' }
-    ],
-    cohorts: [
-      { name: 'Sept 2024', data: [100, 45, 32, 28, 25, 22] },
-      { name: 'Oct 2024', data: [100, 42, 30, 26, 24] },
-      { name: 'Nov 2024', data: [100, 48, 35, 30] }
-    ],
-    correlations: [
-      { metric1: t('advanced_analytics.correlations.site_speed'), metric2: t('advanced_analytics.correlations.conv_rate'), correlation: 0.85 },
-      { metric1: t('advanced_analytics.correlations.ad_spend'), metric2: t('advanced_analytics.correlations.new_clients'), correlation: 0.72 },
-      { metric1: t('advanced_analytics.correlations.discounts'), metric2: t('advanced_analytics.correlations.gross_margin'), correlation: -0.65 }
-    ]
-  }), [scaleFactor]);
+  // Pipeline commercial réel : clients → devis → devis envoyés → factures.
+  const analyticsData = React.useMemo(() => {
+    const base = Math.max(1, pipelineCounts.clients);
+    return {
+      funnel: [
+        { name: t('advanced_analytics.pipeline.prospects'), count: pipelineCounts.clients, percentage: 100, color: 'bg-slate-300' },
+        { name: t('advanced_analytics.pipeline.quotes'), count: pipelineCounts.devis, percentage: Math.round((pipelineCounts.devis / base) * 100), color: 'bg-slate-400' },
+        { name: t('advanced_analytics.pipeline.negotiation'), count: pipelineCounts.devisEnvoyes, percentage: Math.round((pipelineCounts.devisEnvoyes / base) * 100), color: 'bg-slate-600' },
+        { name: t('advanced_analytics.pipeline.invoiced'), count: pipelineCounts.factures, percentage: Math.round((pipelineCounts.factures / base) * 100), color: 'bg-slate-800' }
+      ]
+    };
+  }, [pipelineCounts, t]);
 
   // Fetch dynamic data
   useEffect(() => {
@@ -77,15 +59,26 @@ const AnalyticsAvancees: React.FC = () => {
       setLoading(true);
       try {
         const segment = (user?.segment || 'sme') as 'micro' | 'sme' | 'mid';
-        const [kpis, forecast, sizeData] = await Promise.all([
+        const [kpis, forecast, sizeData, quotesRes, invoicesRes, clientStatsRes] = await Promise.all([
           analyticService.getHealthKPIs(),
           analyticService.getForecast(segment),
-          analyticService.getCompanySizeMetrics(segment)
+          analyticService.getCompanySizeMetrics(segment),
+          apiClient.get<any[]>('/quotes/').catch(() => ({ data: [] as any[] })),
+          apiClient.get<any[]>('/invoices/').catch(() => ({ data: [] as any[] })),
+          apiClient.get<any>('/clients/stats').catch(() => ({ data: null as any }))
         ]);
 
         setKpiData(kpis);
         setForecastData(forecast);
         setSizeMetrics(sizeData);
+
+        const quotes = quotesRes.data || [];
+        setPipelineCounts({
+          clients: clientStatsRes.data?.total_clients || 0,
+          devis: quotes.length,
+          devisEnvoyes: quotes.filter((q: any) => q.status === 'sent' || q.status === 'accepted').length,
+          factures: (invoicesRes.data || []).length
+        });
       } catch (error) {
         console.error('Erreur lors du chargement des analyses:', error);
       } finally {
@@ -96,65 +89,55 @@ const AnalyticsAvancees: React.FC = () => {
     loadData();
   }, [selectedPeriod, user?.segment]);
 
-  // Export Functionality
+  // Export réel : CSV des indicateurs affichés
   const handleExport = () => {
-    const message = `Export du rapport ${exportFormat.toUpperCase()} pour la période ${selectedPeriod} en cours...`;
-    if (window.confirm(`${message}\nVoulez-vous télécharger le fichier ?`)) {
-      setTimeout(() => alert("Le fichier a été téléchargé avec succès."), 500);
-    }
-  };
-
-  // Import Functionality
-  const handleImport = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv,.xlsx';
-    input.onchange = (e) => {
-      alert("Importation des données externes terminée. Le tableau de bord a été mis à jour.");
-    };
-    input.click();
+    const rows = currentMetrics.map(m => `${m.name},${m.value},${m.target}`);
+    const csv = ['Indicateur,Valeur,Cible', ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const currentMetrics = React.useMemo(() => [
     {
       name: t('advanced_analytics.metrics.dso'),
-      value: kpiData ? `${kpiData.dso_days}${t('advanced_analytics.metrics.days')}` : `35${t('advanced_analytics.metrics.days')}`,
-      diff: -2.3,
+      value: kpiData ? `${Math.round(kpiData.dso_days)}${t('advanced_analytics.metrics.days')}` : '—',
       icon: ClockIcon,
       color: 'slate',
       target: `30${t('advanced_analytics.metrics.days')}`
     },
     {
       name: t('advanced_analytics.metrics.bfr'),
-      value: formatCurrency((kpiData?.bfr_value || 1300000) * scaleFactor),
-      diff: 5.1,
+      value: kpiData ? formatCurrency(kpiData.bfr_value || 0) : '—',
       icon: BanknotesIcon,
       color: 'slate',
-      target: `< ${formatCurrency(1500000 * scaleFactor)}`
+      target: ''
     },
     {
       name: t('advanced_analytics.metrics.break_even'),
-      value: formatCurrency((kpiData?.break_even_point || 4200000) * scaleFactor),
-      diff: 0.0,
+      value: kpiData ? formatCurrency(kpiData.break_even_point || 0) : '—',
       icon: ScaleIcon,
       color: 'slate',
-      target: t('steering.dashboard.accounting.validated')
+      target: ''
     },
     {
       name: t('advanced_analytics.metrics.solvency'),
-      value: kpiData ? `${Math.round(kpiData.solvency_ratio * 100)}%` : '210%',
-      diff: 1.5,
+      value: kpiData ? `${Math.round((kpiData.solvency_ratio || 0) * 100)}%` : '—',
       icon: ChartBarSquareIcon,
       color: 'slate',
       target: '> 120%'
     }
-  ], [scaleFactor, formatCurrency, kpiData, t]);
+  ], [formatCurrency, kpiData, t]);
 
-  // Projecting values for Rolling Forecast
-  const projectionValue = forecastData?.predicted_revenue_next_month || (2750000 * scaleFactor);
-  const historicValues = forecastData?.rolling_forecast
+  // Projecting values for Rolling Forecast — uniquement des valeurs réelles
+  const projectionValue = forecastData?.predicted_revenue_next_month || 0;
+  const historicValues: number[] = forecastData?.rolling_forecast
     ? forecastData.rolling_forecast.map((f: any) => f.predicted_value)
-    : [2650000, 2820000, 2950000].map(v => v * scaleFactor);
+    : [];
 
   if (loading) {
     return (
@@ -215,30 +198,12 @@ const AnalyticsAvancees: React.FC = () => {
               <div className="h-8 w-px bg-slate-200 mx-1 hidden md:block"></div>
 
               <button
-                onClick={handleImport}
-                className="px-4 py-2 text-sm font-medium bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors flex items-center shadow-sm"
+                onClick={handleExport}
+                className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors flex items-center shadow-sm"
               >
-                <DocumentArrowUpIcon className="h-4 w-4 mr-2" />
-                {t('advanced_analytics.import_btn')}
+                <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
+                {t('advanced_analytics.export_btn')} CSV
               </button>
-
-              <div className="flex rounded-lg shadow-sm">
-                <button
-                  onClick={handleExport}
-                  className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-l-lg hover:bg-slate-800 border-r border-slate-700 transition-colors flex items-center"
-                >
-                  <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
-                  {t('advanced_analytics.export_btn')}
-                </button>
-                <select
-                  value={exportFormat}
-                  onChange={(e) => setExportFormat(e.target.value)}
-                  className="bg-slate-900 text-white text-sm font-medium rounded-r-lg hover:bg-slate-800 outline-none px-2 cursor-pointer border-l-0"
-                >
-                  <option value="pdf">PDF</option>
-                  <option value="xlsx">XLSX</option>
-                </select>
-              </div>
             </div>
           </div>
         </div>
@@ -250,15 +215,6 @@ const AnalyticsAvancees: React.FC = () => {
               <div className="flex justify-between items-start mb-4">
                 <div className={`p-2.5 rounded-xl bg-${grid.color}-50 text-${grid.color}-600`}>
                   <grid.icon className="h-6 w-6" />
-                </div>
-                <div className="text-right">
-                  <p className={`text-xs font-bold ${grid.diff >= 0 ? 'text-slate-900' : 'text-slate-500'} flex items-center justify-end`}>
-                    {grid.diff > 0 ? '+' : ''}{grid.diff}%
-                    {grid.diff >= 0 ? <ArrowTrendingUpIcon className="h-3 w-3 ml-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 ml-1" />}
-                  </p>
-                  {comparisonMode && (
-                    <p className="text-[10px] text-slate-400 mt-0.5">vs N-1</p>
-                  )}
                 </div>
               </div>
               <div>
@@ -311,10 +267,12 @@ const AnalyticsAvancees: React.FC = () => {
                 <ClockIcon className="h-5 w-5 text-slate-500 mr-2" />
                 {t('advanced_analytics.treasury_forecast_title')}
               </h3>
-              <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 shadow-sm flex items-center">
-                <SparklesIcon className="h-3 w-3 mr-1 text-indigo-500" />
-                {t('advanced_analytics.ia_trust_score')}: {Math.round((forecastData?.confidence_score || 0.89) * 100)}%
-              </span>
+              {forecastData?.confidence_score != null && (
+                <span className="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 shadow-sm flex items-center">
+                  <SparklesIcon className="h-3 w-3 mr-1 text-indigo-500" />
+                  {t('advanced_analytics.ia_trust_score')}: {Math.round(forecastData.confidence_score * 100)}%
+                </span>
+              )}
             </div>
 
             <div className="p-8 flex-1 flex flex-col lg:flex-row gap-8 items-center">
@@ -323,29 +281,36 @@ const AnalyticsAvancees: React.FC = () => {
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{t('advanced_analytics.projection_end_month')}</p>
                     <div className="flex items-baseline md:flex-row flex-col">
-                      <h2 className="text-4xl font-black text-slate-800 mr-3">{formatCurrency(projectionValue)}</h2>
-                      <span className="text-sm font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded flex items-center">
-                        <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> +3.2% {t('advanced_analytics.forecast.vs_m1')}
-                      </span>
+                      <h2 className="text-4xl font-black text-slate-800 mr-3">{projectionValue > 0 ? formatCurrency(projectionValue) : '—'}</h2>
+                      {forecastData?.trend_direction && (
+                        <span className={`text-sm font-bold px-2 py-0.5 rounded flex items-center ${forecastData.trend_direction === 'up' ? 'text-emerald-600 bg-emerald-50' : 'text-red-600 bg-red-50'}`}>
+                          {forecastData.trend_direction === 'up' ? <ArrowTrendingUpIcon className="h-3 w-3 mr-1" /> : <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />}
+                          {t('advanced_analytics.forecast.vs_m1')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
-                    <p className="text-[10px] font-black text-slate-400 uppercase">{t('advanced_analytics.forecast.m_minus_2')}</p>
-                    <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[0])}</p>
+                {historicValues.length >= 3 ? (
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
+                      <p className="text-[10px] font-black text-slate-400 uppercase">{t('advanced_analytics.forecast.m_minus_2')}</p>
+                      <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[0])}</p>
+                    </div>
+                    <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
+                      <p className="text-[10px] font-black text-slate-400 uppercase">{t('advanced_analytics.forecast.m_minus_1')}</p>
+                      <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[1])}</p>
+                    </div>
+                    <div className="p-4 rounded-xl border-2 border-indigo-100 bg-indigo-50/30 text-center relative">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full">{t('advanced_analytics.forecast.current')}</span>
+                      <p className="text-[10px] font-black text-indigo-400 uppercase">{t('advanced_analytics.forecast.projection')}</p>
+                      <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[2])}</p>
+                    </div>
                   </div>
-                  <div className="p-4 rounded-xl border border-slate-200 bg-white text-center hover:border-indigo-300 transition-colors cursor-default">
-                    <p className="text-[10px] font-black text-slate-400 uppercase">{t('advanced_analytics.forecast.m_minus_1')}</p>
-                    <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[1])}</p>
-                  </div>
-                  <div className="p-4 rounded-xl border-2 border-indigo-100 bg-indigo-50/30 text-center relative">
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-indigo-600 text-white text-[9px] font-bold rounded-full">{t('advanced_analytics.forecast.current')}</span>
-                    <p className="text-[10px] font-black text-indigo-400 uppercase">{t('advanced_analytics.forecast.projection')}</p>
-                    <p className="text-sm font-bold text-slate-700 mt-1">{formatCurrency(historicValues[2])}</p>
-                  </div>
-                </div>
+                ) : (
+                  <p className="text-sm text-slate-400 text-center py-4">Pas encore assez d'historique de facturation pour une prévision glissante.</p>
+                )}
               </div>
 
               <div className="w-px h-32 bg-slate-100 hidden lg:block"></div>
@@ -388,58 +353,23 @@ const AnalyticsAvancees: React.FC = () => {
           </div>
         </div>
 
-        {/* 🟢 ADDITIONAL DATA GRIDS */}
+        {/* Analyses de cohortes et corrélations : aucun suivi de rétention
+            client ni de séries croisées n'existe encore côté backend — état
+            honnête plutôt que des matrices inventées. */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="font-bold text-slate-800 mb-4">{t('advanced_analytics.cohort_analysis')}</h3>
-            <div className="overflow-hidden rounded-xl border border-slate-100">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-500">
-                  <tr>
-                    <th className="p-3 text-left font-semibold text-xs uppercase">{t('billing.table.month') || 'Mois'}</th>
-                    <th className="p-3 text-center font-semibold text-xs uppercase">M+1</th>
-                    <th className="p-3 text-center font-semibold text-xs uppercase">M+2</th>
-                    <th className="p-3 text-center font-semibold text-xs uppercase">M+3</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {analyticsData.cohorts.map((c, i) => (
-                    <tr key={i}>
-                      <td className="p-3 font-bold text-slate-700">{c.name}</td>
-                      {c.data.slice(1, 4).map((d, j) => (
-                        <td key={j} className="p-3 text-center">
-                          <span className={`px-2 py-1 rounded text-xs font-bold ${d > 40 ? 'bg-slate-200 text-slate-900 border border-slate-300' : 'bg-slate-50 text-slate-500 border border-slate-100'
-                            }`}>
-                            {d}%
-                          </span>
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+              <ChartBarIcon className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">L'analyse de cohortes nécessite un suivi de rétention client, pas encore disponible.</p>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h3 className="font-bold text-slate-800 mb-4">{t('advanced_analytics.indicator_correlations')}</h3>
-            <div className="flex flex-col justify-center h-full space-y-6 pb-4">
-              {analyticsData.correlations.map((corr, idx) => (
-                <div key={idx}>
-                  <div className="flex justify-between text-xs font-bold mb-1.5">
-                    <span className="text-slate-600">{corr.metric1} / {corr.metric2}</span>
-                    <span className={corr.correlation > 0 ? 'text-slate-900' : 'text-slate-600'}>
-                      {corr.correlation > 0 ? '+' : ''}{corr.correlation}
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${Math.abs(corr.correlation) > 0.7 ? 'bg-slate-800' : 'bg-slate-400'}`}
-                      style={{ width: `${Math.abs(corr.correlation) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+              <PresentationChartLineIcon className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500">Les corrélations d'indicateurs seront calculées lorsque suffisamment d'historique sera disponible.</p>
             </div>
           </div>
         </div>
@@ -460,7 +390,7 @@ const AnalyticsAvancees: React.FC = () => {
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">{t('advanced_analytics.ia_confidence_status')}</p>
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <h3 className="text-2xl font-black">{Math.round((forecastData?.confidence_score || 0.89) * 100)}% - {t('advanced_analytics.ia_reliability_high')}</h3>
+                  <h3 className="text-2xl font-black">{forecastData?.confidence_score != null ? `${Math.round(forecastData.confidence_score * 100)}% - ${t('advanced_analytics.ia_reliability_high')}` : '—'}</h3>
                 </div>
               </div>
               <SparklesIcon className="h-10 w-10 text-indigo-400 opacity-50" />

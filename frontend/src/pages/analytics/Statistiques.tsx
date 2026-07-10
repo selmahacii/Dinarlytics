@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DocumentArrowDownIcon,
   ChartBarIcon,
@@ -34,6 +35,7 @@ const Statistiques: React.FC = () => {
   const { formatCurrency, planComptable } = useApp();
   const { t } = useTranslation();
   const { user } = usePermission();
+  const navigate = useNavigate();
 
   // Détermination automatique de la taille pour l'échelle des données
   const currentSize = React.useMemo(() => {
@@ -108,12 +110,9 @@ const Statistiques: React.FC = () => {
     setLoadingClients(true);
     api.clients.getAll()
       .then(data => {
-        const factor = currentSize === 'micro' ? 0.3 : currentSize === 'mid' ? 10 : 1;
-        const scaledData = data.map(c => ({
-          ...c,
-          ca: (c.ca || 0) * factor
-        }));
-        setTopClients(scaledData.slice(0, 3));
+        // CA réel des clients, trié — sans facteur d'échelle fabriqué.
+        const sorted = [...data].sort((a, b) => (b.ca || 0) - (a.ca || 0));
+        setTopClients(sorted.slice(0, 3));
       })
       .catch(() => setClientsError('Erreur lors du chargement des clients'))
       .finally(() => setLoadingClients(false));
@@ -206,10 +205,6 @@ const Statistiques: React.FC = () => {
           <ChartBarIcon className="h-8 w-8 text-emerald-600 mb-6 relative z-10" />
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.gross_margin')}</p>
           <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{metriques.margeBrute}%</h3>
-          <div className="flex items-center mt-3 text-[9px] font-black text-emerald-600 bg-emerald-50 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
-            <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
-            <span>+2.1%</span>
-          </div>
         </div>
 
         <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
@@ -410,11 +405,11 @@ const Statistiques: React.FC = () => {
             <div className="mt-8 pt-6 border-t border-slate-100">
               <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{t('steering.dashboard.actions.title')}</h4>
               <div className="grid grid-cols-2 gap-3">
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                <button onClick={() => navigate('/comptabilite/tresorerie')} className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
                   <DocumentCheckIcon className="h-5 w-5 mb-1" />
                   <span className="text-xs font-semibold">{t('steering.dashboard.actions.entry')}</span>
                 </button>
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors">
+                <button onClick={() => navigate('/fiscalite')} className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors">
                   <CalculatorIcon className="h-5 w-5 mb-1" />
                   <span className="text-xs font-semibold">{t('steering.dashboard.actions.vat')}</span>
                 </button>
@@ -513,7 +508,7 @@ const Statistiques: React.FC = () => {
 
       {/* Bouton d'export */}
       <div className="flex justify-center">
-        <button className="flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+        <button onClick={() => window.print()} className="flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
           <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
           {t('steering.dashboard.export')}
         </button>
@@ -649,15 +644,23 @@ const Statistiques: React.FC = () => {
                 {t('steering.dashboard.modals.contact.actions')}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
+                <button
+                  disabled={!selectedClient?.email}
+                  onClick={() => { if (selectedClient?.email) window.location.href = `mailto:${selectedClient.email}`; }}
+                  className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200 disabled:opacity-40">
                   <EnvelopeIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
                   {t('steering.dashboard.modals.contact.send_email')}
                 </button>
-                <button className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
+                <button
+                  disabled={!selectedClient?.telephone}
+                  onClick={() => { if (selectedClient?.telephone) window.location.href = `tel:${selectedClient.telephone}`; }}
+                  className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200 disabled:opacity-40">
                   <PhoneIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
                   {t('steering.dashboard.modals.contact.call')}
                 </button>
-                <button className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
+                <button
+                  onClick={() => navigate(`/clients?id=${selectedClient?.id || ''}`)}
+                  className="p-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm border border-gray-200">
                   <CalendarIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
                   {t('steering.dashboard.modals.contact.schedule')}
                 </button>
@@ -758,23 +761,19 @@ const Statistiques: React.FC = () => {
                 {t('steering.dashboard.modals.analysis.action_plan')}
               </h4>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                {/* Recommandations affichées comme checklist — pas de module
+                    de planification/proposition à déclencher côté backend. */}
+                <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
+                  <CheckCircleIcon className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
                   <span className="text-gray-700">{t('steering.dashboard.modals.analysis.actions.schedule_meeting')}</span>
-                  <button className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors border border-gray-300">
-                    {t('steering.dashboard.modals.analysis.actions.btn_schedule')}
-                  </button>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
+                  <CheckCircleIcon className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
                   <span className="text-gray-700">{t('steering.dashboard.modals.analysis.actions.prepare_proposal')}</span>
-                  <button className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors border border-gray-300">
-                    {t('steering.dashboard.modals.analysis.actions.btn_create')}
-                  </button>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-100">
+                <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
+                  <CheckCircleIcon className="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
                   <span className="text-gray-700">{t('steering.dashboard.modals.analysis.actions.analyze_competition')}</span>
-                  <button className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors border border-gray-300">
-                    {t('steering.dashboard.modals.analysis.actions.btn_analyze')}
-                  </button>
                 </div>
               </div>
             </div>
