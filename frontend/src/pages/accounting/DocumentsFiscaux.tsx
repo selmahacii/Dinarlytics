@@ -20,6 +20,7 @@ import { FiscalDocument, Country, getDocumentEquivalent } from '@shared/utils/fi
 import Modal from '@shared/components/UI/Modal';
 import Card from '@shared/components/UI/Card';
 import { usePermission } from '@shared/hooks/usePermission';
+import apiClient from '@/services/apiClient';
 
 const DocumentsFiscaux: React.FC = () => {
   const { t } = useTranslation();
@@ -49,6 +50,33 @@ const DocumentsFiscaux: React.FC = () => {
     dateCreation: string;
     statut: 'brouillon' | 'soumis' | 'valide' | 'rejete';
   }>>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const loadDeclarations = async () => {
+      try {
+        const response = await apiClient.get<any[]>('/fiscality/declarations');
+        const mapped = (response.data || [])
+          .map((d: any) => {
+            const document = fiscalDocuments.find(fd => fd.id === d.document_id);
+            if (!document) return null;
+            return {
+              id: d.id,
+              documentId: d.document_id,
+              document,
+              data: d.data || {},
+              dateCreation: d.created_at,
+              statut: d.status as 'brouillon' | 'soumis' | 'valide' | 'rejete'
+            };
+          })
+          .filter((d): d is NonNullable<typeof d> => d !== null);
+        setCreatedDocuments(mapped);
+      } catch (err) {
+        console.error('Failed to load fiscal declarations', err);
+      }
+    };
+    loadDeclarations();
+  }, [fiscalDocuments]);
 
   const handleCreateDocument = (document: FiscalDocument) => {
     setSelectedDocument(document);
@@ -62,22 +90,31 @@ const DocumentsFiscaux: React.FC = () => {
     setIsViewModalOpen(true);
   };
 
-  const handleSubmitDocument = () => {
+  const handleSubmitDocument = async () => {
     if (!selectedDocument) return;
+    setSubmitError(null);
 
-    const newDoc = {
-      id: `DOC-${Date.now()}`,
-      documentId: selectedDocument.id,
-      document: selectedDocument,
-      data: { ...documentData },
-      dateCreation: new Date().toISOString(),
-      statut: 'brouillon' as const
-    };
-
-    setCreatedDocuments([...createdDocuments, newDoc]);
-    setIsCreateModalOpen(false);
-    setSelectedDocument(null);
-    setDocumentData({});
+    try {
+      const response = await apiClient.post<{ id: string; created_at: string }>('/fiscality/declarations', {
+        document_id: selectedDocument.id,
+        country: currentCountry,
+        data: documentData
+      });
+      const newDoc = {
+        id: response.data.id,
+        documentId: selectedDocument.id,
+        document: selectedDocument,
+        data: { ...documentData },
+        dateCreation: response.data.created_at,
+        statut: 'brouillon' as const
+      };
+      setCreatedDocuments([newDoc, ...createdDocuments]);
+      setIsCreateModalOpen(false);
+      setSelectedDocument(null);
+      setDocumentData({});
+    } catch (err: any) {
+      setSubmitError(err?.response?.data?.detail || 'Erreur lors de la sauvegarde');
+    }
   };
 
   const getStatusColor = (statut: string) => {
@@ -307,7 +344,19 @@ const DocumentsFiscaux: React.FC = () => {
                         >
                           <EyeIcon className="h-5 w-5" />
                         </button>
-                        <button className="text-gray-600 hover:text-gray-900">
+                        <button
+                          onClick={() => {
+                            const blob = new Blob([JSON.stringify({ document: doc.document.name, data: doc.data, statut: doc.statut, dateCreation: doc.dateCreation }, null, 2)], { type: 'application/json' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${doc.document.id}-${doc.id}.json`;
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="text-gray-600 hover:text-gray-900"
+                          title={t('common.download', { defaultValue: 'Télécharger' }) as string}
+                        >
                           <DocumentArrowDownIcon className="h-5 w-5" />
                         </button>
                       </div>
@@ -384,6 +433,9 @@ const DocumentsFiscaux: React.FC = () => {
               ))}
             </div>
 
+            {submitError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{submitError}</div>
+            )}
             <div className="flex justify-end space-x-4 pt-4 border-t">
               <button
                 onClick={() => {

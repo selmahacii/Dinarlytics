@@ -1,16 +1,94 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from decimal import Decimal
+from datetime import datetime
+from pydantic import BaseModel
+import uuid
 from app.core.database import get_db
 from app.core.permissions import get_current_user_from_token, require_permission
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
-from app.core.models import Invoice, JournalEntry, JournalEntryLine
+from app.core.models import Invoice, JournalEntry, JournalEntryLine, FiscalDeclaration
 from app.modules.finance.service_jibaya import JibayaService
 from fastapi.responses import Response
 
 router = APIRouter(prefix="/fiscality", tags=["fiscality"])
+
+
+class DeclarationResponse(BaseModel):
+    id: str
+    document_id: str
+    country: str
+    data: Optional[Dict[str, Any]] = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class CreateDeclarationRequest(BaseModel):
+    document_id: str
+    country: str = "DZ"
+    data: Optional[Dict[str, Any]] = None
+
+
+class UpdateDeclarationStatusRequest(BaseModel):
+    status: str
+
+
+@router.get("/declarations", response_model=List[DeclarationResponse])
+async def list_declarations(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user_from_token)
+):
+    """List fiscal declarations submitted for the current company."""
+    declarations = db.query(FiscalDeclaration).filter(
+        FiscalDeclaration.company_id == user["company_id"]
+    ).order_by(FiscalDeclaration.created_at.desc()).all()
+    return declarations
+
+
+@router.post("/declarations", response_model=DeclarationResponse, status_code=status.HTTP_201_CREATED)
+async def create_declaration(
+    request: CreateDeclarationRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_permission("comptabilite-write"))
+):
+    """Create (save as draft) a fiscal declaration."""
+    declaration = FiscalDeclaration(
+        company_id=user["company_id"],
+        document_id=request.document_id,
+        country=request.country,
+        data=request.data,
+        status="brouillon",
+        created_by=user["user_id"]
+    )
+    db.add(declaration)
+    db.commit()
+    db.refresh(declaration)
+    return declaration
+
+
+@router.put("/declarations/{declaration_id}/status", response_model=DeclarationResponse)
+async def update_declaration_status(
+    declaration_id: str,
+    request: UpdateDeclarationStatusRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_permission("comptabilite-write"))
+):
+    """Update a declaration's status (e.g. brouillon -> soumis)."""
+    declaration = db.query(FiscalDeclaration).filter(
+        FiscalDeclaration.id == declaration_id,
+        FiscalDeclaration.company_id == user["company_id"]
+    ).first()
+    if not declaration:
+        raise HTTPException(status_code=404, detail="Declaration not found")
+    declaration.status = request.status
+    db.commit()
+    db.refresh(declaration)
+    return declaration
 
 @router.get("/g50-summary")
 async def get_g50_summary(
