@@ -73,8 +73,8 @@ const ConfigurationAvancee: React.FC = () => {
     active: true,
     notifications: true,
     logExecution: true,
-    variables: [],
-    tests: []
+    variables: [] as string[],
+    tests: [] as { input: string; expected: string }[]
   });
   const [showReglePreview, setShowReglePreview] = useState(false);
   const [currentTest, setCurrentTest] = useState({ input: '', expected: '' });
@@ -106,8 +106,8 @@ const ConfigurationAvancee: React.FC = () => {
     module: '',
     type: 'calcul',
     categorie: 'Commercial',
-    variables: [],
-    tests: [],
+    variables: [] as string[],
+    tests: [] as { input: string; expected: string }[],
     documentation: '',
     version: '1.0',
     auteur: 'Admin',
@@ -135,8 +135,9 @@ const ConfigurationAvancee: React.FC = () => {
   };
 
   const handleCreateChamp = () => {
-    // Ici on ajouterait le champ à la liste
-    console.log('Création du champ:', champForm);
+    // Pas de backend de configuration dynamique : ajouté à la liste de la
+    // session uniquement (non persisté après rechargement).
+    setChampsPersonnalises(prev => [...prev, { ...champForm, id: `champ-${Date.now()}` }]);
     setIsChampModalOpen(false);
     setChampForm({
       nom: '',
@@ -250,7 +251,7 @@ const ConfigurationAvancee: React.FC = () => {
   };
 
   const handleCreateRegle = () => {
-    console.log('Création de la règle:', regleForm);
+    setReglesMetier(prev => [...prev, { ...regleForm, id: `regle-${Date.now()}` }]);
     setIsRegleModalOpen(false);
     setRegleForm({
       nom: '',
@@ -302,14 +303,9 @@ const ConfigurationAvancee: React.FC = () => {
   };
 
   const handleTestFormule = () => {
-    // Simulation d'un test de formule
-    try {
-      // Ici on pourrait implémenter un vrai moteur d'évaluation de formules
-      const result = `Résultat: ${formuleForm.formule}`;
-      setFormuleResult(result);
-    } catch (error) {
-      setFormuleResult('Erreur dans la formule');
-    }
+    // Aucun moteur d'évaluation de formules n'est encore implémenté :
+    // on ne prétend pas calculer un résultat à partir du texte saisi.
+    setFormuleResult("Le test d'exécution des formules n'est pas encore disponible.");
   };
 
   const handleFormulePreview = () => {
@@ -317,7 +313,7 @@ const ConfigurationAvancee: React.FC = () => {
   };
 
   const handleCreateFormule = () => {
-    console.log('Création de la formule:', formuleForm);
+    setFormulesPersonnalisees(prev => [...prev, { ...formuleForm, id: `formule-${Date.now()}` }]);
     setIsFormuleModalOpen(false);
     setFormuleForm({
       nom: '',
@@ -351,17 +347,19 @@ const ConfigurationAvancee: React.FC = () => {
     handleFormuleFormChange('formule', newFormule);
   };
 
-  const champsPersonnalises = [];
+  // Aucun backend de configuration dynamique (champs/règles/formules)
+  // n'existe encore : ces listes ne persistent que le temps de la session.
+  const [champsPersonnalises, setChampsPersonnalises] = useState<any[]>([]);
 
-  const formulesPersonnalisees = [];
+  const [formulesPersonnalisees, setFormulesPersonnalisees] = useState<any[]>([]);
 
-  const templatesDocuments = [];
+  const templatesDocuments: any[] = [];
 
-  const reglesMetier = [];
+  const [reglesMetier, setReglesMetier] = useState<any[]>([]);
 
-  const entreprises = [];
+  const entreprises: any[] = [];
 
-  const donneesConsolidation = {
+  const donneesConsolidation: { periode: string; entreprises: any[]; totalConsolide: { ca: number; benefice: number } } = {
     periode: '',
     entreprises: [],
     totalConsolide: {
