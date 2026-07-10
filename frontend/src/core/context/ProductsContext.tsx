@@ -9,6 +9,8 @@ export type ProductsContextType = {
   error: string | null;
   getById: (id: string) => Article | undefined;
   setProducts: (next: Article[]) => void;
+  createProduct: (data: Partial<Article>) => Promise<Article>;
+  deleteProduct: (id: string) => Promise<void>;
   updateProduct: (id: string, patch: Partial<Article>) => void;
   adjustStock: (id: string, delta: number) => void;
   refreshProducts: () => Promise<void>;
@@ -54,6 +56,33 @@ export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }
     }
   });
 
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Article>) => articlesService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => articlesService.delete(id),
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ['articles'] });
+      const previous = queryClient.getQueryData<Article[]>(['articles']);
+      if (previous) {
+        queryClient.setQueryData<Article[]>(['articles'], previous.filter(p => p.id !== id));
+      }
+      return { previous };
+    },
+    onError: (err, id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['articles'], context.previous);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+    }
+  });
+
   const getById = (id: string) => products.find(p => p.id === id);
 
   // Legacy support: setProducts treats it as a cache override or simple state (but passing it to backend might be too much)
@@ -65,6 +94,10 @@ export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }
   const updateProduct = (id: string, patch: Partial<Article>) => {
     updateMutation.mutate({ id, patch });
   };
+
+  const createProduct = (data: Partial<Article>) => createMutation.mutateAsync(data);
+
+  const deleteProduct = (id: string) => deleteMutation.mutateAsync(id);
 
   const adjustStock = (id: string, delta: number) => {
     const product = products.find(p => p.id === id);
@@ -84,6 +117,8 @@ export const ProductsProvider: React.FC<React.PropsWithChildren> = ({ children }
     error: queryError ? (queryError as Error).message : null,
     getById,
     setProducts,
+    createProduct,
+    deleteProduct,
     updateProduct,
     adjustStock,
     refreshProducts,

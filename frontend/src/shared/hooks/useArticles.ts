@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
 
 export interface Article {
   id: string;
@@ -54,7 +54,7 @@ export const useArticles = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get<Article[]>('/api/v1/articles/', { params });
+      const response = await apiClient.get<Article[]>('/articles/', { params });
       setArticles(response.data);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Erreur lors du chargement des articles');
@@ -68,7 +68,7 @@ export const useArticles = () => {
     setLoadingStats(true);
     setErrorStats(null);
     try {
-      const response = await axios.get<ArticleStats>('/api/v1/articles/stats');
+      const response = await apiClient.get<ArticleStats>('/articles/stats');
       setStats(response.data);
     } catch (err: any) {
       setErrorStats(err.response?.data?.detail || 'Erreur lors du chargement des statistiques');
@@ -80,7 +80,7 @@ export const useArticles = () => {
 
   const createArticle = async (articleData: Partial<Article>): Promise<Article | null> => {
     try {
-      const response = await axios.post<Article>('/api/v1/articles/', articleData);
+      const response = await apiClient.post<Article>('/articles/', articleData);
       setArticles(prev => [...prev, response.data]);
       return response.data;
     } catch (err: any) {
@@ -91,7 +91,7 @@ export const useArticles = () => {
 
   const updateArticle = async (articleId: string, articleData: Partial<Article>): Promise<Article | null> => {
     try {
-      const response = await axios.put<Article>(`/api/v1/articles/${articleId}`, articleData);
+      const response = await apiClient.put<Article>(`/articles/${articleId}`, articleData);
       setArticles(prev => prev.map(a => a.id === articleId ? response.data : a));
       return response.data;
     } catch (err: any) {
@@ -102,7 +102,7 @@ export const useArticles = () => {
 
   const deleteArticle = async (articleId: string): Promise<void> => {
     try {
-      await axios.delete(`/api/v1/articles/${articleId}`);
+      await apiClient.delete(`/articles/${articleId}`);
       setArticles(prev => prev.filter(a => a.id !== articleId));
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Erreur lors de la suppression');

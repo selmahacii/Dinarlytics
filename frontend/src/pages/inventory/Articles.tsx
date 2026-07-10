@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   PlusIcon,
   PencilIcon,
@@ -34,6 +34,7 @@ import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
+import { usePermission } from '@shared/hooks/usePermission';
 // Centralized product catalog
 import { useProducts } from '@core/context/ProductsContext';
 import { Article } from '@/types';
@@ -51,6 +52,8 @@ const initialBarcodesData: Array<{ id: number; article: string; type: string; co
 const Articles: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
   const { t } = useTranslation();
+  const { has } = usePermission();
+  const canManageArticles = has('articles-manage');
 
   // Hook pour charger les articles dynamiquement
   const { articles: apiArticles, stats: articleStats, loading: loadingArticles, error: errorArticles } = useArticles();
@@ -83,7 +86,7 @@ const Articles: React.FC = () => {
   const [errorStats, setErrorStats] = useState<string | null>(null);
 
   // Récupérer les produits depuis le contexte
-  const { products, setProducts, updateProduct, refetch } = useProducts();
+  const { products, createProduct, deleteProduct, updateProduct, refetch } = useProducts();
   
   useEffect(() => {
     refetch();
@@ -98,12 +101,14 @@ const Articles: React.FC = () => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const response = await apiClient.get('/articles/stats');
+        const response = await apiClient.get<{ total_articles: number; active_articles: number }>('/articles/stats');
         const data = response.data;
         setArticlesStats({
           total: data.total_articles || 0,
           active: data.active_articles || 0,
-          rotation: 8.5
+          // Aucune donnée de rotation de stock n'est encore calculée côté
+          // backend (nécessiterait un historique de ventes par article).
+          rotation: 0
         });
         setErrorStats(null);
       } catch (err) {
@@ -111,8 +116,8 @@ const Articles: React.FC = () => {
         setErrorStats('Erreur lors du chargement des statistiques');
         setArticlesStats({
           total: products.length,
-          active: Math.round(products.length * 0.85),
-          rotation: 8.5
+          active: products.filter(a => a.stock > 0).length,
+          rotation: 0
         });
       } finally {
         setLoadingStats(false);
@@ -126,9 +131,11 @@ const Articles: React.FC = () => {
   // INTERFACE EURL MICRO-ENTREPRISE  
   // ========================================
   if (user && user.segment === 'micro' && user.companyType === 'eurl' && companyData) {
-    const nombreArticles = Math.max(15, Math.floor(companyData.clientsCount * 0.6));
-    const articlesActifs = Math.round(nombreArticles * 0.85);
-    const rotationMoyenne = 8.5;
+    const nombreArticles = products.length;
+    const articlesActifs = products.filter(a => a.stock > 0).length;
+    // Pas d'historique de ventes par article disponible pour calculer une
+    // vraie rotation de stock.
+    const rotationMoyenne = 0;
 
     return (
       <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
@@ -187,11 +194,12 @@ const Articles: React.FC = () => {
           <div className="bg-white rounded-2xl border-2 border-slate-200 p-4 sm:p-6 shadow-lg">
             <h3 className="text-lg font-bold text-slate-900 mb-3">{t('inventory.sections.quick_actions')}</h3>
             <button
+              disabled={!canManageArticles}
               onClick={() => {
                 setSelectedArticle(null);
                 setIsModalOpen(true);
               }}
-              className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-bold hover:from-slate-800 hover:to-black shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <PlusIcon className="h-5 w-5" />
               {t('articles.actions.new_article')}
@@ -209,7 +217,7 @@ const Articles: React.FC = () => {
           size="lg"
         >
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
               const nom = formData.get('nom') as string;
@@ -243,19 +251,21 @@ const Articles: React.FC = () => {
                   ]
                 });
               } else {
-                // Création d'un nouvel article
-                const newArticle: Article = {
-                  id: `ART-${Date.now()}`,
-                  nom,
-                  codePCA,
-                  prixUnitaire,
-                  unite,
-                  stock: 0,
-                  description,
-                  categorie: 'Général'
-                };
-                // Ajouter au contexte (simulation locale)
-                setProducts([...products, newArticle]);
+                // Création d'un nouvel article, persistée via le backend
+                try {
+                  await createProduct({
+                    nom,
+                    codePCA,
+                    prixUnitaire,
+                    unite,
+                    stock: 0,
+                    description,
+                    categorie: 'Général'
+                  });
+                } catch (err) {
+                  console.error('Failed to create article', err);
+                  return;
+                }
                 setSuccessData({
                   title: t('inventory.articles.success.created_title'),
                   message: t('inventory.articles.success.created_msg', { name: nom }),
@@ -471,11 +481,13 @@ const Articles: React.FC = () => {
                               <PencilIcon className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 if (confirm(`Êtes-vous sûr de vouloir supprimer "${article.nom}" ?`)) {
-                                  // Supprimer l'article de la liste
-                                  setProducts(products.filter(a => a.id !== article.id));
-                                  alert(t('common.success'));
+                                  try {
+                                    await deleteProduct(article.id);
+                                  } catch (err) {
+                                    console.error('Failed to delete article', err);
+                                  }
                                 }
                               }}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -580,8 +592,24 @@ const Articles: React.FC = () => {
   };
 
 
-  // Données ERPNext pour les articles
-  const articleCategories: Array<{ id: number; name: string; code: string; count: number; value: number }> = [];
+  // Catégories dérivées du catalogue réel
+  const articleCategories: Array<{ id: number; name: string; code: string; count: number; value: number }> = useMemo(() => {
+    const byCategory = new Map<string, { count: number; value: number }>();
+    products.forEach(a => {
+      const cat = a.categorie || 'Non classé';
+      const entry = byCategory.get(cat) || { count: 0, value: 0 };
+      entry.count += 1;
+      entry.value += a.prixUnitaire * a.stock;
+      byCategory.set(cat, entry);
+    });
+    return Array.from(byCategory.entries()).map(([name, data], idx) => ({
+      id: idx,
+      name,
+      code: name.slice(0, 3).toUpperCase(),
+      count: data.count,
+      value: data.value
+    }));
+  }, [products]);
 
   // Fonctions de gestion des codes-barres
   const handleDeleteBarcode = (barcode: any) => {
@@ -661,23 +689,69 @@ const Articles: React.FC = () => {
 
 
   // Handlers pour les Analyses Avancées
+  // Rapport calculé à partir du catalogue réel (products) plutôt que généré
+  // par un modèle IA — aucun service d'analyse IA du stock n'existe côté
+  // backend, donc pas de contenu fabriqué (noms d'articles, montants) ici.
   const handleGenererAuditIA = async () => {
     setIsAiAuditModalOpen(true);
     setIsGeneratingAiAudit(true);
-    // Simulation d'IA
-    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    const outOfStockArticles = products.filter(a => a.stock === 0);
+    const lowStockArticles = products.filter(a => a.stock > 0 && a.stock < 20);
+    const highValueDormant = [...products]
+      .filter(a => a.stock > 50)
+      .sort((a, b) => (b.prixUnitaire * b.stock) - (a.prixUnitaire * a.stock))
+      .slice(0, 5);
+    const dormantValue = highValueDormant.reduce((sum, a) => sum + a.prixUnitaire * a.stock, 0);
+    const totalValue = products.reduce((sum, a) => sum + a.prixUnitaire * a.stock, 0);
+
+    const risks: Array<{ title: string; message: string; level: 'high' | 'medium' }> = [];
+    if (highValueDormant.length > 0) {
+      risks.push({
+        title: 'Surstock',
+        message: `${highValueDormant.length} article(s) à forte rotation lente immobilisent ${formatCurrency(dormantValue)}.`,
+        level: 'high'
+      });
+    }
+    if (outOfStockArticles.length > 0) {
+      risks.push({
+        title: 'Rupture de stock',
+        message: `${outOfStockArticles.length} article(s) sont actuellement en rupture : ${outOfStockArticles.slice(0, 3).map(a => a.nom).join(', ')}${outOfStockArticles.length > 3 ? '…' : ''}.`,
+        level: 'high'
+      });
+    }
+    if (lowStockArticles.length > 0) {
+      risks.push({
+        title: 'Stock faible',
+        message: `${lowStockArticles.length} article(s) sous le seuil de 20 unités.`,
+        level: 'medium'
+      });
+    }
+
+    const opportunities: Array<{ title: string; message: string }> = [];
+    if (dormantValue > 0) {
+      opportunities.push({
+        title: 'Rotation du stock dormant',
+        message: `Écouler le stock à rotation lente libérerait jusqu'à ${formatCurrency(dormantValue)} de trésorerie immobilisée.`
+      });
+    }
+    if (products.length > 0) {
+      opportunities.push({
+        title: 'Valorisation du catalogue',
+        message: `Le catalogue représente ${formatCurrency(totalValue)} de valeur totale sur ${products.length} article(s).`
+      });
+    }
+
+    const score = Math.max(0, 100 - outOfStockArticles.length * 10 - lowStockArticles.length * 3);
+
     setAiAuditReport({
-      score: 88,
-      status: 'Optimisation Requise',
-      summary: "L'analyse croisée des flux de vente et des niveaux de stock révèle un potentiel de gain de trésorerie de 420K DA par l'ajustement des stocks de sécurité sur les produits finis.",
-      risks: [
-        { title: 'Surstock Critique', message: '4 articles (Cat. Informatique) immobilisent 1.2M DA depuis plus de 90 jours.', level: 'high' },
-        { title: 'Risque de Rupture', message: 'Le stock de "Papier Standard A4" sera épuisé sous 48h selon le rythme actuel.', level: 'medium' }
-      ],
-      opportunities: [
-        { title: 'Optimisation Achats', message: 'Regrouper les commandes de fournitures permettrait une remise de volume de 5.2%.' },
-        { title: 'Rotation Accélérée', message: 'Une mise en avant flash sur le stock dormant libérerait 300K DA de liquidités.' }
-      ]
+      score,
+      status: risks.some(r => r.level === 'high') ? 'Optimisation Requise' : 'Sain',
+      summary: products.length > 0
+        ? `Analyse de ${products.length} article(s) : ${outOfStockArticles.length} rupture(s), ${lowStockArticles.length} en stock faible, ${formatCurrency(totalValue)} de valeur totale.`
+        : "Aucun article en catalogue à analyser.",
+      risks,
+      opportunities
     });
     setIsGeneratingAiAudit(false);
   };
@@ -773,13 +847,15 @@ const Articles: React.FC = () => {
                   <button className="w-full sm:w-auto p-4 bg-slate-50 text-slate-600 rounded-2xl border border-slate-200 hover:bg-slate-100 transition-all flex items-center justify-center">
                     <ArrowPathIcon className="h-5 w-5" />
                   </button>
-                  <button
-                    onClick={handleAdd}
-                    className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-[10px] font-black uppercase tracking-widest"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    {t('articles.actions.new_article')}
-                  </button>
+                  {canManageArticles && (
+                    <button
+                      onClick={handleAdd}
+                      className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-[10px] font-black uppercase tracking-widest"
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                      {t('articles.actions.new_article')}
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -848,9 +924,13 @@ const Articles: React.FC = () => {
                               { icon: CurrencyDollarIcon, color: 'text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50', onClick: () => handlePricingManagement(article), title: "Tarifs" },
                               { icon: QrCodeIcon, color: 'text-cyan-400 hover:text-cyan-600 hover:bg-cyan-50', onClick: () => handleBarcodeManagement(article), title: t('articles.tabs.traceability') },
                               {
-                                icon: TrashIcon, color: 'text-red-300 hover:text-red-600 hover:bg-red-50', onClick: () => {
+                                icon: TrashIcon, color: 'text-red-300 hover:text-red-600 hover:bg-red-50', onClick: async () => {
                                   if (confirm(`Supprimer l'article ${article.nom} ?`)) {
-                                    alert(`Article "${article.nom}" supprimé.`);
+                                    try {
+                                      await deleteProduct(article.id);
+                                    } catch (err) {
+                                      console.error('Failed to delete article', err);
+                                    }
                                   }
                                 }, title: "Supprimer"
                               }
@@ -1282,7 +1362,7 @@ const Articles: React.FC = () => {
                       </div>
                       <div className="flex items-end justify-center space-x-0.5 h-16 mb-6">
                         {Array.from({ length: 40 }).map((_, i) => (
-                          <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-12' : 'h-16'}`}></div>
+                          <div key={i} className={`bg-slate-900 w-1 rounded-full ${i % 3 !== 0 ? 'h-12' : 'h-16'}`}></div>
                         ))}
                       </div>
                       <p className="text-center text-lg font-black font-mono tracking-[0.3em] text-slate-900">{selectedArticle.codePCA}</p>
@@ -1293,7 +1373,7 @@ const Articles: React.FC = () => {
                         <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-6 text-center">QR Code Interne</p>
                         <div className="grid grid-cols-5 gap-1 bg-white p-4 rounded-2xl">
                           {Array.from({ length: 25 }).map((_, i) => (
-                            <div key={i} className={`w-2 h-2 rounded-sm ${Math.random() > 0.5 ? 'bg-slate-900' : 'bg-slate-100'}`}></div>
+                            <div key={i} className={`w-2 h-2 rounded-sm ${i % 2 === 0 ? 'bg-slate-900' : 'bg-slate-100'}`}></div>
                           ))}
                         </div>
                       </div>
@@ -1338,7 +1418,7 @@ const Articles: React.FC = () => {
                 <div className="bg-white p-6 sm:p-12 rounded-[2rem] border border-slate-100 shadow-sm mb-10 w-full flex flex-col items-center">
                   <div className="flex items-end justify-center space-x-0.5 h-24 mb-6">
                     {Array.from({ length: 45 }).map((_, i) => (
-                      <div key={i} className={`bg-slate-900 w-1.5 rounded-full ${Math.random() > 0.3 ? 'h-16' : 'h-24'}`}></div>
+                      <div key={i} className={`bg-slate-900 w-1.5 rounded-full ${i % 3 !== 0 ? 'h-16' : 'h-24'}`}></div>
                     ))}
                   </div>
                   <p className="text-2xl font-black font-mono tracking-[0.4em] text-slate-900">{selectedBarcodeForView.code}</p>
@@ -1427,13 +1507,16 @@ const Articles: React.FC = () => {
               </div>
 
               <div className="p-4 sm:p-10 space-y-4">
-                {['Matières premières', 'Produits finis', 'Fournitures', 'Accessoires', 'Marchandises'].map((cat, idx) => (
-                  <label key={idx} className="flex items-center justify-between p-5 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition-all cursor-pointer group">
+                {articleCategories.length === 0 && (
+                  <p className="text-sm text-slate-400 text-center py-6">Aucune catégorie dans le catalogue</p>
+                )}
+                {articleCategories.map((cat) => (
+                  <label key={cat.id} className="flex items-center justify-between p-5 bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 rounded-2xl transition-all cursor-pointer group">
                     <div className="flex items-center gap-4">
                       <input type="checkbox" defaultChecked className="w-5 h-5 rounded-lg border-slate-200 text-slate-900 focus:ring-slate-900" />
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900 transition-colors">{cat}</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 group-hover:text-slate-900 transition-colors">{cat.name}</span>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{Math.floor(Math.random() * 50) + 10} Articles</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{cat.count} Articles</span>
                   </label>
                 ))}
               </div>
@@ -1490,7 +1573,7 @@ const Articles: React.FC = () => {
                     <div className="text-[9px] font-black uppercase tracking-tight text-slate-900 mb-1 border-b border-slate-100 pb-1">Nom du Produit</div>
                     <div className="flex items-end justify-center space-x-0.5 h-10 my-4">
                       {Array.from({ length: 25 }).map((_, i) => (
-                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-6' : 'h-10'}`}></div>
+                        <div key={i} className={`bg-slate-900 w-1 rounded-full ${i % 3 !== 0 ? 'h-6' : 'h-10'}`}></div>
                       ))}
                     </div>
                     <div className="text-right text-[10px] font-black font-mono">1.250,00 DA</div>
@@ -1559,7 +1642,7 @@ const Articles: React.FC = () => {
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
                       <div className="flex items-end justify-center space-x-0.5 h-16 mb-4">
                         {Array.from({ length: 30 }).map((_, i) => (
-                          <div key={i} className={`bg-slate-900 w-1 rounded-full ${Math.random() > 0.3 ? 'h-10' : 'h-16'}`}></div>
+                          <div key={i} className={`bg-slate-900 w-1 rounded-full ${i % 3 !== 0 ? 'h-10' : 'h-16'}`}></div>
                         ))}
                       </div>
                       <p className="text-xs font-black font-mono tracking-widest text-slate-900">{newBarcode.code || 'NO-VAL-SPECIFIED'}</p>
