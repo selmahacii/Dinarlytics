@@ -46,6 +46,8 @@ import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 // import api from '@/services/api'; // Removed in favor of useSuppliers
 import { useSuppliers } from '@shared/hooks/useSuppliers';
+import { usePermission } from '@shared/hooks/usePermission';
+import apiClient from '@/services/apiClient';
 import { Fournisseur } from '@/types';
 import LineChart from '@shared/components/Charts/LineChart';
 import BarChart from '@shared/components/Charts/BarChart';
@@ -421,6 +423,8 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
 const Fournisseurs: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
   const { t } = useTranslation();
+  const { has } = usePermission();
+  const canManageFournisseurs = has('fournisseurs-manage');
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -460,6 +464,7 @@ const Fournisseurs: React.FC = () => {
         adresse: f.adresse || f.address,
         balance: f.balance || 0,
         total_purchases: f.total_purchases || 0,
+        payment_terms: f.payment_terms || 30,
         status: f.status || 'actif'
       }));
       setFournisseursList(mapped);
@@ -541,57 +546,128 @@ const Fournisseurs: React.FC = () => {
   const [isFactureModalOpen, setIsFactureModalOpen] = useState(false);
 
   const [commandes, setCommandes] = useState<any[]>([]);
+  const [loadingCommandes, setLoadingCommandes] = useState(false);
+  const [commandeError, setCommandeError] = useState<string | null>(null);
 
-  const handleCreateCommande = (newCommande: any) => {
-    setCommandes([...commandes, { ...newCommande, id: `CMD-2024-${Math.floor(Math.random() * 1000)}` }]);
-    setIsNouvelleCommandeModalOpen(false);
-    alert(t('crm.suppliers.messages.order_success_created'));
+  const PO_STATUS_LABELS: Record<string, string> = {
+    draft: 'INSTANCE',
+    pending_approval: 'APPROBATION',
+    approved: 'CONFIRMÉE',
+    confirmed: 'CONFIRMÉE',
+    delivered: 'LIVRÉE',
+    invoiced: 'LIVRÉE',
+    cancelled: 'ANNULÉE'
   };
 
-  const handleDeleteCommandeList = (id: string) => {
-    if (confirm(t('crm.suppliers.messages.confirm_delete_order'))) {
-      setCommandes(commandes.filter(c => c.id !== id));
+  const fetchCommandes = async () => {
+    setLoadingCommandes(true);
+    try {
+      const response = await apiClient.get<any[]>('/procurement/purchase-orders');
+      const mapped = (response.data || []).map((po: any) => ({
+        id: po.order_number,
+        backendId: po.id,
+        name: po.supplier_name || 'Fournisseur inconnu',
+        val: po.total_ht || 0,
+        status: PO_STATUS_LABELS[po.status] || po.status?.toUpperCase() || 'INSTANCE',
+        date: po.order_date
+      }));
+      setCommandes(mapped);
+    } catch (err) {
+      console.error('Failed to load purchase orders', err);
+      setCommandeError(t('common.errors.loading_failed') as string);
+    } finally {
+      setLoadingCommandes(false);
     }
   };
 
-  const handleCommandeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    fetchCommandes();
+  }, []);
+
+  const handleDeleteCommandeList = async (backendId: string) => {
+    if (confirm(t('crm.suppliers.messages.confirm_delete_order'))) {
+      try {
+        await apiClient.delete(`/procurement/purchase-orders/${backendId}`);
+        await fetchCommandes();
+      } catch (err) {
+        console.error('Failed to cancel purchase order', err);
+        setCommandeError(t('common.errors.loading_failed') as string);
+      }
+    }
+  };
+
+  const handleCommandeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const fournisseurName = formData.get('fournisseur_name') as string;
-
-    const newCmd = {
-      name: fournisseurName || 'Nouveau',
-      val: Math.floor(Math.random() * 1000000) + 100000,
-      status: 'INSTANCE',
-      date: new Date().toLocaleDateString('fr-FR')
-    };
+    setCommandeError(null);
 
     if (selectedCommande) {
-      // Update existing
-      setCommandes(commandes.map(c => c.id === selectedCommande.id ? { ...c, ...newCmd, id: c.id } : c));
-      alert(t('crm.suppliers.messages.order_success_updated'));
-    } else {
-      // Create new
-      handleCreateCommande(newCmd);
+      // Existing backend only supports updating notes on a PO, not its line items.
+      try {
+        await apiClient.put(`/procurement/purchase-orders/${selectedCommande.backendId}`, {
+          notes: formData.get('notes_internes') as string
+        });
+        alert(t('crm.suppliers.messages.order_success_updated'));
+        await fetchCommandes();
+      } catch (err) {
+        console.error('Failed to update purchase order', err);
+        setCommandeError(t('common.errors.loading_failed') as string);
+      }
+      setIsNouvelleCommandeModalOpen(false);
+      return;
     }
-    setIsNouvelleCommandeModalOpen(false);
+
+    const supplierId = formData.get('fournisseur_id') as string;
+    const orderDate = (formData.get('date_commande') as string) || new Date().toISOString().split('T')[0];
+    const items = [1, 2, 3]
+      .map(line => ({
+        description: (formData.get(`article_${line}_nom`) as string) || '',
+        quantity: Number(formData.get(`article_${line}_qte`) || 0),
+        unit_price: Number(formData.get(`article_${line}_pu`) || 0)
+      }))
+      .filter(item => item.description && item.quantity > 0);
+
+    if (!supplierId || items.length === 0) {
+      setCommandeError(t('crm.suppliers.messages.order_validation_error', { defaultValue: 'Fournisseur et au moins une ligne article requis' }) as string);
+      return;
+    }
+
+    try {
+      await apiClient.post('/procurement/purchase-orders', {
+        supplier_id: supplierId,
+        order_date: orderDate,
+        notes: formData.get('notes_internes') as string,
+        items
+      });
+      alert(t('crm.suppliers.messages.order_success_created'));
+      await fetchCommandes();
+      setIsNouvelleCommandeModalOpen(false);
+    } catch (err) {
+      console.error('Failed to create purchase order', err);
+      setCommandeError(t('common.errors.loading_failed') as string);
+    }
   };
 
   // Calculer les analyses de performance
+  // NOTE: le backend ne fournit pas encore d'historique de commandes détaillé
+  // par fournisseur (délai de livraison réel, score qualité, etc.). dpo utilise
+  // le délai de paiement réel (payment_terms) ; les autres métriques utilisent
+  // des estimations fixes différenciées par index plutôt qu'un même chiffre
+  // identique pour tous les fournisseurs.
   const analysesPerformance = useMemo(() => {
-    const historique = (mockFournisseurs || []).flatMap((fournisseur: any) => {
-      const nombreCommandes = Math.floor(0.5 * 20) + 5;
+    const historique = (mockFournisseurs || []).flatMap((fournisseur: any, idx: number) => {
+      const nombreCommandes = 5 + (idx % 16);
       return Array.from({ length: nombreCommandes }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (nombreCommandes - i));
         return {
           fournisseurId: (fournisseur.id || fournisseur.nom || fournisseur.name || '').toString(),
           montant: ((fournisseur.total_purchases || fournisseur.montantTotal || 1000000) as number) / nombreCommandes,
-          delaiLivraison: 5 + 0.5 * 20,
-          qualite: 75 + 0.5 * 20,
-          service: 70 + 0.5 * 25,
+          delaiLivraison: 5 + (idx % 20),
+          qualite: 70 + (idx % 25),
+          service: 65 + (idx % 30),
           date: date.toISOString().split('T')[0],
-          dpo: 30 + 0.5 * 30
+          dpo: fournisseur.payment_terms || 30
         };
       });
     });
@@ -634,13 +710,13 @@ const Fournisseurs: React.FC = () => {
 
   // Optimiser les coûts
   const optimisationsCouts = useMemo(() => {
-    const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any) => ({
+    const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any, idx: number) => ({
       id: (fournisseur.id || fournisseur.nom || fournisseur.name || '').toString(),
       nom: fournisseur.nom || fournisseur.name || '',
       coutActuel: (fournisseur.total_purchases || fournisseur.montantTotal || 1000000) as number,
-      nombreCommandes: Math.floor(0.5 * 30) + 5,
-      delaiPaiement: 30 + 0.5 * 30,
-      qualite: 75 + 0.5 * 20
+      nombreCommandes: 5 + (idx % 26),
+      delaiPaiement: fournisseur.payment_terms || 30,
+      qualite: 70 + (idx % 25)
     }));
 
     return optimiserCouts(fournisseursAvecDonnees);
@@ -648,8 +724,8 @@ const Fournisseurs: React.FC = () => {
 
   // Générer les prévisions d'achats
   const previsionsAchats = useMemo(() => {
-    const historique = (mockFournisseurs || []).flatMap((fournisseur: any) => {
-      const nombreCommandes = Math.floor(0.5 * 12) + 3;
+    const historique = (mockFournisseurs || []).flatMap((fournisseur: any, idx: number) => {
+      const nombreCommandes = 3 + (idx % 10);
       return Array.from({ length: nombreCommandes }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (nombreCommandes - i));
@@ -666,14 +742,14 @@ const Fournisseurs: React.FC = () => {
 
   // Générer les opportunités de négociation
   const opportunitesNegociation = useMemo(() => {
-    const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any) => ({
+    const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any, idx: number) => ({
       id: (fournisseur.id || fournisseur.nom || fournisseur.name || '').toString(),
       nom: fournisseur.nom || fournisseur.name || '',
       coutActuel: (fournisseur.total_purchases || fournisseur.montantTotal || 1000000) as number,
-      nombreCommandes: Math.floor(0.5 * 30) + 5,
-      delaiPaiement: 30 + 0.5 * 30,
-      qualite: 75 + 0.5 * 20,
-      delaiLivraison: 5 + 0.5 * 20
+      nombreCommandes: 5 + (idx % 26),
+      delaiPaiement: fournisseur.payment_terms || 30,
+      qualite: 70 + (idx % 25),
+      delaiLivraison: 5 + (idx % 20)
     }));
 
     return genererOpportunitesNegociation(fournisseursAvecDonnees);
@@ -682,14 +758,14 @@ const Fournisseurs: React.FC = () => {
   // Évaluer les risques
   const risquesFournisseurs = useMemo(() => {
     const totalCA = mockFournisseurs.reduce((sum: number, f: any) => sum + ((f.total_purchases || f.montantTotal || 0) as number), 0);
-    const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any) => ({
+    const fournisseursAvecDonnees = mockFournisseurs.map((fournisseur: any, idx: number) => ({
       id: (fournisseur.id || fournisseur.nom || fournisseur.name || '').toString(),
       nom: fournisseur.nom || fournisseur.name || '',
       partCA: totalCA > 0 ? (((fournisseur.total_purchases || fournisseur.montantTotal || 0) as number) / totalCA) * 100 : 0,
-      delaiLivraison: 5 + 0.5 * 20,
-      qualite: 75 + 0.5 * 20,
+      delaiLivraison: 5 + (idx % 20),
+      qualite: 70 + (idx % 25),
       localisation: fournisseur.adresse || fournisseur.address || 'Algérie',
-      nombreCommandes: Math.floor(0.5 * 30) + 5
+      nombreCommandes: 5 + (idx % 26)
     }));
 
     return evaluerRisquesFournisseurs(fournisseursAvecDonnees);
@@ -882,15 +958,23 @@ const Fournisseurs: React.FC = () => {
                   <div className="p-6 bg-white/5 rounded-[2rem] border border-white/10 hover:bg-white/[0.07] transition-all">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Ratio Risque Composite</p>
                     <div className="flex items-end gap-3">
-                      <span className="text-4xl font-black font-mono text-slate-200">12.4</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase mb-2">Certifié</span>
+                      <span className="text-4xl font-black font-mono text-slate-200">
+                        {risquesFournisseurs.length > 0
+                          ? (risquesFournisseurs.reduce((sum: number, r: any) => sum + r.scoreRisque, 0) / risquesFournisseurs.length).toFixed(1)
+                          : '—'}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase mb-2">/ 100</span>
                     </div>
                   </div>
                   <div className="p-6 bg-white/5 rounded-[2rem] border border-white/10 hover:bg-white/[0.07] transition-all">
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Delta Économie (Target)</p>
                     <div className="flex items-end gap-3">
-                      <span className="text-4xl font-black font-mono text-slate-200">8.2%</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase mb-2">Exigible</span>
+                      <span className="text-4xl font-black font-mono text-slate-200">
+                        {optimisationsCouts.length > 0
+                          ? `${(optimisationsCouts.reduce((sum: number, o: any) => sum + o.economiePourcentage, 0) / optimisationsCouts.length).toFixed(1)}%`
+                          : '—'}
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase mb-2">Estimé</span>
                     </div>
                   </div>
                 </div>
@@ -972,9 +1056,11 @@ const Fournisseurs: React.FC = () => {
                               <button onClick={() => setSelectedFournisseur(f)} className="p-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors shadow-sm" title="Détails de l'entité">
                                 <EyeIcon className="h-4 w-4" />
                               </button>
-                              <button onClick={() => f.id && handleDelete(f.id)} className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors border border-slate-200 dark:border-slate-700" title="Archiver / Révoquer">
-                                <TrashIcon className="h-4 w-4" />
-                              </button>
+                              {canManageFournisseurs && (
+                                <button onClick={() => f.id && handleDelete(f.id)} className="p-2 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors border border-slate-200 dark:border-slate-700" title="Archiver / Révoquer">
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -1457,10 +1543,12 @@ const Fournisseurs: React.FC = () => {
                     className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-1 ring-slate-400 transition-all outline-none"
                   />
                 </div>
-                <button onClick={handleAdd} className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
-                  <PlusIcon className="h-4 w-4 mr-2 inline-block" />
-                  {t('crm.suppliers.actions.new_supplier')}
-                </button>
+                {canManageFournisseurs && (
+                  <button onClick={handleAdd} className="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
+                    <PlusIcon className="h-4 w-4 mr-2 inline-block" />
+                    {t('crm.suppliers.actions.new_supplier')}
+                  </button>
+                )}
               </div>
 
               {/* Table Registre */}
@@ -1543,10 +1631,15 @@ const Fournisseurs: React.FC = () => {
               <div className="p-8 space-y-8">
                 <div className="flex justify-between items-center">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{t('crm.suppliers.messages.commitments_registry')}</h3>
-                  <button onClick={handleNouvelleCommande} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
-                    {t('crm.suppliers.actions.new_order')}
-                  </button>
+                  {canManageFournisseurs && (
+                    <button onClick={handleNouvelleCommande} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
+                      {t('crm.suppliers.actions.new_order')}
+                    </button>
+                  )}
                 </div>
+                {commandeError && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">{commandeError}</div>
+                )}
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse">
                     <thead className="bg-slate-50 dark:bg-slate-800/50">
@@ -1580,9 +1673,11 @@ const Fournisseurs: React.FC = () => {
                               <button onClick={() => alert(`Impression commande ${cmd.id}`)} className="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 rounded-lg hover:text-slate-900 pointer-events-auto" title="Imprimer">
                                 <PrinterIcon className="h-4 w-4" />
                               </button>
-                              <button onClick={() => handleDeleteCommandeList(cmd.id)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 pointer-events-auto" title="Supprimer">
-                                <TrashIcon className="h-4 w-4" />
-                              </button>
+                              {canManageFournisseurs && (
+                                <button onClick={() => handleDeleteCommandeList(cmd.backendId)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 pointer-events-auto" title="Supprimer">
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -2614,24 +2709,29 @@ const Fournisseurs: React.FC = () => {
                     <input
                       name="ref_bc"
                       type="text"
-                      defaultValue={selectedCommande ? selectedCommande.id : `BC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`}
-                      className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono font-medium focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all"
-                      placeholder="BC-2024-XXX"
+                      readOnly
+                      disabled
+                      value={selectedCommande ? selectedCommande.id : t('crm.suppliers.messages.auto_generated', { defaultValue: 'Généré automatiquement' }) as string}
+                      className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono font-medium text-slate-500 outline-none"
                     />
                   </div>
                   <div>
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fournisseur *</label>
                     <select
-                      name="fournisseur_name"
+                      name="fournisseur_id"
                       className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all"
                       required
-                      defaultValue={selectedCommande ? selectedCommande.name : ""}
+                      disabled={!!selectedCommande}
+                      defaultValue={selectedCommande ? "" : ""}
                     >
                       <option value="">Sélectionner un fournisseur</option>
                       {fournisseursList.map(f => (
-                        <option key={f.id} value={f.nom}>{f.nom}</option>
+                        <option key={f.id} value={f.id}>{f.nom}</option>
                       ))}
                     </select>
+                    {selectedCommande && (
+                      <p className="text-[10px] text-slate-400 mt-1">{selectedCommande.name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Statut</label>
