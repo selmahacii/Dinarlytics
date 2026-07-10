@@ -478,11 +478,24 @@ const Audit: React.FC = () => {
                   />
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <button className="flex-1 sm:flex-none items-center justify-center px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-md hover:bg-slate-50 font-medium text-sm transition-colors">
+                  <button
+                    onClick={() => {
+                      // Export CSV réel des logs d'audit affichés
+                      const rows = auditLogsData.map(l => `"${l.timestamp}","${l.action}","${l.user}","${l.resource}","${l.ip}"`);
+                      const csv = ['Horodatage,Action,Utilisateur,Ressource,IP', ...rows].join('\n');
+                      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="flex-1 sm:flex-none items-center justify-center px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-md hover:bg-slate-50 font-medium text-sm transition-colors">
                     <DocumentArrowDownIcon className="h-4 w-4 me-2" />
                     {t('audit.controls.export')}
                   </button>
-                  <button className="flex-1 sm:flex-none items-center justify-center px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 font-medium text-sm transition-colors">
+                  <button onClick={() => window.print()} className="flex-1 sm:flex-none items-center justify-center px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-700 font-medium text-sm transition-colors">
                     <PrinterIcon className="h-4 w-4 me-2" />
                     {t('audit.controls.print')}
                   </button>
@@ -721,11 +734,7 @@ const Audit: React.FC = () => {
                     <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">{t('audit.security.logins_24h')}</h4>
                     <div className="mt-2 flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-slate-800">{securityMetrics.totalLogins || 0}</span>
-                      <span className="text-xs font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">+5%</span>
                     </div>
-                  </div>
-                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mt-4">
-                    <div className="bg-slate-600 h-full rounded-full" style={{ width: '75%' }}></div>
                   </div>
                 </div>
 
@@ -738,11 +747,10 @@ const Audit: React.FC = () => {
                     <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">{t('audit.security.auth_failed')}</h4>
                     <div className="mt-2 flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-rose-600">{securityMetrics.failedLogins || 0}</span>
-                      <span className="text-xs font-medium text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{t('audit.security.status.warning')}</span>
+                      {(securityMetrics.failedLogins || 0) > 0 && (
+                        <span className="text-xs font-medium text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">{t('audit.security.status.warning')}</span>
+                      )}
                     </div>
-                  </div>
-                  <div className="w-full bg-rose-50 h-1.5 rounded-full overflow-hidden mt-4">
-                    <div className="bg-rose-500 h-full rounded-full" style={{ width: '15%' }}></div>
                   </div>
                 </div>
 

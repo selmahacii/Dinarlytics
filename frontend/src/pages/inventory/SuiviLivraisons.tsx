@@ -42,11 +42,14 @@ const SuiviLivraisons: React.FC = () => {
           dateCommande: dn.created_at ? dn.created_at.split('T')[0] : dn.delivery_date,
           dateLivraisonPrevue: dn.delivery_date,
           dateLivraisonReelle: dn.delivery_date,
-          transporteur: 'Transporteur Standard',
+          // Transporteur/destination/frais ne sont pas suivis par le backend :
+          // affichés vides plutôt qu'avec des valeurs inventées identiques
+          // pour chaque livraison.
+          transporteur: '',
           statut: dn.statut || 'livree',
           fraisTransport: 0,
-          details: dn.notes || 'Livraison de marchandises',
-          destination: 'Alger',
+          details: dn.notes || '',
+          destination: '',
           items: (dn.items || []).map((item: any) => ({
             name: item.article_name || item.description || 'Article',
             quantity: item.quantity,
@@ -72,7 +75,7 @@ const SuiviLivraisons: React.FC = () => {
     const retardees = livraisons.filter(l => l.statut === 'retardee').length;
     
     const fraisTransportTotal = livraisons.reduce((sum, l) => sum + (l.fraisTransport || 0), 0);
-    const fraisTransportMoyen = fraisTransportTotal / total;
+    const fraisTransportMoyen = total > 0 ? fraisTransportTotal / total : 0;
     
     const poidsTotal = livraisons.reduce((sum, l) => sum + (l.poids || 0), 0);
     const volumeTotal = livraisons.reduce((sum, l) => sum + (l.volume || 0), 0);
@@ -259,11 +262,9 @@ const SuiviLivraisons: React.FC = () => {
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('inventory.deliveries.stats.transport_fees')}</h3>
             <TruckIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
           </div>
-          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
-            {formatCurrency(stats.fraisTransportTotal)}
-          </div>
-          <div className="text-sm text-slate-600 dark:text-slate-400">
-            {t('inventory.deliveries.stats.avg_cost', { amount: formatCurrency(stats.fraisTransportMoyen) })}
+          <div className="text-2xl font-bold text-slate-400 dark:text-slate-500 mb-1">—</div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            Frais de transport non suivis par livraison
           </div>
         </Card>
 
@@ -327,7 +328,7 @@ const SuiviLivraisons: React.FC = () => {
               <DocumentArrowDownIcon className="h-5 w-5" />
               {t('common.export')}
             </button>
-            <button className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
+            <button onClick={() => window.print()} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg transition-colors flex items-center justify-center gap-2 w-full sm:w-auto">
               <PrinterIcon className="h-5 w-5" />
               {t('common.report', { defaultValue: 'Rapport' })}
             </button>
