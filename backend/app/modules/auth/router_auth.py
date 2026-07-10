@@ -4,7 +4,7 @@ Authentication API Endpoints
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime, timezone
 import logging
 
@@ -52,6 +52,20 @@ class LoginResponse(BaseModel):
     user: dict
     expires_in: int
 
+class CompanyInfo(BaseModel):
+    id: str
+    name: str
+    registration_number: Optional[str] = None
+    tax_number: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    currency_code: Optional[str] = None
+    country: Optional[str] = None
+    parent_company_id: Optional[str] = None
+    is_active: bool = True
+
 class UserInfo(BaseModel):
     user_id: str
     username: str
@@ -59,8 +73,33 @@ class UserInfo(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
     company_id: str
+    company_name: Optional[str] = None
     roles: list
     permissions: list
+
+class UpdateCompanyRequest(BaseModel):
+    name: Optional[str] = None
+    registration_number: Optional[str] = None
+    tax_number: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    currency_code: Optional[str] = None
+    country: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class CreateSubsidiaryRequest(BaseModel):
+    name: str
+    registration_number: Optional[str] = None
+    tax_number: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    website: Optional[str] = None
+    currency_code: Optional[str] = "DZD"
+    country: Optional[str] = "Algérie"
+    ownership_percentage: Optional[float] = 100
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
@@ -343,6 +382,8 @@ async def get_current_user_info(
             detail="User not found"
         )
     
+    company = db.query(Company).filter(Company.id == user.company_id).first()
+
     return UserInfo(
         user_id=str(user.id),
         username=user.username,
@@ -350,9 +391,128 @@ async def get_current_user_info(
         first_name=user.first_name,
         last_name=user.last_name,
         company_id=str(user.company_id),
+        company_name=company.name if company else None,
         roles=current_user.roles,
         permissions=current_user.permissions
     )
+
+
+@router.get("/company", response_model=CompanyInfo)
+async def get_current_company(
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get the current user's company details."""
+    company = db.query(Company).filter(Company.id == current_user.company_id).first()
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    return CompanyInfo(
+        id=str(company.id), name=company.name,
+        registration_number=company.registration_number, tax_number=company.tax_number,
+        address=company.address, phone=company.phone, email=company.email,
+        website=company.website, currency_code=company.currency_code, country=company.country,
+        parent_company_id=str(company.parent_company_id) if company.parent_company_id else None,
+        is_active=company.is_active
+    )
+
+
+@router.put("/companies/{company_id}", response_model=CompanyInfo)
+async def update_company(
+    company_id: str,
+    request: UpdateCompanyRequest,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update a company's details — the caller's own company or one of its
+    subsidiaries (requires manage_users permission)."""
+    if not RBACManager.check_permission(current_user.roles, "manage_users"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Company management access required")
+
+    company = db.query(Company).filter(Company.id == company_id).first()
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found")
+    if str(company.id) != current_user.company_id and str(company.parent_company_id) != current_user.company_id:
+        raise HTTPException(status_code=403, detail="Not authorized to manage this company")
+
+    for field, value in request.dict(exclude_unset=True).items():
+        setattr(company, field, value)
+    db.commit()
+    db.refresh(company)
+
+    return CompanyInfo(
+        id=str(company.id), name=company.name,
+        registration_number=company.registration_number, tax_number=company.tax_number,
+        address=company.address, phone=company.phone, email=company.email,
+        website=company.website, currency_code=company.currency_code, country=company.country,
+        parent_company_id=str(company.parent_company_id) if company.parent_company_id else None,
+        is_active=company.is_active
+    )
+
+
+@router.get("/companies", response_model=List[CompanyInfo])
+async def list_group_companies(
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """List the current company and any subsidiaries linked via parent_company_id."""
+    own = db.query(Company).filter(Company.id == current_user.company_id).first()
+    if not own:
+        raise HTTPException(status_code=404, detail="Company not found")
+    subsidiaries = db.query(Company).filter(Company.parent_company_id == own.id).all()
+    companies = [own] + subsidiaries
+    return [
+        CompanyInfo(
+            id=str(c.id), name=c.name,
+            registration_number=c.registration_number, tax_number=c.tax_number,
+            address=c.address, phone=c.phone, email=c.email,
+            website=c.website, currency_code=c.currency_code, country=c.country,
+            parent_company_id=str(c.parent_company_id) if c.parent_company_id else None,
+            is_active=c.is_active
+        ) for c in companies
+    ]
+
+
+@router.post("/companies", response_model=CompanyInfo, status_code=status.HTTP_201_CREATED)
+async def create_subsidiary_company(
+    request: CreateSubsidiaryRequest,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create a subsidiary company linked to the current company (for group consolidation)."""
+    if not RBACManager.check_permission(current_user.roles, "manage_users"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Company management access required")
+
+    existing = db.query(Company).filter(Company.name == request.name).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="A company with this name already exists")
+
+    subsidiary = Company(
+        name=request.name,
+        registration_number=request.registration_number,
+        tax_number=request.tax_number,
+        address=request.address,
+        phone=request.phone,
+        email=request.email,
+        website=request.website,
+        currency_code=request.currency_code,
+        country=request.country,
+        parent_company_id=current_user.company_id,
+        ownership_percentage=request.ownership_percentage,
+        is_active=True
+    )
+    db.add(subsidiary)
+    db.commit()
+    db.refresh(subsidiary)
+
+    return CompanyInfo(
+        id=str(subsidiary.id), name=subsidiary.name,
+        registration_number=subsidiary.registration_number, tax_number=subsidiary.tax_number,
+        address=subsidiary.address, phone=subsidiary.phone, email=subsidiary.email,
+        website=subsidiary.website, currency_code=subsidiary.currency_code, country=subsidiary.country,
+        parent_company_id=str(subsidiary.parent_company_id),
+        is_active=subsidiary.is_active
+    )
+
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(

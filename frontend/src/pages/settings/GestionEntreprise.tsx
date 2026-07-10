@@ -78,35 +78,37 @@ const GestionEntreprise: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const mapCompanyFromBackend = (c: any) => ({
+    id: c.id,
+    nom: c.name || '',
+    raisonSociale: c.name || '',
+    siret: c.registration_number || '',
+    tvaNumber: c.tax_number || '',
+    adresse: c.address || '',
+    ville: '',
+    codePostal: '',
+    pays: c.country || 'Algérie',
+    telephone: c.phone || '',
+    email: c.email || '',
+    siteWeb: c.website || '',
+    devise: c.currency_code || 'DZD',
+    planComptable: 'algerien',
+    logo: '',
+    description: '',
+    isActive: c.is_active ?? true,
+    parentCompanyId: c.parent_company_id || null,
+    utilisateurs: 0,
+    derniereActivite: '',
+    permissions: [] as string[]
+  });
+
   useEffect(() => {
     const loadEntreprises = async () => {
       try {
-        const response = await apiClient.get('/auth/me');
-        const userData = response.data;
-        if (userData) {
-          setEntreprises([
-            {
-              id: userData.company_id || '1',
-              nom: userData.company_name || 'Ma Société',
-              raisonSociale: userData.company_name || 'Ma Société SARL',
-              siret: '12345678901234',
-              tvaNumber: 'DZ123456789',
-              adresse: '123 Boulevard des Martyrs',
-              ville: 'Alger',
-              codePostal: '16000',
-              pays: 'Algérie',
-              telephone: '+213 21 00 00 00',
-              email: 'contact@societe.dz',
-              siteWeb: 'www.societe.dz',
-              devise: 'DZD',
-              planComptable: 'algerien',
-              logo: '',
-              description: 'Entreprise principale'
-            }
-          ]);
-        }
+        const response = await apiClient.get<any[]>('/auth/companies');
+        setEntreprises((response.data || []).map(mapCompanyFromBackend));
       } catch (err) {
-        console.error("Failed to load user companies", err);
+        console.error("Failed to load companies", err);
       }
     };
     loadEntreprises();
@@ -166,46 +168,33 @@ const GestionEntreprise: React.FC = () => {
     if (!validateEntreprise()) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
-    // Simulation de création
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newId = Math.max(...entreprises.map(e => e.id)) + 1;
-    const entreprise = {
-      ...newEntreprise,
-      id: newId,
-      createdAt: new Date().toISOString().split('T')[0],
-      isActive: true,
-      utilisateurs: 1,
-      derniereActivite: new Date().toISOString().split('T')[0],
-      permissions: ['comptabilite', 'clients']
-    };
-    
-    setEntreprises([entreprise, ...entreprises]);
-    setNewEntreprise({
-      nom: '',
-      raisonSociale: '',
-      siret: '',
-      tvaNumber: '',
-      adresse: '',
-      ville: '',
-      codePostal: '',
-      pays: 'Algérie',
-      telephone: '',
-      email: '',
-      siteWeb: '',
-      devise: 'DZD',
-      planComptable: 'algerien',
-      logo: '',
-      description: ''
-    });
-    setErrors({});
-    setIsSubmitting(false);
-    setIsCreateModalOpen(false);
-    
-    alert('Entreprise créée avec succès !');
+    try {
+      const response = await apiClient.post('/auth/companies', {
+        name: newEntreprise.nom,
+        registration_number: newEntreprise.siret,
+        tax_number: newEntreprise.tvaNumber,
+        address: newEntreprise.adresse,
+        phone: newEntreprise.telephone,
+        email: newEntreprise.email,
+        website: newEntreprise.siteWeb,
+        currency_code: newEntreprise.devise,
+        country: newEntreprise.pays
+      });
+      setEntreprises([mapCompanyFromBackend(response.data), ...entreprises]);
+      setNewEntreprise({
+        nom: '', raisonSociale: '', siret: '', tvaNumber: '', adresse: '', ville: '',
+        codePostal: '', pays: 'Algérie', telephone: '', email: '', siteWeb: '',
+        devise: 'DZD', planComptable: 'algerien', logo: '', description: ''
+      });
+      setErrors({});
+      setIsCreateModalOpen(false);
+    } catch (err: any) {
+      setErrors({ submit: err?.response?.data?.detail || 'Erreur lors de la création' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEditEntreprise = (entreprise: any) => {
@@ -214,11 +203,25 @@ const GestionEntreprise: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateEntreprise = () => {
-    if (selectedEntreprise) {
-      const updatedEntreprise = { ...selectedEntreprise, ...newEntreprise };
-      setEntreprises(entreprises.map(e => e.id === selectedEntreprise.id ? updatedEntreprise : e));
+  const handleUpdateEntreprise = async () => {
+    if (!selectedEntreprise) return;
+    try {
+      const response = await apiClient.put(`/auth/companies/${selectedEntreprise.id}`, {
+        name: newEntreprise.nom,
+        registration_number: newEntreprise.siret,
+        tax_number: newEntreprise.tvaNumber,
+        address: newEntreprise.adresse,
+        phone: newEntreprise.telephone,
+        email: newEntreprise.email,
+        website: newEntreprise.siteWeb,
+        currency_code: newEntreprise.devise,
+        country: newEntreprise.pays
+      });
+      const updated = mapCompanyFromBackend(response.data);
+      setEntreprises(entreprises.map(e => e.id === selectedEntreprise.id ? updated : e));
       setIsEditModalOpen(false);
+    } catch (err) {
+      console.error('Failed to update company', err);
     }
   };
 
@@ -230,10 +233,14 @@ const GestionEntreprise: React.FC = () => {
     alert(`Basculement vers ${entreprise.nom} - Devise: ${entreprise.devise} - Plan: ${entreprise.planComptable}`);
   };
 
-  const handleToggleActive = (entreprise: any) => {
-    setEntreprises(entreprises.map(e => 
-      e.id === entreprise.id ? { ...e, isActive: !e.isActive } : e
-    ));
+  const handleToggleActive = async (entreprise: any) => {
+    try {
+      const response = await apiClient.put(`/auth/companies/${entreprise.id}`, { is_active: !entreprise.isActive });
+      const updated = mapCompanyFromBackend(response.data);
+      setEntreprises(entreprises.map(e => e.id === entreprise.id ? updated : e));
+    } catch (err) {
+      console.error('Failed to toggle company status', err);
+    }
   };
 
   const handleUpdateCurrency = (code: string, taux: number) => {
