@@ -26,11 +26,11 @@ export interface BudgetSummary {
 
 export const budgetService = {
     getAll: async () => {
-        const response = await apiClient.get<Budget[]>('/budgets');
+        const response = await apiClient.get<Budget[]>('/budgets/');
         return response.data;
     },
     create: async (data: any) => {
-        const response = await apiClient.post<Budget>('/budgets', data);
+        const response = await apiClient.post<Budget>('/budgets/', data);
         return response.data;
     },
     sync: async (id: string) => {

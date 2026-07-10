@@ -65,37 +65,47 @@ const GestionRelances: React.FC = () => {
   useEffect(() => {
     const fetchRelances = async () => {
       try {
-        const response = await apiClient.get('/invoices');
-        const invoices = Array.isArray(response.data) ? response.data : [];
+        // Charger factures et clients en parallèle pour joindre les vraies
+        // coordonnées (email/téléphone) au lieu de valeurs codées en dur.
+        const [invoicesRes, clientsRes] = await Promise.all([
+          apiClient.get<any[]>('/invoices/'),
+          apiClient.get<any[]>('/clients/').catch(() => ({ data: [] as any[] }))
+        ]);
+        const invoices = Array.isArray(invoicesRes.data) ? invoicesRes.data : [];
+        const clientsById = new Map<string, any>(
+          (clientsRes.data || []).map((c: any) => [String(c.id), c])
+        );
         const today = new Date();
-        
+
         const mapped = invoices
           .filter((inv: any) => inv.statut !== 'payee' && inv.statut !== 'annulee' && inv.date_echeance)
           .map((inv: any) => {
             const dueDate = new Date(inv.date_echeance);
             const timeDiff = today.getTime() - dueDate.getTime();
             const daysOverdue = Math.max(0, Math.floor(timeDiff / (1000 * 3600 * 24)));
-            
+
             let level: RelanceLevel = 1;
             if (daysOverdue > 60) {
               level = 3;
             } else if (daysOverdue > 30) {
               level = 2;
             }
-            
+
             let status: RelanceStatus = 'pending';
             if (daysOverdue > 60) {
               status = 'escalated';
             } else if (daysOverdue > 30) {
               status = 'sent';
             }
-            
+
+            const client = inv.client_id ? clientsById.get(String(inv.client_id)) : undefined;
+
             return {
               id: inv.id,
               factureNum: inv.numero,
-              client: inv.client_name || 'Client Inconnu',
-              clientEmail: 'comptabilite@client.dz',
-              clientPhone: '021-00-00-00',
+              client: inv.client_name || client?.name || 'Client Inconnu',
+              clientEmail: client?.email || '',
+              clientPhone: client?.phone || '',
               montant: Number(inv.total_ttc),
               dateFact: inv.date_emission,
               dateEcheance: inv.date_echeance,
@@ -103,11 +113,11 @@ const GestionRelances: React.FC = () => {
               level,
               status,
               lastContact: null,
-              commercial: 'Administrateur',
+              commercial: '',
               notes: daysOverdue > 0 ? `Retard de paiement de ${daysOverdue} jours.` : 'Première relance à planifier.'
             };
           });
-          
+
         setRelances(mapped);
       } catch (err) {
         console.error("Failed to fetch invoices for relances", err);
@@ -366,8 +376,20 @@ const GestionRelances: React.FC = () => {
               <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50">
                 <PrinterIcon className="h-4 w-4 mr-2"/>{t('relances.send.print')}
               </button>
-              <button onClick={() => { alert(t('relances.send.sent_msg')); setIsSendOpen(false); }}
-                className="flex-1 flex items-center justify-center px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800">
+              <button
+                disabled={!selected.clientEmail}
+                onClick={() => {
+                  // Pas de service d'envoi d'emails côté backend : on ouvre le
+                  // client mail de l'utilisateur pré-rempli avec le vrai email
+                  // du client et le contenu de la relance.
+                  const subject = encodeURIComponent(t(RELANCE_TEMPLATES[`level${selected.level}` as keyof typeof RELANCE_TEMPLATES].subject) + ` — ${selected.factureNum}`);
+                  const body = encodeURIComponent(emailContent);
+                  window.location.href = `mailto:${selected.clientEmail}?subject=${subject}&body=${body}`;
+                  setRelances(prev => prev.map(r => r.id === selected.id ? { ...r, status: 'sent' as RelanceStatus, lastContact: new Date().toISOString().slice(0, 10) } : r));
+                  setIsSendOpen(false);
+                }}
+                className="flex-1 flex items-center justify-center px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+                title={!selected.clientEmail ? "Aucun email enregistré pour ce client" : undefined}>
                 <PaperAirplaneIcon className="h-4 w-4 mr-2"/>{t('relances.send.confirm_btn')}
               </button>
             </div>
@@ -375,51 +397,47 @@ const GestionRelances: React.FC = () => {
         </Modal>
       )}
 
-      {/* Create New Follow-up Modal */}
+      {/* Create New Follow-up Modal — les relances sont dérivées des factures
+          impayées réelles : on sélectionne la facture à relancer puis on
+          ouvre le flux d'envoi réel, au lieu d'un formulaire décoratif. */}
       <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title={t('relances.create_btn')} size="lg">
-        <form className="p-4 space-y-6" onSubmit={(e) => { e.preventDefault(); alert(t('relances.send.sent_msg')); setIsCreateOpen(false); }}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.client')}</label>
-              <select required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
-                <option value="">{t('crm.clients.placeholders.select_client') || 'Sélectionner un client'}</option>
-                {relances.map(r => (
-                  <option key={r.id} value={r.client}>{r.client}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.table.invoice')}</label>
-              <input type="text" placeholder="FAC-2024-XXX" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.table.level')}</label>
-              <select className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
-                <option value="1">{t('relances.level.1')}</option>
-                <option value="2">{t('relances.level.2')}</option>
-                <option value="3">{t('relances.level.3')}</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.amount')}</label>
-              <input type="number" placeholder="0.00" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold" />
-            </div>
-          </div>
-
+        <form
+          className="p-4 space-y-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const relanceId = formData.get('relance_id') as string;
+            const target = relances.find(r => r.id === relanceId);
+            if (target) {
+              setSelected(target);
+              setEmailContent(generateEmailContent(target));
+              setIsCreateOpen(false);
+              setIsSendOpen(true);
+            }
+          }}
+        >
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.notes')}</label>
-            <textarea rows={4} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium" placeholder={t('relances.search_placeholder')} />
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.table.invoice')}</label>
+            <select name="relance_id" required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
+              <option value="">{t('crm.clients.placeholders.select_client') || 'Sélectionner une facture à relancer'}</option>
+              {relances.map(r => (
+                <option key={r.id} value={r.id}>
+                  {r.factureNum} — {r.client} — {formatCurrency(r.montant)} ({r.daysOverdue}j de retard)
+                </option>
+              ))}
+            </select>
           </div>
+
+          {relances.length === 0 && (
+            <p className="text-sm text-slate-400 text-center py-4">Aucune facture impayée à relancer.</p>
+          )}
 
           <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
             <button type="button" onClick={() => setIsCreateOpen(false)} className="px-8 py-3 bg-slate-100 text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest">
               {t('common.cancel')}
             </button>
-            <button type="submit" className="px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">
-              {t('common.save')}
+            <button type="submit" disabled={relances.length === 0} className="px-8 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl disabled:opacity-40">
+              {t('relances.send.confirm_btn')}
             </button>
           </div>
         </form>

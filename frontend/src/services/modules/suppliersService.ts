@@ -18,7 +18,7 @@ export interface Supplier {
  */
 export const suppliersService = {
     getAll: async () => {
-        const response = await apiClient.get<Supplier[]>('/suppliers');
+        const response = await apiClient.get<Supplier[]>('/suppliers/');
         return response.data;
     },
 
@@ -28,7 +28,7 @@ export const suppliersService = {
     },
 
     create: async (data: Partial<Supplier>) => {
-        const response = await apiClient.post<Supplier>('/suppliers', data);
+        const response = await apiClient.post<Supplier>('/suppliers/', data);
         return response.data;
     },
 

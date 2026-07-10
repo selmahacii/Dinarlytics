@@ -62,7 +62,7 @@ export const invoiceService = {
      * Fetches all invoices with server-side filtering
      */
     getAll: async (type?: 'sale' | 'purchase'): Promise<Invoice[]> => {
-        const response = await apiClient.get<Invoice[]>('/invoices', {
+        const response = await apiClient.get<Invoice[]>('/invoices/', {
             params: { type }
         });
         if (Array.isArray(response.data)) {
@@ -83,7 +83,7 @@ export const invoiceService = {
      * Creates a new invoice
      */
     create: async (data: Partial<Invoice>): Promise<Invoice> => {
-        const response = await apiClient.post<Invoice>('/invoices', data);
+        const response = await apiClient.post<Invoice>('/invoices/', data);
         return response.data;
     },
 
@@ -96,10 +96,10 @@ export const invoiceService = {
     },
 
     /**
-     * Validates a draft invoice
+     * Validates a draft invoice (backend route is POST, not PATCH)
      */
     validate: async (id: string): Promise<Invoice> => {
-        const response = await apiClient.patch<Invoice>(`/invoices/${id}/validate`);
+        const response = await apiClient.post<Invoice>(`/invoices/${id}/validate`);
         return response.data;
     },
 
@@ -108,17 +108,6 @@ export const invoiceService = {
      */
     cancel: async (id: string) => {
         const response = await apiClient.post(`/invoices/${id}/cancel`);
-        return response.data;
-    },
-
-    /**
-     * Bulk export as PDF/Excel
-     */
-    exportReport: async (format: 'pdf' | 'xlsx', period: string) => {
-        const response = await apiClient.get(`/reports/invoices/export`, {
-            params: { format, period },
-            responseType: 'blob'
-        });
         return response.data;
     }
 };

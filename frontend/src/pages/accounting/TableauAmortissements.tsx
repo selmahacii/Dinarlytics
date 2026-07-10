@@ -84,7 +84,7 @@ const TableauAmortissements: React.FC = () => {
         setAssets(data.assets || []);
         setSummary(data.summary || null);
 
-        const articlesRes = await apiClient.get('/articles');
+        const articlesRes = await apiClient.get<any[]>('/articles/');
         const articles = articlesRes.data || [];
 
         const lots = articles.filter((a: any) => (a.stock_quantity || 0) > 0).map((art: any) => ({
@@ -99,10 +99,14 @@ const TableauAmortissements: React.FC = () => {
         const totalCostVal = articles.reduce((sum: number, a: any) => sum + ((a.stock_quantity || 0) * (a.cost_price || a.unit_price || 0)), 0);
         const avgUnitCost = totalQty > 0 ? totalCostVal / totalQty : 0;
 
+        // Sans historique d'achats par lot, seul le CUMP est réellement
+        // calculable : FIFO/LIFO exigent un suivi des lots d'entrée. On
+        // affiche donc la même valorisation réelle avec une mention explicite,
+        // au lieu d'inventer des écarts ±2% qui ne correspondent à rien.
         setValoResults({
           pmp:  { label: t('amort.valo.pmp_label') || 'CUMP (Coût Unitaire Moyen Pondéré)',  unitCost: avgUnitCost, totalValue: totalCostVal, impact: t('amort.valo.pmp_impact') || 'Lisse les variations de prix' },
-          fifo: { label: t('amort.valo.fifo_label') || 'FIFO (Premier Entré, Premier Sorti)', unitCost: avgUnitCost * 1.02, totalValue: totalCostVal * 1.02, impact: t('amort.valo.fifo_impact') || 'Valorise au coût le plus récent' },
-          lifo: { label: t('amort.valo.lifo_label') || 'LIFO (Dernier Entré, Premier Sorti)', unitCost: avgUnitCost * 0.98, totalValue: totalCostVal * 0.98, impact: t('amort.valo.lifo_impact') || 'Valorise au coût le plus ancien' },
+          fifo: { label: t('amort.valo.fifo_label') || 'FIFO (Premier Entré, Premier Sorti)', unitCost: avgUnitCost, totalValue: totalCostVal, impact: 'Identique au CUMP — le suivi des lots d\'achat n\'est pas encore disponible' },
+          lifo: { label: t('amort.valo.lifo_label') || 'LIFO (Dernier Entré, Premier Sorti)', unitCost: avgUnitCost, totalValue: totalCostVal, impact: 'Identique au CUMP — le suivi des lots d\'achat n\'est pas encore disponible' },
         });
       } catch (err) {
         console.error("Failed to fetch assets or articles", err);
@@ -113,7 +117,7 @@ const TableauAmortissements: React.FC = () => {
     fetchData();
   }, [t]);
 
-  const currentYear = 2024;
+  const currentYear = new Date().getFullYear();
   const categories = useMemo(() => [...new Set(assets.map(i => i.categorie))], [assets]);
 
   const enrichedImmos = useMemo(() => assets.map(immo => {

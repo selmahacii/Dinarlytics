@@ -126,14 +126,29 @@ async def get_dashboard_data(
             JournalEntryLine.account_code.like('1%')
         ).scalar() or Decimal('0')
     
-    # Total assets
+    # Total assets: classes 2 (immobilisations), 3 (stocks), 5 (trésorerie)
+    # plus les soldes débiteurs de classe 4 (créances). La classe 1 (capitaux
+    # propres/dettes) est au passif — l'inclure en débit-crédit soustrayait
+    # les capitaux propres de l'actif.
     total_assets_r = db.query(func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount))\
         .join(JournalEntry).filter(
             JournalEntry.company_id == company_id,
             JournalEntry.status == 'approved',
-            (JournalEntryLine.account_code.like('1%') | JournalEntryLine.account_code.like('2%') |
+            (JournalEntryLine.account_code.like('2%') |
              JournalEntryLine.account_code.like('3%') | JournalEntryLine.account_code.like('5%'))
-        ).scalar() or Decimal('1')  # avoid division by zero
+        ).scalar() or Decimal('0')
+
+    c4_debit_balances = db.query(
+        JournalEntryLine.account_code,
+        func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount).label('bal')
+    ).join(JournalEntry).filter(
+        JournalEntry.company_id == company_id,
+        JournalEntry.status == 'approved',
+        JournalEntryLine.account_code.like('4%')
+    ).group_by(JournalEntryLine.account_code).all()
+    total_assets_r += sum((row.bal for row in c4_debit_balances if row.bal and row.bal > 0), Decimal('0'))
+    if total_assets_r <= 0:
+        total_assets_r = Decimal('1')  # avoid division by zero
     
     liq = float(current_assets / max(current_liabilities, Decimal('1')))
     auto = float(equity / max(total_assets_r, Decimal('1')) * 100)
@@ -147,16 +162,21 @@ async def get_dashboard_data(
         solvabilite=round(solv, 2)
     )
     
+    # "Mois courant" au sens propre : factures des 30 derniers jours, pas le
+    # cumul de toute la vie de l'entreprise (les consommateurs annualisent
+    # ce chiffre en le multipliant par 12).
     ca_current = db.query(func.sum(Invoice.total_htt)).filter(
         Invoice.company_id == company_id,
         Invoice.type == 'sale',
-        Invoice.status != 'annulee'
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
     ).scalar() or Decimal('0')
-    
+
     purchases_current = db.query(func.sum(Invoice.total_htt)).filter(
         Invoice.company_id == company_id,
         Invoice.type == 'purchase',
-        Invoice.status != 'annulee'
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
     ).scalar() or Decimal('0')
     
     profit_current = ca_current - purchases_current
@@ -174,6 +194,114 @@ async def get_dashboard_data(
         "ca_mois_courant": float(ca_current),
         "profit_mois_courant": float(profit_current),
         "created_at": datetime.utcnow()
+    }
+
+
+@router.get("/company-metrics")
+async def get_company_metrics(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user_from_token)
+):
+    """Aggregated company metrics powering the frontend AppContext (companyData).
+
+    All figures are computed from real records: clients/suppliers/invoices
+    tables and class-5 journal balances for cash.
+    """
+    company_id = user["company_id"]
+
+    from app.core.models import (
+        Client, Supplier, Invoice, Payment, Article,
+        JournalEntry, JournalEntryLine
+    )
+    from sqlalchemy import func
+    from decimal import Decimal
+    import datetime as dt
+
+    clients_count = db.query(func.count(Client.id)).filter(
+        Client.company_id == company_id, Client.is_active == True
+    ).scalar() or 0
+
+    suppliers_count = db.query(func.count(Supplier.id)).filter(
+        Supplier.company_id == company_id, Supplier.is_active == True
+    ).scalar() or 0
+
+    invoices_count = db.query(func.count(Invoice.id)).filter(
+        Invoice.company_id == company_id, Invoice.status != 'annulee'
+    ).scalar() or 0
+
+    invoices_due = db.query(func.count(Invoice.id)).filter(
+        Invoice.company_id == company_id,
+        Invoice.status != 'annulee',
+        Invoice.payment_status == 'unpaid'
+    ).scalar() or 0
+
+    # Revenue over the last 30 days (sales invoices, HT)
+    thirty_days_ago = dt.date.today() - dt.timedelta(days=30)
+    revenue_month = db.query(func.sum(Invoice.total_htt)).filter(
+        Invoice.company_id == company_id,
+        Invoice.type == 'sale',
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
+    ).scalar() or Decimal('0')
+
+    expenses_month = db.query(func.sum(Invoice.total_htt)).filter(
+        Invoice.company_id == company_id,
+        Invoice.type == 'purchase',
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
+    ).scalar() or Decimal('0')
+
+    # Receivables: unpaid sales invoices TTC minus recorded payments
+    receivables = db.query(func.sum(Invoice.total_ttc)).filter(
+        Invoice.company_id == company_id,
+        Invoice.type == 'sale',
+        Invoice.status != 'annulee',
+        Invoice.payment_status == 'unpaid'
+    ).scalar() or Decimal('0')
+
+    payables = db.query(func.sum(Invoice.total_ttc)).filter(
+        Invoice.company_id == company_id,
+        Invoice.type == 'purchase',
+        Invoice.status != 'annulee',
+        Invoice.payment_status == 'unpaid'
+    ).scalar() or Decimal('0')
+
+    # Cash: class 5 approved journal balance
+    cash_balance = db.query(
+        func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount)
+    ).join(JournalEntry).filter(
+        JournalEntry.company_id == company_id,
+        JournalEntry.status == 'approved',
+        JournalEntryLine.account_code.like('5%')
+    ).scalar() or Decimal('0')
+
+    # Inventory: stock quantity × unit price for active articles
+    inventory_value = db.query(
+        func.sum(Article.stock_quantity * Article.unit_price)
+    ).filter(
+        Article.company_id == company_id,
+        Article.is_active == True
+    ).scalar() or Decimal('0')
+
+    profit_margin = float(((revenue_month - expenses_month) / revenue_month * 100)
+                          if revenue_month > 0 else Decimal('0'))
+    average_invoice = float(revenue_month / invoices_count) if invoices_count > 0 else 0.0
+
+    return {
+        "clientsCount": clients_count,
+        "suppliersCount": suppliers_count,
+        "invoicesCount": invoices_count,
+        "invoicesDue": invoices_due,
+        "totalReceivables": float(receivables),
+        "totalPayables": float(payables),
+        "cashBalance": float(cash_balance),
+        "revenue": float(revenue_month),
+        "expenses": float(expenses_month),
+        "profitMargin": round(profit_margin, 1),
+        # No per-article sell-through history yet to compute a real turnover.
+        "stockTurnover": 0,
+        "averageInvoice": round(average_invoice, 2),
+        "inventoryValue": float(inventory_value)
     }
 
 from pydantic import BaseModel

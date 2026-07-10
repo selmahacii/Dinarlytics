@@ -62,7 +62,7 @@ const mapDevisFromBackend = (q: any): Devis => ({
 
 export const quotesService = {
     getAll: async (status?: DevisStatus): Promise<Devis[]> => {
-        const response = await apiClient.get<any[]>('/quotes', { params: status ? { status } : undefined });
+        const response = await apiClient.get<any[]>('/quotes/', { params: status ? { status } : undefined });
         return (Array.isArray(response.data) ? response.data : []).map(mapDevisFromBackend);
     },
 
@@ -72,7 +72,7 @@ export const quotesService = {
     },
 
     create: async (data: CreateDevisPayload): Promise<Devis> => {
-        const response = await apiClient.post<any>('/quotes', data);
+        const response = await apiClient.post<any>('/quotes/', data);
         return mapDevisFromBackend(response.data);
     },
 

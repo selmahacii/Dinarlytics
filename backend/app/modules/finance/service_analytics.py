@@ -15,45 +15,71 @@ class AnalyticService:
     @staticmethod
     def get_financial_health_kpis(db: Session, company_id: Any) -> Dict[str, Any]:
         """Calculates core KPIs using SCF standards."""
-        # Get latest stats
-        sales_total = db.query(func.sum(Invoice.total_ttc)).filter(
-            Invoice.company_id == company_id, 
+        # Cumulative TTC sales — used for receivables (payments settle TTC).
+        sales_total_ttc = db.query(func.sum(Invoice.total_ttc)).filter(
+            Invoice.company_id == company_id,
             Invoice.status != 'annulee'
         ).scalar() or Decimal('0')
-        
+
+        # HT sales — the correct revenue denominator for margin ratios.
+        sales_total_ht = db.query(func.sum(Invoice.total_htt)).filter(
+            Invoice.company_id == company_id,
+            Invoice.status != 'annulee'
+        ).scalar() or Decimal('0')
+
+        # Trailing 365-day TTC sales — the correct DSO denominator (a
+        # lifetime total makes DSO shrink artificially as history grows).
+        one_year_ago = dt.date.today() - dt.timedelta(days=365)
+        sales_365_ttc = db.query(func.sum(Invoice.total_ttc)).filter(
+            Invoice.company_id == company_id,
+            Invoice.status != 'annulee',
+            Invoice.invoice_date >= one_year_ago
+        ).scalar() or Decimal('0')
+
         payments_total = db.query(func.sum(Payment.amount)).filter(
             Payment.company_id == company_id
         ).scalar() or Decimal('0')
-        
-        ar_total = sales_total - payments_total # Accounts Receivable
-        
+
+        ar_total = sales_total_ttc - payments_total  # Accounts Receivable
+
         # Last statement for deeper analysis
         statement = db.query(FinancialStatement).filter(
             FinancialStatement.company_id == company_id
         ).order_by(FinancialStatement.exercice.desc()).first()
-        
-        # Marge Net Correcte (SCF)
+
+        # Marge nette sur CA HT (un dénominateur TTC sous-estimait la marge
+        # d'un facteur TVA).
         margin_net = Decimal('0')
-        if sales_total > 0 and statement:
-             margin_net = (statement.net_income / sales_total) * 100
-             
+        if sales_total_ht > 0 and statement:
+             margin_net = (statement.net_income / sales_total_ht) * 100
+
         # BFR (Working Capital Requirement)
         inventory_total = statement.current_inventory if statement else Decimal('0')
         payables_total = statement.current_liabilities if statement else Decimal('0')
         bfr = (inventory_total + ar_total) - payables_total
 
-        # DSO (Days Sales Outstanding) - Average time to collect payments
-        # Using 365 days window for annual or proportional
-        dso = (ar_total / sales_total * 365) if sales_total > 0 else Decimal('0')
-             
+        # DSO sur ventes des 365 derniers jours
+        dso = (ar_total / sales_365_ttc * 365) if sales_365_ttc > 0 else Decimal('0')
+
+        # Seuil de rentabilité = coûts fixes / taux de marge sur coûts
+        # variables. Faute de séparation fixe/variable en base, on utilise le
+        # taux de marge brute (CA - charges d'exploitation variables) approché
+        # par 1 - (operating_expenses / CA), plutôt que la marge nette qui
+        # intègre déjà les coûts fixes (division circulaire).
+        break_even = Decimal('0')
+        if statement and sales_total_ht > 0 and statement.operating_expenses:
+            contribution_ratio = Decimal('1') - (statement.operating_expenses / sales_total_ht)
+            if contribution_ratio > 0:
+                break_even = statement.operating_expenses / contribution_ratio
+
         return {
-            "total_sales": float(sales_total),
+            "total_sales": float(sales_total_ttc),
             "accounts_receivable": float(ar_total),
-            "collection_rate": float((payments_total / sales_total * 100) if sales_total > 0 else 0),
+            "collection_rate": float((payments_total / sales_total_ttc * 100) if sales_total_ttc > 0 else 0),
             "margin_net_pct": float(margin_net),
             "dso_days": float(dso),
             "bfr_value": float(bfr),
-            "break_even_point": float((statement.operating_expenses / (margin_net/100)) if statement and margin_net > 0 else 0),
+            "break_even_point": float(break_even),
             "solvency_ratio": float((statement.equity / statement.total_assets) if statement and statement.total_assets > 0 else 0),
             "currency": "DZD"
         }

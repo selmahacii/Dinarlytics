@@ -44,7 +44,7 @@ const Inventaire: React.FC = () => {
     const fetchArticles = async () => {
       try {
         setLoadingArticles(true);
-        const response = await apiClient.get<any[]>('/articles');
+        const response = await apiClient.get<any[]>('/articles/');
         setArticles(response.data || []);
       } catch (err) {
         console.error("Failed to fetch articles", err);

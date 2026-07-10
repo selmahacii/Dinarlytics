@@ -163,7 +163,14 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
             <WidgetSkeleton height="h-80" />
           ) : dashboardData ? (
             <TresorerieWidget
-              data={dashboardData.tresorerie}
+              data={{
+                // Le backend renvoie du snake_case ; le widget attend du camelCase.
+                soldeActuel: dashboardData.tresorerie?.solde_actuel ?? 0,
+                soldeItineraire: dashboardData.tresorerie?.solde_itineraire ?? 0,
+                entrees30j: dashboardData.tresorerie?.entrees_30j ?? 0,
+                sorties30j: dashboardData.tresorerie?.sorties_30j ?? 0,
+                fluxNetMensuel: dashboardData.tresorerie?.flux_net_mensuel ?? 0
+              }}
               devise="DZD"
               onAnalyseClick={() => handleAnalyseWithLIA('tresorerie')}
             />
@@ -180,7 +187,13 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
             <WidgetSkeleton height="h-80" />
           ) : dashboardData ? (
             <RatiosWidget
-              data={dashboardData.ratios}
+              data={{
+                liquidite: dashboardData.ratios?.liquidite ?? 0,
+                // autonomie/endettement backend en % (0-100) → ratio (0-1) attendu par le widget
+                autonomieFinanciere: (dashboardData.ratios?.autonomie_financiere ?? 0) / 100,
+                endettement: (dashboardData.ratios?.endettement ?? 0) / 100,
+                solvabilite: dashboardData.ratios?.solvabilite ?? 0
+              }}
               onAnalyseClick={() => handleAnalyseWithLIA('ratios')}
             />
           ) : (

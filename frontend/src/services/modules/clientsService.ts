@@ -55,7 +55,7 @@ const mapClientToBackend = (c: Partial<Client>): any => {
  */
 export const clientsService = {
     getAll: async () => {
-        const response = await apiClient.get<any[]>('/clients');
+        const response = await apiClient.get<any[]>('/clients/');
         return (Array.isArray(response.data) ? response.data : []).map(mapClientFromBackend);
     },
 
@@ -66,7 +66,7 @@ export const clientsService = {
 
     create: async (data: Partial<Client>) => {
         const payload = mapClientToBackend(data);
-        const response = await apiClient.post<any>('/clients', payload);
+        const response = await apiClient.post<any>('/clients/', payload);
         return mapClientFromBackend(response.data);
     },
 

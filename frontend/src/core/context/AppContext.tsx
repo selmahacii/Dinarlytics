@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { User, Devise } from '@/types';
 import { getFiscalRates, getTVARatePercent, calculateTVA, FiscalRates } from '@/shared/utils/fiscalRates';
 import { getCountryFromDevise, getFiscalDocumentsByCountry, Country, FiscalDocument } from '@/shared/utils/fiscalDocuments';
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
 import i18n from '@/i18n/config';
 
 export interface CompanyMetrics {
@@ -18,6 +18,7 @@ export interface CompanyMetrics {
   profitMargin: number;
   stockTurnover: number;
   averageInvoice: number;
+  inventoryValue?: number;
 }
 
 export interface CompanyData {
@@ -134,9 +135,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       accountsPayable: companyMetrics.totalPayables,
       cashBalance: companyMetrics.cashBalance,
       profitMargin: companyMetrics.profitMargin,
-      inventoryValue: Math.round(companyMetrics.revenue * 0.12),
-      stockTurnover: companyMetrics.stockTurnover || 4.2,
-      averageInvoice: companyMetrics.averageInvoice || 12500
+      inventoryValue: companyMetrics.inventoryValue ?? 0,
+      stockTurnover: companyMetrics.stockTurnover || 0,
+      averageInvoice: companyMetrics.averageInvoice || 0
     }
     : null;
 
@@ -184,7 +185,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const fetchMetrics = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/v1/dashboard/metrics');
+        // apiClient (et non axios brut) : baseURL /api/v1 + en-tête Authorization.
+        const response = await apiClient.get<CompanyMetrics>('/analytics/company-metrics');
         const data = response.data || {};
         setCompanyMetrics(data as CompanyMetrics);
       } catch (err) {

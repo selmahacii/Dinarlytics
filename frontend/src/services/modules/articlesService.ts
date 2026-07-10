@@ -50,7 +50,7 @@ function mapToBackend(data: Partial<Article>): any {
 
 export const articlesService = {
     getAll: async () => {
-        const response = await apiClient.get<ArticleResponse[]>('/articles');
+        const response = await apiClient.get<ArticleResponse[]>('/articles/');
         if (Array.isArray(response.data)) {
             return response.data.map(mapToFrontend);
         }
@@ -64,7 +64,7 @@ export const articlesService = {
 
     create: async (data: Partial<Article>) => {
         const apiData = mapToBackend(data);
-        const response = await apiClient.post<ArticleResponse>('/articles', apiData);
+        const response = await apiClient.post<ArticleResponse>('/articles/', apiData);
         return mapToFrontend(response.data);
     },
 

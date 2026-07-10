@@ -9,7 +9,7 @@ from app.core.models import Invoice, Client, Article, InvoiceItem, JournalEntry,
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from pydantic import BaseModel, Field
-from decimal import Decimal
+from decimal import Decimal, ROUND_CEILING
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
 from app.core.sequences import generate_document_number
 from datetime import datetime
@@ -208,7 +208,8 @@ async def create_invoice(
         ttc_provisoire = total_ht_global + total_tva_global
         if ttc_provisoire > Decimal('2500'): # Seuil d'exon????ration pratique
              # Calcul 1% arrondi au Dinar sup????rieur
-             timbre_fiscal = (ttc_provisoire * Decimal('0.01')).quantize(Decimal('1.00'))
+             # Arrondi au dinar supérieur (droit de timbre)
+             timbre_fiscal = (ttc_provisoire * Decimal('0.01')).quantize(Decimal('1'), rounding=ROUND_CEILING)
              # Plafond 2500 DA (Ancienne loi) ou 100 000 DA (LFC r????cente), on met 2500 par s????curit???? par d????faut ou configurable
              # Pour l'instant on laisse le calcul simple 1%
              
@@ -360,3 +361,26 @@ async def validate_invoice(
         statut=inv.status,
         items=items_resp
     )
+
+
+@router.post("/{invoice_id}/cancel", status_code=status.HTTP_200_OK)
+async def cancel_invoice(
+    invoice_id: str,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Cancel an invoice (only drafts or validated-but-unpaid invoices)."""
+    inv = db.query(Invoice).filter(
+        Invoice.id == invoice_id,
+        Invoice.company_id == current_user.company_id
+    ).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    if inv.payment_status == 'paid':
+        raise HTTPException(status_code=400, detail="Cannot cancel a paid invoice")
+
+    inv.status = 'annulee'
+    db.commit()
+
+    return {"id": str(inv.id), "status": inv.status, "message": "Invoice cancelled"}

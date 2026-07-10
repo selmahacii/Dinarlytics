@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 
 export interface AccountingStatementData {
   produits: number;
@@ -36,14 +35,14 @@ export function useAccountingStatements(period: string = 'mois') {
 
     const loadData = async () => {
       try {
-        // Try real API
-        const res = await axios.get(`/api/v1/reports/accounting-statements?period=${period}`);
-        if (isMounted) setData(res.data as AccountingStatementData);
-      } catch (err) {
-        console.warn('API Accounting failed, using local aggregator');
-        // FALLBACK TO LOCAL AGGREGATOR
+        // États comptables agrégés depuis les factures réelles (via l'API).
+        // Il n'existe pas d'endpoint /reports/accounting-statements côté
+        // backend : l'agrégateur est la source de vérité.
         const dynamicData = await accountingService.getDynamicStatements();
         if (isMounted) setData(dynamicData);
+      } catch (err) {
+        console.error('Failed to compute accounting statements', err);
+        if (isMounted) setError('Erreur lors du chargement des états comptables');
       } finally {
         if (isMounted) setLoading(false);
       }
