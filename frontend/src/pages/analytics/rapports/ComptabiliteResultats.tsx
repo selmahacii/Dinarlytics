@@ -275,74 +275,42 @@ const ComptabiliteResultats: React.FC = () => {
 
   const currentView = views.find(v => v.id === selectedView) || views[0];
 
-  // Données enrichies pour comptabilité
+  // Données pour comptabilité
   const accountingData = {
-    resultatNet: 485000,
-    margeNette: 8.5,
-    rentabilite: 12.3,
-    solvabilite: 1.8,
-    rotation: 6.2,
-    // Données pour Comptes & Journaux
-    nombreEcritures: 1248,
-    totalDebit: 5240000,
-    totalCredit: 5240000,
-    soldeBanque: 245000,
-    ecrituresEnAttente: 8,
-    // Données pour Résultats
-    chiffreAffaires: 5720000,
-    coutAchat: 3180000,
-    margeBrute: 2540000,
-    chargesExploitation: 1950000,
-    resultatExploitation: 590000,
-    tauxRentabiliteNette: 8.5,
-    seuilRentabilite: 4280000,
-    indicePerformance: 87
+    resultatNet: 0,
+    margeNette: 0,
+    rentabilite: 0,
+    solvabilite: 0,
+    rotation: 0,
+    nombreEcritures: 0,
+    totalDebit: 0,
+    totalCredit: 0,
+    soldeBanque: 0,
+    ecrituresEnAttente: 0,
+    chiffreAffaires: 0,
+    coutAchat: 0,
+    margeBrute: 0,
+    chargesExploitation: 0,
+    resultatExploitation: 0,
+    tauxRentabiliteNette: 0,
+    seuilRentabilite: 0,
+    indicePerformance: 0
   };
 
   // Journaux comptables
-  const journaux = [
-    { type: 'Ventes', compte: '70x', nbEcritures: 385, debit: 0, credit: 5720000, statut: 'validé' },
-    { type: 'Achats', compte: '60x', nbEcritures: 428, debit: 3180000, credit: 0, statut: 'validé' },
-    { type: 'Trésorerie', compte: '5xx', nbEcritures: 312, debit: 2850000, credit: 2640000, statut: 'validé' },
-    { type: 'Divers', compte: 'Autres', nbEcritures: 123, debit: 450000, credit: 420000, statut: 'en cours' }
-  ];
+  const journaux: { type: string; compte: string; nbEcritures: number; debit: number; credit: number; statut: string }[] = [];
 
   // Écritures récentes
-  const recentEntries = [
-    { date: '15/01/2024', piece: 'VTE-2024-015', libelle: 'Vente Client ABC', compte: '7011', debit: 0, credit: 185000, journal: 'Ventes', statut: 'validé' },
-    { date: '15/01/2024', piece: 'ACH-2024-042', libelle: 'Achat Fournisseur XYZ', compte: '6011', debit: 125000, credit: 0, journal: 'Achats', statut: 'validé' },
-    { date: '14/01/2024', piece: 'BQ-2024-028', libelle: 'Virement salaires', compte: '421', debit: 350000, credit: 0, journal: 'Trésorerie', statut: 'validé' },
-    { date: '14/01/2024', piece: 'VTE-2024-014', libelle: 'Vente Client DEF', compte: '7011', debit: 0, credit: 220000, journal: 'Ventes', statut: 'validé' },
-    { date: '13/01/2024', piece: 'DIV-2024-005', libelle: 'Dotation amortissement', compte: '6811', debit: 45000, credit: 0, journal: 'Divers', statut: 'brouillon' }
-  ];
+  const recentEntries: { date: string; piece: string; libelle: string; compte: string; debit: number; credit: number; journal: string; statut: string }[] = [];
 
   // Résultats mensuels
-  const monthlyResults = [
-    { month: 'Jan', ca: 920000, charges: 820000, resultat: 100000 },
-    { month: 'Fév', ca: 880000, charges: 790000, resultat: 90000 },
-    { month: 'Mar', ca: 980000, charges: 850000, resultat: 130000 },
-    { month: 'Avr', ca: 950000, charges: 830000, resultat: 120000 },
-    { month: 'Mai', ca: 1050000, charges: 880000, resultat: 170000 },
-    { month: 'Jun', ca: 1100000, charges: 920000, resultat: 180000 }
-  ];
+  const monthlyResults: { month: string; ca: number; charges: number; resultat: number }[] = [];
 
   // Répartition des charges
-  const chargesBreakdown = [
-    { type: 'Salaires & charges sociales', montant: 1248000, percentage: 32, color: 'bg-slate-700' },
-    { type: 'Achats de marchandises', montant: 1170000, percentage: 30, color: 'bg-slate-600' },
-    { type: 'Loyers & charges fixes', montant: 585000, percentage: 15, color: 'bg-slate-500' },
-    { type: 'Services extérieurs', montant: 468000, percentage: 12, color: 'bg-slate-400' },
-    { type: 'Autres charges', montant: 429000, percentage: 11, color: 'bg-slate-300' }
-  ];
+  const chargesBreakdown: { type: string; montant: number; percentage: number; color: string }[] = [];
 
   // Comparatif N vs N-1
-  const comparativeData = [
-    { indicator: 'Chiffre d\'affaires', n: 5720000, n1: 5280000, evolution: 8.3 },
-    { indicator: 'Marge brute', n: 2540000, n1: 2180000, evolution: 16.5 },
-    { indicator: 'Charges exploitation', n: 1950000, n1: 1880000, evolution: 3.7 },
-    { indicator: 'Résultat d\'exploitation', n: 590000, n1: 300000, evolution: 96.7 },
-    { indicator: 'Résultat net', n: 485000, n1: 245000, evolution: 98.0 }
-  ];
+  const comparativeData: { indicator: string; n: number; n1: number; evolution: number }[] = [];
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
@@ -1604,13 +1572,7 @@ const ComptabiliteResultats: React.FC = () => {
           </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {[
-                      { critere: 'Rentabilité', score: 92, icon: ChartBarIcon, color: 'emerald' },
-                      { critere: 'Liquidité', score: 88, icon: BanknotesIcon, color: 'blue' },
-                      { critere: 'Solvabilité', score: 85, icon: ScaleIcon, color: 'purple' },
-                      { critere: 'Croissance', score: 90, icon: ArrowTrendingUpIcon, color: 'amber' },
-                      { critere: 'Efficience', score: 80, icon: CheckCircleIcon, color: 'cyan' }
-                    ].map((crit, index) => {
+                    {([] as { critere: string; score: number; icon: typeof ChartBarIcon; color: string }[]).map((crit, index) => {
                       const CritIcon = crit.icon;
                       const colorClasses = {
                         emerald: {
@@ -1822,12 +1784,7 @@ const ComptabiliteResultats: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
-                        {[
-                          { produit: 'Produit A', ca: 2200000, couts: 1200000, marge: 1000000, margePct: 45.5 },
-                          { produit: 'Produit B', ca: 1800000, couts: 1080000, marge: 720000, margePct: 40.0 },
-                          { produit: 'Service C', ca: 1200000, couts: 600000, marge: 600000, margePct: 50.0 },
-                          { produit: 'Produit D', ca: 520000, couts: 300000, marge: 220000, margePct: 42.3 }
-                        ].map((item, index) => {
+                        {([] as { produit: string; ca: number; couts: number; marge: number; margePct: number }[]).map((item, index) => {
                           const performance = item.margePct >= 45 ? 'excellent' : item.margePct >= 40 ? 'bon' : 'moyen';
                           return (
                             <tr key={index} className="hover:bg-slate-50 transition-colors">
@@ -1872,36 +1829,7 @@ const ComptabiliteResultats: React.FC = () => {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    {
-                      titre: 'Optimiser les coûts variables',
-                      description: 'Réduire les coûts d\'achat de 5% pourrait améliorer la marge brute de 2.2%',
-                      impact: 'Impact: +125k DA/an',
-                      priorite: 'haute',
-                      icon: ArrowTrendingDownIcon
-                    },
-                    {
-                      titre: 'Augmenter le prix des produits à faible marge',
-                      description: 'Produit D: augmenter le prix de 8% pour atteindre 45% de marge',
-                      impact: 'Impact: +42k DA/an',
-                      priorite: 'moyenne',
-                      icon: ArrowTrendingUpIcon
-                    },
-                    {
-                      titre: 'Réduire les charges fixes',
-                      description: 'Négocier les contrats de services pour économiser 3% sur les charges',
-                      impact: 'Impact: +59k DA/an',
-                      priorite: 'haute',
-                      icon: CalculatorIcon
-                    },
-                    {
-                      titre: 'Développer les produits à forte marge',
-                      description: 'Augmenter les ventes de Service C (+15%) pour maximiser la rentabilité',
-                      impact: 'Impact: +90k DA/an',
-                      priorite: 'moyenne',
-                      icon: ChartBarIcon
-                    }
-                  ].map((reco, index) => {
+                  {([] as { titre: string; description: string; impact: string; priorite: string; icon: typeof ArrowTrendingDownIcon }[]).map((reco, index) => {
                     const RecoIcon = reco.icon;
                     return (
                       <div key={index} className="bg-white rounded-lg p-5 border border-amber-200 shadow-sm">
@@ -2188,7 +2116,7 @@ const ComptabiliteResultats: React.FC = () => {
                     <div className="text-center p-4 bg-emerald-50 rounded-lg border border-emerald-200">
                       <div className="text-xs font-semibold text-emerald-600 mb-2">Croissance vs N-1</div>
                       <div className="text-2xl font-bold text-emerald-700">
-                        +8.3%
+                        0%
                       </div>
                     </div>
                   </div>

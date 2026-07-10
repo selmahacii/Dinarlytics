@@ -53,101 +53,24 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
   const [isEditFournisseurModalOpen, setIsEditFournisseurModalOpen] = useState(false);
   const [editFournisseurData, setEditFournisseurData] = useState<any>({});
 
-  // Données de démonstration pour les rapports articles
   const statsGenerales = {
-    totalArticles: 1250,
-    articlesActifs: 980,
-    articlesEnRupture: 45,
-    articlesStockFaible: 125,
-    valeurStock: 2450000,
-    chiffreAffaires: 1850000,
-    margeBrute: 425000,
-    tauxRotation: 2.3
+    totalArticles: 0,
+    articlesActifs: 0,
+    articlesEnRupture: 0,
+    articlesStockFaible: 0,
+    valeurStock: 0,
+    chiffreAffaires: 0,
+    margeBrute: 0,
+    tauxRotation: 0
   };
 
-  const articlesPerformance = [
-    {
-      id: 'ART-001',
-      nom: 'Ordinateur Portable Dell',
-      code: 'PC-DELL-001',
-      categorie: 'Informatique',
-      prixVente: 85000,
-      stock: 25,
-      stockMin: 10,
-      ventesMois: 45,
-      chiffreAffaires: 3825000,
-      marge: 850000,
-      tauxRotation: 1.8,
-      statut: 'actif',
-      fournisseur: 'Tech Solutions SARL'
-    },
-    {
-      id: 'ART-002',
-      nom: 'Imprimante HP LaserJet',
-      code: 'IMP-HP-002',
-      categorie: 'Informatique',
-      prixVente: 125000,
-      stock: 8,
-      stockMin: 5,
-      ventesMois: 12,
-      chiffreAffaires: 1500000,
-      marge: 300000,
-      tauxRotation: 1.5,
-      statut: 'stock-faible',
-      fournisseur: 'Office Supplies Co'
-    },
-    {
-      id: 'ART-003',
-      nom: 'Bureau Moderne',
-      code: 'BUR-MOD-003',
-      categorie: 'Mobilier',
-      prixVente: 45000,
-      stock: 0,
-      stockMin: 3,
-      ventesMois: 8,
-      chiffreAffaires: 360000,
-      marge: 90000,
-      tauxRotation: 0,
-      statut: 'rupture',
-      fournisseur: 'Furniture Plus'
-    },
-    {
-      id: 'ART-004',
-      nom: 'Chaise Ergonomique',
-      code: 'CHI-ERG-004',
-      categorie: 'Mobilier',
-      prixVente: 25000,
-      stock: 35,
-      stockMin: 15,
-      ventesMois: 28,
-      chiffreAffaires: 700000,
-      marge: 175000,
-      tauxRotation: 0.8,
-      statut: 'actif',
-      fournisseur: 'Furniture Plus'
-    },
-    {
-      id: 'ART-005',
-      nom: 'Smartphone Samsung',
-      code: 'TEL-SAM-005',
-      categorie: 'Téléphonie',
-      prixVente: 65000,
-      stock: 15,
-      stockMin: 8,
-      ventesMois: 22,
-      chiffreAffaires: 1430000,
-      marge: 286000,
-      tauxRotation: 1.5,
-      statut: 'actif',
-      fournisseur: 'Mobile World'
-    }
-  ];
+  const articlesPerformance: any[] = [];
 
   const ventesParCategorie = {
     labels: ['Informatique', 'Mobilier', 'Téléphonie', 'Électronique', 'Accessoires'],
     datasets: [{
       label: `Chiffre d'Affaires (${currentDevise || 'DA'})`,
-      data: [5325000, 1060000, 1430000, 850000, 425000],
+      data: [0, 0, 0, 0, 0],
       backgroundColor: [
         'rgba(59, 130, 246, 0.8)',
         'rgba(16, 185, 129, 0.8)',
@@ -166,7 +89,6 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
     }]
   };
 
-  // Données de démonstration ou basées sur les props pour les rapports articles
   const displayedStats = stats || statsGenerales;
   const displayedArticles = articles.length > 0 ? articles : articlesPerformance;
 
@@ -175,8 +97,8 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
     articles.filter(a => a.stock > 20).length,
     articles.filter(a => a.stock <= 20 && a.stock > 0).length,
     articles.filter(a => a.stock === 0).length,
-    articles.filter(a => a.stock > 100).length // Surstock arbitraire > 100
-  ] : [980, 125, 45, 100];
+    articles.filter(a => a.stock > 100).length
+  ] : [0, 0, 0, 0];
 
   const evolutionVentes = {
     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
@@ -218,40 +140,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
     }]
   };
 
-  const performanceFournisseurs = [
-    {
-      fournisseur: 'Tech Solutions SARL',
-      articles: 45,
-      chiffreAffaires: 3825000,
-      delaiMoyen: 3,
-      qualite: 4.8,
-      statut: 'excellent'
-    },
-    {
-      fournisseur: 'Office Supplies Co',
-      articles: 32,
-      chiffreAffaires: 1500000,
-      delaiMoyen: 5,
-      qualite: 4.2,
-      statut: 'bon'
-    },
-    {
-      fournisseur: 'Furniture Plus',
-      articles: 28,
-      chiffreAffaires: 1060000,
-      delaiMoyen: 7,
-      qualite: 3.9,
-      statut: 'moyen'
-    },
-    {
-      fournisseur: 'Mobile World',
-      articles: 22,
-      chiffreAffaires: 1430000,
-      delaiMoyen: 4,
-      qualite: 4.5,
-      statut: 'bon'
-    }
-  ];
+  const performanceFournisseurs: any[] = [];
 
   const getStatutColor = (statut: string) => {
     switch (statut) {
@@ -472,21 +361,12 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
   );
 
   const renderVentes = () => {
-    // Données enrichies pour l'analyse financière
-    const indicateursFinanciers = {
-      margeGlobale: 32.5,
-      tauxCroissance: 18.3,
-      panierMoyen: 185000,
-      tauxConversion: 64.2
-    };
-
-    // Données de tendance mensuelle
     const tendanceMensuelle = {
       labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
       datasets: [
         {
           label: 'Ventes',
-          data: [2800000, 3200000, 3100000, 3800000, 4200000, 4500000],
+          data: [0, 0, 0, 0, 0, 0],
           borderColor: 'rgb(71, 85, 105)',
           backgroundColor: 'rgba(71, 85, 105, 0.1)',
           tension: 0.4,
@@ -494,7 +374,7 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
         },
         {
           label: 'Objectif',
-          data: [3000000, 3200000, 3400000, 3600000, 3800000, 4000000],
+          data: [0, 0, 0, 0, 0, 0],
           borderColor: 'rgb(16, 185, 129)',
           backgroundColor: 'transparent',
           borderDash: [5, 5],
@@ -503,11 +383,10 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
       ]
     };
 
-    // Données de répartition par canal de vente
     const ventesParCanal = {
       labels: ['E-commerce', 'Magasin', 'B2B', 'Distributeurs'],
       datasets: [{
-        data: [35, 28, 22, 15],
+        data: [0, 0, 0, 0],
         backgroundColor: [
           'rgb(59, 130, 246)',
           'rgb(16, 185, 129)',
@@ -698,37 +577,6 @@ const RapportsArticlesWidget: React.FC<RapportsArticlesWidgetProps> = ({ period 
           </Card>
         </div>
 
-        {/* Insights et recommandations */}
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-6 rounded-xl border border-slate-200 dark:border-slate-600">
-          <div className="flex items-start space-x-3">
-            <div className="bg-slate-700 dark:bg-slate-600 p-2 rounded-lg flex-shrink-0">
-              <CheckCircleIcon className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">💡 Insights & Recommandations</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Meilleure catégorie</p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Informatique</p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400">+25.4% ce mois</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">Représente 45% du CA total</p>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Opportunité</p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Téléphonie</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Potentiel +30%</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">Stock élevé, promotions recommandées</p>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">À surveiller</p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Mobilier</p>
-                  <p className="text-xs text-amber-600 dark:text-amber-400">Performance stable</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">Diversifier l'offre produits</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     );
   };

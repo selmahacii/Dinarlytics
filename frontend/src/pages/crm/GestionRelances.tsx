@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   BellAlertIcon,
   EnvelopeIcon,
@@ -36,7 +36,6 @@ interface Relance {
   level: RelanceLevel; status: RelanceStatus; lastContact: string | null;
   commercial: string; notes: string;
 }
-// Mock relances removed, using dynamic invoices.
 
 const RELANCE_TEMPLATES = {
   level1: { subject: 'relances.template.l1_subject', tone: 'relances.template.l1_tone', delay: '30' },
@@ -384,7 +383,7 @@ const GestionRelances: React.FC = () => {
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{t('relances.detail.client')}</label>
               <select required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold">
                 <option value="">{t('crm.clients.placeholders.select_client') || 'Sélectionner un client'}</option>
-                {MOCK_RELANCES.map(r => (
+                {relances.map(r => (
                   <option key={r.id} value={r.client}>{r.client}</option>
                 ))}
               </select>

@@ -46,160 +46,26 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
     commentaire: ''
   });
 
-  // Données de démonstration pour la gestion des paiements
   const statsGenerales = {
-    totalPaiements: 125,
-    paiementsPayes: 98,
-    paiementsProgrammes: 15,
-    paiementsEnRetard: 12,
-    montantTotal: 2450000,
-    montantPaye: 1920000,
-    montantEnRetard: 530000,
-    tauxReussite: 78.4,
-    delaiMoyen: 2.3
+    totalPaiements: 0,
+    paiementsPayes: 0,
+    paiementsProgrammes: 0,
+    paiementsEnRetard: 0,
+    montantTotal: 0,
+    montantPaye: 0,
+    montantEnRetard: 0,
+    tauxReussite: 0,
+    delaiMoyen: 0
   };
 
-  const paiementsRecents = [
-    {
-      id: 'PAY-2024-001',
-      fournisseur: 'Fournisseur ABC SPA',
-      facture: 'FAC-2024-001',
-      description: 'Matériel de bureau',
-      datePaiement: '2024-01-15',
-      heure: '14:30',
-      montant: 125000,
-      statut: 'paye',
-      mode: 'virement',
-      reference: 'VIR-2024-001',
-      compte: '1234567890',
-      echeance: '2024-01-15',
-      retard: 0,
-      commentaire: 'Échéance respectée'
-    },
-    {
-      id: 'PAY-2024-002',
-      fournisseur: 'Tech Solutions SARL',
-      facture: 'FAC-2024-002',
-      description: 'Équipements informatiques',
-      datePaiement: '2024-02-18',
-      heure: null,
-      montant: 275000,
-      statut: 'programme',
-      mode: 'virement-auto',
-      reference: 'VIR-2024-002',
-      compte: '0987654321',
-      echeance: '2024-02-18',
-      retard: 0,
-      commentaire: 'Programmé pour le 18/02/2024'
-    },
-    {
-      id: 'PAY-2024-003',
-      fournisseur: 'Office Supplies Co',
-      facture: 'FAC-2024-003',
-      description: 'Fournitures de bureau',
-      datePaiement: '2024-02-10',
-      heure: null,
-      montant: 85000,
-      statut: 'retard',
-      mode: 'virement',
-      reference: 'VIR-2024-003',
-      compte: '1122334455',
-      echeance: '2024-02-10',
-      retard: 5,
-      commentaire: 'ÉCHÉANCE DÉPASSÉE - 10/02/2024'
-    },
-    {
-      id: 'PAY-2024-004',
-      fournisseur: 'Logistics Pro EURL',
-      facture: 'FAC-2024-004',
-      description: 'Services de transport',
-      datePaiement: '2024-01-22',
-      heure: '09:15',
-      montant: 45000,
-      statut: 'paye',
-      mode: 'cheque',
-      reference: 'CHQ-2024-001',
-      compte: '0001234',
-      echeance: '2024-01-25',
-      retard: -3,
-      commentaire: 'Paiement anticipé'
-    },
-    {
-      id: 'PAY-2024-005',
-      fournisseur: 'Maintenance Plus SPA',
-      facture: 'FAC-2024-005',
-      description: 'Services de maintenance',
-      datePaiement: null,
-      heure: null,
-      montant: 180000,
-      statut: 'en-cours',
-      mode: 'virement',
-      reference: 'VIR-2024-004',
-      compte: '5566778899',
-      echeance: '2024-02-20',
-      retard: 0,
-      commentaire: 'EN COURS - Traitement bancaire'
-    }
-  ];
+  const paiementsRecents: any[] = [];
 
-  const paiementsProgrammes = [
-    {
-      id: 'PAY-2024-006',
-      fournisseur: 'Électricité et Gaz',
-      facture: 'FAC-2024-006',
-      description: 'Facture mensuelle électricité',
-      dateProgrammee: '2024-02-25',
-      montant: 125000,
-      mode: 'prelevement',
-      reference: 'PRE-2024-001',
-      compte: '9876543210'
-    },
-    {
-      id: 'PAY-2024-007',
-      fournisseur: 'Télécom Algérie',
-      facture: 'FAC-2024-007',
-      description: 'Abonnement téléphonique',
-      dateProgrammee: '2024-02-28',
-      montant: 45000,
-      mode: 'virement-auto',
-      reference: 'VIR-2024-005',
-      compte: '1122334455'
-    },
-    {
-      id: 'PAY-2024-008',
-      fournisseur: 'Assurance ABC',
-      facture: 'FAC-2024-008',
-      description: 'Prime d\'assurance annuelle',
-      dateProgrammee: '2024-03-01',
-      montant: 320000,
-      mode: 'virement',
-      reference: 'VIR-2024-006',
-      compte: '5566778899'
-    }
-  ];
+  const paiementsProgrammes: any[] = [];
 
   const statistiquesData = {
-    evolution: [
-      { mois: 'Jan', payes: 45, enRetard: 8, montant: 850000 },
-      { mois: 'Fév', payes: 52, enRetard: 5, montant: 920000 },
-      { mois: 'Mar', payes: 48, enRetard: 12, montant: 780000 },
-      { mois: 'Avr', payes: 61, enRetard: 7, montant: 1050000 },
-      { mois: 'Mai', payes: 55, enRetard: 9, montant: 950000 },
-      { mois: 'Jun', payes: 58, enRetard: 6, montant: 980000 }
-    ],
-    parMode: [
-      { mode: 'Virement', pourcentage: 45, montant: 1102500 },
-      { mode: 'Chèque', pourcentage: 25, montant: 612500 },
-      { mode: 'Prélèvement', pourcentage: 20, montant: 490000 },
-      { mode: 'Espèces', pourcentage: 10, montant: 245000 }
-    ],
-    parFournisseur: [
-      { fournisseur: 'Fournisseur ABC SPA', paiements: 15, montant: 450000 },
-      { fournisseur: 'Tech Solutions SARL', paiements: 12, montant: 380000 },
-      { fournisseur: 'Office Supplies Co', paiements: 10, montant: 280000 },
-      { fournisseur: 'Logistics Pro EURL', paiements: 8, montant: 220000 },
-      { fournisseur: 'Autres', paiements: 20, montant: 1120000 }
-    ]
+    evolution: [] as { mois: string; payes: number; enRetard: number; montant: number }[],
+    parMode: [] as { mode: string; pourcentage: number; montant: number }[],
+    parFournisseur: [] as { fournisseur: string; paiements: number; montant: number }[]
   };
 
   const getStatutColor = (statut: string) => {
@@ -389,9 +255,8 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
       return;
     }
     
-    // Simuler l'ajout du paiement
     alert(`Paiement créé avec succès !\n\nFournisseur: ${nouveauPaiement.fournisseur}\nFacture: ${nouveauPaiement.facture}\nMontant: ${formatCurrency(parseFloat(nouveauPaiement.montant))}`);
-    
+
     // Réinitialiser le formulaire
     setNouveauPaiement({
       fournisseur: '',
@@ -435,11 +300,6 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
                 required
               >
                 <option value="">Sélectionner un fournisseur</option>
-                <option value="Fournisseur ABC SPA">Fournisseur ABC SPA</option>
-                <option value="Tech Solutions SARL">Tech Solutions SARL</option>
-                <option value="Office Supplies Co">Office Supplies Co</option>
-                <option value="Logistics Pro EURL">Logistics Pro EURL</option>
-                <option value="Maintenance Plus SPA">Maintenance Plus SPA</option>
               </select>
             </div>
             <div>
@@ -1280,271 +1140,6 @@ const GestionPaiementsWidget: React.FC<GestionPaiementsWidgetProps> = () => {
               >
                 Sauvegarder
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Section Analyse Financière Détaillée */}
-      {activeView === 'overview' && (
-        <div className="mt-8 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-800 dark:to-blue-900/20 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h4 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center">
-              <ChartBarIcon className="h-6 w-6 mr-2" />
-              📊 Analyse Financière des Paiements
-            </h4>
-            <div className="flex items-center space-x-2">
-              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
-                🔍 Analyse Avancée
-              </span>
-              <button className="px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-medium rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-                Détails
-              </button>
-            </div>
-          </div>
-
-          {/* Métriques Financières des Paiements */}
-          <div className="mb-8">
-            <h5 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center">
-              <CurrencyDollarIcon className="h-5 w-5 mr-2" />
-              💰 Métriques Financières Clés
-            </h5>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-green-200 dark:border-green-600">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Taux de Réussite</span>
-                  <span className="px-2 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 text-xs rounded-full">Excellent</span>
-                </div>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">78.4%</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Paiements réussis</p>
-                <div className="mt-2 flex items-center">
-                  <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-xs text-green-600 dark:text-green-400">+2.1% vs mois dernier</span>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Délai Moyen de Paiement</span>
-                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs rounded-full">Rapide</span>
-                </div>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">2.3</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">jours</p>
-                <div className="mt-2 flex items-center">
-                  <ArrowTrendingDownIcon className="h-4 w-4 text-blue-500 mr-1" />
-                  <span className="text-xs text-blue-600 dark:text-blue-400">-0.5 jour vs mois dernier</span>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-orange-200 dark:border-orange-600">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Montant Moyen</span>
-                  <span className="px-2 py-1 bg-orange-100 dark:bg-orange-800 text-orange-800 dark:text-orange-200 text-xs rounded-full">Stable</span>
-                </div>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">19.6k</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{currentDevise || 'DA'} par paiement</p>
-                <div className="mt-2 flex items-center">
-                  <ArrowTrendingUpIcon className="h-4 w-4 text-orange-500 mr-1" />
-                  <span className="text-xs text-orange-600 dark:text-orange-400">+1.2k vs mois dernier</span>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-purple-200 dark:border-purple-600">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Taux de Retard</span>
-                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-800 text-purple-800 dark:text-purple-200 text-xs rounded-full">Faible</span>
-                </div>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">9.6%</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Paiements en retard</p>
-                <div className="mt-2 flex items-center">
-                  <ArrowTrendingDownIcon className="h-4 w-4 text-purple-500 mr-1" />
-                  <span className="text-xs text-purple-600 dark:text-purple-400">-1.8% vs mois dernier</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Analyse des Modes de Paiement */}
-          <div className="mb-8">
-            <h5 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center">
-              <CreditCardIcon className="h-5 w-5 mr-2" />
-              💳 Analyse des Modes de Paiement
-            </h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-600">
-                <h6 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Répartition par Mode</h6>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Virement</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-slate-900 dark:text-slate-100">45%</span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400">+2.3%</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Virement Auto</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-slate-900 dark:text-slate-100">32%</span>
-                      <span className="text-xs text-green-600 dark:text-green-400">+1.8%</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Chèque</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-slate-900 dark:text-slate-100">18%</span>
-                      <span className="text-xs text-orange-600 dark:text-orange-400">-1.2%</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Autres</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-slate-900 dark:text-slate-100">5%</span>
-                      <span className="text-xs text-purple-600 dark:text-purple-400">stable</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-600">
-                <h6 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Performance par Mode</h6>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Virement Auto</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-green-600 dark:text-green-400">98.2%</span>
-                      <span className="text-xs text-green-600 dark:text-green-400">🥇</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Virement Manuel</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-blue-600 dark:text-blue-400">94.5%</span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400">🥈</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Chèque</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-orange-600 dark:text-orange-400">87.3%</span>
-                      <span className="text-xs text-orange-600 dark:text-orange-400">🥉</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Autres</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-bold text-purple-600 dark:text-purple-400">82.1%</span>
-                      <span className="text-xs text-purple-600 dark:text-purple-400">📊</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Analyse des Fournisseurs */}
-          <div className="mb-6">
-            <h5 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center">
-              <BuildingOfficeIcon className="h-5 w-5 mr-2" />
-              🏢 Analyse des Fournisseurs
-            </h5>
-            <div className="bg-white dark:bg-slate-800 p-5 rounded-lg border border-slate-200 dark:border-slate-600">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <h6 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Top Fournisseurs</h6>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Tech Solutions SARL</span>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(275000)}</span>
-                        <span className="text-xs text-blue-600 dark:text-blue-400">+12%</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Fournisseur ABC SPA</span>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(125000)}</span>
-                        <span className="text-xs text-green-600 dark:text-green-400">+8%</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-600 dark:text-slate-400">Office Supplies Co</span>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(85000)}</span>
-                        <span className="text-xs text-orange-600 dark:text-orange-400">-3%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h6 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Risques de Paiement</h6>
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <ExclamationTriangleIcon className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Office Supplies Co - 2 retards ce mois</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <CheckCircleIcon className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Tech Solutions SARL - Excellent historique</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <CheckCircleIcon className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Fournisseur ABC SPA - Paiements réguliers</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h6 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Recommandations IA</h6>
-                  <div className="space-y-2">
-                    <div className="flex items-start space-x-2">
-                      <CheckCircleIcon className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Augmenter les virements automatiques</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <CheckCircleIcon className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Négocier avec Office Supplies Co</span>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <CheckCircleIcon className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">Optimiser les délais de paiement</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions pour l'Analyse */}
-          <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-600">
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
-                <DocumentArrowDownIcon className="h-4 w-4" />
-                <span>Exporter Analyse</span>
-              </button>
-              <button className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium">
-                <ChartPieIcon className="h-4 w-4" />
-                <span>Graphiques Détaillés</span>
-              </button>
-              <button className="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors font-medium">
-                <PrinterIcon className="h-4 w-4" />
-                <span>Rapport Complet</span>
-              </button>
-            </div>
-            <div className="text-sm text-slate-500 dark:text-slate-400">
-              📊 Analyse mise à jour: {new Date().toLocaleDateString('fr-FR')} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
         </div>

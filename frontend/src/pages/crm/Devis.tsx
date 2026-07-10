@@ -23,43 +23,35 @@ import {
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { useApp } from '@core/context/AppContext';
 import Modal from '@shared/components/UI/Modal';
-
-type DevisStatus = 'draft' | 'sent' | 'accepted' | 'refused' | 'expired';
-
-interface DevisItem {
-  designation: string;
-  qty: number;
-  unitPrice: number;
-  tva: number;
-}
-
-interface Devis {
-  id: string;
-  numero: string;
-  client: string;
-  clientEmail: string;
-  dateCreation: string;
-  dateExpiration: string;
-  status: DevisStatus;
-  montantHT: number;
-  montantTVA: number;
-  montantTTC: number;
-  items: DevisItem[];
-  notes: string;
-  commercial: string;
-}
-
-const MOCK_DEVIS: Devis[] = [];
+import { useDevis } from '@shared/hooks/useDevis';
+import { useClients } from '@shared/hooks/useClients';
+import type { Devis, DevisStatus } from '@/services/modules/quotesService';
 
 const Devis: React.FC = () => {
   const { t } = useTranslation();
   const { formatCurrency } = useApp();
+
+  const {
+    devis: allDevis,
+    loading,
+    error,
+    createDevis,
+    updateStatus,
+    convertToInvoice,
+  } = useDevis();
+  const { clients } = useClients();
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<DevisStatus | 'all'>('all');
   const [selectedDevis, setSelectedDevis] = useState<Devis | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  const [newClientId, setNewClientId] = useState('');
+  const [newExpiry, setNewExpiry] = useState('');
+  const [newNotes, setNewNotes] = useState('');
+  const [newItems, setNewItems] = useState([{ description: '', quantity: 1, unit_price: 0, tva_rate: 0.19 }]);
 
   const statusConfig: Record<DevisStatus, { label: string; color: string; icon: React.ComponentType<any> }> = {
     draft:    { label: t('devis.status.draft'),    color: 'bg-slate-100 text-slate-600',   icon: PencilIcon },
@@ -70,22 +62,70 @@ const Devis: React.FC = () => {
   };
 
   const filtered = useMemo(() => {
-    return MOCK_DEVIS.filter(d => {
+    return allDevis.filter(d => {
       const matchSearch = d.client.toLowerCase().includes(search.toLowerCase()) ||
                           d.numero.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === 'all' || d.status === statusFilter;
       return matchSearch && matchStatus;
     });
-  }, [search, statusFilter]);
+  }, [allDevis, search, statusFilter]);
 
   const kpis = useMemo(() => ({
-    total: MOCK_DEVIS.length,
-    totalValue: MOCK_DEVIS.reduce((a, b) => a + b.montantTTC, 0),
-    accepted: MOCK_DEVIS.filter(d => d.status === 'accepted').length,
-    acceptedRate: Math.round((MOCK_DEVIS.filter(d => d.status === 'accepted').length / MOCK_DEVIS.length) * 100),
-    pending: MOCK_DEVIS.filter(d => d.status === 'sent').length,
-    pendingValue: MOCK_DEVIS.filter(d => d.status === 'sent').reduce((a, b) => a + b.montantTTC, 0),
-  }), []);
+    total: allDevis.length,
+    totalValue: allDevis.reduce((a, b) => a + b.montantTTC, 0),
+    accepted: allDevis.filter(d => d.status === 'accepted').length,
+    acceptedRate: allDevis.length ? Math.round((allDevis.filter(d => d.status === 'accepted').length / allDevis.length) * 100) : 0,
+    pending: allDevis.filter(d => d.status === 'sent').length,
+    pendingValue: allDevis.filter(d => d.status === 'sent').reduce((a, b) => a + b.montantTTC, 0),
+  }), [allDevis]);
+
+  const resetCreateForm = () => {
+    setNewClientId('');
+    setNewExpiry('');
+    setNewNotes('');
+    setNewItems([{ description: '', quantity: 1, unit_price: 0, tva_rate: 0.19 }]);
+    setActionError(null);
+  };
+
+  const handleCreateDevis = async () => {
+    if (!newClientId || newItems.length === 0) {
+      setActionError(t('devis.create_modal.validation_error') || 'Client et au moins une ligne requis');
+      return;
+    }
+    try {
+      await createDevis({
+        client_id: newClientId,
+        date_creation: new Date().toISOString().slice(0, 10),
+        date_expiration: newExpiry || undefined,
+        notes: newNotes || undefined,
+        items: newItems
+          .filter(it => it.description && it.quantity > 0)
+          .map(it => ({
+            description: it.description,
+            quantity: it.quantity,
+            unit_price: it.unit_price,
+            tva_rate: it.tva_rate,
+          })),
+      });
+      resetCreateForm();
+      setIsCreateOpen(false);
+    } catch (err: any) {
+      setActionError(err?.response?.data?.detail || err.message || 'Erreur lors de la création');
+    }
+  };
+
+  const handleSend = async (id: string) => {
+    try { await updateStatus(id, 'sent'); } catch (err: any) { setActionError(err.message); }
+  };
+  const handleAccept = async (id: string) => {
+    try { await updateStatus(id, 'accepted'); } catch (err: any) { setActionError(err.message); }
+  };
+  const handleRefuse = async (id: string) => {
+    try { await updateStatus(id, 'refused'); } catch (err: any) { setActionError(err.message); }
+  };
+  const handleConvert = async (id: string) => {
+    try { await convertToInvoice(id); setIsDetailOpen(false); } catch (err: any) { setActionError(err.message); }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -106,6 +146,12 @@ const Devis: React.FC = () => {
           {t('devis.create_btn')}
         </button>
       </div>
+
+      {(error || actionError) && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">
+          {error || actionError}
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -159,6 +205,12 @@ const Devis: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
+              {loading && (
+                <tr><td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-sm">{t('common.loading')}</td></tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr><td colSpan={7} className="px-5 py-10 text-center text-slate-400 text-sm">{t('devis.no_results') || t('common.no_data', { defaultValue: 'Aucun devis' })}</td></tr>
+              )}
               {filtered.map(devis => {
                 const Cfg = statusConfig[devis.status];
                 const StatusIcon = Cfg.icon;
@@ -188,12 +240,12 @@ const Devis: React.FC = () => {
                           <EyeIcon className="h-4 w-4" />
                         </button>
                         {devis.status === 'draft' && (
-                          <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title={t('devis.actions.send')}>
+                          <button onClick={() => handleSend(devis.id)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title={t('devis.actions.send')}>
                             <PaperAirplaneIcon className="h-4 w-4" />
                           </button>
                         )}
                         {devis.status === 'accepted' && (
-                          <button className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title={t('devis.actions.convert')}>
+                          <button onClick={() => handleConvert(devis.id)} className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title={t('devis.actions.convert')}>
                             <ArrowPathIcon className="h-4 w-4" />
                           </button>
                         )}
@@ -297,22 +349,22 @@ const Devis: React.FC = () => {
                 <DocumentArrowDownIcon className="h-4 w-4 mr-2" />{t('devis.actions.download')} PDF
               </button>
               {selectedDevis.status === 'draft' && (
-                <button className="flex items-center px-5 py-2 text-sm font-bold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">
+                <button onClick={() => handleSend(selectedDevis.id)} className="flex items-center px-5 py-2 text-sm font-bold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">
                   <CheckCircleIcon className="h-4 w-4 mr-2" />{t('devis.actions.validate_send') || 'Valider & Envoyer'}
                 </button>
               )}
               {selectedDevis.status === 'sent' && (
                 <div className="flex gap-2">
-                  <button className="flex items-center px-4 py-2 text-sm font-bold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                  <button onClick={() => handleAccept(selectedDevis.id)} className="flex items-center px-4 py-2 text-sm font-bold bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
                     <CheckCircleIcon className="h-4 w-4 mr-2" />{t('devis.actions.accept') || 'Accepter'}
                   </button>
-                  <button className="flex items-center px-4 py-2 text-sm font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
+                  <button onClick={() => handleRefuse(selectedDevis.id)} className="flex items-center px-4 py-2 text-sm font-bold bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">
                     <XCircleIcon className="h-4 w-4 mr-2" />{t('devis.actions.refuse') || 'Refuser'}
                   </button>
                 </div>
               )}
               {selectedDevis.status === 'accepted' && (
-                <button className="flex items-center px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors">
+                <button onClick={() => handleConvert(selectedDevis.id)} className="flex items-center px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors">
                   <ArrowPathIcon className="h-4 w-4 mr-2" />{t('devis.actions.convert_to_invoice')}
                 </button>
               )}
@@ -321,12 +373,113 @@ const Devis: React.FC = () => {
         </Modal>
       )}
 
-      {/* Create Modal Placeholder */}
-      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title={t('devis.create_modal.title')} size="xl">
-        <div className="p-4 text-center text-slate-500 py-12">
-          <DocumentTextIcon className="h-12 w-12 mx-auto text-slate-300 mb-4" />
-          <p className="font-semibold text-slate-700">{t('devis.create_modal.placeholder')}</p>
-          <p className="text-sm mt-2">{t('devis.create_modal.desc')}</p>
+      {/* Create Modal */}
+      <Modal isOpen={isCreateOpen} onClose={() => { setIsCreateOpen(false); resetCreateForm(); }} title={t('devis.create_modal.title')} size="xl">
+        <div className="p-2 space-y-4">
+          {actionError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">{actionError}</div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('devis.detail.client')}</label>
+              <select
+                value={newClientId}
+                onChange={e => setNewClientId(e.target.value)}
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              >
+                <option value="">{t('devis.create_modal.select_client') || 'Sélectionner un client'}</option>
+                {clients.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.nom || c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('devis.detail.expires')}</label>
+              <input
+                type="date"
+                value={newExpiry}
+                onChange={e => setNewExpiry(e.target.value)}
+                className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-slate-500 uppercase">{t('devis.detail.items')}</label>
+              <button
+                type="button"
+                onClick={() => setNewItems([...newItems, { description: '', quantity: 1, unit_price: 0, tva_rate: 0.19 }])}
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
+              >
+                + {t('devis.create_modal.add_line') || 'Ajouter une ligne'}
+              </button>
+            </div>
+            <div className="space-y-2">
+              {newItems.map((item, idx) => (
+                <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                  <input
+                    type="text" placeholder={t('devis.detail.designation') as string}
+                    value={item.description}
+                    onChange={e => setNewItems(newItems.map((it, i) => i === idx ? { ...it, description: e.target.value } : it))}
+                    className="col-span-5 text-sm border border-slate-200 rounded-lg px-2 py-1.5"
+                  />
+                  <input
+                    type="number" min={0} placeholder={t('devis.detail.qty') as string}
+                    value={item.quantity}
+                    onChange={e => setNewItems(newItems.map((it, i) => i === idx ? { ...it, quantity: Number(e.target.value) } : it))}
+                    className="col-span-2 text-sm border border-slate-200 rounded-lg px-2 py-1.5"
+                  />
+                  <input
+                    type="number" min={0} placeholder={t('devis.detail.unit_price') as string}
+                    value={item.unit_price}
+                    onChange={e => setNewItems(newItems.map((it, i) => i === idx ? { ...it, unit_price: Number(e.target.value) } : it))}
+                    className="col-span-3 text-sm border border-slate-200 rounded-lg px-2 py-1.5"
+                  />
+                  <input
+                    type="number" min={0} max={1} step={0.01} placeholder="TVA"
+                    value={item.tva_rate}
+                    onChange={e => setNewItems(newItems.map((it, i) => i === idx ? { ...it, tva_rate: Number(e.target.value) } : it))}
+                    className="col-span-1 text-sm border border-slate-200 rounded-lg px-2 py-1.5"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setNewItems(newItems.filter((_, i) => i !== idx))}
+                    disabled={newItems.length === 1}
+                    className="col-span-1 p-1.5 text-slate-400 hover:text-red-600 disabled:opacity-30"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{t('devis.detail.notes')}</label>
+            <textarea
+              value={newNotes}
+              onChange={e => setNewNotes(e.target.value)}
+              rows={3}
+              className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-slate-300"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+            <button
+              onClick={() => { setIsCreateOpen(false); resetCreateForm(); }}
+              className="px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+            >
+              {t('common.cancel')}
+            </button>
+            <button
+              onClick={handleCreateDevis}
+              className="px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors"
+            >
+              {t('devis.create_btn')}
+            </button>
+          </div>
         </div>
       </Modal>
     </div>

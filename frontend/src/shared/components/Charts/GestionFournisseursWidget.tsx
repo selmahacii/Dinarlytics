@@ -34,101 +34,32 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Données de démonstration pour les fournisseurs
-  const fournisseursData = [
-    {
-      id: '1',
-      nom: 'Tech Solutions SARL',
-      contact: 'Ahmed Benali',
-      email: 'ahmed@techsolutions.dz',
-      telephone: '+213 555 123 456',
-      adresse: 'Alger, Algérie',
-      specialite: 'Équipements informatiques',
-      prix: 85000,
-      delai: 3,
-      qualite: 4.8,
-      derniereCommande: '2024-01-15',
-      statut: 'actif',
-      articles: 45,
-      chiffreAffaires: 3825000,
-      evaluation: 'excellent'
-    },
-    {
-      id: '2',
-      nom: 'Office Supplies Co',
-      contact: 'Fatima Khelil',
-      email: 'fatima@officesupplies.dz',
-      telephone: '+213 555 234 567',
-      adresse: 'Oran, Algérie',
-      specialite: 'Fournitures de bureau',
-      prix: 45000,
-      delai: 5,
-      qualite: 4.2,
-      derniereCommande: '2024-01-12',
-      statut: 'actif',
-      articles: 32,
-      chiffreAffaires: 1500000,
-      evaluation: 'bon'
-    },
-    {
-      id: '3',
-      nom: 'Furniture Plus',
-      contact: 'Omar Cherif',
-      email: 'omar@furnitureplus.dz',
-      telephone: '+213 555 345 678',
-      adresse: 'Constantine, Algérie',
-      specialite: 'Mobilier de bureau',
-      prix: 120000,
-      delai: 7,
-      qualite: 3.9,
-      derniereCommande: '2024-01-10',
-      statut: 'actif',
-      articles: 28,
-      chiffreAffaires: 1060000,
-      evaluation: 'moyen'
-    },
-    {
-      id: '4',
-      nom: 'Mobile World',
-      contact: 'Yasmine Boudjedra',
-      email: 'yasmine@mobileworld.dz',
-      telephone: '+213 555 456 789',
-      adresse: 'Annaba, Algérie',
-      specialite: 'Téléphonie mobile',
-      prix: 125000,
-      delai: 4,
-      qualite: 4.5,
-      derniereCommande: '2024-01-08',
-      statut: 'actif',
-      articles: 22,
-      chiffreAffaires: 1430000,
-      evaluation: 'bon'
-    },
-    {
-      id: '5',
-      nom: 'ElectroMax',
-      contact: 'Karim Saadi',
-      email: 'karim@electromax.dz',
-      telephone: '+213 555 567 890',
-      adresse: 'Blida, Algérie',
-      specialite: 'Électronique grand public',
-      prix: 95000,
-      delai: 6,
-      qualite: 3.7,
-      derniereCommande: '2024-01-05',
-      statut: 'attention',
-      articles: 18,
-      chiffreAffaires: 780000,
-      evaluation: 'moyen'
-    }
-  ];
+  interface FournisseurItem {
+    id: string;
+    nom: string;
+    contact: string;
+    email: string;
+    telephone: string;
+    adresse: string;
+    specialite: string;
+    prix: number;
+    delai: number;
+    qualite: number;
+    derniereCommande: string;
+    statut: string;
+    articles: number;
+    chiffreAffaires: number;
+    evaluation: string;
+  }
+
+  const fournisseursData: FournisseurItem[] = [];
 
   const statsGenerales = {
     totalFournisseurs: fournisseursData.length,
     fournisseursActifs: fournisseursData.filter(f => f.statut === 'actif').length,
     fournisseursAttention: fournisseursData.filter(f => f.statut === 'attention').length,
-    delaiMoyen: 5.0,
-    qualiteMoyenne: 4.2,
+    delaiMoyen: 0,
+    qualiteMoyenne: 0,
     chiffreAffairesTotal: fournisseursData.reduce((sum, f) => sum + f.chiffreAffaires, 0)
   };
 
@@ -186,15 +117,13 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
   };
 
   const renderAnalytics = () => {
-    // Données pour l'analyse financière des fournisseurs
     const performanceGlobale = {
-      tauxPonctualite: 92.5,
-      tauxConformite: 88.3,
-      economiesRealisees: 285000,
-      fournisseursExcellents: 2
+      tauxPonctualite: 0,
+      tauxConformite: 0,
+      economiesRealisees: 0,
+      fournisseursExcellents: 0
     };
 
-    // Performance par fournisseur (données enrichies)
     const performanceParFournisseur = {
       labels: fournisseursData.map(f => f.nom.split(' ')[0]),
       datasets: [
@@ -208,13 +137,12 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
       ]
     };
 
-    // Évolution des coûts
     const evolutionCouts = {
-      labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+      labels: [],
       datasets: [
         {
           label: 'Coûts Totaux',
-          data: [850000, 920000, 880000, 950000, 1020000, 980000],
+          data: [],
           borderColor: 'rgb(239, 68, 68)',
           backgroundColor: 'rgba(239, 68, 68, 0.1)',
           tension: 0.4,
@@ -222,7 +150,7 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
         },
         {
           label: 'Budget Prévu',
-          data: [900000, 900000, 950000, 950000, 1000000, 1000000],
+          data: [],
           borderColor: 'rgb(16, 185, 129)',
           backgroundColor: 'transparent',
           borderDash: [5, 5],
@@ -231,7 +159,6 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
       ]
     };
 
-    // Répartition des achats
     const repartitionAchats = {
       labels: fournisseursData.map(f => f.nom.split(' ')[0]),
       datasets: [{
@@ -310,7 +237,7 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
               <div className="text-3xl font-bold text-blue-900 dark:text-blue-100">{performanceGlobale.tauxPonctualite}%</div>
               <div className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">Taux de Ponctualité</div>
               <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
-                <span className="font-semibold">Excellent</span> - 4/5 fournisseurs
+                <span className="font-semibold">{statsGenerales.fournisseursActifs}/{statsGenerales.totalFournisseurs}</span> fournisseurs actifs
               </div>
             </div>
           </div>
@@ -327,7 +254,7 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
               <div className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">{performanceGlobale.tauxConformite}%</div>
               <div className="text-sm text-emerald-700 dark:text-emerald-300 font-medium mt-1">Taux de Conformité</div>
               <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">
-                <span className="font-semibold">+5.2%</span> vs trimestre dernier
+                <span className="font-semibold">Conformité globale</span>
               </div>
             </div>
           </div>
@@ -610,97 +537,6 @@ const GestionFournisseursWidget: React.FC<GestionFournisseursWidgetProps> = ({ p
           </div>
         </Card>
 
-        {/* Insights et Recommandations */}
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 p-6 rounded-xl border border-slate-200 dark:border-slate-600">
-          <div className="flex items-start space-x-3">
-            <div className="bg-slate-700 dark:bg-slate-600 p-2 rounded-lg flex-shrink-0">
-              <CheckCircleIcon className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">💡 Insights & Actions Recommandées</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="bg-emerald-100 dark:bg-emerald-900/30 p-1 rounded">
-                      <CheckCircleIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    </div>
-                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Performance</p>
-                  </div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Tech Solutions SARL</p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-2">Meilleur fournisseur (4.8/5)</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">48% du CA total - Partenaire stratégique</p>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="bg-amber-100 dark:bg-amber-900/30 p-1 rounded">
-                      <ExclamationTriangleIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">À surveiller</p>
-                  </div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">ElectroMax</p>
-                  <p className="text-xs text-amber-600 dark:text-amber-400 mb-2">Performance en baisse (3.7/5)</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Audit qualité recommandé</p>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-600">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="bg-blue-100 dark:bg-blue-900/30 p-1 rounded">
-                      <TruckIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Optimisation</p>
-                  </div>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Délais de Livraison</p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mb-2">Délai moyen: 5 jours</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Négocier délais plus courts</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Risques et Opportunités */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-red-200 dark:border-red-700">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg">
-                <ExclamationTriangleIcon className="h-5 w-5 text-red-600 dark:text-red-400" />
-              </div>
-              <h5 className="text-md font-bold text-gray-900 dark:text-gray-100">⚠️ Risques Identifiés</h5>
-            </div>
-            <div className="space-y-3">
-              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
-                <p className="text-sm font-semibold text-red-900 dark:text-red-100">Dépendance excessive</p>
-                <p className="text-xs text-red-700 dark:text-red-300 mt-1">Tech Solutions: 48% du volume total</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">→ Diversifier les sources d'approvisionnement</p>
-              </div>
-              <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Délais longs</p>
-                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">Furniture Plus: 7 jours en moyenne</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">→ Revoir les conditions contractuelles</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-emerald-200 dark:border-emerald-700">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h5 className="text-md font-bold text-gray-900 dark:text-gray-100">✨ Opportunités</h5>
-            </div>
-            <div className="space-y-3">
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
-                <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Négociation volumes</p>
-                <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">Potentiel économie: 15-20%</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">→ Contrats annuels avec engagement volumes</p>
-              </div>
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Nouveaux partenariats</p>
-                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">3 fournisseurs en prospection</p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">→ Élargir le panel fournisseurs</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     );
   };

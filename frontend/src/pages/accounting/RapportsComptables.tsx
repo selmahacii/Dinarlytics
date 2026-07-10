@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { useApp } from '@core/context/AppContext';
 import { useNavigate } from 'react-router-dom';
@@ -14,8 +14,7 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   CheckCircleIcon,
-  InformationCircleIcon,
-  SparklesIcon
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import Modal from "@shared/components/UI/Modal";
 import { useAccountingStatements } from '@shared/hooks/useAccountingStatements';
@@ -496,21 +495,6 @@ const EtatsRapports: React.FC = () => {
         </div>
       </div>
 
-      {/* Insight Commercial / Vision */}
-      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start space-x-4 shadow-sm animate-in fade-in slide-in-from-top duration-500">
-        <div className="p-2 bg-indigo-100 rounded-full">
-          <SparklesIcon className="h-6 w-6 text-indigo-600" />
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-indigo-900 mb-1 flex items-center">
-            Perspective Commerciale & Reporting
-          </h3>
-          <p className="text-sm text-indigo-800 leading-relaxed">
-            تتحول التقارير المحاسبية في دينارليتيكس من مجرد التزام ضريبي إلى أداة استراتيجية لقياس كفاءة استخدام رأس المال وتحديد هوامش الربح الحقيقية، مما يمنح الإدارة القدرة على التخطيط المالي السليم وتحقيق نمو مستدام ومربح.
-          </p>
-        </div>
-      </div>
-
       {/* Navigation des états */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-2 overflow-hidden">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
@@ -772,23 +756,23 @@ const EtatsRapports: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.depreciation')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(100000)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.inventory_var')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(85000)})</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.receivables_var')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(125000)})</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.payables_var')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(95000)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
                     <span className="text-sm font-black text-white uppercase tracking-widest">{t('accounting.reports.flux.net_op_flow')}</span>
-                    <span className="text-xl font-black text-white">{formatCurrency(resultat + 100000 - 85000 - 125000 + 95000)}</span>
+                    <span className="text-xl font-black text-white">{formatCurrency(resultat)}</span>
                   </div>
                 </div>
               </div>
@@ -802,15 +786,15 @@ const EtatsRapports: React.FC = () => {
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.acquisition_fixed')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(450000)})</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.disposal_fixed')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(80000)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
                     <span className="text-sm font-black text-white uppercase tracking-widest">{t('accounting.reports.flux.net_inv_flow')}</span>
-                    <span className="text-xl font-black text-white">({formatCurrency(370000)})</span>
+                    <span className="text-xl font-black text-white">({formatCurrency(0)})</span>
                   </div>
                 </div>
               </div>
@@ -828,19 +812,19 @@ const EtatsRapports: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.new_loans')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(500000)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.loan_repayment')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(180000)})</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.dividends')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(120000)})</span>
+                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
                     <span className="text-sm font-black text-white uppercase tracking-widest">{t('accounting.reports.flux.net_fin_flow')}</span>
-                    <span className="text-xl font-black text-white">{formatCurrency(200000)}</span>
+                    <span className="text-xl font-black text-white">{formatCurrency(0)}</span>
                   </div>
                 </div>
               </div>
@@ -850,18 +834,18 @@ const EtatsRapports: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                     <span className="text-base font-medium">{t('accounting.reports.flux.opening_cash')}</span>
-                    <span className="text-lg font-bold">{formatCurrency(450000)}</span>
+                    <span className="text-lg font-bold">{formatCurrency(0)}</span>
                   </div>
                   <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                     <span className="text-base font-medium">{t('accounting.reports.flux.net_variation')}</span>
                     <span className="text-lg font-bold text-emerald-400">
-                      {formatCurrency((resultat + 100000 - 85000 - 125000 + 95000) - 370000 + 200000)}
+                      {formatCurrency(resultat)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-2">
                     <span className="text-lg font-bold">{t('accounting.reports.flux.closing_cash')}</span>
                     <span className="text-2xl font-bold text-emerald-400">
-                      {formatCurrency(450000 + ((resultat + 100000 - 85000 - 125000 + 95000) - 370000 + 200000))}
+                      {formatCurrency(resultat)}
                     </span>
                   </div>
                 </div>
@@ -874,9 +858,9 @@ const EtatsRapports: React.FC = () => {
             <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('accounting.reports.flux.visualization', { defaultValue: 'Visualisation des Flux' })}</h3>
             <div className="space-y-4">
               {[
-                { label: t('accounting.reports.flux.net_op_flow'), montant: (resultat + 100000 - 85000 - 125000 + 95000), color: 'emerald', pourcent: 100 },
-                { label: t('accounting.reports.flux.net_inv_flow'), montant: -370000, color: 'red', pourcent: 40 },
-                { label: t('accounting.reports.flux.financing'), montant: 200000, color: 'amber', pourcent: 22 }
+                { label: t('accounting.reports.flux.net_op_flow'), montant: resultat, color: 'emerald', pourcent: 100 },
+                { label: t('accounting.reports.flux.net_inv_flow'), montant: 0, color: 'red', pourcent: 0 },
+                { label: t('accounting.reports.flux.financing'), montant: 0, color: 'amber', pourcent: 0 }
               ].map((flux, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
@@ -903,25 +887,7 @@ const EtatsRapports: React.FC = () => {
 
       {/* Balance Générale */}
       {selectedEtat === 'balance' && (() => {
-        const balanceData = [
-          { compte: '21', libelle: t('accounting.ledger.accounts.fixed_assets'), debit: 2500000, credit: 0, solde: 2500000 },
-          { compte: '28', libelle: t('accounting.ledger.accounts.depreciation'), debit: 0, credit: 450000, solde: -450000 },
-          { compte: '31', libelle: t('accounting.ledger.accounts.inventory'), debit: 850000, credit: 0, solde: 850000 },
-          { compte: '411', libelle: t('accounting.ledger.accounts.customers'), debit: 1250000, credit: 0, solde: 1250000 },
-          { compte: '512', libelle: t('accounting.ledger.accounts.bank'), debit: 450000, credit: 0, solde: 450000 },
-          { compte: '53', libelle: t('accounting.ledger.accounts.cash'), debit: 125000, credit: 0, solde: 125000 },
-          { compte: '10', libelle: t('accounting.ledger.accounts.equity'), debit: 0, credit: 1000000, solde: -1000000 },
-          { compte: '12', libelle: t('accounting.ledger.accounts.net_result'), debit: 0, credit: resultat, solde: -resultat },
-          { compte: '16', libelle: t('common.loans', { defaultValue: 'Emprunts' }), debit: 0, credit: 1500000, solde: -1500000 },
-          { compte: '401', libelle: t('common.suppliers', { defaultValue: 'Fournisseurs' }), debit: 0, credit: 890000, solde: -890000 },
-          { compte: '4457', libelle: t('fiscal.rates.tva'), debit: 0, credit: 285000, solde: -285000 },
-          { compte: '70', libelle: t('accounting.ledger.accounts.sales'), debit: 0, credit: 5200000, solde: -5200000 },
-          { compte: '60', libelle: t('accounting.ledger.accounts.purchases'), debit: 3100000, credit: 0, solde: 3100000 },
-          { compte: '64', libelle: t('common.staff_costs', { defaultValue: 'Frais de personnel' }), debit: 680000, credit: 0, solde: 680000 }
-        ];
-
-        const totalDebitBalance = balanceData.reduce((sum, ligne) => sum + ligne.debit, 0);
-        const totalCreditBalance = balanceData.reduce((sum, ligne) => sum + ligne.credit, 0);
+        const balanceData = balanceGenerale;
 
         return (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -993,28 +959,6 @@ const EtatsRapports: React.FC = () => {
 
       {/* Grand Livre */}
       {selectedEtat === 'grand-livre' && (() => {
-        const grandLivreData = [
-          {
-            compte: '512',
-            nom: t('accounting.reports.ledger.accounts.bank'),
-            ecritures: [
-              { date: '2026-04-01', libelle: t('accounting.reports.ledger.labels.opening_balance'), debit: 450000, credit: 0, solde: 450000 },
-              { date: '2026-04-05', libelle: `${t('accounting.reports.ledger.labels.sale_invoice')} F2026-001`, debit: 125000, credit: 0, solde: 575000 },
-              { date: '2026-04-10', libelle: `${t('accounting.reports.ledger.labels.supplier_payment')} Sarl ABC`, debit: 0, credit: 85000, solde: 490000 },
-              { date: '2026-04-15', libelle: `${t('accounting.reports.ledger.labels.salary_payment')} ${t('common.months.april')}`, debit: 0, credit: 150000, solde: 340000 }
-            ]
-          },
-          {
-            compte: '411',
-            nom: t('accounting.reports.ledger.accounts.clients'),
-            ecritures: [
-              { date: '2026-04-01', libelle: t('accounting.reports.ledger.labels.opening_balance'), debit: 1250000, credit: 0, solde: 1250000 },
-              { date: '2026-04-05', libelle: `${t('accounting.reports.ledger.labels.sale_invoice')} F2026-001 - Client XYZ`, debit: 85000, credit: 0, solde: 1335000 },
-              { date: '2026-04-20', libelle: `${t('accounting.reports.ledger.labels.client_payment')} F2026-001`, debit: 0, credit: 85000, solde: 1250000 }
-            ]
-          }
-        ];
-
         return (
           <div className="space-y-6">
             {grandLivreData.map((compte, idx) => (
@@ -1212,7 +1156,7 @@ const EtatsRapports: React.FC = () => {
             <div className="mt-4 pt-4 border-t border-slate-100 space-y-1">
               <div className="flex items-center justify-between text-[10px]">
                 <span className="text-slate-400 uppercase tracking-tight">{t('accounting.reports.ratios.labels.stable_resources')}</span>
-                <span className="font-bold text-slate-700">{formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + 1500000)}</span>
+                <span className="font-bold text-slate-700">{formatCurrency(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) + (bilan.passif.dettes.find(d => d.compte === '16')?.montant || 0))}</span>
               </div>
               <div className="flex items-center justify-between text-[10px]">
                 <span className="text-slate-400 uppercase tracking-tight">{t('accounting.reports.ratios.labels.stable_uses')}</span>
@@ -1234,9 +1178,9 @@ const EtatsRapports: React.FC = () => {
           <div className="p-6 space-y-4">
             {([
               { poste: t('accounting.ledger.accounts.sales'), actuel: CA_ACTUEL, precedent: CA_ANTERIEUR, color: 'emerald' },
-              { poste: t('accounting.reports.resultat.charges_exploitation'), actuel: 4200000, precedent: 4100000, color: 'red' },
-              { poste: t('accounting.reports.resultat.net_result'), actuel: RESULTAT_NET, precedent: 725000, color: 'cyan' },
-              { poste: t('accounting.reports.tabs.flux'), actuel: 575000, precedent: 450000, color: 'amber' }
+              { poste: t('accounting.reports.resultat.charges_exploitation'), actuel: totalCharges, precedent: 0, color: 'red' },
+              { poste: t('accounting.reports.resultat.net_result'), actuel: RESULTAT_NET, precedent: 0, color: 'cyan' },
+              { poste: t('accounting.reports.tabs.flux'), actuel: 0, precedent: 0, color: 'amber' }
             ].map((item, i) => {
               const evolution = ((item.actuel - item.precedent) / item.precedent) * 100;
               return (

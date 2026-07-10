@@ -3,6 +3,7 @@ from app.modules.finance.models_accounting import ChartOfAccount, JournalEntry, 
 from app.modules.operations.models_inventory import Invoice, InvoiceItem, Article
 from app.modules.operations.models_partners import Client, Supplier
 from app.modules.operations.models_procurement import DeliveryNote, DeliveryNoteItem, PurchaseOrder, PurchaseOrderItem, PurchaseNote, PurchaseNoteItem
+from app.modules.operations.models_quotes import Quote, QuoteItem
 from app.modules.system.models_notifications import AlertDefinition, AlertTrigger, UserNotification
 from app.modules.system.models_audit import AuditLog
 from app.modules.intelligence.models import AIModel, AIPrediction, AITrainingLog, AIFeatureStore, AIDriftMonitoring
@@ -14,6 +15,7 @@ __all__ = [
     "Invoice", "InvoiceItem", "Article",
     "Client", "Supplier",
     "DeliveryNote", "DeliveryNoteItem", "PurchaseOrder", "PurchaseOrderItem", "PurchaseNote", "PurchaseNoteItem",
+    "Quote", "QuoteItem",
     "AlertDefinition", "AlertTrigger", "UserNotification",
     "AuditLog",
     "AIModel", "AIPrediction", "AITrainingLog", "AIFeatureStore", "AIDriftMonitoring",

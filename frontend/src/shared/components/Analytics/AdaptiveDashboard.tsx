@@ -71,7 +71,6 @@ const AdaptiveDashboard: React.FC<AdaptiveDashboardProps> = ({
   const [showHidden, setShowHidden] = useState(false);
   const [selectedWidgets, setSelectedWidgets] = useState<string[]>([]);
 
-  // Rôles utilisateur de démonstration
   const userRoles: UserRole[] = [
     {
       id: 'admin',
@@ -119,109 +118,9 @@ const AdaptiveDashboard: React.FC<AdaptiveDashboardProps> = ({
     }
   ];
 
-  // Widgets de démonstration
-  const demoWidgets: Widget[] = [
-    {
-      id: '1',
-      type: 'kpi',
-      title: 'Chiffre d\'Affaires',
-      content: { value: '2,450,000 DZD', change: '+12.5%', trend: 'up' },
-      size: 'medium',
-      position: { x: 0, y: 0 },
-      isVisible: true,
-      isPinned: true,
-      isMinimized: false,
-      priority: 'high',
-      lastUpdated: '2024-01-15 14:30',
-      relevance: 95
-    },
-    {
-      id: '2',
-      type: 'kpi',
-      title: 'Clients Actifs',
-      content: { value: '1,247', change: '+8.3%', trend: 'up' },
-      size: 'small',
-      position: { x: 2, y: 0 },
-      isVisible: true,
-      isPinned: false,
-      isMinimized: false,
-      priority: 'high',
-      lastUpdated: '2024-01-15 14:25',
-      relevance: 88
-    },
-    {
-      id: '3',
-      type: 'chart',
-      title: 'Évolution des Ventes',
-      content: { type: 'line', data: [120, 135, 142, 158, 165, 172, 189] },
-      size: 'large',
-      position: { x: 0, y: 1 },
-      isVisible: true,
-      isPinned: false,
-      isMinimized: false,
-      priority: 'medium',
-      lastUpdated: '2024-01-15 14:20',
-      relevance: 82
-    },
-    {
-      id: '4',
-      type: 'table',
-      title: 'Top 10 Clients',
-      content: { 
-        columns: ['Client', 'CA', 'Évolution'],
-        rows: [
-          ['Client A', '245,000 DZD', '+15.2%'],
-          ['Client B', '198,000 DZD', '+8.7%'],
-          ['Client C', '156,000 DZD', '+12.1%']
-        ]
-      },
-      size: 'medium',
-      position: { x: 3, y: 1 },
-      isVisible: true,
-      isPinned: false,
-      isMinimized: false,
-      priority: 'medium',
-      lastUpdated: '2024-01-15 14:15',
-      relevance: 75
-    },
-    {
-      id: '5',
-      type: 'alert',
-      title: 'Alertes Critiques',
-      content: { 
-        alerts: [
-          { type: 'warning', message: 'Seuil de stock atteint', time: '14:30' },
-          { type: 'info', message: 'Nouveau client ajouté', time: '14:25' }
-        ]
-      },
-      size: 'small',
-      position: { x: 1, y: 0 },
-      isVisible: true,
-      isPinned: true,
-      isMinimized: false,
-      priority: 'high',
-      lastUpdated: '2024-01-15 14:30',
-      relevance: 90
-    },
-    {
-      id: '6',
-      type: 'kpi',
-      title: 'Marge Brute',
-      content: { value: '35.2%', change: '+2.1%', trend: 'up' },
-      size: 'small',
-      position: { x: 3, y: 0 },
-      isVisible: false,
-      isPinned: false,
-      isMinimized: false,
-      priority: 'low',
-      lastUpdated: '2024-01-15 14:10',
-      relevance: 45
-    }
-  ];
-
   useEffect(() => {
-    setCurrentRole(userRoles[0]); // Admin par défaut
-    setWidgets(demoWidgets);
+    setCurrentRole(userRoles[0]);
+    setWidgets([]);
   }, []);
 
   const getSizeClasses = (size: string) => {

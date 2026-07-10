@@ -104,7 +104,7 @@ const Parametres: React.FC = () => {
         t('admin.permissions_list.accounting_entry'),
         t('admin.permissions_list.data_export')
       ],
-      utilisateurs: 1
+      utilisateurs: 0
     },
     {
       nom: t('admin.roles_data.accountant.name'),
@@ -115,7 +115,7 @@ const Parametres: React.FC = () => {
         t('admin.permissions_list.reports_view'),
         t('admin.permissions_list.data_export')
       ],
-      utilisateurs: 2
+      utilisateurs: 0
     },
     {
       nom: t('admin.roles_data.user.name'),
@@ -124,7 +124,7 @@ const Parametres: React.FC = () => {
         t('admin.permissions_list.billing_create'),
         t('admin.permissions_list.reports_view')
       ],
-      utilisateurs: 5
+      utilisateurs: 0
     }
   ];
 
@@ -183,13 +183,13 @@ const Parametres: React.FC = () => {
                   <PencilIcon className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Demo Admin</h4>
-              <p className="text-sm font-bold text-slate-400 dark:text-slate-500 mt-1">admin@demo.com</p>
+              <h4 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{user?.name || ''}</h4>
+              <p className="text-sm font-bold text-slate-400 dark:text-slate-500 mt-1">{user?.email || ''}</p>
 
               <div className="mt-8 w-full space-y-3">
                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('admin.company')}</span>
-                  <span className="text-xs font-black text-slate-900 dark:text-white uppercase">SPA</span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white uppercase">{user?.company || ''}</span>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('admin.segment')}</span>

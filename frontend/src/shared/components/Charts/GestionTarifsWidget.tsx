@@ -33,77 +33,15 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Données de démonstration pour l'historique des prix
-  const pricingHistory = [
-    {
-      id: '1',
-      article: 'Ordinateur Portable Dell',
-      code: 'PC-DELL-001',
-      date: '2024-01-15',
-      prix: 85000,
-      ancienPrix: 82000,
-      variation: '+3.7%',
-      raison: 'Augmentation des coûts matières premières',
-      responsable: 'Ahmed Benali',
-      statut: 'appliqué'
-    },
-    {
-      id: '2',
-      article: 'Chaise de Bureau Ergonomique',
-      code: 'CHAIR-ERG-001',
-      date: '2024-01-12',
-      prix: 45000,
-      ancienPrix: 48000,
-      variation: '-6.3%',
-      raison: 'Promotion commerciale',
-      responsable: 'Fatima Khelil',
-      statut: 'appliqué'
-    },
-    {
-      id: '3',
-      article: 'Smartphone Samsung Galaxy',
-      code: 'PHONE-SAM-001',
-      date: '2024-01-10',
-      prix: 125000,
-      ancienPrix: 130000,
-      variation: '-3.8%',
-      raison: 'Concurrence marché',
-      responsable: 'Omar Cherif',
-      statut: 'appliqué'
-    },
-    {
-      id: '4',
-      article: 'Tablette iPad Pro',
-      code: 'TAB-IPAD-001',
-      date: '2024-01-08',
-      prix: 180000,
-      ancienPrix: 175000,
-      variation: '+2.9%',
-      raison: 'Nouvelle version',
-      responsable: 'Yasmine Boudjedra',
-      statut: 'en_attente'
-    },
-    {
-      id: '5',
-      article: 'Écran 27" 4K',
-      code: 'MON-4K-001',
-      date: '2024-01-05',
-      prix: 95000,
-      ancienPrix: 90000,
-      variation: '+5.6%',
-      raison: 'Inflation générale',
-      responsable: 'Karim Saadi',
-      statut: 'appliqué'
-    }
-  ];
+  const pricingHistory: any[] = [];
 
   const statsGenerales = {
     totalModifications: pricingHistory.length,
     modificationsAppliqees: pricingHistory.filter(p => p.statut === 'appliqué').length,
     modificationsEnAttente: pricingHistory.filter(p => p.statut === 'en_attente').length,
-    augmentationMoyenne: 2.1,
-    diminutionMoyenne: -4.2,
-    impactTotal: 125000
+    augmentationMoyenne: 0,
+    diminutionMoyenne: 0,
+    impactTotal: 0
   };
 
   const getStatutColor = (statut: string) => {
@@ -337,22 +275,22 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <div className="h-64">
             <Line
               data={{
-                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                labels: [],
                 datasets: [{
                   label: 'Prix Moyen',
-                  data: [85000, 87000, 86000, 88000, 90000, 92000],
+                  data: [],
                   borderColor: '#3B82F6',
                   backgroundColor: 'rgba(59, 130, 246, 0.1)',
                   tension: 0.4
                 }, {
                   label: 'Prix Minimum',
-                  data: [45000, 46000, 45000, 47000, 48000, 49000],
+                  data: [],
                   borderColor: '#10B981',
                   backgroundColor: 'rgba(16, 185, 129, 0.1)',
                   tension: 0.4
                 }, {
                   label: 'Prix Maximum',
-                  data: [180000, 185000, 182000, 188000, 190000, 195000],
+                  data: [],
                   borderColor: '#EF4444',
                   backgroundColor: 'rgba(239, 68, 68, 0.1)',
                   tension: 0.4
@@ -388,7 +326,7 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
               data={{
                 labels: ['Augmentations', 'Diminutions', 'Stables'],
                 datasets: [{
-                  data: [3, 2, 0],
+                  data: [],
                   backgroundColor: [
                     'rgba(239, 68, 68, 0.8)',
                     'rgba(16, 185, 129, 0.8)',
@@ -422,10 +360,10 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <div className="h-64">
             <Bar
               data={{
-                labels: ['Informatique', 'Mobilier', 'Téléphonie', 'Électronique', 'Accessoires'],
+                labels: [],
                 datasets: [{
                   label: `Impact Financier (${currentDevise || 'DA'})`,
-                  data: [45000, -15000, -25000, 35000, 10000],
+                  data: [],
                   backgroundColor: [
                     'rgba(239, 68, 68, 0.8)',
                     'rgba(16, 185, 129, 0.8)',
@@ -471,10 +409,10 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
           <div className="h-64">
             <Bar
               data={{
-                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                labels: [],
                 datasets: [{
                   label: 'Modifications',
-                  data: [8, 12, 6, 15, 10, 5],
+                  data: [],
                   backgroundColor: 'rgba(59, 130, 246, 0.8)',
                   borderColor: '#2563EB',
                   borderWidth: 2
@@ -779,9 +717,6 @@ const GestionTarifsWidget: React.FC<GestionTarifsWidgetProps> = ({ period = 'moi
                   <label className="block text-sm font-medium text-gray-700">Article</label>
                   <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="">Sélectionner un article</option>
-                    <option value="PC-DELL-001">Ordinateur Portable Dell</option>
-                    <option value="CHAIR-ERG-001">Chaise de Bureau Ergonomique</option>
-                    <option value="PHONE-SAM-001">Smartphone Samsung Galaxy</option>
                   </select>
                 </div>
                 <div>

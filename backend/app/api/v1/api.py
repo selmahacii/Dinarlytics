@@ -19,6 +19,7 @@ from app.modules.operations.router_clients import router as clients_router
 from app.modules.operations.router_suppliers import router as suppliers_router
 from app.modules.operations.router_articles import router as articles_router
 from app.modules.operations.router_procurement import router as procurement_router
+from app.modules.operations.router_quotes import router as quotes_router
 from app.modules.auth.router_auth import router as auth_router
 from app.modules.auth.router_users import router as users_router
 from app.modules.system.router_audit import router as audit_router
@@ -48,6 +49,7 @@ api_router.include_router(clients_router)
 api_router.include_router(suppliers_router)
 api_router.include_router(articles_router)
 api_router.include_router(procurement_router)
+api_router.include_router(quotes_router)
 api_router.include_router(hr_router)
 api_router.include_router(audit_router)
 api_router.include_router(documents_router)

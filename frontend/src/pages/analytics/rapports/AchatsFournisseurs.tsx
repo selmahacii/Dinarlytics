@@ -70,13 +70,6 @@ DÉTAILS
 -------
 Ce rapport contient une analyse complète de vos achats et dépenses.
 
-Dans une application réelle, ce rapport inclurait:
-- Analyse détaillée par fournisseur
-- Répartition par catégorie
-- Évolution temporelle
-- Analyse des délais de paiement
-- Recommandations d'optimisation
-
 ---
 Généré par Dinarlytics
       `.trim();
@@ -276,11 +269,10 @@ Généré par Dinarlytics
             </h3>
             <div className="space-y-3">
               <div className="bg-white p-3 rounded-lg border border-amber-300">
-                <p className="text-sm font-bold text-amber-700">📋 2 factures fournisseurs à régler</p>
-                <p className="text-xs text-slate-600 mt-1">Échéance : dans 5 jours</p>
+                <p className="text-sm font-bold text-amber-700">📋 Factures fournisseurs à régler</p>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-300">
-                <p className="text-sm font-bold text-slate-700">🏢 Concentration fournisseur : 40%</p>
+                <p className="text-sm font-bold text-slate-700">🏢 Concentration fournisseur</p>
                 <p className="text-xs text-slate-600 mt-1">Diversifiez vos approvisionnements</p>
               </div>
             </div>
@@ -388,14 +380,14 @@ Généré par Dinarlytics
 
 
   const purchaseData = {
-    totalAchats: { value: data.totalPurchases, change: 8, trend: 'up' },
+    totalAchats: { value: data.totalPurchases, change: 0, trend: 'up' },
     fournisseursActifs: data.supplierCount,
     montantMoyenFacture: Math.round(data.totalPurchases / (data.topSuppliers.length * 4)),
     tvaDeductible: Math.round(data.totalPurchases * 0.2),
-    ratioAchatsVentes: 43.3,
-    dpoMoyen: 28.5,
+    ratioAchatsVentes: 0,
+    dpoMoyen: 0,
     coutAchatMoyen: Math.round(data.totalPurchases / data.supplierCount),
-    facturesEnRetard: 3,
+    facturesEnRetard: 0,
     economiesRealisees: 0
   };
   const purchasesByCategory = data.purchasesByCategory || [];
@@ -409,12 +401,7 @@ Généré par Dinarlytics
   }));
   const monthlyTrends: any[] = [];
 
-  const supplierPerformance = [
-    { metric: 'Délai de livraison moyen', value: '2.3 jours', target: '≤3 jours', status: 'excellent' },
-    { metric: 'Taux de conformité', value: '96.8%', target: '≥95%', status: 'excellent' },
-    { metric: 'Taux de retour', value: '2.1%', target: '≤3%', status: 'bon' },
-    { metric: 'Satisfaction qualité', value: `4.6/5`, target: '≥4.5/5', status: 'excellent' }
-  ];
+  const supplierPerformance: any[] = [];
 
   const priceEvolution = [
     ...(purchasesByCategory.slice(0, 3).map((cat: any) => ({
@@ -428,24 +415,7 @@ Généré par Dinarlytics
     })) || [])
   ];
 
-  const comparativeAnalysis = [
-    { 
-      title: 'Analyse concurrentielle', 
-      data: [
-        { supplier: 'Nous', prix: Math.round(data.totalPurchases / (data.supplierCount || 1)), delai: 2.3, qualite: 4.6 },
-        { supplier: 'Moyenne marché', prix: Math.round((data.totalPurchases / (data.supplierCount || 1)) * 1.05), delai: 3.8, qualite: 4.2 },
-        { supplier: 'Meilleur concurrent', prix: Math.round((data.totalPurchases / (data.supplierCount || 1)) * 0.95), delai: 4.2, qualite: 4.4 }
-      ]
-    },
-    {
-      title: 'Optimisation des coûts',
-      data: [
-        { action: 'Négociation prix', economie: 0, impact: 'élevé' },
-        { action: 'Réduction DPO', economie: 0, impact: 'moyen' },
-        { action: 'Consolidation commandes', economie: 0, impact: 'faible' }
-      ]
-    }
-  ];
+  const comparativeAnalysis: any[] = [];
 
   // Données de mouvements récents
   const topSuppliers = (data.topSuppliers || []).map((s: any) => ({
@@ -792,10 +762,6 @@ Généré par Dinarlytics
                 <ChartBarIcon className="h-4 w-4 mr-1" />
                 Économies réalisées
               </span>
-              <div className="flex items-center text-sm font-medium text-emerald-600">
-                <TrendingUpIcon className="h-3 w-3 mr-1" />
-                +15%
-              </div>
             </div>
             <div className="text-2xl font-bold text-slate-900">
               {formatCurrency(purchaseData.economiesRealisees)}
@@ -835,7 +801,7 @@ Généré par Dinarlytics
                 <span className="text-sm text-slate-600">Performance globale:</span>
                 <div className="flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">
                   <StarIcon className="h-3 w-3 mr-1" />
-                  4.6/5
+                  {topSuppliers.length > 0 ? (topSuppliers.reduce((sum: number, s: any) => sum + (s.rating || 0), 0) / topSuppliers.length).toFixed(1) : '0.0'}/5
                 </div>
               </div>
             </div>
@@ -993,7 +959,7 @@ Généré par Dinarlytics
                   Note moyenne
                 </span>
                 <div className="text-2xl font-bold text-slate-900">
-                  4.6/5
+                  {topSuppliers.length > 0 ? (topSuppliers.reduce((sum: number, s: any) => sum + (s.rating || 0), 0) / topSuppliers.length).toFixed(1) : '0.0'}/5
                 </div>
                 <div className="text-xs text-slate-500 mt-1">satisfaction globale</div>
               </div>
@@ -1004,7 +970,7 @@ Généré par Dinarlytics
                   Taux de conformité
                 </span>
                 <div className="text-2xl font-bold text-slate-900">
-                  96.8%
+                  0%
                 </div>
                 <div className="text-xs text-slate-500 mt-1">livraisons conformes</div>
               </div>
@@ -1145,7 +1111,7 @@ Généré par Dinarlytics
                   Bons de commande
                 </span>
                 <div className="text-2xl font-bold text-slate-900">
-                  {purchaseData.facturesEnRetard + 125}
+                  {purchaseData.facturesEnRetard}
                 </div>
                 <div className="text-xs text-slate-500 mt-1">ce mois</div>
               </div>
@@ -1228,7 +1194,6 @@ Généré par Dinarlytics
           </>
         )}
 
-        {/* Section Comparatif  - Accessible depuis tous les onglets pour démonstration */}
         {selectedView === 'comparatif-achats' && (
           <>
             {/* Graph animé 1: Évolution Achats vs Ventes en courbes */}

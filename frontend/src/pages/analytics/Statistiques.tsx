@@ -106,13 +106,12 @@ const Statistiques: React.FC = () => {
       .finally(() => setLoadingKpi(false));
 
     setLoadingClients(true);
-    // On simule une diversité de clients basée sur la taille
     api.clients.getAll()
       .then(data => {
         const factor = currentSize === 'micro' ? 0.3 : currentSize === 'mid' ? 10 : 1;
         const scaledData = data.map(c => ({
           ...c,
-          ca: (c.ca || 450000) * factor
+          ca: (c.ca || 0) * factor
         }));
         setTopClients(scaledData.slice(0, 3));
       })
@@ -139,70 +138,6 @@ const Statistiques: React.FC = () => {
   // Métriques clés pour l'aperçu (peuvent être extraites des KPIs)
   const metriques = kpiComptables?.metriques || {};
 
-  // Jeux de données de secours pour les top clients si l'API ne renvoie rien
-  const sampleTopClients = [
-    {
-      nom: 'Entreprise SARL DZ',
-      ca: 850000,
-      pourcentage: 26.6,
-      croissance: 12.5,
-      secteur: 'Services',
-      risque: 'faible',
-      raisonsTop: [
-        'Leader du secteur des services financiers',
-        'Croissance constante depuis 3 ans',
-        'Portefeuille diversifié et stable',
-        'Excellente relation client longue durée'
-      ],
-      metriques: {
-        delaiPaiement: 15,
-        tauxRenouvellement: 95,
-        satisfaction: 4.8,
-        recommandations: 12
-      }
-    },
-    {
-      nom: 'Commerce ABC',
-      ca: 720000,
-      pourcentage: 22.5,
-      croissance: 8.3,
-      secteur: 'Commerce',
-      risque: 'moyen',
-      raisonsTop: [
-        'Réseau de distribution étendu',
-        'Innovation dans le e-commerce',
-        'Partenariats stratégiques solides',
-        'Adaptation rapide aux tendances'
-      ],
-      metriques: {
-        delaiPaiement: 25,
-        tauxRenouvellement: 88,
-        satisfaction: 4.6,
-        recommandations: 8
-      }
-    },
-    {
-      nom: 'Société XYZ EURL',
-      ca: 680000,
-      pourcentage: 21.3,
-      croissance: 15.7,
-      secteur: 'Industrie',
-      risque: 'faible',
-      raisonsTop: [
-        'Expertise technique reconnue',
-        'Certifications qualité internationales',
-        'Recherche et développement active',
-        'Export vers 15 pays'
-      ],
-      metriques: {
-        delaiPaiement: 20,
-        tauxRenouvellement: 92,
-        satisfaction: 4.7,
-        recommandations: 15
-      }
-    }
-  ];
-
   if (loadingKpi || !kpiComptables) {
     return (
       <div className="flex items-center justify-center min-h-[500px]">
@@ -214,7 +149,7 @@ const Statistiques: React.FC = () => {
     );
   }
 
-  const clientsToDisplay = topClients.length ? topClients : sampleTopClients;
+  const clientsToDisplay = topClients;
 
   return (
     <div className="space-y-6">
@@ -246,15 +181,6 @@ const Statistiques: React.FC = () => {
                 <p className="text-slate-500 text-xs text-right">{t('steering.dashboard.updated_now')}</p>
               </div>
             </div>
-          </div>
-
-          {/* Professional Disclaimer */}
-          <div className="mt-8 flex items-start space-x-3 bg-blue-50/50 border border-blue-100 rounded-2xl p-4 max-w-3xl">
-            <ExclamationTriangleIcon className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-blue-700">
-              <span className="mr-1"> {t('steering.dashboard.demo_env')}</span>
-              {t('steering.dashboard.demo_desc')}
-            </p>
           </div>
         </div>
 
@@ -474,8 +400,7 @@ const Statistiques: React.FC = () => {
                       <p className="mt-0.5">{journal.entries || 0} {t('steering.dashboard.journals.lines')}</p>
                     </div>
                     <div className="flex flex-col items-end">
-                      {/* Mock financial volume for demo looks */}
-                      <span className="font-bold text-slate-800 text-sm">{formatCurrency(journal.entries * 1250)}</span>
+                      <span className="font-bold text-slate-800 text-sm">{formatCurrency(journal.montant || 0)}</span>
                     </div>
                   </div>
                 </div>
@@ -517,9 +442,7 @@ const Statistiques: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-800 leading-tight">{client.nom}</h3>
-                    <span className="text-xs font-med
-                    
-                    ium px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{client.secteur}</span>
+                    <span className="text-xs font-medium px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{client.secteur}</span>
                   </div>
                 </div>
                 <div className={`p-1.5 rounded-full ${client.risque === 'faible' ? 'bg-emerald-100' : 'bg-orange-100'}`}>
@@ -674,27 +597,6 @@ const Statistiques: React.FC = () => {
               </ul>
             </div>
 
-            {/* Historique des transactions */}
-            <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-gray-600 mr-2" />
-                {t('steering.dashboard.modals.details.recent_history')}
-              </h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">Janvier 2024</span>
-                  <span className="font-medium text-green-600">+{formatCurrency(85000)}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">Décembre 2023</span>
-                  <span className="font-medium text-green-600">+{formatCurrency(78000)}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">Novembre 2023</span>
-                  <span className="font-medium text-green-600">+{formatCurrency(92000)}</span>
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </Modal>
@@ -718,49 +620,23 @@ const Statistiques: React.FC = () => {
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
                     <PhoneIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
-                      <p className="font-medium text-gray-900">+213 555 123 456</p>
+                      <p className="font-medium text-gray-900">{selectedClient.telephone || '-'}</p>
                       <p className="text-sm text-gray-600">{t('steering.dashboard.modals.contact.phone_label')}</p>
                     </div>
                   </div>
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
                     <EnvelopeIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
-                      <p className="font-medium text-gray-900">contact@{selectedClient.nom.toLowerCase().replace(/\s+/g, '')}.dz</p>
+                      <p className="font-medium text-gray-900">{selectedClient.email || '-'}</p>
                       <p className="text-sm text-gray-600">{t('steering.dashboard.modals.contact.email_label')}</p>
                     </div>
                   </div>
                   <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
                     <MapPinIcon className="h-5 w-5 text-gray-500 mr-3" />
                     <div>
-                      <p className="font-medium text-gray-900">Alger, Algérie</p>
+                      <p className="font-medium text-gray-900">{selectedClient.adresse || '-'}</p>
                       <p className="text-sm text-gray-600">{t('steering.dashboard.modals.contact.address_label')}</p>
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                  <UserGroupIcon className="h-5 w-5 text-gray-600 mr-2" />
-                  {t('steering.dashboard.modals.contact.commercial')}
-                </h4>
-                <div className="space-y-4">
-                  <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
-                    <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                      <span className="text-gray-600 font-medium text-sm">AB</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">Ahmed Benali</p>
-                      <p className="text-sm text-gray-600">Responsable Commercial</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
-                    <PhoneIcon className="h-4 w-4 text-gray-500 mr-3" />
-                    <span className="text-sm text-gray-700">+213 555 789 012</span>
-                  </div>
-                  <div className="flex items-center p-3 bg-gray-50 rounded border border-gray-100">
-                    <EnvelopeIcon className="h-4 w-4 text-gray-500 mr-3" />
-                    <span className="text-sm text-gray-700">ahmed.benali@entreprise.dz</span>
                   </div>
                 </div>
               </div>
@@ -785,37 +661,6 @@ const Statistiques: React.FC = () => {
                   <CalendarIcon className="h-5 w-5 mx-auto mb-2 text-gray-600" />
                   {t('steering.dashboard.modals.contact.schedule')}
                 </button>
-              </div>
-            </div>
-
-            {/* Historique des contacts */}
-            <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                <CalendarIcon className="h-5 w-5 text-gray-600 mr-2" />
-                {t('steering.dashboard.modals.contact.history')}
-              </h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <div className="flex items-center">
-                    <EnvelopeIcon className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-700">{t('steering.dashboard.modals.contact.email_sent')}</span>
-                  </div>
-                  <span className="text-gray-500">15 Jan 2024</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <div className="flex items-center">
-                    <PhoneIcon className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-700">{t('steering.dashboard.modals.contact.phone_call')}</span>
-                  </div>
-                  <span className="text-gray-500">10 Jan 2024</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <div className="flex items-center">
-                    <CalendarIcon className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-700">{t('steering.dashboard.modals.contact.meeting')}</span>
-                  </div>
-                  <span className="text-gray-500">05 Jan 2024</span>
-                </div>
               </div>
             </div>
           </div>
@@ -902,28 +747,6 @@ const Statistiques: React.FC = () => {
                 <div className="text-center p-4 bg-gray-50 rounded border border-gray-100">
                   <div className="text-2xl font-bold text-green-600 mb-1">{t('steering.dashboard.modals.analysis.levels.low')}</div>
                   <div className="text-sm text-gray-600">{t('steering.dashboard.modals.analysis.risks.operational')}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Prévisions */}
-            <div className="p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-              <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
-                <ArrowTrendingUpIcon className="h-5 w-5 text-gray-600 mr-2" />
-                {t('steering.dashboard.modals.analysis.forecast')}
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">CA Prévu Q1:</span>
-                  <span className="font-medium text-gray-900">{formatCurrency(220000)}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">CA Prévu Q2:</span>
-                  <span className="font-medium text-gray-900">{formatCurrency(240000)}</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                  <span className="text-gray-700">CA Prévu Annuel:</span>
-                  <span className="font-medium text-gray-900">{formatCurrency(950000)}</span>
                 </div>
               </div>
             </div>

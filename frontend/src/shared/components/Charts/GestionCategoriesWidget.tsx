@@ -49,84 +49,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
   const [formErrors, setFormErrors] = useState<any>({});
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  // Données de démonstration pour les catégories
-  const categoriesData = [
-    {
-      id: '1',
-      nom: 'Informatique',
-      code: 'INF',
-      description: 'Équipements informatiques et accessoires',
-      couleur: '#0f172a',
-      articles: 245,
-      valeurStock: 1850000,
-      chiffreAffaires: 2250000,
-      marge: 450000,
-      croissance: 12.5,
-      statut: 'actif',
-      dateCreation: '2023-01-15',
-      responsable: 'Ahmed Benali'
-    },
-    {
-      id: '2',
-      nom: 'Mobilier',
-      code: 'MOB',
-      description: 'Mobilier de bureau et équipements',
-      couleur: '#334155',
-      articles: 180,
-      valeurStock: 1200000,
-      chiffreAffaires: 980000,
-      marge: 196000,
-      croissance: 8.2,
-      statut: 'actif',
-      dateCreation: '2023-02-20',
-      responsable: 'Fatima Khelil'
-    },
-    {
-      id: '3',
-      nom: 'Téléphonie',
-      code: 'TEL',
-      description: 'Téléphones et accessoires mobiles',
-      couleur: '#475569',
-      articles: 95,
-      valeurStock: 750000,
-      chiffreAffaires: 1100000,
-      marge: 220000,
-      croissance: 15.8,
-      statut: 'actif',
-      dateCreation: '2023-03-10',
-      responsable: 'Omar Cherif'
-    },
-    {
-      id: '4',
-      nom: 'Électronique',
-      code: 'ELE',
-      description: 'Appareils électroniques grand public',
-      couleur: '#64748b',
-      articles: 120,
-      valeurStock: 950000,
-      chiffreAffaires: 780000,
-      marge: 156000,
-      croissance: -2.1,
-      statut: 'attention',
-      dateCreation: '2023-01-25',
-      responsable: 'Yasmine Boudjedra'
-    },
-    {
-      id: '5',
-      nom: 'Accessoires',
-      code: 'ACC',
-      description: 'Accessoires et consommables',
-      couleur: '#94a3b8',
-      articles: 320,
-      valeurStock: 450000,
-      chiffreAffaires: 650000,
-      marge: 130000,
-      croissance: 5.4,
-      statut: 'actif',
-      dateCreation: '2023-02-05',
-      responsable: 'Karim Saadi'
-    }
-  ];
+  const categoriesData: any[] = [];
 
   const statsGenerales = {
     totalCategories: categoriesData.length,
@@ -425,7 +348,7 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
                 datasets: categoriesData.slice(0, 3).map((category, index) => ({
                   label: category.nom,
-                  data: [120000, 135000, 145000, 160000, 175000, category.chiffreAffaires / 6],
+                  data: [0, 0, 0, 0, 0, category.chiffreAffaires / 6],
                   borderColor: category.couleur,
                   backgroundColor: category.couleur + '20',
                   tension: 0.4
@@ -590,10 +513,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
               <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                 {statsGenerales.categoriesActives}/{statsGenerales.totalCategories}
               </p>
-              <div className="flex items-center mt-2">
-                <ArrowTrendingUpIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 mr-1" />
-                <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold">80% actif</span>
-              </div>
             </div>
             <div className="bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 p-3 rounded-lg shadow-md">
               <TagIcon className="h-8 w-8 text-white" />
@@ -606,10 +525,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             <div>
               <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">Total Articles</p>
               <p className="text-3xl font-bold text-emerald-900 dark:text-emerald-100">{statsGenerales.totalArticles}</p>
-              <div className="flex items-center mt-2">
-                <ArrowTrendingUpIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400 mr-1" />
-                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">+12% ce mois</span>
-              </div>
             </div>
             <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-500 dark:to-emerald-600 p-3 rounded-lg shadow-md">
               <CubeIcon className="h-8 w-8 text-white" />
@@ -652,12 +567,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             <CheckCircleIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{formatCurrency(statsGenerales.margeTotal)}</p>
-          <div className="flex items-center mt-2">
-            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
-              <div className="bg-emerald-600 dark:bg-emerald-500 h-2 rounded-full" style={{ width: '68%' }}></div>
-            </div>
-            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">68%</span>
-          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Taux de marge moyen</p>
         </Card>
 
@@ -666,13 +575,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Rotation Stock</p>
             <ArrowPathIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">4.2×</p>
-          <div className="flex items-center mt-2">
-            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
-              <div className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full" style={{ width: '84%' }}></div>
-            </div>
-            <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">+18%</span>
-          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Par rapport au trimestre dernier</p>
         </Card>
 
@@ -680,13 +582,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Taux de Croissance</p>
             <ArrowTrendingUpIcon className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-          </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">+8.9%</p>
-          <div className="flex items-center mt-2">
-            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
-              <div className="bg-violet-600 dark:bg-violet-500 h-2 rounded-full" style={{ width: '89%' }}></div>
-            </div>
-            <span className="text-xs text-violet-600 dark:text-violet-400 font-medium">89%</span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Objectif mensuel atteint</p>
         </Card>
@@ -785,33 +680,6 @@ const GestionCategoriesWidget: React.FC<GestionCategoriesWidgetProps> = ({ perio
                 <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">Marge Totale</span>
               </div>
               <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{formatCurrency(statsGenerales.margeTotal)}</span>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Alertes et Notifications */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-l-amber-500">
-          <div className="flex items-start">
-            <ExclamationTriangleIcon className="h-6 w-6 text-amber-600 dark:text-amber-400 mr-3 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-amber-900 dark:text-amber-100">Catégorie en Attention</p>
-              <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                La catégorie "Électronique" présente une croissance négative de -2.1%. Analyse recommandée.
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-l-emerald-500">
-          <div className="flex items-start">
-            <CheckCircleIcon className="h-6 w-6 text-emerald-600 dark:text-emerald-400 mr-3 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Performance Excellente</p>
-              <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-1">
-                La catégorie "Téléphonie" affiche une croissance de +15.8%, meilleure performance du mois.
-              </p>
             </div>
           </div>
         </Card>

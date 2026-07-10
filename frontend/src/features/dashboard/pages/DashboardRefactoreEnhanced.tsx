@@ -6,7 +6,6 @@
  * - Error boundaries per widget
  * - Loading skeletons
  * - Type-safe with Pydantic schemas
- * - Fallback to mock data
  */
 
 import React, { useState } from 'react'
@@ -19,7 +18,7 @@ import { useTranslation } from '@shared/hooks/useTranslation'
 interface DashboardRefactorePropsEnhanced {
   isCollapsible?: boolean
   defaultCollapsed?: boolean
-  companyId?: string // Override company ID (for testing)
+  companyId?: string // Override company ID
 }
 
 /**
@@ -197,32 +196,7 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
             <WidgetSkeleton height="h-64" />
           ) : dashboardData ? (
             <ScenariosWidget
-              scenarios={[
-                {
-                  id: 1,
-                  nom: t('dashboard.widgets.scenarios.names.pessimistic'),
-                  ca_mois6: 12000000,
-                  profit_mois6: 1800000,
-                  tresorerie_mois6: 8000000,
-                  risque: 'HAUTE',
-                },
-                {
-                  id: 2,
-                  nom: t('dashboard.widgets.scenarios.names.realistic'),
-                  ca_mois6: 15000000,
-                  profit_mois6: 2700000,
-                  tresorerie_mois6: 12000000,
-                  risque: 'MOYEN',
-                },
-                {
-                  id: 3,
-                  nom: t('dashboard.widgets.scenarios.names.optimistic'),
-                  ca_mois6: 18000000,
-                  profit_mois6: 3600000,
-                  tresorerie_mois6: 16000000,
-                  risque: 'FAIBLE',
-                },
-              ]}
+              scenarios={[]}
               scenarioSelectionne={scenarioSelectionne}
               onSelectScenario={setScenarioSelectionne}
               onAnalyseClick={() => handleAnalyseWithLIA('scenarios')}
@@ -248,16 +222,6 @@ const DashboardRefactoreEnhanced: React.FC<DashboardRefactorePropsEnhanced> = ({
           )}
         </div>
       )}
-
-      {/* Info Footer */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <p className="font-medium mb-2">💡 {t('dashboard.demo_notice_title')}</p>
-        <p>
-          {t('dashboard.demo_notice_text')}
-          <br />
-          🔄 {t('common.recommended_actions_prefix')} {t('common.refresh')}
-        </p>
-      </div>
 
       {/* Widget Controls */}
       <details className="bg-slate-100 rounded-lg p-4">

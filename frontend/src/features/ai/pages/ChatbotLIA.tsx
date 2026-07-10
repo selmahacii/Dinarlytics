@@ -334,27 +334,6 @@ const ChatbotLIA: React.FC = () => {
     return { ok: true as const, added };
   };
 
-  const seedDemoPlan = () => {
-    if (!canEditPlan) return;
-    const now = new Date().toISOString();
-    const demo: ActionItem[] = [
-      { id: `act_${Date.now()}_a`, title: t('chatbot.recs.titles.dso'), owner: t('roles.recouvrement'), due: inDays(15), status: 'todo', note: t('chatbot.recs.dso'), createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_b`, title: t('chatbot.recs.titles.dio'), owner: t('roles.supply_chain'), due: inDays(30), status: 'todo', note: t('chatbot.recs.dio'), createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_c`, title: t('chatbot.recs.titles.dpo'), owner: t('roles.achats'), due: inDays(30), status: 'in-progress', note: t('chatbot.recs.dpo', { min: 45, max: 60 }), createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_d`, title: t('chatbot.recs.titles.margin'), owner: t('roles.commercial'), due: inDays(20), status: 'todo', note: t('chatbot.recs.margin'), createdAt: now, updatedAt: now },
-      { id: `act_${Date.now()}_e`, title: t('chatbot.recs.titles.audit'), owner: t('roles.finance_it'), due: inDays(45), status: 'todo', note: t('chatbot.recs.audit_desc'), createdAt: now, updatedAt: now }
-    ];
-    setPlan(demo);
-    persistPlan(demo);
-    log('create', 'Plan: import du plan de démo (5 actions)');
-  };
-
-  function inDays(n: number) {
-    const d = new Date();
-    d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0, 10);
-  }
-
   // Données contextuelles pour les réponses (ancrage sur l'entreprise)
   const dailySummary = (() => {
     const monthRevenue = companyData?.revenueMonth ?? 2500000;
@@ -398,7 +377,7 @@ const ChatbotLIA: React.FC = () => {
         },
         body: JSON.stringify({
           message: userMessage,
-          company_id: (user as any)?.company_id || 'mock-company',
+          company_id: (user as any)?.company_id,
           context: { currentDevise, currentCountry, planComptable, companyType, segment, sector }
         }),
         signal: controller.signal
@@ -794,7 +773,7 @@ const ChatbotLIA: React.FC = () => {
       };
     }
 
-    // Plan d'actions (statique/démo)
+    // Plan d'actions
     const wantsPlan = isPlan ||
       message.includes(t('chatbot.fallback.cmd_plan').toLowerCase()) ||
       message.includes(t('chatbot.fallback.cmd_plan_full').toLowerCase()) ||
@@ -1929,14 +1908,6 @@ const ChatbotLIA: React.FC = () => {
                 title={canEditPlan ? t('chatbot.auto_generate') : 'Permission requise: rapports-create'}
               >
                 {t('chatbot.auto_generate')}
-              </button>
-              <button
-                onClick={seedDemoPlan}
-                disabled={!canEditPlan}
-                className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${canEditPlan ? 'border-slate-200 text-slate-700 hover:bg-slate-50' : 'border-slate-100 text-slate-300 cursor-not-allowed'}`}
-                title={canEditPlan ? t('chatbot.demo_plan') : 'Permission requise: rapports-create'}
-              >
-                {t('chatbot.demo_plan')}
               </button>
               <button
                 onClick={() => setShowPlan(false)}

@@ -198,7 +198,7 @@ const Fiscalite: React.FC = () => {
       const ibs = benefice > 0 ? benefice * customRates.ibs : 0;
       const tvaAVerser = tvaColl - tvaDed;
 
-      let irg = 45000;
+      let irg = 0;
       try {
         const empRes = await apiClient.get('/rh/employees');
         const employees = empRes.data || [];
@@ -249,7 +249,6 @@ const Fiscalite: React.FC = () => {
 
     setIsGeneratingDeclaration(true);
 
-    // Simulation de génération de déclaration
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
@@ -282,10 +281,7 @@ const Fiscalite: React.FC = () => {
           const exercice = selectedPeriod || new Date().getFullYear().toString();
           const calculated = await fiscalService.calculateG29(exercice);
 
-          const beneficiaries = [
-            { nom: 'Consultant IT (SARD)', nif: '1234567890', adresse: 'Alger', nature: 'Honoraires IT', montantBrut: calculated.total_honoraires * 0.4, retenue: calculated.total_honoraires * 0.4 * 0.15, montantNet: calculated.total_honoraires * 0.4 * 0.85 },
-            { nom: 'Cabinet Juridique EL AMEL', nif: '9876543210', adresse: 'Oran', nature: 'Honoraires Conseil', montantBrut: calculated.total_honoraires * 0.6, retenue: calculated.total_honoraires * 0.6 * 0.15, montantNet: calculated.total_honoraires * 0.6 * 0.85 }
-          ];
+          const beneficiaries = calculated.beneficiaires || [];
 
           nouvelleDeclaration = {
             id: `g29-${exercice}`,
@@ -312,12 +308,12 @@ const Fiscalite: React.FC = () => {
           const trimestre = periode === 'Annuel' ? 'Annuel' : (periode.startsWith('T') ? periode : `T${Math.ceil(parseInt(periode) / 3)}`);
 
           nouvelleDeclaration = genererDeclarationIBS(annee, trimestre, {
-            chiffreAffaires: baseChiffreAffaires,
-            chargesDeductibles: baseCharges,
-            amortissements: 150000,
-            provisions: 50000,
-            nombreSalaries: 8,
-            masseSalariale: 1200000
+            chiffreAffaires: calculsFiscaux.chiffreAffaires,
+            chargesDeductibles: calculsFiscaux.chargesDeductibles,
+            amortissements: 0,
+            provisions: 0,
+            nombreSalaries: 0,
+            masseSalariale: 0
           });
 
           setDeclarationsGenerees(prev => ({
@@ -344,8 +340,8 @@ const Fiscalite: React.FC = () => {
         case 'tap': {
           const exercice = selectedPeriod || new Date().getFullYear().toString();
           nouvelleDeclaration = genererDeclarationTAP(exercice, {
-            chiffreAffairesHT: baseChiffreAffaires,
-            tauxTAP: 0.02
+            chiffreAffairesHT: calculsFiscaux.chiffreAffaires,
+            tauxTAP: customRates.tap
           });
 
           setDeclarationsGenerees(prev => ({
@@ -375,7 +371,6 @@ const Fiscalite: React.FC = () => {
     setIsGeneratingAiReport(true);
     setAiReportContent(null);
 
-    // Simulation de l'intelligence artificielle enrichie par les risques réels
     await new Promise(resolve => setTimeout(resolve, 2500));
 
     const risksText = riskAnalysis.map(r => `• [${r.level.toUpperCase()}] ${r.title}: ${r.message}`).join('\n');
@@ -423,70 +418,13 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
     }
   };
 
-  // Nouvelles métriques fiscales avancées 
-  const declarationsG50 = [
-    {
-      id: 'G50-2026-01',
-      periode: 'Janvier 2026',
-      chiffreAffaires: 5200000,
-      tvaCollectee: 988000,
-      tvaDeductible: 589000,
-      tvaAVerser: 399000,
-      statut: 'Télédéclarée',
-      dateDeclaration: '2026-02-05',
-      numeroDeclaration: 'G50-2026-001',
-      montantVerse: 399000,
-      dateVersement: '2026-02-10',
-      observations: 'Déclaration transmise avec succès'
-    },
-    {
-      id: 'G50-2026-02',
-      periode: 'Février 2026',
-      chiffreAffaires: 1300000,
-      tvaCollectee: 247000,
-      tvaDeductible: 147500,
-      tvaAVerser: 99500,
-      statut: 'Télédéclarée',
-      dateDeclaration: '2026-03-12',
-      numeroDeclaration: 'G50-2026-002',
-      montantVerse: 99500,
-      dateVersement: '2026-03-15',
-      observations: 'Validée'
-    },
-    {
-      id: 'G50-2025-12',
-      periode: 'Décembre 2025',
-      chiffreAffaires: 650000,
-      tvaCollectee: 123500,
-      tvaDeductible: 85000,
-      tvaAVerser: 38500,
-      statut: 'Télédéclarée',
-      dateDeclaration: '2026-01-08',
-      numeroDeclaration: 'G50-2025-012',
-      montantVerse: 38500,
-      dateVersement: '2026-01-15',
-      observations: 'Déclaration validée par l\'administration'
-    },
-    {
-      id: 'G50-2024-11',
-      periode: 'Novembre 2024',
-      chiffreAffaires: 580000,
-      tvaCollectee: 110200,
-      tvaDeductible: 78000,
-      tvaAVerser: 32200,
-      statut: 'Télédéclarée',
-      dateDeclaration: '2024-12-05',
-      numeroDeclaration: 'G50-2024-011',
-      montantVerse: 32200,
-      dateVersement: '2024-12-10',
-      observations: 'Déclaration transmise avec succès'
-    }
-  ];
+  // Déclarations G50 générées (données réelles)
+  const declarationsG50 = declarationsGenerees.g50;
 
-  // Nouvelles métriques fiscales avancées 
+  // Métriques fiscales avancées calculées à partir des données réelles
   const fiscalKPI = (() => {
-    const totalTVAAVerser = declarationsG50.reduce((sum, d) => sum + d.tvaAVerser, 0);
-    const totalIBS = calculsFiscaux.ibs; // ici uniquement IBS annuel simulé
+    const totalTVAAVerser = declarationsG50.reduce((sum, d) => sum + (d.tvaAVerser || 0), 0);
+    const totalIBS = calculsFiscaux.ibs;
     const benefice = calculsFiscaux.beneficeImposable;
     const tauxEffectif = benefice > 0 ? ((totalIBS) / benefice) * 100 : 0;
     const chargeFiscaleTotale = totalIBS + totalTVAAVerser;
@@ -495,25 +433,17 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
       chargeTotale: chargeFiscaleTotale,
       partIBS: Math.round((totalIBS / Math.max(chargeFiscaleTotale, 1)) * 100),
       partTVA: Math.round((totalTVAAVerser / Math.max(chargeFiscaleTotale, 1)) * 100),
-      retardPotentiel: 2 // démo: nombre d'échéances < J+5 non télédéclarées
+      retardPotentiel: riskAnalysis.length
     };
   })();
 
   // Utiliser le calendrier fiscal complet généré
   const calendrierFiscal: CalendrierFiscal[] = calendrierFiscalComplet.length > 0
     ? calendrierFiscalComplet.slice(0, 10) // Afficher les 10 prochaines échéances
-    : [
-      { id: '1', type: 'g50', libelle: 'G50 (TVA mensuelle)', frequence: 'mensuel', dateEcheance: '2026-02-15', joursAvantEcheance: 7, statut: 'proche', priorite: 'haute' },
-      { id: '2', type: 'cnas', libelle: 'CNAS Cotisations', frequence: 'mensuel', dateEcheance: '2026-01-31', joursAvantEcheance: 0, statut: 'en_cours', priorite: 'moyenne' },
-      { id: '3', type: 'ibs', libelle: 'IBS (provisoire)', frequence: 'trimestriel', dateEcheance: '2026-03-31', joursAvantEcheance: 52, statut: 'a_venir', priorite: 'basse' },
-      { id: '4', type: 'ibs', libelle: 'DAS Annuelle', frequence: 'annuel', dateEcheance: '2026-02-20', joursAvantEcheance: 12, statut: 'proche', priorite: 'critique' }
-    ];
+    : [];
 
-  // Écarts vs prévisions (démo)
-  const ecartsFiscaux = [
-    { poste: 'IBS', prevu: 210000, realise: calculsFiscaux.ibs, ecart: calculsFiscaux.ibs - 210000 },
-    { poste: 'TVA à verser (Jan+Fév)', prevu: 50000, realise: declarationsG50[0].tvaAVerser + declarationsG50[1].tvaAVerser, ecart: (declarationsG50[0].tvaAVerser + declarationsG50[1].tvaAVerser) - 50000 }
-  ];
+  // Écarts vs prévisions
+  const ecartsFiscaux: Array<{ poste: string; prevu: number; realise: number; ecart: number }> = [];
 
   return (
     <div className="space-y-6">
@@ -707,7 +637,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 </div>
                 <div className="bg-white/5 backdrop-blur-md p-6 rounded-2xl border border-white/10 text-right min-w-[200px]">
                   <p className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-2">{t('fiscal.ia.predicted_tva')}</p>
-                  <p className="text-3xl font-black text-white mb-2">{formatCurrency(fiscalForecast?.predictedTVANextMonth || -118543)}</p>
+                  <p className="text-3xl font-black text-white mb-2">{formatCurrency(fiscalForecast?.predictedTVANextMonth || 0)}</p>
                   <div className="flex items-center justify-end text-[11px] font-bold text-emerald-400 bg-emerald-500/10 py-1.5 px-3 rounded-lg inline-flex">
                     <CheckCircleIcon className="h-4 w-4 mr-1.5" /> {t('fiscal.ia.confidence_score')}: 85%
                   </div>
@@ -729,15 +659,12 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 {t('fiscal.audit_conformity')}
               </h3>
               <span className="px-3 py-1 bg-rose-50 text-rose-700 rounded-lg text-[10px] font-black uppercase tracking-widest border border-rose-100">
-                8 alertes
+                {riskAnalysis.length} alertes
               </span>
             </div>
 
             <div className="space-y-4 flex-1">
-              {[
-                { title: t('fiscal.audit_ia.alert_title'), message: t('fiscal.audit_ia.alert_desc'), level: 'critical' },
-                { title: 'Crédit de TVA anormalement élevé', message: "La TVA déductible dépasse largement la TVA collectée. Cela attire l'attention de l'administration.", level: 'warning' }
-              ].map((risk, idx) => (
+              {riskAnalysis.map((risk, idx) => (
                 <div key={idx} className={`p-5 rounded-2xl border-l-[6px] transition-all hover:translate-x-1 ${risk.level === 'critical' ? 'bg-rose-50 border-rose-500' : 'bg-amber-50 border-amber-500'}`}>
                   <p className={`text-[11px] font-black uppercase tracking-wider mb-2 ${risk.level === 'critical' ? 'text-rose-600' : 'text-amber-600'}`}>
                     {risk.title}
@@ -808,7 +735,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <span className="text-xs font-semibold text-slate-600 uppercase">{t('fiscal.stats.compliance')}</span>
                   <CheckCircleIcon className="h-4 w-4 text-slate-400" />
                 </div>
-                <div className="text-2xl font-bold text-slate-900">92%</div>
+                <div className="text-2xl font-bold text-slate-900">{100 - (riskAnalysis.length * 10)}%</div>
                 <div className="text-xs text-slate-500 mt-1">{t('fiscal.stats.global_score')}</div>
               </div>
             </div>
@@ -859,11 +786,11 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-600">{t('fiscal.details.installments_paid')}</span>
-                      <span className="font-medium text-slate-900">{formatCurrency(150000)}</span>
+                      <span className="font-medium text-slate-900">{formatCurrency(0)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
                       <span className="text-slate-600">{t('fiscal.details.balance_to_pay')}</span>
-                      <span className="font-bold text-slate-900">{formatCurrency(calculsFiscaux.ibs - 150000)}</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(calculsFiscaux.ibs)}</span>
                     </div>
                     <div className="text-xs text-slate-500 mt-2 italic">
                       ℹ️ {t('fiscal.details.balance_deadline')}
@@ -966,12 +893,12 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">{t('fiscal.details.taxable_income')}</span>
-                      <span className="font-bold text-slate-900">{formatCurrency(45000)}</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(dynamicKPI?.irg || 0)}</span>
                     </div>
                     <div className="pt-2 border-t border-slate-100 flex justify-between items-center">
                       <span className="text-xs font-black text-slate-900 uppercase">{t('fiscal.details.irg_calculated')}</span>
                       <div className="text-right">
-                        <div className="text-xl font-black text-indigo-600">{formatCurrency(2250)}</div>
+                        <div className="text-xl font-black text-indigo-600">{formatCurrency(calculsFiscaux.irg)}</div>
                         <div className="text-[10px] text-slate-400">{t('fiscal.details.irg_total_schedule')}</div>
                       </div>
                     </div>
@@ -1019,7 +946,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Prochaine échéance:</span>
-                      <span className="font-bold text-amber-700">30/02/2026</span>
+                      <span className="font-bold text-amber-700">{getDateEcheance('tap', new Date().getFullYear().toString())}</span>
                     </div>
                   </div>
                 </div>
@@ -1114,15 +1041,15 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.compliance')}</p>
-                  <div className="text-xl font-black text-slate-900">95%</div>
+                  <div className="text-xl font-black text-slate-900">{100 - (riskAnalysis.length * 10)}%</div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.avg_delay')}</p>
-                  <div className="text-sm font-black text-slate-900">1.8 {t('common.days', { defaultValue: 'jours' })}</div>
+                  <div className="text-sm font-black text-slate-900">0 {t('common.days', { defaultValue: 'jours' })}</div>
                 </div>
                 <div className="bg-white p-3 rounded-2xl border border-slate-100 shadow-sm text-center">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.avg_tva')}</p>
-                  <div className="text-sm font-black text-slate-900">{formatCurrency(31500)}</div>
+                  <div className="text-sm font-black text-slate-900">{formatCurrency(declarationsG50.length > 0 ? Math.round(declarationsG50.reduce((s, d) => s + (d.tvaAVerser || 0), 0) / declarationsG50.length) : 0)}</div>
                 </div>
                 <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t('fiscal.g50.q1_status')}</p>
@@ -1180,97 +1107,31 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-50">
-                {[
-                  {
-                    period: "Janvier 2026",
-                    num: "G50-2026-001",
-                    ca: 520000,
-                    coll: 98800,
-                    ded: 72000,
-                    vers: 26800,
-                    date: "05/02/2026",
-                    delay: "15j avant",
-                    status: "Télédéclarée",
-                    score: 100,
-                    perf: "Excellent"
-                  },
-                  {
-                    period: "Janvier 2026",
-                    num: "G50-2026-001",
-                    ca: 620000,
-                    coll: 117800,
-                    ded: 82000,
-                    vers: 35800,
-                    irg: 12500,
-                    tap: 12400,
-                    ibs: 0,
-                    date: "15/02/2026",
-                    delay: "5j avant",
-                    status: "Télédéclarée",
-                    score: 98,
-                    perf: "Très bien"
-                  },
-                  {
-                    period: "Décembre 2024",
-                    num: "G50-2024-012",
-                    ca: 650000,
-                    coll: 123500,
-                    ded: 85000,
-                    vers: 38500,
-                    irg: 14200,
-                    tap: 13000,
-                    ibs: 0,
-                    date: "08/01/2026",
-                    delay: "12j avant",
-                    status: "Télédéclarée",
-                    score: 100,
-                    perf: "Excellent"
-                  },
-                  {
-                    period: "Novembre 2024",
-                    num: "G50-2024-011",
-                    ca: 580000,
-                    coll: 110200,
-                    ded: 78000,
-                    vers: 32200,
-                    irg: 11800,
-                    tap: 11600,
-                    ibs: 0,
-                    date: "05/12/2024",
-                    delay: "15j avant",
-                    status: "Télédéclarée",
-                    score: 100,
-                    perf: "Excellent"
-                  }
-                ].map((row, idx) => (
-                  <tr key={idx} className="group hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{row.period}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-slate-500">{row.num}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{formatCurrency(row.ca)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.coll)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.ded)}</td>
+                {declarationsG50.map((row: any, idx) => (
+                  <tr key={row.id || idx} className="group hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{row.periode}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs font-mono text-slate-500">{row.numero}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{formatCurrency(row.chiffreAffairesHT || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.tvaCollectee || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.tvaDeductible || 0)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.irg || 0)}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium">{formatCurrency(row.tap || 0)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-900 border-l border-slate-100">{formatCurrency(row.vers)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-medium">{row.date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-900 border-l border-slate-100">{formatCurrency(row.tvaAVerser || 0)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500 font-medium">{row.dateGeneration}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded text-[10px] font-bold ${row.delay.includes('avant') ? 'bg-emerald-50 text-emerald-600' : 'text-slate-400'}`}>
-                        {row.delay}
+                      <span className="px-2 py-1 rounded text-[10px] font-bold text-slate-400">
+                        {row.dateEcheance}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider border ${row.status === 'Télédéclarée' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                        row.status === 'En cours' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                          'bg-slate-50 text-slate-600 border-slate-200'
+                      <span className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider border ${row.statut === 'generee' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                        'bg-slate-50 text-slate-600 border-slate-200'
                         }`}>
-                        {row.status}
+                        {row.statut}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center space-x-1">
-                        <span className={`text-sm font-black text-slate-900`}>{row.score}</span>
-                      </div>
-                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{row.perf}</div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">-</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
@@ -1288,12 +1149,12 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="relative overflow-hidden p-5 bg-white rounded-2xl border border-slate-200 group hover:border-indigo-600 transition-all duration-300">
               <div className="relative z-10">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('fiscal.g50.trend.collected_ytd')}</p>
-                <div className="text-2xl font-black text-slate-900 mb-1">423 700 DA</div>
+                <div className="text-2xl font-black text-slate-900 mb-1">{formatCurrency(declarationsG50.reduce((s, d: any) => s + (d.tvaCollectee || 0), 0))}</div>
                 <div className="flex items-center text-emerald-600 text-[10px] font-black uppercase tracking-tighter">
                   <span className="flex items-center justify-center p-1 bg-emerald-50 rounded mr-2">
                     <ArrowTrendingUpIcon className="h-3 w-3" />
                   </span>
-                  +15.4% {t('fiscal.g50.trend.vs_last_year')}
+                  {t('fiscal.g50.trend.vs_last_year')}
                 </div>
               </div>
             </div>
@@ -1301,12 +1162,12 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="relative overflow-hidden p-5 bg-white rounded-2xl border border-slate-200 group hover:border-slate-900 transition-all duration-300">
               <div className="relative z-10">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">À Verser (YTD)</p>
-                <div className="text-2xl font-black text-slate-900 mb-1">120 200 DA</div>
+                <div className="text-2xl font-black text-slate-900 mb-1">{formatCurrency(declarationsG50.reduce((s, d: any) => s + (d.tvaAVerser || 0), 0))}</div>
                 <div className="flex items-center text-slate-500 text-[10px] font-black uppercase tracking-tighter">
                   <span className="flex items-center justify-center p-1 bg-slate-50 rounded mr-2">
                     <ArrowTrendingUpIcon className="h-3 w-3" />
                   </span>
-                  +12.1% vs N-1
+                  vs N-1
                 </div>
               </div>
             </div>
@@ -1315,11 +1176,11 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="relative z-10">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Taux d'Exécution</p>
                 <div className="flex items-baseline space-x-2">
-                  <span className="text-2xl font-black text-slate-900 uppercase tracking-tighter">3 / 4</span>
+                  <span className="text-2xl font-black text-slate-900 uppercase tracking-tighter">{declarationsG50.length}</span>
                   <span className="text-sm font-bold text-slate-400 tracking-tight">Mois déclarés</span>
                 </div>
                 <div className="mt-3 h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-900 rounded-full w-[75%]"></div>
+                  <div className="h-full bg-slate-900 rounded-full" style={{ width: `${Math.min(100, declarationsG50.length * 25)}%` }}></div>
                 </div>
               </div>
             </div>
@@ -1328,10 +1189,9 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="relative z-10">
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Performance Globale</p>
                 <div className="flex items-center justify-between">
-                  <div className="text-3xl font-black text-slate-900 tracking-tighter">88/100</div>
+                  <div className="text-3xl font-black text-slate-900 tracking-tighter">{100 - (riskAnalysis.length * 10)}/100</div>
                   <SparklesIcon className="h-8 w-8 text-slate-300" />
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2 italic font-medium">"Excellence opérationnelle"</p>
               </div>
             </div>
           </div>
@@ -1456,11 +1316,11 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">{t('fiscal.simulator.ca_label')}</label>
-                <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue="3200000" />
+                <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue={calculsFiscaux.chiffreAffaires} />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">{t('fiscal.simulator.charges_label')}</label>
-                <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue="2400000" />
+                <input type="number" className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold" defaultValue={calculsFiscaux.chargesDeductibles} />
               </div>
             </div>
             <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">

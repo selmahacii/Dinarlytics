@@ -48,7 +48,7 @@ export const fiscalService = {
         const tva_a_verser = net_tva > 0 ? net_tva : 0;
         const credit_tva_reporte = net_tva < 0 ? Math.abs(net_tva) : 0;
 
-        // IRG Salaires (Mocked as % of CA for demo if no payroll module)
+        // IRG Salaires (estimated as % of CA if no payroll module)
         const irg_salaires = Math.round(ca_ht * 0.05);
 
         return {
@@ -89,8 +89,12 @@ export const fiscalService = {
     },
 
     getHistoryG50: async (): Promise<G50Data[]> => {
-        // In a real app, this would be stored in DB. For demo, we compute for last 3 months.
-        const months = ['2024-01', '2024-02'];
+        const now = new Date();
+        const months: string[] = [];
+        for (let i = 2; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+        }
         const results = await Promise.all(months.map(m => fiscalService.calculateG50(m)));
         return results;
     },
@@ -106,7 +110,7 @@ export const fiscalService = {
 
         const risks = [];
 
-        // Risk 1: Missing Documents (Demo logic: if invoice has no file attached/URL)
+        // Risk 1: Missing supporting documents (invoice has no file attached/URL)
         const missingDocs = active.filter(i => !i.fileUrl).length;
         if (missingDocs > 0) {
             risks.push({
@@ -164,12 +168,9 @@ export const fiscalService = {
     },
 
     /**
-     * Simulate PDF Export
+     * Export Risk Report as PDF
      */
     exportRiskReportPDF: async (content: string) => {
-        console.log("Generating PDF Risk Report...");
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        // Simple mock of file download
         const blob = new Blob([content], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

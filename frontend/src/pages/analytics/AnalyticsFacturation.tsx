@@ -155,143 +155,6 @@ const AnalyticsFacturation: React.FC = () => {
     setNewInvoice({ ...newInvoice, items });
   };
 
-  // Détermination du facteur d'échelle selon la taille de l'entreprise
-  const scaleFactor = useMemo(() => {
-    if (!user?.segment) return 1;
-    switch (user.segment) {
-      case 'micro': return 0.15;
-      case 'small': return 0.6;
-      case 'medium': return 1.2;
-      case 'large': return 6.0;
-      case 'enterprise': return 25.0;
-      default: return 1;
-    }
-  }, [user]);
-
-  // Initial data generator
-  const getInitialInvoices = useMemo(() => {
-    const rawInvoices = [
-      {
-        id: 'F-2024-0001',
-        factureId: 'FAC-2024-0001',
-        type: 'sale',
-        client: 'SARL El-Mountazah Construction',
-        entityDetails: {
-          adresse: 'Zone Industrielle Oued Smar, Alger',
-          nif: '000516019012345',
-          nis: '000516019012345001',
-          rc: '16/00-0987654B15',
-          ai: '16001234567',
-          rib: '001 00016 0123456789 01'
-        },
-        date: '2024-02-15',
-        echeance: '2024-03-15',
-        paymentMode: 'virement',
-        items: [
-          { desc: 'Ciment Portland CPJ 42.5 (Sac 50kg)', qty: 200, pu: 850 * scaleFactor, type: 'bien', tva_rate: 19 },
-          { desc: 'Rond à béton 12mm (Tonne)', qty: 5, pu: 115000 * scaleFactor, type: 'bien', tva_rate: 19 },
-          { desc: 'Briques creuses 8 trous', qty: 5000, pu: 25 * scaleFactor, type: 'bien', tva_rate: 19 }
-        ],
-        tvaRate: 19,
-        statut: 'payee',
-        secteur: 'btp',
-        audit: [
-          { action: 'Création', user: 'Admin', date: '2024-02-15 09:12' },
-          { action: 'Validation Fiscale', user: 'Comptable', date: '2024-02-15 10:45' },
-          { action: 'Envoi par Email', user: 'Système', date: '2024-02-15 10:50' }
-        ]
-      },
-      {
-        id: 'F-2024-0002',
-        factureId: 'FAC-2024-0002',
-        type: 'sale',
-        client: 'EURL Kouba Telecom',
-        entityDetails: {
-          adresse: '12 Rue des Glycines, Kouba, Alger',
-          nif: '001216059045678',
-          nis: '001216059045678002',
-          rc: '16/00-1122334A16',
-          ai: '16056789012',
-          rib: '003 00014 9876543210 99'
-        },
-        date: '2024-02-10',
-        echeance: '2024-03-10',
-        paymentMode: 'cheque',
-        items: [
-          { desc: 'Installation Fibre Optique (Forfait)', qty: 1, pu: 350000 * scaleFactor, type: 'service', tva_rate: 19 },
-          { desc: 'Configuration Routeurs Cisco', qty: 2, pu: 50000 * scaleFactor, type: 'service', tva_rate: 19 }
-        ],
-        tvaRate: 19,
-        statut: 'payee',
-        secteur: 'services',
-        audit: [
-          { action: 'Création', user: 'Admin', date: '2024-02-10 14:20' }
-        ]
-      },
-      {
-        id: 'F-2024-0003',
-        factureId: 'FAC-2024-0003',
-        type: 'sale',
-        client: 'Groupement Algerian Petroleum',
-        entityDetails: {
-          adresse: 'Base de Vie, Hassi Messaoud, Ouargla',
-          nif: '000030019000011',
-          nis: '000030019000011003',
-          rc: '30/00-5566778B22',
-          ai: '30009988776',
-          rib: '005 00030 1122334455 11'
-        },
-        date: '2024-02-05',
-        echeance: '2024-03-07',
-        paymentMode: 'virement',
-        items: [
-          { desc: 'Main d\'œuvre technique (Heures)', qty: 120, pu: 4500 * scaleFactor, type: 'service', tva_rate: 19 },
-          { desc: 'Maintenance préventive groupe électrogène', qty: 2, pu: 155000 * scaleFactor, type: 'service', tva_rate: 9 },
-          { desc: 'Kit de rechange filtration Heavy Duty', qty: 10, pu: 225000 * scaleFactor, type: 'bien', tva_rate: 19 }
-        ],
-        tvaRate: 19,
-        statut: 'en_retard',
-        secteur: 'industrie',
-        audit: [
-          { action: 'Création', user: 'Finance MG', date: '2024-02-05 08:00' }
-        ]
-      }
-    ];
-
-    return rawInvoices.map(inv => {
-      const itemsWithTotals = inv.items.map(item => {
-        const line_total_ht = item.qty * item.pu;
-        const line_total_tva = Math.round(line_total_ht * (item.tva_rate / 100));
-        return {
-          ...item,
-          line_total_ht,
-          line_total_tva,
-          line_total_ttc: line_total_ht + line_total_tva
-        };
-      });
-
-      const totalHT = itemsWithTotals.reduce((sum, i) => sum + i.line_total_ht, 0);
-      const totalTVA = itemsWithTotals.reduce((sum, i) => sum + i.line_total_tva, 0);
-      const totalTAP = Math.round(totalHT * 0.01);
-      const rawTotal = totalHT + totalTVA + totalTAP;
-      const droitTimbre = inv.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
-      const totalTTC = rawTotal + droitTimbre;
-
-      return {
-        ...inv,
-        items: itemsWithTotals,
-        totalHT,
-        totalTVA,
-        totalTAP,
-        droitTimbre,
-        totalTTC,
-        montant: totalTTC,
-        montantPaye: inv.statut === 'payee' ? totalTTC : 0,
-        retard: inv.statut === 'en_retard' ? 15 : 0
-      } as Invoice;
-    });
-  }, [scaleFactor]);
-
   // State for invoices (loaded dynamically from backend)
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
@@ -449,14 +312,7 @@ const AnalyticsFacturation: React.FC = () => {
     datasets: [
       {
         label: t('invoices.chart.dataset_label'),
-        data: [
-          12500000 * scaleFactor,
-          14200000 * scaleFactor,
-          11800000 * scaleFactor,
-          18500000 * scaleFactor,
-          15400000 * scaleFactor,
-          stats.totalCA
-        ],
+        data: [0, 0, 0, 0, 0, stats.totalCA],
         borderColor: '#0f172a', // slate-900
         backgroundColor: 'rgba(15, 23, 42, 0.05)',
         fill: true,
@@ -467,7 +323,7 @@ const AnalyticsFacturation: React.FC = () => {
         pointBorderWidth: 2
       }
     ]
-  }), [scaleFactor, stats.totalCA]);
+  }), [stats.totalCA]);
 
   const openDetails = (inv: Invoice) => {
     setSelectedInvoice(inv);
@@ -511,7 +367,7 @@ const AnalyticsFacturation: React.FC = () => {
         <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl text-slate-600"><CurrencyDollarIcon className="h-6 w-6" /></div>
-            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">+12.4%</span>
+            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">0%</span>
           </div>
           <div className="text-sm font-bold text-slate-400 uppercase tracking-wider">{t('invoices.global_ca')}</div>
           <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{formatCurrency(stats.totalCA)}</div>
@@ -545,65 +401,6 @@ const AnalyticsFacturation: React.FC = () => {
         </div>
       </div>
 
-      {/* Commercial Project Insights for Reviewers */}
-      <div className="bg-indigo-600 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12 pointer-events-none">
-          <ArrowTrendingUpIcon className="w-64 h-64" />
-        </div>
-        
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-xs font-black uppercase tracking-widest mb-6">
-              <SparklesIcon className="h-4 w-4 mr-2" /> {t('invoices.commercial_project.focus_title')}
-            </div>
-            <h2 className="text-4xl font-black mb-6 leading-tight">{t('invoices.commercial_project.model_clarification')}</h2>
-            <p className="text-indigo-100 text-lg mb-8 leading-relaxed">
-              {t('invoices.commercial_project.description')}
-            </p>
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="bg-white/10 p-2 rounded-lg"><CheckCircleIcon className="h-6 w-6 text-emerald-400" /></div>
-                <div>
-                  <span className="block font-bold">{t('invoices.commercial_project.bfr_optim')}</span>
-                  <span className="text-sm text-indigo-200">{t('invoices.commercial_project.bfr_optim_desc')}</span>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="bg-white/10 p-2 rounded-lg"><CheckCircleIcon className="h-6 w-6 text-emerald-400" /></div>
-                <div>
-                  <span className="block font-bold">{t('invoices.commercial_project.client_segmentation')}</span>
-                  <span className="text-sm text-indigo-200">{t('invoices.commercial_project.client_segmentation_desc')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/20">
-            <h3 className="text-xl font-bold mb-6 flex items-center">
-              <ChartBarIcon className="h-6 w-6 mr-3 text-emerald-300" /> {t('invoices.commercial_project.market_impact')}
-            </h3>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-indigo-900/40 p-5 rounded-2xl">
-                <span className="block text-3xl font-black text-emerald-400">15%</span>
-                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">{t('invoices.commercial_project.efficiency_gains')}</span>
-              </div>
-              <div className="bg-indigo-900/40 p-5 rounded-2xl">
-                <span className="block text-3xl font-black text-blue-300">22%</span>
-                <span className="text-xs font-bold text-indigo-200 uppercase mt-1">{t('invoices.commercial_project.loyalty_increase')}</span>
-              </div>
-            </div>
-            <div className="mt-8 pt-8 border-t border-white/10">
-              <p className="text-sm italic text-indigo-100 mb-4">
-                "{t('invoices.commercial_project.roi_quote')}"
-              </p>
-              <button className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black rounded-xl transition-all shadow-xl shadow-emerald-500/20">
-                {t('invoices.commercial_project.generate_report')}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Graphique d'évolution */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
@@ -624,10 +421,10 @@ const AnalyticsFacturation: React.FC = () => {
           <h3 className="text-xl font-black text-slate-800 dark:text-white mb-6">{t('invoices.growing_sectors')}</h3>
           <div className="space-y-6">
             {[
-              { label: t('invoices.sectors.industry'), value: 45, color: 'bg-blue-500' },
-              { label: t('invoices.sectors.it'), value: 25, color: 'bg-emerald-500' },
-              { label: t('invoices.sectors.construction'), value: 20, color: 'bg-amber-500' },
-              { label: t('invoices.sectors.others'), value: 10, color: 'bg-slate-300' }
+              { label: t('invoices.sectors.industry'), value: 0, color: 'bg-blue-500' },
+              { label: t('invoices.sectors.it'), value: 0, color: 'bg-emerald-500' },
+              { label: t('invoices.sectors.construction'), value: 0, color: 'bg-amber-500' },
+              { label: t('invoices.sectors.others'), value: 0, color: 'bg-slate-300' }
             ].map((s, i) => (
               <div key={i}>
                 <div className="flex justify-between items-center mb-2">

@@ -269,7 +269,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
         </div>
       </div>
 
-      {/* Articles (Simplifié pour l'exemple, normalement dynamique) */}
+      {/* Articles */}
       <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
           <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />
@@ -431,7 +431,6 @@ const Fournisseurs: React.FC = () => {
       } catch (err) {
         console.error("Erreur lors de la suppression API:", err);
       }
-      // Update local state regardless of API success for demo
       setFournisseursList(prev => prev.filter(f => f.id !== id));
     }
   };
@@ -446,7 +445,6 @@ const Fournisseurs: React.FC = () => {
     deleteSupplier
   } = useSuppliers();
 
-  // Local state for suppliers to allow immediate UI updates (Demo Mode)
   // Local state for suppliers to allow immediate UI updates
   const [fournisseursList, setFournisseursList] = useState<any[]>([]);
 
@@ -1526,10 +1524,10 @@ const Fournisseurs: React.FC = () => {
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[
-                { label: t('crm.suppliers.messages.total_bc_emitted'), val: "156", icon: ClipboardDocumentListIcon },
-                { label: t('crm.suppliers.messages.in_approval'), val: "12", icon: ClockIcon },
-                { label: t('crm.suppliers.messages.in_transit'), val: "08", icon: GlobeAltIcon },
-                { label: t('crm.suppliers.messages.anomalies'), val: "03", icon: ExclamationTriangleIcon }
+                { label: t('crm.suppliers.messages.total_bc_emitted'), val: commandes.length, icon: ClipboardDocumentListIcon },
+                { label: t('crm.suppliers.messages.in_approval'), val: 0, icon: ClockIcon },
+                { label: t('crm.suppliers.messages.in_transit'), val: 0, icon: GlobeAltIcon },
+                { label: t('crm.suppliers.messages.anomalies'), val: 0, icon: ExclamationTriangleIcon }
               ].map((stat, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-2">
@@ -1621,10 +1619,10 @@ const Fournisseurs: React.FC = () => {
             {/* KPI Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: t('crm.suppliers.messages.total_invoices'), val: "12", sub: "Exercice 2024", icon: DocumentTextIcon, trend: "+3 ce mois" },
-                { label: t('crm.suppliers.table.total_ttc'), val: "2 458 900", unit: "DA", sub: "Toutes pièces", icon: CurrencyDollarIcon, trend: "HT: 2 057 059 DA" },
-                { label: t('crm.suppliers.messages.in_instance'), val: "4", sub: "En attente de validation", icon: ClockIcon, trend: "Délai moy: 3j" },
-                { label: t('crm.suppliers.messages.compliance'), val: "67%", sub: "Pièces certifiées (8/12)", icon: DocumentCheckIcon, trend: "8/12 vérifiées" },
+                { label: t('crm.suppliers.messages.total_invoices'), val: 0, sub: "", icon: DocumentTextIcon, trend: "" },
+                { label: t('crm.suppliers.table.total_ttc'), val: 0, unit: "DA", sub: "", icon: CurrencyDollarIcon, trend: "" },
+                { label: t('crm.suppliers.messages.in_instance'), val: 0, sub: "", icon: ClockIcon, trend: "" },
+                { label: t('crm.suppliers.messages.compliance'), val: "0%", sub: "", icon: DocumentCheckIcon, trend: "" },
               ].map((kpi, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -1650,7 +1648,7 @@ const Fournisseurs: React.FC = () => {
                   {f}
                 </button>
               ))}
-              <div className="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest">12 pièces — 2024</div>
+              <div className="ml-auto text-[10px] font-black text-slate-400 uppercase tracking-widest">0 pièces — 2024</div>
             </div>
 
             {/* Main Table */}
@@ -1671,16 +1669,7 @@ const Fournisseurs: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {[
-                      { id: 'FAC-2024-881', emetteur: 'Global Logistics Algerie', fournisseurId: 'f-001', type: 'FACTURE', refBC: 'BC-2024-101', ht: 378151, ttc: 450000, tva: 19, echeance: '15/02/2024', compliance: 'VÉRIFIÉ', joursRetard: 0 },
-                      { id: 'FAC-2024-882', emetteur: 'Industrie Plastique Nord', fournisseurId: 'f-002', type: 'FACTURE', refBC: 'BC-2024-087', ht: 100840, ttc: 120000, tva: 19, echeance: '28/02/2024', compliance: 'EN ATTENTE', joursRetard: 0 },
-                      { id: 'FAC-2024-883', emetteur: 'Tech Solutions Import', fournisseurId: 'f-003', type: 'AVOIR', refBC: 'BC-2024-064', ht: 71429, ttc: 85000, tva: 19, echeance: '10/01/2024', compliance: 'REJETÉ', joursRetard: 40 },
-                      { id: 'FAC-2024-884', emetteur: 'Papeterie Centrale SPA', fournisseurId: 'f-004', type: 'FACTURE', refBC: 'BC-2024-092', ht: 252101, ttc: 300000, tva: 19, echeance: '05/03/2024', compliance: 'EN ATTENTE', joursRetard: 0 },
-                      { id: 'FAC-2024-885', emetteur: 'Global Logistics Algerie', fournisseurId: 'f-001', type: 'FACTURE', refBC: 'BC-2024-115', ht: 630252, ttc: 750000, tva: 19, echeance: '20/03/2024', compliance: 'VÉRIFIÉ', joursRetard: 0 },
-                      { id: 'FAC-2024-886', emetteur: 'Industrie Plastique Nord', fournisseurId: 'f-002', type: 'FACTURE', refBC: 'BC-2024-098', ht: 168067, ttc: 200000, tva: 19, echeance: '12/01/2024', compliance: 'VÉRIFIÉ', joursRetard: 38 },
-                      { id: 'NOTE-2024-021', emetteur: 'Tech Solutions Import', fournisseurId: 'f-003', type: 'NOTE DÉBIT', refBC: 'BC-2024-071', ht: 42017, ttc: 50000, tva: 19, echeance: '01/03/2024', compliance: 'EN ATTENTE', joursRetard: 0 },
-                      { id: 'FAC-2024-887', emetteur: 'Papeterie Centrale SPA', fournisseurId: 'f-004', type: 'FACTURE', refBC: 'BC-2024-103', ht: 84034, ttc: 100000, tva: 19, echeance: '08/04/2024', compliance: 'VÉRIFIÉ', joursRetard: 0 },
-                    ].map((fac) => (
+                    {([] as any[]).map((fac) => (
                       <tr key={fac.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors group">
                         <td className="px-6 py-5">
                           <div>
@@ -1748,8 +1737,8 @@ const Fournisseurs: React.FC = () => {
                   <tfoot className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
                     <tr>
                       <td colSpan={4} className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Exercice 2024</td>
-                      <td className="px-6 py-4 text-right text-[11px] font-black font-mono text-slate-600 dark:text-slate-300">{formatCurrency(1726891)}</td>
-                      <td className="px-6 py-4 text-right text-sm font-black font-mono text-slate-900 dark:text-white">{formatCurrency(2055000)}</td>
+                      <td className="px-6 py-4 text-right text-[11px] font-black font-mono text-slate-600 dark:text-slate-300">{formatCurrency(0)}</td>
+                      <td className="px-6 py-4 text-right text-sm font-black font-mono text-slate-900 dark:text-white">{formatCurrency(0)}</td>
                       <td colSpan={3}></td>
                     </tr>
                   </tfoot>
@@ -1793,10 +1782,10 @@ const Fournisseurs: React.FC = () => {
             {/* KPI Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { label: t('crm.suppliers.messages.total_disbursed'), val: formatCurrency(575000), sub: "Exercice 2024", icon: BanknotesIcon, trend: "3 virements" },
-                { label: t('crm.suppliers.messages.in_instance'), val: formatCurrency(825000), sub: "Règlements à émettre", icon: ClockIcon, trend: "2 éch. proches" },
-                { label: t('crm.suppliers.messages.overdue'), val: formatCurrency(125000), sub: "Pénalités potentielles", icon: ExclamationTriangleIcon, trend: "1 fournisseur" },
-                { label: t('crm.suppliers.stats.avg_dpo'), val: "42 jours", sub: "Days Payable Outstanding", icon: ChartBarIcon, trend: "Cible: 45j" },
+                { label: t('crm.suppliers.messages.total_disbursed'), val: formatCurrency(0), sub: "", icon: BanknotesIcon, trend: "" },
+                { label: t('crm.suppliers.messages.in_instance'), val: formatCurrency(0), sub: "", icon: ClockIcon, trend: "" },
+                { label: t('crm.suppliers.messages.overdue'), val: formatCurrency(0), sub: "", icon: ExclamationTriangleIcon, trend: "" },
+                { label: t('crm.suppliers.stats.avg_dpo'), val: "0 jours", sub: "Days Payable Outstanding", icon: ChartBarIcon, trend: "" },
               ].map((kpi, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -1837,14 +1826,7 @@ const Fournisseurs: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {[
-                      { id: 'VIR-2024-001', name: 'Global Logistics Algerie', fId: 'f-001', facture: 'FAC-2024-881', mode: 'Virement', date: '15/01/2024', echeance: '15/01/2024', mount: 450000, status: 'EFFECTUÉ', retard: 0 },
-                      { id: 'VIR-2024-002', name: 'Industrie Plastique Nord', fId: 'f-002', facture: 'FAC-2024-882', mode: 'Chèque', date: '18/02/2024', echeance: '28/02/2024', mount: 120000, status: 'INSTANCE', retard: 0 },
-                      { id: 'VIR-2024-003', name: 'Tech Solutions Import', fId: 'f-003', facture: 'FAC-2024-883', mode: 'Virement', date: '10/01/2024', echeance: '10/01/2024', mount: 85000, status: 'RETARD', retard: 40 },
-                      { id: 'VIR-2024-004', name: 'Papeterie Centrale SPA', fId: 'f-004', facture: 'FAC-2024-884', mode: 'Traite', date: '', echeance: '05/03/2024', mount: 300000, status: 'INSTANCE', retard: 0 },
-                      { id: 'VIR-2024-005', name: 'Global Logistics Algerie', fId: 'f-001', facture: 'FAC-2024-885', mode: 'Virement', date: '20/01/2024', echeance: '20/01/2024', mount: 125000, status: 'EFFECTUÉ', retard: 0 },
-                      { id: 'VIR-2024-006', name: 'Industrie Plastique Nord', fId: 'f-002', facture: 'FAC-2024-886', mode: 'Virement', date: '', echeance: '12/03/2024', mount: 200000, status: 'INSTANCE', retard: 0 },
-                    ].map((pay) => (
+                    {([] as any[]).map((pay) => (
                       <tr key={pay.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors group">
                         <td className="px-6 py-4">
                           <div className="text-[10px] font-black font-mono text-slate-900 dark:text-white">{pay.id}</div>
@@ -1904,7 +1886,7 @@ const Fournisseurs: React.FC = () => {
                   <tfoot className="bg-slate-50 dark:bg-slate-800/50 border-t-2 border-slate-200 dark:border-slate-700">
                     <tr>
                       <td colSpan={5} className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Exercice 2024</td>
-                      <td className="px-6 py-4 text-right text-sm font-black font-mono text-slate-900 dark:text-white">{formatCurrency(1280000)}</td>
+                      <td className="px-6 py-4 text-right text-sm font-black font-mono text-slate-900 dark:text-white">{formatCurrency(0)}</td>
                       <td colSpan={2}></td>
                     </tr>
                   </tfoot>
@@ -1939,10 +1921,10 @@ const Fournisseurs: React.FC = () => {
             {/* KPI Cards — Enriched */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { label: t('crm.suppliers.messages.total_commitments'), val: formatCurrency(5940000), sub: "Total achats 2024", trend: "+18.3% vs 2023", icon: ChartPieIcon },
-                { label: t('crm.suppliers.messages.avg_lead_time'), val: "12.4j", sub: "Cmd → livraison", trend: "-2.1j vs 2023", icon: ClockIcon },
-                { label: t('crm.suppliers.messages.quality_score'), val: "87/100", sub: "Avg. 4 fournisseurs", trend: "STABLE", icon: StarIcon },
-                { label: t('crm.suppliers.messages.purchase_orders'), val: "156", sub: "Émis sur l'exercice", trend: "+8% vs 2023", icon: ChartBarIcon },
+                { label: t('crm.suppliers.messages.total_commitments'), val: formatCurrency(0), sub: "", trend: "", icon: ChartPieIcon },
+                { label: t('crm.suppliers.messages.avg_lead_time'), val: "0j", sub: "", trend: "", icon: ClockIcon },
+                { label: t('crm.suppliers.messages.quality_score'), val: "0/100", sub: "", trend: "", icon: StarIcon },
+                { label: t('crm.suppliers.messages.purchase_orders'), val: commandes.length, sub: "", trend: "", icon: ChartBarIcon },
               ].map((kpi, idx) => (
                 <div key={idx} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
@@ -1964,7 +1946,7 @@ const Fournisseurs: React.FC = () => {
                 <div className="h-64 mt-6">
                   <LineChart
                     title={t('crm.suppliers.analytics.commitment_title')}
-                    data={[285, 320, 410, 375, 495, 480, 540, 510, 620, 665, 710, 730]}
+                    data={[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}
                     labels={['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc']}
                     borderColor="#0f172a"
                     backgroundColor="rgba(15, 23, 42, 0.05)"
@@ -1976,8 +1958,8 @@ const Fournisseurs: React.FC = () => {
                 <div className="h-64 mt-6">
                   <DoughnutChart
                     title={t('crm.suppliers.analytics.distribution_supplier')}
-                    data={[48, 32, 14, 6]}
-                    labels={['Global Logistics Algerie', 'Industrie Plastique Nord', 'Tech Solutions Import', 'Papeterie Centrale SPA']}
+                    data={[]}
+                    labels={[]}
                     colors={['#0f172a', '#334155', '#475569', '#94a3b8']}
                   />
                 </div>
@@ -2004,12 +1986,7 @@ const Fournisseurs: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {[
-                      { nom: 'Global Logistics Algerie', achats: 2850000, bc: 67, leadTime: '10j', qualite: 92, dpo: 45, part: 48, trend: '▲' },
-                      { nom: 'Industrie Plastique Nord', achats: 1920000, bc: 48, leadTime: '14j', qualite: 86, dpo: 38, part: 32, trend: '▲' },
-                      { nom: 'Tech Solutions Import', achats: 850000, bc: 27, leadTime: '18j', qualite: 78, dpo: 52, part: 14, trend: '▼' },
-                      { nom: 'Papeterie Centrale SPA', achats: 320000, bc: 14, leadTime: '7j', qualite: 95, dpo: 30, part: 6, trend: '—' },
-                    ].map((f, i) => (
+                    {([] as any[]).map((f, i) => (
                       <tr key={f.nom} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -2418,20 +2395,6 @@ const Fournisseurs: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-4 py-2 text-sm text-gray-900">Matériel de bureau - Classeur</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">10</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{formatCurrency(4200)}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{formatCurrency(800)}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900 font-medium">{formatCurrency(50000)}</td>
-                        </tr>
-                        <tr>
-                          <td className="px-4 py-2 text-sm text-gray-900">Fournitures de bureau - Papier A4</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">5</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{formatCurrency(12600)}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900">{formatCurrency(2400)}</td>
-                          <td className="px-4 py-2 text-sm text-gray-900 font-medium">{formatCurrency(75000)}</td>
-                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -2453,19 +2416,19 @@ const Fournisseurs: React.FC = () => {
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">Montant HT :</span>
-                          <span className="text-sm font-medium text-gray-900">{formatCurrency(168000)}</span>
+                          <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">TVA (19%) :</span>
-                          <span className="text-sm font-medium text-gray-900">{formatCurrency(32000)}</span>
+                          <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
                         </div>
                         <div className="flex justify-between border-t pt-2">
                           <span className="text-sm font-semibold text-gray-800">Total TTC :</span>
-                          <span className="text-sm font-bold text-gray-900">{formatCurrency(200000)}</span>
+                          <span className="text-sm font-bold text-gray-900">{formatCurrency(selectedCommande?.val || 0)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">Timbre fiscal :</span>
-                          <span className="text-sm font-medium text-gray-900">{formatCurrency(200)}</span>
+                          <span className="text-sm font-medium text-gray-900">{formatCurrency(0)}</span>
                         </div>
                       </div>
                     </div>
@@ -2479,21 +2442,21 @@ const Fournisseurs: React.FC = () => {
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">Code SCF :</span>
-                          <span className="text-sm font-medium text-gray-900">SCF-2024-001</span>
+                          <span className="text-sm font-medium text-gray-900">—</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">Date SCF :</span>
-                          <span className="text-sm font-medium text-gray-900">15/01/2024</span>
+                          <span className="text-sm font-medium text-gray-900">—</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">Statut SCF :</span>
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                            Validé
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                            —
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600">Référence fiscale :</span>
-                          <span className="text-sm font-medium text-gray-900">RF-2024-001</span>
+                          <span className="text-sm font-medium text-gray-900">—</span>
                         </div>
                       </div>
                     </div>
@@ -2513,7 +2476,7 @@ const Fournisseurs: React.FC = () => {
                           <DocumentTextIcon className="h-5 w-5 text-blue-600 mr-3" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">Bon de commande</p>
-                            <p className="text-xs text-gray-500">CMD-2024-001.pdf</p>
+                            <p className="text-xs text-gray-500">{selectedCommande?.id ? `${selectedCommande.id}.pdf` : '—'}</p>
                           </div>
                         </div>
                         <button type="button" className="text-blue-600 hover:text-blue-800" aria-label="Télécharger le document">
@@ -2571,29 +2534,11 @@ const Fournisseurs: React.FC = () => {
                   <div className="space-y-3">
                     <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border">
                       <div className="flex-shrink-0">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Commande livrée</p>
-                        <p className="text-xs text-gray-500">15/02/2024 - 14:30 par Ahmed Benali</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border">
-                      <div className="flex-shrink-0">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-900">Commande confirmée</p>
-                        <p className="text-xs text-gray-500">16/01/2024 - 09:15 par Fatima Khelil</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border">
-                      <div className="flex-shrink-0">
                         <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900">Commande créée</p>
-                        <p className="text-xs text-gray-500">15/01/2024 - 10:00 par Mohamed Boudiaf</p>
+                        <p className="text-xs text-gray-500">{selectedCommande?.date || '—'}</p>
                       </div>
                     </div>
                   </div>
@@ -3495,7 +3440,7 @@ const Fournisseurs: React.FC = () => {
                 <input
                   type="text"
                   disabled={!!selectedReglement}
-                  value={selectedReglement?.name || "Global Logistics Algerie"}
+                  value={selectedReglement?.name || ""}
                   className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold bg-slate-50"
                 />
               </div>
@@ -3504,7 +3449,7 @@ const Fournisseurs: React.FC = () => {
                 <input
                   type="text"
                   disabled={!!selectedReglement}
-                  value={selectedReglement?.facture || "FAC-2024-887"}
+                  value={selectedReglement?.facture || ""}
                   className="w-full border border-slate-200 rounded-xl p-3 text-sm font-bold bg-slate-50"
                 />
               </div>
@@ -3525,7 +3470,7 @@ const Fournisseurs: React.FC = () => {
                 <input
                   type="text"
                   disabled={!!selectedReglement}
-                  value={selectedReglement?.mount?.toLocaleString() || "100,000"}
+                  value={selectedReglement?.mount?.toLocaleString() || "0"}
                   className="w-full border border-slate-200 rounded-xl p-3 text-sm font-black font-mono"
                 />
               </div>
@@ -3573,27 +3518,22 @@ const Fournisseurs: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-6 bg-slate-900 text-white rounded-2xl">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Total à 30 jours</p>
-                <p className="text-2xl font-black font-mono">1 250 000 DA</p>
+                <p className="text-2xl font-black font-mono">{formatCurrency(0)}</p>
               </div>
               <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Retards Critiques</p>
-                <p className="text-2xl font-black font-mono text-red-600">85 000 DA</p>
+                <p className="text-2xl font-black font-mono text-red-600">{formatCurrency(0)}</p>
               </div>
               <div className="p-6 bg-slate-100 rounded-2xl">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Trésorerie Disponible</p>
-                <p className="text-2xl font-black font-mono text-slate-900">4 820 000 DA</p>
+                <p className="text-2xl font-black font-mono text-slate-900">{formatCurrency(0)}</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Prochaines Échéances</h4>
               <div className="space-y-2">
-                {[
-                  { date: '28/02/2024', provider: 'Industrie Plastique Nord', mount: 120000, status: 'INSTANCE' },
-                  { date: '05/03/2024', provider: 'Papeterie Centrale SPA', mount: 300000, status: 'INSTANCE' },
-                  { date: '12/03/2024', provider: 'Industrie Plastique Nord', mount: 200000, status: 'TRÉSORERIE PRÉVUE' },
-                  { date: '20/03/2024', provider: 'Global Logistics Algerie', mount: 630000, status: 'PROGRAMMÉ' }
-                ].map((item, idx) => (
+                {([] as any[]).map((item, idx) => (
                   <div key={idx} className="flex items-center justify-between p-5 bg-white border border-slate-100 rounded-2xl hover:border-slate-300 transition-all group">
                     <div className="flex items-center gap-6">
                       <div className="text-center">
@@ -3655,11 +3595,11 @@ const Fournisseurs: React.FC = () => {
                   <div className="relative z-10 flex items-center justify-between">
                     <div>
                       <h4 className="text-3xl font-black uppercase tracking-tighter italic">Supplier Intelligence</h4>
-                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Génération du 22 Février 2026 — 22:45</p>
+                      <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] mt-1">Génération du {new Date().toLocaleDateString('fr-FR')}</p>
                     </div>
                     <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
                       <p className="text-[8px] font-black uppercase tracking-widest text-slate-400 text-center mb-1">Score Efficacité</p>
-                      <p className="text-2xl font-black font-mono">84.2%</p>
+                      <p className="text-2xl font-black font-mono">—</p>
                     </div>
                   </div>
                 </div>
@@ -3670,11 +3610,7 @@ const Fournisseurs: React.FC = () => {
                       <ShieldCheckIcon className="h-4 w-4 text-emerald-500" /> Points de Robustesse
                     </h5>
                     <ul className="space-y-4">
-                      {[
-                        { t: "Concentration Maîtrisée", d: "Le top 1 représente 48% du volume, seuil de sécurité respecté (<50%)." },
-                        { t: "Cycle de Paiement", d: "DPO moyen à 42 jours, offrant un levier de trésorerie de 1.2M DA." },
-                        { t: "Qualité Stable", d: "92% de conformité sur les livraisons de Global Logistics." }
-                      ].map((item, i) => (
+                      {([] as { t: string; d: string }[]).map((item, i) => (
                         <li key={i} className="flex gap-4">
                           <CheckCircleIcon className="h-5 w-5 text-emerald-500 shrink-0" />
                           <div>
@@ -3691,18 +3627,6 @@ const Fournisseurs: React.FC = () => {
                       <ExclamationTriangleIcon className="h-4 w-4 text-amber-500" /> Alertes & Optimisations
                     </h5>
                     <ul className="space-y-4">
-                      <li className="p-4 bg-amber-50 border border-amber-100 rounded-2xl">
-                        <p className="text-xs font-black text-amber-900 flex items-center gap-2">
-                          <ClockIcon className="h-4 w-4" /> Risque Tech Solutions
-                        </p>
-                        <p className="text-[10px] text-amber-700 font-medium mt-1">Délai de livraison en hausse (+4j). Impact potentiel sur le stock tampon.</p>
-                      </li>
-                      <li className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl">
-                        <p className="text-xs font-black text-indigo-900 flex items-center gap-2">
-                          <BanknotesIcon className="h-4 w-4" /> Opportunité Escompte
-                        </p>
-                        <p className="text-[10px] text-indigo-700 font-medium mt-1">Industrie Plastique propose -2% pour paiement à 10j. Gain estimé: 38k DA.</p>
-                      </li>
                     </ul>
                   </div>
                 </div>

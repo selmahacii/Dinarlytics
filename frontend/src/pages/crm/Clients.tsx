@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, ChartBarIcon, DocumentTextIcon, BanknotesIcon, UserGroupIcon, ExclamationTriangleIcon, PhoneIcon, CheckCircleIcon, CurrencyDollarIcon, CalendarIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, ClockIcon, ExclamationCircleIcon, PaperAirplaneIcon, BellIcon, DocumentArrowDownIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, DocumentChartBarIcon, ChartPieIcon, TruckIcon, BuildingOfficeIcon, MapPinIcon, PlayIcon, UserIcon, CheckIcon, SparklesIcon, CpuChipIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
@@ -123,9 +123,8 @@ const Clients: React.FC = () => {
     if (!apiClients || apiClients.length === 0) return [];
 
     const historique = apiClients.flatMap((client: any, clientIdx: number) => {
-      // Utilisation d'un CA de référence plus stable pour la démo
-      const caReference = client.caTotal || (client.solde > 0 ? client.solde * 5 : 1200000);
-      const nombreFactures = 15 + (clientIdx % 5); // Deterministic for demo
+      const caReference = client.caTotal || (client.solde > 0 ? client.solde * 5 : 0);
+      const nombreFactures = 15 + (clientIdx % 5);
       return Array.from({ length: nombreFactures }, (_, i) => {
         const date = new Date();
         date.setMonth(date.getMonth() - (nombreFactures - i));
@@ -500,20 +499,10 @@ const Clients: React.FC = () => {
     const tauxFidelisation = Math.round((clientsActifs / nombreClients) * 100);
 
     // Top 5 clients par CA
-    const topClients = [
-      { nom: 'Client A', ca: Math.round(caTotal * 0.25), statut: 'Actif', zone: 'Alger' },
-      { nom: 'Client B', ca: Math.round(caTotal * 0.20), statut: 'Actif', zone: 'Oran' },
-      { nom: 'Client C', ca: Math.round(caTotal * 0.15), statut: 'Actif', zone: 'Alger' },
-      { nom: 'Client D', ca: Math.round(caTotal * 0.12), statut: 'Actif', zone: 'Annaba' },
-      { nom: 'Client E', ca: Math.round(caTotal * 0.10), statut: 'Inactif', zone: 'Constantine' }
-    ];
+    const topClients: { nom: string; ca: number; statut: string; zone: string }[] = [];
 
     // Répartition CA par zone
-    const caParZone = [
-      { zone: 'Alger', ca: Math.round(caTotal * 0.50), clients: Math.round(nombreClients * 0.45), couleur: 'from-emerald-500 to-teal-500' },
-      { zone: 'Oran', ca: Math.round(caTotal * 0.25), clients: Math.round(nombreClients * 0.25), couleur: 'from-blue-500 to-indigo-500' },
-      { zone: 'Autres', ca: Math.round(caTotal * 0.25), clients: Math.round(nombreClients * 0.30), couleur: 'from-slate-600 to-slate-800' }
-    ];
+    const caParZone: { zone: string; ca: number; clients: number; couleur: string }[] = [];
 
     const pageContent = AdaptiveContentGenerator.generatePageContent('clients', contentContext);
 
@@ -624,20 +613,6 @@ const Clients: React.FC = () => {
                 {t('clients.attention_points')}
               </h2>
               <div className="space-y-3">
-                <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-800/30 flex items-start gap-4">
-                  <ExclamationCircleIcon className="h-6 w-6 text-rose-500 shrink-0" />
-                  <div>
-                    <h4 className="text-sm font-black text-rose-700 dark:text-rose-400">{t('clients.alerts.risk')}</h4>
-                    <p className="text-xs text-rose-600/80 mt-1 font-medium">{t('clients.alerts.risk_desc', { name: "Client E" })}</p>
-                  </div>
-                </div>
-                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-100 dark:border-amber-800/30 flex items-start gap-4">
-                  <ClockIcon className="h-6 w-6 text-amber-600 shrink-0" />
-                  <div>
-                    <h4 className="text-sm font-black text-amber-700 dark:text-amber-400">{t('clients.alerts.payment_delay')}</h4>
-                    <p className="text-xs text-amber-600/80 mt-1 font-medium">{t('clients.alerts.payment_delay_desc', { count: 3, amount: formatCurrency(Math.round(caTotal * 0.05)) })}</p>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -2699,280 +2674,6 @@ const Clients: React.FC = () => {
 
             {/* Contenu du rapport selon le type */}
             <div className="bg-white dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-8 shadow-sm">
-              {selectedRapport.type === 'ventes' && (
-                <div className="space-y-10">
-                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6">
-                    <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-                      <div className="w-1.5 h-6 bg-slate-900 dark:bg-white rounded-full"></div>
-                      {t('crm.clients.sections.sales_analysis_by_client')}
-                    </h4>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{selectedRapport.periode}</span>
-                  </div>
-
-                  {/* Résumé exécutif Sober */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[
-                      { label: "Chiffre d'affaires total", val: "2,450,000 DZD", trend: "+15.2%", sub: "vs mois précédent", color: "text-slate-900" },
-                      { label: "Nombre de clients", val: "87", trend: "+12", sub: "nouveaux clients", color: "text-slate-900" },
-                      { label: "Panier moyen", val: "28,161 DZD", trend: "Optimisé", sub: "Par client", color: "text-slate-900" }
-                    ].map((idx, i) => (
-                      <div key={i} className="p-6 bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 relative overflow-hidden group">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">{idx.label}</p>
-                        <p className={`text-2xl font-black font-mono ${idx.color} dark:text-white`}>{idx.val}</p>
-                        <div className="flex items-center gap-2 mt-4">
-                          <span className="text-[10px] font-black text-emerald-500 uppercase">{idx.trend}</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">{idx.sub}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Top 05 Performance Table */}
-                  <div>
-                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-1 flex items-center gap-2">
-                      <SparklesIcon className="h-4 w-4" /> {t('crm.clients.sections.top_5_performance_clients')}
-                    </h5>
-                    <div className="overflow-hidden border border-slate-100 dark:border-slate-800 rounded-3xl">
-                      <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
-                        <thead className="bg-slate-50 dark:bg-slate-900/50">
-                          <tr>
-                            <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.rang')}</th>
-                            <th className="px-6 py-4 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.partner')}</th>
-                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.ca_generated')}</th>
-                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.quote_part')}</th>
-                            <th className="px-6 py-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest">{t('crm.clients.table.evolution')}</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-50 dark:divide-slate-800">
-                          {[
-                            { rang: 1, nom: 'SARL DZ', ca: 485000, part: 19.8, evolution: 12.5 },
-                            { rang: 2, nom: 'Entreprise ABC', ca: 420000, part: 17.1, evolution: 8.3 },
-                            { rang: 3, nom: 'Société XYZ', ca: 380000, part: 15.5, evolution: -2.1 },
-                            { rang: 4, nom: 'Groupe DEF', ca: 325000, part: 13.3, evolution: 18.7 },
-                            { rang: 5, nom: 'Compagnie GHI', ca: 285000, part: 11.6, evolution: 5.4 }
-                          ].map((client) => (
-                            <tr key={client.rang} className="hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-                              <td className="px-6 py-5 text-xs font-black text-slate-900 dark:text-white">#{client.rang}</td>
-                              <td className="px-6 py-5">
-                                <span className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase">{client.nom}</span>
-                              </td>
-                              <td className="px-6 py-5 text-right text-xs font-black text-slate-900 dark:text-white font-mono lowercase">{formatCurrency(client.ca)}</td>
-                              <td className="px-6 py-5 text-right text-[10px] font-black text-slate-500 uppercase">{client.part}%</td>
-                              <td className="px-6 py-5 text-right">
-                                <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase ${client.evolution >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                  {client.evolution >= 0 ? '↗' : '↘'} {Math.abs(client.evolution)}%
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedRapport.type === 'paiements' && (
-                <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">💰 {t('crm.clients.sections.payment_and_delay_analysis_with_period', { period: selectedRapport.periode })}</h4>
-
-                  {/* Statistiques des paiements */}
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.payments_received')}</div>
-                      <div className="text-2xl font-bold text-emerald-600">1,850,000 DZD</div>
-                    </div>
-                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.communications_pending')}</div>
-                      <div className="text-2xl font-bold text-amber-600">425,000 DZD</div>
-                    </div>
-                    <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.overdue_amount')}</div>
-                      <div className="text-2xl font-bold text-red-600">175,000 DZD</div>
-                    </div>
-                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.recovery_rate')}</div>
-                      <div className="text-2xl font-bold text-slate-900">75.5%</div>
-                    </div>
-                  </div>
-
-                  {/* Détails des retards */}
-                  <div>
-                    <h5 className="text-base font-semibold text-slate-900 mb-3">{t('crm.clients.sections.overdue_invoices')}</h5>
-                    <div className="space-y-2">
-                      {[
-                        { facture: 'FAC-2024-001', client: 'Société XYZ', montant: 85000, jours: 45, priorite: 'haute' },
-                        { facture: 'FAC-2024-008', client: 'Groupe DEF', montant: 62000, jours: 30, priorite: 'moyenne' },
-                        { facture: 'FAC-2024-012', client: 'Entreprise ABC', montant: 28000, jours: 15, priorite: 'basse' }
-                      ].map((retard, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3">
-                              <div>
-                                <p className="text-sm font-medium text-gray-900">{retard.facture} - {retard.client}</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{retard.jours} {t('crm.clients.days_overdue')}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right mr-4">
-                            <div className="font-bold text-red-600">{formatCurrency(retard.montant)}</div>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${retard.priorite === 'haute' ? 'bg-red-100 text-red-700' :
-                            retard.priorite === 'moyenne' ? 'bg-amber-100 text-amber-700' :
-                              'bg-slate-100 text-slate-700'
-                            }`}>
-                            {retard.priorite}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedRapport.type === 'relances' && (
-                <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">📧 {t('crm.clients.sections.reminder_tracking_with_period', { period: selectedRapport.periode })}</h4>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.reminders_sent')}</div>
-                      <div className="text-2xl font-bold text-amber-600">24</div>
-                    </div>
-                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.payments_obtained')}</div>
-                      <div className="text-2xl font-bold text-emerald-600">18</div>
-                    </div>
-                    <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.response_rate')}</div>
-                      <div className="text-2xl font-bold text-cyan-600">75%</div>
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-slate-600 leading-relaxed">
-                    <p className="mb-2">📊 <strong>{t('crm.clients.efficiency_of_reminders_label')}</strong> Sur 24 relances envoyées ce mois, 18 ont abouti à un paiement, soit un taux de réussite de 75%.</p>
-                    <p className="mb-2">📈 <strong>{t('crm.clients.avg_payment_delay_after_reminder_label')}</strong> 8 jours</p>
-                    <p>💡 <strong>{t('common.recommendation_prefix')}</strong> Les relances par téléphone ont un taux de succès de 85%, contre 65% pour les emails.</p>
-                  </div>
-                </div>
-              )}
-
-              {selectedRapport.type === 'satisfaction' && (
-                <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⭐ {t('crm.clients.sections.satisfaction_survey_with_period', { period: selectedRapport.periode })}</h4>
-
-                  <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.avg_score')}</div>
-                      <div className="text-3xl font-bold text-emerald-600">4.2/5</div>
-                    </div>
-                    <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.responses_count')}</div>
-                      <div className="text-2xl font-bold text-cyan-600">156</div>
-                    </div>
-                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.stats.response_rate')}</div>
-                      <div className="text-2xl font-bold text-amber-600">62%</div>
-                    </div>
-                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                      <div className="text-sm text-slate-600 mb-1">NPS</div>
-                      <div className="text-2xl font-bold text-slate-900">+42</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h5 className="text-base font-semibold text-slate-900 mb-3">{t('crm.clients.sections.notes_distribution')}</h5>
-                    <div className="space-y-2">
-                      {[
-                        { note: 5, count: 78, color: 'emerald' },
-                        { note: 4, count: 45, color: 'cyan' },
-                        { note: 3, count: 22, color: 'amber' },
-                        { note: 2, count: 8, color: 'red' },
-                        { note: 1, count: 3, color: 'red' }
-                      ].map((item) => (
-                        <div key={item.note} className="flex items-center space-x-3">
-                          <div className="w-16 text-sm font-medium text-slate-700">{item.note} {t('crm.clients.stars')}</div>
-                          <div className="flex-1 bg-slate-200 rounded-full h-2 mr-2">
-                            <div
-                              className={`bg-${item.color}-500 h-2 rounded-full flex items-center justify-end pr-2`}
-                              style={{ width: `${(item.count / 156) * 100}%` }}
-                            >
-                              <span className="text-xs font-bold text-white">{item.count}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedRapport.type === 'performance' && (
-                <div className="space-y-8">
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 pb-4">{t('crm.clients.sections.vip_performance_analysis')}</h4>
-
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{t('crm.clients.stats.ca_vip')}</p>
-                      <p className="text-3xl font-black text-slate-900 dark:text-white font-mono">{formatCurrency(1240000)}</p>
-                      <div className="mt-4 flex items-center gap-2">
-                        <div className="h-1.5 flex-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <div className="h-full bg-slate-900 dark:bg-white w-[50.6%]"></div>
-                        </div>
-                        <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase">{t('crm.clients.percent_ca', { percent: 50.6 })}</span>
-                      </div>
-                    </div>
-                    <div className="p-8 bg-slate-900 text-white rounded-[2rem]">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">{t('crm.clients.stats.client_base_volume')}</p>
-                      <p className="text-3xl font-black font-mono">15</p>
-                      <div className="mt-4 flex items-center gap-2">
-                        <div className="h-1.5 flex-1 bg-white/20 rounded-full overflow-hidden">
-                          <div className="h-full bg-white w-[17%]"></div>
-                        </div>
-                        <span className="text-[10px] font-black text-white uppercase">{t('crm.clients.percent_base', { percent: 17 })}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-sm text-slate-600 leading-relaxed">
-                    <p>💎 <strong>{t('crm.clients.key_observation_prefix')}</strong> Les 15 clients VIP représentent plus de la moitié du chiffre d'affaires total. La fidélisation de ces comptes stratégiques est prioritaire.</p>
-                  </div>
-                </div>
-              )}
-
-              {selectedRapport.type === 'risques' && (
-                <div className="space-y-6">
-                  <h4 className="text-lg font-semibold text-slate-900 border-b border-slate-200 pb-3">⚠️ {t('crm.clients.sections.risk_evaluation_with_period', { period: selectedRapport.periode })}</h4>
-
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.risk_levels.critical')}</div>
-                      <div className="text-2xl font-bold text-red-600">8 {t('crm.clients.tabs.list')}</div>
-                      <div className="text-xs text-slate-600 mt-1">{t('crm.clients.exposure_label')} 285k DZD</div>
-                    </div>
-                    <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                      <div className="text-sm text-slate-600 mb-1">Risque moyen</div>
-                      <div className="text-2xl font-bold text-amber-600">23 clients</div>
-                      <div className="text-xs text-slate-600 mt-1">Exposition: 520k DZD</div>
-                    </div>
-                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
-                      <div className="text-sm text-slate-600 mb-1">{t('crm.clients.risk_levels.moderate')}</div>
-                      <div className="text-2xl font-bold text-emerald-600">56 {t('crm.clients.tabs.list')}</div>
-                      <div className="text-xs text-slate-600 mt-1">{t('crm.clients.exposure_label')} 1,645k DZD</div>
-                    </div>
-                  </div>
-
-                  <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                    <div className="flex items-start space-x-3">
-                      <ExclamationTriangleIcon className="h-6 w-6 text-amber-600 flex-shrink-0 mt-1" />
-                      <div className="text-sm text-slate-700">
-                        <strong>{t('common.recommended_actions_prefix')}</strong> 8 clients présentent un risque élevé avec une exposition totale de 285,000 DZD. Révision des limites de crédit et renforcement du suivi recommandés.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Message générique pour autres types */}
               {!['ventes', 'paiements', 'relances', 'satisfaction', 'performance', 'risques'].includes(selectedRapport.type) && (
                 <div className="text-center py-12">

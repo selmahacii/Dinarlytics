@@ -88,182 +88,6 @@ const RealTimeCollaboration: React.FC<RealTimeCollaborationProps> = ({
   const [commentType, setCommentType] = useState<'comment' | 'suggestion' | 'question' | 'approval'>('comment');
   const [selectedCollaborator, setSelectedCollaborator] = useState<string>('');
 
-  // Données de démonstration
-  const demoComments: Comment[] = [
-    {
-      id: '1',
-      author: {
-        id: 'user1',
-        name: 'Marie Dubois',
-        avatar: '👩‍💼',
-        role: 'Manager'
-      },
-      content: 'Excellent rapport ! Les métriques de rétention sont très encourageantes. Pourriez-vous ajouter une comparaison avec le trimestre précédent ?',
-      timestamp: '2024-01-15 14:30',
-      type: 'suggestion',
-      status: 'active',
-      replies: [
-        {
-          id: '1-1',
-          author: {
-            id: 'user2',
-            name: 'Ahmed Benali',
-            avatar: '👨‍💻',
-            role: 'Analyste'
-          },
-          content: 'Bonne idée ! Je vais ajouter cette comparaison dans la prochaine version.',
-          timestamp: '2024-01-15 14:35',
-          type: 'comment',
-          status: 'active',
-          replies: [],
-          likes: 2,
-          isLiked: true,
-          mentions: []
-        }
-      ],
-      likes: 5,
-      isLiked: true,
-      mentions: ['@ahmed']
-    },
-    {
-      id: '2',
-      author: {
-        id: 'user3',
-        name: 'Sophie Martin',
-        avatar: '👩‍🔬',
-        role: 'Data Scientist'
-      },
-      content: 'Les corrélations entre satisfaction client et rétention sont très intéressantes. Cela confirme nos hypothèses !',
-      timestamp: '2024-01-15 13:45',
-      type: 'approval',
-      status: 'active',
-      replies: [],
-      likes: 3,
-      isLiked: false,
-      mentions: []
-    },
-    {
-      id: '3',
-      author: {
-        id: 'user4',
-        name: 'Pierre Leroy',
-        avatar: '👨‍💼',
-        role: 'Directeur'
-      },
-      content: 'Question : Comment expliquer la baisse du taux de conversion en mars ? Y a-t-il des facteurs externes à considérer ?',
-      timestamp: '2024-01-15 12:20',
-      type: 'question',
-      status: 'active',
-      replies: [],
-      likes: 1,
-      isLiked: false,
-      mentions: ['@marie', '@ahmed']
-    }
-  ];
-
-  const demoVersions: Version[] = [
-    {
-      id: '1',
-      number: 'v2.1',
-      author: {
-        id: 'user2',
-        name: 'Ahmed Benali',
-        avatar: '👨‍💻'
-      },
-      changes: [
-        'Ajout de la comparaison trimestrielle',
-        'Amélioration des graphiques de rétention',
-        'Correction des métriques de churn'
-      ],
-      timestamp: '2024-01-15 15:00',
-      isCurrent: true,
-      comment: 'Version finale avec toutes les suggestions intégrées'
-    },
-    {
-      id: '2',
-      number: 'v2.0',
-      author: {
-        id: 'user2',
-        name: 'Ahmed Benali',
-        avatar: '👨‍💻'
-      },
-      changes: [
-        'Ajout de l\'analyse de cohorte',
-        'Nouveaux KPIs de performance',
-        'Interface utilisateur améliorée'
-      ],
-      timestamp: '2024-01-14 16:30',
-      isCurrent: false,
-      comment: 'Version majeure avec nouvelles fonctionnalités'
-    },
-    {
-      id: '3',
-      number: 'v1.9',
-      author: {
-        id: 'user1',
-        name: 'Marie Dubois',
-        avatar: '👩‍💼'
-      },
-      changes: [
-        'Correction des bugs de calcul',
-        'Optimisation des performances',
-        'Mise à jour des données'
-      ],
-      timestamp: '2024-01-13 14:15',
-      isCurrent: false,
-      comment: 'Version de maintenance'
-    }
-  ];
-
-  const demoCollaborators: Collaborator[] = [
-    {
-      id: 'user1',
-      name: 'Marie Dubois',
-      avatar: '👩‍💼',
-      role: 'Manager',
-      permissions: ['view', 'comment', 'edit', 'admin'],
-      isOnline: true,
-      lastSeen: 'Maintenant',
-      currentActivity: 'Consulte le rapport de vente'
-    },
-    {
-      id: 'user2',
-      name: 'Ahmed Benali',
-      avatar: '👨‍💻',
-      role: 'Analyste',
-      permissions: ['view', 'comment', 'edit'],
-      isOnline: true,
-      lastSeen: 'Maintenant',
-      currentActivity: 'Modifie le tableau de bord'
-    },
-    {
-      id: 'user3',
-      name: 'Sophie Martin',
-      avatar: '👩‍🔬',
-      role: 'Data Scientist',
-      permissions: ['view', 'comment'],
-      isOnline: false,
-      lastSeen: 'Il y a 2 heures',
-      currentActivity: 'En pause'
-    },
-    {
-      id: 'user4',
-      name: 'Pierre Leroy',
-      avatar: '👨‍💼',
-      role: 'Directeur',
-      permissions: ['view', 'comment'],
-      isOnline: true,
-      lastSeen: 'Maintenant',
-      currentActivity: 'Examine les métriques'
-    }
-  ];
-
-  useEffect(() => {
-    setComments(demoComments);
-    setVersions(demoVersions);
-    setCollaborators(demoCollaborators);
-  }, []);
-
   const getCommentTypeColor = (type: string) => {
     switch (type) {
       case 'comment': return 'bg-blue-100 text-blue-800';
@@ -420,7 +244,7 @@ const RealTimeCollaboration: React.FC<RealTimeCollaborationProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Engagement</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">87%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">0%</p>
                 </div>
                 <HeartIcon className="h-8 w-8 text-red-500" />
               </div>
@@ -459,7 +283,7 @@ const RealTimeCollaboration: React.FC<RealTimeCollaborationProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Engagement</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">87%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">0%</p>
                 </div>
                 <HeartIcon className="h-8 w-8 text-red-500" />
               </div>
@@ -1057,7 +881,7 @@ const RealTimeCollaboration: React.FC<RealTimeCollaborationProps> = ({
             <div className="flex space-x-2">
               <input
                 type="text"
-                value="https://rapport.dinarlytic.com/share/abc123"
+                value=""
                 readOnly
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
               />

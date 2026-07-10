@@ -263,9 +263,9 @@ const GestionRH: React.FC = () => {
           <div className="p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {[
-                { label: t('rh.holidays.pending'), count: 3, color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-                { label: t('rh.holidays.approved'), count: 12, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
-                { label: t('rh.holidays.refused'), count: 1, color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
+                { label: t('rh.holidays.pending'), count: 0, color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
+                { label: t('rh.holidays.approved'), count: 0, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200' },
+                { label: t('rh.holidays.refused'), count: 0, color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
               ].map((item, i) => (
                 <div key={i} className={`p-4 rounded-xl border ${item.bg} flex items-center justify-between`}>
                   <span className="text-sm font-semibold text-slate-700">{item.label}</span>
@@ -281,13 +281,7 @@ const GestionRH: React.FC = () => {
                   ))}
                 </tr></thead>
                 <tbody className="divide-y divide-slate-100">
-                  {[
-                    { emp: 'Naima Ferhat', type: t('rh.holidays.types.annual'), from: '2024-02-05', to: '2024-02-19', days: 15, status: 'approved' },
-                    { emp: 'Yacine Maamar', type: t('rh.holidays.types.annual'), from: '2024-02-12', to: '2024-02-16', days: 5, status: 'pending' },
-                    { emp: 'Sara Bouzid', type: t('rh.holidays.types.sick'), from: '2024-01-28', to: '2024-01-30', days: 3, status: 'approved' },
-                    { emp: 'Mehdi Ghouri', type: t('rh.holidays.types.annual'), from: '2024-03-01', to: '2024-03-05', days: 5, status: 'pending' },
-                    { emp: 'Farid Si Ahmed', type: t('rh.holidays.types.annual'), from: '2024-02-19', to: '2024-02-19', days: 1, status: 'refused' },
-                  ].map((row, i) => {
+                  {([] as { emp: string; type: string; from: string; to: string; days: number; status: string }[]).map((row, i) => {
                     const statusColors: Record<string, string> = { pending: 'bg-amber-100 text-amber-700', approved: 'bg-emerald-100 text-emerald-700', refused: 'bg-red-100 text-red-700' };
                     const statusLabels: Record<string, string> = { pending: t('rh.holidays.status.pending'), approved: t('rh.holidays.status.approved'), refused: t('rh.holidays.status.refused') };
                     return (

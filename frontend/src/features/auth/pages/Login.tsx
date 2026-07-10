@@ -6,7 +6,6 @@ import {
   UserIcon,
   LockClosedIcon,
   BuildingOfficeIcon,
-  ShieldCheckIcon,
   ArrowRightIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
@@ -59,14 +58,6 @@ const Login: React.FC = () => {
   const [expandedCompany, setExpandedCompany] = useState<string | null>(null);
   const [showDemoUsers, setShowDemoUsers] = useState(true);
   const [showLangMenu, setShowLangMenu] = useState(false);
-
-  const handleReviewerAccess = async () => {
-    // Find the DG profile or first admin-like profile
-    const reviewerProfile = allDemoUserCreds.find(u => u.role === 'dg' || u.role === 'admin') || allDemoUserCreds[0];
-    if (reviewerProfile) {
-      handleDemoUserClick(reviewerProfile);
-    }
-  };
 
   const handleLanguageChange = (lng: string) => {
     changeLang(lng as any);
@@ -375,27 +366,6 @@ const Login: React.FC = () => {
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-slate-800 mb-3">{t('auth.login.card_title')}</h2>
             <p className="text-slate-600 text-lg mb-6">{t('auth.login.card_subtitle')}</p>
-            
-            {/* Reviewer Quick Access */}
-            <div className="mb-8 p-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-indigo-500 rounded-2xl">
-              <button
-                type="button"
-                onClick={handleReviewerAccess}
-                disabled={isLoading || loadingDemoUsers}
-                className="w-full bg-white hover:bg-slate-50 text-slate-800 font-bold py-4 px-6 rounded-xl flex items-center justify-between transition-all group"
-              >
-                <div className="flex items-center text-left">
-                  <div className="bg-emerald-100 p-2 rounded-lg me-4 group-hover:scale-110 transition-transform">
-                    <ShieldCheckIcon className="h-6 w-6 text-emerald-600" />
-                  </div>
-                  <div>
-                    <span className="block text-emerald-700 text-sm font-bold uppercase tracking-wider">Accès Évaluateur</span>
-                    <span className="text-slate-700">Démonstration Complète (DG/Admin)</span>
-                  </div>
-                </div>
-                <ArrowRightIcon className="h-5 w-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
           </div>
 
           {/* Success Message */}
@@ -625,12 +595,6 @@ const Login: React.FC = () => {
                     )}
                   </div>
                 ))}
-              </div>
-
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-xs text-blue-800">
-                  <strong>💡 {t('auth.login.tip_title')}</strong> {t('auth.login.tip_text')}
-                </p>
               </div>
             </div>
           )}

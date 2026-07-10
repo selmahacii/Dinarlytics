@@ -56,99 +56,6 @@ const SmartScheduling: React.FC<SmartSchedulingProps> = ({
   const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'analytics'>('list');
   const [showOptimizations, setShowOptimizations] = useState(true);
 
-  // Données de démonstration pour la planification intelligente
-  const demoReports: ScheduledReport[] = [
-    {
-      id: '1',
-      name: 'Rapport de Ventes Quotidien',
-      type: 'rapport',
-      frequency: 'daily',
-      time: '08:00',
-      recipients: ['admin@entreprise.dz', 'commercial@entreprise.dz'],
-      status: 'active',
-      lastRun: '2024-01-15 08:00',
-      nextRun: '2024-01-16 08:00',
-      successRate: 98.5,
-      engagement: 87.2,
-      dependencies: ['extraction_donnees', 'calcul_kpis'],
-      optimizedTime: true,
-      autoRetry: true,
-      priority: 'high'
-    },
-    {
-      id: '2',
-      name: 'Dashboard Exécutif Hebdomadaire',
-      type: 'dashboard',
-      frequency: 'weekly',
-      time: '09:00',
-      recipients: ['direction@entreprise.dz'],
-      status: 'active',
-      lastRun: '2024-01-12 09:00',
-      nextRun: '2024-01-19 09:00',
-      successRate: 100,
-      engagement: 94.8,
-      dependencies: ['rapport_ventes', 'rapport_financier'],
-      optimizedTime: true,
-      autoRetry: true,
-      priority: 'high'
-    },
-    {
-      id: '3',
-      name: 'Alerte Seuils Financiers',
-      type: 'alerte',
-      frequency: 'daily',
-      time: '18:00',
-      recipients: ['comptable@entreprise.dz'],
-      status: 'active',
-      lastRun: '2024-01-15 18:00',
-      nextRun: '2024-01-16 18:00',
-      successRate: 95.2,
-      engagement: 76.4,
-      dependencies: ['calcul_ratios'],
-      optimizedTime: false,
-      autoRetry: false,
-      priority: 'medium'
-    },
-    {
-      id: '4',
-      name: 'Rapport Mensuel Comptable',
-      type: 'rapport',
-      frequency: 'monthly',
-      time: '10:00',
-      recipients: ['comptable@entreprise.dz', 'audit@entreprise.dz'],
-      status: 'paused',
-      lastRun: '2023-12-31 10:00',
-      nextRun: '2024-01-31 10:00',
-      successRate: 92.1,
-      engagement: 89.3,
-      dependencies: ['cloture_mensuelle', 'rapport_tva'],
-      optimizedTime: true,
-      autoRetry: true,
-      priority: 'medium'
-    },
-    {
-      id: '5',
-      name: 'Analyse de Performance Trimestrielle',
-      type: 'rapport',
-      frequency: 'quarterly',
-      time: '14:00',
-      recipients: ['direction@entreprise.dz', 'rh@entreprise.dz'],
-      status: 'error',
-      lastRun: '2024-01-10 14:00',
-      nextRun: '2024-04-01 14:00',
-      successRate: 78.9,
-      engagement: 65.2,
-      dependencies: ['rapport_ventes', 'rapport_financier', 'rapport_rh'],
-      optimizedTime: false,
-      autoRetry: true,
-      priority: 'low'
-    }
-  ];
-
-  useEffect(() => {
-    setScheduledReports(demoReports);
-  }, []);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'text-green-600 bg-green-100';
@@ -208,7 +115,6 @@ const SmartScheduling: React.FC<SmartSchedulingProps> = ({
   };
 
   const handleOptimizeSchedule = () => {
-    // Simulation de l'optimisation automatique
     setScheduledReports(prev => prev.map(report => ({
       ...report,
       optimizedTime: true,
@@ -219,8 +125,12 @@ const SmartScheduling: React.FC<SmartSchedulingProps> = ({
   const activeReports = scheduledReports.filter(r => r.status === 'active').length;
   const pausedReports = scheduledReports.filter(r => r.status === 'paused').length;
   const errorReports = scheduledReports.filter(r => r.status === 'error').length;
-  const avgSuccessRate = scheduledReports.reduce((sum, r) => sum + r.successRate, 0) / scheduledReports.length;
-  const avgEngagement = scheduledReports.reduce((sum, r) => sum + r.engagement, 0) / scheduledReports.length;
+  const avgSuccessRate = scheduledReports.length > 0
+    ? scheduledReports.reduce((sum, r) => sum + r.successRate, 0) / scheduledReports.length
+    : 0;
+  const avgEngagement = scheduledReports.length > 0
+    ? scheduledReports.reduce((sum, r) => sum + r.engagement, 0) / scheduledReports.length
+    : 0;
 
   if (!isVisible) return null;
 
