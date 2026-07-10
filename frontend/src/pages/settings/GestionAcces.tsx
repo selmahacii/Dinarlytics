@@ -6,7 +6,6 @@ import {
   ChartBarIcon,
   CogIcon,
   PlusIcon,
-  PencilIcon,
   TrashIcon,
   EyeIcon,
   CheckCircleIcon,
@@ -28,6 +27,7 @@ import { useEffect } from 'react';
 
 interface Company {
   id: number;
+  backendId: string;
   name: string;
   type: string;
   size: string;
@@ -45,30 +45,28 @@ const GestionAcces: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const mapBackendCompany = (c: any, index: number): Company => ({
+    id: index + 1,
+    backendId: c.id,
+    name: c.name || 'Société',
+    type: 'sarl',
+    size: 'small',
+    accessLevel: 'small',
+    users: 1,
+    maxUsers: 5,
+    status: c.is_active ? 'active' : 'suspended',
+    createdAt: '',
+    lastActivity: '',
+    revenue: 0,
+    employees: 0
+  });
+
   useEffect(() => {
     const loadCompanyData = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get('/auth/me');
-        const userData = response.data;
-        if (userData) {
-          setCompanies([
-            {
-              id: 1,
-              name: userData.company_name || 'Ma Société',
-              type: userData.company_type || 'sarl',
-              size: userData.segment || 'small',
-              accessLevel: userData.segment === 'micro' ? 'micro' : 'small',
-              users: 1,
-              maxUsers: 5,
-              status: 'active',
-              createdAt: '2024-01-01',
-              lastActivity: new Date().toLocaleDateString('fr-FR'),
-              revenue: 12000000,
-              employees: 5
-            }
-          ]);
-        }
+        const response = await apiClient.get<any[]>('/auth/companies');
+        setCompanies((response.data || []).map(mapBackendCompany));
       } catch (err) {
         console.error("Failed to load access company list", err);
       } finally {
@@ -141,28 +139,39 @@ const GestionAcces: React.FC = () => {
     }
   };
 
-  const handleWizardComplete = (config: any) => {
-    const newCompany: Company = {
-      id: Date.now(),
-      name: config.companyInfo.name,
-      type: config.type,
-      size: config.size,
-      accessLevel: config.access,
-      users: 1,
-      maxUsers: getAccessInfo(config.access).maxUsers,
-      status: 'trial',
-      createdAt: new Date().toISOString().split('T')[0],
-      lastActivity: 'Jamais',
-      revenue: config.companyInfo.revenue || 0,
-      employees: config.companyInfo.employees || 1
-    };
-    
-    setCompanies([newCompany, ...companies]);
+  const handleWizardComplete = async (config: any) => {
+    try {
+      const response = await apiClient.post('/auth/companies', {
+        name: config.companyInfo.name
+      });
+      const newCompany: Company = {
+        ...mapBackendCompany(response.data, companies.length),
+        type: config.type,
+        size: config.size,
+        accessLevel: config.access,
+        maxUsers: getAccessInfo(config.access).maxUsers,
+        revenue: config.companyInfo.revenue || 0,
+        employees: config.companyInfo.employees || 1
+      };
+      setCompanies([newCompany, ...companies]);
+    } catch (err) {
+      console.error('Failed to create company', err);
+    }
   };
 
   const handleViewCompany = (company: Company) => {
     setSelectedCompany(company);
     setIsDetailModalOpen(true);
+  };
+
+  const handleSuspendCompany = async (company: Company) => {
+    if (!confirm(`Suspendre l'accès de "${company.name}" ?`)) return;
+    try {
+      await apiClient.put(`/auth/companies/${company.backendId}`, { is_active: false });
+      setCompanies(companies.map(c => c.id === company.id ? { ...c, status: 'suspended' as const } : c));
+    } catch (err) {
+      console.error('Failed to suspend company', err);
+    }
   };
 
   const getUsagePercentage = (users: number, maxUsers: number) => {
@@ -433,15 +442,19 @@ const GestionAcces: React.FC = () => {
                         <button
                           onClick={() => handleViewCompany(company)}
                           className="text-blue-600 hover:text-blue-900"
+                          title="Voir les détails"
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
-                        <button className="text-indigo-600 hover:text-indigo-900">
-                          <PencilIcon className="h-4 w-4" />
-                        </button>
-                        <button className="text-red-600 hover:text-red-900">
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
+                        {company.status !== 'suspended' && (
+                          <button
+                            onClick={() => handleSuspendCompany(company)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Suspendre l'accès"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
