@@ -3,7 +3,6 @@ import { useTranslation } from '@shared/hooks/useTranslation';
 import {
   BookOpenIcon,
   PlusIcon,
-  PencilIcon,
   TrashIcon,
   MagnifyingGlassIcon,
   DocumentTextIcon,
@@ -16,28 +15,32 @@ import {
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
+import { usePermission } from '@shared/hooks/usePermission';
 
 import apiClient from '@/services/apiClient';
 
 const PlanComptable: React.FC = () => {
   const { t } = useTranslation();
   const { formatCurrency } = useApp();
+  const { has } = usePermission();
+  const canManage = has('comptabilite-write');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
+  const [newAccount, setNewAccount] = useState({ account_code: '', account_name: '', account_type: 'actif' });
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const [chartOfAccounts, setChartOfAccounts] = useState<any[]>([]);
   const [stats, setStats] = useState({ assets: 0, liabilities: 0, products: 0, charges: 0 });
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    const loadCOA = async () => {
+  const loadCOA = async () => {
       try {
         setLoading(true);
-        const coaRes = await apiClient.get('/accounting/chart-of-accounts');
+        const coaRes = await apiClient.get<any[]>('/accounting/chart-of-accounts');
         const coa = coaRes.data || [];
 
-        const journalRes = await apiClient.get('/accounting/journal-entries');
+        const journalRes = await apiClient.get<any[]>('/accounting/journal-entries');
         const entries = journalRes.data || [];
 
         const balances: Record<string, number> = {};
@@ -66,6 +69,7 @@ const PlanComptable: React.FC = () => {
             };
           }
           grouped[mainCode].subAccounts.push({
+            id: acc.id,
             code: acc.account_code,
             name: acc.account_name,
             balance: balances[acc.account_code] || 0
@@ -90,36 +94,69 @@ const PlanComptable: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    };
+  };
+
+  React.useEffect(() => {
     loadCOA();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t]);
 
+  const handleCreateAccount = async () => {
+    setCreateError(null);
+    if (!newAccount.account_code || !newAccount.account_name) {
+      setCreateError(t('accounting.ledger.modal.validation_error', { defaultValue: 'Code et nom requis' }));
+      return;
+    }
+    const classMap: Record<string, number> = { actif: 2, passif: 1, produit: 7, charge: 6 };
+    try {
+      await apiClient.post('/accounting/chart-of-accounts', {
+        account_code: newAccount.account_code,
+        account_name: newAccount.account_name,
+        account_class: classMap[newAccount.account_type] || 1,
+        account_type: newAccount.account_type
+      });
+      setNewAccount({ account_code: '', account_name: '', account_type: 'actif' });
+      setIsAddAccountModalOpen(false);
+      await loadCOA();
+    } catch (err: any) {
+      setCreateError(err?.response?.data?.detail || 'Erreur lors de la création');
+    }
+  };
+
+  const handleDeleteAccount = async (accountId: string) => {
+    if (!confirm(t('common.confirm_delete', { defaultValue: 'Confirmer la suppression ?' }))) return;
+    try {
+      await apiClient.delete(`/accounting/chart-of-accounts/${accountId}`);
+      await loadCOA();
+    } catch (err) {
+      console.error('Failed to delete account', err);
+    }
+  };
+
+  // Pas de comparaison de période disponible : aucune variation affichée
+  // plutôt qu'un pourcentage inventé.
   const statistics = [
     {
       title: t('accounting.ledger.stats.total_assets'),
       value: formatCurrency(stats.assets),
-      change: '+3.5%',
       icon: BuildingOfficeIcon,
       color: 'green'
     },
     {
       title: t('accounting.ledger.stats.total_liabilities'),
       value: formatCurrency(stats.liabilities),
-      change: '+1.2%',
       icon: BanknotesIcon,
       color: 'red'
     },
     {
       title: t('accounting.ledger.stats.total_products'),
       value: formatCurrency(stats.products),
-      change: '+8.4%',
       icon: ArrowTrendingUpIcon,
       color: 'blue'
     },
     {
       title: t('accounting.ledger.stats.total_charges'),
       value: formatCurrency(stats.charges),
-      change: '-2.1%',
       icon: ArrowTrendingDownIcon,
       color: 'orange'
     }
@@ -128,7 +165,7 @@ const PlanComptable: React.FC = () => {
   const filteredAccounts = chartOfAccounts.filter(account => {
     const matchesSearch = account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          account.code.includes(searchTerm) ||
-                         account.subAccounts.some(sub =>
+                         account.subAccounts.some((sub: any) =>
                            sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            sub.code.includes(searchTerm)
                          );
@@ -154,13 +191,15 @@ const PlanComptable: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">{t('accounting.ledger.title')}</h1>
           <p className="text-gray-600">{t('accounting.ledger.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setIsAddAccountModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-        >
-          <PlusIcon className="h-5 w-5" />
-          <span>{t('accounting.ledger.actions.new_account')}</span>
-        </button>
+        {canManage && (
+          <button
+            onClick={() => setIsAddAccountModalOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+          >
+            <PlusIcon className="h-5 w-5" />
+            <span>{t('accounting.ledger.actions.new_account')}</span>
+          </button>
+        )}
       </div>
 
       {/* Statistiques */}
@@ -172,9 +211,6 @@ const PlanComptable: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-lg bg-${stat.color}-100`}>
                   <Icon className={`h-6 w-6 text-${stat.color}-600`} />
-                </div>
-                <div className="text-sm font-medium text-green-600">
-                  {stat.change}
                 </div>
               </div>
               <div>
@@ -230,21 +266,18 @@ const PlanComptable: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900">{account.code} - {account.name}</h3>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                  <PencilIcon className="h-4 w-4" />
-                </button>
-                <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {account.subAccounts.map((subAccount) => (
+              {account.subAccounts.map((subAccount: any) => (
                 <div key={subAccount.code} className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-900">{subAccount.code}</span>
+                    {canManage && (
+                      <button onClick={() => handleDeleteAccount(subAccount.id)} className="p-1 text-red-500 hover:bg-red-50 rounded" title={t('common.delete')}>
+                        <TrashIcon className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
                   <h4 className="text-sm font-semibold text-gray-900 mb-1">{subAccount.name}</h4>
                   <div className="text-sm font-bold text-gray-900">{formatCurrency(subAccount.balance)}</div>
@@ -262,10 +295,15 @@ const PlanComptable: React.FC = () => {
         title={t('accounting.ledger.modal.add_title')}
       >
         <div className="space-y-4">
+          {createError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">{createError}</div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('accounting.ledger.modal.code_label')}</label>
             <input
               type="text"
+              value={newAccount.account_code}
+              onChange={(e) => setNewAccount({ ...newAccount, account_code: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               placeholder={t('accounting.ledger.modal.code_placeholder')}
             />
@@ -274,13 +312,19 @@ const PlanComptable: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('accounting.ledger.modal.name_label')}</label>
             <input
               type="text"
+              value={newAccount.account_name}
+              onChange={(e) => setNewAccount({ ...newAccount, account_name: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               placeholder={t('accounting.ledger.modal.name_placeholder')}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('accounting.ledger.modal.type_label')}</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <select
+              value={newAccount.account_type}
+              onChange={(e) => setNewAccount({ ...newAccount, account_type: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
               <option value="actif">{t('accounting.ledger.types.actif')}</option>
               <option value="passif">{t('accounting.ledger.types.passif')}</option>
               <option value="produit">{t('accounting.ledger.types.produit')}</option>
@@ -294,7 +338,7 @@ const PlanComptable: React.FC = () => {
             >
               {t('accounting.ledger.actions.cancel')}
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button onClick={handleCreateAccount} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               {t('accounting.ledger.actions.create_account')}
             </button>
           </div>

@@ -296,6 +296,94 @@ async def list_chart_of_accounts(
         for account in accounts
     ]
 
+
+class CreateChartOfAccountRequest(BaseModel):
+    account_code: str
+    account_name: str
+    account_class: int = Field(..., ge=1, le=7)
+    account_type: str
+
+
+class UpdateChartOfAccountRequest(BaseModel):
+    account_name: Optional[str] = None
+    account_class: Optional[int] = Field(None, ge=1, le=7)
+    account_type: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+@router.post("/chart-of-accounts", response_model=ChartOfAccountResponse, status_code=status.HTTP_201_CREATED)
+async def create_chart_of_account(
+    request: CreateChartOfAccountRequest,
+    current_user: TokenData = Depends(check_accounting_create),
+    db: Session = Depends(get_db)
+):
+    """Create a new chart of accounts entry"""
+    existing = db.query(ChartOfAccount).filter(
+        ChartOfAccount.company_id == current_user.company_id,
+        ChartOfAccount.account_code == request.account_code
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="An account with this code already exists")
+
+    account = ChartOfAccount(
+        company_id=current_user.company_id,
+        account_code=request.account_code,
+        account_name=request.account_name,
+        account_class=request.account_class,
+        account_type=request.account_type,
+        is_active=True
+    )
+    db.add(account)
+    db.commit()
+    db.refresh(account)
+    return ChartOfAccountResponse(
+        id=str(account.id), account_code=account.account_code, account_name=account.account_name,
+        account_class=account.account_class, account_type=account.account_type, is_active=account.is_active
+    )
+
+
+@router.put("/chart-of-accounts/{account_id}", response_model=ChartOfAccountResponse)
+async def update_chart_of_account(
+    account_id: str,
+    request: UpdateChartOfAccountRequest,
+    current_user: TokenData = Depends(check_accounting_create),
+    db: Session = Depends(get_db)
+):
+    """Update a chart of accounts entry"""
+    account = db.query(ChartOfAccount).filter(
+        ChartOfAccount.id == account_id,
+        ChartOfAccount.company_id == current_user.company_id
+    ).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    for field, value in request.dict(exclude_unset=True).items():
+        setattr(account, field, value)
+    db.commit()
+    db.refresh(account)
+    return ChartOfAccountResponse(
+        id=str(account.id), account_code=account.account_code, account_name=account.account_name,
+        account_class=account.account_class, account_type=account.account_type, is_active=account.is_active
+    )
+
+
+@router.delete("/chart-of-accounts/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_chart_of_account(
+    account_id: str,
+    current_user: TokenData = Depends(check_accounting_create),
+    db: Session = Depends(get_db)
+):
+    """Soft-delete (deactivate) a chart of accounts entry"""
+    account = db.query(ChartOfAccount).filter(
+        ChartOfAccount.id == account_id,
+        ChartOfAccount.company_id == current_user.company_id
+    ).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+    account.is_active = False
+    db.commit()
+    return None
+
 # ========== HELPER FUNCTIONS ==========
 def _format_journal_entry(entry: JournalEntry) -> JournalEntryResponse:
     """Format journal entry for response"""
