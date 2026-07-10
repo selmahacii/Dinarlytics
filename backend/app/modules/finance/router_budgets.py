@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime
 from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
-from app.core.security import TokenData
+from app.core.security import TokenData, RBACManager
 from app.core.models import Budget, BudgetItem
 from app.modules.finance.service_budgeting import BudgetingService
 from app.modules.system.utils_audit import log_audit
@@ -13,6 +13,12 @@ from pydantic import BaseModel
 from decimal import Decimal
 
 router = APIRouter(prefix="/budgets", tags=["budgets"])
+
+
+async def check_budget_write(current_user: TokenData = Depends(get_current_user)):
+    if not RBACManager.check_permission(current_user.roles, "create"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Budget write access required")
+    return current_user
 
 class BudgetItemSchema(BaseModel):
     category: str
@@ -29,7 +35,7 @@ def list_budgets(db: Session = Depends(get_db), current_user: TokenData = Depend
     return db.query(Budget).filter(Budget.company_id == current_user.company_id).all()
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_budget(request: BudgetCreate, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
+def create_budget(request: BudgetCreate, db: Session = Depends(get_db), current_user: TokenData = Depends(check_budget_write)):
     budget = Budget(
         company_id=current_user.company_id,
         name=request.name,
@@ -54,7 +60,7 @@ def create_budget(request: BudgetCreate, db: Session = Depends(get_db), current_
     return budget
 
 @router.post("/{budget_id}/sync")
-def sync_budget(budget_id: str, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
+def sync_budget(budget_id: str, db: Session = Depends(get_db), current_user: TokenData = Depends(check_budget_write)):
     """Force an update of 'Actual' amounts from the ledger."""
     budget = BudgetingService.sync_actual_amounts(db, budget_id)
     if not budget:

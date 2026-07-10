@@ -188,7 +188,7 @@ async def update_alert_definition(
     alert_code: str,
     req: AlertDefinitionUpdate,
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user_from_token)
+    user: dict = Depends(require_permission("rapports-create"))
 ):
     company_id = user["company_id"]
     alert = db.query(AlertDefinition).filter(
@@ -208,7 +208,7 @@ async def update_alert_definition(
 async def delete_alert_definition(
     alert_code: str,
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user_from_token)
+    user: dict = Depends(require_permission("rapports-create"))
 ):
     company_id = user["company_id"]
     alert = db.query(AlertDefinition).filter(
@@ -226,17 +226,41 @@ async def delete_alert_definition(
 async def trigger_alert_definition(
     alert_code: str,
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user_from_token)
+    user: dict = Depends(require_permission("rapports-create"))
 ):
-    return {"status": "success", "message": f"Alert {alert_code} triggered successfully"}
+    company_id = user["company_id"]
+    alert = db.query(AlertDefinition).filter(
+        AlertDefinition.company_id == company_id,
+        AlertDefinition.alert_code == alert_code
+    ).first()
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert definition not found")
+    from app.core.models import AlertTrigger
+    trigger = AlertTrigger(
+        company_id=company_id,
+        alert_id=alert.id,
+        trigger_value=alert.threshold_value,
+        status="new",
+        priority="normal"
+    )
+    db.add(trigger)
+    db.commit()
+    return {"status": "success", "message": f"Alert {alert_code} triggered successfully", "trigger_id": str(trigger.id)}
 
 @router.post("/alerts/{alert_code}/test")
 async def test_alert_definition(
     alert_code: str,
     db: Session = Depends(get_db),
-    user: dict = Depends(get_current_user_from_token)
+    user: dict = Depends(require_permission("rapports-create"))
 ):
-    return {"status": "success", "message": f"Alert {alert_code} tested successfully"}
+    company_id = user["company_id"]
+    alert = db.query(AlertDefinition).filter(
+        AlertDefinition.company_id == company_id,
+        AlertDefinition.alert_code == alert_code
+    ).first()
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert definition not found")
+    return {"status": "success", "message": f"Alert {alert_code} tested successfully", "current_threshold": alert.threshold_value, "enabled": alert.enabled}
 
 
 @router.get("/scenarios")
@@ -287,11 +311,8 @@ async def get_scenarios(
     profit_opt = float(profit_total) * 1.3
     tres_opt = float(treasury) * 1.4
 
-    # Baseline fallbacks starting from 10M if DB is empty
-    if ca_total == 0:
-        ca_pess, ca_real, ca_opt = 12000000.0, 15000000.0, 18000000.0
-        profit_pess, profit_real, profit_opt = 1800000.0, 2700000.0, 3600000.0
-        tres_pess, tres_real, tres_opt = 8000000.0, 12000000.0, 16000000.0
+    # No fabricated fallback: with no invoices/journal entries yet, projections
+    # are honestly zero rather than a fake pre-filled baseline.
 
     return [
         {

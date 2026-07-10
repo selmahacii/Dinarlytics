@@ -78,10 +78,13 @@ class Company(Base):
     email = Column(String(255))
     website = Column(String(255))
     currency_code = Column(String(3), default="DZD")
+    country = Column(String(100), default="Algérie")
+    parent_company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=True)
+    ownership_percentage = Column(Numeric(5, 2), default=100)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
-    
+
     # Relationships
     users = relationship("User", back_populates="company", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="company", cascade="all, delete-orphan")

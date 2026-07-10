@@ -218,54 +218,117 @@ const RapprochementBancaire: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      // Détection automatique du format
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      console.log('Format détecté:', extension);
     }
   };
-  
+
+  // Parses a real bank statement CSV (comma or semicolon delimited).
+  // Expected columns (case-insensitive, order-flexible): date, libelle/description, montant (signed)
+  // or separate debit/credit columns, and optionally a running balance column.
+  const parseStatementFile = async (file: File) => {
+    const text = await file.text();
+    const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (rawLines.length === 0) {
+      throw new Error('Fichier vide');
+    }
+
+    const delimiter = rawLines[0].includes(';') ? ';' : ',';
+    const splitRow = (row: string) => row.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+
+    const headerCells = splitRow(rawLines[0]).map(c => c.toLowerCase());
+    const looksLikeHeader = headerCells.some(c => /date|libell|montant|debit|credit|solde/.test(c));
+    const dataRows = looksLikeHeader ? rawLines.slice(1) : rawLines;
+    const idx = {
+      date: headerCells.findIndex(c => c.includes('date')),
+      libelle: headerCells.findIndex(c => c.includes('libell') || c.includes('description')),
+      montant: headerCells.findIndex(c => c === 'montant' || c.includes('amount')),
+      debit: headerCells.findIndex(c => c.includes('debit')),
+      credit: headerCells.findIndex(c => c.includes('credit')),
+      solde: headerCells.findIndex(c => c.includes('solde') || c.includes('balance')),
+    };
+
+    const parseAmount = (raw: string) => {
+      const n = parseFloat(raw.replace(/\s/g, '').replace(',', '.'));
+      return isNaN(n) ? 0 : n;
+    };
+
+    const lignes: Array<{ id: string; dateOperation: string; dateValeur: string; libelle: string; montant: number; type: 'credit' | 'debit'; solde: number; statutRapprochement: string }> = [];
+    let runningBalance = 0;
+    const dates: string[] = [];
+
+    dataRows.forEach((row, i) => {
+      const cells = splitRow(row);
+      if (cells.length < 2) return;
+
+      const dateRaw = idx.date >= 0 ? cells[idx.date] : cells[0];
+      const libelle = idx.libelle >= 0 ? cells[idx.libelle] : (cells[1] || 'Opération');
+
+      let montant = 0;
+      let type: 'credit' | 'debit' = 'credit';
+      if (idx.debit >= 0 || idx.credit >= 0) {
+        const debitVal = idx.debit >= 0 ? parseAmount(cells[idx.debit] || '0') : 0;
+        const creditVal = idx.credit >= 0 ? parseAmount(cells[idx.credit] || '0') : 0;
+        if (debitVal > 0) { montant = debitVal; type = 'debit'; } else { montant = creditVal; type = 'credit'; }
+      } else if (idx.montant >= 0) {
+        const val = parseAmount(cells[idx.montant] || '0');
+        montant = Math.abs(val);
+        type = val < 0 ? 'debit' : 'credit';
+      } else {
+        const val = parseAmount(cells[cells.length - 1] || '0');
+        montant = Math.abs(val);
+        type = val < 0 ? 'debit' : 'credit';
+      }
+
+      runningBalance += type === 'credit' ? montant : -montant;
+      const solde = idx.solde >= 0 ? parseAmount(cells[idx.solde] || '0') : runningBalance;
+
+      const isoDate = /^\d{4}-\d{2}-\d{2}$/.test(dateRaw) ? dateRaw : new Date().toISOString().split('T')[0];
+      dates.push(isoDate);
+
+      lignes.push({
+        id: `line-${Date.now()}-${i}`,
+        dateOperation: isoDate,
+        dateValeur: isoDate,
+        libelle: libelle || 'Opération',
+        montant,
+        type,
+        solde,
+        statutRapprochement: 'non_rapproche'
+      });
+    });
+
+    if (lignes.length === 0) {
+      throw new Error('Aucune ligne exploitable trouvée dans le fichier');
+    }
+
+    dates.sort();
+    return {
+      lignes,
+      dateDebut: dates[0],
+      dateFin: dates[dates.length - 1],
+      soldeDebut: 0,
+      soldeFin: lignes[lignes.length - 1].solde
+    };
+  };
+
   const handleImportReleve = async () => {
     if (!selectedFile || !selectedCompte) {
       alert('Veuillez sélectionner un fichier et un compte bancaire');
       return;
     }
-    
+
     setIsImporting(true);
-    
-    const todayStr = new Date().toISOString().split('T')[0];
-    const linesToImport = [
-      {
-        id: `line-${Date.now()}-1`,
-        dateOperation: todayStr,
-        dateValeur: todayStr,
-        libelle: "Virement reçu client SPA",
-        montant: 450000.0,
-        type: "credit",
-        solde: 1450000.0,
-        statutRapprochement: "non_rapproche"
-      },
-      {
-        id: `line-${Date.now()}-2`,
-        dateOperation: todayStr,
-        dateValeur: todayStr,
-        libelle: "Frais bancaires mensuels",
-        montant: 12500.0,
-        type: "debit",
-        solde: 1437500.0,
-        statutRapprochement: "non_rapproche"
-      }
-    ];
 
     try {
+      const parsed = await parseStatementFile(selectedFile);
       const data = await reconciliationService.importStatement({
         compteBancaireId: selectedCompte,
         numeroReleve: `REL-${Date.now().toString().substring(6)}`,
-        dateDebut: todayStr,
-        dateFin: todayStr,
-        soldeDebut: 1000000.0,
-        soldeFin: 1437500.0,
+        dateDebut: parsed.dateDebut,
+        dateFin: parsed.dateFin,
+        soldeDebut: parsed.soldeDebut,
+        soldeFin: parsed.soldeFin,
         formatFichier: selectedFile.name.split('.').pop()?.toLowerCase() || "manuel",
-        lignes: linesToImport
+        lignes: parsed.lignes
       });
       
       const result: ImportReleveResult = {

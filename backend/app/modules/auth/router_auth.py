@@ -409,7 +409,10 @@ async def change_password(
     
 @router.get("/demo-users", response_model=dict)
 async def get_demo_users():
-    """Get optimized demo users for UI demonstration"""
+    """Get optimized demo users for UI demonstration (non-production only)"""
+    from app.core.config import settings
+    if settings.APP_ENVIRONMENT == "production":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     demo_users = [
         # EURL - Petite Entreprise (Micro)
         {

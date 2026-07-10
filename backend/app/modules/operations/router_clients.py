@@ -76,6 +76,26 @@ async def check_client_access(
         )
     return current_user
 
+async def check_client_write(
+    current_user: TokenData = Depends(get_current_user)
+):
+    if not RBACManager.check_permission(current_user.roles, "create"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Client write access required"
+        )
+    return current_user
+
+async def check_client_delete(
+    current_user: TokenData = Depends(get_current_user)
+):
+    if not RBACManager.check_permission(current_user.roles, "delete"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Client delete access required"
+        )
+    return current_user
+
 # ========== CLIENT ENDPOINTS ==========
 @router.get("/", response_model=List[ClientResponse])
 async def list_clients(
@@ -227,7 +247,7 @@ async def get_client(
 @router.post("/", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
 async def create_client(
     request: ClientRequest,
-    current_user: TokenData = Depends(check_client_access),
+    current_user: TokenData = Depends(check_client_write),
     db: Session = Depends(get_db)
 ):
     """Create a new client"""
@@ -287,7 +307,7 @@ async def create_client(
 async def update_client(
     client_id: str,
     request: ClientRequest,
-    current_user: TokenData = Depends(check_client_access),
+    current_user: TokenData = Depends(check_client_write),
     db: Session = Depends(get_db)
 ):
     """Update an existing client"""
@@ -338,7 +358,7 @@ async def update_client(
 @router.delete("/{client_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_client(
     client_id: str,
-    current_user: TokenData = Depends(check_client_access),
+    current_user: TokenData = Depends(check_client_delete),
     db: Session = Depends(get_db)
 ):
     """Soft delete a client (mark as inactive)"""

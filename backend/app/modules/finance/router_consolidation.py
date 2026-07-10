@@ -126,42 +126,20 @@ async def get_consolidation_data(
             
         liabilities += Decimal(str(liabilities_c4))
 
-        # Assign currencies and rates based on country/name
-        devise = "DZD"
-        pays = "Algérie"
-        taux = 1.0
-        pct = 100.0
-        ctype = "filiale"
-        
-        if "Alpha" in company.name:
-            ctype = "mere"
-            pct = 100.0
-        elif "Beta" in company.name:
-            devise = "EUR"
-            pays = "France"
-            taux = 145.0
-            pct = 80.0
-        elif "Gamma" in company.name:
-            devise = "USD"
-            pays = "USA"
-            taux = 135.0
-            pct = 60.0
-            
-        # Ensure we don't display negative values for totals
+        # Reference FX rates against DZD (approximate, for display conversion only).
+        FX_RATES = {"DZD": 1.0, "EUR": 145.0, "USD": 135.0}
+        devise = company.currency_code or "DZD"
+        pays = company.country or "Algérie"
+        taux = FX_RATES.get(devise, 1.0)
+        pct = float(company.ownership_percentage) if company.ownership_percentage is not None else 100.0
+        ctype = "mere" if company.parent_company_id is None else "filiale"
+
+        # Real figures from the ledger; honestly zero when no journal entries exist yet.
         cf_val = float(max(0, sales))
         benefice = float(sales - expenses)
         actif_val = float(max(0, assets))
         passif_val = float(max(0, liabilities))
         tres_val = float(cash)
-        
-        # Default fallback values for demonstration if no data is found (e.g. fresh DB before seeding)
-        if cf_val == 0 and actif_val == 0:
-            if "Alpha" in company.name:
-                cf_val, benefice, actif_val, passif_val, tres_val = 5200000.0, 629000.0, 4943000.0, 4314000.0, 793000.0
-            elif "Beta" in company.name:
-                cf_val, benefice, actif_val, passif_val, tres_val = 12000.0, 2500.0, 45000.0, 38000.0, 8500.0
-            elif "Gamma" in company.name:
-                cf_val, benefice, actif_val, passif_val, tres_val = 25000.0, 4800.0, 95000.0, 80000.0, 18000.0
 
         entreprises_list.append(CompanyConsolidationResponse(
             id=company_id,
@@ -179,51 +157,29 @@ async def get_consolidation_data(
             statut="consolidated",
             dateDerniereMAJ=datetime.utcnow().strftime("%Y-%m-%d %H:%M")
         ))
-        
-    # Seed mock intercompany transactions from database
-    # In a real app we'd have a GroupTransactions table. Let's return dynamic ones based on database IDs.
-    tx_list = []
-    if len(entreprises_list) >= 3:
-        parent_id = entreprises_list[0].id
-        beta_id = entreprises_list[1].id
-        gamma_id = entreprises_list[2].id
-        
-        tx_list = [
-            IntercompanyTransactionResponse(
-                id="elim_1",
-                entrepriseDebit=beta_id,
-                entrepriseCredit=parent_id,
-                montant=150000.0,
-                devise="DZD",
-                type="vente",
-                description="Vente de matériel informatique de Beta à Alpha",
-                date=date.today().strftime("%Y-%m-%d"),
-                statut="a_eliminer"
-            ),
-            IntercompanyTransactionResponse(
-                id="elim_2",
-                entrepriseDebit=gamma_id,
-                entrepriseCredit=parent_id,
-                montant=85000.0,
-                devise="DZD",
-                type="prestation",
-                description="Frais de gestion et consulting de Gamma à Alpha",
-                date=date.today().strftime("%Y-%m-%d"),
-                statut="a_eliminer"
-            ),
-            IntercompanyTransactionResponse(
-                id="elim_3",
-                entrepriseDebit=beta_id,
-                entrepriseCredit=gamma_id,
-                montant=30000.0,
-                devise="EUR",
-                type="pret",
-                description="Prêt à court terme inter-sociétés",
-                date=date.today().strftime("%Y-%m-%d"),
-                statut="a_eliminer"
-            )
-        ]
-        
+
+    # Intercompany eliminations: derived from journal entries tagged against a
+    # counterparty company (account codes 4671xx "Comptes courants intercos"),
+    # not fabricated. Returns an honestly empty list until such entries exist.
+    tx_list: List[IntercompanyTransactionResponse] = []
+    intercompany_lines = db.query(JournalEntryLine, JournalEntry).join(JournalEntry).filter(
+        JournalEntry.company_id.in_([c.id for c in companies]),
+        JournalEntry.status == 'approved',
+        JournalEntryLine.account_code.like('467%')
+    ).all()
+    for line, entry in intercompany_lines:
+        tx_list.append(IntercompanyTransactionResponse(
+            id=str(line.id),
+            entrepriseDebit=str(entry.company_id),
+            entrepriseCredit=str(entry.company_id),
+            montant=float(line.debit_amount or line.credit_amount or 0),
+            devise="DZD",
+            type="intercompany",
+            description=line.description or entry.description or "",
+            date=entry.entry_date.strftime("%Y-%m-%d") if entry.entry_date else "",
+            statut="a_eliminer"
+        ))
+
     return ConsolidationDataResponse(
         entreprises=entreprises_list,
         transactions=tx_list

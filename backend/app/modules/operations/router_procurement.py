@@ -12,10 +12,34 @@ import uuid
 from app.core.database import get_db
 from app.core.models import PurchaseOrder, PurchaseOrderItem, DeliveryNote, DeliveryNoteItem, Article, Supplier, Client
 from app.modules.auth.router_auth import get_current_user
-from app.core.security import TokenData
+from app.core.security import TokenData, RBACManager
 from app.modules.system.utils_audit import log_audit
 
 router = APIRouter(prefix="/procurement", tags=["procurement"])
+
+
+async def check_procurement_write(current_user: TokenData = Depends(get_current_user)):
+    if not RBACManager.check_permission(current_user.roles, "create"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Procurement write access required")
+    return current_user
+
+
+async def check_procurement_update(current_user: TokenData = Depends(get_current_user)):
+    if not RBACManager.check_permission(current_user.roles, "update"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Procurement update access required")
+    return current_user
+
+
+async def check_procurement_approve(current_user: TokenData = Depends(get_current_user)):
+    if not RBACManager.check_permission(current_user.roles, "approve"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Procurement approval access required")
+    return current_user
+
+
+async def check_procurement_delete(current_user: TokenData = Depends(get_current_user)):
+    if not RBACManager.check_permission(current_user.roles, "delete"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Procurement delete access required")
+    return current_user
 
 # ===== PURCHASE ORDERS =====
 class POItemResponse(BaseModel):
@@ -128,7 +152,7 @@ async def get_purchase_order(
 @router.post("/purchase-orders", response_model=PurchaseOrderResponse, status_code=status.HTTP_201_CREATED)
 async def create_purchase_order(
     request: CreatePORequest,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(check_procurement_write),
     db: Session = Depends(get_db)
 ):
     """Create a new purchase order"""
@@ -177,7 +201,7 @@ async def create_purchase_order(
 async def update_purchase_order(
     po_id: str,
     request: UpdatePORequest,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(check_procurement_update),
     db: Session = Depends(get_db)
 ):
     """Update purchase order status or notes"""
@@ -187,11 +211,13 @@ async def update_purchase_order(
     ).first()
     if not po:
         raise HTTPException(status_code=404, detail="Purchase order not found")
-    
+
     if request.status:
-        valid_statuses = ['draft', 'confirmed', 'delivered', 'invoiced', 'cancelled']
+        valid_statuses = ['draft', 'pending_approval', 'approved', 'confirmed', 'delivered', 'invoiced', 'cancelled']
         if request.status not in valid_statuses:
             raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+        if request.status == 'approved' and not RBACManager.check_permission(current_user.roles, "approve"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Approval permission required")
         po.status = request.status
     if request.notes is not None:
         po.notes = request.notes
@@ -206,7 +232,7 @@ async def update_purchase_order(
 @router.delete("/purchase-orders/{po_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_purchase_order(
     po_id: str,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(check_procurement_delete),
     db: Session = Depends(get_db)
 ):
     """Cancel a purchase order"""
@@ -302,7 +328,7 @@ async def list_deliveries(
 @router.post("/deliveries", response_model=DeliveryNoteResponse, status_code=status.HTTP_201_CREATED)
 async def create_delivery(
     request: CreateDeliveryRequest,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(check_procurement_write),
     db: Session = Depends(get_db)
 ):
     """Create a new delivery note"""

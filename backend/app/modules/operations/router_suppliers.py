@@ -93,6 +93,28 @@ async def check_supplier_access(
         )
     return current_user
 
+async def check_supplier_write(
+    current_user: TokenData = Depends(get_current_user)
+):
+    """Check if user can create/update suppliers"""
+    if not RBACManager.check_permission(current_user.roles, "create"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Supplier write access required"
+        )
+    return current_user
+
+async def check_supplier_delete(
+    current_user: TokenData = Depends(get_current_user)
+):
+    """Check if user can delete suppliers"""
+    if not RBACManager.check_permission(current_user.roles, "delete"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Supplier delete access required"
+        )
+    return current_user
+
 # ========== SUPPLIER ENDPOINTS ==========
 @router.get("/", response_model=List[SupplierResponse])
 async def list_suppliers(
@@ -246,7 +268,7 @@ async def get_supplier(
 @router.post("/", response_model=SupplierResponse, status_code=status.HTTP_201_CREATED)
 async def create_supplier(
     request: CreateSupplierRequest,
-    current_user: TokenData = Depends(check_supplier_access),
+    current_user: TokenData = Depends(check_supplier_write),
     db: Session = Depends(get_db)
 ):
     """Create a new supplier"""
@@ -304,7 +326,7 @@ async def create_supplier(
 async def update_supplier(
     supplier_id: str,
     request: UpdateSupplierRequest,
-    current_user: TokenData = Depends(check_supplier_access),
+    current_user: TokenData = Depends(check_supplier_write),
     db: Session = Depends(get_db)
 ):
     """Update an existing supplier"""
@@ -349,7 +371,7 @@ async def update_supplier(
 @router.delete("/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_supplier(
     supplier_id: str,
-    current_user: TokenData = Depends(check_supplier_access),
+    current_user: TokenData = Depends(check_supplier_delete),
     db: Session = Depends(get_db)
 ):
     """Soft delete a supplier (set is_active to False)"""
