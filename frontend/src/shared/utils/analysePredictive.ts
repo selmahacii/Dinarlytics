@@ -287,7 +287,8 @@ export function genererPrevisions(
  */
 export function calculerSeuilRentabilite(
   coutsFixes: number,
-  tauxMargeBrute: number // en %
+  tauxMargeBrute: number, // en %
+  caAnnuelReel: number = 0
 ): SeuilRentabilite {
   if (tauxMargeBrute <= 0) {
     return {
@@ -299,14 +300,22 @@ export function calculerSeuilRentabilite(
   }
 
   const chiffreAffairesMinimum = coutsFixes / (tauxMargeBrute / 100);
-  const pointMort = Math.round((chiffreAffairesMinimum / (chiffreAffairesMinimum * 12)) * 365);
-  const margeSecurite = Math.max(0, ((chiffreAffairesMinimum * 1.2 - chiffreAffairesMinimum) / (chiffreAffairesMinimum * 1.2)) * 100);
-  const estAtteint = coutsFixes < chiffreAffairesMinimum * (tauxMargeBrute / 100);
+  // Nombre de jours de CA (au rythme actuel) nécessaires pour atteindre le
+  // seuil de rentabilité, borné à 365 jours.
+  const caJournalier = caAnnuelReel / 365;
+  const pointMort = caJournalier > 0
+    ? Math.min(365, Math.round(chiffreAffairesMinimum / caJournalier))
+    : 365;
+  // Marge de sécurité réelle : de combien le CA actuel dépasse le seuil.
+  const margeSecurite = caAnnuelReel > chiffreAffairesMinimum
+    ? Math.round(((caAnnuelReel - chiffreAffairesMinimum) / caAnnuelReel) * 1000) / 10
+    : 0;
+  const estAtteint = caAnnuelReel >= chiffreAffairesMinimum;
 
   return {
     chiffreAffairesMinimum: Math.round(chiffreAffairesMinimum),
     pointMort: Math.max(1, pointMort),
-    margeSecurite: Math.round(margeSecurite * 10) / 10,
+    margeSecurite,
     estAtteint
   };
 }
