@@ -6,19 +6,28 @@ import {
   Legend,
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { mockDepensesCategories } from '../../data/mockData';
 import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ExpenseChart: React.FC = () => {
-  const { formatCurrency, currentDevise } = useApp();
+  const { formatCurrency, currentDevise, companyData } = useApp();
+  
+  const baseExpenses = companyData?.expensesMonth || 2100000;
+  const expenseData = [
+    { categorie: 'Achats Marchandises', montant: Math.round(baseExpenses * 0.45) },
+    { categorie: 'Frais de Personnel', montant: Math.round(baseExpenses * 0.25) },
+    { categorie: 'Loyer & Charges', montant: Math.round(baseExpenses * 0.12) },
+    { categorie: 'Impôts & Taxes', montant: Math.round(baseExpenses * 0.10) },
+    { categorie: 'Frais Généraux', montant: Math.round(baseExpenses * 0.08) }
+  ];
+
   const data = {
-    labels: mockDepensesCategories.map(d => d.categorie),
+    labels: expenseData.map(d => d.categorie),
     datasets: [
       {
         label: `Dépenses (${currentDevise || 'DA'})`,
-        data: mockDepensesCategories.map(d => d.montant),
+        data: expenseData.map(d => d.montant),
         backgroundColor: [
           'rgba(51, 65, 85, 0.8)', // slate-700
           'rgba(245, 158, 11, 0.8)', // amber-500
@@ -88,7 +97,7 @@ const ExpenseChart: React.FC = () => {
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="text-center">
           <div className="text-2xl font-bold text-slate-800">
-            {formatCurrency(mockDepensesCategories.reduce((sum, d) => sum + d.montant, 0))}
+            {formatCurrency(expenseData.reduce((sum, d) => sum + d.montant, 0))}
           </div>
           <div className="text-sm text-slate-600">Total {currentDevise || 'DA'}</div>
         </div>

@@ -9,7 +9,6 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { mockVentesMensuelles } from '../../data/mockData';
 import { useApp } from '@core/context/AppContext';
 
 ChartJS.register(
@@ -22,13 +21,24 @@ ChartJS.register(
 );
 
 const SalesChart: React.FC = () => {
-  const { formatCurrency, currentDevise } = useApp();
+  const { formatCurrency, currentDevise, companyData } = useApp();
+  
+  const baseRevenue = companyData?.revenueMonth || 3500000;
+  const salesData = [
+    { mois: 'Jan', montant: Math.round(baseRevenue * 0.85) },
+    { mois: 'Fév', montant: Math.round(baseRevenue * 0.90) },
+    { mois: 'Mar', montant: Math.round(baseRevenue * 0.95) },
+    { mois: 'Avr', montant: Math.round(baseRevenue * 1.05) },
+    { mois: 'Mai', montant: Math.round(baseRevenue * 1.10) },
+    { mois: 'Juin', montant: baseRevenue }
+  ];
+
   const data = {
-    labels: mockVentesMensuelles.map(v => v.mois),
+    labels: salesData.map(v => v.mois),
     datasets: [
       {
         label: `Ventes (${currentDevise || 'DA'})`,
-        data: mockVentesMensuelles.map(v => v.montant),
+        data: salesData.map(v => v.montant),
         backgroundColor: [
           'rgba(59, 130, 246, 0.8)',
           'rgba(16, 185, 129, 0.8)',
