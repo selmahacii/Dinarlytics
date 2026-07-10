@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  BuildingOfficeIcon,
   ChartBarIcon,
   Cog6ToothIcon,
-  ArrowPathIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
@@ -11,33 +9,22 @@ import RevenueBasedAccessWidget from '@shared/components/Dashboard/RevenueBasedA
 import EvolutionTrackerWidget from '@shared/components/Dashboard/EvolutionTrackerWidget';
 import AdaptiveDashboardLayout from '@shared/components/Dashboard/AdaptiveDashboardLayout';
 import FiscalComplianceWidget from '@shared/components/Dashboard/FiscalComplianceWidget';
-import api from '@/services/api';
-import { COMPANY_TYPES } from '@/types/CompanyTypes';
+import { useApp } from '@core/context/AppContext';
 
 const GestionAccesAvancee: React.FC = () => {
+  const { user, companyData } = useApp();
 
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [selectedCompanyIndex, setSelectedCompanyIndex] = useState(0);
-  const [loadingCompanies, setLoadingCompanies] = useState(true);
-  const [companiesError, setCompaniesError] = useState<string | null>(null);
-  const selectedCompany = companies[selectedCompanyIndex] || null;
+  // Utilise la société réelle de l'utilisateur (CA, type) plutôt qu'une
+  // liste de clients CRM traitée à tort comme un catalogue d'entreprises
+  // (les clients n'ont ni CA, ni type de société, ni effectif en base).
+  const selectedCompany = {
+    name: 'Mon entreprise',
+    type: user?.companyType || 'sarl',
+    revenue: companyData?.revenueTotal || 0
+  };
 
-  React.useEffect(() => {
-    setLoadingCompanies(true);
-    api.clients.getAll()
-      .then(data => {
-        setCompanies(data);
-      })
-      .catch(() => setCompaniesError('Erreur lors du chargement des entreprises'))
-      .finally(() => setLoadingCompanies(false));
-  }, []);
-
-  if (loadingCompanies) {
-    return <div className="p-6 text-center">Chargement des entreprises...</div>;
-  }
-
-  if (!selectedCompany) {
-    return <div className="p-6 text-center text-red-600">Aucune entreprise disponible.</div>;
+  if (!companyData) {
+    return <div className="p-6 text-center">Chargement...</div>;
   }
 
   return (
@@ -52,44 +39,6 @@ const GestionAccesAvancee: React.FC = () => {
           <p className="text-gray-600 mt-2 text-lg">
             Système intelligent d'adaptation des droits selon le chiffre d'affaires
           </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold shadow-lg">
-            DÉMO INTERACTIVE
-          </span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
-          {companies.map((company, index) => {
-            const isSelected = index === selectedCompanyIndex;
-            const typeInfo = COMPANY_TYPES.find(t => t.id === company.type);
-            return (
-              <button
-                key={company.id}
-                onClick={() => setSelectedCompanyIndex(index)}
-                className={`p-4 rounded-xl border-2 transition-all transform hover:scale-105 ${
-                  isSelected
-                    ? 'border-blue-500 bg-blue-50 shadow-lg'
-                    : 'border-gray-200 bg-white hover:border-blue-300'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="text-4xl mb-2">{typeInfo?.icon || '🏢'}</div>
-                  <h3 className={`font-bold text-sm mb-1 ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>{company.name}</h3>
-                  <p className="text-xs text-gray-600 mb-2">{company.description}</p>
-                  <div className="space-y-1">
-                    <div className={`text-lg font-bold ${isSelected ? 'text-blue-600' : 'text-gray-700'}`}>{(company.revenue / 1000000).toFixed(1)}M DA</div>
-                  </div>
-                </div>
-                <div className="text-xs">
-                  <span className={`inline-flex px-2 py-1 rounded-full font-semibold ${isSelected ? 'bg-blue-200 text-blue-800' : 'bg-gray-200 text-gray-700'}`}>{company.type.toUpperCase()}</span>
-                </div>
-                <div className="text-xs text-gray-500">{company.employees} employés</div>
-                {company.growth > 0 && (
-                  <div className="text-xs text-green-600 font-semibold">+{company.growth}% croissance</div>
-                )}
-              </button>
-            );
-          })}
         </div>
       </div>
 
