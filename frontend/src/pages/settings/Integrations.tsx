@@ -29,21 +29,16 @@ const Integrations: React.FC = () => {
   const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
   const [selectedIntegration, setSelectedIntegration] = useState<any>(null);
 
-  // Données de démonstration pour les intégrations
+  // Catalogue des intégrations tierces prises en charge — aucune n'est
+  // réellement connectée (pas d'OAuth/API key configurée côté backend),
+  // donc pas de statut "actif" ni de données de synchronisation inventées.
   const integrations = [
     {
       id: '1',
       nom: 'Banque Extérieure d\'Algérie (BEA)',
       type: 'bancaire',
-      statut: 'active',
+      statut: 'non_connecte',
       description: 'Synchronisation automatique des comptes bancaires',
-      derniereSync: '2025-01-15 14:30',
-      prochaineSync: '2025-01-15 15:00',
-      donnees: {
-        comptes: 3,
-        transactions: 1250,
-        solde: 2500000
-      },
       configuration: {
         url: 'https://api.bea.dz/v1',
         authentification: 'OAuth 2.0',
@@ -54,17 +49,10 @@ const Integrations: React.FC = () => {
       id: '2',
       nom: 'Shopify Store',
       type: 'ecommerce',
-      statut: 'active',
+      statut: 'non_connecte',
       description: 'Synchronisation des commandes et produits',
-      derniereSync: '2025-01-15 14:25',
-      prochaineSync: '2025-01-15 14:55',
-      donnees: {
-        commandes: 45,
-        produits: 120,
-        ca: 180000
-      },
       configuration: {
-        url: 'https://dinarlytic.myshopify.com',
+        url: '',
         authentification: 'API Key',
         frequence: 'Toutes les 15 minutes'
       }
@@ -73,15 +61,8 @@ const Integrations: React.FC = () => {
       id: '3',
       nom: 'Google Workspace',
       type: 'productivite',
-      statut: 'active',
+      statut: 'non_connecte',
       description: 'Synchronisation des contacts et calendrier',
-      derniereSync: '2025-01-15 14:20',
-      prochaineSync: '2025-01-15 15:20',
-      donnees: {
-        contacts: 500,
-        evenements: 25,
-        documents: 150
-      },
       configuration: {
         url: 'https://workspace.google.com',
         authentification: 'OAuth 2.0',
@@ -92,15 +73,8 @@ const Integrations: React.FC = () => {
       id: '4',
       nom: 'DocuSign',
       type: 'signature',
-      statut: 'inactive',
+      statut: 'non_connecte',
       description: 'Signature électronique des documents',
-      derniereSync: '2025-01-10 09:15',
-      prochaineSync: 'Non programmée',
-      donnees: {
-        documents: 0,
-        signatures: 0,
-        envois: 0
-      },
       configuration: {
         url: 'https://docusign.com',
         authentification: 'API Key',
@@ -111,24 +85,19 @@ const Integrations: React.FC = () => {
       id: '5',
       nom: 'SAP Business One',
       type: 'erp',
-      statut: 'configuration',
+      statut: 'non_connecte',
       description: 'Intégration ERP complète',
-      derniereSync: 'Jamais',
-      prochaineSync: 'Après configuration',
-      donnees: {
-        modules: 0,
-        donnees: 0,
-        synchronise: 0
-      },
       configuration: {
-        url: 'https://sap.businessone.com',
+        url: '',
         authentification: 'SAML',
         frequence: 'Toutes les 6 heures'
       }
     }
   ];
 
-  // Données de démonstration pour les APIs
+  // APIs REST réellement exposées par le backend (voir backend/app/api/v1) —
+  // pas de comptage de requêtes/quota, aucun suivi d'usage par endpoint
+  // n'est implémenté côté serveur.
   const apis = [
     {
       id: '1',
@@ -136,79 +105,34 @@ const Integrations: React.FC = () => {
       endpoint: '/api/v1/clients',
       methodes: ['GET', 'POST', 'PUT', 'DELETE'],
       description: 'Gestion des clients via API REST',
-      version: '1.2.0',
-      statut: 'active',
-      requetes: 15420,
-      limite: 10000,
-      documentation: 'https://api.dinarlytic.dz/docs/clients'
+      statut: 'active'
     },
     {
       id: '2',
       nom: 'API Factures',
-      endpoint: '/api/v1/factures',
+      endpoint: '/api/v1/invoices',
       methodes: ['GET', 'POST', 'PUT'],
       description: 'Gestion des factures via API REST',
-      version: '1.1.5',
-      statut: 'active',
-      requetes: 8750,
-      limite: 5000,
-      documentation: 'https://api.dinarlytic.dz/docs/factures'
+      statut: 'active'
     },
     {
       id: '3',
       nom: 'API Rapports',
-      endpoint: '/api/v1/rapports',
-      methodes: ['GET', 'POST'],
+      endpoint: '/api/v1/reports',
+      methodes: ['GET'],
       description: 'Génération de rapports via API',
-      version: '1.0.3',
-      statut: 'beta',
-      requetes: 2100,
-      limite: 1000,
-      documentation: 'https://api.dinarlytic.dz/docs/rapports'
+      statut: 'active'
     }
   ];
 
-  // Données de démonstration pour les webhooks
-  const webhooks = [
-    {
-      id: '1',
-      nom: 'Nouvelle Facture',
-      url: 'https://webhook.site/abc123',
-      evenement: 'facture.created',
-      statut: 'active',
-      derniereExecution: '2025-01-15 14:30:15',
-      executions: 45,
-      succes: 42,
-      echecs: 3
-    },
-    {
-      id: '2',
-      nom: 'Paiement Reçu',
-      url: 'https://webhook.site/def456',
-      evenement: 'paiement.received',
-      statut: 'active',
-      derniereExecution: '2025-01-15 14:25:30',
-      executions: 28,
-      succes: 28,
-      echecs: 0
-    },
-    {
-      id: '3',
-      nom: 'Stock Minimum',
-      url: 'https://webhook.site/ghi789',
-      evenement: 'stock.minimum',
-      statut: 'inactive',
-      derniereExecution: '2025-01-10 09:15:00',
-      executions: 5,
-      succes: 5,
-      echecs: 0
-    }
-  ];
+  // Aucun système de webhooks n'existe côté backend.
+  const webhooks: Array<{ id: string; nom: string; url: string; evenement: string; statut: string }> = [];
 
   const getStatutColor = (statut: string) => {
     switch (statut) {
       case 'active': return 'bg-green-100 text-green-800';
       case 'inactive': return 'bg-red-100 text-red-800';
+      case 'non_connecte': return 'bg-gray-100 text-gray-600';
       case 'beta': return 'bg-yellow-100 text-yellow-800';
       case 'configuration': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -280,29 +204,8 @@ const Integrations: React.FC = () => {
 
                 <p className="text-sm text-gray-600 mb-3">{integration.description}</p>
 
-                <div className="space-y-2 text-xs text-gray-500">
-                  <div className="flex justify-between">
-                    <span>Dernière sync:</span>
-                    <span>{integration.derniereSync}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Prochaine sync:</span>
-                    <span>{integration.prochaineSync}</span>
-                  </div>
-                </div>
-
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700">Données synchronisées</span>
-                    <div className="flex space-x-2">
-                      <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors" title="Voir détails">
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                      <button className="p-1 text-gray-400 hover:text-green-600 transition-colors" title="Synchroniser">
-                        <ArrowPathIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
+                <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-400 italic">
+                  Non connecté — configuration requise
                 </div>
               </div>
             ))}
@@ -334,36 +237,12 @@ const Integrations: React.FC = () => {
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatutColor(api.statut)}`}>
                         {api.statut}
                       </span>
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        v{api.version}
-                      </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{api.description}</p>
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <span><strong>Endpoint:</strong> {api.endpoint}</span>
                       <span><strong>Méthodes:</strong> {api.methodes.join(', ')}</span>
                     </div>
-                    <div className="mt-2 flex items-center space-x-4 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-gray-600">Requêtes:</span>
-                        <span className="font-semibold">{api.requetes.toLocaleString()}</span>
-                        <span className="text-gray-500">/ {api.limite.toLocaleString()}</span>
-                      </div>
-                      <div className="w-24 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full" 
-                          style={{ width: `${(api.requetes / api.limite) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Voir API">
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-green-600 transition-colors" title="Modifier API">
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
                   </div>
                 </div>
               </div>
@@ -396,46 +275,11 @@ const Integrations: React.FC = () => {
               </button>
             </div>
           </div>
-          {/* Example webhooks array mapping, ensure webhooks is defined in your state */}
-          {(webhooks || []).map((webhook, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-tight">{webhook.nom}</h4>
-                  <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-widest ${getStatutColor(webhook.statut)}`}>
-                    {webhook.statut}
-                  </span>
-                </div>
-                <div className="space-y-1.5 text-xs text-slate-500 overflow-hidden">
-                  <p className="truncate"><strong>URL:</strong> {webhook.url}</p>
-                  <p><strong>Événement:</strong> <span className="font-mono text-[10px] bg-slate-100 dark:bg-slate-900 px-1.5 py-0.5 rounded">{webhook.evenement}</span></p>
-                  <p><strong>Dernière exécution:</strong> {webhook.derniereExecution}</p>
-                </div>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] font-black uppercase tracking-widest">
-                  <div className="flex items-center space-x-1.5">
-                    <CheckCircleIcon className="h-3.5 w-3.5 text-emerald-500" />
-                    <span className="text-emerald-600">{webhook.succes} succès</span>
-                  </div>
-                  <div className="flex items-center space-x-1.5">
-                    <XMarkIcon className="h-3.5 w-3.5 text-rose-500" />
-                    <span className="text-rose-600">{webhook.echecs} échecs</span>
-                  </div>
-                  <div className="text-slate-400">Total: {webhook.executions}</div>
-                </div>
-              </div>
-              <div className="flex sm:flex-col justify-end gap-2 pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-50">
-                <button className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors" title="Voir Webhook">
-                  <EyeIcon className="h-5 w-5" />
-                </button>
-                <button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Relancer Webhook">
-                  <ArrowPathIcon className="h-5 w-5" />
-                </button>
-                <button className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Supprimer Webhook">
-                  <TrashIcon className="h-5 w-5" />
-                </button>
-              </div>
+          {webhooks.length === 0 && (
+            <div className="p-8 text-center text-slate-400 text-sm border border-dashed border-slate-200 rounded-2xl">
+              Aucun système de webhooks n'est encore disponible.
             </div>
-          ))}
+          )}
         </div>
       </Card>
 
@@ -445,19 +289,21 @@ const Integrations: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900">Intégrations Disponibles</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Aucune de ces intégrations n'est encore implémentée côté
+                backend — toutes sont donc "bientôt", pas "disponible". */}
             {[
-              { nom: 'Stripe', type: 'paiement', statut: 'disponible', icone: '💳' },
-              { nom: 'PayPal', type: 'paiement', statut: 'disponible', icone: '💰' },
-              { nom: 'WooCommerce', type: 'ecommerce', statut: 'disponible', icone: '🛒' },
+              { nom: 'Stripe', type: 'paiement', statut: 'bientot', icone: '💳' },
+              { nom: 'PayPal', type: 'paiement', statut: 'bientot', icone: '💰' },
+              { nom: 'WooCommerce', type: 'ecommerce', statut: 'bientot', icone: '🛒' },
               { nom: 'Magento', type: 'ecommerce', statut: 'bientot', icone: '🏪' },
-              { nom: 'Salesforce', type: 'crm', statut: 'disponible', icone: '☁️' },
-              { nom: 'HubSpot', type: 'crm', statut: 'disponible', icone: '🎯' },
-              { nom: 'Slack', type: 'communication', statut: 'disponible', icone: '💬' },
+              { nom: 'Salesforce', type: 'crm', statut: 'bientot', icone: '☁️' },
+              { nom: 'HubSpot', type: 'crm', statut: 'bientot', icone: '🎯' },
+              { nom: 'Slack', type: 'communication', statut: 'bientot', icone: '💬' },
               { nom: 'Microsoft Teams', type: 'communication', statut: 'bientot', icone: '👥' },
-              { nom: 'QuickBooks', type: 'comptabilite', statut: 'disponible', icone: '📊' },
+              { nom: 'QuickBooks', type: 'comptabilite', statut: 'bientot', icone: '📊' },
               { nom: 'Xero', type: 'comptabilite', statut: 'bientot', icone: '📈' },
-              { nom: 'Mailchimp', type: 'marketing', statut: 'disponible', icone: '📧' },
-              { nom: 'Zapier', type: 'automatisation', statut: 'disponible', icone: '⚡' }
+              { nom: 'Mailchimp', type: 'marketing', statut: 'bientot', icone: '📧' },
+              { nom: 'Zapier', type: 'automatisation', statut: 'bientot', icone: '⚡' }
             ].map((integration, index) => (
               <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center">
                 <div className="text-3xl mb-2">{integration.icone}</div>
@@ -476,7 +322,6 @@ const Integrations: React.FC = () => {
         </div>
       </Card>
 
-      {/* Modals de démonstration */}
       <Modal
         isOpen={isIntegrationModalOpen}
         onClose={() => setIsIntegrationModalOpen(false)}
@@ -487,19 +332,14 @@ const Integrations: React.FC = () => {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold text-blue-900 mb-2">Configuration</h4>
               <div className="space-y-2 text-sm text-blue-800">
-                <p><strong>URL:</strong> {selectedIntegration.configuration.url}</p>
+                <p><strong>URL:</strong> {selectedIntegration.configuration.url || '—'}</p>
                 <p><strong>Authentification:</strong> {selectedIntegration.configuration.authentification}</p>
                 <p><strong>Fréquence:</strong> {selectedIntegration.configuration.frequence}</p>
               </div>
             </div>
-            
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-green-900 mb-2">Données Synchronisées</h4>
-              <div className="space-y-1 text-sm text-green-800">
-                {Object.entries(selectedIntegration.donnees).map(([key, value]) => (
-                  <p key={key}><strong>{key}:</strong> {typeof value === 'string' || typeof value === 'number' ? value : JSON.stringify(value)}</p>
-                ))}
-              </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
+              Cette intégration n'est pas encore connectée. Sa mise en place nécessite une configuration côté administrateur.
             </div>
           </div>
         )}
