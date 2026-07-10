@@ -1343,7 +1343,6 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
           </div>
           <div className="mt-8 flex justify-end space-x-3">
             <button onClick={() => setIsCalculModalOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Fermer</button>
-            <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-slate-900 transition-all shadow-lg shadow-indigo-100">Appliquer les données</button>
           </div>
         </div>
       </Modal>
@@ -1619,7 +1618,23 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
 
             <div className="flex justify-end space-x-3 pt-6 border-t border-slate-100">
               <button onClick={() => setIsDocumentModalOpen(false)} className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Fermer</button>
-              <button className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-sm">Générer le document</button>
+              <button
+                onClick={async () => {
+                  try {
+                    // Enregistre la déclaration en brouillon côté backend
+                    await apiClient.post('/fiscality/declarations', {
+                      document_id: selectedDocument.id,
+                      country: currentCountry,
+                      data: {}
+                    });
+                    setIsDocumentModalOpen(false);
+                  } catch (err) {
+                    console.error('Failed to create fiscal declaration', err);
+                  }
+                }}
+                className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-black transition-all shadow-sm">
+                Générer le document
+              </button>
             </div>
           </div>
         )}

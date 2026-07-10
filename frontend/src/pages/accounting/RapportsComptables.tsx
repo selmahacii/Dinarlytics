@@ -471,20 +471,26 @@ const EtatsRapports: React.FC = () => {
               onChange={(e) => setSelectedPeriode(e.target.value)}
               className="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-500"
             >
-              <option value="2026-04">{t('common.months.april')} 2026</option>
-              <option value="2026-03">{t('common.months.march')} 2026</option>
-              <option value="2026-02">{t('common.months.february')} 2026</option>
-              <option value="2026-01">{t('common.months.january')} 2026</option>
-              <option value="2024">{t('common.periods.year')} 2024</option>
+              {/* Périodes générées dynamiquement : 12 derniers mois + 2 exercices */}
+              {Array.from({ length: 12 }, (_, i) => {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                const label = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+                return <option key={value} value={value}>{label}</option>;
+              })}
+              <option value={String(new Date().getFullYear())}>{t('common.periods.year')} {new Date().getFullYear()}</option>
+              <option value={String(new Date().getFullYear() - 1)}>{t('common.periods.year')} {new Date().getFullYear() - 1}</option>
             </select>
-            <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium">
+            <button onClick={() => window.print()} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium">
               <PrinterIcon className="h-5 w-5 inline mr-2" />
               {t('accounting.reports.actions.print')}
             </button>
             <button
               onClick={() => {
                 const year = selectedPeriode.split('-')[0];
-                window.open(`http://localhost:8000/fiscality/liasse-fiscale/xml?year=${year}&token=${localStorage.getItem('token')}`, '_blank');
+                const baseURL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000/api/v1';
+                window.open(`${baseURL}/fiscality/liasse-fiscale/xml?year=${year}&token=${localStorage.getItem('token')}`, '_blank');
               }}
               className="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors font-medium flex items-center"
             >

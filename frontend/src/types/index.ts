@@ -271,11 +271,13 @@ export interface GestionRisques {
 }
 
 export interface ScenarioRisque {
-  nom: string;
-  type: 'optimiste' | 'prudent' | 'pessimiste';
-  probabilite: number;
-  impact: number;
-  mesuresMitigation: string[];
+  id: string;
+  titre: string;
+  description: string;
+  impactTresorerie: number;
+  probabilite: 'Faible' | 'Moyenne' | 'Élevée';
+  gravite: 'Faible' | 'Moyenne' | 'Élevée';
+  actionsCorrectrices: string[];
 }
 
 // Types pour le coût du capital et effet de levier

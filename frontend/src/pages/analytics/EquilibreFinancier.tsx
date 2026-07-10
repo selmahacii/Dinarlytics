@@ -78,15 +78,22 @@ const EquilibreFinancier: React.FC = () => {
     fetchEquilibreFinancier();
   }, [companyData]);
 
-  // Données prévisionnelles par scénario
-  // Données prévisionnelles par scénario
+  // Indice d'indépendance financière réel : part des actifs circulants non
+  // financée par les dettes fournisseurs (faute de bilan complet en base).
+  const actifsCourants = (companyData?.cashBalance || 0) + (companyData?.accountsReceivable || 0) + (companyData?.inventoryValue || 0);
+  const dettesCourantes = companyData?.accountsPayable || 0;
+  const indiceIndependanceReel = actifsCourants > 0 ? Math.max(0, Math.min(1, 1 - dettesCourantes / actifsCourants)) : 0;
+
+  // Données prévisionnelles par scénario. Les multiplicateurs sont des
+  // hypothèses de scénario explicites (facteursVariation ci-dessous),
+  // appliquées aux agrégats réels.
   const equilibrePrevisionnel: Record<string, EquilibreFinancierPrevisionnel> = equilibreActuel ? {
     optimiste: {
       frnPrevisionnel: Math.round(equilibreActuel.fondsRoulementNet * 1.15),
       bfrPrevisionnel: Math.round(equilibreActuel.besoinFondsRoulement * 0.90),
       tnPrevisionnelle: Math.round((equilibreActuel.fondsRoulementNet * 1.15) - (equilibreActuel.besoinFondsRoulement * 0.90)),
       capaciteAutofinancement: Math.round(equilibreActuel.fondsRoulementNet * 0.25),
-      indiceIndependanceFinanciere: 0.75,
+      indiceIndependanceFinanciere: indiceIndependanceReel,
       scenario: 'optimiste',
       periode: '3 mois',
       facteursVariation: {
@@ -101,7 +108,7 @@ const EquilibreFinancier: React.FC = () => {
       bfrPrevisionnel: Math.round(equilibreActuel.besoinFondsRoulement * 1.05),
       tnPrevisionnelle: Math.round((equilibreActuel.fondsRoulementNet * 1.02) - (equilibreActuel.besoinFondsRoulement * 1.05)),
       capaciteAutofinancement: Math.round(equilibreActuel.fondsRoulementNet * 0.15),
-      indiceIndependanceFinanciere: 0.65,
+      indiceIndependanceFinanciere: indiceIndependanceReel,
       scenario: 'prudent',
       periode: '3 mois',
       facteursVariation: {
@@ -116,7 +123,7 @@ const EquilibreFinancier: React.FC = () => {
       bfrPrevisionnel: Math.round(equilibreActuel.besoinFondsRoulement * 1.20),
       tnPrevisionnelle: Math.round((equilibreActuel.fondsRoulementNet * 0.90) - (equilibreActuel.besoinFondsRoulement * 1.20)),
       capaciteAutofinancement: Math.round(equilibreActuel.fondsRoulementNet * 0.05),
-      indiceIndependanceFinanciere: 0.45,
+      indiceIndependanceFinanciere: indiceIndependanceReel,
       scenario: 'pessimiste',
       periode: '3 mois',
       facteursVariation: {
@@ -398,38 +405,43 @@ const EquilibreFinancier: React.FC = () => {
 
       {/* 3️⃣ Gestion des risques */}
       <Card title="3️⃣ Gestion des Risques et Simulation de Scénarios">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {scenariosRisque.map((scenario, index) => (
-            <div key={index} className={`p-6 rounded-xl border ${
-              scenario.type === 'optimiste' ? 'bg-green-50 border-green-200' :
-              scenario.type === 'prudent' ? 'bg-blue-50 border-blue-200' :
-              'bg-red-50 border-red-200'
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {scenariosRisque.length === 0 && (
+            <p className="col-span-full text-center text-sm text-gray-400 py-6">Aucune donnée disponible pour la simulation de risques.</p>
+          )}
+          {scenariosRisque.map((scenario) => (
+            <div key={scenario.id} className={`p-6 rounded-xl border ${
+              scenario.gravite === 'Élevée' ? 'bg-red-50 border-red-200' :
+              scenario.gravite === 'Moyenne' ? 'bg-amber-50 border-amber-200' :
+              'bg-blue-50 border-blue-200'
             }`}>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-semibold text-gray-900">{scenario.nom}</h4>
+                <h4 className="font-semibold text-gray-900">{scenario.titre}</h4>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  scenario.type === 'optimiste' ? 'bg-green-100 text-green-800' :
-                  scenario.type === 'prudent' ? 'bg-blue-100 text-blue-800' :
-                  'bg-red-100 text-red-800'
+                  scenario.gravite === 'Élevée' ? 'bg-red-100 text-red-800' :
+                  scenario.gravite === 'Moyenne' ? 'bg-amber-100 text-amber-800' :
+                  'bg-blue-100 text-blue-800'
                 }`}>
-                  {scenario.type}
+                  Gravité : {scenario.gravite}
                 </span>
               </div>
-              
+
+              <p className="text-sm text-gray-600 mb-3">{scenario.description}</p>
+
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span>Probabilité:</span>
-                  <span className="font-medium">{(scenario.probabilite * 100).toFixed(0)}%</span>
+                  <span className="font-medium">{scenario.probabilite}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Impact:</span>
-                  <span className="font-medium">{(scenario.impact * 100).toFixed(0)}%</span>
+                  <span>Impact trésorerie:</span>
+                  <span className={`font-medium ${scenario.impactTresorerie < 0 ? 'text-red-600' : 'text-emerald-600'}`}>{formatCurrency(scenario.impactTresorerie)}</span>
                 </div>
-                
+
                 <div className="mt-4">
-                  <h5 className="font-medium text-gray-700 mb-2">Mesures de Mitigation:</h5>
+                  <h5 className="font-medium text-gray-700 mb-2">Actions correctrices:</h5>
                   <ul className="space-y-1">
-                    {scenario.mesuresMitigation.map((mesure: string, idx: number) => (
+                    {scenario.actionsCorrectrices.map((mesure: string, idx: number) => (
                       <li key={idx} className="text-xs text-gray-600 flex items-start">
                         <CheckCircleIcon className="h-3 w-3 text-green-500 mt-0.5 mr-1 flex-shrink-0" />
                         {mesure}
@@ -446,65 +458,82 @@ const EquilibreFinancier: React.FC = () => {
       {/* 4️⃣ Système d'alerte précoce */}
       <Card title="4️⃣ Système d'Alerte Précoce (Early Warning System)">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Alerte Liquidité */}
-          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center mb-2">
-              <EyeIcon className="h-5 w-5 text-blue-600 mr-2" />
-              <h5 className="font-medium text-blue-900">Liquidité</h5>
-            </div>
-            <div className="text-2xl font-bold text-blue-600 mb-1">
-              {((equilibreActuel.tresorerieNette / equilibreActuel.besoinFondsRoulement) * 100).toFixed(1)}%
-            </div>
-            <div className="text-xs text-blue-700">Couverture BFR</div>
-            <div className="mt-2">
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                ✅ Bon niveau
-              </span>
-            </div>
-          </div>
+          {/* Alerte Liquidité — couverture réelle du BFR par la trésorerie */}
+          {(() => {
+            const couverture = equilibreActuel.besoinFondsRoulement !== 0
+              ? (equilibreActuel.tresorerieNette / equilibreActuel.besoinFondsRoulement) * 100
+              : null;
+            const bon = couverture !== null && couverture >= 0;
+            return (
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center mb-2">
+                  <EyeIcon className="h-5 w-5 text-blue-600 mr-2" />
+                  <h5 className="font-medium text-blue-900">Liquidité</h5>
+                </div>
+                <div className="text-2xl font-bold text-blue-600 mb-1">
+                  {couverture !== null ? `${couverture.toFixed(1)}%` : '—'}
+                </div>
+                <div className="text-xs text-blue-700">Couverture BFR</div>
+                <div className="mt-2">
+                  <span className={`text-xs px-2 py-1 rounded-full ${bon ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {bon ? '✅ Bon niveau' : '⚠ Trésorerie négative'}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
 
-          {/* Alerte Rentabilité */}
+          {/* Alerte Rentabilité — marge réelle */}
           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
             <div className="flex items-center mb-2">
               <ChartPieIcon className="h-5 w-5 text-green-600 mr-2" />
               <h5 className="font-medium text-green-900">Rentabilité</h5>
             </div>
-            <div className="text-2xl font-bold text-green-600 mb-1">0%</div>
-            <div className="text-xs text-green-700">ROE</div>
+            <div className="text-2xl font-bold text-green-600 mb-1">{(companyData?.profitMargin ?? 0).toFixed(1)}%</div>
+            <div className="text-xs text-green-700">Marge nette</div>
           </div>
 
-          {/* Alerte Endettement */}
+          {/* Alerte Endettement — dettes courantes / actifs courants réels */}
           <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
             <div className="flex items-center mb-2">
               <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 mr-2" />
               <h5 className="font-medium text-amber-900">Endettement</h5>
             </div>
-            <div className="text-2xl font-bold text-amber-600 mb-1">0</div>
-            <div className="text-xs text-amber-700">Ratio Dette</div>
+            <div className="text-2xl font-bold text-amber-600 mb-1">
+              {(() => {
+                const actifs = (companyData?.cashBalance || 0) + (companyData?.accountsReceivable || 0) + (companyData?.inventoryValue || 0);
+                const dettes = companyData?.accountsPayable || 0;
+                return actifs > 0 ? (dettes / actifs).toFixed(2) : '—';
+              })()}
+            </div>
+            <div className="text-xs text-amber-700">Dettes / Actifs circulants</div>
           </div>
 
-          {/* Alerte Exploitation */}
+          {/* Alerte Exploitation — flux net réel des 30 derniers jours */}
           <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
             <div className="flex items-center mb-2">
               <ArrowTrendingUpIcon className="h-5 w-5 text-purple-600 mr-2" />
               <h5 className="font-medium text-purple-900">Exploitation</h5>
             </div>
-            <div className="text-2xl font-bold text-purple-600 mb-1">0%</div>
-            <div className="text-xs text-purple-700">Marge Op.</div>
+            <div className="text-2xl font-bold text-purple-600 mb-1">
+              {formatCurrency((companyData?.revenueMonth || 0) - (companyData?.totalPayables || 0))}
+            </div>
+            <div className="text-xs text-purple-700">CA mensuel - dettes fournisseurs</div>
           </div>
         </div>
       </Card>
 
       {/* Actions rapides */}
       <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <button className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
+        <button
+          onClick={() => window.print()}
+          className="flex-1 px-6 py-4 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
           📊 Exporter l'Analyse
         </button>
-        <button className="flex-1 px-6 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
+        <button
+          onClick={() => window.location.reload()}
+          className="flex-1 px-6 py-4 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
           🔄 Actualiser
-        </button>
-        <button className="flex-1 px-6 py-4 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-all font-bold text-xs uppercase tracking-widest shadow-lg">
-          📧 Partager
         </button>
       </div>
     </div>

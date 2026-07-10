@@ -256,6 +256,8 @@ const Tresorerie: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'forecast' | 'reconciliation' | 'liquidity' | 'checks'>('overview');
   const [isScenarioModalOpen, setIsScenarioModalOpen] = useState(false);
   const [isEcheancesModalOpen, setIsEcheancesModalOpen] = useState(false);
+  const [scenarioInputs, setScenarioInputs] = useState({ variationCA: 0, variationDelaiClients: 0, variationDelaiFournisseurs: 0, investissements: 0 });
+  const [scenarioResult, setScenarioResult] = useState<{ soldeProjete: number; impactCA: number; impactBFR: number } | null>(null);
 
   const appCtx = useContext(AppContext) as AppContextType | undefined;
   const user = appCtx?.user;
@@ -811,7 +813,8 @@ const Tresorerie: React.FC = () => {
               </label>
               <input
                 type="number"
-                defaultValue={0}
+                value={scenarioInputs.variationCA}
+                onChange={(e) => setScenarioInputs({ ...scenarioInputs, variationCA: Number(e.target.value) })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 placeholder="Ex: +10 ou -5"
               />
@@ -822,7 +825,8 @@ const Tresorerie: React.FC = () => {
               </label>
               <input
                 type="number"
-                defaultValue={0}
+                value={scenarioInputs.variationDelaiClients}
+                onChange={(e) => setScenarioInputs({ ...scenarioInputs, variationDelaiClients: Number(e.target.value) })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 placeholder="Ex: +5 ou -10"
               />
@@ -833,7 +837,8 @@ const Tresorerie: React.FC = () => {
               </label>
               <input
                 type="number"
-                defaultValue={0}
+                value={scenarioInputs.variationDelaiFournisseurs}
+                onChange={(e) => setScenarioInputs({ ...scenarioInputs, variationDelaiFournisseurs: Number(e.target.value) })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 placeholder="Ex: -5 ou +10"
               />
@@ -844,21 +849,50 @@ const Tresorerie: React.FC = () => {
               </label>
               <input
                 type="number"
-                defaultValue={0}
+                value={scenarioInputs.investissements}
+                onChange={(e) => setScenarioInputs({ ...scenarioInputs, investissements: Number(e.target.value) })}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg"
                 placeholder="Ex: 1000000"
               />
             </div>
           </div>
 
+          {scenarioResult && (
+            <div className={`p-4 rounded-lg border-2 ${scenarioResult.soldeProjete >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+              <p className="font-semibold text-slate-900 mb-2">Résultat de la simulation (horizon 30 jours)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div><span className="text-slate-500 block">Impact CA mensuel</span><span className="font-bold">{scenarioResult.impactCA >= 0 ? '+' : ''}{scenarioResult.impactCA.toLocaleString('fr-FR')} DA</span></div>
+                <div><span className="text-slate-500 block">Impact BFR (délais)</span><span className="font-bold">{scenarioResult.impactBFR >= 0 ? '+' : ''}{scenarioResult.impactBFR.toLocaleString('fr-FR')} DA</span></div>
+                <div><span className="text-slate-500 block">Trésorerie projetée</span><span className={`font-bold ${scenarioResult.soldeProjete >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>{scenarioResult.soldeProjete.toLocaleString('fr-FR')} DA</span></div>
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-end space-x-3">
             <button
-              onClick={() => setIsScenarioModalOpen(false)}
+              onClick={() => { setIsScenarioModalOpen(false); setScenarioResult(null); }}
               className="px-4 py-2 text-slate-600 hover:text-slate-800"
             >
               Annuler
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button
+              onClick={() => {
+                // Simulation calculée sur les soldes bancaires réels et le CA
+                // mensuel réel de l'entreprise.
+                const soldeActuel = bankAccounts.reduce((sum, acc) => sum + acc.balance, 0);
+                const caMensuel = appCtx?.companyData?.revenueMonth || 0;
+                const caJournalier = caMensuel / 30;
+                const impactCA = Math.round(caMensuel * (scenarioInputs.variationCA / 100));
+                // Chaque jour de délai client en plus immobilise un jour de CA ;
+                // chaque jour de délai fournisseur en plus libère un jour d'achats (~70% du CA).
+                const impactBFR = Math.round(
+                  -(scenarioInputs.variationDelaiClients * caJournalier) +
+                  (scenarioInputs.variationDelaiFournisseurs * caJournalier * 0.7)
+                );
+                const soldeProjete = Math.round(soldeActuel + impactCA + impactBFR - scenarioInputs.investissements);
+                setScenarioResult({ soldeProjete, impactCA, impactBFR });
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <SparklesIcon className="h-4 w-4 inline mr-2" />
               Lancer la Simulation
             </button>

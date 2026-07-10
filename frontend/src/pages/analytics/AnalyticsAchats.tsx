@@ -187,14 +187,12 @@ const AnalyticsAchats: React.FC = () => {
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">TVA Récupérable</p>
                     <p className="text-2xl font-black text-emerald-500 font-mono">{formatCurrency(stats.totalTVA)}</p>
-                    <div className="mt-4 flex items-center gap-2">
-                        <span className="text-[10px] font-black text-emerald-500 uppercase">+12% vs M-1</span>
-                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Déductible sur achats</p>
                 </div>
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Dettes Fournisseurs</p>
                     <p className="text-2xl font-black text-rose-500 font-mono">{formatCurrency(stats.pendingAmount)}</p>
-                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Exigibilité moyenne 15j</p>
+                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Montant restant à payer</p>
                 </div>
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700 transition-all hover:scale-[1.02]">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Nombre d'Achats</p>
@@ -424,10 +422,6 @@ const AnalyticsAchats: React.FC = () => {
                                 <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 font-mono">Total à Payer (TTC)</p>
                                 <p className="text-2xl font-black font-mono">{formatCurrency(newPurchase.totalTTC || 0)}</p>
                             </div>
-                            <div className="text-right">
-                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest font-mono">Disponibilité</p>
-                                <p className="text-xs font-bold uppercase tracking-tight text-emerald-400">Fonds suffisants</p>
-                            </div>
                         </div>
                     </div>
 
@@ -512,8 +506,8 @@ const AnalyticsAchats: React.FC = () => {
                         </div>
 
                         <div className="flex justify-end pt-4 gap-3">
-                            <button className="flex items-center px-6 py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50">
-                                <ArrowDownTrayIcon className="h-4 w-4 mr-2" /> Télécharger PDF
+                            <button onClick={() => window.print()} className="flex items-center px-6 py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50">
+                                <ArrowDownTrayIcon className="h-4 w-4 mr-2" /> Imprimer / PDF
                             </button>
                             <button onClick={() => setIsDetailModalOpen(false)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Fermer</button>
                         </div>
