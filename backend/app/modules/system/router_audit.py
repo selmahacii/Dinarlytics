@@ -18,6 +18,7 @@ class AuditLogResponse(BaseModel):
     entity_id: Optional[uuid.UUID]
     old_values: Optional[dict]
     new_values: Optional[dict]
+    ip_address: Optional[str]
     created_at: datetime
 
     class Config:

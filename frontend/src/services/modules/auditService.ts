@@ -8,6 +8,7 @@ export interface AuditLog {
     entity_id: string;
     old_values: any;
     new_values: any;
+    ip_address?: string | null;
     created_at: string;
 }
 
