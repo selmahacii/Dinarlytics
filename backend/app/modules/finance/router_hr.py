@@ -9,6 +9,7 @@ from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from app.core.models import Employee
+from app.modules.system.utils_audit import log_audit
 
 router = APIRouter(prefix="/rh/employees", tags=["hr"])
 
@@ -124,6 +125,7 @@ async def create_employee(
     )
     
     db.add(emp)
+    log_audit(db, current_user, 'CREATE', 'EMPLOYEE', None, {'matricule': request.matricule, 'nom': request.nom})
     db.commit()
     db.refresh(emp)
     
@@ -173,6 +175,7 @@ async def update_employee(
     emp.telephone = req.telephone
     emp.status = req.status
     
+    log_audit(db, current_user, 'UPDATE', 'EMPLOYEE', str(emp.id) if hasattr(emp, 'id') else None, {'matricule': getattr(emp, 'matricule', None)})
     db.commit()
     db.refresh(emp)
     
@@ -204,5 +207,6 @@ async def delete_employee(
         raise HTTPException(status_code=404, detail="Employee not found")
         
     db.delete(emp)
+    log_audit(db, current_user, 'DELETE', 'EMPLOYEE', str(emp.id) if hasattr(emp, 'id') else None, {'matricule': getattr(emp, 'matricule', None)})
     db.commit()
     return {"status": "success", "message": "Employee deleted"}

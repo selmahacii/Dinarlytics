@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from decimal import Decimal, ROUND_CEILING
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
 from app.core.sequences import generate_document_number
+from app.modules.system.utils_audit import log_audit
 from datetime import datetime
 
 
@@ -58,21 +59,32 @@ class InvoiceResponse(BaseModel):
 @router.get("/", response_model=List[InvoiceResponse])
 async def list_invoices(
     type: Optional[str] = Query(None),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=1000),
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     query = db.query(Invoice).filter(Invoice.company_id == current_user.company_id)
-    invoices = query.all()
-    
+    # Le paramètre `type` était déclaré mais jamais appliqué : le frontend
+    # demandait les factures de vente et recevait aussi les achats.
+    if type:
+        query = query.filter(Invoice.type == type)
+    invoices = query.order_by(Invoice.invoice_date.desc()).offset(skip).limit(limit).all()
+
+    # Résolution des noms clients en une seule requête (au lieu d'un SELECT
+    # par facture — N+1).
+    client_ids = {inv.client_id for inv in invoices if inv.client_id}
+    clients_by_id = {}
+    if client_ids:
+        clients_by_id = {
+            c.id: c.name
+            for c in db.query(Client.id, Client.name).filter(Client.id.in_(client_ids)).all()
+        }
+
     res = []
     for inv in invoices:
-        # Fetch client name if exists
-        client_name = "Client Inconnu"
-        if inv.client_id:
-            client = db.query(Client).filter(Client.id == inv.client_id).first()
-            if client:
-                client_name = client.name
-        
+        client_name = clients_by_id.get(inv.client_id, "Client Inconnu")
+
         res.append(InvoiceResponse(
             id=str(inv.id),
             numero=inv.invoice_number,
@@ -237,6 +249,7 @@ async def create_invoice(
     # Note: Le timbre n'est PAS du chiffre d'affaires (HT), c'est une taxe collect????e pour l'????tat
     new_inv.total_ttc = total_ht_global + total_tva_global + timbre_fiscal
 
+    log_audit(db, current_user, 'CREATE', 'INVOICE', str(new_inv.id), {'invoice_number': invoice_number})
     db.commit()
     db.refresh(new_inv)
     
@@ -333,6 +346,7 @@ async def validate_invoice(
     # 3. Update Invoice Status
     inv.status = 'validated'
     
+    log_audit(db, current_user, 'VALIDATE', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number})
     db.commit()
     db.refresh(inv)
     
@@ -381,6 +395,7 @@ async def cancel_invoice(
         raise HTTPException(status_code=400, detail="Cannot cancel a paid invoice")
 
     inv.status = 'annulee'
+    log_audit(db, current_user, 'CANCEL', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number})
     db.commit()
 
     return {"id": str(inv.id), "status": inv.status, "message": "Invoice cancelled"}

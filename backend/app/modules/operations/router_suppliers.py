@@ -385,6 +385,7 @@ async def delete_supplier(
     
     # Soft delete
     supplier.is_active = False
+    log_audit(db, current_user, 'DELETE', 'SUPPLIER', str(supplier.id), {'name': supplier.name})
     supplier.updated_at = datetime.utcnow()
     
     db.commit()

@@ -786,11 +786,31 @@ async def get_kpis(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
-    # Dummy KPIs, replace with real queries
+    # KPIs reels calcules sur les factures des 30 derniers jours
+    from app.core.models import Invoice
+    from sqlalchemy import func as sqlfunc
+    from decimal import Decimal
+    import datetime as dt
+
+    thirty_days_ago = dt.date.today() - dt.timedelta(days=30)
+    ca = db.query(sqlfunc.sum(Invoice.total_htt)).filter(
+        Invoice.company_id == current_user.company_id,
+        Invoice.type == 'sale',
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
+    ).scalar() or Decimal('0')
+    achats = db.query(sqlfunc.sum(Invoice.total_htt)).filter(
+        Invoice.company_id == current_user.company_id,
+        Invoice.type == 'purchase',
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
+    ).scalar() or Decimal('0')
+    profit = ca - achats
+    marge = float((profit / ca) * 100) if ca > 0 else 0.0
     kpis = [
-        {"name": "CA", "value": 1200000, "unit": "DZD", "period": period or "mois"},
-        {"name": "Profit", "value": 350000, "unit": "DZD", "period": period or "mois"},
-        {"name": "Marge", "value": 29.2, "unit": "%", "period": period or "mois"},
+        {"name": "CA", "value": float(ca), "unit": "DZD", "period": period or "mois"},
+        {"name": "Profit", "value": float(profit), "unit": "DZD", "period": period or "mois"},
+        {"name": "Marge", "value": round(marge, 1), "unit": "%", "period": period or "mois"},
     ]
     return [KPIResponse(**k) for k in kpis]
 
@@ -801,10 +821,13 @@ async def get_financial_indicators(
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(get_current_user)
 ):
-    # Dummy indicators, replace with real queries
+    # Indicateurs financiers reels (service analytique unifie)
+    from app.modules.finance.service_analytics import AnalyticService
+    health = AnalyticService.get_financial_health_kpis(db, current_user.company_id)
     indicators = [
-        {"name": "Liquidit????", "value": 1.8, "unit": "ratio", "period": period or "mois"},
-        {"name": "Solvabilit????", "value": 0.65, "unit": "ratio", "period": period or "mois"},
+        {"name": "Solvabilite", "value": round(health.get("solvency_ratio", 0), 2), "unit": "ratio", "period": period or "mois"},
+        {"name": "DSO", "value": round(health.get("dso_days", 0), 1), "unit": "jours", "period": period or "mois"},
+        {"name": "Marge nette", "value": round(health.get("margin_net_pct", 0), 1), "unit": "%", "period": period or "mois"},
     ]
     return [FinancialIndicatorResponse(**i) for i in indicators]
 
@@ -821,7 +844,10 @@ async def get_alerts(
         query = query.filter(AlertTrigger.status == status)
     if severity:
         query = query.filter(AlertDefinition.severity_level == severity)
-    alerts = query.options(joinedload(AlertTrigger.alert_id)).all()
+    alerts = query.order_by(AlertTrigger.created_at.desc()).limit(200).all()
+    # Resolution des definitions en une requete (nom/type reels)
+    def_ids = {a.alert_id for a in alerts}
+    defs_by_id = {d.id: d for d in db.query(AlertDefinition).filter(AlertDefinition.id.in_(def_ids)).all()} if def_ids else {}
     return [
         AlertResponse(
             id=str(a.id),
@@ -846,7 +872,7 @@ async def get_notifications(
         query = query.filter(UserNotification.is_read == is_read)
     if priority:
         query = query.filter(UserNotification.priority == priority)
-    notifications = query.all()
+    notifications = query.order_by(UserNotification.created_at.desc()).limit(200).all()
     return [
         NotificationResponse(
             id=str(n.id),
@@ -858,68 +884,3 @@ async def get_notifications(
             created_at=n.created_at.isoformat()
         ) for n in notifications
     ]
-
-# ========== ADVANCED STATISTICS ENDPOINTS ==========
-class SystemStatsResponse(BaseModel):
-    uptime: str
-    response_time: str
-    page_views: str
-    conversion_rate: str
-
-class ActivityMetricsResponse(BaseModel):
-    active_visitors: int
-    pending_orders: int
-    support_tickets: int
-
-class BusinessWeatherResponse(BaseModel):
-    status: str
-    indicator: str
-    description: str
-
-@router.get("/system-stats", response_model=SystemStatsResponse)
-async def get_system_stats(
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """Get system performance statistics"""
-    # TODO: Replace with real metrics from monitoring system
-    return SystemStatsResponse(
-        uptime="98.5%",
-        response_time="2.3s",
-        page_views="15.2k",
-        conversion_rate="89%"
-    )
-
-@router.get("/activity-metrics", response_model=ActivityMetricsResponse)
-async def get_activity_metrics(
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """Get real-time activity metrics"""
-    # TODO: Calculate from real data
-    from sqlalchemy import func
-    
-    # Example: Count active sessions, pending orders, support tickets
-    # This is placeholder logic - implement based on your models
-    active_visitors = 247  # Replace with session count
-    pending_orders = 23    # Replace with order query
-    support_tickets = 8    # Replace with ticket query
-    
-    return ActivityMetricsResponse(
-        active_visitors=active_visitors,
-        pending_orders=pending_orders,
-        support_tickets=support_tickets
-    )
-
-@router.get("/business-weather", response_model=BusinessWeatherResponse)
-async def get_business_weather(
-    db: Session = Depends(get_db),
-    current_user: TokenData = Depends(get_current_user)
-):
-    """Get business conditions indicator"""
-    # TODO: Calculate based on KPIs, trends, and market conditions
-    return BusinessWeatherResponse(
-        status="excellent",
-        indicator="Excellente",
-        description="Conditions favorables"
-    )

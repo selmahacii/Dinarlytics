@@ -166,16 +166,14 @@ async def get_article_stats(
         Article.stock_quantity == 0
     ).scalar() or 0
     
-    # Total inventory value
-    articles = db.query(Article).filter(
+    # Total inventory value — agrégé en SQL au lieu de charger tous les
+    # articles en mémoire pour sommer en Python.
+    total_inventory_value = db.query(
+        func.sum(Article.unit_price * Article.stock_quantity)
+    ).filter(
         Article.company_id == current_user.company_id,
         Article.is_active == True
-    ).all()
-    
-    total_inventory_value = sum(
-        (a.unit_price or Decimal(0)) * (a.stock_quantity or 0)
-        for a in articles
-    )
+    ).scalar() or Decimal(0)
     
     # Categories distribution
     categories_query = db.query(

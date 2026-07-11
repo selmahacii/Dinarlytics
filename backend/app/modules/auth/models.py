@@ -81,6 +81,9 @@ class Company(Base):
     country = Column(String(100), default="Algérie")
     parent_company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=True)
     ownership_percentage = Column(Numeric(5, 2), default=100)
+    # Plafond d'utilisateurs du plan (NULL = illimité) — appliqué côté
+    # serveur à la création d'utilisateur, pas seulement affiché côté front.
+    max_users = Column(Integer, nullable=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

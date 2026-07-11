@@ -83,19 +83,32 @@ class UpdatePORequest(BaseModel):
     notes: Optional[str] = None
 
 
-def _build_po_response(po: PurchaseOrder, db: Session) -> PurchaseOrderResponse:
-    supplier_name = None
-    if po.supplier_id:
-        sup = db.query(Supplier).filter(Supplier.id == po.supplier_id).first()
-        supplier_name = sup.name if sup else None
-    
+def _build_po_response(
+    po: PurchaseOrder,
+    db: Session,
+    supplier_names: Optional[dict] = None,
+    article_names: Optional[dict] = None
+) -> PurchaseOrderResponse:
+    # Les dictionnaires pré-chargés évitent un SELECT par commande/ligne (N+1)
+    # lors des listes ; les lectures unitaires les résolvent à la demande.
+    if supplier_names is not None:
+        supplier_name = supplier_names.get(po.supplier_id)
+    else:
+        supplier_name = None
+        if po.supplier_id:
+            sup = db.query(Supplier).filter(Supplier.id == po.supplier_id).first()
+            supplier_name = sup.name if sup else None
+
     items = []
     total_ht = 0.0
     for item in po.items:
-        art_name = None
-        if item.article_id:
-            art = db.query(Article).filter(Article.id == item.article_id).first()
-            art_name = art.name if art else None
+        if article_names is not None:
+            art_name = article_names.get(item.article_id)
+        else:
+            art_name = None
+            if item.article_id:
+                art = db.query(Article).filter(Article.id == item.article_id).first()
+                art_name = art.name if art else None
         total = float(item.quantity or 0) * float(item.unit_price or 0)
         total_ht += total
         items.append(POItemResponse(
@@ -104,7 +117,7 @@ def _build_po_response(po: PurchaseOrder, db: Session) -> PurchaseOrderResponse:
             unit_price=float(item.unit_price or 0), total=total,
             barcode=item.barcode, description=item.description
         ))
-    
+
     return PurchaseOrderResponse(
         id=str(po.id), order_number=po.order_number, order_date=po.order_date,
         supplier_id=str(po.supplier_id), supplier_name=supplier_name,
@@ -130,7 +143,19 @@ async def list_purchase_orders(
     if supplier_id:
         query = query.filter(PurchaseOrder.supplier_id == supplier_id)
     orders = query.order_by(PurchaseOrder.order_date.desc()).offset(skip).limit(limit).all()
-    return [_build_po_response(po, db) for po in orders]
+
+    # Pré-chargement en 2 requêtes des noms fournisseurs et articles.
+    supplier_ids = {po.supplier_id for po in orders if po.supplier_id}
+    supplier_names = {
+        s.id: s.name for s in db.query(Supplier.id, Supplier.name).filter(Supplier.id.in_(supplier_ids)).all()
+    } if supplier_ids else {}
+
+    article_ids = {item.article_id for po in orders for item in po.items if item.article_id}
+    article_names = {
+        a.id: a.name for a in db.query(Article.id, Article.name).filter(Article.id.in_(article_ids)).all()
+    } if article_ids else {}
+
+    return [_build_po_response(po, db, supplier_names, article_names) for po in orders]
 
 
 @router.get("/purchase-orders/{po_id}", response_model=PurchaseOrderResponse)
@@ -282,24 +307,35 @@ class CreateDeliveryRequest(BaseModel):
     items: List[CreateDeliveryItemRequest] = []
 
 
-def _build_delivery_response(dn: DeliveryNote, db: Session) -> DeliveryNoteResponse:
-    client_name = None
-    if dn.client_id:
-        cl = db.query(Client).filter(Client.id == dn.client_id).first()
-        client_name = cl.name if cl else None
-    
+def _build_delivery_response(
+    dn: DeliveryNote,
+    db: Session,
+    client_names: Optional[dict] = None,
+    article_names: Optional[dict] = None
+) -> DeliveryNoteResponse:
+    if client_names is not None:
+        client_name = client_names.get(dn.client_id)
+    else:
+        client_name = None
+        if dn.client_id:
+            cl = db.query(Client).filter(Client.id == dn.client_id).first()
+            client_name = cl.name if cl else None
+
     items = []
     for item in dn.items:
-        art_name = None
-        if item.article_id:
-            art = db.query(Article).filter(Article.id == item.article_id).first()
-            art_name = art.name if art else None
+        if article_names is not None:
+            art_name = article_names.get(item.article_id)
+        else:
+            art_name = None
+            if item.article_id:
+                art = db.query(Article).filter(Article.id == item.article_id).first()
+                art_name = art.name if art else None
         items.append(DeliveryItemResponse(
             id=str(item.id), article_id=str(item.article_id) if item.article_id else None,
             article_name=art_name, quantity=float(item.quantity or 0),
             barcode=item.barcode, description=item.description
         ))
-    
+
     return DeliveryNoteResponse(
         id=str(dn.id), delivery_number=dn.delivery_number,
         delivery_date=dn.delivery_date, client_id=str(dn.client_id),
@@ -322,7 +358,19 @@ async def list_deliveries(
     if client_id:
         query = query.filter(DeliveryNote.client_id == client_id)
     notes = query.order_by(DeliveryNote.delivery_date.desc()).offset(skip).limit(limit).all()
-    return [_build_delivery_response(dn, db) for dn in notes]
+
+    # Pré-chargement en 2 requêtes des noms clients et articles (anti N+1).
+    client_ids = {dn.client_id for dn in notes if dn.client_id}
+    client_names = {
+        c.id: c.name for c in db.query(Client.id, Client.name).filter(Client.id.in_(client_ids)).all()
+    } if client_ids else {}
+
+    article_ids = {item.article_id for dn in notes for item in dn.items if item.article_id}
+    article_names = {
+        a.id: a.name for a in db.query(Article.id, Article.name).filter(Article.id.in_(article_ids)).all()
+    } if article_ids else {}
+
+    return [_build_delivery_response(dn, db, client_names, article_names) for dn in notes]
 
 
 @router.post("/deliveries", response_model=DeliveryNoteResponse, status_code=status.HTTP_201_CREATED)

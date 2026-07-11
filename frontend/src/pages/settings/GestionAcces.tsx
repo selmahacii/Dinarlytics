@@ -45,15 +45,17 @@ const GestionAcces: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const mapBackendCompany = (c: any, index: number): Company => ({
+  const mapBackendCompany = (c: any, index: number, userCount: number): Company => ({
     id: index + 1,
     backendId: c.id,
     name: c.name || 'Société',
     type: 'sarl',
     size: 'small',
     accessLevel: 'small',
-    users: 1,
-    maxUsers: 5,
+    // Compte utilisateurs réel + plafond réel du plan (0 = illimité),
+    // exposés et appliqués côté serveur.
+    users: userCount,
+    maxUsers: c.max_users ?? 0,
     status: c.is_active ? 'active' : 'suspended',
     createdAt: '',
     lastActivity: '',
@@ -65,8 +67,12 @@ const GestionAcces: React.FC = () => {
     const loadCompanyData = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get<any[]>('/auth/companies');
-        setCompanies((response.data || []).map(mapBackendCompany));
+        const [companiesRes, usersRes] = await Promise.all([
+          apiClient.get<any[]>('/auth/companies'),
+          apiClient.get<any[]>('/users/').catch(() => ({ data: [] as any[] }))
+        ]);
+        const userCount = (usersRes.data || []).length;
+        setCompanies((companiesRes.data || []).map((c, i) => mapBackendCompany(c, i, userCount)));
       } catch (err) {
         console.error("Failed to load access company list", err);
       } finally {
@@ -145,7 +151,7 @@ const GestionAcces: React.FC = () => {
         name: config.companyInfo.name
       });
       const newCompany: Company = {
-        ...mapBackendCompany(response.data, companies.length),
+        ...mapBackendCompany(response.data, companies.length, 0),
         type: config.type,
         size: config.size,
         accessLevel: config.access,

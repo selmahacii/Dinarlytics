@@ -14,7 +14,7 @@ class Invoice(Base):
     invoice_number = Column(String(50), nullable=False, unique=True, index=True)
     invoice_date = Column(Date, nullable=False, index=True)
     due_date = Column(Date)
-    client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"))
+    client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"), index=True)
     type = Column(String(20), default="sale", nullable=False, index=True)
     total_htt = Column(Numeric(15, 2), default=0)  # Hors Taxes
     total_tva = Column(Numeric(15, 2), default=0)  # TVA
@@ -38,7 +38,7 @@ class InvoiceItem(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     invoice_id = Column(UUID(as_uuid=True), ForeignKey("invoices.id"), nullable=False, index=True)
-    article_id = Column(UUID(as_uuid=True), ForeignKey("articles.id"))
+    article_id = Column(UUID(as_uuid=True), ForeignKey("articles.id"), index=True)
     quantity = Column(Numeric(10, 3), nullable=False)
     unit_price_htt = Column(Numeric(15, 2), nullable=False)  # Price without tax
     tva_rate = Column(Numeric(5, 2), default=19)  # 19% standard in Algeria
@@ -52,13 +52,18 @@ class InvoiceItem(Base):
 
 class Article(Base):
     __tablename__ = "articles"
-    
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
-    code = Column(String(50), nullable=False, unique=True, index=True)
+    # `code` rendu nullable : le routeur articles crée via `sku` sans fournir
+    # de code (NOT NULL provoquait un échec systématique de création).
+    code = Column(String(50), nullable=True, unique=True, index=True)
+    sku = Column(String(50), index=True)
     name = Column(String(255), nullable=False)
     description = Column(Text)
     unit_price = Column(Numeric(15, 2), nullable=False)
+    cost_price = Column(Numeric(15, 2))
+    tax_rate = Column(Numeric(5, 2), default=19)
     barcode = Column(String(64), unique=True, index=True)
     qr_code_url = Column(String(255), unique=True)
     stock_quantity = Column(Numeric(10, 3), default=0)
@@ -66,6 +71,7 @@ class Article(Base):
     category = Column(String(100), default="General", index=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     def __repr__(self):
         return f"<Article(code={self.code}, name={self.name})>"

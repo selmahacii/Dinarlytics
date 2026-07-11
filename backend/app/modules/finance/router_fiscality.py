@@ -11,6 +11,7 @@ from app.core.permissions import get_current_user_from_token, require_permission
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
 from app.core.models import Invoice, JournalEntry, JournalEntryLine, FiscalDeclaration
 from app.modules.finance.service_jibaya import JibayaService
+from app.modules.system.utils_audit import log_audit
 from fastapi.responses import Response
 
 router = APIRouter(prefix="/fiscality", tags=["fiscality"])
@@ -66,6 +67,8 @@ async def create_declaration(
         created_by=user["user_id"]
     )
     db.add(declaration)
+    db.flush()
+    log_audit(db, user, 'CREATE', 'FISCAL_DECLARATION', str(declaration.id), {'document_id': request.document_id})
     db.commit()
     db.refresh(declaration)
     return declaration
@@ -86,6 +89,7 @@ async def update_declaration_status(
     if not declaration:
         raise HTTPException(status_code=404, detail="Declaration not found")
     declaration.status = request.status
+    log_audit(db, user, 'UPDATE', 'FISCAL_DECLARATION', str(declaration.id), {'status': request.status})
     db.commit()
     db.refresh(declaration)
     return declaration

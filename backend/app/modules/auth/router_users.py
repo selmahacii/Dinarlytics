@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
 from app.core.models import User, Role, UserRole
 from app.modules.auth.router_auth import require_permission, get_current_user
 from app.core.security import PasswordManager, TokenData
+from app.modules.system.utils_audit import log_audit
 from pydantic import BaseModel, EmailStr, Field
 import uuid
 
@@ -52,6 +53,21 @@ async def create_user_as_admin(
     """
     Super Admin can create users and assign specific roles immediately.
     """
+    # 0. Plafond utilisateurs du plan appliqué côté serveur (NULL = illimité)
+    from app.core.models import Company
+    from sqlalchemy import func
+    company = db.query(Company).filter(Company.id == current_user.company_id).first()
+    if company and company.max_users is not None:
+        current_count = db.query(func.count(User.id)).filter(
+            User.company_id == current_user.company_id,
+            User.is_active == True
+        ).scalar() or 0
+        if current_count >= company.max_users:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Plafond d'utilisateurs du plan atteint ({company.max_users}). Mettez à niveau le plan pour ajouter des utilisateurs."
+            )
+
     # 1. Check uniqueness
     if db.query(User).filter((User.username == user_in.username) | (User.email == user_in.email)).first():
         raise HTTPException(status_code=400, detail="Username or email already exists")
@@ -88,7 +104,8 @@ async def create_user_as_admin(
     # 4. Assign Role
     user_role = UserRole(user_id=new_user.id, role_id=role_db.id)
     db.add(user_role)
-    
+
+    log_audit(db, current_user, "CREATE", "USER", str(new_user.id), {"username": new_user.username, "role": role_db.name})
     db.commit()
     db.refresh(new_user)
 
@@ -106,11 +123,15 @@ async def create_user_as_admin(
 
 @router.get("/", response_model=List[UserOut])
 async def list_users(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(200, ge=1, le=1000),
     db: Session = Depends(get_db),
     current_user: TokenData = Depends(require_permission("manage_users"))
 ):
     """List all users in the company with their roles."""
-    users = db.query(User).filter(User.company_id == current_user.company_id).all()
+    users = db.query(User).filter(
+        User.company_id == current_user.company_id
+    ).order_by(User.username).offset(skip).limit(limit).all()
     results = []
     for u in users:
         # Assuming single role for simplicity as per Register logic
@@ -159,6 +180,7 @@ async def update_user(
     if user_in.permissions is not None:
         user.permissions = user_in.permissions
 
+    log_audit(db, current_user, "UPDATE", "USER", str(user.id), user_in.dict(exclude={"permissions"}, exclude_unset=True))
     db.commit()
     db.refresh(user)
     

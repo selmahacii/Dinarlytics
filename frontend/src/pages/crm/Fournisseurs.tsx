@@ -883,12 +883,14 @@ const Fournisseurs: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-4">
-              <button
-                onClick={() => setIsNouvelleFactureModalOpen(true)}
-                className="px-6 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl shadow-white/5 ring-1 ring-white/20"
-              >
-                {t('crm.suppliers.actions.new_invoice')}
-              </button>
+              {canManageFournisseurs && (
+                <button
+                  onClick={() => setIsNouvelleFactureModalOpen(true)}
+                  className="px-6 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl shadow-white/5 ring-1 ring-white/20"
+                >
+                  {t('crm.suppliers.actions.new_invoice')}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -999,9 +1001,11 @@ const Fournisseurs: React.FC = () => {
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">
-                    {t('crm.suppliers.actions.new_supplier')}
-                  </button>
+                  {canManageFournisseurs && (
+                    <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">
+                      {t('crm.suppliers.actions.new_supplier')}
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="overflow-x-auto">

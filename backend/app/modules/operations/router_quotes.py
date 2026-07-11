@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload, selectinload
 from typing import List, Optional
 from datetime import date, timedelta
 from decimal import Decimal
@@ -10,6 +10,7 @@ from app.core.models import Quote, QuoteItem, Client, Invoice, InvoiceItem
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from app.core.sequences import generate_document_number
+from app.modules.system.utils_audit import log_audit
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
@@ -96,13 +97,20 @@ def _serialize(q: Quote) -> QuoteResponse:
 @router.get("/", response_model=List[QuoteResponse])
 async def list_quotes(
     status_filter: Optional[str] = Query(None, alias="status"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(500, ge=1, le=1000),
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Quote).filter(Quote.company_id == current_user.company_id)
+    # joinedload/selectinload : _serialize lisait q.client et q.items en lazy
+    # loading, soit 2 requêtes par devis (N+1).
+    query = db.query(Quote).options(
+        joinedload(Quote.client),
+        selectinload(Quote.items)
+    ).filter(Quote.company_id == current_user.company_id)
     if status_filter:
         query = query.filter(Quote.status == status_filter)
-    quotes = query.order_by(Quote.created_at.desc()).all()
+    quotes = query.order_by(Quote.created_at.desc()).offset(skip).limit(limit).all()
     return [_serialize(q) for q in quotes]
 
 
@@ -176,6 +184,7 @@ async def create_quote(
     new_quote.total_tva = total_tva
     new_quote.total_ttc = total_ht + total_tva
 
+    log_audit(db, current_user, 'CREATE', 'QUOTE', str(new_quote.id), {'quote_number': quote_number})
     db.commit()
     db.refresh(new_quote)
     return _serialize(new_quote)
@@ -204,6 +213,7 @@ async def update_quote_status(
         )
 
     quote.status = request.status
+    log_audit(db, current_user, 'UPDATE', 'QUOTE', str(quote.id), {'status': request.status})
     db.commit()
     db.refresh(quote)
     return _serialize(quote)
@@ -255,6 +265,7 @@ async def convert_quote_to_invoice(
         ))
 
     quote.converted_invoice_id = new_invoice.id
+    log_audit(db, current_user, 'CONVERT', 'QUOTE', str(quote.id), {'invoice_number': invoice_number})
     db.commit()
     db.refresh(new_invoice)
 
@@ -272,5 +283,6 @@ async def delete_quote(
         raise HTTPException(status_code=404, detail="Quote not found")
     if quote.status != "draft":
         raise HTTPException(status_code=400, detail="Only draft quotes can be deleted")
+    log_audit(db, current_user, 'DELETE', 'QUOTE', str(quote.id), {'quote_number': quote.quote_number})
     db.delete(quote)
     db.commit()

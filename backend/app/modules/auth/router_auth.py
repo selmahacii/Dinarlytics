@@ -20,6 +20,7 @@ from app.core.security import (
     RBACManager
 )
 from app.core.limiter import limiter
+from app.modules.system.utils_audit import log_audit
 from pydantic import BaseModel, EmailStr, Field
 
 logger = logging.getLogger(__name__)
@@ -64,6 +65,7 @@ class CompanyInfo(BaseModel):
     currency_code: Optional[str] = None
     country: Optional[str] = None
     parent_company_id: Optional[str] = None
+    max_users: Optional[int] = None
     is_active: bool = True
 
 class UserInfo(BaseModel):
@@ -412,6 +414,7 @@ async def get_current_company(
         address=company.address, phone=company.phone, email=company.email,
         website=company.website, currency_code=company.currency_code, country=company.country,
         parent_company_id=str(company.parent_company_id) if company.parent_company_id else None,
+        max_users=company.max_users,
         is_active=company.is_active
     )
 
@@ -436,6 +439,7 @@ async def update_company(
 
     for field, value in request.dict(exclude_unset=True).items():
         setattr(company, field, value)
+    log_audit(db, current_user, 'UPDATE', 'COMPANY', str(company.id), request.dict(exclude_unset=True))
     db.commit()
     db.refresh(company)
 
@@ -445,6 +449,7 @@ async def update_company(
         address=company.address, phone=company.phone, email=company.email,
         website=company.website, currency_code=company.currency_code, country=company.country,
         parent_company_id=str(company.parent_company_id) if company.parent_company_id else None,
+        max_users=company.max_users,
         is_active=company.is_active
     )
 
@@ -467,6 +472,7 @@ async def list_group_companies(
             address=c.address, phone=c.phone, email=c.email,
             website=c.website, currency_code=c.currency_code, country=c.country,
             parent_company_id=str(c.parent_company_id) if c.parent_company_id else None,
+            max_users=c.max_users,
             is_active=c.is_active
         ) for c in companies
     ]
@@ -501,6 +507,8 @@ async def create_subsidiary_company(
         is_active=True
     )
     db.add(subsidiary)
+    db.flush()
+    log_audit(db, current_user, 'CREATE', 'COMPANY', str(subsidiary.id), {'name': subsidiary.name})
     db.commit()
     db.refresh(subsidiary)
 
@@ -510,6 +518,7 @@ async def create_subsidiary_company(
         address=subsidiary.address, phone=subsidiary.phone, email=subsidiary.email,
         website=subsidiary.website, currency_code=subsidiary.currency_code, country=subsidiary.country,
         parent_company_id=str(subsidiary.parent_company_id),
+        max_users=subsidiary.max_users,
         is_active=subsidiary.is_active
     )
 

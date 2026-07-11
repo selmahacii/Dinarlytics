@@ -29,6 +29,7 @@ from app.core.permissions import (
     log_sensitive_access
 )
 from pydantic import BaseModel, Field
+from app.modules.system.utils_audit import log_audit
 from app.modules.system.service_internal_control import InternalControlService
 
 
@@ -159,6 +160,7 @@ async def create_journal_entry(
         )
         db.add(entry_line)
     
+    log_audit(db, current_user, 'CREATE', 'JOURNAL_ENTRY', str(journal_entry.id), {'entry_number': journal_entry.entry_number})
     db.commit()
     return _format_journal_entry(journal_entry)
 
@@ -242,6 +244,7 @@ async def approve_journal_entry(
     # Update status
     new_status = "approved" if request.approval_status == "approved" else "draft"
     entry.status = new_status
+    log_audit(db, current_user, 'APPROVE', 'JOURNAL_ENTRY', str(entry.id), {'status': new_status})
     db.commit()
     
     logger.info(f"Journal entry {entry_id} {new_status} by {current_user.username}")
@@ -334,6 +337,7 @@ async def create_chart_of_account(
         is_active=True
     )
     db.add(account)
+    log_audit(db, current_user, 'CREATE', 'CHART_OF_ACCOUNT', None, {'account_code': request.account_code})
     db.commit()
     db.refresh(account)
     return ChartOfAccountResponse(
@@ -359,6 +363,7 @@ async def update_chart_of_account(
 
     for field, value in request.dict(exclude_unset=True).items():
         setattr(account, field, value)
+    log_audit(db, current_user, 'UPDATE', 'CHART_OF_ACCOUNT', str(account.id), request.dict(exclude_unset=True))
     db.commit()
     db.refresh(account)
     return ChartOfAccountResponse(
@@ -381,6 +386,7 @@ async def delete_chart_of_account(
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
     account.is_active = False
+    log_audit(db, current_user, 'DELETE', 'CHART_OF_ACCOUNT', str(account.id), {'account_code': account.account_code})
     db.commit()
     return None
 

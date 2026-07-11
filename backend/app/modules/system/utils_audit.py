@@ -19,9 +19,18 @@ def log_audit(
     Creates an audit log entry.
     """
     try:
+        # Accepte TokenData/modèle User (attributs) ou dict (style
+        # get_current_user_from_token) pour couvrir tous les routeurs.
+        if isinstance(user, dict):
+            raw_user_id = user.get("user_id") or user.get("id")
+            raw_company_id = user.get("company_id")
+        else:
+            raw_user_id = getattr(user, "user_id", None) or getattr(user, "id", None)
+            raw_company_id = getattr(user, "company_id", None)
+
         log_entry = AuditLog(
-            user_id=uuid.UUID(str(user.user_id)) if hasattr(user, "user_id") else user.id,
-            company_id=uuid.UUID(str(user.company_id)) if hasattr(user, "company_id") else None,
+            user_id=uuid.UUID(str(raw_user_id)) if raw_user_id else None,
+            company_id=uuid.UUID(str(raw_company_id)) if raw_company_id else None,
             action=action,
             entity_type=entity_type,
             entity_id=uuid.UUID(str(entity_id)) if entity_id else None,
