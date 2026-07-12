@@ -116,6 +116,129 @@ ROLE_PERMISSIONS = {
         'lia-access'
     ],
 
+    # ===== Rôles de hiérarchie réellement seedés (seed_all.py) =====
+    # Chaque rôle reçoit exactement les permissions que sa fonction exige,
+    # selon la taille de l'entreprise :
+
+    # Gérant d'EURL/micro : il EST toute la hiérarchie de son entreprise —
+    # accès complet à tout (équivalent admin sur son périmètre société).
+    'gerant': list(sum(PERMISSION_CATEGORIES.values(), [])),
+
+    # Direction générale (PME/SPA) : accès complet.
+    'dg': list(sum(PERMISSION_CATEGORIES.values(), [])),
+
+    # Directeur administratif et financier : tout le périmètre financier +
+    # rapports + audit, sans l'administration système.
+    'daf': [
+        'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close',
+        'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
+        'stocks-read',
+        'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+        'audit-read', 'audit-full',
+        'clients-manage', 'fournisseurs-manage',
+        'lia-access', 'lia-chatbot', 'lia-analyses'
+    ],
+
+    # Comptable senior : cycle comptable complet (saisie, validation, clôture).
+    'comptable_senior': [
+        'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close',
+        'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
+        'stocks-read', 'stocks-move', 'stocks-inventory',
+        'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+        'audit-read', 'audit-full',
+        'lia-access', 'lia-chatbot', 'lia-analyses'
+    ],
+
+    # Contrôleur de gestion : lecture comptable + analyse approfondie,
+    # jamais de saisie.
+    'controleur_gestion': [
+        'comptabilite-read',
+        'facturation-read',
+        'stocks-read',
+        'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+        'audit-read',
+        'lia-access', 'lia-analyses'
+    ],
+
+    # Auditeur : lecture seule intégrale + accès audit complet.
+    'auditeur': [
+        'comptabilite-read',
+        'facturation-read',
+        'stocks-read',
+        'rapports-basic', 'rapports-advanced', 'export-data',
+        'audit-read', 'audit-full',
+        'lia-access', 'lia-analyses'
+    ],
+
+    # Trésorier : trésorerie/rapprochements (lecture comptable + écriture
+    # limitée) et reporting de flux.
+    'tresorier': [
+        'comptabilite-read', 'comptabilite-write',
+        'facturation-read',
+        'rapports-basic', 'rapports-advanced', 'export-data',
+        'lia-access'
+    ],
+
+    # Direction commerciale : pilotage ventes/clients + rapports avancés.
+    'commercial_director': [
+        'clients-manage',
+        'facturation-read', 'facturation-create', 'facturation-validate',
+        'stocks-read',
+        'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+        'lia-access', 'lia-chatbot', 'lia-analyses'
+    ],
+
+    # Commercial / vendeur : cycle de vente opérationnel.
+    'commercial': [
+        'clients-manage',
+        'facturation-read', 'facturation-create',
+        'stocks-read',
+        'rapports-basic',
+        'lia-access', 'lia-chatbot'
+    ],
+    'vendeur': [
+        'clients-manage',
+        'facturation-read', 'facturation-create',
+        'stocks-read',
+        'rapports-basic',
+        'lia-access'
+    ],
+
+    # Magasinier : périmètre stock uniquement.
+    'magasinier': [
+        'articles-manage',
+        'stocks-read', 'stocks-move', 'stocks-inventory',
+        'rapports-basic',
+        'lia-access'
+    ],
+
+    # Directions support (RH, logistique, production) : reporting de leur
+    # périmètre, pas d'accès comptable en écriture.
+    'hr_director': [
+        'rapports-basic', 'rapports-advanced', 'export-data',
+        'lia-access', 'lia-chatbot'
+    ],
+    'logistics_director': [
+        'articles-manage', 'fournisseurs-manage',
+        'stocks-read', 'stocks-move', 'stocks-inventory',
+        'rapports-basic', 'rapports-advanced', 'export-data',
+        'lia-access'
+    ],
+    'production_director': [
+        'articles-manage',
+        'stocks-read', 'stocks-move', 'stocks-inventory',
+        'rapports-basic', 'rapports-advanced', 'export-data',
+        'lia-access'
+    ],
+
+    # Compte générique : comme employee.
+    'utilisateur': [
+        'facturation-read',
+        'stocks-read',
+        'rapports-basic',
+        'lia-access'
+    ],
+
     # Legacy/aspirational role names kept for forward-compatibility with a
     # richer role hierarchy that isn't seeded yet (not currently assignable
     # to a real user, since seed_all.py only creates the five roles above).
@@ -197,29 +320,46 @@ class PermissionChecker:
 
 security = HTTPBearer()
 
+
+class AuthUser(dict):
+    """Utilisateur authentifié accessible dans les deux styles utilisés par
+    les routeurs : user["company_id"] (dict) ET user.company_id (attribut).
+    Certains routeurs (accounting, articles) utilisent l'accès attribut,
+    d'autres (fiscality, analytics) l'accès dict — les deux doivent marcher."""
+
+    def __getattr__(self, name):
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+
 async def get_current_user_from_token(credentials = Depends(security)):
     """Extract and validate token from request header"""
     token = credentials.credentials
     
     try:
+        # verify_token retourne un objet TokenData (Pydantic), pas un dict —
+        # l'ancien payload.get(...) levait AttributeError, avalé par le
+        # except générique : TOUS les appels passaient en 401.
         payload = JWTManager.verify_token(token, token_type="access")
-        user_id = payload.get("user_id")
-        roles = payload.get("roles", [])
-        
-        if not user_id:
+
+        if payload is None or not payload.user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token: missing user_id"
             )
-        
-        return {
-            "user_id": user_id,
-            "username": payload.get("username"),
-            "email": payload.get("email"),
-            "company_id": payload.get("company_id"),
-            "roles": roles,
-            "permissions": payload.get("permissions", [])
-        }
+
+        return AuthUser({
+            "user_id": payload.user_id,
+            "username": payload.username,
+            "email": payload.email,
+            "company_id": payload.company_id,
+            "roles": payload.roles or [],
+            "permissions": payload.permissions or []
+        })
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Token validation error: {e}")
         raise HTTPException(

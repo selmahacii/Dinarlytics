@@ -39,6 +39,9 @@ class InvoiceItem(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     invoice_id = Column(UUID(as_uuid=True), ForeignKey("invoices.id"), nullable=False, index=True)
     article_id = Column(UUID(as_uuid=True), ForeignKey("articles.id"), index=True)
+    # Désignation libre de la ligne (envoyée par le front, requise pour la
+    # ligne spéciale "Droit de Timbre") — était perdue faute de colonne.
+    description = Column(String(500))
     quantity = Column(Numeric(10, 3), nullable=False)
     unit_price_htt = Column(Numeric(15, 2), nullable=False)  # Price without tax
     tva_rate = Column(Numeric(5, 2), default=19)  # 19% standard in Algeria

@@ -100,13 +100,25 @@ async def get_dashboard_data(
     ventes_list = [SalesData(mois=r.month, valeur=float(r.val)) for r in sales_12m]
     # Compute real financial ratios from journal entries
     from app.core.models import JournalEntryLine, JournalEntry
-    # Current Assets (Class 3 + Class 5)
+    # Actif circulant = stocks (3) + trésorerie (5) + créances (soldes
+    # DÉBITEURS de classe 4, ex. 411 clients) — sans les créances, la
+    # liquidité générale était sous-estimée.
     current_assets = db.query(func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount))\
         .join(JournalEntry).filter(
             JournalEntry.company_id == company_id,
             JournalEntry.status == 'approved',
             (JournalEntryLine.account_code.like('3%') | JournalEntryLine.account_code.like('5%'))
         ).scalar() or Decimal('0')
+
+    c4_debit_for_ca = db.query(
+        JournalEntryLine.account_code,
+        func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount).label('bal')
+    ).join(JournalEntry).filter(
+        JournalEntry.company_id == company_id,
+        JournalEntry.status == 'approved',
+        JournalEntryLine.account_code.like('4%')
+    ).group_by(JournalEntryLine.account_code).all()
+    current_assets += sum((row.bal for row in c4_debit_for_ca if row.bal and row.bal > 0), Decimal('0'))
     
     # Current Liabilities (Class 4 credit balances)
     c4_balances_r = db.query(
@@ -150,11 +162,20 @@ async def get_dashboard_data(
     if total_assets_r <= 0:
         total_assets_r = Decimal('1')  # avoid division by zero
     
-    liq = float(current_assets / max(current_liabilities, Decimal('1')))
+    # Sans passif exigible, liquidité/solvabilité ne sont pas des ratios
+    # définis : l'ancien max(passif, 1) divisait par 1 DA et renvoyait le
+    # montant brut de l'actif comme "ratio" (ex. solvabilité 240 380).
+    # On plafonne à 99.99, valeur conventionnelle "excellent / sans dette".
+    RATIO_CAP = 99.99
+    if current_liabilities > 0:
+        liq = min(float(current_assets / current_liabilities), RATIO_CAP)
+        solv = min(float(total_assets_r / current_liabilities), RATIO_CAP)
+    else:
+        liq = RATIO_CAP if current_assets > 0 else 0.0
+        solv = RATIO_CAP if total_assets_r > 1 else 0.0
     auto = float(equity / max(total_assets_r, Decimal('1')) * 100)
     dette = 100.0 - auto if auto > 0 else 0.0
-    solv = float(total_assets_r / max(current_liabilities, Decimal('1')))
-    
+
     ratios = FinancialRatios(
         liquidite=round(liq, 2),
         autonomie_financiere=round(auto, 1),

@@ -192,6 +192,7 @@ async def create_invoice(
         inv_item = InvoiceItem(
             invoice_id=new_inv.id,
             article_id=item_req.article_id,
+            description=item_req.description,
             quantity=item_req.quantity,
             unit_price_htt=item_req.unit_price,
             tva_rate=item_req.tva_rate * 100, # Store as percentage often, or check model def. Model says default=19, implies percentage number (19) not ratio (0.19). Let's check model.
@@ -325,7 +326,7 @@ async def validate_invoice(
     # Line 2: Ventes (Credit HT) -> Compte 700000
     line_sales = JournalEntryLine(
         journal_entry_id=entry.id,
-        account_code="700000", # TODO: Dynamic per article family
+        account_code="701000",  # ventes de marchandises (present dans le plan provisionne)
         description=f"Ventes marchandises - {inv.invoice_number}",
         debit_amount=0,
         credit_amount=inv.total_htt
@@ -343,6 +344,25 @@ async def validate_invoice(
         )
         db.add(line_tva)
         
+    # Line 4: Droit de timbre collecte pour l'Etat (Credit) -> Compte 447000.
+    # Sans cette contrepartie, l'ecriture etait desequilibree du montant du
+    # timbre (debit client TTC != credits ventes + TVA).
+    timbre_part = (inv.total_ttc or Decimal('0')) - (inv.total_htt or Decimal('0')) - (inv.total_tva or Decimal('0'))
+    if timbre_part > 0:
+        line_timbre = JournalEntryLine(
+            journal_entry_id=entry.id,
+            account_code="447000",
+            description=f"Droit de timbre - {inv.invoice_number}",
+            debit_amount=0,
+            credit_amount=timbre_part
+        )
+        db.add(line_timbre)
+
+    # Totaux de l'ecriture (equilibre debit = credit = TTC), sinon les
+    # listes du journal affichent 0.00.
+    entry.total_debit = inv.total_ttc
+    entry.total_credit = inv.total_ttc
+
     # 3. Update Invoice Status
     inv.status = 'validated'
     

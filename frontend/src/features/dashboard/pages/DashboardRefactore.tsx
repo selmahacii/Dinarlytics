@@ -106,45 +106,61 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
   const [alertes, setAlertes] = useState<AlerteFinanciere[]>([]);
   const [scenarioSelectionne, setScenarioSelectionne] = useState(2); // Scénario réaliste (id=2)
 
+  // Données réelles du backend (/analytics/dashboard) : trésorerie classe 5,
+  // ratios calculés sur les écritures approuvées — plus aucune valeur de
+  // repli fabriquée (1.8 / 0.65 / 5M DZD...).
+  const [dashData, setDashData] = useState<any>(null);
+
+  useEffect(() => {
+    apiClient.get<any>('/analytics/dashboard')
+      .then(res => setDashData(res.data))
+      .catch(err => console.error('Failed to load dashboard analytics', err));
+  }, []);
+
   const tresorerieData = {
-    soldeActuel: companyData?.cashBalance || 0,
-    soldeItineraire: Math.round((companyData?.cashBalance || 0) * 0.15),
-    entrees30j: companyData?.revenueMonth || 0,
-    sorties30j: companyData?.totalPayables || 0,
-    fluxNetMensuel: (companyData?.revenueMonth || 0) - (companyData?.totalPayables || 0)
+    soldeActuel: dashData?.tresorerie?.solde_actuel ?? 0,
+    soldeItineraire: dashData?.tresorerie?.solde_itineraire ?? 0,
+    entrees30j: dashData?.tresorerie?.entrees_30j ?? 0,
+    sorties30j: dashData?.tresorerie?.sorties_30j ?? 0,
+    fluxNetMensuel: dashData?.tresorerie?.flux_net_mensuel ?? 0
   };
 
   const ratiosData = {
-    liquidite: companyData?.cashBalance && companyData?.totalPayables ? Number((companyData.cashBalance / Math.max(1, companyData.totalPayables)).toFixed(2)) : 1.8,
-    autonomieFinanciere: 0.65,
-    endettement: 0.35,
-    solvabilite: companyData?.totalReceivables && companyData?.totalPayables ? Number((companyData.totalReceivables / Math.max(1, companyData.totalPayables)).toFixed(2)) : 2.1
+    liquidite: dashData?.ratios?.liquidite ?? 0,
+    // Le backend renvoie autonomie/endettement en %, le widget attend un ratio.
+    autonomieFinanciere: (dashData?.ratios?.autonomie_financiere ?? 0) / 100,
+    endettement: (dashData?.ratios?.endettement ?? 0) / 100,
+    solvabilite: dashData?.ratios?.solvabilite ?? 0
   };
 
-  const baseRevenue = companyData?.revenueMonth || 5000000;
+  // Projections à 6 mois construites sur le CA mensuel réel : sans activité
+  // facturée, les scénarios affichent honnêtement 0.
+  const baseRevenue = dashData?.ca_mois_courant ?? 0;
+  const cashBase = dashData?.tresorerie?.solde_actuel ?? 0;
+  const margin = baseRevenue > 0 ? Math.max(0, (dashData?.profit_mois_courant ?? 0) / baseRevenue) : 0;
   const scenariosData = [
     {
       id: 1,
       nom: 'Prudent',
       ca_mois6: Math.round(baseRevenue * 0.9 * 6),
-      profit_mois6: Math.round(baseRevenue * 0.9 * 6 * 0.15),
-      tresorerie_mois6: Math.round((companyData?.cashBalance || 20000000) + (baseRevenue * 0.9 * 6 * 0.05)),
+      profit_mois6: Math.round(baseRevenue * 0.9 * 6 * margin),
+      tresorerie_mois6: Math.round(cashBase + (baseRevenue * 0.9 * 6 * margin)),
       risque: 'FAIBLE' as const
     },
     {
       id: 2,
       nom: 'Réaliste',
       ca_mois6: Math.round(baseRevenue * 6),
-      profit_mois6: Math.round(baseRevenue * 6 * 0.20),
-      tresorerie_mois6: Math.round((companyData?.cashBalance || 20000000) + (baseRevenue * 6 * 0.10)),
+      profit_mois6: Math.round(baseRevenue * 6 * margin),
+      tresorerie_mois6: Math.round(cashBase + (baseRevenue * 6 * margin)),
       risque: 'MOYEN' as const
     },
     {
       id: 3,
       nom: 'Optimiste',
-      ca_mois6: Math.round(baseRevenue * 1.25 * 6),
-      profit_mois6: Math.round(baseRevenue * 1.25 * 6 * 0.25),
-      tresorerie_mois6: Math.round((companyData?.cashBalance || 20000000) + (baseRevenue * 1.25 * 6 * 0.18)),
+      ca_mois6: Math.round(baseRevenue * 1.2 * 6),
+      profit_mois6: Math.round(baseRevenue * 1.2 * 6 * margin),
+      tresorerie_mois6: Math.round(cashBase + (baseRevenue * 1.2 * 6 * margin)),
       risque: 'HAUTE' as const
     }
   ];
@@ -152,9 +168,9 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const response = await apiClient.get('/analytics/alerts');
+        const response = await apiClient.get<any[]>('/analytics/alerts');
         const data = response.data || [];
-        const mapped = data.map((item: any) => ({
+        const mapped: AlerteFinanciere[] = data.map((item: any): AlerteFinanciere => ({
           id: item.alert_code || 'alert',
           nom: item.alert_name || 'Alerte',
           description: `Déclenchée si la valeur ${item.comparison_operator || ''} ${item.threshold_value || 0}`,
@@ -280,12 +296,6 @@ const DashboardRefactore: React.FC<DashboardRefactoProps> = ({
           onDeclencher={handleDeclencherAlerte}
         />
       )}
-
-      {/* Footer Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
-        <p className="font-medium mb-2">{t('dashboard.demo_notice_title')}</p>
-        <p>{t('dashboard.demo_notice_text')}</p>
-      </div>
 
       {/* Widget Controls (Debug) */}
       <details className="bg-slate-100 rounded-lg p-4">

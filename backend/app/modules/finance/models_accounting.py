@@ -29,6 +29,10 @@ class JournalEntry(Base):
     entry_number = Column(String(50), nullable=False, unique=True)
     entry_date = Column(Date, nullable=False, index=True)
     description = Column(String(500))
+    # Journal SCF : VT (ventes), AC (achats), BQ (banque), CA (caisse),
+    # OD (opérations diverses) — référencé par la validation de facture et
+    # les rapports par journaux (router_accounting_reports).
+    journal_type = Column(String(10), default="OD", index=True)
     status = Column(String(50), default="draft", index=True)  # draft, posted, approved
     total_debit = Column(Numeric(15, 2), default=0)
     total_credit = Column(Numeric(15, 2), default=0)

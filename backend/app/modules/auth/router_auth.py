@@ -326,9 +326,9 @@ async def login(
     db.commit()
     
     # Record successful login
-    SessionManager.record_login_attempt(request.username, success=True)
-    
-    logger.info(f"Successful login for user: {request.username}")
+    SessionManager.record_login_attempt(login_data.username, success=True)
+
+    logger.info(f"Successful login for user: {login_data.username}")
     
     return LoginResponse(
         access_token=access_token,

@@ -53,11 +53,53 @@ def infer_segment(user_count: int) -> str:
     return "enterprise"
 
 
+def sync_missing_columns():
+    """
+    create_all ne modifie jamais une table existante : toute colonne
+    ajoutée aux modèles après la création initiale de la base n'existe
+    pas en production. Réconciliation ADDITIVE uniquement : ajoute les
+    colonnes manquantes (jamais de suppression ni de modification de
+    type), donc sans risque pour les données existantes.
+    """
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    added = 0
+
+    with engine.begin() as conn:
+        for table in Base.metadata.sorted_tables:
+            if table.name not in existing_tables:
+                continue  # create_all la créera entièrement
+            live_cols = {c["name"] for c in inspector.get_columns(table.name)}
+            for column in table.columns:
+                if column.name in live_cols:
+                    continue
+                col_type = column.type.compile(engine.dialect)
+                ddl = f'ALTER TABLE {table.name} ADD COLUMN "{column.name}" {col_type}'
+                # Valeur par défaut simple si définie statiquement
+                if column.default is not None and getattr(column.default, "arg", None) is not None \
+                        and not callable(column.default.arg):
+                    arg = column.default.arg
+                    if isinstance(arg, str):
+                        ddl += f" DEFAULT '{arg}'"
+                    elif isinstance(arg, bool):
+                        ddl += f" DEFAULT {'TRUE' if arg else 'FALSE'}"
+                    elif isinstance(arg, (int, float)):
+                        ddl += f" DEFAULT {arg}"
+                conn.execute(text(ddl))
+                print(f"  + {table.name}.{column.name} ({col_type})")
+                added += 1
+    print(f"Colonnes ajoutées : {added}")
+    return added
+
+
 def run():
     # S'assure que les nouvelles colonnes (company_type, segment,
     # max_users) existent — équivalent d'une migration de schéma pour un
     # projet piloté par create_all plutôt que par Alembic.
     Base.metadata.create_all(bind=engine)
+    sync_missing_columns()
 
     db = SessionLocal()
     total_created_coa = 0

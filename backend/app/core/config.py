@@ -191,6 +191,41 @@ ROLES = {
     },
     "manager": {"permissions": ["read", "create", "update", "export"]},
     "employee": {"permissions": ["read"]},
+
+    # ===== Rôles de hiérarchie d'entreprise (seed_all.py) =====
+    # Permissions "grossières" (RBACManager) alignées sur les permissions
+    # granulaires de app.core.permissions.ROLE_PERMISSIONS — les deux
+    # systèmes coexistent, un rôle absent d'ici échoue sur tous les
+    # endpoints protégés par RBACManager.check_permission.
+    "gerant": {
+        "permissions": ["read", "create", "update", "delete", "approve",
+                        "approve_entries", "export", "generate_reports",
+                        "manage_users", "manage_roles"]
+    },
+    "dg": {
+        "permissions": ["read", "create", "update", "delete", "approve",
+                        "approve_entries", "export", "generate_reports",
+                        "manage_users", "manage_roles"]
+    },
+    "daf": {
+        "permissions": ["read", "create", "update", "approve",
+                        "approve_entries", "export", "generate_reports"]
+    },
+    "comptable_senior": {
+        "permissions": ["read", "create", "update", "approve_entries", "export",
+                        "generate_reports"]
+    },
+    "controleur_gestion": {"permissions": ["read", "export", "generate_reports"]},
+    "auditeur": {"permissions": ["read", "export", "generate_reports"]},
+    "tresorier": {"permissions": ["read", "create", "update", "export"]},
+    "commercial_director": {"permissions": ["read", "create", "update", "approve", "export", "generate_reports"]},
+    "commercial": {"permissions": ["read", "create", "update"]},
+    "vendeur": {"permissions": ["read", "create"]},
+    "magasinier": {"permissions": ["read", "create", "update"]},
+    "hr_director": {"permissions": ["read", "export", "generate_reports"]},
+    "logistics_director": {"permissions": ["read", "create", "update", "export"]},
+    "production_director": {"permissions": ["read", "create", "update", "export"]},
+    "utilisateur": {"permissions": ["read"]},
 }
 
 # Document Access Levels by Role

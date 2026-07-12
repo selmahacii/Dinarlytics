@@ -132,8 +132,18 @@ async def get_g50_summary(
     # IRG (Account 442 or similar, Credit side for payments due) - Approximation
     irg_amount = Decimal('0') # To be refined with payroll module
 
-    # Timbre (Account 64... Droit de timbre)
-    stamp_duty = Decimal('0') 
+    # Droit de timbre réellement collecté sur le mois : crédit du compte
+    # 447xxx (État — autres impôts), alimenté par la validation des factures
+    # en espèces (était codé en dur à 0).
+    stamp_duty = db.query(func.sum(JournalEntryLine.credit_amount - JournalEntryLine.debit_amount))\
+        .join(JournalEntry)\
+        .filter(
+            JournalEntry.company_id == company_id,
+            JournalEntry.status == 'approved',
+            extract('month', JournalEntry.entry_date) == month,
+            extract('year', JournalEntry.entry_date) == year,
+            JournalEntryLine.account_code.like('447%')
+        ).scalar() or Decimal('0')
 
     summary = AlgerianFinancialCalculator.calculate_g50_summary(
         sales_ht, 
