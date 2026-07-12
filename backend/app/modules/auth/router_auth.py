@@ -21,6 +21,7 @@ from app.core.security import (
 )
 from app.core.limiter import limiter
 from app.modules.system.utils_audit import log_audit
+from app.core.service_coa_provisioning import provision_company_accounting
 from pydantic import BaseModel, EmailStr, Field
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,11 @@ class RegisterRequest(BaseModel):
     last_name: str = Field(...)
     company_name: Optional[str] = None
     company_id: Optional[str] = None
+    # Forme juridique / taille réelles — déterminent le plan comptable
+    # provisionné automatiquement (cf. service_coa_provisioning).
+    company_type: Optional[str] = Field(default="eurl", pattern="^(personne_physique|eirl|eurl|sarl|spa)$")
+    segment: Optional[str] = Field(default="micro", pattern="^(micro|small|medium|large|enterprise)$")
+    has_inventory: Optional[bool] = True
 
 class RegisterResponse(BaseModel):
     user_id: str
@@ -66,6 +72,8 @@ class CompanyInfo(BaseModel):
     country: Optional[str] = None
     parent_company_id: Optional[str] = None
     max_users: Optional[int] = None
+    company_type: Optional[str] = None
+    segment: Optional[str] = None
     is_active: bool = True
 
 class UserInfo(BaseModel):
@@ -89,6 +97,8 @@ class UpdateCompanyRequest(BaseModel):
     website: Optional[str] = None
     currency_code: Optional[str] = None
     country: Optional[str] = None
+    company_type: Optional[str] = Field(default=None, pattern="^(personne_physique|eirl|eurl|sarl|spa)$")
+    segment: Optional[str] = Field(default=None, pattern="^(micro|small|medium|large|enterprise)$")
     is_active: Optional[bool] = None
 
 class CreateSubsidiaryRequest(BaseModel):
@@ -102,6 +112,9 @@ class CreateSubsidiaryRequest(BaseModel):
     currency_code: Optional[str] = "DZD"
     country: Optional[str] = "Algérie"
     ownership_percentage: Optional[float] = 100
+    company_type: Optional[str] = Field(default="eurl", pattern="^(personne_physique|eirl|eurl|sarl|spa)$")
+    segment: Optional[str] = Field(default="medium", pattern="^(micro|small|medium|large|enterprise)$")
+    has_inventory: Optional[bool] = True
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
@@ -187,11 +200,20 @@ async def register(
     if not company_id:
         # Create new company
         company = Company(
-            name=request.company_name or f"{request.first_name}'s Company"
+            name=request.company_name or f"{request.first_name}'s Company",
+            company_type=request.company_type or "eurl",
+            segment=request.segment or "micro"
         )
         db.add(company)
         db.flush()
         company_id = str(company.id)
+        # Plan comptable + compte bancaire par défaut adaptés à la
+        # hiérarchie déclarée — aucune entreprise ne démarre avec un
+        # module comptable vide/inutilisable.
+        provision_company_accounting(
+            db, company.id, segment=company.segment, company_type=company.company_type,
+            has_inventory=request.has_inventory if request.has_inventory is not None else True
+        )
     
     # Create new user
     hashed_password = PasswordManager.hash_password(request.password)
@@ -415,6 +437,8 @@ async def get_current_company(
         website=company.website, currency_code=company.currency_code, country=company.country,
         parent_company_id=str(company.parent_company_id) if company.parent_company_id else None,
         max_users=company.max_users,
+        company_type=company.company_type,
+        segment=company.segment,
         is_active=company.is_active
     )
 
@@ -450,6 +474,8 @@ async def update_company(
         website=company.website, currency_code=company.currency_code, country=company.country,
         parent_company_id=str(company.parent_company_id) if company.parent_company_id else None,
         max_users=company.max_users,
+        company_type=company.company_type,
+        segment=company.segment,
         is_active=company.is_active
     )
 
@@ -473,6 +499,8 @@ async def list_group_companies(
             website=c.website, currency_code=c.currency_code, country=c.country,
             parent_company_id=str(c.parent_company_id) if c.parent_company_id else None,
             max_users=c.max_users,
+            company_type=c.company_type,
+            segment=c.segment,
             is_active=c.is_active
         ) for c in companies
     ]
@@ -504,10 +532,16 @@ async def create_subsidiary_company(
         country=request.country,
         parent_company_id=current_user.company_id,
         ownership_percentage=request.ownership_percentage,
+        company_type=request.company_type or "eurl",
+        segment=request.segment or "medium",
         is_active=True
     )
     db.add(subsidiary)
     db.flush()
+    provision_company_accounting(
+        db, subsidiary.id, segment=subsidiary.segment, company_type=subsidiary.company_type,
+        has_inventory=request.has_inventory if request.has_inventory is not None else True
+    )
     log_audit(db, current_user, 'CREATE', 'COMPANY', str(subsidiary.id), {'name': subsidiary.name})
     db.commit()
     db.refresh(subsidiary)
@@ -519,6 +553,8 @@ async def create_subsidiary_company(
         website=subsidiary.website, currency_code=subsidiary.currency_code, country=subsidiary.country,
         parent_company_id=str(subsidiary.parent_company_id),
         max_users=subsidiary.max_users,
+        company_type=subsidiary.company_type,
+        segment=subsidiary.segment,
         is_active=subsidiary.is_active
     )
 

@@ -1,0 +1,3 @@
+# Les scripts shell doivent toujours rester en LF : un checkout Windows en
+# CRLF casse le shebang dans le conteneur Linux (backend/entrypoint.sh).
+*.sh text eol=lf

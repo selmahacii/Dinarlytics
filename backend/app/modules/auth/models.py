@@ -84,6 +84,14 @@ class Company(Base):
     # Plafond d'utilisateurs du plan (NULL = illimité) — appliqué côté
     # serveur à la création d'utilisateur, pas seulement affiché côté front.
     max_users = Column(Integer, nullable=True)
+    # Forme juridique et taille réelles de l'entreprise — persistées côté
+    # serveur (auparavant déduites uniquement côté front par utilisateur
+    # démo). Pilotent le plan comptable provisionné et la visibilité des
+    # modules par hiérarchie.
+    # company_type: personne_physique | eirl | eurl | sarl | spa
+    company_type = Column(String(30), default="eurl", index=True)
+    # segment: micro | small | medium | large | enterprise
+    segment = Column(String(20), default="micro", index=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

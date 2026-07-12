@@ -141,7 +141,9 @@ def seed():
                 if not company:
                     company = Company(
                         id=uuid.uuid4(),
-                        name=cname
+                        name=cname,
+                        company_type=demo.get("companyType", "eurl"),
+                        segment=demo.get("segment", "micro")
                     )
                     db.add(company)
                     db.flush()
@@ -206,29 +208,23 @@ def seed():
                     db.add(client)
             db.commit()
 
+            print(f"Seeding chart of accounts for {company.name} ({company.segment}/{company.company_type})...")
+            # Plan comptable SCF complet adapté à la hiérarchie de l'entreprise
+            # (au lieu de 2 comptes de trésorerie isolés, insuffisants pour
+            # calculer bilan/BFR/ratios).
+            from app.core.service_coa_provisioning import ensure_chart_of_accounts
+            ensure_chart_of_accounts(
+                db, company.id,
+                segment=company.segment or "micro",
+                company_type=company.company_type or "eurl",
+                has_inventory=True
+            )
+            db.commit()
+
             print(f"Seeding treasury for {company.name}...")
             # Create bank accounts and initial funding
             user = db.query(User).filter(User.company_id == company.id).first()
             if user:
-                coa_codes = ["512001", "512002"]
-                coa_names = ["BNA - Compte Courant", "BADR - Compte Operationnel"]
-                for code, name in zip(coa_codes, coa_names):
-                    existing_coa = db.query(ChartOfAccount).filter(
-                        ChartOfAccount.company_id == company.id,
-                        ChartOfAccount.account_code == code
-                    ).first()
-                    if not existing_coa:
-                        coa = ChartOfAccount(
-                            company_id=company.id,
-                            account_code=code,
-                            account_name=name,
-                            account_class=5,
-                            account_type="asset",
-                            is_active=True
-                        )
-                        db.add(coa)
-                db.commit()
-
                 banks = [
                     ("Banque Nationale d'Algerie (BNA)", "512001", "DZ86 0070 0000 0000 0000 0001"),
                     ("Banque BADR", "512002", "DZ86 0080 0000 0000 0000 0002")

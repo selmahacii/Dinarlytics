@@ -24,7 +24,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create logs directory
-RUN mkdir -p logs
+RUN mkdir -p logs && chmod +x entrypoint.sh
 
-# Command to run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=5 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+# Provisionne la base (schéma, rôles, plan comptable par hiérarchie) avant
+# de démarrer le serveur — voir entrypoint.sh.
+ENTRYPOINT ["./entrypoint.sh"]
