@@ -79,6 +79,17 @@ const Devis: React.FC = () => {
     pendingValue: allDevis.filter(d => d.status === 'sent').reduce((a, b) => a + b.montantTTC, 0),
   }), [allDevis]);
 
+  // Recalcul dynamique HT/TVA/TTC pendant la saisie — reflète exactement la
+  // logique du backend (AlgerianFinancialCalculator.calculate_from_ht),
+  // sans attendre la création pour savoir combien coûtera le devis.
+  const liveTotals = useMemo(() => {
+    return newItems.reduce((acc, it) => {
+      const lineHt = (Number(it.quantity) || 0) * (Number(it.unit_price) || 0);
+      const lineTva = lineHt * (Number(it.tva_rate) || 0);
+      return { ht: acc.ht + lineHt, tva: acc.tva + lineTva, ttc: acc.ttc + lineHt + lineTva };
+    }, { ht: 0, tva: 0, ttc: 0 });
+  }, [newItems]);
+
   const resetCreateForm = () => {
     setNewClientId('');
     setNewExpiry('');
@@ -453,6 +464,21 @@ const Devis: React.FC = () => {
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-6 px-3 py-2 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="text-right">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">{t('devis.table.ht')}</span>
+              <span className="text-sm font-bold text-slate-700">{formatCurrency(liveTotals.ht)}</span>
+            </div>
+            <div className="text-right">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">TVA</span>
+              <span className="text-sm font-bold text-slate-700">{formatCurrency(liveTotals.tva)}</span>
+            </div>
+            <div className="text-right">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase">TTC</span>
+              <span className="text-sm font-black text-slate-900">{formatCurrency(liveTotals.ttc)}</span>
             </div>
           </div>
 

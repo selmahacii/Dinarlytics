@@ -41,6 +41,7 @@ class RegisterRequest(BaseModel):
     company_type: Optional[str] = Field(default="eurl", pattern="^(personne_physique|eirl|eurl|sarl|spa)$")
     segment: Optional[str] = Field(default="micro", pattern="^(micro|small|medium|large|enterprise)$")
     has_inventory: Optional[bool] = True
+    chart_template: Optional[str] = Field(default='scf', pattern='^(scf|ifrs_en)$')
 
 class RegisterResponse(BaseModel):
     user_id: str
@@ -115,6 +116,7 @@ class CreateSubsidiaryRequest(BaseModel):
     company_type: Optional[str] = Field(default="eurl", pattern="^(personne_physique|eirl|eurl|sarl|spa)$")
     segment: Optional[str] = Field(default="medium", pattern="^(micro|small|medium|large|enterprise)$")
     has_inventory: Optional[bool] = True
+    chart_template: Optional[str] = Field(default='scf', pattern='^(scf|ifrs_en)$')
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
@@ -212,7 +214,8 @@ async def register(
         # module comptable vide/inutilisable.
         provision_company_accounting(
             db, company.id, segment=company.segment, company_type=company.company_type,
-            has_inventory=request.has_inventory if request.has_inventory is not None else True
+            has_inventory=request.has_inventory if request.has_inventory is not None else True,
+            chart_template=request.chart_template or 'scf'
         )
     
     # Create new user
@@ -540,7 +543,8 @@ async def create_subsidiary_company(
     db.flush()
     provision_company_accounting(
         db, subsidiary.id, segment=subsidiary.segment, company_type=subsidiary.company_type,
-        has_inventory=request.has_inventory if request.has_inventory is not None else True
+        has_inventory=request.has_inventory if request.has_inventory is not None else True,
+        chart_template=request.chart_template or 'scf'
     )
     log_audit(db, current_user, 'CREATE', 'COMPANY', str(subsidiary.id), {'name': subsidiary.name})
     db.commit()

@@ -48,6 +48,7 @@ import {
 import Card from '@shared/components/UI/Card';
 import { useApp } from '@core/context/AppContext';
 import { usePermission } from '@shared/hooks/usePermission';
+import { useClients } from '@shared/hooks/useClients';
 import { invoiceService, type Invoice, type InvoiceItem, type EntityDetails, type AuditLog } from '../../services/modules/invoiceService';
 
 ChartJS.register(
@@ -148,6 +149,14 @@ const AnalyticsFacturation: React.FC = () => {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  // La facture réelle est liée à un client_id (clé étrangère), pas à une
+  // raison sociale saisie librement — sans quoi le backend rejette la
+  // création (client_id requis, "client" en texte libre n'existe pas
+  // dans CreateInvoiceRequest).
+  const [selectedClientId, setSelectedClientId] = useState('');
+  const [savingInvoice, setSavingInvoice] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const { clients } = useClients();
 
   const addItem = () => {
     const items = [...(newInvoice.items || [])];
@@ -176,59 +185,58 @@ const AnalyticsFacturation: React.FC = () => {
   }, []);
 
   const handleSaveInvoice = async () => {
-    const itemsWithTotals = (newInvoice.items || []).map(item => {
-      const line_total_ht = item.qty * item.pu;
-      const tva_rate = item.tva_rate || 19;
-      const line_total_tva = Math.round(line_total_ht * (tva_rate / 100));
-      return {
-        ...item,
-        tva_rate,
-        line_total_ht,
-        line_total_tva,
-        line_total_ttc: line_total_ht + line_total_tva
-      };
-    });
+    setSaveError(null);
 
-    const totalHT = itemsWithTotals.reduce((sum, item) => sum + item.line_total_ht, 0);
-    const totalTVA = itemsWithTotals.reduce((sum, item) => sum + item.line_total_tva, 0);
-    const totalTAP = Math.round(totalHT * 0.01); // 1% Taxe sur l'Activité Professionnelle
-    const rawTotal = totalHT + totalTVA + totalTAP;
-    const droitTimbre = newInvoice.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
-    const totalTTC = rawTotal + droitTimbre;
-
-    const invoiceToSave: Partial<Invoice> = {
-      ...newInvoice,
-      type: 'sale',
-      items: itemsWithTotals as InvoiceItem[],
-      totalHT,
-      totalTVA,
-      totalTAP,
-      droitTimbre,
-      totalTTC,
-      montant: totalTTC,
-      montantPaye: isEditing ? (newInvoice.montantPaye || 0) : 0,
-      retard: isEditing ? (newInvoice.retard || 0) : 0,
-      statut: newInvoice.statut || 'en_cours',
-      audit: [
-        ...(newInvoice.audit || []),
-        { action: isEditing ? 'Modification' : 'Création', user: user?.nom || 'Admin', date: new Date().toLocaleString() }
-      ]
-    };
-
-    try {
-      if (isEditing && newInvoice.id) {
-        await invoiceService.update(newInvoice.id, invoiceToSave);
-      } else {
-        await invoiceService.create(invoiceToSave);
-      }
-      await fetchInvoices();
-    } catch (e) {
-      console.error("Failed to save invoice", e);
+    if (!selectedClientId) {
+      setSaveError(t('invoices.modal.client_required', { defaultValue: 'Sélectionnez un client existant.' }));
+      return;
+    }
+    const validItems = (newInvoice.items || []).filter(it => it.desc && it.qty > 0);
+    if (validItems.length === 0) {
+      setSaveError(t('invoices.modal.items_required', { defaultValue: 'Au moins une ligne valide est requise.' }));
+      return;
     }
 
-    setIsCreateModalOpen(false);
-    setIsEditing(false);
-    resetNewInvoice();
+    // Le backend recalcule TOUJOURS TVA/timbre/totaux côté serveur à
+    // partir des lignes — il ne reçoit ni ne fait confiance à des totaux
+    // pré-calculés côté client. La TAP (Taxe sur l'Activité
+    // Professionnelle) n'est PAS un montant facturé au client : c'est un
+    // impôt sur le chiffre d'affaires du VENDEUR, déclaré périodiquement
+    // (cf. G50), pas une ligne de la facture — l'inclure dans le TTC dû
+    // par le client aurait surfacturé chaque facture de 1%.
+    const payload = {
+      client_id: selectedClientId,
+      date_emission: newInvoice.date,
+      date_echeance: newInvoice.echeance,
+      payment_mode: newInvoice.paymentMode === 'especes' ? 'cash' : 'transfer',
+      notes: undefined as string | undefined,
+      items: validItems.map(item => ({
+        description: item.desc,
+        quantity: item.qty,
+        unit_price: item.pu,
+        tva_rate: (item.tva_rate || 19) / 100
+      }))
+    };
+
+    setSavingInvoice(true);
+    try {
+      if (isEditing && newInvoice.id) {
+        await invoiceService.update(newInvoice.id, payload as any);
+      } else {
+        await invoiceService.create(payload as any);
+      }
+      await fetchInvoices();
+      setIsCreateModalOpen(false);
+      setIsEditing(false);
+      resetNewInvoice();
+    } catch (e: any) {
+      // Erreur affichée à l'utilisateur au lieu d'être avalée en console —
+      // la fermeture automatique de la modale donnait l'illusion trompeuse
+      // que la facture avait été créée alors que la requête échouait.
+      setSaveError(e?.response?.data?.detail || e?.message || 'Erreur lors de l\'enregistrement de la facture');
+    } finally {
+      setSavingInvoice(false);
+    }
   };
 
   const resetNewInvoice = () => {
@@ -247,10 +255,20 @@ const AnalyticsFacturation: React.FC = () => {
       secteur: 'services',
       audit: []
     });
+    setSelectedClientId('');
+    setSaveError(null);
   };
 
   const handleEditInvoice = (inv: Invoice) => {
+    if (inv.statut !== 'en_attente') {
+      // en_attente == 'draft' côté backend (cf. STATUS_MAP) — seules les
+      // factures brouillon sont modifiables ; une facture validée/annulée
+      // ne peut être réécrite (pas d'endpoint serveur pour ça, à dessein).
+      alert(t('invoices.modal.only_draft_editable', { defaultValue: 'Seules les factures en brouillon peuvent être modifiées.' }));
+      return;
+    }
     setNewInvoice(inv);
+    setSelectedClientId(inv.customerId || '');
     setIsEditing(true);
     setIsCreateModalOpen(true);
   };
@@ -617,13 +635,20 @@ const AnalyticsFacturation: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="md:col-span-2">
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.raison_sociale')}</label>
-                    <input
-                      type="text"
+                    <select
                       className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3 font-bold outline-none focus:ring-2 focus:ring-emerald-500"
-                      placeholder="Ex: SARL Boissons du Sahel"
-                      value={newInvoice.client || ''}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, client: e.target.value })}
-                    />
+                      value={selectedClientId}
+                      onChange={(e) => {
+                        const c = clients.find((cl: any) => cl.id === e.target.value);
+                        setSelectedClientId(e.target.value);
+                        setNewInvoice({ ...newInvoice, client: c ? c.nom : '' });
+                      }}
+                    >
+                      <option value="">{t('invoices.modal.select_client', { defaultValue: 'Sélectionner un client' })}</option>
+                      {clients.map((c: any) => (
+                        <option key={c.id} value={c.id}>{c.nom || c.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">{t('invoices.modal.address_billing')}</label>
@@ -869,7 +894,7 @@ const AnalyticsFacturation: React.FC = () => {
                     <div className="mt-4 flex items-center p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800/30">
                       <ExclamationTriangleIcon className="h-4 w-4 text-amber-600 mr-2" />
                       <p className="text-[10px] font-bold text-amber-700 dark:text-amber-500">
-                        Attention : Le paiement en espèces génère un droit de timbre de 1% (Plafonné à 10.000 DA).
+                        Attention : Le paiement en espèces génère un droit de timbre de 1% du TTC (arrondi au dinar supérieur), au-delà de 2 500 DA.
                       </p>
                     </div>
                   )}
@@ -884,12 +909,16 @@ const AnalyticsFacturation: React.FC = () => {
                         <div className="text-4xl font-black mt-2">
                           {formatCurrency(
                             (() => {
+                              // La TAP (Taxe sur l'Activité Professionnelle) N'EST PAS
+                              // due par le client : c'est un impôt sur le CA du vendeur,
+                              // déclaré périodiquement (G50), jamais une ligne facturée.
+                              // Le TTC réellement dû par le client = HT + TVA + timbre.
                               const items = (newInvoice.items || []);
                               const totalHT = items.reduce((acc, i) => acc + (i.qty * i.pu), 0);
                               const totalTVA = items.reduce((acc, i) => acc + Math.round((i.qty * i.pu) * ((i.tva_rate || 19) / 100)), 0);
-                              const totalTAP = Math.round(totalHT * 0.01);
-                              const rawTotal = totalHT + totalTVA + totalTAP;
-                              const dt = newInvoice.paymentMode === 'especes' ? Math.min(Math.round(rawTotal * 0.01), 10000) : 0;
+                              const rawTotal = totalHT + totalTVA;
+                              const dt = newInvoice.paymentMode === 'especes' && rawTotal > 2500
+                                ? Math.round(rawTotal * 0.01) : 0;
                               return rawTotal + dt;
                             })()
                           )}
@@ -897,11 +926,10 @@ const AnalyticsFacturation: React.FC = () => {
                       </div>
                       <div className="flex gap-4 mt-6 md:mt-0">
                         <div className="text-right">
-                          <span className="block text-[10px] font-bold text-slate-500 uppercase">TVA & TAP (1%)</span>
+                          <span className="block text-[10px] font-bold text-slate-500 uppercase">TVA</span>
                           <span className="font-mono font-bold text-lg">
                             {formatCurrency(
-                              (newInvoice.items || []).reduce((acc, i) => acc + Math.round((i.qty * i.pu) * ((i.tva_rate || 19) / 100)), 0) +
-                              Math.round((newInvoice.items || []).reduce((acc, i) => acc + (i.qty * i.pu), 0) * 0.01)
+                              (newInvoice.items || []).reduce((acc, i) => acc + Math.round((i.qty * i.pu) * ((i.tva_rate || 19) / 100)), 0)
                             )}
                           </span>
                         </div>
@@ -930,7 +958,7 @@ const AnalyticsFacturation: React.FC = () => {
                         </div>
                         <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
                           <div className="flex justify-between items-center mb-1">
-                            <span className="text-[10px] font-bold text-slate-400">443 - TAP (Activité Prof.)</span>
+                            <span className="text-[10px] font-bold text-slate-400" title="Provision interne — impôt sur le CA du vendeur, non facturé au client">443 - TAP (provision interne, 1%)</span>
                             <span className="text-[10px] font-black text-emerald-400">CR</span>
                           </div>
                           <div className="font-mono font-bold">{formatCurrency(Math.round((newInvoice.items || []).reduce((acc, i) => acc + (i.qty * i.pu), 0) * 0.01))}</div>
@@ -945,11 +973,15 @@ const AnalyticsFacturation: React.FC = () => {
                       </div>
                     </div>
 
+                    {saveError && (
+                      <div className="mb-3 bg-red-500/10 border border-red-500/30 text-red-300 text-xs rounded-xl p-3">{saveError}</div>
+                    )}
                     <button
                       onClick={handleSaveInvoice}
-                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl"
+                      disabled={savingInvoice}
+                      className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all shadow-xl disabled:opacity-50"
                     >
-                      {isEditing ? t('invoices.modal.save') : t('invoices.modal.save')}
+                      {savingInvoice ? t('common.loading', { defaultValue: 'Enregistrement...' }) : t('invoices.modal.save')}
                     </button>
                   </div>
                 </div>

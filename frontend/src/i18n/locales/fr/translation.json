@@ -542,7 +542,19 @@
     },
     "demo_notice_title": "Mode Démonstration",
     "demo_notice_text": "Les données affichées sont des simulations basées sur votre historique récent.",
-    "options_title": "Options d'affichage"
+    "options_title": "Options d'affichage",
+    "reviewer_guide": {
+      "title": "Guide de l'Évaluateur — Startup.dz",
+      "intro": "Bienvenue sur le prototype de {{name}}. Pour tester efficacement notre solution et comprendre son impact commercial, nous vous recommandons de suivre ces accès rapides :",
+      "commercial_title": "Côté Commercial",
+      "commercial_subtitle": "Analyse CA & Clients",
+      "commercial_cta": "Cliquez ici",
+      "audit_title": "Audit & Risques",
+      "audit_subtitle": "Détection anomalies IA",
+      "audit_cta": "Explorer",
+      "reports_title": "Rapports Complets",
+      "reports_subtitle": "Pilotage & Reporting"
+    }
   },
   "steering": {
     "dashboard": {
@@ -2065,10 +2077,13 @@
       "all_types": "Tous les types"
     },
     "types": {
-      "actif": "Actif",
-      "passif": "Passif",
-      "produit": "Produit",
-      "charge": "Charge"
+      "asset": "Actif",
+      "liability": "Passif",
+      "equity": "Capitaux propres",
+      "revenue": "Produit",
+      "expense": "Charge",
+      "contra_asset": "Amortissement / contre-actif",
+      "mixed": "Mixte"
     },
     "scf_names": {
       "immobilisations": "IMMOBILISATIONS",
@@ -2105,7 +2120,13 @@
       "code_placeholder": "Ex: 411001",
       "name_label": "Libellé du compte",
       "name_placeholder": "Ex: Client Divers",
-      "type_label": "Type de compte"
+      "type_label": "Type de compte",
+      "edit_title": "Modifier le compte",
+      "class_label": "Classe SCF",
+      "code_immutable": "Le code n'est pas modifiable : des écritures peuvent y faire référence.",
+      "class_mismatch_error": "Le code doit commencer par le chiffre de la classe sélectionnée.",
+      "class_mismatch_warning": "Le code doit commencer par le chiffre de la classe sélectionnée.",
+      "validation_error": "Code et nom requis"
     },
     "accounts": {
       "fixed_assets": "Immobilisations corporelles",
@@ -2119,7 +2140,17 @@
       "purchases": "Achats",
       "depreciation": "Dotations aux amortissements",
       "ibs": "Impôts sur les bénéfices (IBS)"
-    }
+    },
+    "classes": {
+      "class1": "Capitaux propres et dettes financières",
+      "class2": "Immobilisations",
+      "class3": "Stocks",
+      "class4": "Tiers (clients, fournisseurs, État)",
+      "class5": "Trésorerie",
+      "class6": "Charges",
+      "class7": "Produits"
+    },
+    "class_prefix": "Classe"
   },
   "consolidation": {
     "title": "Consolidation Financière",
@@ -3048,7 +3079,7 @@
     "small": "Petite entreprise",
     "medium": "Moyenne entreprise",
     "large": "Grande entreprise",
-    "enterprise": "Enterprise / Groupe"
+    "enterprise": "Grand Compte / Groupe"
   },
   "chatbot": {
     "title": "LIA — Intelligence Décisionnelle",
@@ -3430,56 +3461,6 @@
     "in_progress": "En cours",
     "done": "Terminé",
     "audit": {
-      "title": "AUDIT STRATÉGIQUE",
-      "profile": "Profil",
-      "segment": "Segment",
-      "sector": "Secteur",
-      "revenue": "Chiffre d'Affaires",
-      "margin": "Marge",
-      "cash": "Trésorerie",
-      "liquidity": "Liquidité",
-      "healthy": "Saine",
-      "tension": "Tension",
-      "ccc": "CCC (Cycle)",
-      "status": "Statut",
-      "bfr": "BFR (Besoin en Fonds de Roulement)",
-      "profitability": "Rentabilité",
-      "autonomy": "Autonomie Financière",
-      "leverage": "Levier (Dette/EBITDA)",
-      "coverage": "Couverture des Intérêts",
-      "wacc": "WACC",
-      "sector_focus_saas": "FOCUS SECTORIEL (SaaS)",
-      "secLia": "LIA Strategic Intelligence Hub",
-      "noRisk": "Aucun risque majeur détecté.",
-      "secActions": "Plan d'Actions Stratégiques",
-      "sec1": "I. PERFORMANCE CORE (M-1)",
-      "sec2": "II. CYCLE & EFFICIENCE",
-      "sec3": "III. STRUCTURE FINANCIÈRE",
-      "target": "Cible",
-      "cashPotential": "Potentiel de libération de cash (amélioration cycle)"
-    },
-    "recommendations": {
-      "audit_desc_extra": "Révision de la politique de dividendes et optimisation du coût du capital.",
-      "collect_early": "Accélérer les encaissements (relances proactives)",
-      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
-      "reduce_opex": "Réduire les dépenses non essentielles",
-      "bridge_finance": "Envisager un financement court terme si nécessaire"
-    },
-    "insights": {
-      "revenue_growth": "📈 Croissance solide du CA (+{{percent}}%)",
-      "cash_healthy": "✅ Trésorerie saine: {{months}} mois de CA",
-      "ccc_good": "✅ Excellent CCC de {{days}} jours",
-      "ccc_detail": "CCC à {{days}} jours (cible < {{target}} jours)"
-    },
-    "priorities": {
-      "revenue_drop": "🚨 CA en baisse critique - Plan de redressement urgent",
-      "margin_drop": "⚠️ Marge en baisse - Optimiser les coûts et prix",
-      "dso_high": "🔴 DSO trop élevé - Accélérer le recouvrement",
-      "ccc_long": "⏱️ Cycle de conversion de trésorerie long - Optimiser DSO/DIO/DPO",
-      "cash_critical": "💰 Trésorerie critique - Moins de 1 mois de CA disponible",
-      "cash_low": "⚠️ Trésorerie faible - Surveiller les encaissements"
-    },
-    "audit": {
       "title": "📊 AUDIT STRATÉGIQUE ADAPTATIF",
       "profile": "Profil",
       "segment": "Segment",
@@ -3507,6 +3488,27 @@
       "cashPotential": "Potentiel de cash-flow à libérer (optimisation cycle)",
       "articles_remaining": "Articles restants",
       "sales_obs_stable": "Progression correcte des ventes; marge stable."
+    },
+    "recommendations": {
+      "audit_desc_extra": "Révision de la politique de dividendes et optimisation du coût du capital.",
+      "collect_early": "Accélérer les encaissements (relances proactives)",
+      "negotiate_dpo": "Négocier des délais de paiement avec les fournisseurs",
+      "reduce_opex": "Réduire les dépenses non essentielles",
+      "bridge_finance": "Envisager un financement court terme si nécessaire"
+    },
+    "insights": {
+      "revenue_growth": "📈 Croissance solide du CA (+{{percent}}%)",
+      "cash_healthy": "✅ Trésorerie saine: {{months}} mois de CA",
+      "ccc_good": "✅ Excellent CCC de {{days}} jours",
+      "ccc_detail": "CCC à {{days}} jours (cible < {{target}} jours)"
+    },
+    "priorities": {
+      "revenue_drop": "🚨 CA en baisse critique - Plan de redressement urgent",
+      "margin_drop": "⚠️ Marge en baisse - Optimiser les coûts et prix",
+      "dso_high": "🔴 DSO trop élevé - Accélérer le recouvrement",
+      "ccc_long": "⏱️ Cycle de conversion de trésorerie long - Optimiser DSO/DIO/DPO",
+      "cash_critical": "💰 Trésorerie critique - Moins de 1 mois de CA disponible",
+      "cash_low": "⚠️ Trésorerie faible - Surveiller les encaissements"
     }
   },
   "company_types": {
@@ -3522,13 +3524,6 @@
     "service": "Services",
     "saas": "SaaS / Digital",
     "construction": "BTP / Construction"
-  },
-  "segments": {
-    "micro": "Micro-entreprise",
-    "small": "Petite entreprise",
-    "medium": "Moyenne entreprise",
-    "large": "Grande entreprise",
-    "enterprise": "Grand Compte / Groupe"
   },
   "auth": {
     "login": {

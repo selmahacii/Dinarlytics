@@ -300,8 +300,11 @@ async def list_chart_of_accounts(
     ]
 
 
+VALID_ACCOUNT_TYPES = {"asset", "liability", "equity", "revenue", "expense", "contra_asset", "mixed"}
+
+
 class CreateChartOfAccountRequest(BaseModel):
-    account_code: str
+    account_code: str = Field(..., min_length=2, max_length=20, pattern=r"^[1-7][0-9A-Za-z]*$")
     account_name: str
     account_class: int = Field(..., ge=1, le=7)
     account_type: str
@@ -314,6 +317,24 @@ class UpdateChartOfAccountRequest(BaseModel):
     is_active: Optional[bool] = None
 
 
+def _validate_account_coherence(account_code: str, account_class: int, account_type: str):
+    """Cohérence SCF : le 1er chiffre du code EST la classe (toute l'analyse
+    financière agrège par préfixe de classe — un code incohérent fausserait
+    bilan, ratios et G50). Le type doit être un type comptable connu."""
+    if int(account_code[0]) != account_class:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Incohérence code/classe : le compte '{account_code}' commence par "
+                   f"{account_code[0]} mais est déclaré en classe {account_class}. "
+                   f"Le premier chiffre du code doit correspondre à la classe SCF."
+        )
+    if account_type not in VALID_ACCOUNT_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Type de compte invalide '{account_type}'. Types acceptés : {sorted(VALID_ACCOUNT_TYPES)}"
+        )
+
+
 @router.post("/chart-of-accounts", response_model=ChartOfAccountResponse, status_code=status.HTTP_201_CREATED)
 async def create_chart_of_account(
     request: CreateChartOfAccountRequest,
@@ -321,6 +342,8 @@ async def create_chart_of_account(
     db: Session = Depends(get_db)
 ):
     """Create a new chart of accounts entry"""
+    _validate_account_coherence(request.account_code, request.account_class, request.account_type)
+
     existing = db.query(ChartOfAccount).filter(
         ChartOfAccount.company_id == current_user.company_id,
         ChartOfAccount.account_code == request.account_code
@@ -361,9 +384,17 @@ async def update_chart_of_account(
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    for field, value in request.dict(exclude_unset=True).items():
+    updates = request.dict(exclude_unset=True)
+    # Cohérence après application : la classe modifiée doit rester alignée
+    # avec le premier chiffre du code (le code lui-même n'est pas modifiable,
+    # les écritures y font référence par valeur).
+    new_class = updates.get("account_class", account.account_class)
+    new_type = updates.get("account_type", account.account_type)
+    _validate_account_coherence(account.account_code, new_class, new_type or "asset")
+
+    for field, value in updates.items():
         setattr(account, field, value)
-    log_audit(db, current_user, 'UPDATE', 'CHART_OF_ACCOUNT', str(account.id), request.dict(exclude_unset=True))
+    log_audit(db, current_user, 'UPDATE', 'CHART_OF_ACCOUNT', str(account.id), updates)
     db.commit()
     db.refresh(account)
     return ChartOfAccountResponse(
@@ -385,6 +416,21 @@ async def delete_chart_of_account(
     ).first()
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
+
+    # Garde-fou : un compte mouvementé ne peut pas être désactivé — les
+    # écritures y référencent le code par valeur et resteraient invisibles
+    # au plan tout en comptant dans les agrégats.
+    entries_count = db.query(JournalEntryLine.id).join(JournalEntry).filter(
+        JournalEntry.company_id == current_user.company_id,
+        JournalEntryLine.account_code == account.account_code
+    ).count()
+    if entries_count > 0:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Ce compte est mouvementé ({entries_count} ligne(s) d'écriture). "
+                   f"Il ne peut pas être supprimé — il fait partie de l'historique comptable."
+        )
+
     account.is_active = False
     log_audit(db, current_user, 'DELETE', 'CHART_OF_ACCOUNT', str(account.id), {'account_code': account.account_code})
     db.commit()

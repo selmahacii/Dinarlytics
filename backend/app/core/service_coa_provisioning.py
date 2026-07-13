@@ -18,9 +18,10 @@ from app.modules.finance.models_accounting import ChartOfAccount, BankAccount
 from app.core.scf_chart_of_accounts import build_chart_for_company
 
 
-def ensure_chart_of_accounts(db: Session, company_id, segment: str = "micro", company_type: str = "eurl", has_inventory: bool = True) -> int:
-    """Insère les comptes SCF manquants pour l'entreprise. Retourne le nombre de comptes créés."""
-    accounts = build_chart_for_company(segment, company_type, has_inventory)
+def ensure_chart_of_accounts(db: Session, company_id, segment: str = "micro", company_type: str = "eurl", has_inventory: bool = True, chart_template: str = "scf") -> int:
+    """Insère les comptes manquants pour l'entreprise (template SCF ou IFRS).
+    Retourne le nombre de comptes créés."""
+    accounts = build_chart_for_company(segment, company_type, has_inventory, chart_template)
 
     existing_codes = {
         row[0] for row in db.query(ChartOfAccount.account_code).filter(
@@ -65,8 +66,8 @@ def ensure_default_bank_account(db: Session, company_id) -> int:
     return 1
 
 
-def provision_company_accounting(db: Session, company_id, segment: str = "micro", company_type: str = "eurl", has_inventory: bool = True) -> dict:
+def provision_company_accounting(db: Session, company_id, segment: str = "micro", company_type: str = "eurl", has_inventory: bool = True, chart_template: str = "scf") -> dict:
     """Point d'entrée unique : plan comptable + compte bancaire par défaut."""
-    coa_created = ensure_chart_of_accounts(db, company_id, segment, company_type, has_inventory)
+    coa_created = ensure_chart_of_accounts(db, company_id, segment, company_type, has_inventory, chart_template)
     bank_created = ensure_default_bank_account(db, company_id)
     return {"chart_of_accounts_created": coa_created, "bank_accounts_created": bank_created}

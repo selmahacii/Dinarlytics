@@ -722,7 +722,19 @@
     },
     "demo_notice_title": "Demo Mode",
     "demo_notice_text": "Displayed data are simulations based on your recent history.",
-    "options_title": "Display Options"
+    "options_title": "Display Options",
+    "reviewer_guide": {
+      "title": "Reviewer Guide — Startup.dz",
+      "intro": "Welcome to the {{name}} prototype. To efficiently test our solution and understand its business impact, we recommend these quick access points:",
+      "commercial_title": "Commercial Side",
+      "commercial_subtitle": "Revenue & Client Analysis",
+      "commercial_cta": "Click here",
+      "audit_title": "Audit & Risks",
+      "audit_subtitle": "AI Anomaly Detection",
+      "audit_cta": "Explore",
+      "reports_title": "Full Reports",
+      "reports_subtitle": "Steering & Reporting"
+    }
   },
   "steering": {
     "dashboard": {
@@ -4375,6 +4387,58 @@
     },
     "risks": {
       "tip": "The supplier ElectroMax shows a price volatility of 18%. Consider alternatives to secure margins."
+    }
+  },
+  "ledger": {
+    "title": "Chart of Accounts",
+    "subtitle": "Manage your account structure and track balances.",
+    "class_prefix": "Class",
+    "actions": {
+      "new_account": "New Account",
+      "create_account": "Create Account",
+      "cancel": "Cancel"
+    },
+    "stats": {
+      "total_assets": "Total Assets",
+      "total_liabilities": "Total Liabilities",
+      "total_products": "Total Revenue",
+      "total_charges": "Total Expenses"
+    },
+    "filters": {
+      "search_placeholder": "Search by code or name...",
+      "all_types": "All types"
+    },
+    "types": {
+      "asset": "Asset",
+      "liability": "Liability",
+      "equity": "Equity",
+      "revenue": "Revenue",
+      "expense": "Expense",
+      "contra_asset": "Contra-asset (depreciation)",
+      "mixed": "Mixed"
+    },
+    "classes": {
+      "class1": "Equity and financial liabilities",
+      "class2": "Fixed assets",
+      "class3": "Inventory",
+      "class4": "Receivables/payables (clients, suppliers, tax)",
+      "class5": "Cash and cash equivalents",
+      "class6": "Expenses",
+      "class7": "Revenue"
+    },
+    "modal": {
+      "add_title": "Add a new account",
+      "edit_title": "Edit account",
+      "code_label": "Account code",
+      "code_placeholder": "e.g. 411001",
+      "name_label": "Account name",
+      "name_placeholder": "e.g. Misc. customer",
+      "type_label": "Account type",
+      "class_label": "SCF class",
+      "code_immutable": "The code cannot be changed: journal entries may reference it.",
+      "class_mismatch_error": "The code must start with the selected class digit.",
+      "class_mismatch_warning": "The code must start with the selected class digit.",
+      "validation_error": "Code and name are required"
     }
   }
 }

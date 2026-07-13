@@ -51,3 +51,10 @@ httpx==0.25.2
 pytest==7.4.3
 # torch>=2.0.0
 polars>=0.20.0
+
+# OCR — scan de factures/devis (PDF/image). Nécessite aussi le binaire
+# Tesseract sur le système (apt-get install tesseract-ocr en Docker).
+# Sans ces libs, service_ocr.py bascule automatiquement en mode simulation.
+Pillow==10.1.0
+pytesseract==0.3.10
+PyMuPDF==1.23.8

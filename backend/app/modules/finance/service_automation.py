@@ -11,12 +11,15 @@ class AccountingAutomation:
     """
 
     # --- Standard SCF Account Codes ---
+    # Alignés sur le plan comptable provisionné (scf_chart_of_accounts.py) :
+    # 700000/600000 n'existaient pas dans le plan, les écritures automatiques
+    # tombaient sur des comptes hors référentiel.
     ACC_CLIENTS = "411000"
-    ACC_VENTES = "700000"
+    ACC_VENTES = "701000"
     ACC_TVA_COLLECTEE = "445700"
-    
+
     ACC_FOURNISSEURS = "401000"
-    ACC_ACHATS = "600000"
+    ACC_ACHATS = "601000"
     ACC_TVA_DEDUCTIBLE = "445600"
 
     @staticmethod

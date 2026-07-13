@@ -609,7 +609,19 @@
     },
     "demo_notice_title": "وضع المحاكاة",
     "demo_notice_text": "البيانات المعروضة هي محاكاة بناءً على تاريخك الحديث.",
-    "options_title": "خيارات العرض"
+    "options_title": "خيارات العرض",
+    "reviewer_guide": {
+      "title": "دليل المقيّم — Startup.dz",
+      "intro": "مرحبًا بك في النموذج الأولي لـ {{name}}. لاختبار حلنا بفعالية وفهم أثره التجاري، نوصي بنقاط الوصول السريعة التالية:",
+      "commercial_title": "الجانب التجاري",
+      "commercial_subtitle": "تحليل رقم الأعمال والعملاء",
+      "commercial_cta": "اضغط هنا",
+      "audit_title": "التدقيق والمخاطر",
+      "audit_subtitle": "كشف الشذوذ بالذكاء الاصطناعي",
+      "audit_cta": "استكشف",
+      "reports_title": "تقارير كاملة",
+      "reports_subtitle": "القيادة والتقارير"
+    }
   },
   "steering": {
     "dashboard": {
@@ -3421,7 +3433,6 @@
         "analyze_trends": "تحليل اتجاهات الأسبوع"
       }
     },
-    "subtitle": "وحدة ذكاء القرار",
     "user_label": "المستخدم",
     "typing": "ليا تفكر...",
     "disclaimer": "ليا هي ذكاء اصطناعي. تحقق دائماً من القرارات الحاسمة مع مختص.",
@@ -4456,6 +4467,58 @@
     },
     "risks": {
       "tip": "يظهر المورد ElectroMax تقلبًا في الأسعار بنسبة 18%. يرجى النظر في بدائل لتأمين هوامش الربح."
+    }
+  },
+  "ledger": {
+    "title": "مخطط الحسابات",
+    "subtitle": "إدارة هيكل الحسابات ومتابعة الأرصدة.",
+    "class_prefix": "الفئة",
+    "actions": {
+      "new_account": "حساب جديد",
+      "create_account": "إنشاء الحساب",
+      "cancel": "إلغاء"
+    },
+    "stats": {
+      "total_assets": "إجمالي الأصول",
+      "total_liabilities": "إجمالي الخصوم",
+      "total_products": "إجمالي الإيرادات",
+      "total_charges": "إجمالي المصاريف"
+    },
+    "filters": {
+      "search_placeholder": "البحث بالرمز أو الاسم...",
+      "all_types": "كل الأنواع"
+    },
+    "types": {
+      "asset": "أصل",
+      "liability": "خصم",
+      "equity": "رأس المال",
+      "revenue": "إيراد",
+      "expense": "مصروف",
+      "contra_asset": "إهلاك (أصل مقابل)",
+      "mixed": "مختلط"
+    },
+    "classes": {
+      "class1": "رأس المال والديون المالية",
+      "class2": "الأصول الثابتة",
+      "class3": "المخزون",
+      "class4": "الغير (عملاء، موردون، ضرائب)",
+      "class5": "الخزينة",
+      "class6": "المصاريف",
+      "class7": "الإيرادات"
+    },
+    "modal": {
+      "add_title": "إضافة حساب جديد",
+      "edit_title": "تعديل الحساب",
+      "code_label": "رمز الحساب",
+      "code_placeholder": "مثال: 411001",
+      "name_label": "اسم الحساب",
+      "name_placeholder": "مثال: عميل متنوع",
+      "type_label": "نوع الحساب",
+      "class_label": "فئة SCF",
+      "code_immutable": "لا يمكن تعديل الرمز: قد تشير إليه قيود محاسبية.",
+      "class_mismatch_error": "يجب أن يبدأ الرمز برقم الفئة المحددة.",
+      "class_mismatch_warning": "يجب أن يبدأ الرمز برقم الفئة المحددة.",
+      "validation_error": "الرمز والاسم مطلوبان"
     }
   }
 }

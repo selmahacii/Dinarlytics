@@ -6,6 +6,7 @@ from app.modules.operations.models_procurement import DeliveryNote, DeliveryNote
 from app.modules.operations.models_quotes import Quote, QuoteItem
 from app.modules.system.models_notifications import AlertDefinition, AlertTrigger, UserNotification
 from app.modules.system.models_audit import AuditLog
+from app.modules.system.models_uploads import UploadedDocument
 from app.modules.intelligence.models import AIModel, AIPrediction, AITrainingLog, AIFeatureStore, AIDriftMonitoring
 from app.modules.finance.models_financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction, Immobilisation, Employee
 from app.modules.finance.models_fiscal import FiscalDeclaration

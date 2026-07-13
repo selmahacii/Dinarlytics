@@ -280,6 +280,113 @@ async def create_invoice(
         items=items_resp
     )
 
+@router.put("/{invoice_id}", response_model=InvoiceResponse)
+async def update_invoice(
+    invoice_id: str,
+    request: CreateInvoiceRequest,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Met à jour une facture BROUILLON (les factures validées sont figées —
+    toute correction passe par un avoir, pas une réécriture). Les totaux
+    sont toujours recalculés côté serveur à partir des lignes soumises,
+    jamais acceptés tels quels depuis le client.
+    """
+    inv = db.query(Invoice).filter(Invoice.id == invoice_id, Invoice.company_id == current_user.company_id).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    if inv.status != 'draft':
+        raise HTTPException(status_code=400, detail="Seules les factures en brouillon peuvent être modifiées")
+
+    client = db.query(Client).filter(Client.id == request.client_id, Client.company_id == current_user.company_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+
+    inv.client_id = request.client_id
+    inv.invoice_date = request.date_emission
+    inv.due_date = request.date_echeance or request.date_emission
+
+    # Remplacement complet des lignes (plus simple et plus sûr qu'un diff
+    # ligne à ligne pour un brouillon pas encore comptabilisé).
+    db.query(InvoiceItem).filter(InvoiceItem.invoice_id == inv.id).delete()
+    db.flush()
+
+    total_ht_global = Decimal('0')
+    total_tva_global = Decimal('0')
+    updated_items = []
+
+    for item_req in request.items:
+        line_ht = item_req.quantity * item_req.unit_price
+        calcs = AlgerianFinancialCalculator.calculate_from_ht(line_ht, item_req.tva_rate)
+        inv_item = InvoiceItem(
+            invoice_id=inv.id,
+            article_id=item_req.article_id,
+            description=item_req.description,
+            quantity=item_req.quantity,
+            unit_price_htt=item_req.unit_price,
+            tva_rate=item_req.tva_rate * 100,
+            tva_amount=calcs['tva'],
+            total_ttc=calcs['ttc'],
+            discount_value=item_req.discount
+        )
+        db.add(inv_item)
+        updated_items.append(inv_item)
+        total_ht_global += calcs['ht']
+        total_tva_global += calcs['tva']
+
+    timbre_fiscal = Decimal('0')
+    if request.payment_mode == 'cash':
+        ttc_provisoire = total_ht_global + total_tva_global
+        if ttc_provisoire > Decimal('2500'):
+            timbre_fiscal = (ttc_provisoire * Decimal('0.01')).quantize(Decimal('1'), rounding=ROUND_CEILING)
+
+    inv.total_htt = total_ht_global
+    inv.total_tva = total_tva_global
+    if timbre_fiscal > 0:
+        item_timbre = InvoiceItem(
+            invoice_id=inv.id,
+            description="Droit de Timbre (Espèces)",
+            quantity=1,
+            unit_price_htt=timbre_fiscal,
+            tva_rate=0,
+            tva_amount=0,
+            total_ttc=timbre_fiscal
+        )
+        db.add(item_timbre)
+        updated_items.append(item_timbre)
+    inv.total_ttc = total_ht_global + total_tva_global + timbre_fiscal
+
+    log_audit(db, current_user, 'UPDATE', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number})
+    db.commit()
+    db.refresh(inv)
+
+    items_resp = [
+        InvoiceItemResponse(
+            id=str(item.id),
+            article_id=str(item.article_id) if item.article_id else None,
+            quantity=item.quantity,
+            unit_price_ht=item.unit_price_htt,
+            total_ht=item.unit_price_htt * item.quantity
+        ) for item in updated_items
+    ]
+
+    return InvoiceResponse(
+        id=str(inv.id),
+        numero=inv.invoice_number,
+        date_emission=inv.invoice_date,
+        date_echeance=inv.due_date,
+        client_id=str(inv.client_id),
+        client_name=client.name,
+        total_ht=inv.total_htt,
+        total_tva=inv.total_tva,
+        timbre_amount=timbre_fiscal,
+        total_ttc=inv.total_ttc,
+        statut=inv.status,
+        items=items_resp
+    )
+
+
 @router.post("/{invoice_id}/validate", response_model=InvoiceResponse)
 async def validate_invoice(
     invoice_id: str,
