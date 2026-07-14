@@ -210,3 +210,60 @@ async def delete_employee(
     log_audit(db, current_user, 'DELETE', 'EMPLOYEE', str(emp.id) if hasattr(emp, 'id') else None, {'matricule': getattr(emp, 'matricule', None)})
     db.commit()
     return {"status": "success", "message": "Employee deleted"}
+
+
+# ========== PAIE (IRG/CNAS Algérie) ==========
+
+class PayrollSimulationRequest(BaseModel):
+    gross_salary: Decimal
+
+
+@router.post("/payroll/simulate")
+async def simulate_payroll(
+    request: PayrollSimulationRequest,
+    current_user: TokenData = Depends(get_current_user),
+):
+    """
+    Simulation de bulletin de paie algérien : brut → CNAS salarié 9 % →
+    imposable → IRG (barème mensuel LF2022, exonération ≤ 30 000 DA,
+    lissage 30 000–35 000) → net, plus le coût employeur (CNAS 26 %).
+    """
+    from app.modules.finance.service_payroll import AlgerianPayrollCalculator
+    if request.gross_salary < 0:
+        raise HTTPException(status_code=400, detail="Le salaire brut ne peut pas être négatif")
+    result = AlgerianPayrollCalculator.compute_payslip(request.gross_salary)
+    return {k: float(v) for k, v in result.items()}
+
+
+@router.get("/payroll/summary")
+async def payroll_summary(
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Masse salariale réelle de l'entreprise : bulletins calculés sur les
+    salaires de base des employés actifs (IRG/CNAS réels, pas d'estimation
+    forfaitaire) + totaux agrégés pour l'analyse financière.
+    """
+    from app.modules.finance.service_payroll import AlgerianPayrollCalculator
+    employees = db.query(Employee).filter(
+        Employee.company_id == current_user.company_id,
+        Employee.status == 'actif'
+    ).all()
+
+    total = {
+        "headcount": len(employees),
+        "total_gross": 0.0, "total_cnas_employee": 0.0, "total_irg": 0.0,
+        "total_net": 0.0, "total_cnas_employer": 0.0, "total_employer_cost": 0.0
+    }
+    for emp in employees:
+        gross = Decimal(str((emp.salaire_base or 0))) + Decimal(str((emp.primes or 0)))
+        slip = AlgerianPayrollCalculator.compute_payslip(gross)
+        total["total_gross"] += float(slip["gross_salary"])
+        total["total_cnas_employee"] += float(slip["cnas_employee"])
+        total["total_irg"] += float(slip["irg"])
+        total["total_net"] += float(slip["net_salary"])
+        total["total_cnas_employer"] += float(slip["cnas_employer"])
+        total["total_employer_cost"] += float(slip["total_employer_cost"])
+
+    return total

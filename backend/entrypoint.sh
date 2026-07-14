@@ -21,7 +21,10 @@ for attempt in range(30):
 sys.exit(1)
 PYEOF
 
-echo "Provisioning schema, roles and chart of accounts per company hierarchy..."
+echo "Applying versioned schema migrations (alembic upgrade head)..."
+alembic upgrade head
+
+echo "Provisioning roles and chart of accounts per company hierarchy..."
 python scripts/migrate_company_hierarchy_accounts.py || echo "Migration script reported an issue (non-fatal on first boot with no companies yet)."
 
 if [ "$#" -gt 0 ]; then

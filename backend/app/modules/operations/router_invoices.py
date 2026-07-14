@@ -40,6 +40,10 @@ class CreateInvoiceRequest(BaseModel):
     items: List[InvoiceItemRequest]
     payment_mode: Optional[str] = "cash"
     notes: Optional[str] = None
+    # Devise de facturation (défaut : devise de base de l'entreprise).
+    # Si différente, un taux de change saisi (POST /currencies/rates) doit
+    # exister — les totaux sont convertis et stockés en devise de base.
+    currency_code: Optional[str] = Field(default=None, min_length=3, max_length=3)
 
 class InvoiceResponse(BaseModel):
     id: str
@@ -53,6 +57,8 @@ class InvoiceResponse(BaseModel):
     timbre_amount: Decimal = Decimal('0') # Ajout Timbre
     total_ttc: Decimal
     statut: str
+    currency_code: str = "DZD"
+    exchange_rate: Decimal = Decimal('1')
     items: List[InvoiceItemResponse] = [] # Include items in response
 
 
@@ -152,6 +158,27 @@ async def create_invoice(
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
 
+    # 1b. Résolution devise : si la facture est émise dans une devise
+    # différente de la devise de base de l'entreprise, un taux saisi
+    # (POST /currencies/rates) est REQUIS — on refuse plutôt que
+    # d'inventer un taux. Lignes et totaux sont convertis en devise de
+    # base à la création pour que toutes les agrégations restent homogènes.
+    from app.core.models import Company
+    _company = db.query(Company).filter(Company.id == current_user.company_id).first()
+    base_currency = (_company.currency_code if _company else None) or "DZD"
+    invoice_currency = (request.currency_code or base_currency).upper()
+    fx_rate = Decimal('1')
+    if invoice_currency != base_currency:
+        from app.modules.finance.router_currency import get_latest_rate
+        rate = get_latest_rate(db, current_user.company_id, invoice_currency, request.date_emission)
+        if rate is None:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Aucun taux de change {invoice_currency}->{base_currency} n'est enregistré. "
+                       f"Saisissez-le d'abord via POST /currencies/rates."
+            )
+        fx_rate = Decimal(rate)
+
     # 2. Generate Number
     invoice_number = generate_document_number(
         db, Invoice, Invoice.invoice_number,
@@ -170,7 +197,9 @@ async def create_invoice(
         created_by=current_user.user_id, # Assuming user_id available in TokenData
         total_htt=0,
         total_tva=0,
-        total_ttc=0
+        total_ttc=0,
+        currency_code=invoice_currency,
+        exchange_rate=fx_rate
     )
     db.add(new_inv)
     db.flush() # Get ID
@@ -182,10 +211,11 @@ async def create_invoice(
     created_items = []
 
     for item_req in request.items:
-        # Calculate Line Base
-        line_ht = item_req.quantity * item_req.unit_price
+        # Calculate Line Base — prix unitaire converti en devise de base.
+        unit_price_base = (item_req.unit_price * fx_rate).quantize(Decimal('0.01'))
+        line_ht = item_req.quantity * unit_price_base
         # Apply discount if needed (omitted for now to keep simple SCF)
-        
+
         # Calculate Tax
         calcs = AlgerianFinancialCalculator.calculate_from_ht(line_ht, item_req.tva_rate)
         
@@ -194,7 +224,7 @@ async def create_invoice(
             article_id=item_req.article_id,
             description=item_req.description,
             quantity=item_req.quantity,
-            unit_price_htt=item_req.unit_price,
+            unit_price_htt=unit_price_base,
             tva_rate=item_req.tva_rate * 100, # Store as percentage often, or check model def. Model says default=19, implies percentage number (19) not ratio (0.19). Let's check model.
             # Checking model: tva_rate = Column(Numeric(5, 2), default=19) -> It expects 19.00
             tva_amount=calcs['tva'],
@@ -213,18 +243,13 @@ async def create_invoice(
         total_ht_global += calcs['ht']
         total_tva_global += calcs['tva']
 
-    # 4b. Calcul du Timbre Fiscal (Sp????cificit???? Alg????rie)
-    # R????gle: 1% du montant pour paiement ESP????CES si > seuil (ex: 2500 DA, souvent interpr????t???? comme tout paiement esp????ce)
-    # On applique 1% du TTC provisoire
-    timbre_fiscal = Decimal('0')
-    if request.payment_mode == 'cash':
-        ttc_provisoire = total_ht_global + total_tva_global
-        if ttc_provisoire > Decimal('2500'): # Seuil d'exon????ration pratique
-             # Calcul 1% arrondi au Dinar sup????rieur
-             # Arrondi au dinar supérieur (droit de timbre)
-             timbre_fiscal = (ttc_provisoire * Decimal('0.01')).quantize(Decimal('1'), rounding=ROUND_CEILING)
-             # Plafond 2500 DA (Ancienne loi) ou 100 000 DA (LFC r????cente), on met 2500 par s????curit???? par d????faut ou configurable
-             # Pour l'instant on laisse le calcul simple 1%
+    # 4b. Droit de timbre selon le PROFIL FISCAL du pays de l'entreprise
+    # (DZ: 1% especes >2500 DA arrondi au dinar superieur; TN: montant fixe;
+    # FR/autres: aucun). Avant, la regle algerienne s'appliquait en dur a
+    # toute entreprise quel que soit son pays.
+    from app.core.tax_profiles import get_tax_profile, compute_stamp_duty
+    _profile = get_tax_profile(_company.country if _company else None)
+    timbre_fiscal = compute_stamp_duty(_profile, total_ht_global + total_tva_global, request.payment_mode or '')
              
     # 5. Update Invoice Totals
     new_inv.total_htt = total_ht_global
@@ -277,6 +302,8 @@ async def create_invoice(
         timbre_amount=timbre_fiscal,
         total_ttc=new_inv.total_ttc,
         statut=new_inv.status,
+        currency_code=new_inv.currency_code or "DZD",
+        exchange_rate=new_inv.exchange_rate or Decimal('1'),
         items=items_resp
     )
 
@@ -335,11 +362,12 @@ async def update_invoice(
         total_ht_global += calcs['ht']
         total_tva_global += calcs['tva']
 
-    timbre_fiscal = Decimal('0')
-    if request.payment_mode == 'cash':
-        ttc_provisoire = total_ht_global + total_tva_global
-        if ttc_provisoire > Decimal('2500'):
-            timbre_fiscal = (ttc_provisoire * Decimal('0.01')).quantize(Decimal('1'), rounding=ROUND_CEILING)
+    # Timbre selon le profil fiscal du pays (même règle que la création).
+    from app.core.tax_profiles import get_tax_profile, compute_stamp_duty
+    from app.core.models import Company
+    _company = db.query(Company).filter(Company.id == current_user.company_id).first()
+    _profile = get_tax_profile(_company.country if _company else None)
+    timbre_fiscal = compute_stamp_duty(_profile, total_ht_global + total_tva_global, request.payment_mode or '')
 
     inv.total_htt = total_ht_global
     inv.total_tva = total_tva_global
@@ -526,3 +554,38 @@ async def cancel_invoice(
     db.commit()
 
     return {"id": str(inv.id), "status": inv.status, "message": "Invoice cancelled"}
+
+
+@router.get("/{invoice_id}/ubl")
+async def export_invoice_ubl(
+    invoice_id: str,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Export e-invoicing : facture au format UBL 2.1 (structure Peppol BIS
+    Billing 3.0) — document XML normé et interopérable, socle des
+    obligations de facturation électronique internationales.
+    """
+    from fastapi.responses import Response
+    from app.core.models import Company
+    from app.modules.operations.service_einvoicing import generate_ubl_invoice
+
+    inv = db.query(Invoice).filter(
+        Invoice.id == invoice_id,
+        Invoice.company_id == current_user.company_id
+    ).first()
+    if not inv:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    company = db.query(Company).filter(Company.id == current_user.company_id).first()
+    client = db.query(Client).filter(Client.id == inv.client_id).first() if inv.client_id else None
+    items = db.query(InvoiceItem).filter(InvoiceItem.invoice_id == inv.id).all()
+
+    xml_bytes = generate_ubl_invoice(inv, items, company, client)
+    safe_number = (inv.invoice_number or str(inv.id)).replace('/', '-')
+    return Response(
+        content=xml_bytes,
+        media_type="application/xml",
+        headers={"Content-Disposition": f"attachment; filename=ubl_{safe_number}.xml"}
+    )

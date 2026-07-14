@@ -16,10 +16,18 @@ class Invoice(Base):
     due_date = Column(Date)
     client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"), index=True)
     type = Column(String(20), default="sale", nullable=False, index=True)
+    # Les totaux sont TOUJOURS stockés dans la devise de BASE de
+    # l'entreprise (convertis à la création si facturé en devise
+    # étrangère) — ainsi toutes les agrégations (CA, créances, analytics)
+    # restent homogènes sans conversion dispersée dans chaque requête.
     total_htt = Column(Numeric(15, 2), default=0)  # Hors Taxes
     total_tva = Column(Numeric(15, 2), default=0)  # TVA
     total_ttc = Column(Numeric(15, 2), default=0)  # Total TTC
+    # Devise d'ORIGINE de la facture + taux appliqué à la création
+    # (1 unité de currency_code = exchange_rate unités de devise de base).
+    # Montant original = total / exchange_rate.
     currency_code = Column(String(3), default="DZD")
+    exchange_rate = Column(Numeric(18, 6), default=1)
     status = Column(String(50), default="draft", index=True)
     payment_status = Column(String(50), default="unpaid", index=True)
     created_by = Column(UUID(as_uuid=True), ForeignKey("users.id"))

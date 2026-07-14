@@ -50,10 +50,26 @@ async def get_consolidation_data(
     current_user: TokenData = Depends(get_current_user)
 ):
     """
-    Retrieves all companies from the database and calculates their financial metrics 
-    dynamically from their actual journal entries to perform consolidation.
+    Retrieves the current user's GROUP (their company + its subsidiaries,
+    or the whole group when the user belongs to a subsidiary) and computes
+    each entity's financial metrics from its actual journal entries.
     """
-    companies = db.query(Company).all()
+    # Périmètre = groupe de l'utilisateur uniquement. L'ancien
+    # `db.query(Company).all()` renvoyait TOUTES les entreprises de la
+    # base — y compris celles d'autres locataires (fuite multi-tenant).
+    my_company = db.query(Company).filter(Company.id == current_user.company_id).first()
+    if not my_company:
+        return ConsolidationDataResponse(entreprises=[], transactions=[])
+    group_root_id = my_company.parent_company_id or my_company.id
+    companies = db.query(Company).filter(
+        (Company.id == group_root_id) | (Company.parent_company_id == group_root_id)
+    ).all()
+    parent = next((c for c in companies if c.id == group_root_id), my_company)
+    parent_currency = parent.currency_code or "DZD"
+
+    # Taux de change réels saisis par le groupe (POST /currencies/rates) —
+    # remplace l'ancienne table codée en dur {EUR: 145, USD: 135}.
+    from app.modules.finance.router_currency import get_latest_rate
     
     entreprises_list = []
     
@@ -126,20 +142,26 @@ async def get_consolidation_data(
             
         liabilities += Decimal(str(liabilities_c4))
 
-        # Reference FX rates against DZD (approximate, for display conversion only).
-        FX_RATES = {"DZD": 1.0, "EUR": 145.0, "USD": 135.0}
         devise = company.currency_code or "DZD"
         pays = company.country or "Algérie"
-        taux = FX_RATES.get(devise, 1.0)
+        # Conversion vers la devise de la société mère via les taux
+        # réellement saisis (1 si même devise ; 1 avec signalement si
+        # aucun taux saisi — les montants restent alors en devise locale).
+        if devise == parent_currency:
+            taux = 1.0
+        else:
+            rate = get_latest_rate(db, group_root_id, devise)
+            taux = float(rate) if rate is not None else 1.0
         pct = float(company.ownership_percentage) if company.ownership_percentage is not None else 100.0
         ctype = "mere" if company.parent_company_id is None else "filiale"
 
-        # Real figures from the ledger; honestly zero when no journal entries exist yet.
-        cf_val = float(max(0, sales))
-        benefice = float(sales - expenses)
-        actif_val = float(max(0, assets))
-        passif_val = float(max(0, liabilities))
-        tres_val = float(cash)
+        # Real figures from the ledger converted to the parent currency;
+        # honestly zero when no journal entries exist yet.
+        cf_val = float(max(0, sales)) * taux
+        benefice = float(sales - expenses) * taux
+        actif_val = float(max(0, assets)) * taux
+        passif_val = float(max(0, liabilities)) * taux
+        tres_val = float(cash) * taux
 
         entreprises_list.append(CompanyConsolidationResponse(
             id=company_id,

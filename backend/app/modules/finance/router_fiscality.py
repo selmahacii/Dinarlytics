@@ -94,6 +94,54 @@ async def update_declaration_status(
     db.refresh(declaration)
     return declaration
 
+def _require_declaration(db: Session, company_id, declaration: str) -> dict:
+    """Vérifie que la déclaration demandée existe dans le profil fiscal du
+    pays de l'entreprise — la G50/liasse Jibaya sont algériennes ; les
+    servir à une entreprise française produirait des obligations fiscales
+    inventées. Retourne le profil si applicable, 400 sinon."""
+    from app.core.tax_profiles import get_tax_profile
+    from app.core.models import Company
+    company = db.query(Company).filter(Company.id == company_id).first()
+    profile = get_tax_profile(company.country if company else None)
+    if declaration not in profile.get("declarations", []):
+        raise HTTPException(
+            status_code=400,
+            detail=f"La déclaration '{declaration}' ne s'applique pas au profil fiscal "
+                   f"'{profile['code']}' ({profile['country_name']}) de cette entreprise."
+        )
+    return profile
+
+
+@router.get("/profile")
+async def get_fiscal_profile(
+    db: Session = Depends(get_db),
+    user: dict = Depends(get_current_user_from_token)
+):
+    """Profil fiscal effectif de l'entreprise (pays, taux TVA, timbre,
+    déclarations applicables) — consommé par le frontend pour n'afficher
+    que les modules fiscaux pertinents pour le pays."""
+    from app.core.tax_profiles import get_tax_profile
+    from app.core.models import Company
+    company = db.query(Company).filter(Company.id == user["company_id"]).first()
+    profile = get_tax_profile(company.country if company else None)
+    stamp = profile.get("stamp_duty")
+    corporate = profile.get("corporate_tax") or {}
+    turnover = profile.get("turnover_tax")
+    return {
+        "code": profile["code"],
+        "country_name": profile["country_name"],
+        "currency": profile["currency"],
+        "vat_rates": [float(r) for r in profile["vat_rates"]],
+        "default_vat_rate": float(profile["default_vat_rate"]),
+        "has_stamp_duty": stamp is not None,
+        "stamp_duty_applies_to": stamp.get("applies_to") if stamp else None,
+        "turnover_tax": {"name": turnover["name"], "rate": float(turnover["rate"])} if turnover else None,
+        "corporate_tax": {"name": corporate.get("name"), "default_rate": float(corporate.get("default_rate", 0))},
+        "declarations": profile.get("declarations", []),
+        "chart_template": profile.get("chart_template", "scf"),
+    }
+
+
 @router.get("/g50-summary")
 async def get_g50_summary(
     month: int = Query(..., ge=1, le=12),
@@ -106,6 +154,7 @@ async def get_g50_summary(
     Retrieves sales and purchases for the specified month to compute tax obligations.
     """
     company_id = user["company_id"]
+    _require_declaration(db, company_id, "g50")
     
     # Calculate Sales HT (Class 7 - Credit)
     sales_ht = db.query(func.sum(JournalEntryLine.credit_amount - JournalEntryLine.debit_amount))\
@@ -173,6 +222,7 @@ async def export_liasse_xml(
     Aggregates Balance Sheet (Actif/Passif) and Income Statement (TCR).
     """
     company_id = user["company_id"]
+    _require_declaration(db, company_id, "liasse_jibaya")
     
     xml_content = JibayaService.generate_xml_liasse(db, company_id, year)
     

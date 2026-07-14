@@ -24,15 +24,23 @@ from app.core.database import Base, get_db
 
 
 # ========== DATABASE SETUP ==========
+# Les modèles utilisent les types PostgreSQL (UUID, JSON) : SQLite ne peut
+# PAS les compiler — l'ancienne fixture sqlite:///:memory: échouait sur
+# CreateTable dès le premier test. Les tests d'intégration exigent donc un
+# vrai PostgreSQL, fourni via TEST_DATABASE_URL (service container en CI,
+# base docker locale en dev). Sans cette variable, les tests dépendants de
+# la base sont SKIPPED — les tests purs (calculs, profils fiscaux, paie,
+# UBL, plan comptable) tournent partout sans base.
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
+
+
 @pytest.fixture(scope="function")
 def test_db() -> Generator:
-    """Create an in-memory SQLite database for testing"""
-    # Use SQLite in-memory for quick testing
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-        poolclass=None,
-    )
+    """PostgreSQL de test (TEST_DATABASE_URL). Skip si non configuré."""
+    if not TEST_DATABASE_URL:
+        pytest.skip("TEST_DATABASE_URL non défini — test d'intégration base ignoré")
+
+    engine = create_engine(TEST_DATABASE_URL, poolclass=None)
 
     Base.metadata.create_all(bind=engine)
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

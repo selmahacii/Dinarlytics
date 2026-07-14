@@ -116,3 +116,24 @@ class BankStatementLine(Base):
     # Relationships
     statement = relationship("BankStatement", back_populates="lines")
     reconciled_entry = relationship("JournalEntryLine")
+
+
+class ExchangeRate(Base):
+    """
+    Taux de change saisis par l'entreprise : 1 unité de `currency_code`
+    = `rate_to_base` unités de la devise de base de l'entreprise
+    (Company.currency_code).
+
+    Utilisés par : la facturation en devise étrangère (conversion des
+    totaux en devise de base à la création) et la consolidation de groupe
+    (conversion des soldes des filiales vers la devise de la mère) —
+    remplace les taux codés en dur qui figuraient dans la consolidation.
+    """
+    __tablename__ = "exchange_rates"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    currency_code = Column(String(3), nullable=False, index=True)
+    rate_to_base = Column(Numeric(18, 6), nullable=False)
+    rate_date = Column(Date, nullable=False, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

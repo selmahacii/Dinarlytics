@@ -1,0 +1,108 @@
+# Déploiement PRODUCTION.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Différences volontaires avec docker-compose.yml (dev) :
+#   - AUCUN montage du code source (l'image est immuable — le dev-compose
+#     monte ./backend:/app, ce qui écrase le contenu de l'image et casse
+#     l'utilisateur non-root en prod) ;
+#   - SECRET_KEY et mot de passe DB OBLIGATOIRES (pas de valeur par
+#     défaut "change-in-production" silencieuse) ;
+#   - la base n'expose pas de port sur l'hôte ;
+#   - volume persistant pour les documents uploadés (scans de factures).
+#
+# Variables requises (fichier .env à côté de ce fichier) :
+#   DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME, SECRET_KEY
+#   (SECRET_KEY : 32+ caractères aléatoires)
+
+services:
+  db:
+    image: postgres:14-alpine
+    container_name: dinarlytics-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:?DATABASE_USER requis}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?DATABASE_PASSWORD requis}
+      POSTGRES_DB: ${DATABASE_NAME:?DATABASE_NAME requis}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: dinarlytics-redis-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: dinarlytics-backend-prod
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY requis (32+ caracteres aleatoires)}
+      - UVICORN_WORKERS=${UVICORN_WORKERS:-4}
+      - UPLOAD_STORAGE_PATH=/app/data/uploads
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads_data_prod:/app/data/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  celery_worker:
+    build: ./backend
+    container_name: dinarlytics-worker-prod
+    restart: unless-stopped
+    entrypoint: []
+    command: celery -A app.celery_app worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dinarlytics-frontend-prod
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000/api/v1}
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data_prod:
+  uploads_data_prod:
