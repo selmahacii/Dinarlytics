@@ -478,8 +478,9 @@ export const USER_ROLES: UserRole[] = [
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-charts',
       'clients-manage', 'facturation-read', 'facturation-create', 'facturation-validate',
-      'rapports-ventes', 'rapports-basic', 'rapports-advanced',
-      'lia-access', 'lia-analyses'
+      'stocks-read',
+      'rapports-ventes', 'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+      'lia-access', 'lia-chatbot', 'lia-analyses'
     ],
     companyTypes: ['spa'],
     accessLevels: ['enterprise']
@@ -511,8 +512,8 @@ export const USER_ROLES: UserRole[] = [
       'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'paie-read', 'paie-create', 'paie-validate',
       'admin-users',
-      'rapports-basic', 'rapports-advanced',
-      'lia-access'
+      'rapports-basic', 'rapports-advanced', 'export-data',
+      'lia-access', 'lia-chatbot'
     ],
     companyTypes: ['spa'],
     accessLevels: ['enterprise']
@@ -526,8 +527,8 @@ export const USER_ROLES: UserRole[] = [
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'stocks-read', 'stocks-move', 'stocks-inventory',
-      'fournisseurs-manage',
-      'rapports-stocks', 'rapports-achats',
+      'fournisseurs-manage', 'articles-manage',
+      'rapports-stocks', 'rapports-achats', 'rapports-basic', 'rapports-advanced', 'export-data',
       'lia-access'
     ],
     companyTypes: ['spa'],
@@ -556,11 +557,13 @@ export const USER_ROLES: UserRole[] = [
     description: 'Supervision de la comptabilité générale et tiers',
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
-      'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
-      'facturation-read', 'facturation-validate',
+      'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close',
+      'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
       'paie-read', 'paie-create',
-      'rapports-comptabilite', 'rapports-fiscalite', 'fiscalite-declarations', 'rapports-basic', 'rapports-advanced',
-      'lia-access', 'lia-analyses'
+      'stocks-read', 'stocks-move', 'stocks-inventory',
+      'rapports-comptabilite', 'rapports-fiscalite', 'fiscalite-declarations', 'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+      'audit-read', 'audit-full',
+      'lia-access', 'lia-chatbot', 'lia-analyses', 'lia-train'
     ],
     companyTypes: ['spa'],
     accessLevels: ['enterprise']
@@ -621,7 +624,7 @@ export const USER_ROLES: UserRole[] = [
       'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
       'audit-read', 'audit-full',
       'comptabilite-read', 'facturation-read', 'stocks-read', 'paie-read',
-      'rapports-advanced', 'rapports-comptabilite',
+      'rapports-basic', 'rapports-advanced', 'rapports-comptabilite', 'export-data',
       'lia-access', 'lia-analyses'
     ],
     companyTypes: ['spa'],
@@ -635,8 +638,8 @@ export const USER_ROLES: UserRole[] = [
     description: 'Gestion des flux financiers et relations bancaires',
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
-      'comptabilite-read',
-      'rapports-tresorerie', 'rapports-basic',
+      'comptabilite-read', 'comptabilite-write', 'facturation-read',
+      'rapports-tresorerie', 'rapports-basic', 'rapports-advanced', 'export-data',
       'lia-access'
     ],
     companyTypes: ['spa'],

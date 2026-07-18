@@ -657,7 +657,7 @@
       },
       "scenarios": {
         "title": "Simulations & Scenarios",
-        "subtitle": "6-month performance projections (AI)",
+        "subtitle": "6-month performance projections (linear extrapolation of current revenue)",
         "analyse_lia": "LIA Analysis",
         "risk_label": "Risk",
         "risks": {
@@ -1571,38 +1571,154 @@
       "tabs": {
         "list": "Supplier Registry",
         "orders": "Procurement & P.O.",
-        "analytics": "Performance Analysis"
+        "analytics": "Performance Analysis",
+        "invoices": "Factures et Pièces",
+        "treasury": "Trésorerie & Décaissement"
       },
       "stats": {
         "total_purchases": "Total Purchases",
         "debts": "Supplier Debts",
         "total_orders": "Ongoing Orders",
         "avg_score": "Average Score",
-        "debt_rotation": "Debt rotation"
+        "global_balance": "Encours Fournisseurs",
+        "avg_dpo": "DPO Moyen (Jours)",
+        "risk_exposure": "Exposition Risque",
+        "active_suppliers": "Fournisseurs Actifs",
+        "overdue_invoices": "Factures à Échoir",
+        "litigations": "Litiges en cours",
+        "total_suppliers": "Nombre de Fournisseurs",
+        "active": "actifs"
       },
       "actions": {
         "new_order": "New P.O.",
         "optimization": "Cost Optimization",
-        "risks": "Risk Assessment"
+        "risks": "Risk Assessment",
+        "new_supplier": "Nouveau Fournisseur",
+        "new_invoice": "Nouvelle Facture (OCR)",
+        "payment": "Paiement",
+        "schedule": "Échéancier",
+        "report": "Rapport Exécutif",
+        "performance": "Analyse Performance",
+        "forecasts": "Prévisions Achats",
+        "negotiation": "Opportunités Négociation",
+        "save_invoice": "Créer Facture",
+        "save_supplier": "Enregistrer Fournisseur",
+        "update_supplier": "Mettre à jour",
+        "add_signature": "Ajouter une signature",
+        "delete_signature": "Supprimer",
+        "download_pdf": "Télécharger PDF",
+        "view_details": "Voir détails",
+        "edit": "Modifier",
+        "delete": "Supprimer"
       },
       "analytics": {
         "commitment_evolution": "Purchase Evolution HT",
-        "distribution_supplier": "Supplier Breakdown"
+        "distribution_supplier": "Supplier Breakdown",
+        "commitment_title": "Évolution des Engagements HT",
+        "performance_title": "Performance par Fournisseur — Exercice 2024",
+        "purchases_ht": "Achats HT",
+        "nb_bc": "Nb BC",
+        "lead_time": "Lead Time",
+        "quality": "Qualité",
+        "dpo": "DPO",
+        "share_percent": "Part (%)",
+        "trend": "Tendance"
       },
       "messages": {
         "purchase_orders": "Recent Purchase Orders",
-        "quality_score": "Quality Score"
+        "quality_score": "Quality Score",
+        "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce fournisseur ?",
+        "confirm_delete_order": "Êtes-vous sûr de vouloir supprimer cette commande ?",
+        "supplier_success_created": "Fournisseur créé avec succès !",
+        "supplier_success_updated": "Fournisseur modifié avec succès !",
+        "supplier_success_desc": "Le fournisseur \"{{name}}\" a été {{action}} à votre liste.",
+        "order_success_created": "Commande créée avec succès !",
+        "order_success_updated": "Commande modifiée avec succès !",
+        "next_step_order": "Créer une première commande pour ce fournisseur",
+        "next_step_payment": "Configurer les conditions de paiement",
+        "next_step_notes": "Ajouter des notes sur les délais de livraison",
+        "system_expert": "Système Expert d'Analyse",
+        "delta_economy": "Delta Économie (Target)",
+        "no_data": "Aucune donnée disponible",
+        "total_bc_emitted": "Total BC Émis",
+        "in_approval": "En Approbation",
+        "in_transit": "En Transit",
+        "anomalies": "Anomalies",
+        "commitments_registry": "Registre des Engagements",
+        "supplier_passive": "Passif Fournisseurs",
+        "passive_management": "Gestion des Passifs",
+        "total_invoices": "Total Factures",
+        "in_instance": "En Instance",
+        "compliance": "Compliance",
+        "treasury_header": "Trésorerie Fournisseurs",
+        "payments_schedule": "Règlements & Échéancier",
+        "total_disbursed": "Total Décaissé",
+        "overdue": "En Retard",
+        "performance_volume": "Performance & Volume",
+        "total_commitments": "Engagements Totaux",
+        "avg_lead_time": "Lead Time Moyen",
+        "notes_obs": "Notes et Observations",
+        "internal_notes": "Notes internes",
+        "order_details": "Détails Commande",
+        "ordered_items": "Articles Commandés",
+        "fiscal_compliance": "Conformité Fiscale Algérienne & SCF",
+        "scf_system": "Système SCF",
+        "scf_date": "Date SCF",
+        "scf_status": "Statut SCF",
+        "supporting_docs": "Documents & Pièces Justificatives",
+        "po_doc": "Bon de commande",
+        "inv_doc": "Facture fournisseur",
+        "scf_doc": "Attestation SCF",
+        "bl_doc": "Bordereau de livraison",
+        "mod_history": "Historique des Modifications",
+        "fiscal_report": "Rapport Fiscal",
+        "scf_export": "Export SCF",
+        "tva_decl": "Déclaration TVA",
+        "po_id": "Identification du Bon de Commande",
+        "dates_cond": "Dates & Conditions",
+        "delivery_addr": "Adresse de Livraison",
+        "item_lines": "Lignes d'Articles",
+        "designation": "Désignation",
+        "qty": "Qté",
+        "unit": "Unité",
+        "invoice_payment": "Paiement Facture",
+        "performance_volume_subtitle": "Exercice 2024 — {{count}} fournisseurs actifs"
       },
       "table": {
         "reference": "Reference",
         "supplier": "Supplier",
-        "quality": "Urgency"
+        "quality": "Urgency",
+        "invoice_no": "Numéro de Facture",
+        "issue_date": "Date d'émission",
+        "due_date": "Date d'échéance",
+        "total_ht": "Total HT",
+        "total_tva": "Total TVA",
+        "payment_mode": "Mode de Paiement",
+        "total_ttc": "Total TTC",
+        "inc_stamp": "Incl. Timbre: {{amount}} DZD",
+        "invoice_ref": "Réf. Facture",
+        "bc_ref": "Référence BC",
+        "item_ref": "Référence PIÈCE",
+        "issuer": "Émetteur",
+        "order_no": "Numéro de Commande",
+        "quantity": "Quantité",
+        "unit_price": "Prix Unitaire",
+        "fiscal_ref": "Référence fiscale",
+        "nif": "NIF",
+        "purchases": "Volume Achat",
+        "balance": "Solde Du",
+        "actions": "Actions"
       },
       "status": {
         "approved": "Approved",
         "pending": "Pending",
         "delivered": "Delivered",
-        "urgent": "Urgent"
+        "urgent": "Urgent",
+        "active": "actif",
+        "in_transit": "TRANSIT",
+        "approval": "APPROBATION",
+        "certified": "Certifié",
+        "audit_certification": "Audit & Certification des Pièces Comptables"
       },
       "relances": {
         "title": "Follow-up Management",
@@ -1674,13 +1790,69 @@
         }
       },
       "sections": {
-        "executive_summary": "Executive Summary"
+        "executive_summary": "Executive Summary",
+        "general_info": "Informations Générales",
+        "articles": "Articles (Saisie manuelle pour l'instant)",
+        "articles_desc": "L'extraction automatique des lignes d'articles est prévue pour la version 2.0.",
+        "totals": "Totaux (Détectés par OCR)",
+        "signature": "Signature Électronique",
+        "signature_success": "Signature ajoutée avec succès",
+        "supplier_details": "Détails Fournisseur",
+        "payment_history": "Historique des Règlements",
+        "consolidated_analytics": "Analytique Consolidée",
+        "treasury_management": "Trésorerie Fournisseurs",
+        "cash_flow_mgmt": "Gestion des Flux de Décaissement",
+        "procurement_strategy": "Stratégie d'Approvisionnement"
       },
       "optimization": {
         "tip": "Consolidating orders at Tech Solutions could reduce your logistics costs by 12%."
       },
       "risks": {
         "tip": "The supplier ElectroMax shows a price volatility of 18%. Consider alternatives to secure margins."
+      },
+      "flux_title": "Flux Approvisionnements",
+      "ocr": {
+        "scan_title": "Scanner / Importer une facture",
+        "scan_desc": "Glissez un fichier ou cliquez pour utiliser la caméra",
+        "analyzing": "Analyse intelligente en cours...",
+        "file_ready": "Fichier prêt : {{name}}",
+        "change_file": "Cliquez pour changer",
+        "completed_alert": "OCR Terminé ! Fournisseur détecté: {{name}}. Montant: {{amount}}",
+        "completed_amount_alert": "OCR Terminé ! Montant: {{amount}}, NIF: {{nif}}",
+        "completed_simple_alert": "OCR Terminé ! Montant: {{amount}}",
+        "error_alert": "Erreur lors de l'analyse OCR.",
+        "success_msg": "Facture OCR créée avec succès !",
+        "nif_detected": "[OCR] NIF détecté: {{nif}}."
+      },
+      "modals": {
+        "edit_title": "Modifier Fournisseur",
+        "create_title": "Nouveau Fournisseur",
+        "tax_id": "Identifiant Fiscal (NIF)",
+        "phone": "Téléphone de contact",
+        "address": "Adresse du siège"
+      },
+      "placeholders": {
+        "select_supplier": "Sélectionner un fournisseur",
+        "invoice_format": "FAC-2024-XXX",
+        "select_mode": "Sélectionner un mode",
+        "search_supplier": "Rechercher un fournisseur (nom, NIF...)"
+      },
+      "payment_modes": {
+        "virement": "Virement Bancaire",
+        "cheque": "Chèque",
+        "especes": "Espèces (Droit de timbre)",
+        "especes_simple": "Espèces",
+        "traite": "Traite"
+      },
+      "invoice_types": {
+        "facture": "FACTURE",
+        "avoir": "AVOIR",
+        "note_debit": "NOTE DÉBIT"
+      },
+      "compliance_status": {
+        "verified": "VÉRIFIÉ",
+        "pending": "EN ATTENTE",
+        "rejected": "REJETÉ"
       }
     }
   },
@@ -4400,37 +4572,154 @@
     "tabs": {
       "list": "Supplier Registry",
       "orders": "Procurement & P.O.",
-      "analytics": "Performance Analysis"
+      "analytics": "Performance Analysis",
+      "invoices": "Factures et Pièces",
+      "treasury": "Trésorerie & Décaissement"
     },
     "stats": {
       "total_purchases": "Total Purchases",
       "debts": "Supplier Debts",
       "total_orders": "Ongoing Orders",
-      "avg_score": "Average Score"
+      "avg_score": "Average Score",
+      "global_balance": "Encours Fournisseurs",
+      "avg_dpo": "DPO Moyen (Jours)",
+      "risk_exposure": "Exposition Risque",
+      "active_suppliers": "Fournisseurs Actifs",
+      "overdue_invoices": "Factures à Échoir",
+      "litigations": "Litiges en cours",
+      "total_suppliers": "Nombre de Fournisseurs",
+      "active": "actifs"
     },
     "actions": {
       "new_order": "New P.O.",
       "optimization": "Cost Optimization",
-      "risks": "Risk Assessment"
+      "risks": "Risk Assessment",
+      "new_supplier": "Nouveau Fournisseur",
+      "new_invoice": "Nouvelle Facture (OCR)",
+      "payment": "Paiement",
+      "schedule": "Échéancier",
+      "report": "Rapport Exécutif",
+      "performance": "Analyse Performance",
+      "forecasts": "Prévisions Achats",
+      "negotiation": "Opportunités Négociation",
+      "save_invoice": "Créer Facture",
+      "save_supplier": "Enregistrer Fournisseur",
+      "update_supplier": "Mettre à jour",
+      "add_signature": "Ajouter une signature",
+      "delete_signature": "Supprimer",
+      "download_pdf": "Télécharger PDF",
+      "view_details": "Voir détails",
+      "edit": "Modifier",
+      "delete": "Supprimer"
     },
     "analytics": {
       "commitment_evolution": "Purchase Evolution HT",
-      "distribution_supplier": "Supplier Breakdown"
+      "distribution_supplier": "Supplier Breakdown",
+      "commitment_title": "Évolution des Engagements HT",
+      "performance_title": "Performance par Fournisseur — Exercice 2024",
+      "purchases_ht": "Achats HT",
+      "nb_bc": "Nb BC",
+      "lead_time": "Lead Time",
+      "quality": "Qualité",
+      "dpo": "DPO",
+      "share_percent": "Part (%)",
+      "trend": "Tendance"
     },
     "messages": {
       "purchase_orders": "Recent Purchase Orders",
-      "quality_score": "Quality Score"
+      "quality_score": "Quality Score",
+      "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce fournisseur ?",
+      "confirm_delete_order": "Êtes-vous sûr de vouloir supprimer cette commande ?",
+      "supplier_success_created": "Fournisseur créé avec succès !",
+      "supplier_success_updated": "Fournisseur modifié avec succès !",
+      "supplier_success_desc": "Le fournisseur \"{{name}}\" a été {{action}} à votre liste.",
+      "order_success_created": "Commande créée avec succès !",
+      "order_success_updated": "Commande modifiée avec succès !",
+      "next_step_order": "Créer une première commande pour ce fournisseur",
+      "next_step_payment": "Configurer les conditions de paiement",
+      "next_step_notes": "Ajouter des notes sur les délais de livraison",
+      "system_expert": "Système Expert d'Analyse",
+      "delta_economy": "Delta Économie (Target)",
+      "no_data": "Aucune donnée disponible",
+      "total_bc_emitted": "Total BC Émis",
+      "in_approval": "En Approbation",
+      "in_transit": "En Transit",
+      "anomalies": "Anomalies",
+      "commitments_registry": "Registre des Engagements",
+      "supplier_passive": "Passif Fournisseurs",
+      "passive_management": "Gestion des Passifs",
+      "total_invoices": "Total Factures",
+      "in_instance": "En Instance",
+      "compliance": "Compliance",
+      "treasury_header": "Trésorerie Fournisseurs",
+      "payments_schedule": "Règlements & Échéancier",
+      "total_disbursed": "Total Décaissé",
+      "overdue": "En Retard",
+      "performance_volume": "Performance & Volume",
+      "total_commitments": "Engagements Totaux",
+      "avg_lead_time": "Lead Time Moyen",
+      "notes_obs": "Notes et Observations",
+      "internal_notes": "Notes internes",
+      "order_details": "Détails Commande",
+      "ordered_items": "Articles Commandés",
+      "fiscal_compliance": "Conformité Fiscale Algérienne & SCF",
+      "scf_system": "Système SCF",
+      "scf_date": "Date SCF",
+      "scf_status": "Statut SCF",
+      "supporting_docs": "Documents & Pièces Justificatives",
+      "po_doc": "Bon de commande",
+      "inv_doc": "Facture fournisseur",
+      "scf_doc": "Attestation SCF",
+      "bl_doc": "Bordereau de livraison",
+      "mod_history": "Historique des Modifications",
+      "fiscal_report": "Rapport Fiscal",
+      "scf_export": "Export SCF",
+      "tva_decl": "Déclaration TVA",
+      "po_id": "Identification du Bon de Commande",
+      "dates_cond": "Dates & Conditions",
+      "delivery_addr": "Adresse de Livraison",
+      "item_lines": "Lignes d'Articles",
+      "designation": "Désignation",
+      "qty": "Qté",
+      "unit": "Unité",
+      "invoice_payment": "Paiement Facture",
+      "performance_volume_subtitle": "Exercice 2024 — {{count}} fournisseurs actifs"
     },
     "table": {
       "reference": "Reference",
       "supplier": "Supplier",
-      "quality": "Urgency"
+      "quality": "Urgency",
+      "invoice_no": "Numéro de Facture",
+      "issue_date": "Date d'émission",
+      "due_date": "Date d'échéance",
+      "total_ht": "Total HT",
+      "total_tva": "Total TVA",
+      "payment_mode": "Mode de Paiement",
+      "total_ttc": "Total TTC",
+      "inc_stamp": "Incl. Timbre: {{amount}} DZD",
+      "invoice_ref": "Réf. Facture",
+      "bc_ref": "Référence BC",
+      "item_ref": "Référence PIÈCE",
+      "issuer": "Émetteur",
+      "order_no": "Numéro de Commande",
+      "quantity": "Quantité",
+      "unit_price": "Prix Unitaire",
+      "fiscal_ref": "Référence fiscale",
+      "nif": "NIF",
+      "purchases": "Volume Achat",
+      "balance": "Solde Du",
+      "actions": "Actions"
     },
     "status": {
       "approved": "Approved",
       "pending": "Pending",
       "delivered": "Delivered",
-      "urgent": "Urgent"
+      "urgent": "Urgent",
+      "active": "actif",
+      "in_transit": "TRANSIT",
+      "approval": "APPROBATION",
+      "certified": "Certifié",
+      "audit_certification": "Audit & Certification des Pièces Comptables"
     },
     "relances": {
       "title": "Follow-up Management",
@@ -4502,13 +4791,69 @@
       }
     },
     "sections": {
-      "executive_summary": "Executive Summary"
+      "executive_summary": "Executive Summary",
+      "general_info": "Informations Générales",
+      "articles": "Articles (Saisie manuelle pour l'instant)",
+      "articles_desc": "L'extraction automatique des lignes d'articles est prévue pour la version 2.0.",
+      "totals": "Totaux (Détectés par OCR)",
+      "signature": "Signature Électronique",
+      "signature_success": "Signature ajoutée avec succès",
+      "supplier_details": "Détails Fournisseur",
+      "payment_history": "Historique des Règlements",
+      "consolidated_analytics": "Analytique Consolidée",
+      "treasury_management": "Trésorerie Fournisseurs",
+      "cash_flow_mgmt": "Gestion des Flux de Décaissement",
+      "procurement_strategy": "Stratégie d'Approvisionnement"
     },
     "optimization": {
       "tip": "Consolidating orders at Tech Solutions could reduce your logistics costs by 12%."
     },
     "risks": {
       "tip": "The supplier ElectroMax shows a price volatility of 18%. Consider alternatives to secure margins."
+    },
+    "flux_title": "Flux Approvisionnements",
+    "ocr": {
+      "scan_title": "Scanner / Importer une facture",
+      "scan_desc": "Glissez un fichier ou cliquez pour utiliser la caméra",
+      "analyzing": "Analyse intelligente en cours...",
+      "file_ready": "Fichier prêt : {{name}}",
+      "change_file": "Cliquez pour changer",
+      "completed_alert": "OCR Terminé ! Fournisseur détecté: {{name}}. Montant: {{amount}}",
+      "completed_amount_alert": "OCR Terminé ! Montant: {{amount}}, NIF: {{nif}}",
+      "completed_simple_alert": "OCR Terminé ! Montant: {{amount}}",
+      "error_alert": "Erreur lors de l'analyse OCR.",
+      "success_msg": "Facture OCR créée avec succès !",
+      "nif_detected": "[OCR] NIF détecté: {{nif}}."
+    },
+    "modals": {
+      "edit_title": "Modifier Fournisseur",
+      "create_title": "Nouveau Fournisseur",
+      "tax_id": "Identifiant Fiscal (NIF)",
+      "phone": "Téléphone de contact",
+      "address": "Adresse du siège"
+    },
+    "placeholders": {
+      "select_supplier": "Sélectionner un fournisseur",
+      "invoice_format": "FAC-2024-XXX",
+      "select_mode": "Sélectionner un mode",
+      "search_supplier": "Rechercher un fournisseur (nom, NIF...)"
+    },
+    "payment_modes": {
+      "virement": "Virement Bancaire",
+      "cheque": "Chèque",
+      "especes": "Espèces (Droit de timbre)",
+      "especes_simple": "Espèces",
+      "traite": "Traite"
+    },
+    "invoice_types": {
+      "facture": "FACTURE",
+      "avoir": "AVOIR",
+      "note_debit": "NOTE DÉBIT"
+    },
+    "compliance_status": {
+      "verified": "VÉRIFIÉ",
+      "pending": "EN ATTENTE",
+      "rejected": "REJETÉ"
     }
   },
   "ledger": {

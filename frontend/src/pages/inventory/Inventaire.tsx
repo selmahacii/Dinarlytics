@@ -31,6 +31,7 @@ import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 import { useProducts } from '@core/context/ProductsContext';
 import apiClient from '@/services/apiClient';
+import { exportToCSV } from '@shared/utils/export';
 
 const Inventaire: React.FC = () => {
   const { formatCurrency, user, companyData } = useApp();
@@ -244,7 +245,11 @@ const Inventaire: React.FC = () => {
   const [selectedBarcodeArticle, setSelectedBarcodeArticle] = useState<any>(null);
   const [valuationMethod, setValuationMethod] = useState<'FIFO' | 'LIFO' | 'PMP'>('PMP');
 
-  const { products, refetch } = useProducts();
+  const { products, refetch, adjustStock } = useProducts();
+  // Comptage physique saisi pendant une session d'inventaire : l'input
+  // était non-contrôlé (defaultValue) et la validation un simple alert()
+  // — aucun écart n'était jamais répercuté sur le stock réel.
+  const [physicalCounts, setPhysicalCounts] = useState<Record<string, number>>({});
   
   useEffect(() => {
     refetch();
@@ -311,11 +316,17 @@ const Inventaire: React.FC = () => {
   };
 
   const handleExportStock = () => {
-    alert('📊 ' + t('inventory.actions.export') + '...');
+    // Export CSV réel de la liste filtrée affichée (était un alert() décoratif).
+    const rows = filteredAndSortedArticles.map((a: any) => ({
+      Code: a.code || a.id, Designation: a.nom, Categorie: a.categorie,
+      Stock: a.stockActuel ?? a.stock_quantity, PrixUnitaire: a.prixVente ?? a.unit_price,
+      ValeurStock: (a.stockActuel ?? a.stock_quantity ?? 0) * (a.prixVente ?? a.unit_price ?? 0)
+    }));
+    exportToCSV(rows, `inventaire_${new Date().toISOString().slice(0, 10)}`);
   };
 
   const handlePrintStock = () => {
-    alert('🖨️ ' + t('inventory.actions.print') + '...');
+    window.print();
   };
 
   const clearFilters = () => {
@@ -1115,22 +1126,29 @@ const Inventaire: React.FC = () => {
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.reordering.subtitle')}</p>
                 </div>
                 <div className="flex space-x-3">
-                  <button 
-                    onClick={() => alert(`📊 ${t('inventory.actions.export')}...\n\nFichier Excel généré avec succès !`)}
+                  <button
+                    onClick={() => exportToCSV(
+                      reorderSuggestions.map((a: any) => ({
+                        Article: a.nom, StockActuel: a.stockActuel, QuantiteSuggeree: a.suggestedOrder,
+                        CoutEstime: a.coutEstime
+                      })),
+                      `reapprovisionnement_${new Date().toISOString().slice(0, 10)}`
+                    )}
                     className="flex items-center px-4 py-2.5 bg-slate-700 hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                   >
                     <DocumentTextIcon className="h-4 w-4" />
                     <span>{t('inventory.actions.export')}</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
-                      const totalCost = reorderSuggestions.reduce((sum, a) => sum + a.coutEstime, 0);
-                      const totalQuantity = reorderSuggestions.reduce((sum, a) => sum + a.suggestedOrder, 0);
-                      alert(`🛒 ${t('inventory.actions.order_all')}\n\n` +
-                            `${t('inventory.table.quantity')} : ${totalQuantity} ${t('inventory.stats.units')}\n` +
-                            `${t('inventory.reordering.est_cost')} : ${formatCurrency(totalCost)}\n\n` +
-                            `✅ ${reorderSuggestions.length} ${t('crm.suppliers.purchase_orders')} ${t('common.success')}`);
+                      // Les articles ne sont pas liés à un fournisseur en base
+                      // (fournisseurPrincipal toujours vide) : on ne peut pas
+                      // créer de commande réelle depuis cette liste. Renvoi
+                      // honnête vers le module Fournisseurs plutôt qu'un faux
+                      // message de succès.
+                      navigate('/fournisseurs');
                     }}
+                    title={t('inventory.reordering.no_supplier_link', { defaultValue: "Les articles ne sont pas encore liés à un fournisseur — créez la commande depuis le module Fournisseurs" })}
                     className="flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                   >
                     <ShoppingCartIcon className="h-4 w-4" />
@@ -1358,8 +1376,8 @@ const Inventaire: React.FC = () => {
                   <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">{t('inventory.barcode.title')}</h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{t('inventory.barcode.subtitle')}</p>
                 </div>
-                <button 
-                  onClick={() => alert(`🖨️ Impression groupée de codes-barres\n\n${filteredAndSortedArticles.length} étiquettes à imprimer\nFormat: EAN-13 (50x30mm)\n\n✅ Envoi vers l'imprimante...`)}
+                <button
+                  onClick={() => window.print()}
                   className="flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                 >
                   <PrinterIcon className="h-4 w-4" />
@@ -1541,16 +1559,10 @@ const Inventaire: React.FC = () => {
                       key={index} 
                       className={`bg-gradient-to-br ${config.bg} p-5 rounded-xl border ${config.border} hover:shadow-lg transition-all cursor-pointer`}
                       onClick={() => {
-                        alert(`📊 GÉNÉRATION DU RAPPORT\n\n` +
-                              `📄 Titre: ${report.title}\n` +
-                              `📋 Description: ${report.desc}\n` +
-                              `📊 Données: ${report.count}\n` +
-                              `📑 Pages estimées: ${pages}\n` +
-                              `📅 Date: ${new Date().toLocaleDateString('fr-FR')}\n\n` +
-                              `${report.details}\n\n` +
-                              `✅ Rapport généré avec succès !\n` +
-                              `💾 Format: PDF\n` +
-                              `📂 Enregistré dans: Rapports/Inventaire/`);
+                        // Ouvre l'impression réelle de la vue courante au lieu
+                        // d'un message de succès fabriqué (chemin de fichier
+                        // et pagination inventés, aucun PDF réellement produit).
+                        window.print();
                       }}
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -1900,16 +1912,14 @@ const Inventaire: React.FC = () => {
                         </div>
                         <div className="text-center">
                           <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t('inventory.modal.physical_stock')}</p>
-                          <input 
-                            type="number" 
-                            defaultValue={article.stock}
+                          <input
+                            type="number"
+                            value={physicalCounts[article.id] ?? article.stock}
+                            onChange={(e) => setPhysicalCounts(prev => ({ ...prev, [article.id]: Number(e.target.value) }))}
                             className="w-20 px-2 py-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded text-center font-semibold"
                             aria-label={t('inventory.modal.physical_stock')}
                           />
                         </div>
-                        <button className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors" aria-label={t('inventory.actions.validate')} title={t('inventory.actions.validate')}>
-                          <CheckCircleIcon className="h-5 w-5" />
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -1923,10 +1933,20 @@ const Inventaire: React.FC = () => {
                 >
                   Annuler
                 </button>
-                <button 
+                <button
                   onClick={() => {
-                    alert('✅ Inventaire physique validé avec succès !');
+                    // Applique les écarts de comptage physique réellement au
+                    // stock (adjustStock persiste via PUT /articles/{id}) —
+                    // avant, cette validation ne faisait qu'un alert() décoratif.
+                    const changed = filteredAndSortedArticles.slice(0, 8).filter(
+                      a => physicalCounts[a.id] !== undefined && physicalCounts[a.id] !== a.stock
+                    );
+                    changed.forEach(a => adjustStock(a.id, physicalCounts[a.id] - a.stock));
+                    setPhysicalCounts({});
                     setShowInventoryModal(false);
+                    if (changed.length > 0) {
+                      alert(`${changed.length} article(s) ajusté(s) suite au comptage physique.`);
+                    }
                   }}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
                 >
@@ -2230,15 +2250,17 @@ const Inventaire: React.FC = () => {
                 >
                   Annuler
                 </button>
-                <button 
+                <button
                   onClick={() => {
-                    alert(`✅ Bon de commande créé avec succès !\n\nArticle: ${selectedReorderArticle.nom}\nQuantité: ${selectedReorderArticle.suggestedOrder} unités\nFournisseur: ${selectedReorderArticle.fournisseurPrincipal}\nMontant: ${formatCurrency(selectedReorderArticle.coutEstime)}`);
+                    // Idem : aucun fournisseur réel lié à l'article, pas de
+                    // commande possible depuis ici sans données inventées.
                     setShowOrderModal(false);
+                    navigate('/fournisseurs');
                   }}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
                 >
                   <CheckCircleIcon className="h-5 w-5" />
-                  <span>Valider la Commande</span>
+                  <span>Choisir un fournisseur</span>
                 </button>
               </div>
             </div>
@@ -2381,15 +2403,15 @@ const Inventaire: React.FC = () => {
                 >
                   Fermer
                 </button>
-                <button 
-                  onClick={() => alert(`📥 Code-barres téléchargé avec succès !\n\nFichier: ${selectedBarcodeArticle.nom}_barcode.pdf`)}
+                <button
+                  onClick={() => window.print()}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
                 >
                   <ArrowDownTrayIcon className="h-5 w-5" />
                   <span>Télécharger PDF</span>
                 </button>
-                <button 
-                  onClick={() => alert(`🖨️ Impression de 10 étiquettes en cours...\n\nArticle: ${selectedBarcodeArticle.nom}\nFormat: EAN-13 (50x30mm)`)}
+                <button
+                  onClick={() => window.print()}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
                 >
                   <PrinterIcon className="h-5 w-5" />

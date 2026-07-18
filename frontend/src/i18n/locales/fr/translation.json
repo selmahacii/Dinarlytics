@@ -477,7 +477,7 @@
       },
       "scenarios": {
         "title": "Simulations & Scénarios",
-        "subtitle": "Projections de performance à 6 mois (IA)",
+        "subtitle": "Projections de performance à 6 mois (extrapolation linéaire du CA courant)",
         "analyse_lia": "Analyse LIA",
         "risk_label": "Risque",
         "risks": {
