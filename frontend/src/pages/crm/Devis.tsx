@@ -260,7 +260,7 @@ const Devis: React.FC = () => {
                             <ArrowPathIcon className="h-4 w-4" />
                           </button>
                         )}
-                        <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title={t('devis.actions.print')}>
+                        <button onClick={() => { setSelectedDevis(devis); setIsDetailOpen(true); setTimeout(() => window.print(), 300); }} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title={t('devis.actions.print')}>
                           <PrinterIcon className="h-4 w-4" />
                         </button>
                       </div>
@@ -356,7 +356,7 @@ const Devis: React.FC = () => {
               <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
                 <PrinterIcon className="h-4 w-4 mr-2" />{t('devis.actions.print')}
               </button>
-              <button className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
+              <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
                 <DocumentArrowDownIcon className="h-4 w-4 mr-2" />{t('devis.actions.download')} PDF
               </button>
               {selectedDevis.status === 'draft' && (

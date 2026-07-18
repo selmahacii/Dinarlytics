@@ -426,10 +426,16 @@ export const USER_ROLES: UserRole[] = [
     description: 'Accès complet trésorerie et facturation pour gestion quotidienne',
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-calendar', 'dashboard-alerts',
-      'comptabilite-read',
+      // Aligné sur backend/app/core/permissions.py ROLE_PERMISSIONS['gerant']
+      // (accès complet) — le gérant EST la hiérarchie de son EURL/SARL ;
+      // il lui manquait comptabilite-write/validate/close ici, ce qui
+      // masquait le bouton "Nouveau compte" du plan comptable alors que
+      // le backend acceptait la requête.
+      'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close',
       'facturation-read', 'facturation-create', 'facturation-validate', 'facturation-cancel',
-      'rapports-tresorerie', 'rapports-basic', 'rapports-ventes', 'rapports-achats',
-      'clients-manage', 'fournisseurs-manage',
+      'rapports-tresorerie', 'rapports-basic', 'rapports-advanced', 'rapports-ventes', 'rapports-achats', 'export-data',
+      'clients-manage', 'fournisseurs-manage', 'articles-manage',
+      'audit-read', 'admin-users',
       'lia-access', 'lia-chatbot', 'lia-analyses', 'fiscalite-declarations'
     ],
     companyTypes: ['eurl', 'sarl'],

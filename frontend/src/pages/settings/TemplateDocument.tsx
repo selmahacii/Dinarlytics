@@ -27,9 +27,33 @@ import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 
+const TEMPLATES_STORAGE_KEY = 'document_templates_v1';
+
 const TemplateDocument: React.FC = () => {
   const { formatCurrency } = useApp();
-  const [templates, setTemplates] = useState<any[]>([
+  // Persistance localStorage : avant, les templates créés/modifiés
+  // n'existaient qu'en mémoire et disparaissaient au rechargement.
+  const [templates, setTemplates] = useState<any[]>(() => {
+    try {
+      const raw = window.localStorage.getItem(TEMPLATES_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) return parsed;
+      }
+    } catch { /* fallback sur les modèles par défaut */ }
+    return DEFAULT_TEMPLATES;
+  });
+
+  React.useEffect(() => {
+    try {
+      window.localStorage.setItem(TEMPLATES_STORAGE_KEY, JSON.stringify(templates));
+    } catch { /* quota localStorage — non bloquant */ }
+  }, [templates]);
+
+  return <TemplateDocumentInner templates={templates} setTemplates={setTemplates} formatCurrency={formatCurrency} />;
+};
+
+const DEFAULT_TEMPLATES: any[] = [
     {
       id: 1,
       name: 'Facture Standard - Algérie SCF',
@@ -88,7 +112,15 @@ const TemplateDocument: React.FC = () => {
       usageCount: 8,
       isActive: true
     }
-  ]);
+];
+
+interface TemplateDocumentInnerProps {
+  templates: any[];
+  setTemplates: React.Dispatch<React.SetStateAction<any[]>>;
+  formatCurrency: (n: number) => string;
+}
+
+const TemplateDocumentInner: React.FC<TemplateDocumentInnerProps> = ({ templates, setTemplates, formatCurrency }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -222,11 +254,31 @@ const TemplateDocument: React.FC = () => {
   };
 
   const handleExport = (format: string) => {
-    if (selectedTemplate) {
-      const processedContent = processTemplate(selectedTemplate.content);
-      alert(`Export du template en format ${format} en cours...`);
-      // Ici on implémenterait la logique d'export réelle
+    // Export réel : téléchargement du document HTML (avec CSS embarqué,
+    // variables substituées). Pour le "PDF", ouverture du dialogue
+    // d'impression du navigateur (Imprimer → PDF) — pas de faux "export
+    // en cours" sans fichier.
+    if (!selectedTemplate) return;
+    const processedContent = processTemplate(selectedTemplate.content);
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${selectedTemplate.name}</title><script src="https://cdn.tailwindcss.com"></script><style>${selectedTemplate.css || ''}</style></head><body>${processedContent}</body></html>`;
+
+    if (format === 'PDF') {
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.write(html);
+        w.document.close();
+        w.onload = () => w.print();
+      }
+      return;
     }
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedTemplate.name.replace(/[^a-z0-9]/gi, '_')}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const getCategoryColor = (category: string) => {

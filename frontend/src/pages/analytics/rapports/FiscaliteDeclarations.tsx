@@ -39,7 +39,7 @@ const FiscaliteDeclarations: React.FC = () => {
   const { has } = usePermission();
   const [selectedView, setSelectedView] = useState('vue-ensemble');
   const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState({ title: '', message: '', type: 'info' as 'info' | 'success' | 'warning' });
+  const [modalContent, setModalContent] = useState({ title: '', message: '', type: 'info' as 'info' | 'success' | 'warning' | 'error' });
 
   // ========================================
   // INTERFACE BOUTIQUE (ex: Boutique El Baraka)
@@ -231,13 +231,32 @@ const FiscaliteDeclarations: React.FC = () => {
             <div className="text-sm text-slate-500">ou</div>
             <label className="mt-3 px-4 py-2 bg-slate-800 text-white rounded-lg cursor-pointer hover:bg-slate-900">
               Sélectionner un fichier
-              <input type="file" className="hidden" onChange={() => {
+              <input type="file" accept=".pdf,.png,.jpg,.jpeg" className="hidden" onChange={async (e) => {
+                // Upload RÉEL vers /ocr/analyze (l'ancien handler était un
+                // setTimeout décoratif — aucun fichier n'était envoyé).
+                const file = e.target.files?.[0];
+                if (!file) return;
                 setShowModal(true);
-                setModalContent({ title: 'Import en cours', message: 'Lecture du journal de caisse...\nAutomatisation des montants HT/TVA.', type: 'info' });
-                setTimeout(() => setShowModal(false), 2500);
+                setModalContent({ title: 'Import en cours', message: `Envoi et analyse de ${file.name}...`, type: 'info' });
+                try {
+                  const fd = new FormData();
+                  fd.append('file', file);
+                  fd.append('doc_type', 'declaration');
+                  const res = await apiClient.post<any>('/ocr/analyze', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+                  const d = res.data;
+                  setModalContent({
+                    title: d.simulated ? 'Import (données d\'exemple)' : 'Import terminé',
+                    message: d.simulated
+                      ? '⚠️ Extraction réelle indisponible sur le serveur : les valeurs renvoyées sont un exemple. Le fichier a bien été archivé.'
+                      : `Document archivé.\nMontant détecté : ${d.data?.total_amount ?? '—'}\nDate : ${d.data?.date ?? '—'}\nNIF : ${d.data?.merchant_nif ?? '—'}`,
+                    type: d.simulated ? 'warning' : 'success'
+                  });
+                } catch (err: any) {
+                  setModalContent({ title: 'Échec de l\'import', message: err?.response?.data?.detail || err?.message || 'Erreur lors de l\'envoi du fichier.', type: 'error' });
+                }
               }} />
             </label>
-            <div className="mt-3 text-xs text-slate-500">Formats: .csv, .xlsx</div>
+            <div className="mt-3 text-xs text-slate-500">Formats: .pdf, .png, .jpg (analyse OCR + archivage)</div>
           </div>
         </div>
 

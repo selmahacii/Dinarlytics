@@ -273,6 +273,18 @@ const AnalyticsFacturation: React.FC = () => {
     setIsCreateModalOpen(true);
   };
 
+  const handleValidateInvoice = async (inv: Invoice) => {
+    if (!window.confirm(t('invoices.modal.confirm_validate', {
+      defaultValue: `Valider la facture ${inv.factureId} ? Cette action génère l'écriture comptable et met à jour le stock — elle est définitive.`
+    }))) return;
+    try {
+      await invoiceService.validate(inv.id);
+      await fetchInvoices();
+    } catch (e: any) {
+      alert(e?.response?.data?.detail || e?.message || 'Erreur lors de la validation');
+    }
+  };
+
   const handleDeleteInvoice = async (id: string) => {
     if (window.confirm(t('common.confirm_delete', "Êtes-vous sûr de vouloir supprimer cette facture ?"))) {
       try {
@@ -555,7 +567,23 @@ const AnalyticsFacturation: React.FC = () => {
                   </td>
                   <td className="px-8 py-5">
                     <div className="flex justify-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-slate-900 hover:border-slate-900 shadow-sm transition-all" title={t('invoices.actions.view_pdf')}>
+                      {inv.statut === 'en_attente' && (
+                        <button
+                          onClick={() => handleValidateInvoice(inv)}
+                          className="p-2.5 bg-white dark:bg-slate-700 border border-emerald-200 dark:border-emerald-700 rounded-xl text-emerald-600 hover:text-white hover:bg-emerald-600 shadow-sm transition-all"
+                          title={t('invoices.actions.validate', { defaultValue: 'Valider (génère l\'écriture comptable)' })}
+                        >
+                          <CheckCircleIcon className="h-4 w-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => invoiceService.downloadUbl(inv.id, inv.factureId).catch(err => alert(err?.response?.data?.detail || 'Erreur export UBL'))}
+                        className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-blue-600 hover:border-blue-600 shadow-sm transition-all"
+                        title={t('invoices.actions.export_ubl', { defaultValue: 'Exporter UBL (e-invoicing)' })}
+                      >
+                        <DocumentArrowDownIcon className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => window.print()} className="p-2.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-500 hover:text-slate-900 hover:border-slate-900 shadow-sm transition-all" title={t('invoices.actions.view_pdf')}>
                         <PrinterIcon className="h-4 w-4" />
                       </button>
                       <button
@@ -1205,11 +1233,13 @@ const AnalyticsFacturation: React.FC = () => {
 
                 {/* Actions de Fin de Page */}
                 <div className="mt-12 flex flex-col sm:flex-row gap-4">
-                  <button className="flex-1 py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center shadow-xl">
+                  <button onClick={() => window.print()} className="flex-1 py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center shadow-xl">
                     <PrinterIcon className="h-5 w-5 mr-3" /> {t('invoices.detail.print_official')}
                   </button>
-                  <button className="flex-1 py-4 sm:py-5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center">
-                    <DocumentArrowDownIcon className="h-5 w-5 mr-3" /> {t('invoices.detail.export_cert')}
+                  <button
+                    onClick={() => selectedInvoice && invoiceService.downloadUbl(selectedInvoice.id, selectedInvoice.factureId).catch(err => alert(err?.response?.data?.detail || 'Erreur export UBL'))}
+                    className="flex-1 py-4 sm:py-5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center">
+                    <DocumentArrowDownIcon className="h-5 w-5 mr-3" /> {t('invoices.detail.export_cert')} (UBL)
                   </button>
                 </div>
               </div>

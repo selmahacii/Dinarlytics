@@ -168,7 +168,10 @@ async def create_journal_entry(
 async def list_journal_entries(
     current_user: TokenData = Depends(check_accounting_access),
     skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=100),
+    # Plafond relevé à 2000 : le plan comptable recalcule les soldes de
+    # TOUTES les écritures approuvées côté client (limit=1000) — la borne
+    # à 100 renvoyait 422 et cassait silencieusement l'affichage des soldes.
+    limit: int = Query(10, ge=1, le=2000),
     status: Optional[str] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,

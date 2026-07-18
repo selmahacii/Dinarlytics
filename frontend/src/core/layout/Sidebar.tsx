@@ -104,6 +104,7 @@ const Sidebar: React.FC = () => {
       onToggle: () => toggleMenu('finance-comptabilite'),
       subItems: [
         { path: '/comptabilite/etats', icon: DocumentTextIcon, label: t('nav.balance_sheet') },
+        has('comptabilite-read') && { path: '/plan-comptable', icon: ClipboardDocumentListIcon, label: t('nav.chart_of_accounts', { defaultValue: 'Plan comptable' }) },
         has('comptabilite-read') && { path: '/comptabilite/tresorerie', icon: BanknotesIcon, label: t('nav.treasury') },
         has('comptabilite-read') && { path: '/amortissements', icon: CalculatorIcon, label: t('nav.amortissements') },
         { path: '/fiscalite', icon: ScaleIcon, label: t('nav.tax_declarations') },

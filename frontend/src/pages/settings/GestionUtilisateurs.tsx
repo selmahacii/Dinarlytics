@@ -297,15 +297,23 @@ const GestionUtilisateurs: React.FC = () => {
     }
 
     try {
+      // Mot de passe temporaire ALÉATOIRE (l'ancien 'TemporaryPassword123!'
+      // était identique pour tous les comptes créés — n'importe qui
+      // connaissant l'application pouvait se connecter aux nouveaux
+      // comptes). Affiché une seule fois à l'admin pour transmission.
+      const rand = new Uint8Array(9);
+      crypto.getRandomValues(rand);
+      const tempPassword = 'Tmp!' + btoa(String.fromCharCode(...rand)).replace(/[+/=]/g, 'x').slice(0, 12);
       await apiClient.post('/users/', {
         username: newUser.email,
         email: newUser.email,
-        password: 'TemporaryPassword123!',
+        password: tempPassword,
         first_name: newUser.prenom,
         last_name: newUser.nom,
         role_name: newUser.role,
         permissions: newUser.permissions
       });
+      alert(`Utilisateur créé.\n\nMot de passe temporaire (à transmettre, affiché une seule fois) :\n${tempPassword}`);
       await fetchUsers();
       setIsCreateModalOpen(false);
       setNewUser({

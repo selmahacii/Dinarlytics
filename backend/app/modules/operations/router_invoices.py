@@ -34,7 +34,10 @@ class InvoiceItemRequest(BaseModel):
     discount: Decimal = Field(Decimal('0'), ge=0)
 
 class CreateInvoiceRequest(BaseModel):
-    client_id: str
+    # Vente : client_id requis. Achat (facture fournisseur) : supplier_id requis.
+    type: str = Field(default="sale", pattern="^(sale|purchase)$")
+    client_id: Optional[str] = None
+    supplier_id: Optional[str] = None
     date_emission: date
     date_echeance: Optional[date] = None
     items: List[InvoiceItemRequest]
@@ -151,12 +154,28 @@ async def create_invoice(
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Create a new invoice with sequential numbering and auto-calculations."""
-    
-    # 1. Verify Client
-    client = db.query(Client).filter(Client.id == request.client_id, Client.company_id == current_user.company_id).first()
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
+    """Create a new invoice with sequential numbering and auto-calculations.
+    type='sale' (client requis) ou type='purchase' (facture fournisseur,
+    supplier requis)."""
+
+    # 1. Verify counterparty according to invoice type
+    client = None
+    supplier = None
+    if request.type == 'purchase':
+        if not request.supplier_id:
+            raise HTTPException(status_code=400, detail="supplier_id est requis pour une facture d'achat")
+        from app.core.models import Supplier
+        supplier = db.query(Supplier).filter(
+            Supplier.id == request.supplier_id, Supplier.company_id == current_user.company_id
+        ).first()
+        if not supplier:
+            raise HTTPException(status_code=404, detail="Supplier not found")
+    else:
+        if not request.client_id:
+            raise HTTPException(status_code=400, detail="client_id est requis pour une facture de vente")
+        client = db.query(Client).filter(Client.id == request.client_id, Client.company_id == current_user.company_id).first()
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
 
     # 1b. Résolution devise : si la facture est émise dans une devise
     # différente de la devise de base de l'entreprise, un taux saisi
@@ -179,10 +198,10 @@ async def create_invoice(
             )
         fx_rate = Decimal(rate)
 
-    # 2. Generate Number
+    # 2. Generate Number — préfixe distinct pour les factures d'achat
     invoice_number = generate_document_number(
         db, Invoice, Invoice.invoice_number,
-        current_user.company_id, "FACT", request.date_emission
+        current_user.company_id, "FA" if request.type == 'purchase' else "FACT", request.date_emission
     )
 
     # 3. Create Invoice Header
@@ -191,7 +210,9 @@ async def create_invoice(
         invoice_number=invoice_number,
         invoice_date=request.date_emission,
         due_date=request.date_echeance or request.date_emission,
-        client_id=request.client_id,
+        client_id=request.client_id if request.type == 'sale' else None,
+        supplier_id=request.supplier_id if request.type == 'purchase' else None,
+        type=request.type,
         status="draft",
         payment_status="unpaid",
         created_by=current_user.user_id, # Assuming user_id available in TokenData
@@ -245,12 +266,15 @@ async def create_invoice(
 
     # 4b. Droit de timbre selon le PROFIL FISCAL du pays de l'entreprise
     # (DZ: 1% especes >2500 DA arrondi au dinar superieur; TN: montant fixe;
-    # FR/autres: aucun). Avant, la regle algerienne s'appliquait en dur a
-    # toute entreprise quel que soit son pays.
+    # FR/autres: aucun). Uniquement sur les factures de VENTE : sur une
+    # facture d'achat le timbre est celui du fournisseur, déjà inclus
+    # dans son TTC.
     from app.core.tax_profiles import get_tax_profile, compute_stamp_duty
-    _profile = get_tax_profile(_company.country if _company else None)
-    timbre_fiscal = compute_stamp_duty(_profile, total_ht_global + total_tva_global, request.payment_mode or '')
-             
+    timbre_fiscal = Decimal('0')
+    if request.type == 'sale':
+        _profile = get_tax_profile(_company.country if _company else None)
+        timbre_fiscal = compute_stamp_duty(_profile, total_ht_global + total_tva_global, request.payment_mode or '')
+
     # 5. Update Invoice Totals
     new_inv.total_htt = total_ht_global
     new_inv.total_tva = total_tva_global
@@ -295,8 +319,8 @@ async def create_invoice(
         numero=new_inv.invoice_number,
         date_emission=new_inv.invoice_date,
         date_echeance=new_inv.due_date,
-        client_id=str(new_inv.client_id),
-        client_name=client.name,
+        client_id=str(new_inv.client_id) if new_inv.client_id else None,
+        client_name=client.name if client else (supplier.name if supplier else None),
         total_ht=new_inv.total_htt,
         total_tva=new_inv.total_tva,
         timbre_amount=timbre_fiscal,
@@ -431,23 +455,86 @@ async def validate_invoice(
     if inv.status != 'draft':
         raise HTTPException(status_code=400, detail="Invoice must be in draft to validate")
         
-    # 2. Generate Journal Entry (VT - Ventes)
-    # Get Customer Account (should be in Client model, fallback to 411000)
-    customer_account = "411000" # TODO: Add account_code to Client model
-    
+    is_purchase = inv.type == 'purchase'
+
+    # 2. Generate Journal Entry - VT (ventes) ou AC (achats).
+    # Vente : 411 Clients D TTC / 701 Ventes C HT + 4457 TVA C + 447 timbre C.
+    # Achat : 601 Achats D HT + 4456 TVA deductible D / 401 Fournisseurs C TTC
+    # - c'est cette ecriture qui rend la TVA deductible REELLE dans la G50.
+    journal_code = "AC" if is_purchase else "VT"
     entry = JournalEntry(
         company_id=current_user.company_id,
-        journal_type="VT",
-        entry_number=generate_document_number(db, JournalEntry, JournalEntry.entry_number, current_user.company_id, "VT", inv.invoice_date),
+        journal_type=journal_code,
+        entry_number=generate_document_number(db, JournalEntry, JournalEntry.entry_number, current_user.company_id, journal_code, inv.invoice_date),
         entry_date=inv.invoice_date,
-        description=f"Facture N???? {inv.invoice_number}",
+        description=f"Facture {inv.invoice_number}",
         status="approved",
         created_by=current_user.user_id
-        # source_document=inv.invoice_number # If field exists
     )
     db.add(entry)
     db.flush()
-    
+
+    if is_purchase:
+        # Debit 601000 Achats (HT)
+        db.add(JournalEntryLine(
+            journal_entry_id=entry.id, account_code="601000",
+            description=f"Achats marchandises - {inv.invoice_number}",
+            debit_amount=inv.total_htt, credit_amount=0
+        ))
+        # Debit 445600 TVA deductible
+        if inv.total_tva > 0:
+            db.add(JournalEntryLine(
+                journal_entry_id=entry.id, account_code="445600",
+                description=f"TVA deductible - {inv.invoice_number}",
+                debit_amount=inv.total_tva, credit_amount=0
+            ))
+        # Credit 401000 Fournisseurs (TTC)
+        db.add(JournalEntryLine(
+            journal_entry_id=entry.id, account_code="401000",
+            description=f"Facture fournisseur {inv.invoice_number}",
+            debit_amount=0, credit_amount=inv.total_ttc
+        ))
+        entry.total_debit = inv.total_ttc
+        entry.total_credit = inv.total_ttc
+
+        # Reception marchandises : le stock des articles achetes AUGMENTE.
+        for item in inv.items:
+            if item.article_id:
+                article = db.query(Article).filter(
+                    Article.id == item.article_id,
+                    Article.company_id == current_user.company_id
+                ).first()
+                if article is not None:
+                    article.stock_quantity = (article.stock_quantity or 0) + (item.quantity or 0)
+
+        inv.status = 'validated'
+        log_audit(db, current_user, 'VALIDATE', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number, 'type': 'purchase'})
+        db.commit()
+        db.refresh(inv)
+
+        items_resp = [
+            InvoiceItemResponse(
+                id=str(item.id),
+                article_id=str(item.article_id) if item.article_id else None,
+                quantity=item.quantity,
+                unit_price_ht=item.unit_price_htt,
+                total_ht=item.unit_price_htt * item.quantity
+            ) for item in inv.items
+        ]
+        return InvoiceResponse(
+            id=str(inv.id), numero=inv.invoice_number,
+            date_emission=inv.invoice_date, date_echeance=inv.due_date,
+            client_id=None, client_name=None,
+            total_ht=inv.total_htt, total_tva=inv.total_tva,
+            total_ttc=inv.total_ttc, statut=inv.status,
+            currency_code=inv.currency_code or "DZD",
+            exchange_rate=inv.exchange_rate or Decimal('1'),
+            items=items_resp
+        )
+
+    # ----- Vente (VT) -----
+    customer_account = "411000"
+
     # Line 1: Client (Debit TTC)
     line_client = JournalEntryLine(
         journal_entry_id=entry.id,
@@ -498,9 +585,26 @@ async def validate_invoice(
     entry.total_debit = inv.total_ttc
     entry.total_credit = inv.total_ttc
 
+    # 2b. Mouvement de stock : la validation d'une facture de VENTE
+    # décrémente le stock des articles facturés (le module inventaire
+    # n'était pas relié au cycle de facturation — le stock ne bougeait
+    # jamais). Les lignes libres (sans article_id, ex. timbre) sont
+    # ignorées. Le stock peut passer négatif volontairement : un blocage
+    # dur empêcherait de facturer une vente déjà livrée ; l'alerte
+    # stock-bas la signale.
+    if inv.type == 'sale':
+        for item in inv.items:
+            if item.article_id:
+                article = db.query(Article).filter(
+                    Article.id == item.article_id,
+                    Article.company_id == current_user.company_id
+                ).first()
+                if article is not None:
+                    article.stock_quantity = (article.stock_quantity or 0) - (item.quantity or 0)
+
     # 3. Update Invoice Status
     inv.status = 'validated'
-    
+
     log_audit(db, current_user, 'VALIDATE', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number})
     db.commit()
     db.refresh(inv)
@@ -548,6 +652,19 @@ async def cancel_invoice(
 
     if inv.payment_status == 'paid':
         raise HTTPException(status_code=400, detail="Cannot cancel a paid invoice")
+
+    # Restitution du stock : si la facture de vente avait été VALIDÉE, son
+    # stock a été décrémenté à la validation — l'annulation le restitue
+    # (symétrie exacte du mouvement, lignes avec article_id uniquement).
+    if inv.status == 'validated' and inv.type == 'sale':
+        for item in inv.items:
+            if item.article_id:
+                article = db.query(Article).filter(
+                    Article.id == item.article_id,
+                    Article.company_id == current_user.company_id
+                ).first()
+                if article is not None:
+                    article.stock_quantity = (article.stock_quantity or 0) + (item.quantity or 0)
 
     inv.status = 'annulee'
     log_audit(db, current_user, 'CANCEL', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number})

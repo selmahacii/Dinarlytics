@@ -165,5 +165,19 @@ export const invoiceService = {
     cancel: async (id: string) => {
         const response = await apiClient.post(`/invoices/${id}/cancel`);
         return response.data;
+    },
+
+    /**
+     * Downloads the UBL 2.1 e-invoice XML (Peppol BIS Billing 3.0) and
+     * triggers a browser download.
+     */
+    downloadUbl: async (id: string, numero?: string) => {
+        const response = await apiClient.get(`/invoices/${id}/ubl`, { responseType: 'blob' });
+        const url = URL.createObjectURL(response.data as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ubl_${(numero || id).replace(/\//g, '-')}.xml`;
+        a.click();
+        URL.revokeObjectURL(url);
     }
 };

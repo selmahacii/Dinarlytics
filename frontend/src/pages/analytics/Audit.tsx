@@ -91,9 +91,13 @@ const Audit: React.FC = () => {
 
       setAuditLogsData(mapped);
 
-      // Populate realistic summary statistics dynamically
+      // Populate realistic summary statistics dynamically.
+      // Les actions réellement émises par le backend (utils_audit) sont
+      // CREATE/UPDATE/DELETE/VALIDATE/CONVERT/CANCEL/UPLOAD/APPROVE — le
+      // filtre limité à UPDATE/INSERT excluait presque tout.
+      const MOD_ACTIONS = new Set(['CREATE', 'UPDATE', 'DELETE', 'VALIDATE', 'CONVERT', 'CANCEL', 'UPLOAD', 'APPROVE', 'INSERT']);
       const totalLogins = data.filter(l => l.action === 'LOGIN').length;
-      const totalMods = data.filter(l => l.action === 'UPDATE' || l.action === 'INSERT').length;
+      const totalMods = data.filter(l => MOD_ACTIONS.has(l.action)).length;
       
       setComplianceData({
         totalChecks: data.length,

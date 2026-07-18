@@ -23,6 +23,7 @@ import GestionRH from '@/pages/rh/GestionRH';
 import BonCommande from '@/pages/achats/BonCommande';
 import AchatsFournisseursPage from '@/pages/achats/AchatsFournisseursPage';
 import TableauAmortissements from '@/pages/accounting/TableauAmortissements';
+import PlanComptable from '@/pages/accounting/PlanComptable';
 
 import AnalyticsFacturation from '@/pages/analytics/AnalyticsFacturation';
 import AnalyticsAchats from '@/pages/analytics/AnalyticsAchats';
@@ -138,6 +139,7 @@ function App() {
                   <Route path="/comptabilite/balance" element={<ProtectedRoute requiredPermission="comptabilite-read"><RapportsComptables /></ProtectedRoute>} />
                   <Route path="/comptabilite/journaux" element={<ProtectedRoute requiredPermission="comptabilite-write"><RapportsComptables /></ProtectedRoute>} />
                   <Route path="/comptabilite/tresorerie" element={<ProtectedRoute requiredPermission="comptabilite-read"><Tresorerie /></ProtectedRoute>} />
+                  <Route path="/plan-comptable" element={<ProtectedRoute requiredPermission="comptabilite-read"><PlanComptable /></ProtectedRoute>} />
                   <Route path="/fiscalite" element={<ProtectedRoute requiredPermission="comptabilite-read"><Fiscalite /></ProtectedRoute>} />
                   <Route path="/consolidation" element={<ProtectedRoute requiredPermission={['comptabilite-read', 'comptabilite-validate']}><ConsolidationCompta /></ProtectedRoute>} />
                   <Route path="/template-document" element={<ProtectedRoute requiredPermission="comptabilite-write"><TemplatesDocuments /></ProtectedRoute>} />

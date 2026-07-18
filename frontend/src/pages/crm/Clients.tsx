@@ -1,5 +1,5 @@
 ﻿import React, { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, ChartBarIcon, DocumentTextIcon, BanknotesIcon, UserGroupIcon, ExclamationTriangleIcon, PhoneIcon, CheckCircleIcon, CurrencyDollarIcon, CalendarIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, ClockIcon, ExclamationCircleIcon, PaperAirplaneIcon, BellIcon, DocumentArrowDownIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, DocumentChartBarIcon, ChartPieIcon, TruckIcon, BuildingOfficeIcon, MapPinIcon, PlayIcon, UserIcon, CheckIcon, SparklesIcon, CpuChipIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import Card from '@shared/components/UI/Card';
 import Modal from '@shared/components/UI/Modal';
@@ -28,6 +28,7 @@ import { exportToCSV } from '@shared/utils/export';
 
 const Clients: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const clientIdToOpen = searchParams.get('id');
   const { formatCurrency, user, companyData } = useApp();
   const { t } = useTranslation();
@@ -378,8 +379,9 @@ const Clients: React.FC = () => {
     if (window.confirm(t('common.confirm_delete_client'))) {
       try {
         await deleteClient(id);
-      } catch (err) {
-        console.error("Erreur lors de la suppression:", err);
+      } catch (err: any) {
+        // Erreur visible pour l'utilisateur, pas seulement en console.
+        alert(err?.response?.data?.detail || err?.message || t('common.errors.loading_failed', { defaultValue: 'Erreur lors de la suppression' }));
       }
     }
   };
@@ -404,8 +406,11 @@ const Clients: React.FC = () => {
       } else {
         await createClient(apiData);
       }
-    } catch (err) {
-      console.error("Erreur lors de l'enregistrement du client:", err);
+    } catch (err: any) {
+      // La modale se fermait même en cas d'échec : l'utilisateur croyait
+      // le client enregistré alors que la requête avait échoué.
+      alert(err?.response?.data?.detail || err?.message || 'Erreur lors de l\'enregistrement du client');
+      return;
     }
     setIsModalOpen(false);
     setEditingClient(null);
@@ -459,18 +464,15 @@ const Clients: React.FC = () => {
       statut: 'en_cours'
     };
 
-    setAllRapports(prev => [newReport, ...prev]);
-
-    // Simulate Background Generation
-    setTimeout(() => {
-      setAllRapports(prev => prev.map(r =>
-        r.id === newReportId ? { ...r, status: 'termine', statut: 'termine', taille: '1.2 MB' } : r
-      ));
-      setIsGeneratingRapport(false);
-      setIsNouveauRapportModalOpen(false);
-      // Reset Form
-      setRapportFormData({ type: 'ventes', format: 'pdf', periode: 'semaine', libelle: '' });
-    }, 3000);
+    // Génération réelle et immédiate : le rapport est un export des données
+    // clients déjà chargées (CSV via handleDownloadRapport). Le faux délai
+    // de 3 s et la taille inventée "1.2 MB" donnaient l'illusion d'un
+    // traitement serveur inexistant.
+    const sizeKb = Math.max(1, Math.round(JSON.stringify(apiClients).length / 1024));
+    setAllRapports(prev => [{ ...newReport, status: 'termine', statut: 'termine', taille: `${sizeKb} KB` }, ...prev]);
+    setIsGeneratingRapport(false);
+    setIsNouveauRapportModalOpen(false);
+    setRapportFormData({ type: 'ventes', format: 'pdf', periode: 'semaine', libelle: '' });
   };
 
   const handleDownloadRapport = (rapport: any) => {
@@ -644,11 +646,11 @@ const Clients: React.FC = () => {
                     <span className="font-bold text-sm block">{t('clients.new_client')}</span>
                   </button>
                 )}
-                <button className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700">
+                <button onClick={() => setIsNouveauRapportModalOpen(true)} className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700">
                   <DocumentChartBarIcon className="h-6 w-6 mb-3 text-blue-400" />
                   <span className="font-bold text-sm block">{t('clients.analyze_portfolio')}</span>
                 </button>
-                <button className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700 col-span-2 flex items-center justify-between">
+                <button onClick={() => navigate('/relances-clients')} className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl text-left transition-colors border border-slate-700 col-span-2 flex items-center justify-between">
                   <span className="font-bold text-sm flex items-center">
                     <EnvelopeIcon className="h-5 w-5 mr-3 text-amber-400" />
                     {t('clients.remind_inactives')}

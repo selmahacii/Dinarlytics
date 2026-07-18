@@ -86,6 +86,8 @@ interface InvoiceFormWithOCRProps {
 const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs, onClose }) => {
   const [ocrLoading, setOcrLoading] = useState(false);
   const [scannedFile, setScannedFile] = useState<File | null>(null);
+  const [savingInvoice, setSavingInvoice] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     fournisseur: '',
     numero: '',
@@ -116,47 +118,54 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
     setOcrLoading(true);
     const data = new FormData();
     data.append('file', file);
+    data.append('doc_type', 'facture');
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/ocr/analyze', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: data
+      // apiClient porte le baseURL /api/v1, le Bearer et le token CSRF —
+      // l'ancien fetch() brut visait http://localhost:8000/ocr/analyze
+      // (sans /api/v1) : 404 systématique, le scan n'a jamais fonctionné.
+      const response = await apiClient.post<any>('/ocr/analyze', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
+      const result = response.data;
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          const extracted = result.data;
+      if (result.success && result.data) {
+        const extracted = result.data;
 
-          // Auto-fill logic
-          setFormData(prev => ({
-            ...prev,
-            totalTTC: extracted.total_amount || prev.totalTTC,
-            dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
-            notes: t('crm.suppliers.ocr.nif_detected', { nif: extracted.merchant_nif || t('common.none') }) + "\n" + prev.notes
+        // Avertissement honnête : simulated=true signifie que le serveur
+        // n'a PAS pu lire le fichier (OCR indisponible) et renvoie un
+        // exemple — ces valeurs ne doivent pas être prises pour argent
+        // comptant.
+        if (result.simulated) {
+          alert(t('crm.suppliers.ocr.simulated_warning', {
+            defaultValue: "⚠️ L'extraction réelle n'a pas pu être effectuée (OCR indisponible sur le serveur). Les valeurs affichées sont un EXEMPLE — vérifiez et corrigez-les manuellement."
           }));
+        }
 
-          // Tentative de mapping fournisseur
-              if (extracted.merchant_nif) {
-                const matched = topFournisseurs.find(f => f.nif === extracted.merchant_nif);
-                if (matched) {
-                  setFormData(prev => ({
-                    ...prev,
-                    fournisseur: matched.nom,
-                    totalTTC: extracted.total_amount || prev.totalTTC,
-                    dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
-                  }));
-                  alert(t('crm.suppliers.ocr.completed_alert', { name: matched.nom, amount: extracted.total_amount }));
-                } else {
-                  alert(t('crm.suppliers.ocr.completed_amount_alert', { amount: extracted.total_amount, nif: extracted.merchant_nif }));
-                }
-              } else {
-                alert(t('crm.suppliers.ocr.completed_simple_alert', { amount: extracted.total_amount }));
-              }
+        // Auto-fill logic
+        setFormData(prev => ({
+          ...prev,
+          totalTTC: extracted.total_amount || prev.totalTTC,
+          dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
+          notes: t('crm.suppliers.ocr.nif_detected', { nif: extracted.merchant_nif || t('common.none') }) + "\n" + prev.notes
+        }));
+
+        // Tentative de mapping fournisseur
+        if (extracted.merchant_nif) {
+          const matched = topFournisseurs.find(f => f.nif === extracted.merchant_nif);
+          if (matched) {
+            setFormData(prev => ({
+              ...prev,
+              fournisseur: matched.id || matched.nom,
+              totalTTC: extracted.total_amount || prev.totalTTC,
+              dateEmission: extracted.date ? formatDateForInput(extracted.date) : prev.dateEmission,
+            }));
+            if (!result.simulated) alert(t('crm.suppliers.ocr.completed_alert', { name: matched.nom, amount: extracted.total_amount }));
+          } else if (!result.simulated) {
+            alert(t('crm.suppliers.ocr.completed_amount_alert', { amount: extracted.total_amount, nif: extracted.merchant_nif }));
+          }
+        } else if (!result.simulated) {
+          alert(t('crm.suppliers.ocr.completed_simple_alert', { amount: extracted.total_amount }));
         }
       }
     } catch (error) {
@@ -227,7 +236,7 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
             >
               <option value="">{t('crm.suppliers.placeholders.select_supplier')}</option>
               {topFournisseurs.map((f, idx) => (
-                <option key={idx} value={f.nom}>{f.nom}</option>
+                <option key={idx} value={f.id || f.nom}>{f.nom}</option>
               ))}
             </select>
           </div>
@@ -395,6 +404,9 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
         )}
       </div>
 
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mt-4">{saveError}</div>
+      )}
       <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
           <button
             type="button"
@@ -405,15 +417,59 @@ const InvoiceFormWithOCR: React.FC<InvoiceFormWithOCRProps> = ({ topFournisseurs
           </button>
           <button
             type="submit"
-            onClick={(e) => {
+            disabled={savingInvoice}
+            onClick={async (e) => {
+              // L'ancien handler était un alert() décoratif : la facture
+              // fournisseur n'était JAMAIS enregistrée. POST réel
+              // /invoices type=purchase — génère l'écriture AC (achats +
+              // TVA déductible / fournisseurs) à la validation et
+              // alimente la G50 réelle.
               e.preventDefault();
-              alert(t('crm.suppliers.ocr.success_msg'));
-              onClose();
+              setSaveError(null);
+              if (!formData.fournisseur) {
+                setSaveError(t('crm.suppliers.messages.supplier_required', { defaultValue: 'Sélectionnez un fournisseur.' }));
+                return;
+              }
+              const ttc = Number(formData.totalTTC) || 0;
+              let ht = Number(formData.totalHT) || 0;
+              let tvaRate = 0.19;
+              if (ht > 0 && ttc > ht) {
+                tvaRate = Math.min(1, Math.max(0, (ttc - ht) / ht));
+              } else if (ht === 0 && ttc > 0) {
+                ht = Math.round((ttc / 1.19) * 100) / 100;
+              }
+              if (ht <= 0) {
+                setSaveError(t('crm.suppliers.messages.amount_required', { defaultValue: 'Renseignez un montant HT ou TTC.' }));
+                return;
+              }
+              setSavingInvoice(true);
+              try {
+                await apiClient.post('/invoices/', {
+                  type: 'purchase',
+                  supplier_id: formData.fournisseur,
+                  date_emission: formData.dateEmission,
+                  date_echeance: formData.dateEcheance || undefined,
+                  payment_mode: formData.paymentMode === 'especes' ? 'cash' : 'transfer',
+                  notes: formData.notes || undefined,
+                  items: [{
+                    description: `Facture fournisseur ${formData.numero || ''}`.trim(),
+                    quantity: 1,
+                    unit_price: ht,
+                    tva_rate: Math.round(tvaRate * 100) / 100
+                  }]
+                });
+                alert(t('crm.suppliers.ocr.success_msg'));
+                onClose();
+              } catch (err: any) {
+                setSaveError(err?.response?.data?.detail || err?.message || 'Erreur lors de l\'enregistrement de la facture fournisseur');
+              } finally {
+                setSavingInvoice(false);
+              }
             }}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50"
           >
             <CheckCircleIcon className="h-5 w-5 mr-2" />
-            {t('crm.suppliers.actions.save_invoice')}
+            {savingInvoice ? t('common.loading', { defaultValue: 'Enregistrement...' }) : t('crm.suppliers.actions.save_invoice')}
           </button>
       </div>
     </form>
@@ -800,6 +856,7 @@ const Fournisseurs: React.FC = () => {
 
     // Top 3 fournisseurs
     const topFournisseurs = mockFournisseurs.slice(0, 3).map(f => ({
+      id: (f as any).id,
       nom: (f as any).nom || (f as any).name || '',
       nif: (f as any).nif || (f as any).tax_id || '',
       montant: Number((f as any).total_purchases || 0),
@@ -3160,6 +3217,7 @@ const Fournisseurs: React.FC = () => {
                 setShowSignaturePad(false);
               }}
               topFournisseurs={mockFournisseurs.slice(0, 10).map((f: any) => ({
+                id: f.id,
                 nom: f.name || f.nom || '',
                 nif: f.tax_id || f.nif || '',
                 montant: Number(f.total_purchases || f.soldeDu || 0),

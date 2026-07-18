@@ -28,6 +28,44 @@ const Parametres: React.FC = () => {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isEditingFiscal, setIsEditingFiscal] = useState(false);
   const [isEditingFiscalYear, setIsEditingFiscalYear] = useState(false);
+  // Formulaire du modal rôle — les champs étaient décoratifs (aucun state,
+  // bouton type=submit sans <form>) : rien n'était jamais enregistré.
+  // Persisté dans le même store que GestionUtilisateurs (custom_roles_v1).
+  const [roleForm, setRoleForm] = useState({ nom: '', description: '', permissions: [] as string[] });
+  const [roleError, setRoleError] = useState<string | null>(null);
+
+  const handleSaveRole = () => {
+    setRoleError(null);
+    if (!roleForm.nom.trim()) {
+      setRoleError('Le nom du rôle est requis.');
+      return;
+    }
+    try {
+      const KEY = 'custom_roles_v1';
+      const existing = JSON.parse(window.localStorage.getItem(KEY) || '[]');
+      existing.push({
+        id: `custom-${Date.now()}`,
+        nom: roleForm.nom.trim(),
+        description: roleForm.description.trim(),
+        permissions: roleForm.permissions,
+        couleur: 'bg-amber-100 text-amber-800'
+      });
+      window.localStorage.setItem(KEY, JSON.stringify(existing));
+      setIsRoleModalOpen(false);
+      setRoleForm({ nom: '', description: '', permissions: [] });
+    } catch (err) {
+      setRoleError('Erreur lors de l\'enregistrement du rôle.');
+    }
+  };
+
+  const toggleRolePermission = (perm: string) => {
+    setRoleForm(prev => ({
+      ...prev,
+      permissions: prev.permissions.includes(perm)
+        ? prev.permissions.filter(p => p !== perm)
+        : [...prev.permissions, perm]
+    }));
+  };
 
   // Synchroniser les paramètres fiscaux avec les taux du contexte selon le plan comptable
   const [fiscalSettings, setFiscalSettings] = useState({
@@ -455,6 +493,8 @@ const Parametres: React.FC = () => {
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nom du rôle</label>
               <input
                 type="text"
+                value={roleForm.nom}
+                onChange={e => setRoleForm(prev => ({ ...prev, nom: e.target.value }))}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-900 transition-all"
                 placeholder="Ex: Expert-comptable, Responsable financier..."
               />
@@ -465,6 +505,8 @@ const Parametres: React.FC = () => {
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Description du rôle</label>
               <input
                 type="text"
+                value={roleForm.description}
+                onChange={e => setRoleForm(prev => ({ ...prev, description: e.target.value }))}
                 className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-900 transition-all"
                 placeholder="Périmètre d'action du rôle..."
               />
@@ -493,6 +535,8 @@ const Parametres: React.FC = () => {
                     <div className="relative flex items-center">
                       <input
                         type="checkbox"
+                        checked={roleForm.permissions.includes(permission.name)}
+                        onChange={() => toggleRolePermission(permission.name)}
                         className="h-5 w-5 rounded-lg border-2 border-slate-200 text-slate-900 focus:ring-slate-900 transition-all"
                       />
                     </div>
@@ -516,12 +560,16 @@ const Parametres: React.FC = () => {
               {t('common.cancel')}
             </button>
             <button
-              type="submit"
+              type="button"
+              onClick={handleSaveRole}
               className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all"
             >
               {t('admin.roles_modal.save_role')}
             </button>
           </div>
+          {roleError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-3 mt-3">{roleError}</div>
+          )}
         </div>
       </Modal>
     </div>

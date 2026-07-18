@@ -15,6 +15,10 @@ class Invoice(Base):
     invoice_date = Column(Date, nullable=False, index=True)
     due_date = Column(Date)
     client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"), index=True)
+    # Facture d'ACHAT : liée à un fournisseur (client_id reste NULL) —
+    # permet le cycle achats complet (facture fournisseur → écriture AC →
+    # TVA déductible réelle dans la G50 → stock incrémenté à réception).
+    supplier_id = Column(UUID(as_uuid=True), ForeignKey("fournisseurs.id"), index=True)
     type = Column(String(20), default="sale", nullable=False, index=True)
     # Les totaux sont TOUJOURS stockés dans la devise de BASE de
     # l'entreprise (convertis à la création si facturé en devise
