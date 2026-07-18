@@ -221,7 +221,8 @@
       "creditor_short": "C"
     },
     "for": "For",
-    "days_short": "days"
+    "days_short": "days",
+    "entities_referenced": "Referenced entities"
   },
   "breadcrumb": {
     "home": "Home",
@@ -734,6 +735,9 @@
       "audit_cta": "Explore",
       "reports_title": "Full Reports",
       "reports_subtitle": "Steering & Reporting"
+    },
+    "stats": {
+      "average": "Average"
     }
   },
   "steering": {
@@ -1559,6 +1563,124 @@
         "achats_stock": "Stock purchases",
         "fournitures": "Supplies",
         "transport": "Transport"
+      }
+    },
+    "suppliers": {
+      "title": "Purchasing & Suppliers",
+      "subtitle": "Centralized management of the procurement cycle, supplier relations, and analytical insights.",
+      "tabs": {
+        "list": "Supplier Registry",
+        "orders": "Procurement & P.O.",
+        "analytics": "Performance Analysis"
+      },
+      "stats": {
+        "total_purchases": "Total Purchases",
+        "debts": "Supplier Debts",
+        "total_orders": "Ongoing Orders",
+        "avg_score": "Average Score",
+        "debt_rotation": "Debt rotation"
+      },
+      "actions": {
+        "new_order": "New P.O.",
+        "optimization": "Cost Optimization",
+        "risks": "Risk Assessment"
+      },
+      "analytics": {
+        "commitment_evolution": "Purchase Evolution HT",
+        "distribution_supplier": "Supplier Breakdown"
+      },
+      "messages": {
+        "purchase_orders": "Recent Purchase Orders",
+        "quality_score": "Quality Score"
+      },
+      "table": {
+        "reference": "Reference",
+        "supplier": "Supplier",
+        "quality": "Urgency"
+      },
+      "status": {
+        "approved": "Approved",
+        "pending": "Pending",
+        "delivered": "Delivered",
+        "urgent": "Urgent"
+      },
+      "relances": {
+        "title": "Follow-up Management",
+        "subtitle": "Track unpaid invoices and automate collection",
+        "create_btn": "New Follow-up",
+        "search_placeholder": "Search for a client, an invoice...",
+        "filter": {
+          "all": "All situations"
+        },
+        "kpi": {
+          "total_overdue": "Total Overdue",
+          "count": "Active Files",
+          "critical": "Critical Level",
+          "avg_days": "Average Delay",
+          "litigation": "In Litigation"
+        },
+        "level": {
+          "1": "Level 1: Reminder",
+          "2": "Level 2: Friendly",
+          "3": "Level 3: Legal"
+        },
+        "status": {
+          "pending": "To send",
+          "sent": "Sent",
+          "responded": "Responded",
+          "escalated": "Escalated",
+          "resolved": "Resolved",
+          "litigation": "Litigation"
+        },
+        "table": {
+          "invoice": "Invoice No.",
+          "client": "Client",
+          "amount": "Amount",
+          "overdue": "Delay",
+          "level": "Level",
+          "status": "Status",
+          "last_contact": "Last contact",
+          "actions": "Actions",
+          "since": "Since"
+        },
+        "alert": {
+          "critical_count": "critical files identified",
+          "critical_desc": "Invoices are over 90 days overdue. Urgent action recommended."
+        },
+        "template": {
+          "tone": "Tone",
+          "delay": "Delay"
+        },
+        "detail": {
+          "title": "Follow-up Details",
+          "client": "Client Information",
+          "amount": "Unpaid Amount",
+          "overdue": "Delay Duration",
+          "due_date": "Original Due Date",
+          "invoice_date": "Invoicing Date",
+          "notes": "Follow-up Notes"
+        },
+        "actions": {
+          "send": "Send",
+          "details": "Details"
+        },
+        "send": {
+          "title": "Send Follow-up Email",
+          "to": "Recipient",
+          "email_content": "Email content",
+          "print": "Print Letter",
+          "confirm_btn": "Confirm sending",
+          "sent_msg": "Follow-up sent successfully!"
+        }
+      },
+      "sections": {
+        "executive_summary": "Executive Summary"
+      },
+      "optimization": {
+        "tip": "Consolidating orders at Tech Solutions could reduce your logistics costs by 12%."
+      },
+      "risks": {
+        "tip": "The supplier ElectroMax shows a price volatility of 18%. Consider alternatives to secure margins."
       }
     }
   },
@@ -4439,6 +4561,70 @@
       "class_mismatch_error": "The code must start with the selected class digit.",
       "class_mismatch_warning": "The code must start with the selected class digit.",
       "validation_error": "Code and name are required"
+    }
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Portfolio overview and customer relationship tracking",
+    "portfolio": "Portfolio",
+    "base_clients": "Client base",
+    "active_status": "Active",
+    "active_clients": "Active clients",
+    "new_clients_month": "New this month",
+    "revenue_per_client": "Avg. revenue / client",
+    "top_clients_title": "Top clients",
+    "by_revenue": "By revenue",
+    "attention_points": "Points of attention",
+    "quick_actions": "Quick actions",
+    "new_client": "New client",
+    "analyze_portfolio": "Analyze portfolio",
+    "remind_inactives": "Follow up with inactive clients",
+    "zone_undefined": "Not set",
+    "status": {
+      "active": "Active",
+      "risk": "At risk",
+      "sane": "Healthy",
+      "resolved": "Resolved",
+      "problem": "Issue",
+      "in_progress": "In progress"
+    },
+    "actions": {
+      "details": "Details",
+      "edit": "Edit",
+      "finance": "Finance",
+      "contact": "Contact",
+      "delete": "Delete",
+      "view_all": "View all",
+      "view_details": "View details",
+      "new_bl": "New delivery note",
+      "geographical_tracking": "Geographic tracking"
+    },
+    "sections": {
+      "active_reminders": "Active reminders",
+      "urgent": "Urgent",
+      "follow_up": "Follow up",
+      "resolved_interactions": "Resolved interactions",
+      "last_interactions": "Last interactions",
+      "analytics_title": "Client analytics",
+      "top_value_clv": "Top value (CLV)",
+      "logistics_title": "Logistics",
+      "logistics_subtitle": "Delivery and shipment tracking",
+      "recent_bl": "Recent delivery notes",
+      "aged_balance": "Aged balance",
+      "total_receivables": "Total receivables"
+    },
+    "aged_balance": {
+      "v0_30": "0-30 days",
+      "v31_60": "31-60 days",
+      "v61_90": "61-90 days",
+      "v90_plus": "90+ days",
+      "within_delay": "On time",
+      "slight_delay": "Slight delay",
+      "attention_required": "Attention required",
+      "urgent_recovery": "Urgent recovery"
+    },
+    "messages": {
+      "no_crm_interactions": "No interactions recorded"
     }
   }
 }

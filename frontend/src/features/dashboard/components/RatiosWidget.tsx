@@ -126,7 +126,12 @@ const RatiosWidget: React.FC<RatiosWidgetProps> = ({ data, onAnalyseClick }) => 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {ratios.map((ratio, idx) => {
           const colors = getSanteColor(ratio.sante);
-          const ecart = ((ratio.valeur - ratio.cible) / ratio.cible * 100).toFixed(1);
+          // Un ratio sans passif (ex. aucune dette fournisseur) est plafonné
+          // côté backend à 99.99 par convention "excellent/sans dette" —
+          // rapporté brut à un objectif de 1.50, ça affichait des écarts
+          // absurdes ("+6566% de l'objectif"). Plafonné à un écart lisible.
+          const rawEcart = (ratio.valeur - ratio.cible) / ratio.cible * 100;
+          const ecart = Math.max(-999, Math.min(999, rawEcart)).toFixed(1);
 
           return (
             <div key={idx} className={`rounded-lg border p-4 ${colors.bg} ${colors.border}`}>

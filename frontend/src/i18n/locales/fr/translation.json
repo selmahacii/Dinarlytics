@@ -168,7 +168,8 @@
       "debtor_short": "D",
       "creditor_short": "C"
     },
-    "for": "Pour"
+    "for": "Pour",
+    "entities_referenced": "Entités référencées"
   },
   "sales": {
     "title": "Ventes & Clients",
@@ -554,6 +555,9 @@
       "audit_cta": "Explorer",
       "reports_title": "Rapports Complets",
       "reports_subtitle": "Pilotage & Reporting"
+    },
+    "stats": {
+      "average": "Moyenne"
     }
   },
   "steering": {
@@ -1025,6 +1029,227 @@
         "details_and_actions": "Détails et Actions à suivre",
         "interaction_placeholder": "Résumé de la discussion et prochaines étapes...",
         "save_interaction": "Enregistrer l'interaction"
+      }
+    },
+    "suppliers": {
+      "flux_title": "Flux Approvisionnements",
+      "title": "Achats & Fournisseurs",
+      "subtitle": "Gestion centralisée du cycle d'achat, des relations fournisseurs et analyses décisionnelles.",
+      "tabs": {
+        "list": "Registre Fournisseurs",
+        "orders": "Achats & BC",
+        "invoices": "Factures et Pièces",
+        "treasury": "Trésorerie & Décaissement",
+        "analytics": "Performance Achat"
+      },
+      "stats": {
+        "total_purchases": "Volume Achat (Global)",
+        "global_balance": "Encours Fournisseurs",
+        "avg_dpo": "DPO Moyen (Jours)",
+        "risk_exposure": "Exposition Risque",
+        "active_suppliers": "Fournisseurs Actifs",
+        "overdue_invoices": "Factures à Échoir",
+        "total_orders": "Total Commandes",
+        "litigations": "Litiges en cours",
+        "debts": "Dettes Fournisseurs",
+        "total_suppliers": "Nombre de Fournisseurs",
+        "active": "actifs",
+        "debt_rotation": "Rotation de la dette"
+      },
+      "actions": {
+        "new_supplier": "Nouveau Fournisseur",
+        "new_invoice": "Nouvelle Facture (OCR)",
+        "new_order": "Nouveau Bon de Commande",
+        "payment": "Paiement",
+        "schedule": "Échéancier",
+        "report": "Rapport Exécutif",
+        "performance": "Analyse Performance",
+        "optimization": "Optimisation Coûts",
+        "forecasts": "Prévisions Achats",
+        "negotiation": "Opportunités Négociation",
+        "risks": "Évaluation Risques",
+        "save_invoice": "Créer Facture",
+        "save_supplier": "Enregistrer Fournisseur",
+        "update_supplier": "Mettre à jour",
+        "add_signature": "Ajouter une signature",
+        "delete_signature": "Supprimer",
+        "download_pdf": "Télécharger PDF",
+        "view_details": "Voir détails",
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "ocr": {
+        "scan_title": "Scanner / Importer une facture",
+        "scan_desc": "Glissez un fichier ou cliquez pour utiliser la caméra",
+        "analyzing": "Analyse intelligente en cours...",
+        "file_ready": "Fichier prêt : {{name}}",
+        "change_file": "Cliquez pour changer",
+        "completed_alert": "OCR Terminé ! Fournisseur détecté: {{name}}. Montant: {{amount}}",
+        "completed_amount_alert": "OCR Terminé ! Montant: {{amount}}, NIF: {{nif}}",
+        "completed_simple_alert": "OCR Terminé ! Montant: {{amount}}",
+        "error_alert": "Erreur lors de l'analyse OCR.",
+        "success_msg": "Facture OCR créée avec succès !",
+        "nif_detected": "[OCR] NIF détecté: {{nif}}."
+      },
+      "sections": {
+        "general_info": "Informations Générales",
+        "articles": "Articles (Saisie manuelle pour l'instant)",
+        "articles_desc": "L'extraction automatique des lignes d'articles est prévue pour la version 2.0.",
+        "totals": "Totaux (Détectés par OCR)",
+        "signature": "Signature Électronique",
+        "signature_success": "Signature ajoutée avec succès",
+        "supplier_details": "Détails Fournisseur",
+        "payment_history": "Historique des Règlements",
+        "consolidated_analytics": "Analytique Consolidée",
+        "treasury_management": "Trésorerie Fournisseurs",
+        "cash_flow_mgmt": "Gestion des Flux de Décaissement",
+        "executive_summary": "Résumé exécutif",
+        "procurement_strategy": "Stratégie d'Approvisionnement"
+      },
+      "table": {
+        "supplier": "Fournisseur",
+        "invoice_no": "Numéro de Facture",
+        "issue_date": "Date d'émission",
+        "due_date": "Date d'échéance",
+        "total_ht": "Total HT",
+        "total_tva": "Total TVA",
+        "payment_mode": "Mode de Paiement",
+        "total_ttc": "Total TTC",
+        "inc_stamp": "Incl. Timbre: {{amount}} DZD",
+        "reference": "Référence",
+        "invoice_ref": "Réf. Facture",
+        "bc_ref": "Référence BC",
+        "item_ref": "Référence PIÈCE",
+        "issuer": "Émetteur",
+        "quality": "Qualité",
+        "order_no": "Numéro de Commande",
+        "quantity": "Quantité",
+        "unit_price": "Prix Unitaire",
+        "fiscal_ref": "Référence fiscale",
+        "nif": "NIF",
+        "purchases": "Volume Achat",
+        "balance": "Solde Du",
+        "actions": "Actions"
+      },
+      "modals": {
+        "edit_title": "Modifier Fournisseur",
+        "create_title": "Nouveau Fournisseur",
+        "tax_id": "Identifiant Fiscal (NIF)",
+        "phone": "Téléphone de contact",
+        "address": "Adresse du siège"
+      },
+      "placeholders": {
+        "select_supplier": "Sélectionner un fournisseur",
+        "invoice_format": "FAC-2024-XXX",
+        "select_mode": "Sélectionner un mode",
+        "search_supplier": "Rechercher un fournisseur (nom, NIF...)"
+      },
+      "status": {
+        "active": "actif",
+        "approved": "APPROUVÉE",
+        "in_transit": "TRANSIT",
+        "approval": "APPROBATION",
+        "delivered": "LIVRÉE",
+        "pending": "INSTANCE",
+        "certified": "Certifié",
+        "urgent": "Urgent",
+        "audit_certification": "Audit & Certification des Pièces Comptables"
+      },
+      "messages": {
+        "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce fournisseur ?",
+        "confirm_delete_order": "Êtes-vous sûr de vouloir supprimer cette commande ?",
+        "supplier_success_created": "Fournisseur créé avec succès !",
+        "supplier_success_updated": "Fournisseur modifié avec succès !",
+        "supplier_success_desc": "Le fournisseur \"{{name}}\" a été {{action}} à votre liste.",
+        "order_success_created": "Commande créée avec succès !",
+        "order_success_updated": "Commande modifiée avec succès !",
+        "next_step_order": "Créer une première commande pour ce fournisseur",
+        "next_step_payment": "Configurer les conditions de paiement",
+        "next_step_notes": "Ajouter des notes sur les délais de livraison",
+        "system_expert": "Système Expert d'Analyse",
+        "delta_economy": "Delta Économie (Target)",
+        "no_data": "Aucune donnée disponible",
+        "total_bc_emitted": "Total BC Émis",
+        "in_approval": "En Approbation",
+        "in_transit": "En Transit",
+        "anomalies": "Anomalies",
+        "commitments_registry": "Registre des Engagements",
+        "supplier_passive": "Passif Fournisseurs",
+        "passive_management": "Gestion des Passifs",
+        "total_invoices": "Total Factures",
+        "in_instance": "En Instance",
+        "compliance": "Compliance",
+        "treasury_header": "Trésorerie Fournisseurs",
+        "payments_schedule": "Règlements & Échéancier",
+        "total_disbursed": "Total Décaissé",
+        "overdue": "En Retard",
+        "performance_volume": "Performance & Volume",
+        "total_commitments": "Engagements Totaux",
+        "avg_lead_time": "Lead Time Moyen",
+        "quality_score": "Score Qualité",
+        "purchase_orders": "Bons de Commande",
+        "notes_obs": "Notes et Observations",
+        "internal_notes": "Notes internes",
+        "order_details": "Détails Commande",
+        "ordered_items": "Articles Commandés",
+        "fiscal_compliance": "Conformité Fiscale Algérienne & SCF",
+        "scf_system": "Système SCF",
+        "scf_date": "Date SCF",
+        "scf_status": "Statut SCF",
+        "supporting_docs": "Documents & Pièces Justificatives",
+        "po_doc": "Bon de commande",
+        "inv_doc": "Facture fournisseur",
+        "scf_doc": "Attestation SCF",
+        "bl_doc": "Bordereau de livraison",
+        "mod_history": "Historique des Modifications",
+        "fiscal_report": "Rapport Fiscal",
+        "scf_export": "Export SCF",
+        "tva_decl": "Déclaration TVA",
+        "po_id": "Identification du Bon de Commande",
+        "dates_cond": "Dates & Conditions",
+        "delivery_addr": "Adresse de Livraison",
+        "item_lines": "Lignes d'Articles",
+        "designation": "Désignation",
+        "qty": "Qté",
+        "unit": "Unité",
+        "invoice_payment": "Paiement Facture",
+        "performance_volume_subtitle": "Exercice 2024 — {{count}} fournisseurs actifs"
+      },
+      "payment_modes": {
+        "virement": "Virement Bancaire",
+        "cheque": "Chèque",
+        "especes": "Espèces (Droit de timbre)",
+        "especes_simple": "Espèces",
+        "traite": "Traite"
+      },
+      "analytics": {
+        "commitment_evolution": "Évolution des Engagements HT (k DA)",
+        "commitment_title": "Évolution des Engagements HT",
+        "distribution_supplier": "Répartition par Fournisseur",
+        "performance_title": "Performance par Fournisseur — Exercice 2024",
+        "purchases_ht": "Achats HT",
+        "nb_bc": "Nb BC",
+        "lead_time": "Lead Time",
+        "quality": "Qualité",
+        "dpo": "DPO",
+        "share_percent": "Part (%)",
+        "trend": "Tendance"
+      },
+      "invoice_types": {
+        "facture": "FACTURE",
+        "avoir": "AVOIR",
+        "note_debit": "NOTE DÉBIT"
+      },
+      "compliance_status": {
+        "verified": "VÉRIFIÉ",
+        "pending": "EN ATTENTE",
+        "rejected": "REJETÉ"
+      },
+      "optimization": {
+        "tip": "Une consolidation des commandes chez Tech Solutions pourrait réduire vos coûts logistiques de 12%."
+      },
+      "risks": {
+        "tip": "Le fournisseur ElectroMax présente une volatilité des prix de 18%. Envisagez des alternatives pour sécuriser vos marges."
       }
     }
   },
@@ -4233,6 +4458,70 @@
       "email_body": "Madame/Monsieur,\n\nNous nous permettons de vous contacter concernant la facture {{invoiceNum}} d'un montant de {{amount}}, arrivée à échéance le {{dueDate}}.\n\n{{urgencyNote}}\n\nCordialement,\n{{commercial}}\nDinarlytics",
       "urgency_normal": "Nous vous remercions de régulariser cette situation dans les meilleurs délais.",
       "urgency_critical": "Sans retour de votre part sous 48h, nous serons contraints de transmettre ce dossier à notre service juridique."
+    }
+  },
+  "clients": {
+    "title": "Clients",
+    "subtitle": "Vue portefeuille et suivi des relations clients",
+    "portfolio": "Portefeuille",
+    "base_clients": "Base clients",
+    "active_status": "Actifs",
+    "active_clients": "Clients actifs",
+    "new_clients_month": "Nouveaux ce mois",
+    "revenue_per_client": "CA moyen / client",
+    "top_clients_title": "Meilleurs clients",
+    "by_revenue": "Par chiffre d'affaires",
+    "attention_points": "Points de vigilance",
+    "quick_actions": "Actions rapides",
+    "new_client": "Nouveau client",
+    "analyze_portfolio": "Analyser le portefeuille",
+    "remind_inactives": "Relancer les clients inactifs",
+    "zone_undefined": "Non défini",
+    "status": {
+      "active": "Actif",
+      "risk": "À risque",
+      "sane": "Sain",
+      "resolved": "Résolu",
+      "problem": "Problème",
+      "in_progress": "En cours"
+    },
+    "actions": {
+      "details": "Détails",
+      "edit": "Modifier",
+      "finance": "Finances",
+      "contact": "Contacter",
+      "delete": "Supprimer",
+      "view_all": "Tout voir",
+      "view_details": "Voir les détails",
+      "new_bl": "Nouveau bon de livraison",
+      "geographical_tracking": "Suivi géographique"
+    },
+    "sections": {
+      "active_reminders": "Relances actives",
+      "urgent": "Urgent",
+      "follow_up": "À suivre",
+      "resolved_interactions": "Interactions résolues",
+      "last_interactions": "Dernières interactions",
+      "analytics_title": "Analytique clients",
+      "top_value_clv": "Meilleure valeur (CLV)",
+      "logistics_title": "Logistique",
+      "logistics_subtitle": "Suivi des livraisons et expéditions",
+      "recent_bl": "Bons de livraison récents",
+      "aged_balance": "Balance âgée",
+      "total_receivables": "Total créances"
+    },
+    "aged_balance": {
+      "v0_30": "0-30 jours",
+      "v31_60": "31-60 jours",
+      "v61_90": "61-90 jours",
+      "v90_plus": "90+ jours",
+      "within_delay": "Dans les délais",
+      "slight_delay": "Léger retard",
+      "attention_required": "Attention requise",
+      "urgent_recovery": "Recouvrement urgent"
+    },
+    "messages": {
+      "no_crm_interactions": "Aucune interaction enregistrée"
     }
   }
 }

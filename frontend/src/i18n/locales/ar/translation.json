@@ -132,7 +132,8 @@
       "creditor_short": "د"
     },
     "for": "لأجل",
-    "days_short": "أيّام"
+    "days_short": "أيّام",
+    "entities_referenced": "الكيانات المرجعية"
   },
   "sales": {
     "title": "المبيعات والعملاء",
@@ -621,6 +622,9 @@
       "audit_cta": "استكشف",
       "reports_title": "تقارير كاملة",
       "reports_subtitle": "القيادة والتقارير"
+    },
+    "stats": {
+      "average": "المتوسط"
     }
   },
   "steering": {
@@ -1444,6 +1448,123 @@
         "achats_stock": "مشتريات مخزنة",
         "fournitures": "لوازم",
         "transport": "النقل"
+      }
+    },
+    "suppliers": {
+      "title": "المشتريات والموردون",
+      "subtitle": "الإدارة المركزية لدورة المشتريات وعلاقات الموردين والتحليلات.",
+      "tabs": {
+        "list": "سجل الموردين",
+        "orders": "المشتريات والطلبيات",
+        "analytics": "تحليل الأداء"
+      },
+      "stats": {
+        "total_purchases": "إجمالي المشتريات",
+        "debts": "ديون الموردين",
+        "total_orders": "الطلبيات الجارية",
+        "avg_score": "متوسط التقييم",
+        "debt_rotation": "دوران الدين"
+      },
+      "actions": {
+        "new_order": "طلبية جديدة",
+        "optimization": "تحسين التكاليف",
+        "risks": "تقييم المخاطر"
+      },
+      "analytics": {
+        "commitment_evolution": "تطور المشتريات (صافي)",
+        "distribution_supplier": "توزيع الموردين"
+      },
+      "messages": {
+        "purchase_orders": "طلبيات الشراء الأخيرة",
+        "quality_score": "مؤشر الجودة"
+      },
+      "table": {
+        "reference": "المرجع",
+        "supplier": "المورد",
+        "quality": "الأولوية"
+      },
+      "status": {
+        "approved": "تمت الموافقة",
+        "pending": "قيد الانتظار",
+        "delivered": "تم الاستلام"
+      },
+      "relances": {
+        "title": "إدارة المطالبات",
+        "subtitle": "متابعة الفواتير غير المدفوعة وأتمتة التحصيل",
+        "create_btn": "مطالبة جديدة",
+        "search_placeholder": "بحث عن عميل، فاتورة...",
+        "filter": {
+          "all": "جميع الحالات"
+        },
+        "kpi": {
+          "total_overdue": "إجمالي المتأخرات",
+          "count": "الملفات النشطة",
+          "critical": "المستوى الحرج",
+          "avg_days": "متوسط التأخير",
+          "litigation": "في التقاضي"
+        },
+        "level": {
+          "1": "المستوى 1: تذكير",
+          "2": "المستوى 2: ودي",
+          "3": "المستوى 3: قانوني"
+        },
+        "status": {
+          "pending": "للإرسال",
+          "sent": "تم الإرسال",
+          "responded": "تم الرد",
+          "escalated": "تم التصعيد",
+          "resolved": "تمت التسوية",
+          "litigation": "نزاع قضائي"
+        },
+        "table": {
+          "invoice": "رقم الفاتورة",
+          "client": "العميل",
+          "amount": "المبلغ",
+          "overdue": "التأخير",
+          "level": "المستوى",
+          "status": "الحالة",
+          "last_contact": "آخر اتصال",
+          "actions": "الإجراءات",
+          "since": "منذ"
+        },
+        "alert": {
+          "critical_count": "ملفات حرجة تم تحديدها",
+          "critical_desc": "توجد فواتير تجاوز تأخيرها 90 يومًا. نوصي باتخاذ إجراء عاجل."
+        },
+        "template": {
+          "tone": "الأسلوب",
+          "delay": "المهلة"
+        },
+        "detail": {
+          "title": "تفاصيل المطالبة",
+          "client": "معلومات العميل",
+          "amount": "المبلغ غير المدفوع",
+          "overdue": "مدة التأخير",
+          "due_date": "تاريخ الاستحقاق الأصلي",
+          "invoice_date": "تاريخ الفوترة",
+          "notes": "ملاحظات المتابعة"
+        },
+        "actions": {
+          "send": "إرسال",
+          "details": "التفاصيل"
+        },
+        "send": {
+          "title": "إرسال مطالبة عبر البريد الإلكتروني",
+          "to": "المرسل إليه",
+          "email_content": "محتوى البريد الإلكتروني",
+          "print": "طباعة رسالة",
+          "confirm_btn": "تأكيد الإرسال",
+          "sent_msg": "تم إرسال المطالبة بنجاح!"
+        }
+      },
+      "sections": {
+        "executive_summary": "الملخص التنفيذي"
+      },
+      "optimization": {
+        "tip": "إن تجميع الطلبيات لدى Tech Solutions قد يقلل من تكاليفك اللوجستية بنسبة 12%."
+      },
+      "risks": {
+        "tip": "يظهر المورد ElectroMax تقلبًا في الأسعار بنسبة 18%. يرجى النظر في بدائل لتأمين هوامش الربح."
       }
     }
   },
@@ -4519,6 +4640,70 @@
       "class_mismatch_error": "يجب أن يبدأ الرمز برقم الفئة المحددة.",
       "class_mismatch_warning": "يجب أن يبدأ الرمز برقم الفئة المحددة.",
       "validation_error": "الرمز والاسم مطلوبان"
+    }
+  },
+  "clients": {
+    "title": "العملاء",
+    "subtitle": "نظرة عامة على المحفظة ومتابعة علاقات العملاء",
+    "portfolio": "المحفظة",
+    "base_clients": "قاعدة العملاء",
+    "active_status": "نشط",
+    "active_clients": "عملاء نشطون",
+    "new_clients_month": "جدد هذا الشهر",
+    "revenue_per_client": "متوسط الإيراد / عميل",
+    "top_clients_title": "أفضل العملاء",
+    "by_revenue": "حسب الإيراد",
+    "attention_points": "نقاط الانتباه",
+    "quick_actions": "إجراءات سريعة",
+    "new_client": "عميل جديد",
+    "analyze_portfolio": "تحليل المحفظة",
+    "remind_inactives": "متابعة العملاء غير النشطين",
+    "zone_undefined": "غير محدد",
+    "status": {
+      "active": "نشط",
+      "risk": "معرض للخطر",
+      "sane": "سليم",
+      "resolved": "تم الحل",
+      "problem": "مشكلة",
+      "in_progress": "قيد التنفيذ"
+    },
+    "actions": {
+      "details": "التفاصيل",
+      "edit": "تعديل",
+      "finance": "المالية",
+      "contact": "اتصال",
+      "delete": "حذف",
+      "view_all": "عرض الكل",
+      "view_details": "عرض التفاصيل",
+      "new_bl": "إذن تسليم جديد",
+      "geographical_tracking": "التتبع الجغرافي"
+    },
+    "sections": {
+      "active_reminders": "التذكيرات النشطة",
+      "urgent": "عاجل",
+      "follow_up": "للمتابعة",
+      "resolved_interactions": "تفاعلات محلولة",
+      "last_interactions": "آخر التفاعلات",
+      "analytics_title": "تحليلات العملاء",
+      "top_value_clv": "أعلى قيمة (CLV)",
+      "logistics_title": "اللوجستيات",
+      "logistics_subtitle": "متابعة التسليم والشحن",
+      "recent_bl": "أذون التسليم الأخيرة",
+      "aged_balance": "الرصيد المتقادم",
+      "total_receivables": "إجمالي الذمم المدينة"
+    },
+    "aged_balance": {
+      "v0_30": "0-30 يومًا",
+      "v31_60": "31-60 يومًا",
+      "v61_90": "61-90 يومًا",
+      "v90_plus": "90+ يومًا",
+      "within_delay": "في الموعد",
+      "slight_delay": "تأخير طفيف",
+      "attention_required": "يتطلب انتباه",
+      "urgent_recovery": "تحصيل عاجل"
+    },
+    "messages": {
+      "no_crm_interactions": "لا توجد تفاعلات مسجلة"
     }
   }
 }
