@@ -79,12 +79,13 @@ export const analyticService = {
     getKPIs: async (size?: string) => {
         try {
             const now = new Date();
-            const [dashboardRes, clientStatsRes, journalRes, coaRes, g50Res] = await Promise.all([
+            const [dashboardRes, clientStatsRes, journalRes, coaRes, g50Res, articleStatsRes] = await Promise.all([
                 apiClient.get<any>('/analytics/dashboard'),
                 apiClient.get<any>('/clients/stats').catch(() => ({ data: null as any })),
-                apiClient.get<any[]>('/accounting/journal-entries').catch(() => ({ data: [] as any[] })),
+                apiClient.get<any[]>('/accounting/journal-entries?limit=1000').catch(() => ({ data: [] as any[] })),
                 apiClient.get<any[]>('/accounting/chart-of-accounts').catch(() => ({ data: [] as any[] })),
-                apiClient.get<any>('/fiscality/g50-summary', { params: { month: now.getMonth() + 1, year: now.getFullYear() } }).catch(() => ({ data: null as any }))
+                apiClient.get<any>('/fiscality/g50-summary', { params: { month: now.getMonth() + 1, year: now.getFullYear() } }).catch(() => ({ data: null as any })),
+                apiClient.get<any>('/articles/stats').catch(() => ({ data: null as any }))
             ]);
 
             const data = dashboardRes.data;
@@ -107,22 +108,36 @@ export const analyticService = {
                     balances[code] = (balances[code] || 0) + (Number(line.debit_amount || 0) - Number(line.credit_amount || 0));
                 });
             });
+            // Comptes de contre-actif (amortissements, solde créditeur) en
+            // déduction de l'actif — mêmes valeurs de type que le backend
+            // (asset/liability/equity/contra_asset), pas les libellés
+            // français 'actif'/'passif' qui ne matchaient jamais rien et
+            // laissaient le bilan bloqué à 0.
             let actif = 0, passif = 0, capitauxPropres = 0;
             coa.forEach((acc: any) => {
                 const bal = balances[acc.account_code] || 0;
                 const type = (acc.account_type || '').toLowerCase();
-                if (type === 'actif') actif += bal;
-                else if (type === 'passif') passif += Math.abs(bal);
-                else if (type === 'capitaux' || type === 'equity') capitauxPropres += Math.abs(bal);
+                if (type === 'asset') actif += bal;
+                else if (type === 'contra_asset') actif -= Math.abs(bal);
+                else if (type === 'liability') passif += Math.abs(bal);
+                else if (type === 'equity') capitauxPropres += Math.abs(bal);
             });
 
             const g50 = g50Res.data;
+
+            // Rotation des stocks = CA HT du mois / valeur du stock actuel
+            // (ratio simplifié CA/Stock, faute d'un COGS isolé du reste des
+            // charges) — champ auparavant absent de l'objet retourné,
+            // toujours affiché vide ("x") côté page.
+            const stockValue = Number(articleStatsRes.data?.total_inventory_value) || 0;
+            const rotationStock = stockValue > 0 ? Math.round((ca / stockValue) * 10) / 10 : 0;
 
             return {
                 metriques: {
                     ventesTotal: ca,
                     beneficeMensuel: profit,
                     margeBrute: marge,
+                    rotationStock,
                     nombreClients: clientStats?.total_clients || 0,
                     nouveauxClients: clientStats?.new_clients_this_month || 0,
                     tauxFidelisation: clientStats?.total_clients > 0

@@ -194,10 +194,6 @@ const Statistiques: React.FC = () => {
           <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mb-6 relative z-10" />
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{t('steering.dashboard.metrics.revenue')}</p>
           <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic">{formatCurrency(metriques.ventesTotal)}</h3>
-          <div className="flex items-center mt-3 text-[9px] font-black text-emerald-600 bg-emerald-50 w-fit px-3 py-1 rounded-full uppercase tracking-widest">
-            <ArrowTrendingUpIcon className="w-3 h-3 mr-1" />
-            <span>+{metriques.croissanceCA}%</span>
-          </div>
         </div>
 
         <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-all">
@@ -318,7 +314,7 @@ const Statistiques: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-xs text-slate-500 mt-2">
-                  <span className="font-medium text-emerald-600">+{kpiComptables.bilans.evolution}%</span> {t('steering.dashboard.accounting.vs_previous')}
+                  {t('steering.dashboard.accounting.balance_date', { defaultValue: 'Au' })} {kpiComptables.bilans.dateDernier}
                 </div>
               </div>
 
@@ -347,9 +343,15 @@ const Statistiques: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
             <h3 className="text-lg font-bold text-slate-800 mb-4">{t('steering.dashboard.chart_accounts.title')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['Ventes', 'Gestion', 'Stocks'].map((section) => (
+              {(['Ventes', 'Gestion', 'Stocks'] as const).map((section) => {
+                // Les clés i18n réelles sont en anglais (sales/management/
+                // stocks) alors que `section` est en français — le
+                // lowercase direct ('ventes'/'gestion') ne matchait aucune
+                // clé et affichait la clé brute.
+                const sectionKey = section === 'Ventes' ? 'sales' : section === 'Gestion' ? 'management' : 'stocks';
+                return (
                 <div key={section} className="space-y-2">
-                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-400">{t(`steering.dashboard.chart_accounts.${section.toLowerCase()}`)}</h4>
+                  <h4 className="text-xs uppercase tracking-wider font-semibold text-slate-400">{t(`steering.dashboard.chart_accounts.${sectionKey}`)}</h4>
                   <div className="space-y-1">
                     {(section === 'Ventes' ? [
                       { label: t('steering.dashboard.chart_accounts.items.sales_goods'), code: normesComptables[planComptable as keyof typeof normesComptables].comptes.ventes },
@@ -368,7 +370,8 @@ const Statistiques: React.FC = () => {
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
