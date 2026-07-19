@@ -269,15 +269,6 @@ ROLE_PERMISSIONS = {
         'rapports-basic'
     ],
     
-    'auditeur': [
-        'comptabilite-read',
-        'facturation-read',
-        'stocks-read',
-        'rapports-basic', 'rapports-advanced',
-        'audit-read', 'audit-full',
-        'lia-access'
-    ],
-    
     'consultant': [
         'rapports-basic',
         'lia-access', 'lia-chatbot'

@@ -2342,7 +2342,7 @@ const FiscaliteDeclarations: React.FC = () => {
                                 if (event.statut === 'transmise') {
                                   setModalContent({
                                     title: '✅ Déclaration Transmise',
-                                    message: `${event.type}\nDate: ${event.date}\nMontant: ${formatCurrency(event.montant)}\n\n✓ Déclaration validée\n✓ Paiement effectué\n📄 Reçu disponible\n\nRéférence: #${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+                                    message: `${event.type}\nDate: ${event.date}\nMontant: ${formatCurrency(event.montant)}\n\n✓ Déclaration validée\n✓ Paiement effectué`,
                                     type: 'success'
                                   });
                                 } else if (event.statut === 'en retard') {
@@ -2429,7 +2429,7 @@ const FiscaliteDeclarations: React.FC = () => {
                                   if (event.statut === 'transmise') {
                                     setModalContent({
                                       title: '📄 Reçu de Déclaration',
-                                      message: `${event.type}\n\n✅ Statut: Validé et payé\n📅 Date: ${event.date}\n💰 Montant: ${formatCurrency(event.montant)}\n🔖 Référence: #${Math.random().toString(36).substr(2, 9).toUpperCase()}\n\n📥 Reçu officiel disponible au téléchargement`,
+                                      message: `${event.type}\n\n✅ Statut: Validé et payé\n📅 Date: ${event.date}\n💰 Montant: ${formatCurrency(event.montant)}`,
                                       type: 'success'
                                     });
                                   } else if (event.statut === 'en retard') {
@@ -3220,14 +3220,11 @@ const FiscaliteDeclarations: React.FC = () => {
                       
                       <div className="mt-4 space-y-2">
                         <div className="flex items-center justify-center space-x-2">
-                          <CheckCircleIcon className="h-5 w-5 text-emerald-600" />
-                          <span className="text-sm font-bold text-emerald-700">✓ SIGNÉ ÉLECTRONIQUEMENT</span>
+                          <ExclamationTriangleIcon className="h-5 w-5 text-amber-600" />
+                          <span className="text-sm font-bold text-amber-700">APERÇU NON SIGNÉ</span>
                         </div>
                         <div className="text-xs text-slate-600 text-center">
-                          Signature numérique valide
-                        </div>
-                        <div className="text-xs font-mono text-slate-500 text-center bg-slate-100 p-2 rounded">
-                          SHA256: {Math.random().toString(36).substr(2, 32).toUpperCase().substring(0, 16)}...
+                          Ce document doit être signé et déposé manuellement auprès de la DGI
                         </div>
                         <div className="text-xs text-slate-600 text-center">
                           {new Date().toLocaleString('fr-FR')}
@@ -3249,8 +3246,8 @@ const FiscaliteDeclarations: React.FC = () => {
               <div className="mb-6 p-4 bg-gradient-to-r from-slate-100 to-slate-50 rounded-xl border-2 border-slate-300">
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
-                    <span className="font-bold text-slate-700">Référence déclaration:</span>
-                    <span className="ml-2 font-mono text-slate-900">G50-{new Date().getFullYear()}-{(new Date().getMonth() + 1).toString().padStart(2, '0')}-{Math.random().toString(36).substr(2, 6).toUpperCase()}</span>
+                    <span className="font-bold text-slate-700">Référence interne (brouillon):</span>
+                    <span className="ml-2 font-mono text-slate-900">G50-{new Date().getFullYear()}-{(new Date().getMonth() + 1).toString().padStart(2, '0')}</span>
                   </div>
                   <div>
                     <span className="font-bold text-slate-700">Date de génération:</span>
@@ -3323,12 +3320,11 @@ const FiscaliteDeclarations: React.FC = () => {
                       onClick={() => {
                         setShowG50Modal(false);
                         setModalContent({
-                          title: '📤 Transmission réussie',
-                          message: 'Formulaire G50 transmis à la DGI !\n\n✅ Envoi sécurisé (SSL/TLS)\n✅ Signature électronique validée\n✅ Horodatage certifié\n📨 Accusé de réception: #AR' + Math.random().toString(36).substr(2, 9).toUpperCase() + '\n\n⏰ Reçu le: ' + new Date().toLocaleString('fr-FR') + '\n\n📧 Copie envoyée à votre email',
-                          type: 'success'
+                          title: '⚠️ Télétransmission non disponible',
+                          message: 'Dinarlytics ne dispose pas encore d\'une connexion officielle au système de télédéclaration de la DGI (Jibaya).\n\nCe formulaire G50 est calculé et prêt, mais n\'a PAS été transmis à l\'administration fiscale.\n\n➡️ Téléchargez le PDF et déposez-le vous-même sur le portail officiel de la DGI, ou auprès de votre centre des impôts.',
+                          type: 'warning'
                         });
                         setShowModal(true);
-                        setTimeout(() => setShowModal(false), 4500);
                       }}
                       className="px-8 py-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl hover:from-slate-800 hover:to-black transition-all font-bold shadow-lg hover:shadow-xl hover:scale-105 relative overflow-hidden"
                     >

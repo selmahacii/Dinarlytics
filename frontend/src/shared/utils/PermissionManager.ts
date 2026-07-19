@@ -461,10 +461,11 @@ export const USER_ROLES: UserRole[] = [
       'dashboard-access', 'dashboard-overview', 'dashboard-charts', 'dashboard-alerts',
       'comptabilite-read', 'comptabilite-write', 'comptabilite-validate', 'comptabilite-close', 'consolidation',
       'facturation-read', 'facturation-validate', 'facturation-cancel',
-      'rapports-tresorerie', 'rapports-advanced', 'rapports-create', 'rapports-comptabilite', 'rapports-fiscalite', 'fiscalite-declarations',
+      'rapports-tresorerie', 'rapports-advanced', 'rapports-create', 'rapports-comptabilite', 'rapports-fiscalite', 'fiscalite-declarations', 'rapports-basic',
       'paie-read', 'paie-validate',
-      'audit-read',
-      'lia-access', 'lia-analyses', 'lia-train'
+      'audit-read', 'audit-full',
+      'facturation-create', 'stocks-read', 'export-data', 'clients-manage', 'fournisseurs-manage',
+      'lia-access', 'lia-analyses', 'lia-train', 'lia-chatbot'
     ],
     companyTypes: ['spa'],
     accessLevels: ['enterprise']
@@ -497,10 +498,40 @@ export const USER_ROLES: UserRole[] = [
       'facturation-read', 'facturation-create',
       'stocks-read',
       'rapports-basic', 'rapports-ventes',
+      'lia-access', 'lia-chatbot'
+    ],
+    companyTypes: ['sarl', 'spa'],
+    accessLevels: ['professional', 'enterprise']
+  },
+
+  {
+    id: 'vendeur',
+    name: 'Vendeur',
+    description: 'Vente terrain, clients et facturation de base',
+    permissions: [
+      'dashboard-access',
+      'clients-manage',
+      'facturation-read', 'facturation-create',
+      'stocks-read',
+      'rapports-basic',
       'lia-access'
     ],
     companyTypes: ['sarl', 'spa'],
     accessLevels: ['professional', 'enterprise']
+  },
+
+  {
+    id: 'utilisateur',
+    name: 'Utilisateur',
+    description: 'Accès de consultation basique',
+    permissions: [
+      'facturation-read',
+      'stocks-read',
+      'rapports-basic',
+      'lia-access'
+    ],
+    companyTypes: ['micro', 'eurl', 'sarl', 'spa'],
+    accessLevels: ['starter', 'professional', 'enterprise']
   },
 
   // 6. DRH (SPA)
@@ -542,8 +573,8 @@ export const USER_ROLES: UserRole[] = [
     description: 'Pilotage des usines, coûts de revient et qualité',
     permissions: [
       'dashboard-access', 'dashboard-overview',
-      'stocks-read', 'stocks-move',
-      'rapports-stocks', 'rapports-basic',
+      'stocks-read', 'stocks-move', 'stocks-inventory', 'articles-manage',
+      'rapports-stocks', 'rapports-basic', 'rapports-advanced', 'export-data',
       'lia-access'
     ],
     companyTypes: ['spa'],
@@ -576,11 +607,12 @@ export const USER_ROLES: UserRole[] = [
     description: 'Saisie comptable, pointage et déclarations',
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-alerts',
-      'comptabilite-read', 'comptabilite-write',
-      'facturation-read', 'facturation-validate',
+      'comptabilite-read', 'comptabilite-write', 'comptabilite-validate',
+      'facturation-read', 'facturation-validate', 'facturation-create',
       'paie-read',
-      'rapports-comptabilite', 'fiscalite-declarations', 'rapports-basic',
-      'lia-access', 'stocks-read'
+      'rapports-comptabilite', 'fiscalite-declarations', 'rapports-basic', 'rapports-advanced', 'rapports-create', 'export-data',
+      'audit-read',
+      'lia-access', 'lia-chatbot', 'lia-analyses', 'stocks-read', 'stocks-move'
     ],
     companyTypes: ['eurl', 'sarl', 'spa'],
     accessLevels: ['professional', 'enterprise']
@@ -594,7 +626,9 @@ export const USER_ROLES: UserRole[] = [
     permissions: [
       'dashboard-access', 'dashboard-overview', 'dashboard-charts',
       'comptabilite-read',
-      'rapports-advanced', 'rapports-create', 'rapports-ventes', 'rapports-achats',
+      'facturation-read', 'stocks-read',
+      'rapports-advanced', 'rapports-create', 'rapports-basic', 'rapports-ventes', 'rapports-achats', 'export-data',
+      'audit-read',
       'lia-access', 'lia-analyses'
     ],
     companyTypes: ['spa'],
@@ -608,8 +642,9 @@ export const USER_ROLES: UserRole[] = [
     description: 'Réception, expédition et mouvements de stock physiques',
     permissions: [
       'dashboard-access',
-      'stocks-read', 'stocks-move',
-      'rapports-stocks'
+      'stocks-read', 'stocks-move', 'stocks-inventory', 'articles-manage',
+      'rapports-stocks', 'rapports-basic',
+      'lia-access'
     ],
     companyTypes: ['sarl', 'spa'],
     accessLevels: ['professional', 'enterprise']

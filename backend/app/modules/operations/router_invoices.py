@@ -8,6 +8,7 @@ from app.core.database import get_db
 from app.core.models import Invoice, Client, Article, InvoiceItem, JournalEntry, JournalEntryLine, ChartOfAccount
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
+from app.core.security import RBACManager
 from pydantic import BaseModel, Field
 from decimal import Decimal, ROUND_CEILING
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
@@ -17,6 +18,18 @@ from datetime import datetime
 
 
 router = APIRouter(prefix="/invoices", tags=["invoices"])
+
+
+async def check_invoice_approve(current_user: TokenData = Depends(get_current_user)):
+    """Validate/cancel an invoice generates accounting entries and stock
+    movements — was previously reachable by any authenticated user regardless
+    of role, since only get_current_user was checked."""
+    if not RBACManager.check_permission(current_user.roles, "approve"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invoice validation/cancellation requires approval permission"
+        )
+    return current_user
 
 class InvoiceItemResponse(BaseModel):
     id: str
@@ -442,7 +455,7 @@ async def update_invoice(
 @router.post("/{invoice_id}/validate", response_model=InvoiceResponse)
 async def validate_invoice(
     invoice_id: str,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(check_invoice_approve),
     db: Session = Depends(get_db)
 ):
     """Validate invoice and generate accounting entries (Task 9)."""
@@ -639,7 +652,7 @@ async def validate_invoice(
 @router.post("/{invoice_id}/cancel", status_code=status.HTTP_200_OK)
 async def cancel_invoice(
     invoice_id: str,
-    current_user: TokenData = Depends(get_current_user),
+    current_user: TokenData = Depends(check_invoice_approve),
     db: Session = Depends(get_db)
 ):
     """Cancel an invoice (only drafts or validated-but-unpaid invoices)."""
