@@ -249,8 +249,6 @@ const Fiscalite: React.FC = () => {
 
     setIsGeneratingDeclaration(true);
 
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
     try {
       let nouvelleDeclaration: any = null;
 
@@ -639,7 +637,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <p className="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-2">{t('fiscal.ia.predicted_tva')}</p>
                   <p className="text-3xl font-black text-white mb-2">{formatCurrency(fiscalForecast?.predictedTVANextMonth || 0)}</p>
                   <div className="flex items-center justify-end text-[11px] font-bold text-emerald-400 bg-emerald-500/10 py-1.5 px-3 rounded-lg inline-flex">
-                    <CheckCircleIcon className="h-4 w-4 mr-1.5" /> {t('fiscal.ia.confidence_score')}: 85%
+                    <CheckCircleIcon className="h-4 w-4 mr-1.5" /> {t('fiscal.ia.confidence_score')}: {Math.round((fiscalForecast?.confidenceScore ?? 0) * 100)}%
                   </div>
                 </div>
               </div>
@@ -749,7 +747,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <span className="mr-2">🏢</span>
                   {t('fiscal.rates.ibs_full')}
                 </h3>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{t('fiscal.rates.rate_label')}: 26%</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{t('fiscal.rates.rate_label')}: {customRates.ibs * 100}%</span>
               </div>
               <div className="space-y-3">
                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
@@ -857,16 +855,18 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                     <div className="w-full bg-slate-200 rounded-full h-2 mr-2">
                       <div
                         className="bg-slate-900 h-2 rounded-full"
-                        style={{ width: `${Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100)}%` }}
+                        style={{ width: `${calculsFiscaux.tvaCollectee > 0 ? Math.min(100, Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100)) : 0}%` }}
                       ></div>
                     </div>
                     <span className="text-sm font-bold text-slate-900">
-                      {Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100)}%
+                      {calculsFiscaux.tvaCollectee > 0 ? Math.round((calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee) * 100) : 0}%
                     </span>
                   </div>
                    <div className="flex justify-between items-center">
                      <span className="text-xs text-slate-600">{t('fiscal.details.recovery_rate')}</span>
-                     <span className="text-sm font-bold text-slate-900">{(calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee * 100).toFixed(1)}%</span>
+                     <span className="text-sm font-bold text-slate-900">
+                       {calculsFiscaux.tvaCollectee > 0 ? (calculsFiscaux.tvaDeductible / calculsFiscaux.tvaCollectee * 100).toFixed(1) : '0.0'}%
+                     </span>
                    </div>
                 </div>
               </div>
@@ -917,7 +917,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <span className="mr-2">🏛️</span>
                   Taxe sur l'Activité Professionnelle (TAP)
                 </h3>
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Taux: 2%</span>
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Taux: {customRates.tap * 100}%</span>
               </div>
               <div className="space-y-3">
                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
@@ -929,7 +929,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                 <div className="bg-slate-900 rounded-lg p-4 border border-slate-800">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-xs text-slate-400 uppercase mb-1">TAP CALCULÉE (2%)</div>
+                      <div className="text-xs text-slate-400 uppercase mb-1">TAP CALCULÉE ({customRates.tap * 100}%)</div>
                       <div className="text-sm text-slate-500">Base × Taux</div>
                     </div>
                     <div className="text-2xl font-black text-white">{formatCurrency(calculsFiscaux.tap)}</div>
@@ -1331,7 +1331,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
                   <span className="text-lg font-black text-slate-900">{formatCurrency(calculsFiscaux.beneficeImposable)}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                  <span className="text-sm font-medium text-slate-600">IBS (26%)</span>
+                  <span className="text-sm font-medium text-slate-600">IBS ({customRates.ibs * 100}%)</span>
                   <span className="text-lg font-black text-slate-900">{formatCurrency(calculsFiscaux.ibs)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2">

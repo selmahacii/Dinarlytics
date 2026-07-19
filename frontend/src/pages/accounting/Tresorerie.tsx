@@ -209,15 +209,21 @@ const Tresorerie: React.FC = () => {
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dsoDays, setDsoDays] = useState(0);
+  const [dpoDays, setDpoDays] = useState(0);
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [accountsData, transactionsData] = await Promise.all([
+        const [accountsData, transactionsData, healthData] = await Promise.all([
           treasuryService.getAccounts(),
-          treasuryService.getTransactions({ limit: 10 })
-        ]);        if (accountsData) {
+          treasuryService.getTransactions({ limit: 10 }),
+          apiClient.get<any>('/analytics/financial-health').catch(() => ({ data: null as any }))
+        ]);
+        setDsoDays(Number(healthData.data?.dso_days) || 0);
+        setDpoDays(Number(healthData.data?.dpo_days) || 0);
+        if (accountsData) {
           setBankAccounts(accountsData.map(acc => ({
             id: acc.id,
             name: acc.bank_name,
@@ -303,18 +309,16 @@ const Tresorerie: React.FC = () => {
   const echeancesAutomatiques = useMemo(() => {
     const caMensuel = company?.revenueMonth || 0;
     const chargesMensuelles = caMensuel * 0.7;
-    const dso = 0;
-    const dpo = 0;
 
     return genererEcheancesAutomatiques({
       caMensuel,
       chargesMensuelles,
-      dso,
-      dpo,
+      dso: dsoDays,
+      dpo: dpoDays,
       dateDebut: new Date().toISOString().split('T')[0],
       nombreMois: 3
     });
-  }, [company]);
+  }, [company, dsoDays, dpoDays]);
 
   // Générer les prévisions de trésorerie
   const previsionsTresorerie = useMemo(() => {

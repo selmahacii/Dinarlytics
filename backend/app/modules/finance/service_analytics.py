@@ -36,11 +36,38 @@ class AnalyticService:
             Invoice.invoice_date >= one_year_ago
         ).scalar() or Decimal('0')
 
-        payments_total = db.query(func.sum(Payment.amount)).filter(
-            Payment.company_id == company_id
+        # Seuls les règlements liés à des factures de vente comptent pour le
+        # DSO — les payments de factures d'achat (fournisseurs) gonflaient
+        # artificiellement payments_total et donc réduisaient l'AR affichée.
+        payments_total = db.query(func.sum(Payment.amount)).join(
+            Invoice, Payment.invoice_id == Invoice.id
+        ).filter(
+            Payment.company_id == company_id,
+            Invoice.type == 'sale'
         ).scalar() or Decimal('0')
 
         ar_total = sales_total_ttc - payments_total  # Accounts Receivable
+
+        # DPO (Days Payable Outstanding) — symétrique du DSO côté achats.
+        purchases_total_ttc = db.query(func.sum(Invoice.total_ttc)).filter(
+            Invoice.company_id == company_id,
+            Invoice.status != 'annulee',
+            Invoice.type == 'purchase'
+        ).scalar() or Decimal('0')
+        purchases_365_ttc = db.query(func.sum(Invoice.total_ttc)).filter(
+            Invoice.company_id == company_id,
+            Invoice.status != 'annulee',
+            Invoice.type == 'purchase',
+            Invoice.invoice_date >= one_year_ago
+        ).scalar() or Decimal('0')
+        payments_purchases_total = db.query(func.sum(Payment.amount)).join(
+            Invoice, Payment.invoice_id == Invoice.id
+        ).filter(
+            Payment.company_id == company_id,
+            Invoice.type == 'purchase'
+        ).scalar() or Decimal('0')
+        ap_total = purchases_total_ttc - payments_purchases_total
+        dpo = (ap_total / purchases_365_ttc * 365) if purchases_365_ttc > 0 else Decimal('0')
 
         # Last statement for deeper analysis
         statement = db.query(FinancialStatement).filter(
@@ -78,6 +105,7 @@ class AnalyticService:
             "collection_rate": float((payments_total / sales_total_ttc * 100) if sales_total_ttc > 0 else 0),
             "margin_net_pct": float(margin_net),
             "dso_days": float(dso),
+            "dpo_days": float(dpo),
             "bfr_value": float(bfr),
             "break_even_point": float(break_even),
             "solvency_ratio": float((statement.equity / statement.total_assets) if statement and statement.total_assets > 0 else 0),

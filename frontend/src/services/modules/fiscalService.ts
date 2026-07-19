@@ -153,17 +153,32 @@ export const fiscalService = {
     getFiscalForecast: async () => {
         const allInvoices = await invoiceService.getAll();
         const active = allInvoices.filter(i => i.statut !== 'annule');
-        const sales = active.filter(i => i.type === 'sale').slice(-10); // Last 10 sales
-        const purchases = active.filter(i => i.type === 'purchase').slice(-10); // Last 10 purchases
 
-        // Simple linear extrapolation of last activities
-        const avgSaleTVA = sales.length > 0 ? sales.reduce((s, i) => s + i.totalTVA, 0) / sales.length : 0;
-        const avgPurchaseTVA = purchases.length > 0 ? purchases.reduce((s, i) => s + i.totalTVA, 0) / purchases.length : 0;
+        // Extrapolation sur les 30 derniers jours réels plutôt que sur un
+        // nombre arbitraire des "10 dernières factures" multiplié par un
+        // "volume mensuel hypothétique" — l'ancienne formule
+        // (avgSaleTVA*15 - avgPurchaseTVA*5) pouvait produire un résultat
+        // négatif ou absurde dès que le nombre de factures d'achat variait.
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const recent = active.filter(i => i.date && new Date(i.date) >= thirtyDaysAgo);
+        const recentSales = recent.filter(i => i.type === 'sale');
+        const recentPurchases = recent.filter(i => i.type === 'purchase');
+
+        const tvaCollecteeRecente = recentSales.reduce((s, i) => s + i.totalTVA, 0);
+        const tvaDeductibleRecente = recentPurchases.reduce((s, i) => s + i.totalTVA, 0);
+        const predictedTVANextMonth = tvaCollecteeRecente - tvaDeductibleRecente;
+
+        // Peu de factures sur la période = extrapolation peu fiable.
+        const sampleSize = recentSales.length + recentPurchases.length;
+        const confidenceScore = sampleSize >= 10 ? 0.75 : sampleSize >= 3 ? 0.5 : 0.25;
 
         return {
-            predictedTVANextMonth: (avgSaleTVA * 15) - (avgPurchaseTVA * 5), // hypothetical monthly volume
-            confidenceScore: 0.85,
-            message: "Basé sur vos 10 dernières transactions, nous prévoyons une charge de TVA stable."
+            predictedTVANextMonth,
+            confidenceScore,
+            message: sampleSize > 0
+                ? `Basé sur ${sampleSize} facture(s) des 30 derniers jours.`
+                : "Aucune facture sur les 30 derniers jours — prévision non fiable."
         };
     },
 
