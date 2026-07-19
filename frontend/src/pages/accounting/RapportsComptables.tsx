@@ -47,6 +47,9 @@ const EtatsRapports: React.FC = () => {
   const [balanceGenerale, setBalanceGenerale] = useState<any[]>([]);
   const [rawEcritures, setRawEcritures] = useState<any[]>([]);
   const [loadingReport, setLoadingReport] = useState(false);
+  const [caAnterieur, setCaAnterieur] = useState(0);
+  const [dotationAnnuelle, setDotationAnnuelle] = useState(0);
+  const [variationTresorerie, setVariationTresorerie] = useState(0);
 
   // Group ecritures to grand livre
   const groupEcrituresToGrandLivre = (ecritures: any[]) => {
@@ -93,17 +96,24 @@ const EtatsRapports: React.FC = () => {
       setLoadingReport(true);
       try {
         const params = { periode: selectedPeriode };
-        const [bilanRes, crRes, balanceRes, ecrituresRes] = await Promise.all([
+        const periodePrecedente = String(Number(selectedPeriode) - 1);
+        const [bilanRes, crRes, balanceRes, ecrituresRes, crAnterieurRes, amortRes, fluxRes] = await Promise.all([
           apiClient.get('/accounting-reports/bilan', { params }),
           apiClient.get('/accounting-reports/compte-resultat', { params }),
           apiClient.get('/accounting-reports/balance', { params }),
-          apiClient.get('/accounting-reports/ecritures', { params })
+          apiClient.get('/accounting-reports/ecritures', { params }),
+          apiClient.get('/accounting-reports/compte-resultat', { params: { periode: periodePrecedente } }).catch(() => ({ data: null as any })),
+          apiClient.get('/amortissements').catch(() => ({ data: null as any })),
+          apiClient.get('/accounting-reports/flux-tresorerie', { params }).catch(() => ({ data: null as any }))
         ]);
-        
+
         if (bilanRes.data) setBilan(bilanRes.data);
         if (crRes.data) setCompteResultat(crRes.data);
         if (balanceRes.data) setBalanceGenerale(balanceRes.data.items || []);
         if (ecrituresRes.data) setRawEcritures(ecrituresRes.data);
+        setCaAnterieur(Number(crAnterieurRes.data?.total_produits) || 0);
+        setDotationAnnuelle(Number(amortRes.data?.summary?.dotationAnnuelle) || 0);
+        setVariationTresorerie(Number(fluxRes.data?.variation_nette) || 0);
       } catch (err) {
         console.error("Error fetching accounting reports:", err);
       } finally {
@@ -124,10 +134,12 @@ const EtatsRapports: React.FC = () => {
   const resultat = Number(compteResultat?.resultat || 0);
 
   const CA_ACTUEL = totalProduits;
-  const CA_ANTERIEUR = 0;
+  const CA_ANTERIEUR = caAnterieur;
   const RESULTAT_BRUT = totalProduits - totalCharges;
   const IBS_ANNUEL = Number(compteResultat.charges.find((c: any) => c.compte === '444' || c.compte === '69')?.montant || 0);
   const RESULTAT_NET = resultat;
+
+  const pct = (num: number, denom: number) => denom > 0 ? (num / denom) * 100 : 0;
 
   const totalDebitBalance = balanceGenerale.reduce((sum, item) => sum + Number(item.debit), 0);
   const totalCreditBalance = balanceGenerale.reduce((sum, item) => sum + Number(item.credit), 0);
@@ -718,7 +730,7 @@ const EtatsRapports: React.FC = () => {
                 <div className="mt-6 md:mt-0 text-right">
                   <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{t('accounting.reports.resultat.net_margin')}</p>
                   <p className="text-3xl font-black text-white">
-                    {((resultat / totalProduits) * 100).toFixed(1)}%
+                    {pct(resultat, totalProduits).toFixed(1)}%
                   </p>
                 </div>
               </div>
@@ -747,6 +759,15 @@ const EtatsRapports: React.FC = () => {
                 </div>
               </div>
               <p className="text-sm text-slate-600 mt-1">{t('accounting.reports.flux.method_indirect', { period: selectedPeriode })}</p>
+              <div className="mt-2 flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                <InformationCircleIcon className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  Les variations de stock, créances, dettes et les flux d'investissement/financement ne sont pas
+                  encore calculés (aucune donnée de période comparative disponible pour ces postes) — ils sont
+                  marqués « Non calculé » plutôt qu'affichés à 0 pour éviter de laisser croire à une absence de
+                  variation. Seuls le résultat net et la dotation aux amortissements sont des valeurs réelles.
+                </span>
+              </div>
             </div>
             <div className="p-6">
               {/* Flux opérationnels */}
@@ -762,23 +783,23 @@ const EtatsRapports: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.depreciation')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
+                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(dotationAnnuelle)}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.inventory_var')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.receivables_var')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700 ml-4">{t('accounting.reports.flux.payables_var')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
                     <span className="text-sm font-black text-white uppercase tracking-widest">{t('accounting.reports.flux.net_op_flow')}</span>
-                    <span className="text-xl font-black text-white">{formatCurrency(resultat)}</span>
+                    <span className="text-xl font-black text-white">{formatCurrency(resultat + dotationAnnuelle)}</span>
                   </div>
                 </div>
               </div>
@@ -792,15 +813,15 @@ const EtatsRapports: React.FC = () => {
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.acquisition_fixed')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.disposal_fixed')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
                     <span className="text-sm font-black text-white uppercase tracking-widest">{t('accounting.reports.flux.net_inv_flow')}</span>
-                    <span className="text-xl font-black text-white">({formatCurrency(0)})</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                 </div>
               </div>
@@ -814,46 +835,40 @@ const EtatsRapports: React.FC = () => {
                 <div className="space-y-2 ml-4">
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.capital_increase')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.new_loans')}</span>
-                    <span className="text-sm font-semibold text-slate-900">{formatCurrency(0)}</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.loan_repayment')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="text-sm text-slate-700">{t('accounting.reports.flux.dividends')}</span>
-                    <span className="text-sm font-semibold text-red-600">({formatCurrency(0)})</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-slate-900 rounded-xl shadow-md mt-4">
                     <span className="text-sm font-black text-white uppercase tracking-widest">{t('accounting.reports.flux.net_fin_flow')}</span>
-                    <span className="text-xl font-black text-white">{formatCurrency(0)}</span>
+                    <span className="text-sm font-semibold text-slate-400 italic">Non calculé</span>
                   </div>
                 </div>
               </div>
 
-              {/* Variation de trésorerie */}
+              {/* Variation de trésorerie réelle (mouvements des comptes de classe 5) */}
               <div className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg text-white">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-700">
-                    <span className="text-base font-medium">{t('accounting.reports.flux.opening_cash')}</span>
-                    <span className="text-lg font-bold">{formatCurrency(0)}</span>
-                  </div>
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-700">
                     <span className="text-base font-medium">{t('accounting.reports.flux.net_variation')}</span>
-                    <span className="text-lg font-bold text-emerald-400">
-                      {formatCurrency(resultat)}
+                    <span className={`text-lg font-bold ${variationTresorerie >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {formatCurrency(variationTresorerie)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pt-2">
-                    <span className="text-lg font-bold">{t('accounting.reports.flux.closing_cash')}</span>
-                    <span className="text-2xl font-bold text-emerald-400">
-                      {formatCurrency(resultat)}
-                    </span>
-                  </div>
+                  <p className="text-xs text-slate-400">
+                    Variation réelle des comptes de trésorerie (classe 5) sur la période, issue des écritures validées.
+                    Non ventilée par nature (exploitation/investissement/financement) faute de codification analytique des flux.
+                  </p>
                 </div>
               </div>
             </div>
@@ -1066,13 +1081,13 @@ const EtatsRapports: React.FC = () => {
               <ChartBarIcon className="h-5 w-5 text-slate-400" />
             </div>
             <p className="text-3xl font-black text-slate-900 mb-2">
-              {((resultat / totalProduits) * 100).toFixed(1)}%
+              {pct(resultat, totalProduits).toFixed(1)}%
             </p>
             <p className="text-[10px] text-slate-400 mb-4 font-mono">{t('accounting.reports.resultat.net_margin_desc')}</p>
             <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div
                 className="bg-slate-900 h-full rounded-full"
-                style={{ width: `${((resultat / totalProduits) * 100) * 5}%` }}
+                style={{ width: `${pct(resultat, totalProduits) * 5}%` }}
               ></div>
             </div>
           </div>
@@ -1265,13 +1280,13 @@ const EtatsRapports: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] font-bold text-slate-700 uppercase">{t('accounting.reports.equity')}</span>
                     <span className="text-xs font-black text-slate-900">
-                      {((bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100).toFixed(1)}%
+                      {(pct(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0), totalPassif)).toFixed(1)}%
                     </span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                     <div
                       className="bg-slate-900 h-full rounded-full"
-                      style={{ width: `${((bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100)}%` }}
+                      style={{ width: `${(pct(bilan.passif.capitaux.reduce((s, i) => s + i.montant, 0), totalPassif))}%` }}
                     ></div>
                   </div>
                 </div>
@@ -1280,13 +1295,13 @@ const EtatsRapports: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] font-bold text-slate-700 uppercase">{t('accounting.reports.liabilities')}</span>
                     <span className="text-xs font-black text-slate-900">
-                      {((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100).toFixed(1)}%
+                      {(pct(bilan.passif.dettes.reduce((s, i) => s + i.montant, 0), totalPassif)).toFixed(1)}%
                     </span>
                   </div>
                   <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                     <div
                       className="bg-slate-900 h-full rounded-full opacity-40"
-                      style={{ width: `${((bilan.passif.dettes.reduce((s, i) => s + i.montant, 0) / totalPassif) * 100)}%` }}
+                      style={{ width: `${(pct(bilan.passif.dettes.reduce((s, i) => s + i.montant, 0), totalPassif))}%` }}
                     ></div>
                   </div>
                 </div>

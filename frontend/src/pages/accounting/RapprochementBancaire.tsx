@@ -172,6 +172,17 @@ const RapprochementBancaire: React.FC = () => {
       dateMatching: new Date().toISOString()
     }));
 
+    // Solde comptable = somme des mouvements du compte bancaire (classe 512)
+    // dans le grand livre, jusqu'à la date de fin du relevé — comparé au
+    // solde de clôture du relevé bancaire lui-même (soldeBancaire). Les deux
+    // étaient auparavant fixés à la même valeur (releveActif.soldeFin),
+    // rendant l'écart toujours nul par construction.
+    const soldeComptable = ecritures
+      .filter(e => e.date <= releveActif.dateFin)
+      .reduce((sum, e) => sum + (e.sens === 'D' ? e.montant : -e.montant), 0);
+    const soldeBancaire = releveActif.soldeFin;
+    const ecartTotal = Math.round((soldeComptable - soldeBancaire) * 100) / 100;
+
     return [{
       id: releveActif.id,
       compteBancaireId: selectedCompte,
@@ -179,10 +190,10 @@ const RapprochementBancaire: React.FC = () => {
       periode: releveActif.dateDebut.substring(0, 7),
       dateDebut: releveActif.dateDebut,
       dateFin: releveActif.dateFin,
-      soldeComptable: releveActif.soldeFin,
-      soldeBancaire: releveActif.soldeFin,
+      soldeComptable,
+      soldeBancaire,
       ecarts: [],
-      ecartTotal: 0,
+      ecartTotal,
       statut: releveActif.statut === 'rapproche' ? 'rapproche' : 'en_cours',
       dateRapprochement: new Date().toISOString(),
       rapprochePar: "Admin",
@@ -362,7 +373,7 @@ const RapprochementBancaire: React.FC = () => {
     setIsRapprochant(true);
     
     try {
-      const result = await reconciliationService.autoMatch(releveARapprocher.id, toleranceDate);
+      const result = await reconciliationService.autoMatch(releveARapprocher.id, toleranceDate, toleranceMontant);
       alert(`✓ ${result.matched_lines_count} correspondance(s) trouvée(s) automatiquement avec un score de confiance ≥ 70%`);
       await fetchStatements();
     } catch (err) {
@@ -696,17 +707,13 @@ const RapprochementBancaire: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-4 py-3 text-sm">
-                              <div className="flex space-x-2">
-                                <button 
-                                  className="text-green-600 hover:text-green-900" 
-                                  title="Valider"
-                                  onClick={() => alert("Ce rapprochement est déjà validé.")}
-                                >
+                              <div className="flex items-center space-x-2">
+                                <span className="flex items-center text-green-600" title="Déjà rapproché">
                                   <CheckCircleIcon className="h-5 w-5" />
-                                </button>
-                                <button 
-                                  className="text-red-600 hover:text-red-900" 
-                                  title="Rejeter"
+                                </span>
+                                <button
+                                  className="text-red-600 hover:text-red-900"
+                                  title="Annuler le rapprochement"
                                   onClick={() => handleUnmatch(ligne.id)}
                                 >
                                   <XCircleIcon className="h-5 w-5" />
@@ -731,15 +738,41 @@ const RapprochementBancaire: React.FC = () => {
               </div>
               
               <Card title="Écarts Identifiés">
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600" />
-                    <span className="font-semibold text-yellow-900">Aucun écart détecté</span>
+                {rapprochements[0] && rapprochements[0].ecartTotal !== 0 ? (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />
+                      <span className="font-semibold text-red-900">
+                        Écart de {formatCurrency(Math.abs(rapprochements[0].ecartTotal))} détecté
+                      </span>
+                    </div>
+                    <p className="text-sm text-red-700">
+                      Solde comptable : {formatCurrency(rapprochements[0].soldeComptable)} — Solde bancaire : {formatCurrency(rapprochements[0].soldeBancaire)}.
+                      Vérifiez les lignes non rapprochées ci-dessous.
+                    </p>
                   </div>
-                  <p className="text-sm text-yellow-700">
-                    Le solde comptable correspond au solde bancaire. Tous les montants sont rapprochés.
-                  </p>
-                </div>
+                ) : (
+                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600" />
+                      <span className="font-semibold text-yellow-900">Aucun écart détecté</span>
+                    </div>
+                    <p className="text-sm text-yellow-700">
+                      Le solde comptable correspond au solde bancaire. Tous les montants sont rapprochés.
+                    </p>
+                  </div>
+                )}
+                {releveActif && releveActif.lignes.filter(l => l.statutRapprochement === 'non_rapproche').length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <h4 className="text-sm font-semibold text-gray-700">Lignes non rapprochées</h4>
+                    {releveActif.lignes.filter(l => l.statutRapprochement === 'non_rapproche').map(l => (
+                      <div key={l.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg text-sm">
+                        <span className="text-gray-700">{l.libelle} — {l.dateOperation}</span>
+                        <span className="font-medium text-gray-900">{formatCurrency(l.montant)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Card>
             </div>
           )}

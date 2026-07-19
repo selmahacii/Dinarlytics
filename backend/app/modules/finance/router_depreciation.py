@@ -124,3 +124,69 @@ async def get_depreciation_report(
             dotationAnnuelle=total_dotation_annuelle
         )
     )
+
+
+class CreateAssetRequest(BaseModel):
+    code: str
+    designation: str
+    categorie: str
+    dateAcquisition: str
+    dureeVie: int
+    valeurAcquisition: float
+    valeurResiduelle: float = 0
+    methode: str = "lineaire"
+    tauxAmort: float
+    departement: Optional[str] = None
+    fournisseur: Optional[str] = None
+    comptePCA: Optional[str] = None
+    compteIFRS: Optional[str] = None
+
+
+@router.post("", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
+async def create_asset(
+    request: CreateAssetRequest,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """Create a new fixed asset (immobilisation) — the 'Ajouter' button in
+    TableauAmortissements.tsx previously had no onClick and no backend
+    endpoint existed to persist a new asset."""
+    immo = Immobilisation(
+        company_id=current_user.company_id,
+        code=request.code,
+        designation=request.designation,
+        categorie=request.categorie,
+        date_acquisition=datetime.strptime(request.dateAcquisition, "%Y-%m-%d").date(),
+        duree_vie=request.dureeVie,
+        valeur_acquisition=Decimal(str(request.valeurAcquisition)),
+        valeur_residuelle=Decimal(str(request.valeurResiduelle)),
+        methode=request.methode,
+        taux_amort=Decimal(str(request.tauxAmort)),
+        departement=request.departement,
+        fournisseur=request.fournisseur,
+        status="active",
+        compte_pca=request.comptePCA,
+        compte_ifrs=request.compteIFRS
+    )
+    db.add(immo)
+    db.commit()
+    db.refresh(immo)
+
+    depr = calculate_depreciation(immo, datetime.utcnow().year)
+    return AssetResponse(
+        id=str(immo.id),
+        code=immo.code,
+        designation=immo.designation,
+        categorie=immo.categorie,
+        dateAcquisition=immo.date_acquisition.strftime("%Y-%m-%d"),
+        dureeVie=immo.duree_vie,
+        valeurAcquisition=float(immo.valeur_acquisition),
+        valeurResiduelle=float(immo.valeur_residuelle),
+        methode=immo.methode,
+        tauxAmort=float(immo.taux_amort),
+        departement=immo.departement,
+        fournisseur=immo.fournisseur,
+        status=immo.status,
+        comptePCA=immo.compte_pca,
+        compteIFRS=immo.compte_ifrs
+    )

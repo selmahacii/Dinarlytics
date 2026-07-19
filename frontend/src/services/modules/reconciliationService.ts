@@ -23,9 +23,9 @@ const reconciliationService = {
         return response.data;
     },
 
-    autoMatch: async (statement_id: string, tolerance_days: number = 5): Promise<{ matched_lines_count: number }> => {
+    autoMatch: async (statement_id: string, tolerance_days: number = 5, tolerance_amount: number = 0.01): Promise<{ matched_lines_count: number }> => {
         const response = await apiClient.post(`/reconciliation/statements/${statement_id}/auto-match`, null, {
-            params: { tolerance_days }
+            params: { tolerance_days, tolerance_amount }
         });
         return response.data;
     },

@@ -192,6 +192,7 @@ async def import_statement(
 async def auto_match_statement(
     statement_id: str,
     tolerance_days: int = Query(5),
+    tolerance_amount: float = Query(0.01),
     current_user: TokenData = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -238,7 +239,7 @@ async def auto_match_statement(
             entry_date = entry.journal_entry.entry_date
             
             # Match rules
-            if abs(line_amount - entry_amount) < 0.01:
+            if abs(line_amount - entry_amount) <= tolerance_amount:
                 # Exact amount match
                 days_diff = abs((line_date - entry_date).days)
                 if days_diff <= tolerance_days:

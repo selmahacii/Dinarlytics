@@ -75,9 +75,15 @@ const TableauAmortissements: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [stockLots, setStockLots] = useState<any[]>([]);
   const [valoResults, setValoResults] = useState<any>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newAsset, setNewAsset] = useState({
+    code: '', designation: '', categorie: '', dateAcquisition: new Date().toISOString().split('T')[0],
+    dureeVie: 5, valeurAcquisition: 0, valeurResiduelle: 0, methode: 'lineaire', tauxAmort: 20,
+    departement: '', fournisseur: ''
+  });
+  const [savingAsset, setSavingAsset] = useState(false);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
       try {
         const response = await apiClient.get('/amortissements');
         const data = response.data as { assets?: Immobilisation[]; summary?: any };
@@ -113,9 +119,56 @@ const TableauAmortissements: React.FC = () => {
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
   }, [t]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleCreateAsset = async () => {
+    if (!newAsset.code || !newAsset.designation || !newAsset.categorie || newAsset.valeurAcquisition <= 0) {
+      alert(t('amort.add_modal.validation_error') || 'Code, désignation, catégorie et valeur d\'acquisition sont requis.');
+      return;
+    }
+    setSavingAsset(true);
+    try {
+      await apiClient.post('/amortissements', newAsset);
+      setIsAddModalOpen(false);
+      setNewAsset({
+        code: '', designation: '', categorie: '', dateAcquisition: new Date().toISOString().split('T')[0],
+        dureeVie: 5, valeurAcquisition: 0, valeurResiduelle: 0, methode: 'lineaire', tauxAmort: 20,
+        departement: '', fournisseur: ''
+      });
+      await fetchData();
+    } catch (err) {
+      console.error("Failed to create asset", err);
+      alert(t('amort.add_modal.error') || 'Erreur lors de la création de l\'immobilisation.');
+    } finally {
+      setSavingAsset(false);
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExport = () => {
+    const headers = ['Code', 'Désignation', 'Catégorie', 'Date acquisition', 'Valeur acquisition', 'Valeur nette', 'Amortissement cumulé', 'Statut'];
+    const rows = enrichedImmos.map(i => [
+      i.code, i.designation, i.categorie, i.dateAcquisition,
+      i.valeurAcquisition, i.valeurNette, i.amortCumul, i.status
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `amortissements_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const currentYear = new Date().getFullYear();
   const categories = useMemo(() => [...new Set(assets.map(i => i.categorie))], [assets]);
@@ -179,7 +232,7 @@ const TableauAmortissements: React.FC = () => {
             {isIFRS ? t('amort.plan.ifrs') : t('amort.plan.pca')}
           </span>
           {has('comptabilite-write') && (
-            <button className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
+            <button onClick={() => setIsAddModalOpen(true)} className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 transition-colors shadow-sm">
               <PlusIcon className="h-4 w-4 mr-2" />{t('amort.add_btn')}
             </button>
           )}
@@ -231,10 +284,10 @@ const TableauAmortissements: React.FC = () => {
                 {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <div className="flex gap-2">
-                <button className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50">
+                <button onClick={handlePrint} className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50">
                   <PrinterIcon className="h-4 w-4 mr-2"/>{t('amort.actions.print')}
                 </button>
-                <button className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50">
+                <button onClick={handleExport} className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50">
                   <DocumentArrowDownIcon className="h-4 w-4 mr-2"/>{t('amort.actions.export')}
                 </button>
               </div>
@@ -482,6 +535,82 @@ const TableauAmortissements: React.FC = () => {
               <button onClick={() => { setIsDetailOpen(false); setActiveTab('tableau'); }}
                 className="flex items-center px-4 py-2 text-sm font-semibold bg-slate-900 text-white rounded-xl hover:bg-slate-800">
                 <ChartBarIcon className="h-4 w-4 mr-2"/>{t('amort.detail.view_schedule')}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {isAddModalOpen && (
+        <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title={t('amort.add_btn')} size="lg">
+          <div className="space-y-4 p-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Code *</label>
+                <input value={newAsset.code} onChange={e => setNewAsset({ ...newAsset, code: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Désignation *</label>
+                <input value={newAsset.designation} onChange={e => setNewAsset({ ...newAsset, designation: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Catégorie *</label>
+                <input value={newAsset.categorie} onChange={e => setNewAsset({ ...newAsset, categorie: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Date d'acquisition</label>
+                <input type="date" value={newAsset.dateAcquisition} onChange={e => setNewAsset({ ...newAsset, dateAcquisition: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Valeur d'acquisition (DA) *</label>
+                <input type="number" min={0} value={newAsset.valeurAcquisition} onChange={e => setNewAsset({ ...newAsset, valeurAcquisition: Number(e.target.value) })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Valeur résiduelle (DA)</label>
+                <input type="number" min={0} value={newAsset.valeurResiduelle} onChange={e => setNewAsset({ ...newAsset, valeurResiduelle: Number(e.target.value) })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Durée de vie (ans)</label>
+                <input type="number" min={1} value={newAsset.dureeVie} onChange={e => setNewAsset({ ...newAsset, dureeVie: Number(e.target.value) })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Taux d'amortissement (%)</label>
+                <input type="number" min={0} max={100} value={newAsset.tauxAmort} onChange={e => setNewAsset({ ...newAsset, tauxAmort: Number(e.target.value) })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Méthode</label>
+                <select value={newAsset.methode} onChange={e => setNewAsset({ ...newAsset, methode: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none">
+                  <option value="lineaire">Linéaire</option>
+                  <option value="degressif">Dégressif</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Département</label>
+                <input value={newAsset.departement} onChange={e => setNewAsset({ ...newAsset, departement: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-500 mb-1 block">Fournisseur</label>
+                <input value={newAsset.fournisseur} onChange={e => setNewAsset({ ...newAsset, fournisseur: e.target.value })}
+                  className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+              <button onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 rounded-xl hover:bg-slate-50">
+                {t('common.cancel') || 'Annuler'}
+              </button>
+              <button onClick={handleCreateAsset} disabled={savingAsset}
+                className="flex items-center px-5 py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl hover:bg-slate-800 disabled:opacity-50">
+                {savingAsset ? '...' : (t('common.save') || 'Enregistrer')}
               </button>
             </div>
           </div>

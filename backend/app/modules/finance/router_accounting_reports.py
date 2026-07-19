@@ -78,6 +78,29 @@ class FluxTresorerieResponse(BaseModel):
     financement: Dict[str, Decimal]
     variation_nette: Decimal
 
+def parse_periode(periode: Optional[str]):
+    """Parse a 'YYYY' or 'YYYY-MM' periode string into (year, month|None).
+    The frontend period selector only sends a bare year ('2024'), which
+    every `year, month = map(int, periode.split('-'))` call below used to
+    raise on and silently swallow via a bare except — meaning the period
+    filter was never actually applied and every "period" view secretly
+    returned all-time totals."""
+    if not periode:
+        return None, None
+    parts = periode.split('-')
+    try:
+        year = int(parts[0])
+    except (ValueError, IndexError):
+        return None, None
+    month = None
+    if len(parts) > 1:
+        try:
+            month = int(parts[1])
+        except ValueError:
+            month = None
+    return year, month
+
+
 # ========== DEPENDENCIES ==========
 async def check_accounting_access(
     current_user: TokenData = Depends(get_current_user)
@@ -112,12 +135,12 @@ async def get_journaux_summary(
     ).filter(JournalEntry.company_id == current_user.company_id)
     
     if periode:
-        year, month = map(int, periode.split('-'))
-        query = query.filter(
-            extract('year', JournalEntry.entry_date) == year,
-            extract('month', JournalEntry.entry_date) == month
-        ) # pragma: no cover
-    
+        year, month = parse_periode(periode)
+        if year is not None:
+            query = query.filter(extract('year', JournalEntry.entry_date) == year)
+        if month is not None:
+            query = query.filter(extract('month', JournalEntry.entry_date) == month)
+
     query = query.group_by(JournalEntry.journal_type)
     results = query.all()
     
@@ -161,12 +184,12 @@ async def get_journal_entries(
         query = query.filter(JournalEntry.journal_type == journal)
     
     if periode:
-        year, month = map(int, periode.split('-'))
-        query = query.filter(
-            extract('year', JournalEntry.entry_date) == year,
-            extract('month', JournalEntry.entry_date) == month
-        )
-    
+        year, month = parse_periode(periode)
+        if year is not None:
+            query = query.filter(extract('year', JournalEntry.entry_date) == year)
+        if month is not None:
+            query = query.filter(extract('month', JournalEntry.entry_date) == month)
+
     entries = query.order_by(JournalEntry.entry_date.desc()).offset(skip).limit(limit).all()
     
     # Flatten entries with their lines
@@ -313,14 +336,11 @@ async def get_compte_resultat(
     )
 
     if periode:
-        try:
-            year, month = map(int, periode.split('-'))
-            query = query.filter(
-                extract('year', JournalEntry.entry_date) == year,
-                extract('month', JournalEntry.entry_date) == month
-            )
-        except:
-            pass # Handle year-only or invalid format if needed
+        year, month = parse_periode(periode)
+        if year is not None:
+            query = query.filter(extract('year', JournalEntry.entry_date) == year)
+        if month is not None:
+            query = query.filter(extract('month', JournalEntry.entry_date) == month)
 
     # Balances
     balances = query.group_by(JournalEntryLine.account_code).all()
@@ -377,14 +397,11 @@ async def get_balance_generale(
     )
     
     if periode:
-        try:
-            year, month = map(int, periode.split('-'))
-            query = query.filter(
-                extract('year', JournalEntry.entry_date) == year,
-                extract('month', JournalEntry.entry_date) == month
-            )
-        except:
-            pass
+        year, month = parse_periode(periode)
+        if year is not None:
+            query = query.filter(extract('year', JournalEntry.entry_date) == year)
+        if month is not None:
+            query = query.filter(extract('month', JournalEntry.entry_date) == month)
 
     results = query.group_by(JournalEntryLine.account_code).order_by(JournalEntryLine.account_code).all()
     
@@ -432,14 +449,11 @@ async def get_flux_tresorerie(
     )
     
     if periode:
-        try:
-            year, month = map(int, periode.split('-'))
-            query = query.filter(
-                extract('year', JournalEntry.entry_date) == year,
-                extract('month', JournalEntry.entry_date) == month
-            )
-        except:
-             pass
+        year, month = parse_periode(periode)
+        if year is not None:
+            query = query.filter(extract('year', JournalEntry.entry_date) == year)
+        if month is not None:
+            query = query.filter(extract('month', JournalEntry.entry_date) == month)
 
     variation_nette = query.scalar() or Decimal(0)
 
