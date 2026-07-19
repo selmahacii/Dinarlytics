@@ -103,9 +103,24 @@ async def list_invoices(
             for c in db.query(Client.id, Client.name).filter(Client.id.in_(client_ids)).all()
         }
 
+    # Idem pour les fournisseurs — les factures d'achat (type='purchase')
+    # n'ont pas de client_id, donc client_name retombait toujours sur
+    # "Client Inconnu" au lieu du vrai nom du fournisseur.
+    from app.core.models import Supplier
+    supplier_ids = {inv.supplier_id for inv in invoices if getattr(inv, 'supplier_id', None)}
+    suppliers_by_id = {}
+    if supplier_ids:
+        suppliers_by_id = {
+            s.id: s.name
+            for s in db.query(Supplier.id, Supplier.name).filter(Supplier.id.in_(supplier_ids)).all()
+        }
+
     res = []
     for inv in invoices:
-        client_name = clients_by_id.get(inv.client_id, "Client Inconnu")
+        if getattr(inv, 'supplier_id', None):
+            client_name = suppliers_by_id.get(inv.supplier_id, "Fournisseur Inconnu")
+        else:
+            client_name = clients_by_id.get(inv.client_id, "Client Inconnu")
 
         res.append(InvoiceResponse(
             id=str(inv.id),

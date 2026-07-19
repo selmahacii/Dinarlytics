@@ -27,6 +27,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useApp } from '@core/context/AppContext';
 import { usePurchaseReports } from '@shared/hooks/usePurchaseReports';
+import apiClient from '@/services/apiClient';
 
 
 const AchatsFournisseurs: React.FC = () => {
@@ -37,6 +38,21 @@ const AchatsFournisseurs: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('tous');
   const [showFilters, setShowFilters] = useState(false);
   const { data, loading, error } = usePurchaseReports(selectedPeriod);
+  const [dpoDays, setDpoDays] = useState(0);
+  const [totalVentes, setTotalVentes] = useState(0);
+  const [recentPurchaseInvoices, setRecentPurchaseInvoices] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    apiClient.get<any>('/analytics/financial-health').then(res => {
+      setDpoDays(Number(res.data?.dpo_days) || 0);
+    }).catch(() => {});
+    apiClient.get<any>('/analytics/dashboard').then(res => {
+      setTotalVentes(Number(res.data?.ca_mois_courant) || 0);
+    }).catch(() => {});
+    apiClient.get<any[]>('/invoices/?type=purchase&limit=12').then(res => {
+      setRecentPurchaseInvoices(res.data || []);
+    }).catch(() => {});
+  }, []);
 
   if (loading) return <div className="p-8 text-center text-slate-500">Chargement des rapports d'achats...</div>;
   if (error) return <div className="p-8 text-center text-red-500">Erreur : {error}</div>;
@@ -382,12 +398,12 @@ Généré par Dinarlytics
   const purchaseData = {
     totalAchats: { value: data.totalPurchases, change: 0, trend: 'up' },
     fournisseursActifs: data.supplierCount,
-    montantMoyenFacture: Math.round(data.totalPurchases / (data.topSuppliers.length * 4)),
+    montantMoyenFacture: data.orderCount > 0 ? Math.round(data.totalPurchases / data.orderCount) : 0,
     tvaDeductible: Math.round(data.totalPurchases * 0.2),
-    ratioAchatsVentes: 0,
-    dpoMoyen: 0,
-    coutAchatMoyen: Math.round(data.totalPurchases / data.supplierCount),
-    facturesEnRetard: 0,
+    ratioAchatsVentes: totalVentes > 0 ? Math.round((data.totalPurchases / totalVentes) * 100) : 0,
+    dpoMoyen: Math.round(dpoDays),
+    coutAchatMoyen: data.supplierCount > 0 ? Math.round(data.totalPurchases / data.supplierCount) : 0,
+    facturesEnRetard: data.pendingOrdersCount,
     economiesRealisees: 0
   };
   const purchasesByCategory = data.purchasesByCategory || [];
@@ -433,16 +449,23 @@ Généré par Dinarlytics
     category: s.category ?? '',
     reliability: s.reliability ?? '',
   }));
-  const allMovements = topSuppliers.slice(0, 12).map((supplier: any, idx: number) => ({
-    id: idx + 1,
-    date: new Date(Date.now() - (idx * 86400000)).toISOString().split('T')[0],
-    fournisseur: supplier.name,
-    type: 'Achat',
-    montant: -supplier.amount,
-    statut: idx % 3 === 0 ? 'payé' : idx % 2 === 0 ? 'en-attente' : 'terminé',
-    priorite: supplier.amount > data.totalPurchases * 0.1 ? 'haute' : 'normale',
-    periode: 'mois'
-  }));
+  // Mouvements réels issus des factures d'achat (Invoice type='purchase'),
+  // plutôt que des dates/statuts fabriqués séquentiellement à partir des
+  // top fournisseurs (idx%3/idx%2 ne correspondaient à aucune donnée réelle).
+  const allMovements = recentPurchaseInvoices
+    .filter((inv: any) => inv.statut !== 'cancelled')
+    .map((inv: any, idx: number) => ({
+      id: inv.id || idx + 1,
+      date: inv.date_emission,
+      fournisseur: inv.client_name || 'Fournisseur Inconnu',
+      type: 'Achat',
+      // Le statut de facture réel ne distingue que brouillon/validée — on
+      // ne prétend pas "payé" faute d'un suivi de paiement exposé ici.
+      statut: inv.statut === 'validated' ? 'terminé' : 'en-attente',
+      montant: -Number(inv.total_ttc || 0),
+      priorite: Number(inv.total_ttc || 0) > data.totalPurchases * 0.1 ? 'haute' : 'normale',
+      periode: 'mois'
+    }));
 
   // Logique de filtrage
   const filteredMovements = allMovements.filter((movement: any) => {
@@ -1763,19 +1786,43 @@ Généré par Dinarlytics
               <p className="text-sm text-slate-600">Générez et partagez vos rapports d'achats</p>
             </div>
             <div className="flex items-center space-x-3">
-              <button className="px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors flex items-center shadow-sm">
+              <button onClick={handleGenerateFullReport} className="px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors flex items-center shadow-sm">
                 <EyeIcon className="h-4 w-4 mr-2" />
                 Rapport complet
               </button>
-              <button className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
+              <button onClick={() => window.print()} className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
                 <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
                 Export PDF
               </button>
-              <button className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
+              <button
+                onClick={() => {
+                  const headers = ['Date', 'Fournisseur', 'Type', 'Montant', 'Statut'];
+                  const rows = filteredMovements.map((m: any) => [m.date, m.fournisseur, m.type, m.montant, m.statut]);
+                  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+                  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `achats_${selectedPeriod}.csv`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(url);
+                }}
+                className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
                 <DocumentArrowDownIcon className="h-4 w-4 mr-2" />
                 Export Excel
               </button>
-              <button className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({ title: 'Rapport Achats Fournisseurs', text: `Total achats: ${formatCurrency(data.totalPurchases)}` }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(`Rapport Achats Fournisseurs — Total: ${formatCurrency(data.totalPurchases)}`);
+                    alert('Résumé copié dans le presse-papiers.');
+                  }
+                }}
+                className="px-4 py-2 bg-white text-slate-700 rounded-md hover:bg-slate-50 transition-colors flex items-center border border-slate-300 shadow-sm">
                 <ShareIcon className="h-4 w-4 mr-2" />
                 Partager
               </button>

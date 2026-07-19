@@ -4,6 +4,8 @@ import apiClient from '@/services/apiClient';
 export interface PurchaseReportData {
   totalPurchases: number;
   supplierCount: number;
+  orderCount: number;
+  pendingOrdersCount: number;
   period: string;
   topSuppliers: Array<{
     name: string;

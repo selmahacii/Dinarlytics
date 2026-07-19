@@ -173,6 +173,19 @@ async def get_purchases_report(
     # Supplier count
     supplier_count = db.query(func.count(func.distinct(PurchaseOrder.supplier_id)))\
         .filter(PurchaseOrder.company_id == company_id).scalar() or 0
+
+    # Order count — used to compute a real average order amount instead of
+    # an arbitrary "topSuppliers.length * 4" guess on the frontend.
+    order_count = db.query(func.count(PurchaseOrder.id))\
+        .filter(PurchaseOrder.company_id == company_id, PurchaseOrder.status != 'cancelled').scalar() or 0
+
+    # Orders still awaiting delivery/invoicing (no expected-delivery-date
+    # field exists on PurchaseOrder to compute true "lateness", so this is
+    # a count of in-flight orders rather than a fabricated overdue metric).
+    pending_orders_count = db.query(func.count(PurchaseOrder.id)).filter(
+        PurchaseOrder.company_id == company_id,
+        PurchaseOrder.status.in_(['draft', 'confirmed'])
+    ).scalar() or 0
         
     # Top Suppliers
     top_suppliers_rows = db.query(
@@ -217,6 +230,8 @@ async def get_purchases_report(
     return {
         "totalPurchases": total_purchases,
         "supplierCount": supplier_count,
+        "orderCount": order_count,
+        "pendingOrdersCount": pending_orders_count,
         "period": period,
         "topSuppliers": top_suppliers,
         "purchasesByCategory": purchases_by_category
