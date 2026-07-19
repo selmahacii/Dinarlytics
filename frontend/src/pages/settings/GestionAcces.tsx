@@ -180,6 +180,16 @@ const GestionAcces: React.FC = () => {
     }
   };
 
+  const handleActivateCompany = async (company: Company) => {
+    if (!confirm(`Réactiver l'accès de "${company.name}" ?`)) return;
+    try {
+      await apiClient.put(`/auth/companies/${company.backendId}`, { is_active: true });
+      setCompanies(companies.map(c => c.id === company.id ? { ...c, status: 'active' as const } : c));
+    } catch (err) {
+      console.error('Failed to activate company', err);
+    }
+  };
+
   const getUsagePercentage = (users: number, maxUsers: number) => {
     return Math.round((users / maxUsers) * 100);
   };
@@ -452,13 +462,21 @@ const GestionAcces: React.FC = () => {
                         >
                           <EyeIcon className="h-4 w-4" />
                         </button>
-                        {company.status !== 'suspended' && (
+                        {company.status !== 'suspended' ? (
                           <button
                             onClick={() => handleSuspendCompany(company)}
                             className="text-red-600 hover:text-red-900"
                             title="Suspendre l'accès"
                           >
                             <TrashIcon className="h-4 w-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleActivateCompany(company)}
+                            className="text-emerald-600 hover:text-emerald-900"
+                            title="Réactiver l'accès"
+                          >
+                            <ArrowPathIcon className="h-4 w-4" />
                           </button>
                         )}
                       </div>

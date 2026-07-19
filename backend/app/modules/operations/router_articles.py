@@ -68,6 +68,7 @@ class ArticleStatsResponse(BaseModel):
     total_inventory_value: Decimal
     categories: List[dict]
     top_selling: List[dict]
+    rotation: float = 0
 
 # ========== DEPENDENCIES ==========
 async def check_article_access(
@@ -206,7 +207,21 @@ async def get_article_stats(
             Article.is_active == True
         ).order_by(Article.stock_quantity.desc()).limit(5).all()
         top_selling = [{"id": str(a.id), "name": a.name, "quantity": float(a.stock_quantity or 0)} for a in top_stocked]
-    
+
+    # Rotation de stock = coût des ventes (COGS) des 30 derniers jours /
+    # valeur du stock actuel, ratio simplifié faute d'un suivi FIFO/LIFO
+    # (cf. analyticService.ts qui utilise un calcul CA/stock équivalent).
+    import datetime as _dt
+    thirty_days_ago = _dt.date.today() - _dt.timedelta(days=30)
+    cogs_30d = db.query(
+        func.sum(InvoiceItem.quantity * Article.cost_price)
+    ).join(Article, InvoiceItem.article_id == Article.id).join(Invoice, Invoice.id == InvoiceItem.invoice_id).filter(
+        Article.company_id == current_user.company_id,
+        Invoice.status != 'annulee',
+        Invoice.invoice_date >= thirty_days_ago
+    ).scalar() or Decimal(0)
+    rotation = float(cogs_30d / total_inventory_value) if total_inventory_value > 0 else 0.0
+
     return ArticleStatsResponse(
         total_articles=total_articles,
         active_articles=active_articles,
@@ -214,7 +229,8 @@ async def get_article_stats(
         out_of_stock_count=out_of_stock_count,
         total_inventory_value=total_inventory_value,
         categories=categories,
-        top_selling=top_selling
+        top_selling=top_selling,
+        rotation=rotation
     )
 
 @router.get("/{article_id}", response_model=ArticleResponse)

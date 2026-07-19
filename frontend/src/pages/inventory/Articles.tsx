@@ -101,14 +101,12 @@ const Articles: React.FC = () => {
     const fetchStats = async () => {
       try {
         setLoadingStats(true);
-        const response = await apiClient.get<{ total_articles: number; active_articles: number }>('/articles/stats');
+        const response = await apiClient.get<{ total_articles: number; active_articles: number; rotation?: number }>('/articles/stats');
         const data = response.data;
         setArticlesStats({
           total: data.total_articles || 0,
           active: data.active_articles || 0,
-          // Aucune donnée de rotation de stock n'est encore calculée côté
-          // backend (nécessiterait un historique de ventes par article).
-          rotation: 0
+          rotation: data.rotation || 0
         });
         setErrorStats(null);
       } catch (err) {
@@ -639,21 +637,24 @@ const Articles: React.FC = () => {
   const handleExportExcel = () => {
     const csvContent = "Article,Type,Code,Catégorie,Date,Statut\n" +
       barcodes.map(b => `${b.article},${b.type},${b.code},${b.categorie},${b.dateCreation},${b.status}`).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `codes_barres_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
     link.click();
-    alert('✅ Fichier Excel exporté avec succès !\n\nFichier: codes_barres_export.csv\nNombre de codes: ' + barcodes.length);
+    document.body.removeChild(link);
   };
 
   const handlePrintLabels = () => {
     window.print();
-    alert('🖨️ Impression lancée !\n\nFormat: A4 (21 étiquettes par page)\nNombre de codes: ' + barcodes.length);
   };
 
   const handleDownloadPDF = () => {
-    alert('📄 Génération du PDF en cours...\n\n' + barcodes.length + ' codes-barres inclus\nFichier: codes_barres_catalogue.pdf\n\n✅ PDF prêt pour le téléchargement !');
+    // Pas de générateur PDF côté client — window.print() (via le menu
+    // "Enregistrer en PDF" du navigateur) est le seul export PDF réel
+    // disponible, au lieu d'un faux message "PDF prêt" sans fichier produit.
+    window.print();
   };
 
   const handleAddManualBarcode = () => {
@@ -1300,7 +1301,6 @@ const Articles: React.FC = () => {
                   </div>
                   <div className="text-left sm:text-right">
                     <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest rounded-lg">Stable</span>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-2">Dernier mouvement : 15 Sep</p>
                   </div>
                 </div>
 
