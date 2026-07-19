@@ -121,9 +121,9 @@ const VentesClients: React.FC = () => {
     setIsGeneratingAiAudit(true);
     setAiAuditReport(null);
 
-    // Simulation IA
-    await new Promise(resolve => setTimeout(resolve, 2500));
-
+    // Calcul déterministe (seuils fixes sur des données réelles), pas un
+    // modèle d'IA — l'ancien délai de 2.5s simulait une inférence qui
+    // n'existe pas, le calcul ci-dessous s'exécute en fait instantanément.
     if (data) {
       const dsoValue = data.clientMetrics.dsoMoyen;
       const caValue = data.salesData.ca.value;
@@ -302,7 +302,22 @@ const VentesClients: React.FC = () => {
                       <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5 opacity-60">{t("sales.sections.product_performance")}</p>
                     </div>
                   </div>
-                  <button className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                  <button
+                    onClick={() => {
+                      const headers = ['Rang', 'Produit', 'Ventes'];
+                      const rows = topProducts.map((p: any, i: number) => [i + 1, p.name, p.sales ?? p.value ?? '']);
+                      const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+                      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `top_produits_${selectedPeriod}.csv`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(url);
+                    }}
+                    className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
                     <ArrowDownTrayIcon className="h-5 w-5 text-slate-400" />
                   </button>
                 </div>
@@ -568,7 +583,7 @@ const VentesClients: React.FC = () => {
       <Modal
         isOpen={isAiAuditModalOpen}
         onClose={() => setIsAiAuditModalOpen(false)}
-        title="Audit Stratégique Commercial (LIA)"
+        title="Audit Stratégique Commercial"
         size="xl"
       >
         <div className="bg-slate-50 -m-6 p-6 sm:p-10 min-h-[500px]">
@@ -578,7 +593,7 @@ const VentesClients: React.FC = () => {
                 <div className="h-20 w-20 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
                 <SparklesIcon className="h-8 w-8 text-indigo-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
               </div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 animate-pulse">LIA analyse vos données commerciales...</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 animate-pulse">Analyse de vos données commerciales...</p>
             </div>
           ) : aiAuditReport && (
             <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
@@ -624,7 +639,9 @@ const VentesClients: React.FC = () => {
               </div>
 
               <div className="bg-slate-900 p-8 rounded-[2rem] flex items-center justify-between">
-                <p className="text-slate-400 text-xs font-medium">Recommandation : <span className="text-white font-bold">Planifiez une revue de stock pour la catégorie "Services Conseil" sous 72h.</span></p>
+                <p className="text-slate-400 text-xs font-medium">Recommandation : <span className="text-white font-bold">
+                  {salesByCategory[0] ? `Priorisez le suivi de la catégorie "${salesByCategory[0].category}" (${salesByCategory[0].percentage}% du CA).` : 'Aucune donnée suffisante pour une recommandation.'}
+                </span></p>
                 <button onClick={() => window.print()} className="px-6 py-3 bg-white text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all">Télécharger l'Audit</button>
               </div>
             </div>
