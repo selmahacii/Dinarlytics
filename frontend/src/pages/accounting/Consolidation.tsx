@@ -53,6 +53,44 @@ const Consolidation: React.FC = () => {
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
   const [isCurrencyModalOpen, setIsCurrencyModalOpen] = useState(false);
+  const [newCompany, setNewCompany] = useState({ name: '', country: 'Algérie', currency_code: 'DZD', ownership_percentage: 100 });
+  const [savingCompany, setSavingCompany] = useState(false);
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
+  const [savingRateFor, setSavingRateFor] = useState<string | null>(null);
+
+  const fetchExchangeRates = async () => {
+    try {
+      const res = await apiClient.get<any[]>('/currencies/rates');
+      const map: Record<string, number> = {};
+      (res.data || []).forEach((r: any) => { map[r.currency_code] = Number(r.rate_to_base); });
+      setExchangeRates(map);
+    } catch (err) {
+      console.error('Failed to load exchange rates', err);
+    }
+  };
+
+  useEffect(() => {
+    if (isCurrencyModalOpen) fetchExchangeRates();
+  }, [isCurrencyModalOpen]);
+
+  const handleUpdateRate = async (currencyCode: string) => {
+    const current = exchangeRates[currencyCode];
+    const nouveauTaux = prompt(`Nouveau taux pour ${currencyCode} (1 ${currencyCode} = X DZD):`, current ? String(current) : '');
+    if (!nouveauTaux || isNaN(parseFloat(nouveauTaux))) return;
+    setSavingRateFor(currencyCode);
+    try {
+      await apiClient.post('/currencies/rates', {
+        currency_code: currencyCode,
+        rate_to_base: parseFloat(nouveauTaux)
+      });
+      await fetchExchangeRates();
+    } catch (err) {
+      console.error('Failed to update exchange rate', err);
+      alert('Erreur lors de la mise à jour du taux.');
+    } finally {
+      setSavingRateFor(null);
+    }
+  };
   const [selectedPeriod, setSelectedPeriod] = useState('2024');
   const [selectedReport, setSelectedReport] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -210,20 +248,14 @@ const Consolidation: React.FC = () => {
   const handleConsolidation = async () => {
     setIsConsolidating(true);
     setConsolidationProgress(0);
-    
-    const steps = [
-      { progress: 20, message: 'Conversion des devises...' },
-      { progress: 40, message: 'Détection des transactions inter-sociétés...' },
-      { progress: 60, message: 'Génération des éliminations...' },
-      { progress: 80, message: 'Calcul des totaux consolidés...' },
-      { progress: 100, message: 'Finalisation...' }
-    ];
-    
-    for (const step of steps) {
-      await new Promise(resolve => setTimeout(resolve, 600));
-      setConsolidationProgress(step.progress);
-    }
-    
+
+    // Le calcul de consolidation s'exécute en fait instantanément côté
+    // client (voir calculerConsolidation ci-dessous) — l'ancienne
+    // progression par étapes (5 x setTimeout 600ms avec des messages
+    // "Conversion des devises...", etc.) était une simulation purement
+    // visuelle sans rapport avec un traitement réel. On garde un seul
+    // indicateur de chargement honnête pendant le calcul réel.
+
     // Préparer les données au format attendu
     const entreprisesFormat: EntrepriseConsolidation[] = entreprises.map(e => ({
       id: e.id.toString(),
@@ -270,7 +302,8 @@ const Consolidation: React.FC = () => {
       totalEliminations: donneesConsolidees.totalEliminations,
       nombreTransactionsEliminees: donneesConsolidees.nombreTransactionsEliminees
     };
-    
+
+    setConsolidationProgress(100);
     setConsolidatedData(newData);
     setConsolidationData(newData);
     setIsConsolidating(false);
@@ -285,7 +318,37 @@ const Consolidation: React.FC = () => {
   };
 
   const handleExportReport = (format: string) => {
-    alert(`Export du rapport consolidé en format ${format} en cours...`);
+    if (format === 'Excel' || format === 'PDF') {
+      // Pas de générateur PDF/Excel réel côté client pour ce rapport —
+      // on exporte les données réelles en CSV (ouvrable par Excel) plutôt
+      // que d'afficher un faux message de succès sans produire de fichier.
+      const headers = ['Entreprise', 'Pays', 'Devise', 'CA', 'Bénéfice', 'Actif', 'Passif', 'Trésorerie'];
+      const rows = entreprises.map((e: any) => [e.nom, e.pays, e.devise, e.chiffreAffaires, e.benefice, e.actif, e.passif, e.tresorerie]);
+      const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\n');
+      const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `consolidation_${selectedPeriod}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } else {
+      const target = entreprises.find((e: any) => `entreprise-${e.id}` === format);
+      if (target) {
+        const csv = `Entreprise;Pays;Devise;CA;Bénéfice;Actif;Passif;Trésorerie\n"${target.nom}";"${target.pays}";"${target.devise}";${target.chiffreAffaires};${target.benefice};${target.actif};${target.passif};${target.tresorerie}`;
+        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${target.nom}_${selectedPeriod}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -310,12 +373,39 @@ const Consolidation: React.FC = () => {
     setIsCompanyModalOpen(true);
   };
 
+  const handleSubmitNewCompany = async () => {
+    if (!newCompany.name.trim()) {
+      alert('Le nom de l\'entreprise est requis.');
+      return;
+    }
+    setSavingCompany(true);
+    try {
+      await apiClient.post('/auth/companies', {
+        name: newCompany.name,
+        country: newCompany.country,
+        currency_code: newCompany.currency_code,
+        ownership_percentage: newCompany.ownership_percentage
+      });
+      setIsCompanyModalOpen(false);
+      setNewCompany({ name: '', country: 'Algérie', currency_code: 'DZD', ownership_percentage: 100 });
+      const response = await apiClient.get<any>('/consolidation');
+      const ents = response.data.entreprises || [];
+      setEntreprises(ents.map((e: any) => ({ ...e, isActive: e.statut === 'consolidated' })));
+      alert('Filiale créée et ajoutée au groupe de consolidation.');
+    } catch (err: any) {
+      console.error('Failed to create subsidiary company', err);
+      alert(err?.response?.data?.detail || 'Erreur lors de la création de l\'entreprise.');
+    } finally {
+      setSavingCompany(false);
+    }
+  };
+
   const handleCurrencyManagement = () => {
     setIsCurrencyModalOpen(true);
   };
 
   const handlePrintReport = (reportType: string) => {
-    alert(`Impression du rapport ${reportType} en cours...`);
+    window.print();
   };
 
   const getCompanyStatusColor = (status: string) => {
@@ -1307,13 +1397,16 @@ const Consolidation: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">Nom de l'entreprise</label>
               <input
                 type="text"
+                value={newCompany.name}
+                onChange={e => setNewCompany({ ...newCompany, name: e.target.value })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Nom de l'entreprise"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Pays</label>
-              <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <select value={newCompany.country} onChange={e => setNewCompany({ ...newCompany, country: e.target.value })}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="Algérie">Algérie</option>
                 <option value="France">France</option>
                 <option value="Maroc">Maroc</option>
@@ -1322,7 +1415,8 @@ const Consolidation: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Devise</label>
-              <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <select value={newCompany.currency_code} onChange={e => setNewCompany({ ...newCompany, currency_code: e.target.value })}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="DZD">DZD - Dinar Algérien</option>
                 <option value="EUR">EUR - Euro</option>
                 <option value="MAD">MAD - Dirham Marocain</option>
@@ -1330,12 +1424,13 @@ const Consolidation: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Taux de change</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">% de détention</label>
               <input
                 type="number"
-                step="0.0001"
+                min={1} max={100} step="1"
+                value={newCompany.ownership_percentage}
+                onChange={e => setNewCompany({ ...newCompany, ownership_percentage: Number(e.target.value) })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="1.0000"
               />
             </div>
           </div>
@@ -1348,13 +1443,11 @@ const Consolidation: React.FC = () => {
               Annuler
             </button>
             <button
-              onClick={() => {
-                alert('Entreprise ajoutée avec succès !');
-                setIsCompanyModalOpen(false);
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              onClick={handleSubmitNewCompany}
+              disabled={savingCompany}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
             >
-              Ajouter
+              {savingCompany ? '...' : 'Ajouter'}
             </button>
           </div>
         </div>
@@ -1374,39 +1467,26 @@ const Consolidation: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            {[
-              { code: 'EUR', nom: 'Euro', symbole: '€', taux: 0.0067, isDefault: false },
-              { code: 'MAD', nom: 'Dirham Marocain', symbole: 'MAD', taux: 0.055, isDefault: false },
-              { code: 'TND', nom: 'Dinar Tunisien', symbole: 'TND', taux: 0.0028, isDefault: false },
-              { code: 'USD', nom: 'Dollar US', symbole: '$', taux: 0.0074, isDefault: false }
-            ].map((devise) => (
-              <div key={devise.code} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            {['EUR', 'MAD', 'TND', 'USD'].map((code) => (
+              <div key={code} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center space-x-4">
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    devise.isDefault ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    {devise.code}
-                  </div>
-                  <div>
-                    <p className="font-medium">{devise.nom}</p>
-                    <p className="text-sm text-gray-500">Symbole: {devise.symbole}</p>
+                  <div className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    {code}
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
                     <p className="text-sm text-gray-500">Taux de change</p>
-                    <p className="font-medium">1 DZD = {devise.taux} {devise.code}</p>
+                    <p className="font-medium">
+                      {exchangeRates[code] ? `1 ${code} = ${exchangeRates[code]} DZD` : 'Aucun taux saisi'}
+                    </p>
                   </div>
                   <button
-                    onClick={() => {
-                      const nouveauTaux = prompt(`Nouveau taux pour ${devise.code}:`, devise.taux.toString());
-                      if (nouveauTaux && !isNaN(parseFloat(nouveauTaux))) {
-                        alert(`Taux mis à jour pour ${devise.code}: ${nouveauTaux}`);
-                      }
-                    }}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    onClick={() => handleUpdateRate(code)}
+                    disabled={savingRateFor === code}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
                   >
-                    Modifier
+                    {savingRateFor === code ? '...' : 'Modifier'}
                   </button>
                 </div>
               </div>
@@ -1419,15 +1499,6 @@ const Consolidation: React.FC = () => {
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
             >
               Fermer
-            </button>
-            <button
-              onClick={() => {
-                alert('Taux de change mis à jour !');
-                setIsCurrencyModalOpen(false);
-              }}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Mettre à jour
             </button>
           </div>
         </div>
