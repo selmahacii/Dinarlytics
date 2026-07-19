@@ -32,6 +32,7 @@ const GroupesClients: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'groupes' | 'clients' | 'analytics'>('analytics');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedGroupeId, setSelectedGroupeId] = useState<string | null>(null);
 
   const [groupesData, setGroupesData] = useState<any>(null);
   const [rawClients, setRawClients] = useState<any[]>([]);
@@ -339,11 +340,17 @@ const GroupesClients: React.FC = () => {
               {/* Filtres par groupe */}
               <Card title={t('crm.groups.tabs.clients')}>
                 <div className="flex flex-wrap gap-2 mb-6">
+                  <button
+                    onClick={() => setSelectedGroupeId(null)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium border ${selectedGroupeId === null ? 'ring-2 ring-offset-1 ring-slate-400' : ''} bg-slate-100 text-slate-700`}
+                  >
+                    Tous ({groupesClients.reduce((s: number, g: GroupeClient) => s + g.nombreClients, 0)})
+                  </button>
                   {groupesClients.map((groupe: GroupeClient) => (
                     <button
                       key={groupe.id}
-                      className={`px-3 py-1 rounded-full text-sm font-medium border ${getCouleurClasses(groupe.couleur)
-                        }`}
+                      onClick={() => setSelectedGroupeId(groupe.id === selectedGroupeId ? null : groupe.id)}
+                      className={`px-3 py-1 rounded-full text-sm font-medium border ${getCouleurClasses(groupe.couleur)} ${selectedGroupeId === groupe.id ? 'ring-2 ring-offset-1 ring-slate-400' : ''}`}
                     >
                       {groupe.nom} ({groupe.nombreClients})
                     </button>
@@ -376,7 +383,9 @@ const GroupesClients: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {groupesClients.flatMap((groupe: GroupeClient) =>
+                      {groupesClients
+                        .filter((groupe: GroupeClient) => !selectedGroupeId || groupe.id === selectedGroupeId)
+                        .flatMap((groupe: GroupeClient) =>
                         groupe.clients.map((client: GroupeClient['clients'][number]) => (
                           <tr key={client.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4">

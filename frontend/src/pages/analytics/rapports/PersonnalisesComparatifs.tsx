@@ -547,8 +547,12 @@ const PersonnalisesComparatifs: React.FC = () => {
                         name: `Rapport ${selectedFilters.module} - ${selectedFilters.periode}`,
                         type: selectedFilters.module,
                         description: `Analyse ${selectedFilters.graphique.toLowerCase()} pour ${selectedFilters.periode.toLowerCase()}`,
-                        records: Math.floor(Math.random() * 1000) + 200,
-                        size: `${(Math.random() * 5 + 1).toFixed(1)} MB`,
+                        // Ce générateur ne lance pas de vraie requête de données —
+                        // il ne fabrique donc pas non plus un nombre de lignes ou
+                        // une taille de fichier plausibles pour un contenu qui n'a
+                        // pas réellement été produit.
+                        records: 0,
+                        size: 'Non généré',
                         lastUpdate: new Date().toLocaleDateString('fr-FR'),
                         favorite: false
                       });
@@ -1636,9 +1640,24 @@ const PersonnalisesComparatifs: React.FC = () => {
                     key={idx}
                     onClick={() => {
                       setShowExportModal(false);
-                      setTimeout(() => {
-                        alert(`✅ Export ${exp.format} réussi!\n\nFichier: ${selectedReport.name}.${exp.format.toLowerCase()}\nTaille: ${selectedReport.size}\nEnregistré dans "Mes Documents"`);
-                      }, 300);
+                      if (exp.format === 'CSV') {
+                        // Seul format réellement exportable côté client sans
+                        // générateur PDF/Excel/Power BI dédié — les 3 autres
+                        // options affichaient un faux message de succès sans
+                        // produire de fichier.
+                        const csv = `Nom;Type;Description;Lignes;Dernière mise à jour\n"${selectedReport.name}";"${selectedReport.type}";"${selectedReport.description || ''}";${selectedReport.records};"${selectedReport.lastUpdate}"`;
+                        const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `${selectedReport.name}.csv`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                      } else {
+                        alert(`L'export au format ${exp.format} n'est pas encore disponible. Utilisez le format CSV.`);
+                      }
                     }}
                     className={`group p-6 bg-white rounded-xl border-2 border-slate-300 hover:border-${exp.color}-400 hover:shadow-xl transition-all hover:scale-105`}
                   >

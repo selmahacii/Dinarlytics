@@ -62,6 +62,22 @@ const GestionRelances: React.FC = () => {
   const [selected, setSelected] = useState<Relance | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+  const RELANCE_OVERRIDES_KEY = 'dinarlytics_relances_overrides';
+
+  const loadOverrides = (): Record<string, { status: RelanceStatus; lastContact: string }> => {
+    try {
+      return JSON.parse(localStorage.getItem(RELANCE_OVERRIDES_KEY) || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  const saveOverride = (invoiceId: string, status: RelanceStatus, lastContact: string) => {
+    const overrides = loadOverrides();
+    overrides[invoiceId] = { status, lastContact };
+    localStorage.setItem(RELANCE_OVERRIDES_KEY, JSON.stringify(overrides));
+  };
+
   useEffect(() => {
     const fetchRelances = async () => {
       try {
@@ -72,6 +88,7 @@ const GestionRelances: React.FC = () => {
           apiClient.get<any[]>('/clients/').catch(() => ({ data: [] as any[] }))
         ]);
         const invoices = Array.isArray(invoicesRes.data) ? invoicesRes.data : [];
+        const overrides = loadOverrides();
         const clientsById = new Map<string, any>(
           (clientsRes.data || []).map((c: any) => [String(c.id), c])
         );
@@ -100,6 +117,13 @@ const GestionRelances: React.FC = () => {
 
             const client = inv.client_id ? clientsById.get(String(inv.client_id)) : undefined;
 
+            // Une relance envoyée manuellement (bouton "Envoyer") écrase le
+            // statut dérivé de la facture — persisté en localStorage pour
+            // survivre au rechargement (aucune table backend dédiée aux
+            // relances n'existe ; les statuts "sent"/"escalated" ci-dessus
+            // ne sont qu'une dérivation du retard, pas un vrai historique).
+            const override = overrides[String(inv.id)];
+
             return {
               id: inv.id,
               factureNum: inv.numero,
@@ -111,8 +135,8 @@ const GestionRelances: React.FC = () => {
               dateEcheance: inv.date_echeance,
               daysOverdue,
               level,
-              status,
-              lastContact: null,
+              status: override?.status || status,
+              lastContact: override?.lastContact || null,
               commercial: '',
               notes: daysOverdue > 0 ? `Retard de paiement de ${daysOverdue} jours.` : 'Première relance à planifier.'
             };
@@ -385,7 +409,9 @@ const GestionRelances: React.FC = () => {
                   const subject = encodeURIComponent(t(RELANCE_TEMPLATES[`level${selected.level}` as keyof typeof RELANCE_TEMPLATES].subject) + ` — ${selected.factureNum}`);
                   const body = encodeURIComponent(emailContent);
                   window.location.href = `mailto:${selected.clientEmail}?subject=${subject}&body=${body}`;
-                  setRelances(prev => prev.map(r => r.id === selected.id ? { ...r, status: 'sent' as RelanceStatus, lastContact: new Date().toISOString().slice(0, 10) } : r));
+                  const lastContact = new Date().toISOString().slice(0, 10);
+                  saveOverride(String(selected.id), 'sent', lastContact);
+                  setRelances(prev => prev.map(r => r.id === selected.id ? { ...r, status: 'sent' as RelanceStatus, lastContact } : r));
                   setIsSendOpen(false);
                 }}
                 className="flex-1 flex items-center justify-center px-5 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
