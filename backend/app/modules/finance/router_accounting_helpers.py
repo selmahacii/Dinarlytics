@@ -25,10 +25,11 @@ def _create_approval_notification(db: Session, user_id: str, company_id: str, su
     """Use centralized service instead of local implementation."""
     from app.modules.system.service_notifications import NotificationService
     NotificationService.create_notification(
-        db, 
-        user_id=user_id, 
-        title=subject, 
-        message=message, 
+        db,
+        user_id=user_id,
+        company_id=company_id,
+        title=subject,
+        message=message,
         priority="high",
         category="accounting"
     )

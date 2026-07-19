@@ -14,20 +14,28 @@ class NotificationService:
 
     @staticmethod
     def create_notification(
-        db: Session, 
-        user_id: Any, 
-        title: str, 
-        message: str, 
+        db: Session,
+        user_id: Any,
+        company_id: Any,
+        title: str,
+        message: str,
         priority: str = "medium",
         category: str = "general"
     ) -> UserNotification:
-        """Standard method to notify a user."""
+        """Standard method to notify a user.
+
+        Was calling UserNotification(title=..., category=...) — neither
+        field exists on the model (the real columns are `subject` and
+        `notification_type`), so this raised a TypeError at runtime any
+        time it was actually invoked and was never caught by anything
+        that exercised the call path."""
         notif = UserNotification(
             user_id=user_id,
-            title=title,
+            company_id=company_id,
+            subject=title,
             message=message,
             priority=priority,
-            category=category,
+            notification_type=category,
             is_read=False,
             created_at=datetime.utcnow()
         )
@@ -37,12 +45,44 @@ class NotificationService:
 
     @staticmethod
     def trigger_fiscal_reminder(db: Session, company_id: Any):
-        """Checks and creates reminders for G50 (before 20th)."""
+        """Creates a G50 declaration reminder (10th-20th of the month) for
+        every user in the company who can act on it (comptabilite-write
+        permission), skipping duplicates for the same day."""
+        from app.modules.auth.models import User
+        from app.core.permissions import ROLE_PERMISSIONS
+
         now = datetime.now()
-        if now.day > 10 and now.day < 21:
-            # Logic to find accounting admins or seniors for the company
-            # Mocking notification creation for relevant users
-            pass
+        if not (10 < now.day < 21):
+            return
+
+        # Filtré en Python plutôt qu'avec une requête JSON-containment SQL
+        # (Role.permissions est un JSON générique, pas un JSONB — `.contains()`
+        # n'est pas fiable sur tous les backends).
+        candidates = db.query(User).filter(
+            User.company_id == company_id,
+            User.is_active == True
+        ).all()
+        recipients = [
+            u for u in candidates
+            if any('comptabilite-write' in ROLE_PERMISSIONS.get(r.name, []) for r in u.roles)
+        ]
+
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        for user in recipients:
+            already_sent = db.query(UserNotification).filter(
+                UserNotification.user_id == user.id,
+                UserNotification.notification_type == "fiscal_reminder_g50",
+                UserNotification.created_at >= today_start
+            ).first()
+            if already_sent:
+                continue
+            NotificationService.create_notification(
+                db, user_id=user.id, company_id=company_id,
+                title="Déclaration G50 à venir",
+                message=f"La déclaration G50 du mois en cours doit être déposée avant le 20 {now.strftime('%B %Y')}.",
+                priority="high",
+                category="fiscal_reminder_g50"
+            )
 
     @staticmethod
     def trigger_financial_alert(

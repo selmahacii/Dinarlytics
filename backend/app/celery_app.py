@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.schedules import crontab
 import os
 from app.core.config import settings
 
@@ -7,7 +8,7 @@ celery_app = Celery(
     "dinarlytics",
     broker=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
     backend=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
-    include=["app.tasks.ai_tasks"]
+    include=["app.tasks.ai_tasks", "app.modules.system.tasks"]
 )
 
 # Optional configuration
@@ -19,4 +20,10 @@ celery_app.conf.update(
     enable_utc=True,
     task_track_started=True,
     task_time_limit=3600, # 1 hour limit for training tasks
+    beat_schedule={
+        "send-fiscal-reminders-daily": {
+            "task": "app.modules.system.tasks.send_fiscal_reminders",
+            "schedule": crontab(hour=8, minute=0),
+        },
+    },
 )

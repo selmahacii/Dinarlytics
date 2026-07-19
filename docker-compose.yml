@@ -75,6 +75,23 @@ services:
     volumes:
       - ./backend:/app
 
+  celery_beat:
+    build: ./backend
+    container_name: dinarlytics-beat
+    command: celery -A app.celery_app beat --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres}@db:5432/${DATABASE_NAME:-dinarlytics}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
   frontend:
     build:
       context: ./frontend
