@@ -31,6 +31,7 @@ import Modal from '@shared/components/UI/Modal';
 import { useEmployees } from '@shared/hooks/useEmployees';
 import { usePermission } from '@shared/hooks/usePermission';
 import { Employee } from '@/services/modules/hrService';
+import apiClient from '@/services/apiClient';
 
 type ContractType = 'cdi' | 'cdd' | 'stage' | 'freelance';
 type Department = 'direction' | 'finance' | 'commercial' | 'it' | 'rh' | 'logistique' | 'production';
@@ -53,6 +54,15 @@ const GestionRH: React.FC = () => {
   const { t } = useTranslation();
   const { formatCurrency } = useApp();
   const { employees, loading, error, createEmployee } = useEmployees();
+  const [payslips, setPayslips] = useState<Record<string, { cnas_employee: number; irg: number; net_salary: number }>>({});
+
+  React.useEffect(() => {
+    apiClient.get<any>('/rh/employees/payroll/summary').then(res => {
+      const map: Record<string, any> = {};
+      (res.data?.payslips || []).forEach((p: any) => { map[p.employee_id] = p; });
+      setPayslips(map);
+    }).catch(() => {});
+  }, [employees]);
   const { has } = usePermission();
   const canManageEmployees = has('admin-users');
   const [activeTab, setActiveTab] = useState<'employees' | 'payroll' | 'holidays' | 'analytics'>('employees');
@@ -241,10 +251,18 @@ const GestionRH: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-slate-800">{t('rh.payroll.monthly_run')}</h3>
               <div className="flex gap-2">
-                <button className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
                   <PrinterIcon className="h-4 w-4 mr-2" />{t('rh.payroll.print_all')}
                 </button>
-                <button className="flex items-center px-4 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors">
+                <button
+                  onClick={() => {
+                    apiClient.get<any>('/rh/employees/payroll/summary').then(res => {
+                      const map: Record<string, any> = {};
+                      (res.data?.payslips || []).forEach((p: any) => { map[p.employee_id] = p; });
+                      setPayslips(map);
+                    }).catch(() => {});
+                  }}
+                  className="flex items-center px-4 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors">
                   <SparklesIcon className="h-4 w-4 mr-2" />{t('rh.payroll.generate')}
                 </button>
               </div>
@@ -261,9 +279,14 @@ const GestionRH: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {employees.filter(e => e.status !== 'inactif').map(emp => {
-                    const cnas = Math.round((emp.salaireBase + emp.primes) * 0.09);
-                    const irg = Math.round((emp.salaireBase + emp.primes - cnas) * 0.12);
-                    const net = emp.salaireBase + emp.primes - cnas - irg;
+                    // Bulletin réel (barème IRG algérien LF2022 + CNAS 9%)
+                    // via GET /rh/employees/payroll/summary — remplace le
+                    // calcul forfaitaire 9%/12% client qui ignorait
+                    // l'exonération/lissage IRG en dessous de 35 000 DA.
+                    const slip = payslips[emp.id];
+                    const cnas = slip ? Math.round(slip.cnas_employee) : Math.round((emp.salaireBase + emp.primes) * 0.09);
+                    const irg = slip ? Math.round(slip.irg) : Math.round((emp.salaireBase + emp.primes - cnas) * 0.12);
+                    const net = slip ? Math.round(slip.net_salary) : (emp.salaireBase + emp.primes - cnas - irg);
                     return (
                       <tr key={emp.id} className="hover:bg-slate-50 transition-colors">
                         <td className="px-4 py-3 whitespace-nowrap">
@@ -401,14 +424,17 @@ const GestionRH: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* Bulletin Lines */}
+            {/* Bulletin Lines — barème IRG algérien réel + CNAS 9% via
+                GET /rh/employees/payroll/summary, pas un calcul forfaitaire.
+                La ligne "CACOBATPH" (2,5%) a été retirée : elle ne
+                correspond à aucune cotisation réellement calculée par
+                AlgerianPayrollCalculator (seuls CNAS et IRG existent). */}
             <div className="space-y-2">
               {[
                 { label: t('rh.bulletin.base_salary'), value: formatCurrency(selectedEmp.salaireBase), type: 'income' },
                 { label: t('rh.bulletin.primes'), value: formatCurrency(selectedEmp.primes), type: 'income' },
-                { label: t('rh.bulletin.cnas'), value: `-${formatCurrency(Math.round((selectedEmp.salaireBase + selectedEmp.primes) * 0.09))}`, type: 'deduction' },
-                { label: t('rh.bulletin.caramate'), value: `-${formatCurrency(Math.round((selectedEmp.salaireBase + selectedEmp.primes) * 0.025))}`, type: 'deduction' },
-                { label: t('rh.bulletin.irg'), value: `-${formatCurrency(Math.round((selectedEmp.salaireBase + selectedEmp.primes) * 0.12))}`, type: 'deduction' },
+                { label: t('rh.bulletin.cnas'), value: `-${formatCurrency(Math.round(payslips[selectedEmp.id]?.cnas_employee ?? (selectedEmp.salaireBase + selectedEmp.primes) * 0.09))}`, type: 'deduction' },
+                { label: t('rh.bulletin.irg'), value: `-${formatCurrency(Math.round(payslips[selectedEmp.id]?.irg ?? (selectedEmp.salaireBase + selectedEmp.primes) * 0.12))}`, type: 'deduction' },
               ].map((line, i) => (
                 <div key={i} className={`flex justify-between items-center p-3 rounded-lg ${line.type === 'income' ? 'bg-emerald-50' : 'bg-red-50'}`}>
                   <span className="text-sm font-semibold text-slate-700">{line.label}</span>
@@ -418,10 +444,11 @@ const GestionRH: React.FC = () => {
               <div className="flex justify-between items-center p-4 bg-slate-900 rounded-xl">
                 <span className="text-white font-bold uppercase text-sm tracking-wide">{t('rh.bulletin.net')}</span>
                 <span className="text-white text-2xl font-black">
-                  {formatCurrency(selectedEmp.salaireBase + selectedEmp.primes -
-                    Math.round((selectedEmp.salaireBase + selectedEmp.primes) * 0.09) -
-                    Math.round((selectedEmp.salaireBase + selectedEmp.primes) * 0.025) -
-                    Math.round((selectedEmp.salaireBase + selectedEmp.primes) * 0.12))}
+                  {formatCurrency(Math.round(payslips[selectedEmp.id]?.net_salary ?? (
+                    selectedEmp.salaireBase + selectedEmp.primes -
+                    (selectedEmp.salaireBase + selectedEmp.primes) * 0.09 -
+                    (selectedEmp.salaireBase + selectedEmp.primes) * 0.12
+                  )))}
                 </span>
               </div>
             </div>

@@ -256,6 +256,7 @@ async def payroll_summary(
         "total_gross": 0.0, "total_cnas_employee": 0.0, "total_irg": 0.0,
         "total_net": 0.0, "total_cnas_employer": 0.0, "total_employer_cost": 0.0
     }
+    payslips = []
     for emp in employees:
         gross = Decimal(str((emp.salaire_base or 0))) + Decimal(str((emp.primes or 0)))
         slip = AlgerianPayrollCalculator.compute_payslip(gross)
@@ -265,5 +266,10 @@ async def payroll_summary(
         total["total_net"] += float(slip["net_salary"])
         total["total_cnas_employer"] += float(slip["cnas_employer"])
         total["total_employer_cost"] += float(slip["total_employer_cost"])
+        payslips.append({
+            "employee_id": str(emp.id),
+            **{k: float(v) for k, v in slip.items()}
+        })
 
+    total["payslips"] = payslips
     return total
