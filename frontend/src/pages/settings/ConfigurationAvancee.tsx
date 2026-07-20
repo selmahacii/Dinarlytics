@@ -24,6 +24,31 @@ import Modal from '@shared/components/UI/Modal';
 import { useApp } from '@core/context/AppContext';
 import { useTranslation } from '@shared/hooks/useTranslation';
 
+// Pas de backend de configuration dynamique (champs/règles/formules) —
+// persisté en localStorage plutôt qu'en state React pur, pour survivre au
+// rechargement de page (même limite que Parametres.tsx/TemplateDocument.tsx
+// ailleurs dans l'app : pas de synchronisation multi-poste/multi-utilisateur,
+// mais au moins la saisie n'est plus perdue).
+function usePersistedState<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [state, setState] = useState<T>(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : initial;
+    } catch {
+      return initial;
+    }
+  });
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch {
+      // Quota localStorage dépassé ou navigation privée — la session
+      // continue avec les données en mémoire, sans persistance.
+    }
+  }, [key, state]);
+  return [state, setState];
+}
+
 const ConfigurationAvancee: React.FC = () => {
   const { formatCurrency } = useApp();
   const { t } = useTranslation();
@@ -135,8 +160,9 @@ const ConfigurationAvancee: React.FC = () => {
   };
 
   const handleCreateChamp = () => {
-    // Pas de backend de configuration dynamique : ajouté à la liste de la
-    // session uniquement (non persisté après rechargement).
+    // Pas de backend de configuration dynamique : persisté en localStorage
+    // (usePersistedState), pas dans une vraie table — survit au
+    // rechargement mais pas à un changement d'appareil/navigateur.
     setChampsPersonnalises(prev => [...prev, { ...champForm, id: `champ-${Date.now()}` }]);
     setIsChampModalOpen(false);
     setChampForm({
@@ -348,14 +374,15 @@ const ConfigurationAvancee: React.FC = () => {
   };
 
   // Aucun backend de configuration dynamique (champs/règles/formules)
-  // n'existe encore : ces listes ne persistent que le temps de la session.
-  const [champsPersonnalises, setChampsPersonnalises] = useState<any[]>([]);
+  // n'existe encore : ces listes sont persistées en localStorage (voir
+  // usePersistedState ci-dessus) plutôt que perdues au rechargement.
+  const [champsPersonnalises, setChampsPersonnalises] = usePersistedState<any[]>('dinarlytics_config_champs', []);
 
-  const [formulesPersonnalisees, setFormulesPersonnalisees] = useState<any[]>([]);
+  const [formulesPersonnalisees, setFormulesPersonnalisees] = usePersistedState<any[]>('dinarlytics_config_formules', []);
 
   const templatesDocuments: any[] = [];
 
-  const [reglesMetier, setReglesMetier] = useState<any[]>([]);
+  const [reglesMetier, setReglesMetier] = usePersistedState<any[]>('dinarlytics_config_regles', []);
 
   const entreprises: any[] = [];
 
