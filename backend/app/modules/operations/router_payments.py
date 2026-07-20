@@ -12,6 +12,7 @@ from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from app.modules.finance.service_calculations import AlgerianFinancialCalculator
 from app.core.sequences import generate_document_number
+from app.modules.system.utils_audit import log_audit
 
 from pydantic import BaseModel
 
@@ -102,9 +103,13 @@ async def deposit_checks(
         credit_amount=total_amount
     )
     db.add(line_checks)
-    
+
+    log_audit(db, current_user, 'CREATE', 'CHECK_DEPOSIT', slip_number, {
+        'payment_ids': request.payment_ids, 'total_amount': str(total_amount),
+        'bank_account_code': request.bank_account_code, 'journal_entry_id': str(entry.id)
+    })
     db.commit()
-    
+
     return {"message": "Bordereau cr???????? avec succ????s", "slip_number": slip_number, "total_amount": total_amount}
 
 @router.get("/checks-in-safe", response_model=List[PaymentResponse])

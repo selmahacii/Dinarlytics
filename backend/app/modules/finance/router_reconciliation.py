@@ -11,6 +11,7 @@ from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from app.core.models import BankAccount, BankStatement, BankStatementLine, JournalEntryLine, JournalEntry
+from app.modules.system.utils_audit import log_audit
 
 router = APIRouter(prefix="/reconciliation", tags=["reconciliation"])
 
@@ -181,10 +182,13 @@ async def import_statement(
             confidence_score=l.scoreConfiance
         )
         db.add(line)
-        
+
+    log_audit(db, current_user, 'CREATE', 'BANK_STATEMENT', str(statement.id), {
+        'statement_number': req.numeroReleve, 'lines_count': len(req.lignes)
+    })
     db.commit()
     db.refresh(statement)
-    
+
     # Reload with relation
     return (await list_statements(compte_id=str(acc.id), current_user=current_user, db=db))[0]
 
@@ -260,6 +264,9 @@ async def auto_match_statement(
             line.confidence_score = Decimal(str(best_score))
             matched_count += 1
             
+    log_audit(db, current_user, 'UPDATE', 'BANK_STATEMENT', str(statement.id), {
+        'action': 'auto_match', 'matched_lines_count': matched_count
+    })
     db.commit()
     return {"status": "success", "matched_lines_count": matched_count}
 
@@ -280,7 +287,10 @@ async def manual_match(
     line.reconciliation_status = 'rapproche'
     line.reconciled_entry_id = entry.id
     line.confidence_score = Decimal('100.0')
-    
+
+    log_audit(db, current_user, 'UPDATE', 'BANK_STATEMENT_LINE', str(line.id), {
+        'action': 'manual_match', 'journal_entry_line_id': str(entry.id)
+    })
     db.commit()
     return {"status": "success", "message": "Manual match recorded successfully"}
 
@@ -297,6 +307,7 @@ async def manual_unmatch(
     line.reconciliation_status = 'non_rapproche'
     line.reconciled_entry_id = None
     line.confidence_score = None
-    
+
+    log_audit(db, current_user, 'UPDATE', 'BANK_STATEMENT_LINE', str(line.id), {'action': 'unmatch'})
     db.commit()
     return {"status": "success", "message": "Match removed successfully"}

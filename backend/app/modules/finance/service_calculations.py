@@ -38,26 +38,42 @@ class AlgerianFinancialCalculator:
 
     @staticmethod
     def calculate_g50_summary(
-        net_sales_ht: Decimal, 
+        net_sales_ht: Decimal,
         net_purchases_ht: Decimal,
         irg_amount: Decimal = Decimal('0'),
         stamp_duty: Decimal = Decimal('0'),
-        tap_rate: Decimal = None
+        tap_rate: Decimal = None,
+        tva_collected: Decimal = None,
+        tva_deductible: Decimal = None
     ) -> Dict[str, Any]:
         """
-        Calculates the G50 tax summary (D????claration mensuelle).
-        - TVA Collect????e (Sales)
-        - TVA D????ductible (Purchases)
-        - TAP (Taxe sur l'Activit???? Professionnelle)
-        - IRG (Retenue ???? la source salaires/honoraires)
+        Calculates the G50 tax summary (Declaration mensuelle).
+        - TVA Collectee (Sales)
+        - TVA Deductible (Purchases)
+        - TAP (Taxe sur l'Activite Professionnelle)
+        - IRG (Retenue a la source salaires/honoraires)
         - Droit de Timbre
+
+        tva_collected/tva_deductible : montants REELS des comptes 445700/
+        445600 (alimentes par la validation des factures, qui gerent deja
+        les taux reduits 9% et les ventes exonerees). Si non fournis
+        (compatibilite), retombe sur une approximation au taux normal 19%
+        du CA/achats HT — mais cette approximation surestime la TVA de
+        toute vente au taux reduit ou exoneree, donc ne doit etre utilisee
+        qu'en dernier recours.
         """
         rate_tap = tap_rate if tap_rate is not None else AlgerianFinancialCalculator.TAP_RATE
-        
-        tva_collected = (net_sales_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-        tva_deductible = (net_purchases_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
-        
-        # TAP = CA * Taux (avec r????faction 25% ou 50% possible, ici simplifi????)
+
+        if tva_collected is None:
+            tva_collected = (net_sales_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        else:
+            tva_collected = tva_collected.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        if tva_deductible is None:
+            tva_deductible = (net_purchases_ht * AlgerianFinancialCalculator.TVA_NORMAL).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        else:
+            tva_deductible = tva_deductible.quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+        # TAP = CA * Taux (avec refaction 25% ou 50% possible, ici simplifie)
         tap = (net_sales_ht * rate_tap).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
         
         # TVA ???? payer = (Collect????e - D????ductible) ou cr????dit reportable

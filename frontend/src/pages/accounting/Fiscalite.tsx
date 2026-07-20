@@ -198,16 +198,16 @@ const Fiscalite: React.FC = () => {
       const ibs = benefice > 0 ? benefice * customRates.ibs : 0;
       const tvaAVerser = tvaColl - tvaDed;
 
+      // IRG réel selon le barème progressif algérien (service_payroll.py),
+      // pas un pourcentage forfaitaire de 10% de la masse salariale brute
+      // qui ignorait l'exonération/lissage sous 35 000 DA déjà implémentés
+      // pour la validation de paie.
       let irg = 0;
       try {
-        const empRes = await apiClient.get('/rh/employees');
-        const employees = empRes.data || [];
-        const totalSalaries = employees.reduce((s: number, emp: any) => s + Number(emp.salaireBase || 0), 0);
-        if (totalSalaries > 0) {
-          irg = Math.round(totalSalaries * 0.10);
-        }
+        const payrollRes = await apiClient.get<any>('/rh/employees/payroll/summary');
+        irg = Math.round(Number(payrollRes.data?.total_irg) || 0);
       } catch (e) {
-        console.warn('Failed to load employees for IRG calculation, using default', e);
+        console.warn('Failed to load real IRG from payroll summary', e);
       }
 
       setDynamicKPI({

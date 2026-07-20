@@ -178,8 +178,39 @@ async def get_g50_summary(
             JournalEntryLine.account_code.like('6%')
         ).scalar() or Decimal('0')
 
-    # IRG (Account 442 or similar, Credit side for payments due) - Approximation
-    irg_amount = Decimal('0') # To be refined with payroll module
+    # TVA collectée/déductible réelles : soldes des comptes 445700/445600
+    # alimentés par la validation des factures — remplace l'ancien calcul
+    # qui réappliquait un taux forfaitaire de 19% au CA/achats HT, faux dès
+    # qu'une facture est au taux réduit 9% ou exonérée.
+    tva_collected_real = db.query(func.sum(JournalEntryLine.credit_amount - JournalEntryLine.debit_amount))\
+        .join(JournalEntry)\
+        .filter(
+            JournalEntry.company_id == company_id,
+            JournalEntry.status == 'approved',
+            extract('month', JournalEntry.entry_date) == month,
+            extract('year', JournalEntry.entry_date) == year,
+            JournalEntryLine.account_code.like('445700%')
+        ).scalar() or Decimal('0')
+
+    tva_deductible_real = db.query(func.sum(JournalEntryLine.debit_amount - JournalEntryLine.credit_amount))\
+        .join(JournalEntry)\
+        .filter(
+            JournalEntry.company_id == company_id,
+            JournalEntry.status == 'approved',
+            extract('month', JournalEntry.entry_date) == month,
+            extract('year', JournalEntry.entry_date) == year,
+            JournalEntryLine.account_code.like('445600%')
+        ).scalar() or Decimal('0')
+
+    # IRG réel de la paie validée pour cette période (POST /rh/employees/
+    # payroll/validate), au lieu d'un montant toujours à 0.
+    from app.core.models import PayrollRun
+    period_str = f"{year}-{month:02d}"
+    payroll_run = db.query(PayrollRun).filter(
+        PayrollRun.company_id == company_id,
+        PayrollRun.period == period_str
+    ).first()
+    irg_amount = payroll_run.total_irg if payroll_run else Decimal('0')
 
     # Droit de timbre réellement collecté sur le mois : crédit du compte
     # 447xxx (État — autres impôts), alimenté par la validation des factures
@@ -195,10 +226,12 @@ async def get_g50_summary(
         ).scalar() or Decimal('0')
 
     summary = AlgerianFinancialCalculator.calculate_g50_summary(
-        sales_ht, 
+        sales_ht,
         purchases_ht,
         irg_amount=irg_amount,
-        stamp_duty=stamp_duty
+        stamp_duty=stamp_duty,
+        tva_collected=tva_collected_real,
+        tva_deductible=tva_deductible_real
     )
     return summary
 
