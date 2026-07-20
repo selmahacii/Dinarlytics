@@ -49,6 +49,7 @@ export interface Article {
   categorie: string;
   unite?: string;
   description?: string;
+  preferredSupplierId?: string;
 }
 
 export interface Facture {

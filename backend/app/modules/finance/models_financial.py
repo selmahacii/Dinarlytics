@@ -136,4 +136,25 @@ class Employee(Base):
     status = Column(String(50), default="actif") # actif, conge, inactif
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
+class PayrollRun(Base):
+    """Une paie validée pour une période (mois/année) — génère une écriture
+    comptable réelle (charges 641/645, dettes 421/431/444) et empêche de
+    revalider deux fois la même période. Auparavant, /payroll/simulate et
+    /payroll/summary étaient purement calculatoires : la paie n'avait
+    aucune trace comptable, module RH totalement isolé de la comptabilité."""
+    __tablename__ = "payroll_runs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id"), nullable=False, index=True)
+    period = Column(String(7), nullable=False, index=True)  # "YYYY-MM"
+    journal_entry_id = Column(UUID(as_uuid=True), ForeignKey("journal_entries.id"), nullable=True)
+    headcount = Column(Integer, default=0)
+    total_gross = Column(Numeric(15, 2), default=0)
+    total_cnas_employee = Column(Numeric(15, 2), default=0)
+    total_irg = Column(Numeric(15, 2), default=0)
+    total_net = Column(Numeric(15, 2), default=0)
+    total_cnas_employer = Column(Numeric(15, 2), default=0)
+    validated_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    validated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
 

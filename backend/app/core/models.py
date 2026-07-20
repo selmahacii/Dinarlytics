@@ -8,7 +8,7 @@ from app.modules.system.models_notifications import AlertDefinition, AlertTrigge
 from app.modules.system.models_audit import AuditLog
 from app.modules.system.models_uploads import UploadedDocument
 from app.modules.intelligence.models import AIModel, AIPrediction, AITrainingLog, AIFeatureStore, AIDriftMonitoring
-from app.modules.finance.models_financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction, Immobilisation, Employee
+from app.modules.finance.models_financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction, Immobilisation, Employee, PayrollRun
 from app.modules.finance.models_fiscal import FiscalDeclaration
 
 __all__ = [
@@ -21,6 +21,6 @@ __all__ = [
     "AlertDefinition", "AlertTrigger", "UserNotification",
     "AuditLog",
     "AIModel", "AIPrediction", "AITrainingLog", "AIFeatureStore", "AIDriftMonitoring",
-    "FinancialStatement", "Payment", "Budget", "BudgetItem", "CollectionAction", "Immobilisation", "Employee",
+    "FinancialStatement", "Payment", "Budget", "BudgetItem", "CollectionAction", "Immobilisation", "Employee", "PayrollRun",
     "FiscalDeclaration"
 ]

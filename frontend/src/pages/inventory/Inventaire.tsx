@@ -244,6 +244,25 @@ const Inventaire: React.FC = () => {
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
   const [selectedBarcodeArticle, setSelectedBarcodeArticle] = useState<any>(null);
   const [valuationMethod, setValuationMethod] = useState<'FIFO' | 'LIFO' | 'PMP'>('PMP');
+  const [suppliers, setSuppliers] = useState<Array<{ id: string; name: string }>>([]);
+  const [orderForm, setOrderForm] = useState<{ supplierId: string; quantity: number; notes: string }>({ supplierId: '', quantity: 0, notes: '' });
+  const [submittingOrder, setSubmittingOrder] = useState(false);
+
+  useEffect(() => {
+    apiClient.get<any[]>('/suppliers/').then(res => {
+      setSuppliers((res.data || []).map((s: any) => ({ id: s.id, name: s.name })));
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (showOrderModal && selectedReorderArticle) {
+      setOrderForm({
+        supplierId: selectedReorderArticle.preferredSupplierId || '',
+        quantity: selectedReorderArticle.suggestedOrder,
+        notes: ''
+      });
+    }
+  }, [showOrderModal, selectedReorderArticle]);
 
   const { products, refetch, adjustStock } = useProducts();
   // Comptage physique saisi pendant une session d'inventaire : l'input
@@ -365,7 +384,7 @@ const Inventaire: React.FC = () => {
       stockMinimum: 20,
       stockOptimal: 100,
       delaiLivraison: 0,
-      fournisseurPrincipal: '',
+      fournisseurPrincipal: suppliers.find(s => s.id === article.preferredSupplierId)?.name || '',
       dernierAchat: '',
       coutEstime: article.prixUnitaire * Math.max(50, article.stock * 2)
     }));
@@ -1140,15 +1159,45 @@ const Inventaire: React.FC = () => {
                     <span>{t('inventory.actions.export')}</span>
                   </button>
                   <button
-                    onClick={() => {
-                      // Les articles ne sont pas liés à un fournisseur en base
-                      // (fournisseurPrincipal toujours vide) : on ne peut pas
-                      // créer de commande réelle depuis cette liste. Renvoi
-                      // honnête vers le module Fournisseurs plutôt qu'un faux
-                      // message de succès.
-                      navigate('/fournisseurs');
+                    onClick={async () => {
+                      // Regroupe les suggestions par fournisseur habituel réel
+                      // (Article.preferred_supplier_id) et crée un vrai bon de
+                      // commande par fournisseur. Les articles sans fournisseur
+                      // lié sont exclus et l'utilisateur est renvoyé vers
+                      // Fournisseurs pour les traiter — pas de commande inventée.
+                      const withSupplier = reorderSuggestions.filter((a: any) => a.preferredSupplierId);
+                      const withoutSupplier = reorderSuggestions.filter((a: any) => !a.preferredSupplierId);
+                      if (withSupplier.length === 0) {
+                        alert('Aucun article en réapprovisionnement n\'a de fournisseur habituel renseigné. Associez un fournisseur à chaque article avant de générer les commandes.');
+                        navigate('/fournisseurs');
+                        return;
+                      }
+                      const bySupplier: Record<string, any[]> = {};
+                      withSupplier.forEach((a: any) => {
+                        bySupplier[a.preferredSupplierId] = bySupplier[a.preferredSupplierId] || [];
+                        bySupplier[a.preferredSupplierId].push(a);
+                      });
+                      try {
+                        for (const supplierId of Object.keys(bySupplier)) {
+                          await apiClient.post('/procurement/purchase-orders', {
+                            supplier_id: supplierId,
+                            order_date: new Date().toISOString().split('T')[0],
+                            items: bySupplier[supplierId].map((a: any) => ({
+                              article_id: a.id,
+                              quantity: a.suggestedOrder,
+                              unit_price: a.prixUnitaire,
+                              barcode: a.codePCA || ''
+                            }))
+                          });
+                        }
+                        alert(`${Object.keys(bySupplier).length} bon(s) de commande créé(s) pour ${withSupplier.length} article(s).` +
+                          (withoutSupplier.length > 0 ? `\n${withoutSupplier.length} article(s) sans fournisseur habituel ont été ignorés.` : ''));
+                        navigate('/achats-charges');
+                      } catch (err) {
+                        console.error('Failed to create purchase orders', err);
+                        alert('Erreur lors de la création des bons de commande.');
+                      }
                     }}
-                    title={t('inventory.reordering.no_supplier_link', { defaultValue: "Les articles ne sont pas encore liés à un fournisseur — créez la commande depuis le module Fournisseurs" })}
                     className="flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all shadow-sm font-medium space-x-2"
                   >
                     <ShoppingCartIcon className="h-4 w-4" />
@@ -2167,10 +2216,11 @@ const Inventaire: React.FC = () => {
                   <label htmlFor="order-qty" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Quantité à commander <span className="text-red-600">*</span>
                   </label>
-                  <input 
+                  <input
                     id="order-qty"
-                    type="number" 
-                    defaultValue={selectedReorderArticle.suggestedOrder}
+                    type="number"
+                    value={orderForm.quantity}
+                    onChange={e => setOrderForm({ ...orderForm, quantity: Number(e.target.value) })}
                     min={1}
                     className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-lg"
                   />
@@ -2183,10 +2233,16 @@ const Inventaire: React.FC = () => {
                   <label htmlFor="order-supplier" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Fournisseur <span className="text-red-600">*</span>
                   </label>
-                  <select id="order-supplier" className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
-                    <option>{selectedReorderArticle.fournisseurPrincipal}</option>
-                    <option>Fournisseur Alternatif 1</option>
-                    <option>Fournisseur Alternatif 2</option>
+                  <select
+                    id="order-supplier"
+                    value={orderForm.supplierId}
+                    onChange={e => setOrderForm({ ...orderForm, supplierId: e.target.value })}
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  >
+                    <option value="">Sélectionner un fournisseur</option>
+                    {suppliers.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -2222,8 +2278,10 @@ const Inventaire: React.FC = () => {
                   <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Notes / Instructions spéciales
                   </label>
-                  <textarea 
+                  <textarea
                     rows={3}
+                    value={orderForm.notes}
+                    onChange={e => setOrderForm({ ...orderForm, notes: e.target.value })}
                     className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                     placeholder="Ajouter des instructions particulières pour cette commande..."
                   />
@@ -2251,16 +2309,35 @@ const Inventaire: React.FC = () => {
                   Annuler
                 </button>
                 <button
-                  onClick={() => {
-                    // Idem : aucun fournisseur réel lié à l'article, pas de
-                    // commande possible depuis ici sans données inventées.
-                    setShowOrderModal(false);
-                    navigate('/fournisseurs');
+                  disabled={!orderForm.supplierId || orderForm.quantity <= 0 || submittingOrder}
+                  onClick={async () => {
+                    if (!selectedReorderArticle || !orderForm.supplierId) return;
+                    setSubmittingOrder(true);
+                    try {
+                      await apiClient.post('/procurement/purchase-orders', {
+                        supplier_id: orderForm.supplierId,
+                        order_date: new Date().toISOString().split('T')[0],
+                        notes: orderForm.notes || undefined,
+                        items: [{
+                          article_id: selectedReorderArticle.id,
+                          quantity: orderForm.quantity,
+                          unit_price: selectedReorderArticle.prixUnitaire,
+                          barcode: selectedReorderArticle.codePCA || ''
+                        }]
+                      });
+                      setShowOrderModal(false);
+                      navigate('/achats-charges');
+                    } catch (err) {
+                      console.error('Failed to create purchase order', err);
+                      alert('Erreur lors de la création du bon de commande.');
+                    } finally {
+                      setSubmittingOrder(false);
+                    }
                   }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2 disabled:opacity-50"
                 >
                   <CheckCircleIcon className="h-5 w-5" />
-                  <span>Choisir un fournisseur</span>
+                  <span>{submittingOrder ? 'Création...' : 'Créer la commande'}</span>
                 </button>
               </div>
             </div>

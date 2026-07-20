@@ -25,5 +25,9 @@ celery_app.conf.update(
             "task": "app.modules.system.tasks.send_fiscal_reminders",
             "schedule": crontab(hour=8, minute=0),
         },
+        "check-low-stock-alerts-daily": {
+            "task": "app.modules.system.tasks.check_low_stock_alerts",
+            "schedule": crontab(hour=8, minute=15),
+        },
     },
 )

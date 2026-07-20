@@ -55,6 +55,16 @@ const GestionRH: React.FC = () => {
   const { formatCurrency } = useApp();
   const { employees, loading, error, createEmployee } = useEmployees();
   const [payslips, setPayslips] = useState<Record<string, { cnas_employee: number; irg: number; net_salary: number }>>({});
+  const [payrollRuns, setPayrollRuns] = useState<any[]>([]);
+  const [validatingPayroll, setValidatingPayroll] = useState(false);
+  const currentPeriod = new Date().toISOString().slice(0, 7);
+  const currentPeriodValidated = payrollRuns.some(r => r.period === currentPeriod);
+
+  const fetchPayrollRuns = () => {
+    apiClient.get<any[]>('/rh/employees/payroll/runs').then(res => {
+      setPayrollRuns(res.data || []);
+    }).catch(() => {});
+  };
 
   React.useEffect(() => {
     apiClient.get<any>('/rh/employees/payroll/summary').then(res => {
@@ -62,7 +72,24 @@ const GestionRH: React.FC = () => {
       (res.data?.payslips || []).forEach((p: any) => { map[p.employee_id] = p; });
       setPayslips(map);
     }).catch(() => {});
+    fetchPayrollRuns();
   }, [employees]);
+
+  const handleValidatePayroll = async () => {
+    if (currentPeriodValidated) return;
+    if (!confirm(`Valider la paie de ${currentPeriod} pour ${employees.filter(e => e.status !== 'inactif').length} employé(s) ? Une écriture comptable sera générée.`)) return;
+    setValidatingPayroll(true);
+    try {
+      const res = await apiClient.post<any>('/rh/employees/payroll/validate', { period: currentPeriod });
+      alert(`Paie validée : écriture comptable ${res.data.journal_entry_number} générée (net total : ${formatCurrency(res.data.total_net)}).`);
+      fetchPayrollRuns();
+    } catch (err: any) {
+      console.error('Failed to validate payroll', err);
+      alert(err?.response?.data?.detail || 'Erreur lors de la validation de la paie.');
+    } finally {
+      setValidatingPayroll(false);
+    }
+  };
   const { has } = usePermission();
   const canManageEmployees = has('admin-users');
   const [activeTab, setActiveTab] = useState<'employees' | 'payroll' | 'holidays' | 'analytics'>('employees');
@@ -255,15 +282,12 @@ const GestionRH: React.FC = () => {
                   <PrinterIcon className="h-4 w-4 mr-2" />{t('rh.payroll.print_all')}
                 </button>
                 <button
-                  onClick={() => {
-                    apiClient.get<any>('/rh/employees/payroll/summary').then(res => {
-                      const map: Record<string, any> = {};
-                      (res.data?.payslips || []).forEach((p: any) => { map[p.employee_id] = p; });
-                      setPayslips(map);
-                    }).catch(() => {});
-                  }}
-                  className="flex items-center px-4 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors">
-                  <SparklesIcon className="h-4 w-4 mr-2" />{t('rh.payroll.generate')}
+                  onClick={handleValidatePayroll}
+                  disabled={currentPeriodValidated || validatingPayroll}
+                  title={currentPeriodValidated ? `Paie ${currentPeriod} déjà validée` : undefined}
+                  className="flex items-center px-4 py-2 text-sm font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors disabled:opacity-50">
+                  <SparklesIcon className="h-4 w-4 mr-2" />
+                  {currentPeriodValidated ? 'Paie validée' : validatingPayroll ? 'Validation...' : t('rh.payroll.generate')}
                 </button>
               </div>
             </div>
@@ -299,9 +323,15 @@ const GestionRH: React.FC = () => {
                         <td className="px-4 py-3 text-red-500 whitespace-nowrap">-{formatCurrency(irg)}</td>
                         <td className="px-4 py-3 font-bold text-slate-900 whitespace-nowrap">{formatCurrency(net)}</td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
-                            <ClockIcon className="h-3 w-3 mr-1" />{t('rh.payroll.status.pending')}
-                          </span>
+                          {currentPeriodValidated ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700">
+                              <CheckCircleIcon className="h-3 w-3 mr-1" />Validée
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
+                              <ClockIcon className="h-3 w-3 mr-1" />{t('rh.payroll.status.pending')}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );

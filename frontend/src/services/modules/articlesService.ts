@@ -14,6 +14,7 @@ interface ArticleResponse {
     tax_rate?: number;
     stock_quantity?: number;
     min_stock_level?: number;
+    preferred_supplier_id?: string | null;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -29,13 +30,14 @@ function mapToFrontend(data: ArticleResponse): Article {
         stock: data.stock_quantity || 0,
         categorie: data.category || 'Non classé',
         unite: 'U', // Default or handle if backend sends it
-        description: data.description || ''
+        description: data.description || '',
+        preferredSupplierId: data.preferred_supplier_id || undefined
     };
 }
 
 // Mapper function for creating/updating
 function mapToBackend(data: Partial<Article>): any {
-    return {
+    const payload: any = {
         name: data.nom,
         sku: data.codePCA,
         category: data.categorie,
@@ -46,6 +48,10 @@ function mapToBackend(data: Partial<Article>): any {
         tax_rate: 19,
         min_stock_level: 10
     };
+    if (data.preferredSupplierId !== undefined) {
+        payload.preferred_supplier_id = data.preferredSupplierId || null;
+    }
+    return payload;
 }
 
 export const articlesService = {

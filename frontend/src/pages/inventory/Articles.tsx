@@ -84,6 +84,13 @@ const Articles: React.FC = () => {
   } | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [errorStats, setErrorStats] = useState<string | null>(null);
+  const [suppliers, setSuppliers] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    apiClient.get<any[]>('/suppliers/').then(res => {
+      setSuppliers((res.data || []).map((s: any) => ({ id: s.id, name: s.name })));
+    }).catch(() => {});
+  }, []);
 
   // Récupérer les produits depuis le contexte
   const { products, createProduct, deleteProduct, updateProduct, refetch } = useProducts();
@@ -223,6 +230,7 @@ const Articles: React.FC = () => {
               const prixUnitaire = parseFloat(formData.get('prixUnitaire') as string) || 0;
               const unite = formData.get('unite') as string || 'unité';
               const description = formData.get('description') as string || '';
+              const preferredSupplierId = formData.get('preferredSupplierId') as string || undefined;
 
               if (selectedArticle) {
                 // Modification d'un article existant
@@ -231,7 +239,8 @@ const Articles: React.FC = () => {
                   codePCA,
                   prixUnitaire,
                   unite,
-                  description
+                  description,
+                  preferredSupplierId
                 });
                 setSuccessData({
                   title: t('inventory.articles.success.modified_title'),
@@ -258,7 +267,8 @@ const Articles: React.FC = () => {
                     unite,
                     stock: 0,
                     description,
-                    categorie: 'Général'
+                    categorie: 'Général',
+                    preferredSupplierId
                   });
                 } catch (err) {
                   console.error('Failed to create article', err);
@@ -368,6 +378,25 @@ const Articles: React.FC = () => {
                   <option value="m³">Mètre cube (m³)</option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Fournisseur habituel
+              </label>
+              <select
+                name="preferredSupplierId"
+                defaultValue={selectedArticle?.preferredSupplierId || ''}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label="Sélectionner un fournisseur habituel"
+                title="Sélectionner un fournisseur habituel"
+              >
+                <option value="">Aucun</option>
+                {suppliers.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Utilisé pour générer automatiquement les bons de commande depuis les suggestions de réapprovisionnement.</p>
             </div>
 
             <div>

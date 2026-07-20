@@ -31,6 +31,7 @@ class ArticleResponse(BaseModel):
     tax_rate: Optional[Decimal]
     stock_quantity: Optional[int]
     min_stock_level: Optional[int]
+    preferred_supplier_id: Optional[str] = None
     is_active: bool
     created_at: str
     updated_at: str
@@ -46,6 +47,7 @@ class CreateArticleRequest(BaseModel):
     tax_rate: Optional[Decimal] = Field(default=Decimal("19"), ge=0, le=100)
     stock_quantity: Optional[int] = Field(default=0, ge=0)
     min_stock_level: Optional[int] = Field(default=10, ge=0)
+    preferred_supplier_id: Optional[str] = None
 
 class UpdateArticleRequest(BaseModel):
     name: Optional[str] = None
@@ -58,6 +60,7 @@ class UpdateArticleRequest(BaseModel):
     tax_rate: Optional[Decimal] = None
     stock_quantity: Optional[int] = None
     min_stock_level: Optional[int] = None
+    preferred_supplier_id: Optional[str] = None
     is_active: Optional[bool] = None
 
 class ArticleStatsResponse(BaseModel):
@@ -128,6 +131,7 @@ async def list_articles(
             tax_rate=a.tax_rate,
             stock_quantity=a.stock_quantity,
             min_stock_level=a.min_stock_level,
+            preferred_supplier_id=str(a.preferred_supplier_id) if a.preferred_supplier_id else None,
             is_active=a.is_active,
             created_at=a.created_at.isoformat() if a.created_at else "",
             updated_at=a.updated_at.isoformat() if a.updated_at else ""
@@ -260,6 +264,7 @@ async def get_article(
         tax_rate=article.tax_rate,
         stock_quantity=article.stock_quantity,
         min_stock_level=article.min_stock_level,
+        preferred_supplier_id=str(article.preferred_supplier_id) if article.preferred_supplier_id else None,
         is_active=article.is_active,
         created_at=article.created_at.isoformat() if article.created_at else "",
         updated_at=article.updated_at.isoformat() if article.updated_at else ""
@@ -297,6 +302,7 @@ async def create_article(
         tax_rate=request.tax_rate,
         stock_quantity=request.stock_quantity,
         min_stock_level=request.min_stock_level,
+        preferred_supplier_id=request.preferred_supplier_id,
         is_active=True
     )
     
@@ -320,6 +326,7 @@ async def create_article(
         tax_rate=article.tax_rate,
         stock_quantity=article.stock_quantity,
         min_stock_level=article.min_stock_level,
+        preferred_supplier_id=str(article.preferred_supplier_id) if article.preferred_supplier_id else None,
         is_active=article.is_active,
         created_at=article.created_at.isoformat() if article.created_at else "",
         updated_at=article.updated_at.isoformat() if article.updated_at else ""
@@ -367,6 +374,7 @@ async def update_article(
         tax_rate=article.tax_rate,
         stock_quantity=article.stock_quantity,
         min_stock_level=article.min_stock_level,
+        preferred_supplier_id=str(article.preferred_supplier_id) if article.preferred_supplier_id else None,
         is_active=article.is_active,
         created_at=article.created_at.isoformat() if article.created_at else "",
         updated_at=article.updated_at.isoformat() if article.updated_at else ""

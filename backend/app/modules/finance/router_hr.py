@@ -125,7 +125,8 @@ async def create_employee(
     )
     
     db.add(emp)
-    log_audit(db, current_user, 'CREATE', 'EMPLOYEE', None, {'matricule': request.matricule, 'nom': request.nom})
+    db.flush()
+    log_audit(db, current_user, 'CREATE', 'EMPLOYEE', str(emp.id), {'matricule': req.matricule, 'nom': req.nom})
     db.commit()
     db.refresh(emp)
     
@@ -273,3 +274,158 @@ async def payroll_summary(
 
     total["payslips"] = payslips
     return total
+
+
+class ValidatePayrollRequest(BaseModel):
+    period: str  # "YYYY-MM"
+
+
+@router.post("/payroll/validate")
+async def validate_payroll(
+    request: ValidatePayrollRequest,
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Valide la paie d'une période et génère l'écriture comptable réelle
+    (charges 641/645, dettes 421/431/444) — jusqu'ici le module RH était
+    totalement isolé de la comptabilité : /payroll/simulate et
+    /payroll/summary étaient purement calculatoires, sans aucune trace
+    comptable ni persistance d'un cycle de paie.
+    """
+    from app.core.security import RBACManager
+    from app.modules.finance.service_payroll import AlgerianPayrollCalculator
+    from app.core.models import PayrollRun, JournalEntry, JournalEntryLine
+    from app.core.sequences import generate_document_number
+
+    if not RBACManager.check_permission(current_user.roles, "approve"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Payroll validation requires approval permission")
+
+    existing = db.query(PayrollRun).filter(
+        PayrollRun.company_id == current_user.company_id,
+        PayrollRun.period == request.period
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail=f"La paie de la période {request.period} a déjà été validée")
+
+    employees = db.query(Employee).filter(
+        Employee.company_id == current_user.company_id,
+        Employee.status == 'actif'
+    ).all()
+    if not employees:
+        raise HTTPException(status_code=400, detail="Aucun employé actif — rien à valider")
+
+    total_gross = Decimal('0')
+    total_cnas_employee = Decimal('0')
+    total_irg = Decimal('0')
+    total_net = Decimal('0')
+    total_cnas_employer = Decimal('0')
+    for emp in employees:
+        gross = Decimal(str((emp.salaire_base or 0))) + Decimal(str((emp.primes or 0)))
+        slip = AlgerianPayrollCalculator.compute_payslip(gross)
+        total_gross += slip["gross_salary"]
+        total_cnas_employee += slip["cnas_employee"]
+        total_irg += slip["irg"]
+        total_net += slip["net_salary"]
+        total_cnas_employer += slip["cnas_employer"]
+
+    year, month = map(int, request.period.split('-'))
+    entry_date = date(year, month, 1)
+
+    entry_number = generate_document_number(db, JournalEntry, JournalEntry.entry_number, current_user.company_id, "PAIE", entry_date)
+    entry = JournalEntry(
+        company_id=current_user.company_id,
+        entry_number=entry_number,
+        entry_date=entry_date,
+        description=f"Paie {request.period} — {len(employees)} employé(s)",
+        journal_type="OD",
+        status="approved",
+        created_by=current_user.user_id,
+        total_debit=total_gross + total_cnas_employer,
+        total_credit=total_net + total_cnas_employee + total_cnas_employer + total_irg
+    )
+    db.add(entry)
+    db.flush()
+
+    # 641 Charges de personnel (salaires bruts) — débit
+    db.add(JournalEntryLine(
+        journal_entry_id=entry.id, account_code="641000",
+        debit_amount=total_gross, credit_amount=0,
+        description=f"Salaires bruts {request.period}"
+    ))
+    # 645 Charges sociales patronales (CNAS employeur) — débit
+    db.add(JournalEntryLine(
+        journal_entry_id=entry.id, account_code="645000",
+        debit_amount=total_cnas_employer, credit_amount=0,
+        description=f"CNAS employeur {request.period}"
+    ))
+    # 421 Personnel — rémunérations dues (net à payer) — crédit
+    db.add(JournalEntryLine(
+        journal_entry_id=entry.id, account_code="421000",
+        debit_amount=0, credit_amount=total_net,
+        description=f"Net à payer {request.period}"
+    ))
+    # 431 Sécurité sociale (CNAS salarié + patronal) — crédit
+    db.add(JournalEntryLine(
+        journal_entry_id=entry.id, account_code="431000",
+        debit_amount=0, credit_amount=total_cnas_employee + total_cnas_employer,
+        description=f"CNAS à verser {request.period}"
+    ))
+    # 444 État — IRG à reverser — crédit
+    db.add(JournalEntryLine(
+        journal_entry_id=entry.id, account_code="444000",
+        debit_amount=0, credit_amount=total_irg,
+        description=f"IRG à reverser {request.period}"
+    ))
+
+    payroll_run = PayrollRun(
+        company_id=current_user.company_id,
+        period=request.period,
+        journal_entry_id=entry.id,
+        headcount=len(employees),
+        total_gross=total_gross,
+        total_cnas_employee=total_cnas_employee,
+        total_irg=total_irg,
+        total_net=total_net,
+        total_cnas_employer=total_cnas_employer,
+        validated_by=current_user.user_id
+    )
+    db.add(payroll_run)
+
+    log_audit(db, current_user, 'VALIDATE', 'PAYROLL_RUN', str(payroll_run.id), {
+        'period': request.period, 'headcount': len(employees), 'total_net': str(total_net)
+    })
+    db.commit()
+
+    return {
+        "status": "success",
+        "period": request.period,
+        "journal_entry_id": str(entry.id),
+        "journal_entry_number": entry_number,
+        "headcount": len(employees),
+        "total_gross": float(total_gross),
+        "total_net": float(total_net)
+    }
+
+
+@router.get("/payroll/runs")
+async def list_payroll_runs(
+    current_user: TokenData = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Historique des paies validées, pour éviter une double validation
+    depuis l'UI et afficher le statut réel (payé/en attente) par période."""
+    from app.core.models import PayrollRun
+    runs = db.query(PayrollRun).filter(
+        PayrollRun.company_id == current_user.company_id
+    ).order_by(PayrollRun.period.desc()).all()
+    return [
+        {
+            "id": str(r.id), "period": r.period,
+            "journal_entry_id": str(r.journal_entry_id) if r.journal_entry_id else None,
+            "headcount": r.headcount, "total_gross": float(r.total_gross or 0),
+            "total_net": float(r.total_net or 0),
+            "validated_at": r.validated_at.isoformat() if r.validated_at else None
+        }
+        for r in runs
+    ]

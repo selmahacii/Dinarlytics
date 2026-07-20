@@ -86,14 +86,61 @@ class NotificationService:
 
     @staticmethod
     def trigger_financial_alert(
-        db: Session, 
-        company_id: Any, 
-        alert_code: str, 
+        db: Session,
+        company_id: Any,
+        alert_code: str,
         current_value: float,
-        threshold: float
+        threshold: float,
+        message: str = None,
+        severity: str = "medium"
     ):
-        """Unified method for AI or Logic-driven alerts."""
-        # Record the trigger in DB
-        # Send notifications
+        """Persists an AlertTrigger and notifies users with audit-read
+        permission. Was previously a bare `logger.warning(...); pass` —
+        never wrote anything to the database and had no caller anywhere
+        in the codebase, so alerts shown transiently in the UI (stock
+        bas, seuils financiers) were never turned into real, persistent
+        UserNotification rows."""
+        from app.core.models import AlertDefinition, AlertTrigger, User
+        from app.core.permissions import ROLE_PERMISSIONS
+
+        alert_def = db.query(AlertDefinition).filter(
+            AlertDefinition.alert_code == alert_code
+        ).first()
+        if not alert_def:
+            alert_def = AlertDefinition(
+                company_id=company_id,
+                alert_code=alert_code,
+                alert_name=alert_code.replace('_', ' ').title(),
+                alert_type="financial",
+                threshold_value=threshold,
+                comparison_operator="<",
+                severity_level=severity
+            )
+            db.add(alert_def)
+            db.flush()
+
+        trigger = AlertTrigger(
+            company_id=company_id,
+            alert_id=alert_def.id,
+            trigger_value=current_value,
+            status="new",
+            priority=severity
+        )
+        db.add(trigger)
         logger.warning(f"Financial Alert {alert_code}: {current_value} vs {threshold}")
-        pass
+
+        recipients = db.query(User).filter(
+            User.company_id == company_id,
+            User.is_active == True
+        ).all()
+        recipients = [u for u in recipients if any('audit-read' in ROLE_PERMISSIONS.get(r.name, []) for r in u.roles)]
+        for user in recipients:
+            NotificationService.create_notification(
+                db, user_id=user.id, company_id=company_id,
+                title=alert_def.alert_name,
+                message=message or f"{alert_def.alert_name} : valeur actuelle {current_value} (seuil {threshold})",
+                priority=severity,
+                category=alert_code
+            )
+        db.commit()
+        return trigger

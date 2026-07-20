@@ -83,6 +83,11 @@ class Article(Base):
     qr_code_url = Column(String(255), unique=True)
     stock_quantity = Column(Numeric(10, 3), default=0)
     min_stock_level = Column(Numeric(10, 3), default=10)
+    # Fournisseur habituel — sans ce lien, une alerte de réapprovisionnement
+    # ne peut mener à aucune commande fournisseur automatique : l'écran
+    # d'inventaire se contentait de rediriger vers /fournisseurs faute de
+    # savoir à qui commander.
+    preferred_supplier_id = Column(UUID(as_uuid=True), ForeignKey("fournisseurs.id"), nullable=True, index=True)
     category = Column(String(100), default="General", index=True)
     is_active = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
