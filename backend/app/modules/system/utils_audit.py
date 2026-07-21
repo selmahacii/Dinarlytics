@@ -13,10 +13,16 @@ def log_audit(
     entity_type: str,
     entity_id: str,
     details: dict = None,
-    ip_address: str = None
+    ip_address: str = None,
+    old_values: dict = None
 ):
     """
     Creates an audit log entry.
+
+    old_values : état avant modification (pour UPDATE), permettant un vrai
+    diff avant/après dans la page Audit. Auparavant jamais renseigné —
+    seul `new_values` était écrit, rendant impossible tout diff malgré le
+    champ et l'UI prévus pour ça.
     """
     try:
         # Accepte TokenData/modèle User (attributs) ou dict (style
@@ -36,6 +42,7 @@ def log_audit(
             entity_id=uuid.UUID(str(entity_id)) if entity_id else None,
             details=details,
             new_values=details,
+            old_values=old_values,
             ip_address=ip_address
         )
         db.add(log_entry)

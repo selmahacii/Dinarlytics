@@ -9,6 +9,7 @@ from app.core.database import get_db
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData
 from app.core.models import Immobilisation
+from app.modules.system.utils_audit import log_audit
 
 router = APIRouter(prefix="/amortissements", tags=["depreciation"])
 
@@ -169,6 +170,10 @@ async def create_asset(
         compte_ifrs=request.compteIFRS
     )
     db.add(immo)
+    db.flush()
+    log_audit(db, current_user, 'CREATE', 'IMMOBILISATION', str(immo.id), {
+        'code': immo.code, 'designation': immo.designation, 'valeur_acquisition': str(immo.valeur_acquisition)
+    })
     db.commit()
     db.refresh(immo)
 

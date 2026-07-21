@@ -70,7 +70,12 @@ const Audit: React.FC = () => {
     setErrorLogs(null);
 
     try {
-      const data = await auditService.getLogs(50);
+      // Le filtre de période n'avait aucun effet sur la requête réelle —
+      // getLogs() ignorait selectedPeriod, donc changer le sélecteur ne
+      // changeait jamais les logs affichés. Le backend accepte maintenant
+      // period=day|week|month|quarter.
+      const periodMap: Record<string, string> = { jour: 'day', semaine: 'week', mois: 'month', trimestre: 'quarter' };
+      const data = await auditService.getLogs(500, undefined, periodMap[selectedPeriod]);
       const mapped = data.map((log: any) => ({
         id: log.id,
         action: log.action,
@@ -1302,6 +1307,31 @@ const Audit: React.FC = () => {
               <label className="block text-sm font-medium text-slate-700 mb-1">{t('audit.modals.details_label')}</label>
               <p className="text-sm text-slate-800 bg-slate-50 p-3 rounded-lg">{selectedLog.details}</p>
             </div>
+            {selectedLog.old_values && Object.keys(selectedLog.old_values).length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Avant / Après</label>
+                <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-slate-600">Champ</th>
+                        <th className="px-3 py-2 text-left font-semibold text-red-600">Avant</th>
+                        <th className="px-3 py-2 text-left font-semibold text-emerald-600">Après</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {Object.keys(selectedLog.old_values).map((field) => (
+                        <tr key={field}>
+                          <td className="px-3 py-2 font-medium text-slate-700">{field}</td>
+                          <td className="px-3 py-2 text-red-600">{String(selectedLog.old_values[field] ?? '—')}</td>
+                          <td className="px-3 py-2 text-emerald-600">{String(selectedLog.new_values?.[field] ?? '—')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
             <div className="flex justify-end space-x-3">
               <button
                 type="button"

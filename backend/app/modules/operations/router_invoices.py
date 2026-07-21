@@ -378,6 +378,13 @@ async def update_invoice(
     if inv.status != 'draft':
         raise HTTPException(status_code=400, detail="Seules les factures en brouillon peuvent être modifiées")
 
+    old_values = {
+        'client_id': str(inv.client_id) if inv.client_id else None,
+        'invoice_date': str(inv.invoice_date),
+        'due_date': str(inv.due_date),
+        'total_htt': str(inv.total_htt), 'total_tva': str(inv.total_tva), 'total_ttc': str(inv.total_ttc)
+    }
+
     client = db.query(Client).filter(Client.id == request.client_id, Client.company_id == current_user.company_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
@@ -437,7 +444,11 @@ async def update_invoice(
         updated_items.append(item_timbre)
     inv.total_ttc = total_ht_global + total_tva_global + timbre_fiscal
 
-    log_audit(db, current_user, 'UPDATE', 'INVOICE', str(inv.id), {'invoice_number': inv.invoice_number})
+    log_audit(db, current_user, 'UPDATE', 'INVOICE', str(inv.id), {
+        'invoice_number': inv.invoice_number,
+        'client_id': str(inv.client_id), 'invoice_date': str(inv.invoice_date), 'due_date': str(inv.due_date),
+        'total_htt': str(inv.total_htt), 'total_tva': str(inv.total_tva), 'total_ttc': str(inv.total_ttc)
+    }, old_values=old_values)
     db.commit()
     db.refresh(inv)
 

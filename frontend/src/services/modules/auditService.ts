@@ -19,9 +19,9 @@ export const auditService = {
     /**
      * Fetches real DB traces with JSON diffs
      */
-    getLogs: async (limit: number = 50, entityType?: string) => {
+    getLogs: async (limit: number = 50, entityType?: string, period?: string, userId?: string) => {
         const response = await apiClient.get<AuditLog[]>('/audit/logs', {
-            params: { limit, entity_type: entityType }
+            params: { limit, entity_type: entityType, period, user_id: userId }
         });
         return response.data;
     },

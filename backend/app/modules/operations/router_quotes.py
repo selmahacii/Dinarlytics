@@ -24,6 +24,17 @@ VALID_TRANSITIONS = {
 }
 
 
+def _auto_expire(quote: Quote) -> bool:
+    """Flips a 'sent' quote to 'expired' in memory if its expiry_date has
+    passed. No cron job exists to do this server-side, so every read/write
+    path re-checks it — otherwise a quote past its expiry date stayed
+    visibly 'sent' forever and could still be accepted/converted."""
+    if quote.status == "sent" and quote.expiry_date and quote.expiry_date < date.today():
+        quote.status = "expired"
+        return True
+    return False
+
+
 class QuoteItemRequest(BaseModel):
     article_id: Optional[str] = None
     description: Optional[str] = None
@@ -53,6 +64,7 @@ class QuoteResponse(BaseModel):
     id: str
     numero: str
     client: str
+    clientId: Optional[str] = None
     clientEmail: Optional[str] = None
     dateCreation: date
     dateExpiration: Optional[date] = None
@@ -71,6 +83,7 @@ def _serialize(q: Quote) -> QuoteResponse:
         id=str(q.id),
         numero=q.quote_number,
         client=client.name if client else "Client inconnu",
+        clientId=str(q.client_id) if q.client_id else None,
         clientEmail=client.email if client else None,
         dateCreation=q.quote_date,
         dateExpiration=q.expiry_date,
@@ -111,6 +124,8 @@ async def list_quotes(
     if status_filter:
         query = query.filter(Quote.status == status_filter)
     quotes = query.order_by(Quote.created_at.desc()).offset(skip).limit(limit).all()
+    if any(_auto_expire(q) for q in quotes):
+        db.commit()
     return [_serialize(q) for q in quotes]
 
 
@@ -205,6 +220,15 @@ async def update_quote_status(
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
 
+    # Un devis dont la date d'expiration est dépassée doit être considéré
+    # expiré avant toute autre transition, quel que soit son statut stocké
+    # en base — sinon rien n'empêchait d'accepter/convertir un devis expiré
+    # (aucun job ne bascule sent→expired automatiquement quand la date passe).
+    if quote.status == "sent" and quote.expiry_date and quote.expiry_date < date.today():
+        quote.status = "expired"
+        db.commit()
+        db.refresh(quote)
+
     allowed = VALID_TRANSITIONS.get(quote.status, set())
     if request.status not in allowed:
         raise HTTPException(
@@ -212,8 +236,9 @@ async def update_quote_status(
             detail=f"Cannot transition quote from '{quote.status}' to '{request.status}'",
         )
 
+    old_status = quote.status
     quote.status = request.status
-    log_audit(db, current_user, 'UPDATE', 'QUOTE', str(quote.id), {'status': request.status})
+    log_audit(db, current_user, 'UPDATE', 'QUOTE', str(quote.id), {'status': request.status}, old_values={'status': old_status})
     db.commit()
     db.refresh(quote)
     return _serialize(quote)

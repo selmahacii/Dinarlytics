@@ -12,7 +12,7 @@ import {
   XCircleIcon,
   ArrowPathIcon,
   PrinterIcon,
-  DocumentArrowDownIcon,
+  DocumentDuplicateIcon,
   UserIcon,
   CalendarIcon,
   BanknotesIcon,
@@ -136,6 +136,31 @@ const Devis: React.FC = () => {
   };
   const handleConvert = async (id: string) => {
     try { await convertToInvoice(id); setIsDetailOpen(false); } catch (err: any) { setActionError(err.message); }
+  };
+  const handleDuplicate = async (source: Devis) => {
+    if (!source.clientId) {
+      setActionError('Ce devis n\'a pas de client identifiable — duplication impossible.');
+      return;
+    }
+    try {
+      const created = await createDevis({
+        client_id: source.clientId,
+        date_creation: new Date().toISOString().split('T')[0],
+        notes: source.notes,
+        items: source.items.map(it => ({
+          article_id: it.articleId,
+          description: it.designation,
+          quantity: it.qty,
+          unit_price: it.unitPrice,
+          tva_rate: it.tva
+        }))
+      });
+      setIsDetailOpen(false);
+      setSelectedDevis(created);
+      setIsDetailOpen(true);
+    } catch (err: any) {
+      setActionError(err.message);
+    }
   };
 
   return (
@@ -353,11 +378,19 @@ const Devis: React.FC = () => {
 
             {/* Actions */}
             <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
-              <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                <PrinterIcon className="h-4 w-4 mr-2" />{t('devis.actions.print')}
+              <button
+                onClick={() => window.print()}
+                title="Ouvre la boîte de dialogue d'impression — choisissez « Enregistrer en PDF » comme imprimante pour obtenir un fichier PDF"
+                className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+              >
+                <PrinterIcon className="h-4 w-4 mr-2" />{t('devis.actions.print')} / PDF
               </button>
-              <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors">
-                <DocumentArrowDownIcon className="h-4 w-4 mr-2" />{t('devis.actions.download')} PDF
+              <button
+                onClick={() => handleDuplicate(selectedDevis)}
+                title="Créer un nouveau devis brouillon avec les mêmes lignes"
+                className="flex items-center px-4 py-2 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+              >
+                <DocumentDuplicateIcon className="h-4 w-4 mr-2" />Dupliquer
               </button>
               {selectedDevis.status === 'draft' && (
                 <button onClick={() => handleSend(selectedDevis.id)} className="flex items-center px-5 py-2 text-sm font-bold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">

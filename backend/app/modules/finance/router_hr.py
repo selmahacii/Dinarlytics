@@ -163,6 +163,11 @@ async def update_employee(
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid date format, use YYYY-MM-DD")
         
+    old_values = {
+        'salaire_base': str(emp.salaire_base), 'primes': str(emp.primes),
+        'status': emp.status, 'poste': emp.poste, 'department': emp.department
+    }
+
     emp.matricule = req.matricule
     emp.nom = req.nom
     emp.prenom = req.prenom
@@ -175,8 +180,11 @@ async def update_employee(
     emp.email = req.email
     emp.telephone = req.telephone
     emp.status = req.status
-    
-    log_audit(db, current_user, 'UPDATE', 'EMPLOYEE', str(emp.id) if hasattr(emp, 'id') else None, {'matricule': getattr(emp, 'matricule', None)})
+
+    log_audit(db, current_user, 'UPDATE', 'EMPLOYEE', str(emp.id), {
+        'matricule': emp.matricule, 'salaire_base': str(emp.salaire_base),
+        'primes': str(emp.primes), 'status': emp.status
+    }, old_values=old_values)
     db.commit()
     db.refresh(emp)
     

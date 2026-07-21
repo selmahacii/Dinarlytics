@@ -52,7 +52,7 @@ class FinancialChatbot:
             
             return {
                 "type": "lia",
-                "content": f"Basé sur l'analyse de vos {self.financial_data.get('invoices_total')} factures, je prévois une tendance de CA de {forecast_rev:,.2f} DZD pour la période suivante (Score de confiance: 92%).",
+                "content": f"Basé sur l'analyse de vos {self.financial_data.get('invoices_total')} factures, je prévois une tendance de CA de {forecast_rev:,.2f} DZD pour la période suivante. Estimation indicative — plusieurs facteurs du modèle prédictif reposent encore sur des données partielles.",
                 "data": raw_prediction,
                 "suggestions": ["Détailler par mois", "Voir scenarios pessimistes", "Plan d'action"]
             }
@@ -83,13 +83,28 @@ class FinancialChatbot:
         }
 
     def _handle_fiscal_inquiry(self) -> Dict[str, Any]:
-        """Specific Algerian Fiscal logic."""
-        revenue = self.financial_data.get("revenue", 0)
-        tva = revenue * 0.19 # Simule calculation
-        
+        """Specific Algerian Fiscal logic — lit le solde réel du compte
+        445700 (TVA collectée) du mois en cours, au lieu de réappliquer un
+        taux forfaitaire de 19% au CA brut (faux pour toute vente au taux
+        réduit 9% ou exonérée, et incohérent avec le calcul G50 réel)."""
+        from sqlalchemy import func, extract
+        from app.core.models import JournalEntry, JournalEntryLine
+        from decimal import Decimal
+
+        now = datetime.utcnow()
+        tva = self.db.query(func.sum(JournalEntryLine.credit_amount - JournalEntryLine.debit_amount)) \
+            .join(JournalEntry) \
+            .filter(
+                JournalEntry.company_id == self.company_id,
+                JournalEntry.status == 'approved',
+                extract('year', JournalEntry.entry_date) == now.year,
+                extract('month', JournalEntry.entry_date) == now.month,
+                JournalEntryLine.account_code.like('445700%')
+            ).scalar() or Decimal('0')
+
         return {
             "type": "lia",
-            "content": f"Pour l'exercice en cours, votre estimation de TVA collectée est de {tva:,.2f} DZD. N'oubliez pas que votre G50 doit être déposée avant le 20 du mois prochain.",
+            "content": f"Pour le mois en cours, votre TVA collectée réelle (compte 445700) est de {float(tva):,.2f} DZD. N'oubliez pas que votre G50 doit être déposée avant le 20 du mois prochain.",
             "suggestions": ["Générer G50", "Simuler IBS", "Calendrier fiscal"]
         }
 

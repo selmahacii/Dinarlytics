@@ -3,6 +3,7 @@ import apiClient from '../apiClient';
 export type DevisStatus = 'draft' | 'sent' | 'accepted' | 'refused' | 'expired';
 
 export interface DevisItem {
+    articleId?: string;
     designation: string;
     qty: number;
     unitPrice: number;
@@ -13,6 +14,7 @@ export interface Devis {
     id: string;
     numero: string;
     client: string;
+    clientId?: string;
     clientEmail: string;
     dateCreation: string;
     dateExpiration: string;
@@ -43,6 +45,7 @@ const mapDevisFromBackend = (q: any): Devis => ({
     id: q.id,
     numero: q.numero,
     client: q.client,
+    clientId: q.clientId || undefined,
     clientEmail: q.clientEmail || '',
     dateCreation: q.dateCreation,
     dateExpiration: q.dateExpiration || '',
@@ -53,6 +56,7 @@ const mapDevisFromBackend = (q: any): Devis => ({
     notes: q.notes || '',
     commercial: q.commercial || '',
     items: (q.items || []).map((it: any) => ({
+        articleId: it.article_id || undefined,
         designation: it.designation,
         qty: Number(it.qty) || 0,
         unitPrice: Number(it.unitPrice) || 0,

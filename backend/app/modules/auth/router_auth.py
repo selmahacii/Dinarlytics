@@ -238,9 +238,10 @@ async def register(
     if default_role:
         user_role = UserRole(user_id=new_user.id, role_id=default_role.id)
         db.add(user_role)
-    
+
+    log_audit(db, new_user, 'CREATE', 'USER', str(new_user.id), {'username': new_user.username, 'email': new_user.email})
     db.commit()
-    
+
     logger.info(f"New user registered: {request.username}")
     
     return RegisterResponse(
@@ -326,8 +327,10 @@ async def login(
     
     # Update last login
     user.last_login = datetime.now(timezone.utc)
+
+    log_audit(db, user, 'LOGIN', 'USER', str(user.id), {'username': user.username}, ip_address=ip_address)
     db.commit()
-    
+
     # Record successful login
     SessionManager.record_login_attempt(login_data.username, success=True)
 
@@ -574,8 +577,10 @@ async def logout(
     db.query(UserSession).filter(
         UserSession.user_id == current_user.user_id
     ).update({"is_active": False})
+
+    log_audit(db, current_user, 'LOGOUT', 'USER', str(current_user.user_id), {'username': current_user.username})
     db.commit()
-    
+
     logger.info(f"User logged out: {current_user.username}")
     
     return {"message": "Logged out successfully"}
@@ -612,8 +617,9 @@ async def change_password(
     
     # Update password
     user.password_hash = PasswordManager.hash_password(request.new_password)
+    log_audit(db, current_user, 'CHANGE_PASSWORD', 'USER', str(user.id), {'username': user.username})
     db.commit()
-    
+
     logger.info(f"Password changed for user: {user.username}")
     
 @router.get("/demo-users", response_model=dict)

@@ -18,6 +18,7 @@ from app.core.models import (
 )
 from app.modules.auth.router_auth import get_current_user
 from app.core.security import TokenData, RBACManager
+from app.modules.system.utils_audit import log_audit
 from pydantic import BaseModel, Field
 
 def generate_document_number(db: Session, model, column, company_id, prefix, date_obj):
@@ -151,6 +152,7 @@ async def create_delivery_note(
             description=item.description
         )
         db.add(note_item)
+    log_audit(db, current_user, 'CREATE', 'DELIVERY_NOTE', str(note.id), {'delivery_number': note.delivery_number})
     db.commit()
     db.refresh(note)
     return DeliveryNoteResponse(
@@ -303,6 +305,7 @@ async def delete_delivery_note_item(
     ).first()
     if not note_item:
         raise HTTPException(status_code=404, detail="Delivery note item not found")
+    log_audit(db, current_user, 'DELETE', 'DELIVERY_NOTE_ITEM', str(item_id), {'delivery_note_id': note_id})
     db.delete(note_item)
     db.commit()
     return
@@ -339,6 +342,7 @@ async def create_purchase_order(
             description=item.description
         )
         db.add(po_item)
+    log_audit(db, current_user, 'CREATE', 'PURCHASE_ORDER', str(po.id), {'order_number': po.order_number})
     db.commit()
     db.refresh(po)
     return PurchaseOrderResponse(
@@ -501,6 +505,7 @@ async def delete_purchase_order_item(
     ).first()
     if not po_item:
         raise HTTPException(status_code=404, detail="Purchase order item not found")
+    log_audit(db, current_user, 'DELETE', 'PURCHASE_ORDER_ITEM', str(item_id), {'purchase_order_id': order_id})
     db.delete(po_item)
     db.commit()
     return
@@ -575,6 +580,7 @@ async def create_purchase_note(
             description=item.description
         )
         db.add(pn_item)
+    log_audit(db, current_user, 'CREATE', 'PURCHASE_NOTE', str(pn.id), {'note_number': pn.note_number})
     db.commit()
     db.refresh(pn)
     return PurchaseNoteResponse(
@@ -742,6 +748,7 @@ async def delete_purchase_note_item(
     ).first()
     if not pn_item:
         raise HTTPException(status_code=404, detail="Purchase note item not found")
+    log_audit(db, current_user, 'DELETE', 'PURCHASE_NOTE_ITEM', str(item_id), {'purchase_note_id': note_id})
     db.delete(pn_item)
     db.commit()
     return

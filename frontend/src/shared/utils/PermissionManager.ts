@@ -530,7 +530,7 @@ export const USER_ROLES: UserRole[] = [
       'rapports-basic',
       'lia-access'
     ],
-    companyTypes: ['micro', 'eurl', 'sarl', 'spa'],
+    companyTypes: ['eurl', 'sarl', 'spa'],
     accessLevels: ['starter', 'professional', 'enterprise']
   },
 

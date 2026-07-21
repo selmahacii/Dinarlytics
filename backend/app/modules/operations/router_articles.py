@@ -350,16 +350,17 @@ async def update_article(
     
     # Update fields
     update_data = request.dict(exclude_unset=True)
+    old_values = {field: (str(getattr(article, field)) if getattr(article, field) is not None else None) for field in update_data}
     for field, value in update_data.items():
         setattr(article, field, value)
-    
+
     article.updated_at = datetime.utcnow()
-    
+
     db.commit()
     db.refresh(article)
-    
+
     # Audit Log
-    log_audit(db, current_user, "UPDATE", "ARTICLE", str(article.id), request.dict(exclude_unset=True))
+    log_audit(db, current_user, "UPDATE", "ARTICLE", str(article.id), update_data, old_values=old_values)
     db.commit()
     
     return ArticleResponse(
