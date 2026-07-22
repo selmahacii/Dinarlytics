@@ -5,6 +5,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.db import DatabaseManager
 from app.modules.intelligence.service_prediction import PredictionService
+from app.modules.finance.service_analytics import AnalyticService
+from app.modules.finance.service_snapshots import get_trend_features
 
 logger = logging.getLogger(__name__)
 
@@ -49,10 +51,20 @@ class FinancialChatbot:
             
             revenue = self.financial_data.get("revenue", 0)
             forecast_rev = revenue * (1 + raw_prediction.get("predictions", {}).get("profitability", 0.05))
-            
+
+            trend_note = (
+                "" if self.trend_data_available else
+                "\n\n⚠️ Historique insuffisant : cette entreprise n'a pas encore assez de "
+                "jours de données enregistrées pour calculer une vraie tendance "
+                "(revenus/dépenses/trésorerie). Les facteurs de tendance du modèle "
+                "sont neutres (aucune évolution mesurée) tant que l'historique ne "
+                "s'est pas constitué — la prévision ci-dessus repose donc uniquement "
+                "sur l'état financier actuel, pas sur une dynamique observée."
+            )
+
             return {
                 "type": "lia",
-                "content": f"Basé sur l'analyse de vos {self.financial_data.get('invoices_total')} factures, je prévois une tendance de CA de {forecast_rev:,.2f} DZD pour la période suivante. Estimation indicative — plusieurs facteurs du modèle prédictif reposent encore sur des données partielles.",
+                "content": f"Basé sur l'analyse de vos {self.financial_data.get('invoices_total')} factures, je prévois une tendance de CA de {forecast_rev:,.2f} DZD pour la période suivante. Estimation indicative — plusieurs facteurs du modèle prédictif reposent encore sur des données partielles.{trend_note}",
                 "data": raw_prediction,
                 "suggestions": ["Détailler par mois", "Voir scenarios pessimistes", "Plan d'action"]
             }
@@ -131,17 +143,32 @@ class FinancialChatbot:
     def _prepare_features(self) -> Dict[str, float]:
         """Transforms DB data into features for the PyTorch model.
 
-        erp_multitask_v1 expects 20 inputs; DatabaseManager.fetch_financial_data
-        only exposes 8 real aggregates today, so f9-f20 remain filler zeros —
-        this is a genuine data-availability gap (no time-series/ratio history
-        is collected yet), not something this mapping alone can fix. f6-f8
-        were previously hardcoded to 0.0 despite real data existing for them."""
+        f1-f8   : point-in-time financial aggregates (DatabaseManager).
+        f9-f15  : real ratio KPIs (DSO/DPO/BFR/collection rate/solvency/
+                  break-even/avg settlement delay) via AnalyticService —
+                  computable right now, no history needed.
+        f16-f20 : real trend deltas (revenue/expense/cash/inventory growth,
+                  customer delay drift) via FinancialDailySnapshot history
+                  (see service_snapshots.get_trend_features). These need at
+                  least 2 daily snapshots to exist for this company; until
+                  then they default to 0.0 as the model's INPUT (0.0 on a
+                  *delta* feature honestly means "no observed change", not
+                  a fabricated absolute value) — but self.trend_data_available
+                  records whether that 0.0 is real or a stand-in, so any
+                  chatbot response referencing a trend must say "historique
+                  insuffisant" rather than presenting it as a measured trend.
+        """
         fd = self.financial_data
         rev = float(fd.get("revenue", 0))
         exp = float(fd.get("expenses", 0))
         total_liabilities = float(fd.get("total_liabilities", 0))
         invoices_total = float(fd.get("invoices_total", 0))
         payments_total = float(fd.get("payments_total", 0))
+
+        kpis = AnalyticService.get_financial_health_kpis(self.db, self.company_id)
+        delays = AnalyticService.get_payment_delay_kpis(self.db, self.company_id)
+        trends = get_trend_features(self.db, self.company_id)
+        self.trend_data_available = any(v is not None for v in trends.values())
 
         return {
             "f1": rev / 1e6,
@@ -152,7 +179,16 @@ class FinancialChatbot:
             "f6": total_liabilities / 1e6,
             "f7": invoices_total / 1e6,
             "f8": payments_total / 1e6,
-            # f9-f20 : aucune donnée réelle disponible actuellement
-            # (nécessiterait un historique de ratios/série temporelle).
-            **{f"f{i}": 0.0 for i in range(9, 21)}
+            "f9": kpis["dso_days"] / 365,
+            "f10": kpis["dpo_days"] / 365,
+            "f11": kpis["bfr_value"] / 1e6,
+            "f12": kpis["collection_rate"] / 100,
+            "f13": kpis["break_even_point"] / 1e6,
+            "f14": kpis["solvency_ratio"],
+            "f15": ((delays["customer_avg_payment_delay_days"] or 0) - (delays["supplier_avg_payment_delay_days"] or 0)) / 90,
+            "f16": (trends["revenue_trend_pct"] or 0.0) / 100,
+            "f17": (trends["expense_trend_pct"] or 0.0) / 100,
+            "f18": (trends["cash_trend_pct"] or 0.0) / 100,
+            "f19": (trends["inventory_trend_pct"] or 0.0) / 100,
+            "f20": (trends["customer_delay_trend_days"] or 0.0) / 30,
         }

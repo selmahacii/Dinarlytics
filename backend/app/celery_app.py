@@ -8,7 +8,7 @@ celery_app = Celery(
     "dinarlytics",
     broker=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
     backend=os.getenv("REDIS_URL", "redis://localhost:6379/0"),
-    include=["app.tasks.ai_tasks", "app.modules.system.tasks"]
+    include=["app.tasks.ai_tasks", "app.modules.system.tasks", "app.modules.finance.tasks_snapshots"]
 )
 
 # Optional configuration
@@ -28,6 +28,12 @@ celery_app.conf.update(
         "check-low-stock-alerts-daily": {
             "task": "app.modules.system.tasks.check_low_stock_alerts",
             "schedule": crontab(hour=8, minute=15),
+        },
+        "capture-daily-financial-snapshots": {
+            "task": "app.modules.finance.tasks_snapshots.capture_daily_snapshots",
+            # Fin de journée (23h30 UTC) : capture l'état une fois les
+            # écritures/factures du jour saisies, avant minuit.
+            "schedule": crontab(hour=23, minute=30),
         },
     },
 )

@@ -112,7 +112,44 @@ class AnalyticService:
             "currency": "DZD"
         }
 
+    @staticmethod
+    def get_payment_delay_kpis(db: Session, company_id: Any) -> Dict[str, Any]:
+        """Average real settlement delay (days between due_date and the
+        payment(s) that actually settled an invoice), separately for
+        customers (sale invoices) and suppliers (purchase invoices).
 
+        This is computed directly from Payment.payment_date - Invoice.due_date
+        on already-settled invoices — no historical snapshot table is needed
+        for this one, unlike revenue/expense/inventory trends which require
+        comparing two points in time. Returns None (not 0) when no
+        sale/purchase invoice has ever been paid yet, so callers can tell
+        "no delay" apart from "no data".
+        """
+        def _avg_delay(invoice_type: str) -> Any:
+            # One row per invoice: last payment date vs due date. An invoice
+            # settled across several partial payments uses its last payment
+            # (when the debt was actually cleared), not each partial payment.
+            rows = db.query(
+                Invoice.due_date,
+                func.max(Payment.payment_date).label("last_payment_date")
+            ).join(Payment, Payment.invoice_id == Invoice.id).filter(
+                Invoice.company_id == company_id,
+                Invoice.type == invoice_type,
+                Invoice.due_date.isnot(None)
+            ).group_by(Invoice.id, Invoice.due_date).all()
+
+            if not rows:
+                return None
+
+            deltas = [(row.last_payment_date - row.due_date).days for row in rows if row.last_payment_date and row.due_date]
+            if not deltas:
+                return None
+            return sum(deltas) / len(deltas)
+
+        return {
+            "customer_avg_payment_delay_days": _avg_delay("sale"),
+            "supplier_avg_payment_delay_days": _avg_delay("purchase"),
+        }
 
     @staticmethod
     def get_revenue_chart_data(db: Session, company_id: Any, periods: int = 6) -> List[Dict[str, Any]]:

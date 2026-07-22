@@ -10,6 +10,8 @@ from app.modules.system.models_uploads import UploadedDocument
 from app.modules.intelligence.models import AIModel, AIPrediction, AITrainingLog, AIFeatureStore, AIDriftMonitoring
 from app.modules.finance.models_financial import FinancialStatement, Payment, Budget, BudgetItem, CollectionAction, Immobilisation, Employee, PayrollRun
 from app.modules.finance.models_fiscal import FiscalDeclaration
+from app.modules.finance.models_snapshots import FinancialDailySnapshot
+from app.modules.intelligence.models_chatbot import ChatbotConversation, ChatbotMessage
 
 __all__ = [
     "User", "Company", "Role", "UserRole", "UserSession", "InvoiceStatus", "PaymentMode", "DocumentType", "AccessLevel",
@@ -22,5 +24,5 @@ __all__ = [
     "AuditLog",
     "AIModel", "AIPrediction", "AITrainingLog", "AIFeatureStore", "AIDriftMonitoring",
     "FinancialStatement", "Payment", "Budget", "BudgetItem", "CollectionAction", "Immobilisation", "Employee", "PayrollRun",
-    "FiscalDeclaration"
+    "FiscalDeclaration", "FinancialDailySnapshot", "ChatbotConversation", "ChatbotMessage"
 ]

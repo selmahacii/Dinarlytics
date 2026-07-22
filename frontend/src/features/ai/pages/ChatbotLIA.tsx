@@ -117,10 +117,39 @@ const ChatbotLIA: React.FC = () => {
   };
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+
+  // Recharge la dernière conversation persistée (chatbot_conversations/
+  // chatbot_messages) au lieu de toujours repartir d'un historique vide —
+  // avant cette persistance backend, `messages` n'était qu'un state React
+  // perdu à chaque rechargement de page ou changement d'utilisateur.
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const list = await apiClient.get<any[]>('/ai/conversations');
+        const latest = list.data?.[0];
+        if (!latest) return;
+        const msgs = await apiClient.get<any[]>(`/ai/conversations/${latest.id}/messages`);
+        if (msgs.data && msgs.data.length > 0) {
+          setConversationId(latest.id);
+          setMessages(msgs.data.map((m: any) => ({
+            id: m.id,
+            type: m.role === 'user' ? 'user' : 'lia',
+            content: m.content,
+            timestamp: new Date(m.created_at)
+          })));
+        }
+      } catch (err) {
+        console.error('Failed to load conversation history', err);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Personalized dynamic greeting using i18n
   useEffect(() => {
-    if (user) {
+    if (user && messages.length === 0) {
       const roleKey = user.role?.toLowerCase() || 'dg';
       const roleDisplay = t(`roles.${roleKey}`, { defaultValue: user.role_display || user.role || t('common.user') });
       
@@ -391,6 +420,7 @@ const ChatbotLIA: React.FC = () => {
         body: JSON.stringify({
           message: userMessage,
           company_id: (user as any)?.company_id,
+          conversation_id: conversationId,
           context: { currentDevise, currentCountry, planComptable, companyType, segment, sector }
         }),
         signal: controller.signal
@@ -399,6 +429,7 @@ const ChatbotLIA: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
+        if (data.conversation_id) setConversationId(data.conversation_id);
         apiResponse = {
           id: Date.now().toString(),
           type: 'lia',
