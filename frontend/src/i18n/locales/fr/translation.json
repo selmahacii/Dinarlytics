@@ -2359,12 +2359,12 @@
       "customers": "Clients",
       "bank": "Banque",
       "cash": "Caisse",
-      "equity": "Capital social",
+      "equity": "Capitaux propres",
       "net_result": "Résultat net",
       "sales": "Ventes",
       "purchases": "Achats",
       "depreciation": "Dotations aux amortissements",
-      "ibs": "Impôts sur les bénéfices (IBS)"
+      "ibs": "Impôt sur les Bénéfices des Sociétés (IBS)"
     },
     "classes": {
       "class1": "Capitaux propres et dettes financières",
@@ -4127,7 +4127,7 @@
         "base": "Salaire Base",
         "primes": "Primes",
         "cnas": "CNAS (9%)",
-        "irg": "IRG (~12%)",
+        "irg": "IRG (barème progressif)",
         "net": "Net à Payer",
         "status": "Statut"
       }
@@ -4179,7 +4179,7 @@
       "primes": "Primes",
       "cnas": "Cotisation CNAS (9%)",
       "caramate": "Retraite Complémentaire (2.5%)",
-      "irg": "Impôt sur le Revenu (IRG)",
+      "irg": "Impôt sur le Revenu Global (IRG)",
       "net": "NET À PAYER",
       "print": "Imprimer le Bulletin"
     }

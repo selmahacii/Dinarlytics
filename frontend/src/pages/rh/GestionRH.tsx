@@ -460,27 +460,33 @@ const GestionRH: React.FC = () => {
                 correspond à aucune cotisation réellement calculée par
                 AlgerianPayrollCalculator (seuls CNAS et IRG existent). */}
             <div className="space-y-2">
-              {[
-                { label: t('rh.bulletin.base_salary'), value: formatCurrency(selectedEmp.salaireBase), type: 'income' },
-                { label: t('rh.bulletin.primes'), value: formatCurrency(selectedEmp.primes), type: 'income' },
-                { label: t('rh.bulletin.cnas'), value: `-${formatCurrency(Math.round(payslips[selectedEmp.id]?.cnas_employee ?? (selectedEmp.salaireBase + selectedEmp.primes) * 0.09))}`, type: 'deduction' },
-                { label: t('rh.bulletin.irg'), value: `-${formatCurrency(Math.round(payslips[selectedEmp.id]?.irg ?? (selectedEmp.salaireBase + selectedEmp.primes) * 0.12))}`, type: 'deduction' },
-              ].map((line, i) => (
-                <div key={i} className={`flex justify-between items-center p-3 rounded-lg ${line.type === 'income' ? 'bg-emerald-50' : 'bg-red-50'}`}>
-                  <span className="text-sm font-semibold text-slate-700">{line.label}</span>
-                  <span className={`font-bold ${line.type === 'income' ? 'text-emerald-700' : 'text-red-600'}`}>{line.value}</span>
-                </div>
-              ))}
-              <div className="flex justify-between items-center p-4 bg-slate-900 rounded-xl">
-                <span className="text-white font-bold uppercase text-sm tracking-wide">{t('rh.bulletin.net')}</span>
-                <span className="text-white text-2xl font-black">
-                  {formatCurrency(Math.round(payslips[selectedEmp.id]?.net_salary ?? (
-                    selectedEmp.salaireBase + selectedEmp.primes -
-                    (selectedEmp.salaireBase + selectedEmp.primes) * 0.09 -
-                    (selectedEmp.salaireBase + selectedEmp.primes) * 0.12
-                  )))}
-                </span>
-              </div>
+              {payslips[selectedEmp.id] ? (
+                <>
+                  {[
+                    { label: t('rh.bulletin.base_salary'), value: formatCurrency(selectedEmp.salaireBase), type: 'income' },
+                    { label: t('rh.bulletin.primes'), value: formatCurrency(selectedEmp.primes), type: 'income' },
+                    { label: t('rh.bulletin.cnas'), value: `-${formatCurrency(Math.round(payslips[selectedEmp.id].cnas_employee))}`, type: 'deduction' },
+                    { label: t('rh.bulletin.irg'), value: `-${formatCurrency(Math.round(payslips[selectedEmp.id].irg))}`, type: 'deduction' },
+                  ].map((line, i) => (
+                    <div key={i} className={`flex justify-between items-center p-3 rounded-lg ${line.type === 'income' ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                      <span className="text-sm font-semibold text-slate-700">{line.label}</span>
+                      <span className={`font-bold ${line.type === 'income' ? 'text-emerald-700' : 'text-red-600'}`}>{line.value}</span>
+                    </div>
+                  ))}
+                  <div className="flex justify-between items-center p-4 bg-slate-900 rounded-xl">
+                    <span className="text-white font-bold uppercase text-sm tracking-wide">{t('rh.bulletin.net')}</span>
+                    <span className="text-white text-2xl font-black">
+                      {formatCurrency(Math.round(payslips[selectedEmp.id].net_salary))}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                // Un bulletin de paie est un document légal — mieux vaut ne
+                // rien afficher qu'un calcul forfaitaire faux (12% IRG /
+                // 9% CNAS) pendant le court instant avant que le vrai
+                // barème (GET /rh/employees/payroll/summary) ne charge.
+                <p className="text-sm text-slate-500 italic p-3">Calcul du bulletin en cours...</p>
+              )}
             </div>
             <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
               <button onClick={() => window.print()} className="flex items-center px-4 py-2 text-sm font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">

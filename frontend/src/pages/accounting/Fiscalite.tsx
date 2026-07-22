@@ -803,7 +803,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">📋</span>
-                  Taxe sur la Valeur Ajoutée (TVA)
+                  {t('fiscal.details.tva_title')}
                 </h3>
                 <div className="flex items-center gap-2">
                   <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">
@@ -915,7 +915,7 @@ SCORE DE SANTÉ FISCALE: ${100 - (riskAnalysis.length * 10)}/100
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-slate-900 flex items-center">
                   <span className="mr-2">🏛️</span>
-                  Taxe sur l'Activité Professionnelle (TAP)
+                  {t('fiscal.details.tap_title')}
                 </h3>
                 <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">Taux: {customRates.tap * 100}%</span>
               </div>

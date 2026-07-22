@@ -1522,17 +1522,17 @@
           "type_label": "Account Type"
         },
         "accounts": {
-          "fixed_assets": "Fixed assets",
+          "fixed_assets": "Tangible fixed assets",
           "inventory": "Merchandise inventory",
           "customers": "Customers",
           "bank": "Bank",
           "cash": "Cash",
-          "equity": "Social capital",
+          "equity": "Shareholders' equity",
           "net_result": "Net result",
           "sales": "Sales",
           "purchases": "Purchases",
           "depreciation": "Depreciation and amortization",
-          "ibs": "Corporate Income Tax (CIT/IBS)"
+          "ibs": "Corporate Profit Tax (IBS)"
         }
       },
       "scf_names": {
@@ -4239,8 +4239,8 @@
         "employee": "Employee",
         "base": "Base Salary",
         "primes": "Bonuses",
-        "cnas": "Social (9%)",
-        "irg": "Tax (~12%)",
+        "cnas": "CNAS (9%)",
+        "irg": "IRG (progressive)",
         "net": "Net Pay",
         "status": "Status"
       }
@@ -4290,9 +4290,9 @@
       "period": "Period",
       "base_salary": "Base Salary",
       "primes": "Bonuses",
-      "cnas": "Social Security (9%)",
+      "cnas": "CNAS Contribution (9%)",
       "caramate": "Pension Fund (2.5%)",
-      "irg": "Income Tax (IRG)",
+      "irg": "Global Income Tax (IRG)",
       "net": "NET PAY",
       "print": "Print Pay Slip"
     }
