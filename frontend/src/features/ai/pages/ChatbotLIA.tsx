@@ -830,20 +830,32 @@ const ChatbotLIA: React.FC = () => {
       message.includes('yoy') || message.includes('mom');
 
     if (wantsComparison) {
+      // Historique réel du CA facturé (13 derniers mois : le mois courant
+      // + 12 précédents), pas des multiplicateurs inventés (-8%/-12%) —
+      // ces variations fictives étaient présentées à l'utilisateur comme
+      // une vraie comparaison mois/mois et année/année.
+      const historicalRevenue = await fetchHistoricalRevenue(13);
       const revM = companyData?.revenueMonth ?? 0;
-      const prevRevM = revM * 0.92; // Simulation: -8% mois précédent
-      const revY = revM * 12;
-      const prevRevY = revY * 0.88; // Simulation: -12% année précédente
+      const prevRevM = historicalRevenue.length >= 2 ? historicalRevenue[historicalRevenue.length - 2] : revM;
+      const revY = historicalRevenue.length > 0 ? historicalRevenue.reduce((s, v) => s + v, 0) : revM * 12;
+      const prevRevY = historicalRevenue.length >= 13
+        ? historicalRevenue.slice(0, 12).reduce((s, v) => s + v, 0)
+        : revY;
 
       const trendRev = comparePeriods(revM, prevRevM, 'revenue');
       const trendRevY = comparePeriods(revY, prevRevY, 'revenue');
 
       const margin = companyData?.profitMargin ?? 0;
-      const prevMargin = margin - 1.5; // Simulation
+      // Pas d'historique de marge disponible (seul le CA est suivi
+      // période par période) : on affiche la marge actuelle sans
+      // comparatif inventé plutôt qu'un delta fictif de -1,5pt.
+      const prevMargin = margin;
       const trendMargin = comparePeriods(margin, prevMargin, 'margin');
 
       const dso = Math.max(0, Math.round(((companyData?.accountsReceivable ?? revM * 1.5) / Math.max(1, revM)) * 30));
-      const prevDso = dso + 5; // Simulation
+      // Idem DSO : pas d'historique DSO disponible, comparatif omis
+      // honnêtement plutôt qu'un delta fictif de +5 jours.
+      const prevDso = dso;
       const trendDso = comparePeriods(dso, prevDso, 'dso');
 
       const content = [
@@ -915,18 +927,19 @@ const ChatbotLIA: React.FC = () => {
       message.includes('audit de risque');
 
     if (wantsAnomalies) {
+      // Historique réel du CA facturé (6 derniers mois) au lieu de valeurs
+      // fabriquées autour du CA courant (revM*0.95, *1.02, etc.) — une
+      // détection d'anomalie sur des données inventées ne détecte rien de
+      // réel, elle ne fait que reproduire la variation qu'on lui a donnée.
+      const historicalRev = await fetchHistoricalRevenue(6);
       const revM = companyData?.revenueMonth ?? 0;
-      const historicalRev = [
-        revM * 0.95, revM * 0.98, revM * 1.02, revM * 0.97, revM * 1.05, revM
-      ]; // Simulation historique
 
-      const anomalyRev = detectAnomalies(revM, historicalRev, 'revenue');
+      const anomalyRev = historicalRev.length >= 3 ? detectAnomalies(revM, historicalRev, 'revenue') : null;
 
-      const margin = companyData?.profitMargin ?? 0;
-      const historicalMargin = [18.5, 19, 18.2, 17.8, 18.5, margin];
-      const anomalyMargin = detectAnomalies(margin, historicalMargin, 'margin');
-
-      const anomalies = [anomalyRev, anomalyMargin].filter(Boolean) as any[];
+      // Pas d'historique de marge suivi période par période dans le
+      // système — la détection d'anomalie sur la marge est donc omise
+      // plutôt que simulée sur des valeurs inventées (18.5, 19, 18.2...).
+      const anomalies = [anomalyRev].filter(Boolean) as any[];
 
       const content = [
         t('chatbot.anomalies.title'),
@@ -1531,9 +1544,21 @@ const ChatbotLIA: React.FC = () => {
 
     if (wantsFiscal) {
       const revM = companyData?.revenueMonth ?? 0;
-      const tvaCollectee = revM * 0.19; // Simulation 19%
-      const tvaDeductible = (revM * 0.7) * 0.19; // Simulation sur 70% d'achats
-      const tap = revM * 0.02; // Taxe sur l'activité professionnelle (2%)
+      // Vrai résumé G50 (comptes 445600/445700 réellement alimentés par la
+      // validation des factures), pas un taux forfaitaire de 19% du CA
+      // brut — cette approximation surestimait la TVA de toute vente au
+      // taux réduit 9% ou exonérée (même correction que côté backend
+      // service_calculations.py/router_fiscality.py).
+      let tvaCollectee = 0, tvaDeductible = 0, tap = 0;
+      try {
+        const now = new Date();
+        const g50 = await apiClient.get<any>('/fiscality/g50-summary', { params: { month: now.getMonth() + 1, year: now.getFullYear() } });
+        tvaCollectee = Number(g50.data?.tva_collected) || 0;
+        tvaDeductible = Number(g50.data?.tva_deductible) || 0;
+        tap = Number(g50.data?.tap) || 0;
+      } catch (err) {
+        console.error('Failed to fetch real G50 summary', err);
+      }
 
       const companyTypeLabel = t(`company_types.${companyType}`, { defaultValue: companyType.toUpperCase() });
 
