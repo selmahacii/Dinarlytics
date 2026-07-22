@@ -44,10 +44,35 @@ const CashFlowForecast: React.FC<CashFlowForecastProps> = ({ bankAccounts, trans
     [bankAccounts]
   );
 
-  // Générer prévisions pour les 30 prochains jours
+  // Générer prévisions pour les 30 prochains jours à partir de la moyenne
+  // journalière réelle des transactions historiques (90 derniers jours),
+  // pas de flux tirés au hasard (Math.random()) présentés comme une
+  // prévision — un solde de trésorerie projeté avec des montants fictifs
+  // pouvait induire une décision réelle (refinancement, etc.) sur une base
+  // totalement fausse.
   const forecast = useMemo(() => {
-    const forecast: ForecastDay[] = [];
     const today = new Date();
+    const historyStart = new Date(today);
+    historyStart.setDate(historyStart.getDate() - 90);
+
+    const historical = transactions.filter(tx => {
+      const d = new Date(tx.date);
+      return d >= historyStart && d <= today;
+    });
+    const historyDays = Math.max(1, Math.round((today.getTime() - historyStart.getTime()) / 86400000));
+
+    const totalHistInflows = historical.filter(tx => tx.type === 'inflow').reduce((s, tx) => s + tx.amount, 0);
+    const totalHistOutflows = historical.filter(tx => tx.type === 'outflow').reduce((s, tx) => s + tx.amount, 0);
+    const avgDailyInflow = totalHistInflows / historyDays;
+    const avgDailyOutflow = totalHistOutflows / historyDays;
+
+    // Peu d'historique = projection peu fiable, on le reflète honnêtement
+    // dans `confidence` plutôt que d'afficher un niveau de confiance
+    // arbitraire indexé sur le jour du calendrier.
+    const confidenceLevel: ForecastDay['confidence'] =
+      historical.length >= 20 ? 'high' : historical.length >= 5 ? 'medium' : 'low';
+
+    const forecast: ForecastDay[] = [];
     let runningBalance = currentBalance;
 
     for (let i = 0; i < 30; i++) {
@@ -55,38 +80,22 @@ const CashFlowForecast: React.FC<CashFlowForecastProps> = ({ bankAccounts, trans
       date.setDate(date.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
 
-      // Simulation de flux (pattern réaliste)
-      let inflows = 0;
-      let outflows = 0;
-
-      // Jour 5 & 20 : Grands paiements clients
-      if (i % 15 === 5 || i % 15 === 20) {
-        inflows = Math.random() * 5000000 + 3000000;
-      }
-      // Jour 10 & 25 : Paiements fournisseurs
-      if (i % 15 === 10 || i % 15 === 25) {
-        outflows = Math.random() * 3000000 + 2000000;
-      }
-      // Petits mouvements quotidiens
-      if (i > 0) {
-        inflows += Math.random() * 500000;
-        outflows += Math.random() * 300000;
-      }
-
+      const inflows = i === 0 ? 0 : avgDailyInflow;
+      const outflows = i === 0 ? 0 : avgDailyOutflow;
       const net = inflows - outflows;
       runningBalance += net;
 
       forecast.push({
         date: dateStr,
-        projected: Math.max(0, runningBalance), // Pas de négatif
+        projected: Math.max(0, runningBalance),
         inflows,
         outflows,
-        confidence: i < 5 ? 'high' : i < 15 ? 'medium' : 'low'
+        confidence: confidenceLevel
       });
     }
 
     return forecast;
-  }, [currentBalance]);
+  }, [currentBalance, transactions]);
 
   // Stats clés
   const stats = useMemo(() => {
