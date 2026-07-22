@@ -129,19 +129,30 @@ class FinancialChatbot:
         }
 
     def _prepare_features(self) -> Dict[str, float]:
-        """Transforms DB data into features for the PyTorch model."""
-        # Simple mapping to match the 20 inputs expected by erp_multitask_v1
+        """Transforms DB data into features for the PyTorch model.
+
+        erp_multitask_v1 expects 20 inputs; DatabaseManager.fetch_financial_data
+        only exposes 8 real aggregates today, so f9-f20 remain filler zeros —
+        this is a genuine data-availability gap (no time-series/ratio history
+        is collected yet), not something this mapping alone can fix. f6-f8
+        were previously hardcoded to 0.0 despite real data existing for them."""
         fd = self.financial_data
         rev = float(fd.get("revenue", 0))
         exp = float(fd.get("expenses", 0))
-        
-        # Mocking features based on real data for the model
+        total_liabilities = float(fd.get("total_liabilities", 0))
+        invoices_total = float(fd.get("invoices_total", 0))
+        payments_total = float(fd.get("payments_total", 0))
+
         return {
             "f1": rev / 1e6,
             "f2": exp / 1e6,
             "f3": (rev - exp) / max(1, rev),
             "f4": float(fd.get("total_assets", 0)) / 1e6,
             "f5": float(fd.get("equity", 0)) / 1e6,
-            # ... filler for 20 features
-            **{f"f{i}": 0.0 for i in range(6, 21)}
+            "f6": total_liabilities / 1e6,
+            "f7": invoices_total / 1e6,
+            "f8": payments_total / 1e6,
+            # f9-f20 : aucune donnée réelle disponible actuellement
+            # (nécessiterait un historique de ratios/série temporelle).
+            **{f"f{i}": 0.0 for i in range(9, 21)}
         }
